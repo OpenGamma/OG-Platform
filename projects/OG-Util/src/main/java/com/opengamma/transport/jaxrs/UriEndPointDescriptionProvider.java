@@ -82,6 +82,8 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
    */
   public static final class Validater {
 
+    private static final URI NULL_URI = URI.create("null:0");
+
     private final Client _client = Client.create();
     private final ExecutorService _executor;
     private final URI _baseURI;
@@ -101,46 +103,59 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
       return false;
     }
 
+    private URI getAccessibleURI(final FudgeMsg endPoint, final FudgeField uriField) {
+      try {
+        final String uriString = endPoint.getFieldValue(String.class, uriField);
+        final URI uri = (_baseURI != null) ? _baseURI.resolve(uriString) : new URI(uriString);
+        final int status = _client.resource(uri).head().getStatus();
+        s_logger.debug("{} returned {}", uri, status);
+        switch (status) {
+          case 200:
+          case 405:
+            return uri;
+        }
+      } catch (final Exception ex) {
+        s_logger.warn("URI {} not accessible", uriField);
+        s_logger.debug("Exception caught", ex);
+      }
+      return NULL_URI;
+    }
+
     public URI getAccessibleURI(final FudgeMsg endPoint) {
       ArgumentChecker.notNull(endPoint, "endPoint");
       if (!validateType(endPoint)) {
         throw new IllegalArgumentException("End point is not a REST target - " + endPoint);
       }
-      final BlockingQueue<URI> result = new LinkedBlockingQueue<URI>();
-      for (final FudgeField uriField : endPoint.getAllByName(URI_KEY)) {
-        _executor.execute(new Runnable() {
-          @Override
-          public void run() {
-            try {
-              final String uriString = endPoint.getFieldValue(String.class, uriField);
-              final URI uri = (_baseURI != null) ? _baseURI.resolve(uriString) : new URI(uriString);
-              final int status = _client.resource(uri).head().getStatus();
-              s_logger.debug("{} returned {}", uri, status);
-              switch (status) {
-                case 200:
-                case 405:
-                  result.add(uri);
-                  return;
-              }
-            } catch (final Exception ex) {
-              s_logger.warn("URI {} not accessible", uriField);
-              s_logger.debug("Exception caught", ex);
+      final List<FudgeField> uriFields = endPoint.getAllByName(URI_KEY);
+      URI uri = NULL_URI;
+      if (uriFields.size() > 1) {
+        final BlockingQueue<URI> result = new LinkedBlockingQueue<URI>();
+        int count = uriFields.size();
+        for (final FudgeField uriField : uriFields) {
+          _executor.execute(new Runnable() {
+            @Override
+            public void run() {
+              result.add(getAccessibleURI(endPoint, uriField));
             }
+          });
+        }
+        do {
+          try {
+            uri = result.poll(10000, TimeUnit.MILLISECONDS);
+          } catch (final InterruptedException ex) {
+            throw new OpenGammaRuntimeException("Interrupted", ex);
           }
-        });
+        } while ((uri == NULL_URI) && (--count > 0));
+      } else if (uriFields.size() == 1) {
+        uri = getAccessibleURI(endPoint, uriFields.get(0));
       }
-      final URI uri;
-      try {
-        uri = result.poll(10000, TimeUnit.MILLISECONDS);
-      } catch (final InterruptedException ex) {
-        throw new OpenGammaRuntimeException("Interrupted", ex);
-      }
-      if (uri == null) {
+      if (uri == NULL_URI) {
         s_logger.error("No accessible URIs found in {}", endPoint);
+        return null;
       } else {
         s_logger.info("Using {}", uri);
+        return uri;
       }
-      return uri;
     }
 
     public Collection<String> getAllURIStrings(final FudgeMsg endPoint) {
