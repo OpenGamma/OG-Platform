@@ -220,7 +220,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         compoundingMethod(compoundingMethod).
         startStub(startStub).
         endStub(endStub).
-        initialRate(floatLeg.getCustomRates().getInitialRate()).
+        initialRate(floatLeg.getCustomRates() != null ? floatLeg.getCustomRates().getInitialRate() : Double.NaN).
         build();
   }
 

@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class SpotRateShift implements StructureManipulator<Double>, ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
-  private final Number _shiftAmount;
+  private final Double _shiftAmount;
 
   @PropertyDefinition(validate = "notNull")
   private final Set<CurrencyPair> _currencyPairs;
@@ -44,7 +44,7 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   @ImmutableConstructor
   /* package */ SpotRateShift(Number shiftAmount, Set<CurrencyPair> currencyPairs) {
     _currencyPairs = ArgumentChecker.notEmpty(currencyPairs, "currencyPairs");
-    _shiftAmount = ArgumentChecker.notNull(shiftAmount, "shiftAmount");
+    _shiftAmount = ArgumentChecker.notNull(shiftAmount, "shiftAmount").doubleValue();
   }
 
   @Override
@@ -53,10 +53,10 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
                         FunctionExecutionContext executionContext) {
     CurrencyPair currencyPair = SimulationUtils.getCurrencyPair(valueSpecification);
     if (_currencyPairs.contains(currencyPair)) {
-      return spotRate + _shiftAmount.doubleValue();
+      return spotRate + _shiftAmount;
     } else if (_currencyPairs.contains(currencyPair.inverse())) {
       double inverseRate = 1 / spotRate;
-      double shiftedRate = inverseRate + _shiftAmount.doubleValue();
+      double shiftedRate = inverseRate + _shiftAmount;
       return 1 / shiftedRate;
     } else {
       throw new IllegalArgumentException("Currency pair " + currencyPair + " shouldn't match " + _currencyPairs);
@@ -110,7 +110,7 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
    * Gets the shiftAmount.
    * @return the value of the property, not null
    */
-  public Number getShiftAmount() {
+  public Double getShiftAmount() {
     return _shiftAmount;
   }
 
@@ -181,8 +181,8 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     /**
      * The meta-property for the {@code shiftAmount} property.
      */
-    private final MetaProperty<Number> _shiftAmount = DirectMetaProperty.ofImmutable(
-        this, "shiftAmount", SpotRateShift.class, Number.class);
+    private final MetaProperty<Double> _shiftAmount = DirectMetaProperty.ofImmutable(
+        this, "shiftAmount", SpotRateShift.class, Double.class);
     /**
      * The meta-property for the {@code currencyPairs} property.
      */
@@ -234,7 +234,7 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
      * The meta-property for the {@code shiftAmount} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Number> shiftAmount() {
+    public MetaProperty<Double> shiftAmount() {
       return _shiftAmount;
     }
 
@@ -275,7 +275,7 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SpotRateShift> {
 
-    private Number _shiftAmount;
+    private Double _shiftAmount;
     private Set<CurrencyPair> _currencyPairs = new HashSet<CurrencyPair>();
 
     /**
@@ -299,7 +299,7 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1043480710:  // shiftAmount
-          this._shiftAmount = (Number) newValue;
+          this._shiftAmount = (Double) newValue;
           break;
         case 1094810440:  // currencyPairs
           this._currencyPairs = (Set<CurrencyPair>) newValue;
@@ -347,7 +347,7 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
      * @param shiftAmount  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder shiftAmount(Number shiftAmount) {
+    public Builder shiftAmount(Double shiftAmount) {
       JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
       this._shiftAmount = shiftAmount;
       return this;

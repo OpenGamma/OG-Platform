@@ -36,7 +36,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class SpotRateScaling implements StructureManipulator<Double>, ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
-  private final Number _scalingFactor;
+  private final Double _scalingFactor;
 
   @PropertyDefinition(validate = "notNull")
   private final Set<CurrencyPair> _currencyPairs;
@@ -44,7 +44,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
   @ImmutableConstructor
   /* package */ SpotRateScaling(Number scalingFactor, Set<CurrencyPair> currencyPairs) {
     _currencyPairs = ArgumentChecker.notEmpty(currencyPairs, "currencyPairs");
-    _scalingFactor = ArgumentChecker.notNull(scalingFactor, "scalingFactor");
+    _scalingFactor = ArgumentChecker.notNull(scalingFactor, "scalingFactor").doubleValue();
   }
 
   @Override
@@ -53,7 +53,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
                         FunctionExecutionContext executionContext) {
     CurrencyPair currencyPair = SimulationUtils.getCurrencyPair(valueSpecification);
     // add 1 to scaling factor o be consistent with curves and allow shits to be specified as 10.pc instead of 1.1
-    double scalingFactor = 1.0 + _scalingFactor.doubleValue();
+    double scalingFactor = 1.0 + _scalingFactor;
     if (_currencyPairs.contains(currencyPair)) {
       return spotRate * scalingFactor;
     } else if (_currencyPairs.contains(currencyPair.inverse())) {
