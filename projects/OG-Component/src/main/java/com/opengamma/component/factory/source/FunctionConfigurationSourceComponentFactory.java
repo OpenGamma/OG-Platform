@@ -44,7 +44,6 @@ import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
 /**
@@ -183,10 +182,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return FXForwardCurveFunctions.providers(getConfigMaster());
   }
 
-  protected FunctionConfigurationSource cubeConfigurations() {
-    return BloombergVolatilityCubeFunctions.instance();
-  }
-
   protected FunctionConfigurationSource curveConfigurations() {
     return CurveFunctions.providers(getConfigMaster());
   }
@@ -208,7 +203,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     final List<FunctionConfigurationSource> sources = new LinkedList<>();
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
-    sources.add(cubeConfigurations());
     sources.addAll(curveAndSurfaceSources());
     return sources;
   }

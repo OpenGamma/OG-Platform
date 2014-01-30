@@ -7,6 +7,7 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.util.Map;
 
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -21,6 +22,6 @@ public interface VolatilityCubeSnapshot {
    * 
    * @return the values
    */
-  Map<Triple<Object, Object, Object>, ValueSnapshot> getValues();
+  Map<Triple<Tenor, Tenor, Double>, ValueSnapshot> getValues();
 
 }

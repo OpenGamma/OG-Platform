@@ -58,6 +58,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
@@ -149,13 +150,13 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         xs.toArray(), ys.toArray(), values);
   }
 
-  private static VolatilityCubeData<Object, Object, Object> createVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot, VolatilityCubeKey marketDataKey) {
+  private static VolatilityCubeData<Tenor, Tenor, Double> createVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot, VolatilityCubeKey marketDataKey) {
     Set<Object> xs = Sets.newHashSet();
     Set<Object> ys = Sets.newHashSet();
     Set<Object> zs = Sets.newHashSet();
-    Map<Triple<Object, Object, Object>, Double> values = Maps.newHashMap();
-    Map<Triple<Object, Object, Object>, ValueSnapshot> snapValues = volCubeSnapshot.getValues();
-    for (Entry<Triple<Object, Object, Object>, ValueSnapshot> entry : snapValues.entrySet()) {
+    Map<Triple<Tenor, Tenor, Double>, Double> values = Maps.newHashMap();
+    Map<Triple<Tenor, Tenor, Double>, ValueSnapshot> snapValues = volCubeSnapshot.getValues();
+    for (Entry<Triple<Tenor, Tenor, Double>, ValueSnapshot> entry : snapValues.entrySet()) {
       values.put(entry.getKey(), queryDouble(entry.getValue()));
       xs.add(entry.getKey().getFirst());
       ys.add(entry.getKey().getSecond());
@@ -441,7 +442,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
 
     @Override
-    protected VolatilityCubeData<Object, Object, Object> query(UniqueId target,
+    protected VolatilityCubeData<Tenor, Tenor, Double> query(UniqueId target,
         ValueProperties properties,
         StructuredMarketDataSnapshot snapshot) {
       String name = properties.getValues(ValuePropertyNames.CUBE).iterator().next();

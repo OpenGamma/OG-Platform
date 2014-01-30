@@ -25,12 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * A standard immutable triple implementation consisting of three elements.
+ * A standard immutable quadruple implementation consisting of three elements.
  * <p>
- * This implementation refers to the elements as 'first', 'second' and 'third'.
+ * This implementation refers to the elements as 'first', 'second', 'third' and 'fourth'.
  * <p>
  * Although the implementation is immutable, there is no restriction on the objects
- * that may be stored. If mutable objects are stored in the triple, then the triple
+ * that may be stored. If mutable objects are stored in the quadruple, then the quadruple
  * itself effectively becomes mutable.
  * <p>
  * This class is immutable and thread-safe if the stored objects are immutable.
@@ -38,8 +38,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * @param <A> the first element type
  * @param <B> the second element type
  * @param <C> the third element type
+ * @param <D> the fourth element type
  */
-public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A, B, C>>, Serializable {
+public final class Quadruple<A, B, C, D> implements ImmutableBean, Comparable<Quadruple<A, B, C, D>>, Serializable {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
@@ -51,41 +52,45 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
   private final B _second;
   /** The third element. */
   private final C _third;
+  /** The fourth element. */
+  private final D _fourth;
 
   /**
-   * Factory method creating a triple inferring the types.
-   * 
+   * Factory method creating a quadruple inferring the types.
+   *
    * @param <A> the first element type
    * @param <B> the second element type
    * @param <C> the third element type
+   * @param <D> the fourth element type
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @param third  the third element, may be null
-   * @return a triple formed from the three parameters, not null
+   * @param fourth the fourth element, may be null    
+   * @return a quadruple formed from the three parameters, not null
    */
-  public static <A, B, C> Triple<A, B, C> of(A first, B second, C third) {
-    return new Triple<A, B, C>(first, second, third);
+  public static <A, B, C, D> Quadruple<A, B, C, D> of(A first, B second, C third, D fourth) {
+    return new Quadruple<>(first, second, third, fourth);
   }
 
   /**
-   * Constructs a triple.
-   * 
+   * Constructs a quadruple.
+   *
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @param third  the third element, may be null
-   * @deprecated Use of(first, second, third)
+   * @param fourth the fourth element, may be null
    */
-  @Deprecated
-  public Triple(A first, B second, C third) {
+  private Quadruple(A first, B second, C third, D fourth) {
     _first = first;
     _second = second;
     _third = third;
+    _fourth = fourth;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the first element from this pair.
-   * 
+   *
    * @return the first element, may be null
    */
   public A getFirst() {
@@ -94,7 +99,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
 
   /**
    * Gets the second element from this pair.
-   * 
+   *
    * @return the second element, may be null
    */
   public B getSecond() {
@@ -103,61 +108,53 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
 
   /**
    * Gets the third element from this pair.
-   * 
+   *
    * @return the third element, may be null
    */
   public C getThird() {
     return _third;
   }
 
+  /**
+   * Gets the fourth element from this pair.
+   *
+   * @return the fourth element, may be null
+   */
+  public D getFourth() {
+    return _fourth;
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Gets the elements from this triple as a list.
+   * Gets the elements from this quadruple as a list.
    * <p>
    * This method supports auto-casting as they is no way in generics to provide
    * a more specific type.
-   * 
+   *
    * @param <T> an auto-cast list type
    * @return the elements as a list, not null
    */
   @SuppressWarnings("unchecked")
   public <T> List<T> toList() {
-    ArrayList<Object> list = new ArrayList<Object>();
+    ArrayList<Object> list = new ArrayList<>();
     list.add(getFirst());
     list.add(getSecond());
     list.add(getThird());
+    list.add(getFourth());
     return (List<T>) list;
-  }
-
-  /**
-   * Gets the first and second elements from this triple as a pair.
-   * 
-   * @return the first and second elements, not null
-   */
-  public Pair<A, B> toFirstPair() {
-    return Pairs.ofOptimized(getFirst(), getSecond());
-  }
-
-  /**
-   * Gets the first and second elements from this triple as a pair.
-   * 
-   * @return the second and third elements, not null
-   */
-  public Pair<B, C> toSecondPair() {
-    return Pairs.ofOptimized(getSecond(), getThird());
   }
 
   //-------------------------------------------------------------------------
   /**
    * Compares the pair based on the first element followed by the second element.
-   * 
+   *
    * @param other  the other pair, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
-  public int compareTo(Triple<A, B, C> other) {
+  public int compareTo(Quadruple<A, B, C, D> other) {
     return new CompareToBuilder().append(_first, other._first)
-        .append(_second, other._second).append(_third, other._third).toComparison();
+        .append(_second, other._second).append(_third, other._third).append(_fourth, other._fourth).toComparison();
   }
 
   @Override
@@ -165,11 +162,12 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
     if (this == obj) {
       return true;
     }
-    if (obj instanceof Triple<?, ?, ?>) {
-      Triple<?, ?, ?> other = (Triple<?, ?, ?>) obj;
+    if (obj instanceof Quadruple<?, ?, ?, ?>) {
+      Quadruple<?, ?, ?, ?> other = (Quadruple<?, ?, ?, ?>) obj;
       return ObjectUtils.equals(getFirst(), other.getFirst()) &&
           ObjectUtils.equals(getSecond(), other.getSecond()) &&
-          ObjectUtils.equals(getThird(), other.getThird());
+          ObjectUtils.equals(getThird(), other.getThird()) &&
+          ObjectUtils.equals(getFourth(), other.getFourth());
     }
     return false;
   }
@@ -181,6 +179,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
     result = prime * result + ((getFirst() == null) ? 0 : getFirst().hashCode());
     result = prime * result + ((getSecond() == null) ? 0 : getSecond().hashCode());
     result = prime * result + ((getThird() == null) ? 0 : getThird().hashCode());
+    result = prime * result + ((getFourth() == null) ? 0 : getFourth().hashCode());
     return result;
   }
 
@@ -193,6 +192,8 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
         .append(getSecond())
         .append(", ")
         .append(getThird())
+        .append(", ")
+        .append(getFourth())
         .append("]").toString();
   }
 
@@ -202,18 +203,18 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
    * @return the meta-bean, not null
    */
   @SuppressWarnings("rawtypes")
-  public static Triple.Meta meta() {
-    return Triple.Meta.INSTANCE;
+  public static Quadruple.Meta meta() {
+    return Quadruple.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(Triple.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(Quadruple.Meta.INSTANCE);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Triple.Meta<A, B, C> metaBean() {
-    return Triple.Meta.INSTANCE;
+  public Quadruple.Meta<A, B, C, D> metaBean() {
+    return Quadruple.Meta.INSTANCE;
   }
 
   @Override
@@ -227,7 +228,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
   }
 
   @Override
-  public Triple<A, B, C> clone() {
+  public Quadruple<A, B, C, D> clone() {
     return this;
   }
 
@@ -235,7 +236,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
   /**
    * The meta-bean for {@code Triple}.
    */
-  public static final class Meta<A, B, C> extends DirectMetaBean {
+  public static final class Meta<A, B, C, D> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -246,17 +247,22 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
      * The meta-property for the {@code first} property.
      */
     private final MetaProperty<Object> _first = DirectMetaProperty.ofDerived(
-        this, "first", Triple.class, Object.class);
+        this, "first", Quadruple.class, Object.class);
     /**
      * The meta-property for the {@code second} property.
      */
     private final MetaProperty<Object> _second = DirectMetaProperty.ofDerived(
-        this, "second", Triple.class, Object.class);
+        this, "second", Quadruple.class, Object.class);
     /**
      * The meta-property for the {@code third} property.
      */
     private final MetaProperty<Object> _third = DirectMetaProperty.ofDerived(
-        this, "third", Triple.class, Object.class);
+        this, "third", Quadruple.class, Object.class);
+    /**
+     * The meta-property for the {@code fourth} property.
+     */
+    private final MetaProperty<Object> _fourth = DirectMetaProperty.ofDerived(
+        this, "fourth", Quadruple.class, Object.class);
     /**
      * The meta-properties.
      */
@@ -264,7 +270,8 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
         this, null,
         "first",
         "second",
-        "third");
+        "third",
+        "fourth");
 
     /**
      * Restricted constructor.
@@ -281,19 +288,21 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
           return _second;
         case "third":
           return _third;
+        case "fourth":
+          return _fourth;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public Triple.Builder builder() {
-      return new Triple.Builder();
+    public Quadruple.Builder builder() {
+      return new Quadruple.Builder();
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    public Class<? extends Triple> beanType() {
-      return Triple.class;
+    public Class<? extends Quadruple> beanType() {
+      return Quadruple.class;
     }
 
     @Override
@@ -326,17 +335,27 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
       return _third;
     }
 
+    /**
+     * The meta-property for the {@code fourth} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Object> fourth() {
+      return _fourth;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     @SuppressWarnings("rawtypes")
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName) {
         case "first":
-          return ((Triple) bean).getFirst();
+          return ((Quadruple) bean).getFirst();
         case "second":
-          return ((Triple) bean).getSecond();
+          return ((Quadruple) bean).getSecond();
         case "third":
-          return ((Triple) bean).getThird();
+          return ((Quadruple) bean).getThird();
+        case "fourth":
+          return ((Quadruple) bean).getFourth();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -357,7 +376,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
    * The bean-builder for {@code Triple}.
    */
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private static final class Builder extends BasicImmutableBeanBuilder<Triple> {
+  private static final class Builder extends BasicImmutableBeanBuilder<Quadruple> {
 
     /** The first element. */
     private Object _first;
@@ -365,12 +384,14 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
     private Object _second;
     /** The third element. */
     private Object _third;
+    /** The fourth element. */
+    private Object _fourth;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
-      super(Triple.Meta.INSTANCE);
+      super(Quadruple.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -386,6 +407,9 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
         case "third":
           _third = newValue;
           break;
+        case "fourth":
+          _fourth = newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -393,8 +417,8 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
     }
 
     @Override
-    public Triple build() {
-      return new Triple(_first, _second, _third);
+    public Quadruple build() {
+      return new Quadruple(_first, _second, _third, _fourth);
     }
 
   }

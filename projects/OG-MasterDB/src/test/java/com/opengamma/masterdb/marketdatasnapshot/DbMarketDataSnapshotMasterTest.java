@@ -1,5 +1,6 @@
 package com.opengamma.masterdb.marketdatasnapshot;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -13,6 +14,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -36,6 +38,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Test.
@@ -122,12 +125,10 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     final HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<VolatilityCubeKey, VolatilityCubeSnapshot>();
     final ManageableVolatilityCubeSnapshot volCube = new ManageableVolatilityCubeSnapshot();
 
-    volCube.setOtherValues(globalValues);
-    volCube.setValues(new HashMap<VolatilityPoint, ValueSnapshot>());
-    volCube.setStrikes(strikes);
-    volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.YEAR, -1), ValueSnapshot.of(null, null));
+    volCube.setValues(Maps.<Triple<Tenor, Tenor, Double>, ValueSnapshot>newHashMap());
+    volCube.getValues().put(Triple.of(Tenor.DAY, Tenor.YEAR, -1.0), ValueSnapshot.of(null, null));
 
-    volCubes.put(VolatilityCubeKey.of(Currency.USD, "Default"), volCube);
+    volCubes.put(VolatilityCubeKey.of(Currency.USD, "Default", "DUMMY_INSTRUMENT_TYPE", "DUMMY_QUOTE_TYPE", "DUMMY_QUOTE_UNITS"), volCube);
     snapshot1.setVolatilityCubes(volCubes);
 
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);

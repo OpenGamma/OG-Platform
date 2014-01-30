@@ -11,9 +11,6 @@ import java.util.Set;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.examples.simulated.volatility.cube.ExampleSwaptionVolatilityCubeInstrumentProvider;
-import com.opengamma.examples.simulated.volatility.cube.ExampleVolatilityCubeDefinitionSource;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -31,16 +28,16 @@ public class SyntheticVolatilityCubeFunctions extends AbstractFunctionConfigurat
   }
 
   protected void addVolatilityCubeFunction(final List<FunctionConfiguration> functions, final String currency, final String definition) {
-    functions.add(functionConfiguration(VolatilityCubeFunction.class, currency, definition));
-    functions.add(functionConfiguration(SyntheticVolatilityCubeMarketDataFunction.class, currency, definition));
+    //functions.add(functionConfiguration(VolatilityCubeFunction.class, currency, definition));
+    //functions.add(functionConfiguration(SyntheticVolatilityCubeMarketDataFunction.class, currency, definition));
   }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    final Set<Currency> volCubeCurrencies = ExampleSwaptionVolatilityCubeInstrumentProvider.INSTANCE.getAllCurrencies();
-    for (final Currency currency : volCubeCurrencies) {
-      addVolatilityCubeFunction(functions, currency.getCode(), ExampleVolatilityCubeDefinitionSource.DEFINITION_NAME);
-    }
+    //final Set<Currency> volCubeCurrencies = ExampleSwaptionVolatilityCubeInstrumentProvider.INSTANCE.getAllCurrencies();
+    //for (final Currency currency : volCubeCurrencies) {
+    //  addVolatilityCubeFunction(functions, currency.getCode(), ExampleVolatilityCubeDefinitionSource.DEFINITION_NAME);
+    //}
   }
 
 }

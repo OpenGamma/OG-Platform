@@ -24,7 +24,6 @@ import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
@@ -260,9 +259,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
-    }    
+    }
   }
-  
+
   private void loadDefaultVolatilityCubeDefinition() {
     final Log log = new Log("Creating volatility cube definitions");
     try {
@@ -277,21 +276,27 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   }
 
   private static VolatilityCubeDefinition createDefaultVolatilityCubeDefinition() {
-    final VolatilityCubeDefinition volatilityCubeDefinition = new VolatilityCubeDefinition();
-    volatilityCubeDefinition.setSwapTenors(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15), Tenor.ofYears(20),
-        Tenor.ofYears(30)));
-    volatilityCubeDefinition.setOptionExpiries(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(4), Tenor.ofYears(5), Tenor.ofYears(10),
-        Tenor.ofYears(15), Tenor.ofYears(20)));
+    final Tenor[] swapTenors = new Tenor[] {Tenor.ofMonths(3), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15), Tenor.ofYears(20),
+      Tenor.ofYears(30) };
+
+    final Tenor[] optionExpires = new Tenor[] {Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(4), Tenor.ofYears(5), Tenor.ofYears(10),
+      Tenor.ofYears(15), Tenor.ofYears(20) };
+
     final int[] values = new int[] {0, 20, 25, 50, 70, 75, 100, 200, 5 };
-    final List<Double> relativeStrikes = new ArrayList<Double>(values.length * 2 - 1);
+    final List<Double> relativeStrikes = new ArrayList<>(values.length * 2 - 1);
     for (final int value : values) {
-      relativeStrikes.add(Double.valueOf(value));
+      relativeStrikes.add((double) value);
       if (value != 0) {
-        relativeStrikes.add(Double.valueOf(-value));
+        relativeStrikes.add((double) -value);
       }
     }
     Collections.sort(relativeStrikes);
-    volatilityCubeDefinition.setRelativeStrikes(relativeStrikes);
+
+    final VolatilityCubeDefinition<Tenor, Tenor, Double> volatilityCubeDefinition = new VolatilityCubeDefinition<>(
+        "DEFAULT",
+        Currency.USD,
+        swapTenors, optionExpires,
+        relativeStrikes.toArray(new Double[relativeStrikes.size()]));
     return volatilityCubeDefinition;
   }
 
@@ -332,10 +337,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating example equity option portfolio");
     try {
       URL resource = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip");
-      final String file = unpackJar(resource); 
+      final String file = unpackJar(resource);
       final PortfolioLoader equityOptionLoader = new PortfolioLoader(getToolContext(), EQUITY_OPTION_PORTFOLIO_NAME, null,
-              file, true,
-              true, true, false, true, false, null);
+          file, true,
+          true, true, false, true, false, null);
       equityOptionLoader.execute();
       log.done();
     } catch (final RuntimeException t) {
@@ -347,9 +352,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating example future portfolio");
     try {
       URL resource = ExampleEquityPortfolioLoader.class.getResource("futures.zip");
-      final String file = unpackJar(resource); 
+      final String file = unpackJar(resource);
       final PortfolioLoader futureLoader = new PortfolioLoader(getToolContext(), FUTURE_PORTFOLIO_NAME, null,
-              file, true, true, true, false, true, false, null);
+          file, true, true, true, false, true, false, null);
       futureLoader.execute();
       log.done();
     } catch (final RuntimeException t) {
@@ -432,7 +437,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.fail(t);
     }
   }
-  
+
   private void loadFXForwardPortfolio() {
     Log log = new Log("Creating example FX forward portfolio");
     try {
@@ -452,7 +457,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.fail(t);
     }
   }
-  
+
   private void loadBondPortfolio() {
     final Log log = new Log("Creating example bond portfolio");
     try {

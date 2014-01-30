@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * A surface that is defined by a set of nodal points (i.e. <i>(x, y, z)</i> data). Any attempt to find a <i>z</i> value 
+ * A cube that is defined by a set of nodal points (i.e. <i>(x, y, z)</i> data). Any attempt to find a <i>z</i> value 
  * for which there is no <i>(x, y)</i> nodal point will result in failure.
  */
 public class NodalDoublesCube extends DoublesCube {
@@ -22,7 +22,7 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData An array of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @return A nodal surface with automatically-generated name
+   * @return A nodal cube with automatically-generated name
    */
   public static NodalDoublesCube from(final double[] xData, final double[] yData, final double[] zData, final double[] vData) {
     return new NodalDoublesCube(xData, yData, zData, vData);
@@ -33,7 +33,7 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData An array of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @return A nodal surface with automatically-generated name
+   * @return A nodal cube with automatically-generated name
    */
   public static NodalDoublesCube from(final Double[] xData, final Double[] yData, final Double[] zData, final Double[] vData) {
     return new NodalDoublesCube(xData, yData, zData, vData);
@@ -44,7 +44,7 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData A list of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData A list of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @return A nodal surface with automatically-generated name
+   * @return A nodal cube with automatically-generated name
    */
   public static NodalDoublesCube from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final List<Double> vData) {
     return new NodalDoublesCube(xData, yData, zData, vData);
@@ -55,8 +55,8 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData A list of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @param name The name of the surface
-   * @return A nodal surface with automatically-generated name
+   * @param name The name of the cube
+   * @return A nodal cube with automatically-generated name
    */
   public static NodalDoublesCube from(final double[] xData, final double[] yData, final double[] zData, final double[] vData, final String name) {
     return new NodalDoublesCube(xData, yData, zData, vData, name);
@@ -67,8 +67,8 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData A list of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @param name The name of the surface
-   * @return A nodal surface with automatically-generated name
+   * @param name The name of the cube
+   * @return A nodal cube with automatically-generated name
    */
   public static NodalDoublesCube from(final Double[] xData, final Double[] yData, final Double[] zData, final Double[] vData, final String name) {
     return new NodalDoublesCube(xData, yData, zData, vData, name);
@@ -79,8 +79,8 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData A list of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData A list of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @param name The name of the surface
-   * @return A nodal surface with automatically-generated name
+   * @param name The name of the cube
+   * @return A nodal cube with automatically-generated name
    */
   public static NodalDoublesCube from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final List<Double> vData, final String name) {
     return new NodalDoublesCube(xData, yData, zData, vData, name);
@@ -121,7 +121,7 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData A list of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @param name The name of the surface
+   * @param name The name of the cube
    */
   public NodalDoublesCube(final double[] xData, final double[] yData, final double[] zData, final double[] vData, final String name) {
     super(xData, yData, zData, vData, name);
@@ -132,7 +132,7 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData A list of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @param name The name of the surface
+   * @param name The name of the cube
    */
   public NodalDoublesCube(final Double[] xData, final Double[] yData, final Double[] zData, final Double[] vData, final String name) {
     super(xData, yData, zData, vData, name);
@@ -143,7 +143,7 @@ public class NodalDoublesCube extends DoublesCube {
    * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData A list of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param vData A list of <i>v</i> data points, not null, contains same number of entries as <i>x</i>
-   * @param name The name of the surface
+   * @param name The name of the cube
    */
   public NodalDoublesCube(final List<Double> xData,
       final List<Double> yData,
@@ -172,7 +172,7 @@ public class NodalDoublesCube extends DoublesCube {
         return getValuesAsPrimitive()[i];
       }
     }
-    throw new IllegalArgumentException("No x-y-z data in surface for (" + x + ", " + y + ", " + z + ")");
+    throw new IllegalArgumentException("No x-y-z data in cube for (" + x + ", " + y + ", " + z + ")");
   }
 
   /**

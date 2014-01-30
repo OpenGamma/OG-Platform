@@ -19,63 +19,41 @@ import com.opengamma.util.money.Currency;
  */
 @Config(description = "Volatility cube specification", group = ConfigGroups.VOL)
 public class VolatilityCubeSpecification {
-  private final CubeInstrumentProvider<?, ?, ?> _cubeInstrumentProvider;
+
   private final String _name;
   private final String _cubeQuoteType;
   private final String _quoteUnits;
   private final UniqueIdentifiable _target;
   private final ExerciseType _exerciseType;
-  private final boolean _useUnderlyingSecurityForExpiry;
 
   public VolatilityCubeSpecification(final String name,
-                                     final UniqueIdentifiable target,
-                                     final String cubeQuoteType,
-                                     final CubeInstrumentProvider<?, ?, ?> cubeInstrumentProvider) {
-    this(name, target, cubeQuoteType, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE, new EuropeanExerciseType(),
-         cubeInstrumentProvider);
+      final UniqueIdentifiable target,
+      final String cubeQuoteType) {
+    this(name, target, cubeQuoteType, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE, new EuropeanExerciseType());
   }
 
   public VolatilityCubeSpecification(final String name,
-                                     final UniqueIdentifiable target,
-                                     final String cubeQuoteType,
-                                     final String quoteUnits,
-                                     final CubeInstrumentProvider<?, ?, ?> cubeInstrumentProvider) {
-    this(name, target, cubeQuoteType, quoteUnits, new EuropeanExerciseType(), cubeInstrumentProvider);
+      final UniqueIdentifiable target,
+      final String cubeQuoteType,
+      final String quoteUnits) {
+    this(name, target, cubeQuoteType, quoteUnits, new EuropeanExerciseType());
   }
 
   public VolatilityCubeSpecification(final String name,
-                                     final UniqueIdentifiable target,
-                                     final String cubeQuoteType,
-                                     final String quoteUnits,
-                                     final ExerciseType exerciseType,
-                                     final CubeInstrumentProvider<?, ?, ?> cubeInstrumentProvider) {
-    this(name, target, cubeQuoteType, quoteUnits, exerciseType, cubeInstrumentProvider, false);
-  }
-
-  public VolatilityCubeSpecification(final String name,
-                                     final UniqueIdentifiable target,
-                                     final String cubeQuoteType,
-                                     final String quoteUnits,
-                                     final ExerciseType exerciseType,
-                                     final CubeInstrumentProvider<?, ?, ?> cubeInstrumentProvider,
-                                     final boolean useUnderlyingSecurityForExpiry) {
+      final UniqueIdentifiable target,
+      final String cubeQuoteType,
+      final String quoteUnits,
+      final ExerciseType exerciseType) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(cubeQuoteType, "cube quote type");
     ArgumentChecker.notNull(quoteUnits, "quote units");
     ArgumentChecker.notNull(exerciseType, "exerciseType");
-    ArgumentChecker.notNull(cubeInstrumentProvider, "cube instrument provider");
     _name = name;
     _target = target;
     _cubeQuoteType = cubeQuoteType;
     _quoteUnits = quoteUnits;
     _exerciseType = exerciseType;
-    _cubeInstrumentProvider = cubeInstrumentProvider;
-    _useUnderlyingSecurityForExpiry = useUnderlyingSecurityForExpiry;
-  }
-
-  public CubeInstrumentProvider<?, ?, ?> getCubeInstrumentProvider() {
-    return _cubeInstrumentProvider;
   }
 
   public String getName() {
@@ -88,10 +66,6 @@ public class VolatilityCubeSpecification {
 
   public String getQuoteUnits() {
     return _quoteUnits;
-  }
-
-  public boolean isUseUnderlyingSecurityForExpiry() {
-    return _useUnderlyingSecurityForExpiry;
   }
 
   /**
@@ -123,17 +97,14 @@ public class VolatilityCubeSpecification {
     final VolatilityCubeSpecification other = (VolatilityCubeSpecification) o;
     return other.getName().equals(getName()) &&
         other.getTarget().equals(getTarget()) &&
-        other.getCubeInstrumentProvider().equals(getCubeInstrumentProvider()) &&
         other.getCubeQuoteType().equals(getCubeQuoteType()) &&
         other.getExerciseType().equals(getExerciseType()) &&
-        other.getQuoteUnits().equals(getQuoteUnits()) &&
-        other.isUseUnderlyingSecurityForExpiry() == isUseUnderlyingSecurityForExpiry();
+        other.getQuoteUnits().equals(getQuoteUnits());
   }
 
   @Override
   public int hashCode() {
     return getName().hashCode() * getTarget().hashCode() * getCubeQuoteType().hashCode() * getQuoteUnits().hashCode() * getExerciseType().hashCode();
   }
-
 
 }
