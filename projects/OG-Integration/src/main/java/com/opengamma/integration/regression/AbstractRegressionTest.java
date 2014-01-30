@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Collections;
 
 import org.testng.annotations.AfterTest;
@@ -27,6 +28,9 @@ public abstract class AbstractRegressionTest {
   
   
   private static final String LATEST_BUILD_VERSION = "Latest build";
+  
+  private static final String FILE_WRITE_MODE_PROPERTY = "Regression.writeReportToFile";
+  private static final String CONSOLE_WRITE_MODE_PROPERTY = "Regression.writeReportToConsole";
 
   private static final double s_defaultAcceptableDelta = 0.0000001;
   
@@ -91,8 +95,14 @@ public abstract class AbstractRegressionTest {
     
     String baseVersion = original.getCalculationResults().getVersion();
     
-    if (isWriteDifferencesReport()) {
-      writeReport(viewName, snapshotName, baseVersion, differences);
+    RegressionTestResults testResults = new RegressionTestResults(baseVersion, LATEST_BUILD_VERSION, Collections.singleton(differences));
+    
+    if (isWriteReportToFile()) {
+      writeReportToFile(testResults, viewName, snapshotName);
+    }
+    
+    if (isWriteReportToConsole()) {
+      writeReportToConsole(testResults);
     }
     
     assertTrue("Found results only in base", differences.getOnlyBase().isEmpty());
@@ -102,9 +112,14 @@ public abstract class AbstractRegressionTest {
     
   }
 
+  
+  private void writeReportToConsole(RegressionTestResults testResults) {
+    OutputStreamWriter writer = new OutputStreamWriter(System.out);
+    ReportGenerator.generateReport(testResults, ReportGenerator.Format.TEXT, writer);
+  }
+  
 
-  private void writeReport(String viewName, String snapshotName, String baseVersion, CalculationDifference differences) {
-    RegressionTestResults testResults = new RegressionTestResults(baseVersion, LATEST_BUILD_VERSION, Collections.singleton(differences));
+  private void writeReportToFile(RegressionTestResults testResults, String viewName, String snapshotName) {
     File file;
     FileWriter fileWriter;
     try {
@@ -166,10 +181,11 @@ public abstract class AbstractRegressionTest {
   /**
    * If true, a report with the differences will be written to
    * the location specified by {@link #getDifferencesReportFile(String, String)}.
-   * @return false by default
+   * @return True if specified as a system property by {@value #FILE_WRITE_MODE_PROPERTY},
+   * else false.
    */
-  protected boolean isWriteDifferencesReport() {
-    return false;
+  protected boolean isWriteReportToFile() {
+    return Boolean.getBoolean(FILE_WRITE_MODE_PROPERTY);
   }
   
   /**
@@ -187,6 +203,18 @@ public abstract class AbstractRegressionTest {
       Preconditions.checkState(regressionDir.mkdirs(), "Unable to mkdir " + regressionDir.getPath());
     }
     return new File(regressionDir, viewName + "-" + snapshotName + ".txt");
+  }
+  
+  /**
+   * If true, a report will be written to console.
+   * @return If defined, will return the value given as a system property by 
+   * {@value #CONSOLE_WRITE_MODE_PROPERTY}. Else defaults to true.
+   */
+  protected boolean isWriteReportToConsole() {
+    if (System.getProperty(CONSOLE_WRITE_MODE_PROPERTY) != null) {
+      return Boolean.getBoolean(CONSOLE_WRITE_MODE_PROPERTY);
+    }
+    return true;
   }
   
 }
