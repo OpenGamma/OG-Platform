@@ -151,6 +151,10 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
   }
   
   private boolean isCompounding() {
+    if (_compoundingMethod == null) {
+      return false;
+    }
+    
     if (_index instanceof IborIndex) {
       Period resetFrequency = ((IborIndex) _index).getTenor();
       return !getAccrualPeriodFrequency().equals(resetFrequency);
