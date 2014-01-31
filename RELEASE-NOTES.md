@@ -26,7 +26,6 @@ To 2.2.0-M8
   * [PLAT-5763] - Fix index lookup for new FRA security
   * [PLAT-5765] - Ignore signed notionals on new annuity builder, pay/receive flag should take precedence
   * [PLAT-5766] - Check for null compound method when calling isCompounding in new annuity builder
-
 * Improvement
   * [PLAT-3451] - OG-Financial: allow the "convexity adjustment" for bond futures
   * [PLAT-4956] - Migration of data in BeanMaster
@@ -46,7 +45,6 @@ To 2.2.0-M8
   * [PLAT-5746] - Add support for CouponONArithmeticAverageDefinition in FloatingAnnuityDefinitionBuilder
   * [PLAT-5747] - Implement initial rate for FloatingAnnuityDefinitionBuilder
   * [PLAT-5751] - In TimeCalculator class add a function getTimeBetween using a calendar as input
-
 * New Feature
   * [PLAT-5196] - Quantity column for bonds
   * [PLAT-5605] - Make the service console a normal window so that it can be minimized
@@ -54,17 +52,14 @@ To 2.2.0-M8
   * [PLAT-5687] - Config upload tool should log which file is causing the error
   * [PLAT-5708] - Adaptive Quadrature Method
   * [PLAT-5712] - Add a user set property to point to FunctionConfigurationSourceComponentFactory
-
 * Task
   * [PLAT-5565] - Check hashCode and equals for PiecewiseInterpolator1D
   * [PLAT-5703] - add tests to DayPeriodPreCalculatedDiscountCurve
   * [PLAT-5719] - Upgrade to Corporate-Parent 1.1.8
   * [PLAT-5724] - Remove BeanCompare equalsIgnoring
   * [PLAT-5725] - Check scaling and result properties on swaption black functions
-
 * Sub-task
   * [PLAT-5670] - Share CSettings instance across all initialisation code
-
 * Epic
   * [PLAT-5632] - Support for in-place versioning/upgrades for Joda Beans
 
@@ -110,7 +105,6 @@ To 2.2.0-M7
   * [PLAT-5684] - Bond security conversion uses the first accrual date field, which can be null, without checking that it is not null
   * [PLAT-5685] - IRSSecurityConverter should use start of day instead of end of day
   * [PLAT-5692] - Bloomberg Examples function configuration does not include multi-curve pricing functions
-
 * Improvement
   * [PLAT-1137] - ScheduleCalculator: enhance to include all conventions and stub treatment
   * [PLAT-3199] - Make sure that greeks are consistent for equity and index options, equity and index future options and commodity future options
@@ -147,7 +141,6 @@ To 2.2.0-M7
   * [PLAT-5666] - Deactivate weight adjustment in Carr-Lee model
   * [PLAT-5683] - Quiet down messages from getRequirements() in bond and bond future functions
   * [PLAT-5696] - Refactor of AnnuityDefinitionBuilder
-
 * New Feature
   * [PLAT-3706] - Duplicate current FX implied curve functionality using new curve configurations.
   * [PLAT-4416] - Create time series of Closing_Bid and Closing_Ask. Ensure displayed together
@@ -189,7 +182,6 @@ To 2.2.0-M7
   * [PLAT-5626] - Create ETF security object
   * [PLAT-5627] - Create an equity warrant security
   * [PLAT-5628] - Add equity warrants, ETF and ADR to financial security visitor
-
 * Task
   * [PLAT-3715] - Test InterestRateFutureOptionMarginSecurityBlackSurfaceMethod
   * [PLAT-4409] - Conventions for AUD
@@ -199,7 +191,6 @@ To 2.2.0-M7
   * [PLAT-5550] - Remove function that calculates jump to default for CDX
   * [PLAT-5590] - implement a defintion file for swap fixed vs commodity
   * [PLAT-5641] - Create CAD convention
-
 * Sub-task
   * [PLAT-5026] - create abstract class CommodityFutureSecurity definition and derivative file
   * [PLAT-5027] - create abstract class CommodityFutureTransaction definition and derivative file
@@ -217,7 +208,6 @@ To 2.2.0-M7
   * [PLAT-5483] - improve the pricing method to take into account the rate cut-off
   * [PLAT-5505] - create forward commodity cash settle definition and derivative
   * [PLAT-5506] - create forward commodity physical settle definition and derivative
-
 * Epic
   * [PLAT-3713] - Extend ValueRequirements of Interest Rate Future Options
   * [PLAT-4705] - Regression testing of views
