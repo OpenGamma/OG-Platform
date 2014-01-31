@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.InterpolatedStubCouponDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
@@ -38,11 +39,11 @@ import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
  */
 public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuilder<FloatingAnnuityDefinitionBuilder> {
   
-  private double _initialRate;
+  private Double _initialRate;
   
   private IndexDeposit _index;
 
-  private double _spread;
+  private Double _spread;
   
   private Double _gearing;
 
@@ -158,12 +159,16 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     }
   }
   
+  private boolean hasInitialRate() {
+    return _initialRate != null && !_initialRate.isNaN();
+  }
+  
   private boolean hasSpread() {
-    return !Double.isNaN(_spread);
+    return _spread != null && !_spread.isNaN();
   }
   
   private boolean hasGearing() {
-    return _gearing != null && _gearing.isNaN();
+    return _gearing != null && !_gearing.isNaN();
   }
   
   /**
@@ -518,18 +523,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
           fixingPeriodEndDate,
           _spread,
           _adjustedResetDateParameters.getCalendar());
-//      coupon = new CouponONSpreadDefinition(
-//          getCurrency(),
-//          paymentDate,
-//          accrualStartDate,
-//          accrualEndDate,
-//          accrualYearFraction,
-//          notional,
-//          (IndexON) _index,
-//          fixingPeriodStartDate,
-//          fixingPeriodEndDate,
-//          _adjustedResetDateParameters.getCalendar(),
-//          _spread);
     } else {
       coupon = new CouponONArithmeticAverageDefinition(
           getCurrency(),
@@ -690,13 +683,14 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       }
     } else {
       boolean hasInitialStubRate = couponStub != null && !Double.isNaN(couponStub.getStubRate());
-      boolean hasInitialRate = !Double.isNaN(_initialRate);
-      if (hasInitialStubRate || !Double.isNaN(_initialRate)) {
+      if (hasInitialStubRate || (isFirstCoupon && hasInitialRate())) {
         double initialRate;
-        if (hasInitialRate) {
+        if (isFirstCoupon && hasInitialRate()) {
           initialRate = _initialRate;
-        } else {
+        } else if (hasInitialStubRate) {
           initialRate = couponStub.getStubRate();
+        } else {
+          throw new OpenGammaRuntimeException("Bad initial rate/stub rate");
         }
         if (hasSpread()) {
           initialRate += _spread;
@@ -708,7 +702,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
             adjustedAccrualEndDate,
             getDayCount().getDayCountFraction(adjustedAccrualStartDate, adjustedAccrualEndDate, getPaymentDateAdjustmentParameters().getCalendar()),
             notional,
-            initialRate + (hasSpread() ? _spread : 0));
+            initialRate);
       } else {
         ZonedDateTime fixingPeriodStartDate = adjustedAccrualStartDate;
         if (isFirstCoupon) {
@@ -816,20 +810,34 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     
     double accrualYearFraction = getDayCount().getDayCountFraction(adjustedAccrualStartDate, adjustedAccrualEndDate, getAccrualPeriodAdjustmentParameters().getCalendar());
     
-    CouponDefinition coupon = null;
+    final CouponDefinition coupon;
     if (isCompounding()) {
-//      throw new OpenGammaRuntimeException("Unsupported compounding OIS coupons");
-      coupon = new CouponONDefinition(
-          getCurrency(),
-          paymentDate,
-          adjustedAccrualStartDate,
-          adjustedAccrualEndDate,
-          accrualYearFraction,
-          notional,
-          (IndexON) _index,
-          adjustedAccrualStartDate,
-          adjustedAccrualEndDate,
-          _adjustedResetDateParameters.getCalendar());
+      if (hasSpread()) {
+        coupon = new CouponONSpreadDefinition(
+            getCurrency(),
+            paymentDate,
+            adjustedAccrualStartDate,
+            adjustedAccrualEndDate,
+            accrualYearFraction,
+            notional,
+            (IndexON) _index,
+            adjustedAccrualStartDate,
+            adjustedAccrualEndDate,
+            _adjustedResetDateParameters.getCalendar(),
+            _spread);
+      } else {
+        coupon = new CouponONDefinition(
+            getCurrency(),
+            paymentDate,
+            adjustedAccrualStartDate,
+            adjustedAccrualEndDate,
+            accrualYearFraction,
+            notional,
+            (IndexON) _index,
+            adjustedAccrualStartDate,
+            adjustedAccrualEndDate,
+            _adjustedResetDateParameters.getCalendar());
+      }
     } else {
       coupon = getOISDefinition(
           notional,
