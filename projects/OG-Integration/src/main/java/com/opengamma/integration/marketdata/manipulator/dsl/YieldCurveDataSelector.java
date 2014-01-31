@@ -28,7 +28,7 @@ public final class YieldCurveDataSelector extends Selector {
 
   @Override
   boolean matches(ValueSpecification valueSpecification) {
-    if (!ValueRequirementNames.YIELD_CURVE.equals(valueSpecification.getValueName())) {
+    if (!ValueRequirementNames.YIELD_CURVE_DATA.equals(valueSpecification.getValueName())) {
       return false;
     }
     Currency currency = Currency.of(valueSpecification.getTargetSpecification().getUniqueId().getValue());

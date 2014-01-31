@@ -14,6 +14,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -22,20 +23,21 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.ShiftType;
+import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveData;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A {@link StructureManipulator} which performs a list of bucketed shifts on a {@link YieldCurve}.
@@ -43,51 +45,71 @@ import com.opengamma.util.tuple.DoublesPair;
 @BeanDefinition
 public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBean, StructureManipulator<YieldCurveData> {
 
-  /**
-   * Shift type
-   */
-  @PropertyDefinition
+  /** Shift type */
+  @PropertyDefinition(validate = "notNull")
   private final ScenarioShiftType _shiftType;
 
-  /**
-   * Shifts to apply
-   */
-  @PropertyDefinition
+  /** Shifts to apply */
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableList<YieldCurveBucketedShift> _shifts;
 
-  /**
-   * Creates a new YieldCurveBucketedShifts object
-   *
-   * @param shifts the list of shifts
-   * @param shiftType
-   * @return a new YieldCurveBucketedShifts object
-   */
-  public static YieldCurveDataBucketedShiftManipulator create(ScenarioShiftType shiftType,
-                                                              ImmutableList<YieldCurveBucketedShift> shifts) {
-    return new YieldCurveDataBucketedShiftManipulator(shiftType, shifts);
+  @ImmutableConstructor
+  public YieldCurveDataBucketedShiftManipulator(ScenarioShiftType shiftType, List<YieldCurveBucketedShift> shifts) {
+    _shiftType = ArgumentChecker.notNull(shiftType, "shiftType");
+    _shifts = ImmutableList.copyOf(ArgumentChecker.notEmpty(shifts, "shifts"));
   }
 
   @Override
-  public YieldCurveData execute(YieldCurveData structure,
+  public YieldCurveData execute(YieldCurveData curveData,
                                 ValueSpecification valueSpecification,
                                 FunctionExecutionContext executionContext) {
-    List<DoublesPair> buckets = new ArrayList<>();
-    List<Double> shifts = new ArrayList<>();
+    if (true) {
+      //return curveData;
+      return new YieldCurveData(curveData.getCurveSpecification(), curveData.getDataPoints());
+    }
     ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
-    ShiftType shiftType = _shiftType.toAnalyticsType();
+    Map<ExternalIdBundle, Double> data = Maps.newHashMap(curveData.getDataPoints());
+    Map<ExternalId, ExternalIdBundle> index = curveData.getIndex();
     for (YieldCurveBucketedShift shift : _shifts) {
-      double start = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getStart()));
-      double end = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getEnd()));
-      buckets.add(DoublesPair.of(start, end));
-      if (shiftType == ShiftType.RELATIVE) {
-        // add shifts to 1. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
-        shifts.add(shift.getShift() + 1);
-      } else {
-        shifts.add(shift.getShift());
+      for (FixedIncomeStripWithSecurity strip : curveData.getCurveSpecification().getStrips()) {
+        Period stripPeriod = strip.getTenor().getPeriod();
+        Period shiftStart = shift.getStart();
+        Period shiftEnd = shift.getEnd();
+        ZonedDateTime stripTime = valuationTime.plus(stripPeriod);
+        ZonedDateTime shiftStartTime = valuationTime.plus(shiftStart);
+        ZonedDateTime shiftEndTime = valuationTime.plus(shiftEnd);
+
+        if (stripTime.compareTo(shiftStartTime) >= 0 && stripTime.compareTo(shiftEndTime) <= 0) {
+          ExternalIdBundle bundle = index.get(strip.getSecurityIdentifier());
+          boolean future = (strip.getInstrumentType() == StripInstrumentType.FUTURE);
+          Double stripData;
+
+          // futures are quoted the other way round from other instruments
+          if (future) {
+            stripData = 1 - data.get(bundle);
+          } else {
+            stripData = data.get(bundle);
+          }
+          Double shiftedData;
+
+          if (_shiftType == ScenarioShiftType.RELATIVE) {
+            // add shift amount to 1. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
+            shiftedData = stripData * (shift.getShift() + 1);
+          } else {
+            shiftedData = stripData + shift.getShift();
+          }
+          Double shiftedStripData;
+
+          if (future) {
+            shiftedStripData = 1 - shiftedData;
+          } else {
+            shiftedStripData = shiftedData;
+          }
+          data.put(bundle, shiftedStripData);
+        }
       }
     }
-    //return YieldCurveUtils.withBucketedShifts(structure, buckets, shifts, shiftType);
-    throw new UnsupportedOperationException();
+    return new YieldCurveData(curveData.getCurveSpecification(), data);
   }
 
   @Override
@@ -115,13 +137,6 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
    */
   public static YieldCurveDataBucketedShiftManipulator.Builder builder() {
     return new YieldCurveDataBucketedShiftManipulator.Builder();
-  }
-
-  private YieldCurveDataBucketedShiftManipulator(
-      ScenarioShiftType shiftType,
-      List<YieldCurveBucketedShift> shifts) {
-    this._shiftType = shiftType;
-    this._shifts = (shifts != null ? ImmutableList.copyOf(shifts) : null);
   }
 
   @Override

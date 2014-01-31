@@ -74,6 +74,10 @@ public class Scenario {
     return new YieldCurveSelector.Builder(this);
   }
 
+  public YieldCurveDataSelectorBuilder curveData() {
+    return new YieldCurveDataSelectorBuilder(this);
+  }
+
   /**
    * @return An object for specifying which market data points should be transformed
    */

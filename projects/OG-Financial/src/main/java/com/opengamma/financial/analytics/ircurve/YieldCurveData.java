@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -20,7 +21,7 @@ public class YieldCurveData {
 
   private final InterpolatedYieldCurveSpecificationWithSecurities _curveSpec;
   private final Map<ExternalIdBundle, Double> _dataPoints;
-  private final Map<ExternalId, ExternalIdBundle> _index = Maps.newHashMap();
+  private final Map<ExternalId, ExternalIdBundle> _index;
 
   public YieldCurveData(InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
                         Map<ExternalIdBundle, Double> dataPoints) {
@@ -28,11 +29,13 @@ public class YieldCurveData {
     ArgumentChecker.notEmpty(dataPoints, "dataPoints");
     _curveSpec = curveSpec;
     _dataPoints = ImmutableMap.copyOf(dataPoints);
+    Map<ExternalId, ExternalIdBundle> index = Maps.newHashMap();
     for (ExternalIdBundle bundle : dataPoints.keySet()) {
       for (ExternalId id : bundle) {
-        _index.put(id, bundle);
+        index.put(id, bundle);
       }
     }
+    _index = ImmutableMap.copyOf(index);
   }
 
   /**
@@ -83,5 +86,26 @@ public class YieldCurveData {
    */
   public InterpolatedYieldCurveSpecificationWithSecurities getCurveSpecification() {
     return _curveSpec;
+  }
+
+  public Map<ExternalId, ExternalIdBundle> getIndex() {
+    return _index;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_curveSpec, _dataPoints);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final YieldCurveData other = (YieldCurveData) obj;
+    return Objects.equals(_curveSpec, other._curveSpec) && Objects.equals(_dataPoints, other._dataPoints);
   }
 }
