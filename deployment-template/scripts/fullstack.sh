@@ -40,7 +40,8 @@ LOGFILE=logs/fullstack-console.log
 load_component_config ${PROJECT} ${COMPONENT}
 
 CLASSPATH=$(build_classpath)
-CLASSPATH=config:${CLASSPATH}
+# add platform/config and /config
+CLASSPATH="../config:config:${CLASSPATH}"
 
 RETVAL=0
 case "$1" in
