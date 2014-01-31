@@ -34,6 +34,76 @@ public class AmericanVanillaOptionFunctionProviderTest {
    * 
    */
   @Test
+  public void smoothingTest() {
+    final int nStrikes = STRIKES.length;
+    final int nInterests = INTERESTS.length;
+    final int nVols = VOLS.length;
+    final int nDivs = DIVIDENDS.length;
+
+    final LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
+
+    for (int j = 0; j < nInterests; ++j) {
+      for (int k = 0; k < nStrikes; ++k) {
+        for (int l = 0; l < nVols; ++l) {
+          for (int m = 0; m < nDivs; ++m) {
+            for (int i = 0; i < 15; ++i) {
+              final int steps = 50 + 16 * i;
+              final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false);
+              final OptionFunctionProvider1D functionS = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              final OptionFunctionProvider1D functionCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true);
+              final OptionFunctionProvider1D functionSCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              final double priceP = _model.getPrice(lattice, function, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              final double pricePS = _model.getPrice(lattice, functionS, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              assertEquals(priceP, pricePS, 2. * Math.max(0.1, pricePS) / steps);
+              final double priceCall = _model.getPrice(lattice, functionCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              final double priceSCall = _model.getPrice(lattice, functionSCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              assertEquals(priceCall, priceSCall, 2. * Math.max(0.1, priceCall) / steps);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void truncationTest() {
+    final int nStrikes = STRIKES.length;
+    final int nInterests = INTERESTS.length;
+    final int nVols = VOLS.length;
+    final int nDivs = DIVIDENDS.length;
+
+    final LatticeSpecification lattice = new TianLatticeSpecification();
+
+    for (int j = 0; j < nInterests; ++j) {
+      for (int k = 0; k < nStrikes; ++k) {
+        for (int l = 0; l < nVols; ++l) {
+          for (int m = 0; m < nDivs; ++m) {
+            for (int i = 0; i < 15; ++i) {
+              final int steps = 50 + 20 * i;
+              final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false);
+              final OptionFunctionProvider1D functionTr = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4.);
+              final OptionFunctionProvider1D functionCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true);
+              final OptionFunctionProvider1D functionTrCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4.);
+              final double priceP = _model.getPrice(lattice, function, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              final double pricePTr = _model.getPrice(lattice, functionTr, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              assertEquals(pricePTr, priceP, Math.max(0.1, priceP) / steps);
+              final double priceCall = _model.getPrice(lattice, functionCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              final double priceTrCall = _model.getPrice(lattice, functionTrCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              assertEquals(priceTrCall, priceCall, Math.max(0.1, priceCall) / steps);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
   public void putCallSymmetryTest() {
     /*
      * Two sample lattices are checked 
@@ -540,6 +610,15 @@ public class AmericanVanillaOptionFunctionProviderTest {
         }
       }
     }
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void errorTest() {
+    new AmericanVanillaOptionFunctionProvider(STRIKES[1], TIME, 10, false, -VOLS[1], INTERESTS[1], DIVIDENDS[1]);
   }
 
   /**
