@@ -53,8 +53,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(upProbability > 0., "upProbability should be greater than 0.");
     ArgumentChecker.isTrue(upProbability < 1., "upProbability should be smaller than 1.");
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
+    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(spot, downFactor, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, 0., downFactor, upOverDown, i);
     }
@@ -114,8 +114,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(upProbability[i] < 1., "upProbability should be smaller than 1.");
     }
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
+    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(spot, downFactor, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, 0., downFactor, upOverDown, i);
     }
@@ -165,8 +165,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiry(assetPriceTerminal, upOverDown);
+    //    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(assetPriceBase, downFactor, upOverDown);
 
     int counter = 0;
     final int nDivs = dividend.getNumberOfDividends();
@@ -288,8 +288,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(upProbability > 0., "upProbability should be greater than 0.");
     ArgumentChecker.isTrue(upProbability < 1., "upProbability should be smaller than 1.");
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
+    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(spot, downFactor, upOverDown);
     final double[] res = new double[4];
 
     final double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
@@ -371,8 +371,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(upProbability[i] < 1., "upProbability should be smaller than 1.");
     }
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
+    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(spot, downFactor, upOverDown);
     final double[] res = new double[4];
 
     final double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
@@ -436,8 +436,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiry(assetPriceTerminal, upOverDown);
+    //    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(assetPriceBase, downFactor, upOverDown);
 
     int counter = 0;
     final int nDivs = dividend.getNumberOfDividends();

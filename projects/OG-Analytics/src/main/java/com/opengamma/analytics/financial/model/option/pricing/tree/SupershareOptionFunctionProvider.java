@@ -30,12 +30,13 @@ public class SupershareOptionFunctionProvider extends OptionFunctionProvider1D {
   }
 
   @Override
-  public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
+  public double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
     final double lowerBound = super.getStrike();
-    final int nStepsP = getNumberOfSteps() + 1;
+    final int nSteps = getNumberOfSteps();
+    final int nStepsP = nSteps + 1;
 
     final double[] values = new double[nStepsP];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nStepsP; ++i) {
       values[i] = priceTmp >= lowerBound && priceTmp < _upperBound ? priceTmp / lowerBound : 0.;
       priceTmp *= upOverDown;

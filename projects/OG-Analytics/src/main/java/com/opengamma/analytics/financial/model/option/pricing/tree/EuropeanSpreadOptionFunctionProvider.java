@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+
 /**
  * European call spread option pays max(S1-S2-K,0) whereas European put spread option pays max(K-S1+S2,0)
  */

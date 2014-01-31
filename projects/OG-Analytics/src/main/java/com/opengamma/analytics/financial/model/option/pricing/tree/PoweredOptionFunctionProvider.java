@@ -30,13 +30,14 @@ public class PoweredOptionFunctionProvider extends OptionFunctionProvider1D {
   }
 
   @Override
-  public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
+  public double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
     final double strike = getStrike();
-    final int nStepsP = getNumberOfSteps() + 1;
+    final int nSteps = getNumberOfSteps();
+    final int nStepsP = nSteps + 1;
     final double sign = getSign();
 
     final double[] values = new double[nStepsP];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nStepsP; ++i) {
       values[i] = Math.pow(Math.max(sign * (priceTmp - strike), 0.), _power);
       priceTmp *= upOverDown;
