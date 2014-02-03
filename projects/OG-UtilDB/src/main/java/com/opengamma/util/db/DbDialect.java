@@ -144,11 +144,10 @@ public abstract class DbDialect {
     }
   }
 
-
   public String sqlWildcardAdjustValue(Object value) {
-    if(value == null){
-      return sqlWildcardAdjustValue((String)null);
-    }else{
+    if (value == null) {
+      return sqlWildcardAdjustValue((String) null);
+    } else {
       return sqlWildcardAdjustValue(value.toString());
     }
   }

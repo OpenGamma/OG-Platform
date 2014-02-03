@@ -1,34 +1,55 @@
-package com.opengamma.core.user;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.StringTokenizer;
-
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newTreeSet;
-
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * <p/>
  * Please see distribution for license.
  */
+package com.opengamma.core.user;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newTreeSet;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+
+/**
+ * ResourceAccess types 
+ */
 public enum ResourceAccess {
-  READ('R'), WRITE('W'), CREATE('C'), DELETE('D'), QUERY('Q');
+  /**
+   * read rights
+   */
+  READ('R'),
+  /**
+   * write rights
+   */
+  WRITE('W'),
+  /**
+   * create rights
+   */
+  CREATE('C'),
+  /**
+   * delete rights
+   */
+  DELETE('D'),
+  /**
+   * query rights
+   */
+  QUERY('Q');
 
   private char _code;
-  static private Map<Character, ResourceAccess> index;
+  private static Map<Character, ResourceAccess> s_index;
 
   public static ResourceAccess of(char code) {
     synchronized (ResourceAccess.class) {
-      if (index == null) {
-        index = newHashMap();
+      if (s_index == null) {
+        s_index = newHashMap();
         for (ResourceAccess resourceAccess : ResourceAccess.values()) {
-          index.put(resourceAccess._code, resourceAccess);
+          s_index.put(resourceAccess._code, resourceAccess);
         }
       }
     }
-    return index.get(code);
+    return s_index.get(code);
   }
 
   private ResourceAccess(char code) {
@@ -40,7 +61,7 @@ public enum ResourceAccess {
     return "" + _code;
   }
 
-  public static String toString(Set<ResourceAccess> accesses){
+  public static String toString(Set<ResourceAccess> accesses) {
     SortedSet<Character> accessChars = newTreeSet();
     for (ResourceAccess access : accesses) {
       accessChars.add(access._code);

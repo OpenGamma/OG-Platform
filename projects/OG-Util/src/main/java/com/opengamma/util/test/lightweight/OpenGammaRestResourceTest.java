@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.test.lightweight;
 
 import org.testng.annotations.BeforeMethod;
@@ -10,6 +15,9 @@ import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
 import com.sun.jersey.test.framework.AppDescriptor;
 import com.sun.jersey.test.framework.LowLevelAppDescriptor;
 
+/**
+ * Framework for testing RESTful resources
+ */
 public abstract class OpenGammaRestResourceTest extends GuiceAndJerseyTest {
 
   @Override
@@ -22,11 +30,11 @@ public abstract class OpenGammaRestResourceTest extends GuiceAndJerseyTest {
   }
 
   @Override
-  final protected AbstractModule getModule() {
+  protected final AbstractModule getModule() {
     return defineProviders();
   }
 
-  abstract protected ProviderModule defineProviders();
+  protected abstract ProviderModule defineProviders();
 
   @BeforeMethod
   public void setUp() throws Exception {

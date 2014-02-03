@@ -5,7 +5,10 @@
  */
 package com.opengamma.core.user;
 
-import com.opengamma.id.ObjectId;
+import static com.opengamma.util.ArgumentChecker.notNull;
+
+import java.io.Serializable;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -13,10 +16,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import java.io.Serializable;
-
-import static com.opengamma.util.ArgumentChecker.notNull;
-
+import com.opengamma.id.ObjectId;
 
 /**
  * Simple implementation of {@code OGRole}.
@@ -44,23 +44,22 @@ public class OGEntitlement implements Serializable {
     this._acces = access;
   }
 
-
-  final private ObjectId _objectId;
+  private final ObjectId _objectId;
   /**
    * The external id of the resource this entitlement represents;
    */
-  final private String _resourceId;
+  private final String _resourceId;
 
   /**
    * Type for the entitled resource. E.g 'portfolio'.
    * Used for classification purposes.
    */
-  final private String _type;
+  private final String _type;
 
   /**
    * Access type for the entitled resource. E.g 'r' for read etc.
    */
-  final private ResourceAccess _acces;
+  private final ResourceAccess _acces;
 
   public ObjectId getObjectId() {
     return _objectId;
@@ -99,15 +98,27 @@ public class OGEntitlement implements Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OGEntitlement that = (OGEntitlement) o;
 
-    if (_acces != null ? !_acces.equals(that._acces) : that._acces != null) return false;
-    if (_resourceId != null ? !_resourceId.equals(that._resourceId) : that._resourceId != null) return false;
-    if (_objectId != null ? !_objectId.equals(that._objectId) : that._objectId != null) return false;
-    if (_type != null ? !_type.equals(that._type) : that._type != null) return false;
+    if (_acces != null ? !_acces.equals(that._acces) : that._acces != null) {
+      return false;
+    }
+    if (_resourceId != null ? !_resourceId.equals(that._resourceId) : that._resourceId != null) {
+      return false;
+    }
+    if (_objectId != null ? !_objectId.equals(that._objectId) : that._objectId != null) {
+      return false;
+    }
+    if (_type != null ? !_type.equals(that._type) : that._type != null) {
+      return false;
+    }
 
     return true;
   }
@@ -121,6 +132,9 @@ public class OGEntitlement implements Serializable {
     return result;
   }
 
+  /**
+   * Builder for OGEntitlement 
+   */
   @FudgeBuilderFor(OGEntitlement.class)
   public static class OGEntitlementFudgeBuilder implements FudgeBuilder<OGEntitlement> {
 
@@ -144,4 +158,3 @@ public class OGEntitlement implements Serializable {
     }
   }
 }
-

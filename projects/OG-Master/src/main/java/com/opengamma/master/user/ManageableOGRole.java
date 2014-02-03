@@ -5,34 +5,31 @@
  */
 package com.opengamma.master.user;
 
-import com.google.common.collect.Sets;
-import com.opengamma.core.user.OGEntitlement;
-import com.opengamma.core.user.OGRole;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.PublicSPI;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.MetaBean;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
+import static com.google.common.collect.Sets.newHashSet;
 
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import static com.google.common.collect.Sets.newHashSet;
-import org.joda.beans.Bean;
+import com.opengamma.core.user.OGEntitlement;
+import com.opengamma.core.user.OGRole;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A role known to the OpenGamma Platform installation.
@@ -79,12 +76,12 @@ public class ManageableOGRole extends DirectBean implements OGRole, Serializable
     setEntitlements(newHashSet(Arrays.asList(entitlements)));
   }
 
-  private static SecureRandom random = new SecureRandom();
+  private static SecureRandom s_random = new SecureRandom();
 
-  private static String randomString(int numchars){
+  private static String randomString(int numchars) {
     StringBuffer sb = new StringBuffer();
-    while(sb.length() < numchars){
-      sb.append(Integer.toHexString(random.nextInt()));
+    while (sb.length() < numchars) {
+      sb.append(Integer.toHexString(s_random.nextInt()));
     }
 
     return sb.toString().substring(0, numchars);
@@ -106,7 +103,7 @@ public class ManageableOGRole extends DirectBean implements OGRole, Serializable
     _key = randomString(50);
   }
 
-  public void revoke(){
+  public void revoke() {
     _key = randomString(50);
   }
 
