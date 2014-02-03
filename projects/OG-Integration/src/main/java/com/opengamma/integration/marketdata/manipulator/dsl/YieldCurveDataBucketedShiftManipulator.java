@@ -23,6 +23,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -45,6 +47,8 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBean, StructureManipulator<YieldCurveData> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveDataBucketedShiftManipulator.class);
+
   /** Shift type */
   @PropertyDefinition(validate = "notNull")
   private final ScenarioShiftType _shiftType;
@@ -63,10 +67,6 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   public YieldCurveData execute(YieldCurveData curveData,
                                 ValueSpecification valueSpecification,
                                 FunctionExecutionContext executionContext) {
-    if (true) {
-      //return curveData;
-      return new YieldCurveData(curveData.getCurveSpecification(), curveData.getDataPoints());
-    }
     ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     Map<ExternalIdBundle, Double> data = Maps.newHashMap(curveData.getDataPoints());
     Map<ExternalId, ExternalIdBundle> index = curveData.getIndex();
@@ -82,13 +82,14 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
         if (stripTime.compareTo(shiftStartTime) >= 0 && stripTime.compareTo(shiftEndTime) <= 0) {
           ExternalIdBundle bundle = index.get(strip.getSecurityIdentifier());
           boolean future = (strip.getInstrumentType() == StripInstrumentType.FUTURE);
+          Double originalData = data.get(bundle);
           Double stripData;
 
           // futures are quoted the other way round from other instruments
           if (future) {
-            stripData = 1 - data.get(bundle);
+            stripData = 1 - originalData;
           } else {
-            stripData = data.get(bundle);
+            stripData = originalData;
           }
           Double shiftedData;
 
@@ -106,6 +107,8 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
             shiftedStripData = shiftedData;
           }
           data.put(bundle, shiftedStripData);
+          s_logger.debug("Shifting data {}, tenor {} from {} to {}",
+                         strip.getSecurityIdentifier(), strip.getTenor(), originalData, shiftedStripData);
         }
       }
     }
