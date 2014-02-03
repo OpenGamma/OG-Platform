@@ -38,11 +38,12 @@ public abstract class OptionFunctionProvider1D {
   }
 
   /**
-   * @param assetPrice assetPrice at (nSteps,0), i.e., the price at the lowest node
+   * @param assetPrice The base asset price: spot or modified spot
+   * @param downFactor Down factor
    * @param upOverDown (up factor)/(down factor)
    * @return Payoff at expiry
    */
-  public abstract double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown);
+  public abstract double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown);
 
   /**
    * Given a set of option values in the (steps+1)-th layer, derive option values in the (steps)-th layer

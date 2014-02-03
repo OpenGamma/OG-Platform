@@ -20,12 +20,13 @@ public class LogOptionFunctionProvider extends OptionFunctionProvider1D {
   }
 
   @Override
-  public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
+  public double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
     final double strike = getStrike();
-    final int nStepsP = getNumberOfSteps() + 1;
+    final int nSteps = getNumberOfSteps();
+    final int nStepsP = nSteps + 1;
 
     final double[] values = new double[nStepsP];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nStepsP; ++i) {
       values[i] = Math.max(Math.log(priceTmp / strike), 0.);
       priceTmp *= upOverDown;
