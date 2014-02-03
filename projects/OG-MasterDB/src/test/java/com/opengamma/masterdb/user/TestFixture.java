@@ -8,7 +8,10 @@ import com.opengamma.master.user.ManageableOGRole;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.RoleDocument;
 import com.opengamma.master.user.UserDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.test.AbstractDbTest;
+
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Arrays;
@@ -20,7 +23,7 @@ import static com.google.common.collect.Sets.newHashSet;
  * <p/>
  * Please see distribution for license.
  */
-public class TestFixture {
+public class TestFixture extends AbstractDbTest {
 
   public OGEntitlement ent_a_1;
   public OGEntitlement ent_a_11;
@@ -42,16 +45,16 @@ public class TestFixture {
   public DbUserMaster _userMaster;
   public DbRoleMaster _roleMaster;
 
-  final private String _databaseType;
 
-  public TestFixture(String databaseType) {
-    _databaseType = databaseType;
+  public TestFixture(String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
 
-  public void setUp() throws Exception {
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(_databaseType);
-    _roleMaster = (DbRoleMaster) context.getBean(_databaseType + "DbRoleMaster");
-    _userMaster = (DbUserMaster) context.getBean(_databaseType + "DbUserMaster");
+  public void init() throws Exception {
+
+    DbConnector dbConnector = getDbConnector();
+    _roleMaster = new DbRoleMaster(dbConnector);
+    _userMaster = new DbUserMaster(dbConnector);
 
     ent_a_1 = new OGEntitlement(ExternalId.of("Prt", "p1").toString(), "portfolio", ResourceAccess.READ);
     ent_a_11 = new OGEntitlement(ExternalId.of("Prt", "p1").toString(), "portfolio", ResourceAccess.WRITE);

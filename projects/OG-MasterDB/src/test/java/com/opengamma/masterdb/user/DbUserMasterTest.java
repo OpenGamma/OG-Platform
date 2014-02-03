@@ -56,13 +56,13 @@ public class DbUserMasterTest extends AbstractDbTest {
   public DbUserMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    fixture = new TestFixture(databaseType);
+    fixture = new TestFixture(databaseType, databaseVersion);
   }
 
 
   @Override
   public void doSetUp() throws Exception {
-    fixture.setUp();
+    fixture.init();
   }
 
   @Override

@@ -5,6 +5,20 @@
  */
 package com.opengamma.masterdb.user;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.user.OGEntitlement;
 import com.opengamma.core.user.ResourceAccess;
 import com.opengamma.id.ExternalId;
@@ -17,47 +31,29 @@ import com.opengamma.master.user.RoleSearchResult;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Factory;
-import org.testng.annotations.Test;
-
-import java.util.Arrays;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNotSame;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbRoleMasterTest extends DbTest {
+public class DbRoleMasterTest extends AbstractDbTest {
   private static final Logger s_logger = LoggerFactory.getLogger(DbRoleMasterTest.class);
-
 
   final private TestFixture fixture;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbRoleMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    fixture = new TestFixture(databaseType);
+    fixture = new TestFixture(databaseType, databaseVersion);
   }
 
-
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    fixture.setUp();
+  @Override
+  public void doSetUp() throws Exception {
+    fixture.init();
   }
 
   @Test
@@ -98,15 +94,9 @@ public class DbRoleMasterTest extends DbTest {
     assertEquals(newHashSet(Arrays.asList(fixture.inserted_document_a.getRole(), fixture.inserted_document_b.getRole())), newHashSet(roleSearchResult.getRoles()));
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
+  @Override
+  public void doTearDown() throws Exception {
     fixture._roleMaster = null;
-    super.tearDown();
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
@@ -197,7 +187,6 @@ public class DbRoleMasterTest extends DbTest {
     assertNotSame(result.getRoles().get(0).getUniqueId(), result.getRoles().get(1).getUniqueId());
     assertEquals(1, result.getRoles().get(0).getEntitlements().size()); // the recent one
     assertEquals(3, result.getRoles().get(1).getEntitlements().size()); // the previous one
-
 
     assertEquals(ResourceAccess.READ, result.getRoles().get(1).getEntitlements().iterator().next().getAccess());
     assertEquals(ResourceAccess.READ, result.getRoles().get(0).getEntitlements().iterator().next().getAccess());
