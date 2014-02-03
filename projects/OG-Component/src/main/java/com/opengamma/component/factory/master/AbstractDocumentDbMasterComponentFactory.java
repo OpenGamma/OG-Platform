@@ -5,6 +5,8 @@
  */
 package com.opengamma.component.factory.master;
 
+import static com.opengamma.component.factory.master.DBMasterComponentUtils.isValidJmsConfiguration;
+
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -35,10 +37,17 @@ import com.opengamma.util.jms.JmsConnector;
 public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends ConfigurableDbChangeProvidingMaster> extends AbstractDbMasterComponentFactory<I, M> {
 
   /**
+   * Whether to use change management. If true, requires jms settings to be non-null.
+   */
+  @PropertyDefinition
+  private boolean _enableChangeManagement = true;
+  
+  /**
    * The JMS connector.
    */
   @PropertyDefinition
   private JmsConnector _jmsConnector;
+  
   /**
    * The JMS change manager topic.
    */
@@ -54,7 +63,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
   protected M createMaster(ComponentRepository repo, ComponentInfo info) throws Exception {
     M master = createDbDocumentMaster();
     
-    if (getJmsChangeManagerTopic() != null) {
+    if (isEnableChangeManagement() && isValidJmsConfiguration(getClassifier(), getClass(), getJmsConnector(), getJmsChangeManagerTopic())) {
       JmsChangeManager cm = new JmsChangeManager(getJmsConnector(), getJmsChangeManagerTopic());
       master.setChangeManager(cm);
       repo.registerLifecycle(cm);
@@ -103,6 +112,31 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
   @Override
   public AbstractDocumentDbMasterComponentFactory.Meta<I, M> metaBean() {
     return AbstractDocumentDbMasterComponentFactory.Meta.INSTANCE;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether to use change management. If true, requires jms settings to be non-null.
+   * @return the value of the property
+   */
+  public boolean isEnableChangeManagement() {
+    return _enableChangeManagement;
+  }
+
+  /**
+   * Sets whether to use change management. If true, requires jms settings to be non-null.
+   * @param enableChangeManagement  the new value of the property
+   */
+  public void setEnableChangeManagement(boolean enableChangeManagement) {
+    this._enableChangeManagement = enableChangeManagement;
+  }
+
+  /**
+   * Gets the the {@code enableChangeManagement} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> enableChangeManagement() {
+    return metaBean().enableChangeManagement().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -163,7 +197,8 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       AbstractDocumentDbMasterComponentFactory<?, ?> other = (AbstractDocumentDbMasterComponentFactory<?, ?>) obj;
-      return JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+      return (isEnableChangeManagement() == other.isEnableChangeManagement()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
           super.equals(obj);
     }
@@ -173,6 +208,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableChangeManagement());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
     return hash ^ super.hashCode();
@@ -180,7 +216,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("AbstractDocumentDbMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -194,6 +230,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
+    buf.append("enableChangeManagement").append('=').append(JodaBeanUtils.toString(isEnableChangeManagement())).append(',').append(' ');
     buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
     buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
   }
@@ -210,6 +247,11 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code enableChangeManagement} property.
+     */
+    private final MetaProperty<Boolean> _enableChangeManagement = DirectMetaProperty.ofReadWrite(
+        this, "enableChangeManagement", AbstractDocumentDbMasterComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
@@ -224,6 +266,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "enableChangeManagement",
         "jmsConnector",
         "jmsChangeManagerTopic");
 
@@ -236,6 +279,8 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 981110710:  // enableChangeManagement
+          return _enableChangeManagement;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
         case -758086398:  // jmsChangeManagerTopic
@@ -262,6 +307,14 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code enableChangeManagement} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> enableChangeManagement() {
+      return _enableChangeManagement;
+    }
+
+    /**
      * The meta-property for the {@code jmsConnector} property.
      * @return the meta-property, not null
      */
@@ -281,6 +334,8 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 981110710:  // enableChangeManagement
+          return ((AbstractDocumentDbMasterComponentFactory<?, ?>) bean).isEnableChangeManagement();
         case -1495762275:  // jmsConnector
           return ((AbstractDocumentDbMasterComponentFactory<?, ?>) bean).getJmsConnector();
         case -758086398:  // jmsChangeManagerTopic
@@ -293,6 +348,9 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 981110710:  // enableChangeManagement
+          ((AbstractDocumentDbMasterComponentFactory<I, M>) bean).setEnableChangeManagement((Boolean) newValue);
+          return;
         case -1495762275:  // jmsConnector
           ((AbstractDocumentDbMasterComponentFactory<I, M>) bean).setJmsConnector((JmsConnector) newValue);
           return;
