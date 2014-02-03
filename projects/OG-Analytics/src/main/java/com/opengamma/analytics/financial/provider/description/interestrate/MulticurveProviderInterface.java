@@ -36,6 +36,17 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
   double getDiscountFactor(Currency ccy, Double time);
 
   /**
+   * Gets the investment factor for one Ibor index between start and end times.
+   * This quantity correspond to growth between the start and the end time for an investment of 1 unit, assuming the investment growth according to the underlying curve
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @param accrualFactor The Ibor accrual factor.
+   * @return The forward rate.
+   */
+  double getInvestmentFactor(IborIndex index, double startTime, double endTime, double accrualFactor);
+
+  /**
    * Gets the forward for one Ibor index between start and end times.
    * @param index The Ibor index.
    * @param startTime The start time.
@@ -53,6 +64,17 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @return The forward rate.
    */
   double getForwardRate(IborIndex index, double startTime, double endTime);
+
+  /**
+   * Gets the investment factor for one Ibor index between start and end times.
+   * This quantity correspond to growth between the start and the end time for an investment of 1 unit, assuming the investment growth according to the underlying curve
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @param accrualFactor The Ibor accrual factor.
+   * @return The forward rate.
+   */
+  double getInvestmentFactor(IndexON index, double startTime, double endTime, double accrualFactor);
 
   /**
    * Gets the forward for one Ibor index between start and end times.

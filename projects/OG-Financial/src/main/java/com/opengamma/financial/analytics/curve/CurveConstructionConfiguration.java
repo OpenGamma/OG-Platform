@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.Config;
 import com.opengamma.core.config.ConfigGroups;
-import com.opengamma.core.link.config.ConfigLink;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -96,13 +96,13 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    * @return the exogenous configurations, not null
    * @throws IllegalStateException if no {@link ServiceContext} is available
    */
-  public List<CurveConstructionConfiguration> getResolvedCurveConfigurations() {
+  public List<CurveConstructionConfiguration> resolveCurveConfigurations() {
 
     return Lists.transform(_exogenousLinks,
         new Function<ConfigLink<CurveConstructionConfiguration>, CurveConstructionConfiguration>() {
           @Override
           public CurveConstructionConfiguration apply(ConfigLink<CurveConstructionConfiguration> input) {
-            return input.getConfig();
+            return input.resolve();
           }
         }
     );
@@ -123,7 +123,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
           new Function<String, ConfigLink<CurveConstructionConfiguration>>() {
             @Override
             public ConfigLink<CurveConstructionConfiguration> apply(String config) {
-              return ConfigLink.of(CurveConstructionConfiguration.class, config);
+              return ConfigLink.of(config, CurveConstructionConfiguration.class);
             }
           }
       );

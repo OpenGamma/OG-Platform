@@ -89,6 +89,25 @@ public class ResultGenerator {
   }
 
   /**
+   * Transforms a result containing a type R into one containing a type T. If the
+   * passed result is a failure then the original object will be passed through
+   * unaltered.
+   *
+   * @param result the result to be transformed
+   * @param mapper the mapper object to transform the value with, not null
+   * @param <R> the type of the result object to be transformed
+   * @param <T> the required type of the new result object
+   * @return the new function result object
+   */
+  public static <R, T> Result<T> map(Result<R> result, ResultMapper<R, T> mapper) {
+    if (result.isValueAvailable()) {
+      return mapper.map(result.getValue());
+    } else {
+      return propagateFailure(result);
+    }
+  }
+
+  /**
    * Check a set of results to see if there are any failures.
    *
    * @param results the set of results to be checked
@@ -135,5 +154,10 @@ public class ResultGenerator {
       throw new IllegalArgumentException("No failures found in " + failures);
     }
     return new MultipleFailureResult<>(failures);
+  }
+
+  public interface ResultMapper<R, T> {
+
+    Result<T> map(R result);
   }
 }

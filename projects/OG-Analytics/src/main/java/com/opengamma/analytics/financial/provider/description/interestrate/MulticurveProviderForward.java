@@ -249,6 +249,14 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
   }
 
   @Override
+  public double getInvestmentFactor(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return 1 + accrualFactor * _forwardIborCurves.get(index).getYValue(startTime);
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
     if (_forwardIborCurves.containsKey(index)) {
       return _forwardIborCurves.get(index).getYValue(startTime);
@@ -275,6 +283,14 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
   @Override
   public Set<IborIndex> getIndexesIbor() {
     return _forwardIborCurves.keySet();
+  }
+
+  @Override
+  public double getInvestmentFactor(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
+    if (_forwardONCurves.containsKey(index)) {
+      return _forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime);
+    }
+    throw new IllegalArgumentException("Forward ON curve not found: " + index);
   }
 
   @Override
