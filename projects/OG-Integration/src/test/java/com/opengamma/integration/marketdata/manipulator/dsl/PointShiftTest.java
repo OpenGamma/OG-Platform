@@ -48,7 +48,21 @@ public class PointShiftTest {
 
   @Test
   public void yieldCurveData() {
-
-
+    Scenario scenario = SimulationUtils.createScenarioFromDsl("src/test/groovy/YieldCurveDataPointShiftTest.groovy", null);
+    ScenarioDefinition definition = scenario.createDefinition();
+    assertEquals("point shift test", definition.getName());
+    Map<DistinctMarketDataSelector, FunctionParameters> map = definition.getDefinitionMap();
+    FunctionParameters params = map.get(new YieldCurveDataSelector(null, null, null, null, null));
+    assertNotNull(params);
+    Object value = ((SimpleFunctionParameters) params).getValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME);
+    CompositeStructureManipulator manipulator = (CompositeStructureManipulator) value;
+    List manipulators = manipulator.getManipulators();
+    assertEquals(1, manipulators.size());
+    List<YieldCurvePointShift> shifts =
+        ImmutableList.of(
+            new YieldCurvePointShift(Period.ofMonths(3), 0.1),
+            new YieldCurvePointShift(Period.ofYears(1), 0.2));
+    YieldCurveDataPointShiftsManipulator expected = new YieldCurveDataPointShiftsManipulator(ScenarioShiftType.RELATIVE, shifts);
+    assertEquals(expected, manipulators.get(0));
   }
 }

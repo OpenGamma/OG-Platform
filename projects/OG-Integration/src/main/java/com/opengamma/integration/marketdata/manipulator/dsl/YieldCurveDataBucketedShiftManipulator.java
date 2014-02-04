@@ -30,7 +30,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
@@ -42,7 +41,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A {@link StructureManipulator} which performs a list of bucketed shifts on a {@link YieldCurve}.
+ * A {@link StructureManipulator} which performs a list of bucketed shifts on {@link YieldCurveData}.
  */
 @BeanDefinition
 public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBean, StructureManipulator<YieldCurveData> {
@@ -160,7 +159,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   //-----------------------------------------------------------------------
   /**
    * Gets shift type
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ScenarioShiftType getShiftType() {
     return _shiftType;
@@ -169,7 +168,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   //-----------------------------------------------------------------------
   /**
    * Gets shifts to apply
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ImmutableList<YieldCurveBucketedShift> getShifts() {
     return _shifts;
@@ -328,7 +327,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   public static final class Builder extends DirectFieldsBeanBuilder<YieldCurveDataBucketedShiftManipulator> {
 
     private ScenarioShiftType _shiftType;
-    private List<YieldCurveBucketedShift> _shifts;
+    private List<YieldCurveBucketedShift> _shifts = new ArrayList<YieldCurveBucketedShift>();
 
     /**
      * Restricted constructor.
@@ -342,7 +341,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
      */
     private Builder(YieldCurveDataBucketedShiftManipulator beanToCopy) {
       this._shiftType = beanToCopy.getShiftType();
-      this._shifts = (beanToCopy.getShifts() != null ? new ArrayList<YieldCurveBucketedShift>(beanToCopy.getShifts()) : null);
+      this._shifts = new ArrayList<YieldCurveBucketedShift>(beanToCopy.getShifts());
     }
 
     //-----------------------------------------------------------------------
@@ -396,20 +395,22 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code shiftType} property in the builder.
-     * @param shiftType  the new value
+     * @param shiftType  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder shiftType(ScenarioShiftType shiftType) {
+      JodaBeanUtils.notNull(shiftType, "shiftType");
       this._shiftType = shiftType;
       return this;
     }
 
     /**
      * Sets the {@code shifts} property in the builder.
-     * @param shifts  the new value
+     * @param shifts  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder shifts(List<YieldCurveBucketedShift> shifts) {
+      JodaBeanUtils.notNull(shifts, "shifts");
       this._shifts = shifts;
       return this;
     }
