@@ -121,6 +121,7 @@ public class MarketDataSelectionGraphManipulator {
     }
     // Check whether the node requires a proxy
     final int outputs = node.getOutputCount();
+    DependencyNode result = newNode;
     for (int i = 0; i < outputs; i++) {
       final ValueSpecification output = node.getOutputValue(i);
       final Set<ValueSpecification> proxySpecs = extractor.extractStructure(output);
@@ -137,13 +138,13 @@ public class MarketDataSelectionGraphManipulator {
         extractor.storeProduction(output, proxyNode);
         extractor.addProxyValue(output, proxyOutput);
         if (desiredOutput.equals(output)) {
-          newNode = proxyNode;
+          result = proxyNode;
         }
       } else {
         extractor.storeProduction(output, newNode);
       }
     }
-    return newNode;
+    return result;
   }
 
   /**

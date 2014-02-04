@@ -52,6 +52,7 @@ import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.depgraph.impl.DependencyNodeImpl;
 import com.opengamma.engine.depgraph.impl.RootDiscardingSubgrapher;
 import com.opengamma.engine.function.FunctionParameters;
@@ -1540,12 +1541,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         // REVIEW Chris 2014-01-14 - selectorMapping is stored in DependencyGraphStructureExtractor, mutated
         // by MarketDataSelectionGraphManipulator and used here. that's too obscure
         final Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = new HashMap<>();
-        // TODO is graph mutated in modifyDependencyGraph? if not then should probably use a new variable to make that explicit
-        graph = _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph, resolver, selectorMapping);
+        DependencyGraph modifiedGraph = _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph, resolver, selectorMapping);
         if (!selectorMapping.isEmpty()) {
-          newGraphsByConfig.put(graph.getCalculationConfigurationName(), graph);
-          selectionsByConfig.put(graph.getCalculationConfigurationName(), selectorMapping);
-          final Map<DistinctMarketDataSelector, FunctionParameters> params = _specificMarketDataSelectors.get(graph.getCalculationConfigurationName());
+          newGraphsByConfig.put(modifiedGraph.getCalculationConfigurationName(), modifiedGraph);
+          selectionsByConfig.put(modifiedGraph.getCalculationConfigurationName(), selectorMapping);
+          final Map<DistinctMarketDataSelector, FunctionParameters> params = _specificMarketDataSelectors.get(modifiedGraph.getCalculationConfigurationName());
           // _specificMarketDataSelectors has an entry for each graph, so no null check required
           if (!params.isEmpty()) {
             // Filter the function params so that we only have entries for active selectors
@@ -1555,7 +1555,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                 return selectorMapping.containsKey(selector);
               }
             });
-            functionParamsByConfig.put(graph.getCalculationConfigurationName(), filteredParams);
+            functionParamsByConfig.put(modifiedGraph.getCalculationConfigurationName(), filteredParams);
           }
         }
       }
