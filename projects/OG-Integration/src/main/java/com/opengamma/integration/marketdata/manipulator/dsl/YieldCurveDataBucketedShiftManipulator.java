@@ -107,8 +107,8 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
             shiftedStripData = shiftedData;
           }
           data.put(bundle, shiftedStripData);
-          s_logger.debug("Shifting data {}, tenor {} from {} to {}",
-                         strip.getSecurityIdentifier(), strip.getTenor(), originalData, shiftedStripData);
+          s_logger.debug("Shifting data {}, tenor {} by {} from {} to {}",
+                         strip.getSecurityIdentifier(), strip.getTenor(), shift.getShift(), originalData, shiftedStripData);
         }
       }
     }

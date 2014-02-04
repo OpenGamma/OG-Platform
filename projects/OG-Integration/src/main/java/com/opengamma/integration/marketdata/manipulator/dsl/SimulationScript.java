@@ -308,7 +308,7 @@ public abstract class SimulationScript extends Script {
       builder.build();
     }
 
-    public void pointsShifts(ScenarioShiftType shiftType, Closure<?> body) {
+    public void pointShifts(ScenarioShiftType shiftType, Closure<?> body) {
       YieldCurveDataPointShiftsManipulatorBuilder builder =
           new YieldCurveDataPointShiftsManipulatorBuilder(getSelector(), getScenario(), shiftType);
       body.setDelegate(builder);

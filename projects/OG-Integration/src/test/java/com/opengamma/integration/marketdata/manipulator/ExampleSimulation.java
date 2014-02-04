@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator;
 
+import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.bucketedShift;
+import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.pointShift;
 import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.volShift;
 
 import java.util.List;
@@ -71,6 +73,14 @@ import com.opengamma.livedata.UserPrincipal;
                                                        volShift(Period.ofMonths(6), 3.5, 0.1),
                                                        volShift(Period.ofYears(1), 4.5, 0.2));
         scenario.spotRate().currencyPair("EURUSD").apply().scaling(0.1);
+        scenario.curveData().currencies("EUR").apply()
+            .bucketedShifts(ScenarioShiftType.RELATIVE,
+                            bucketedShift(Period.ofYears(1), Period.ofYears(2), 0.01),
+                            bucketedShift(Period.ofYears(2), Period.ofYears(3), 0.005));
+        scenario.curveData().currencies("EUR").apply()
+            .pointShifts(ScenarioShiftType.ABSOLUTE,
+                         pointShift(Period.ofMonths(3), 0.01),
+                         pointShift(Period.ofMonths(6), 0.015));
       }
 
       // run the simulation --------------------------------------------------------------------------------------------

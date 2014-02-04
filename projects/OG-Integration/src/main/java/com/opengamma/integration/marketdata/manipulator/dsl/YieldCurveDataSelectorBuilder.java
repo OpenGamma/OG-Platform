@@ -8,7 +8,7 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 /**
  *
  */
-/* package */ class YieldCurveDataSelectorBuilder extends Selector.Builder {
+public class YieldCurveDataSelectorBuilder extends Selector.Builder {
 
   /* package */ YieldCurveDataSelectorBuilder(Scenario scenario) {
     super(scenario);

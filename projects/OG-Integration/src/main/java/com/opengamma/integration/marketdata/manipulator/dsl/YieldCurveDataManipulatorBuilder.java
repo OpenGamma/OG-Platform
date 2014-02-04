@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 
@@ -51,35 +53,33 @@ public class YieldCurveDataManipulatorBuilder {
   }
 
   /**
-   * Shifts the curve using {@link YieldAndDiscountCurve#withSingleShift}
-   * @param t The time.
-   * @param shift The shift amount.
-   * @return This builder
-   * TODO can this be replaced with a point shift with one point?
-   */
-  /*public YieldCurveDataManipulatorBuilder singleShift(Number t, Number shift) {
-
-  }*/
-
-  /**
    * Creates a bucketed shift builder with the given type
-   * @param type the type of the shift
+   * @param shiftType the type of the shift
+   * @param shifts The shifts to apply to the curve data
    * @return the bucketed shift builder
-   * TODO varargs for the buckets - new class required. Bucket? ShiftBucket?
    */
-  public final YieldCurveDataManipulatorBuilder bucketedShifts(/*BucketedShiftType type*/) {
-    // TODO add something to the scenario - need to define YieldCurveDataBucketedShifts
-    throw new UnsupportedOperationException();
+  public final YieldCurveDataManipulatorBuilder bucketedShifts(ScenarioShiftType shiftType, YieldCurveBucketedShift... shifts) {
+    ArgumentChecker.notNull(shiftType, "shiftType");
+    ArgumentChecker.notEmpty(shifts, "shifts");
+    YieldCurveDataBucketedShiftManipulator manipulator =
+        new YieldCurveDataBucketedShiftManipulator(shiftType, Arrays.asList(shifts));
+    _scenario.add(_selector, manipulator);
+    return this;
   }
   
 
   /**
    * Creates a point shift builder
+   * @param shiftType the type of the shift
+   * @param shifts The shifts to apply to the curve data
    * @return the point shifts builder
-   * TODO varargs for the shifts - new class required. PointShift?
    */
-  public final YieldCurveDataManipulatorBuilder pointShifts() {
-    // TODO add something to the scenario - need to define YieldCurveDataPointShifts
-    throw new UnsupportedOperationException();
+  public final YieldCurveDataManipulatorBuilder pointShifts(ScenarioShiftType shiftType, YieldCurvePointShift... shifts) {
+    ArgumentChecker.notNull(shiftType, "shiftType");
+    ArgumentChecker.notEmpty(shifts, "shifts");
+    YieldCurveDataPointShiftsManipulator manipulator =
+        new YieldCurveDataPointShiftsManipulator(shiftType, Arrays.asList(shifts));
+    _scenario.add(_selector, manipulator);
+    return this;
   }
 }
