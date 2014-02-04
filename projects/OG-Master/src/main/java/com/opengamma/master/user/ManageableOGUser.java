@@ -232,7 +232,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
   //-----------------------------------------------------------------------
   /**
    * Gets the hashed version of the user password, null if no password.
-   * The hash is brut-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
+   * The hash is brute-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
    * @return the value of the property
    */
   public String getPasswordHash() {
@@ -241,7 +241,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
 
   /**
    * Sets the hashed version of the user password, null if no password.
-   * The hash is brut-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
+   * The hash is brute-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
    * @param passwordHash  the new value of the property
    */
   public void setPasswordHash(String passwordHash) {
@@ -250,7 +250,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
 
   /**
    * Gets the the {@code passwordHash} property.
-   * The hash is brut-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
+   * The hash is brute-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
    * @return the property, not null
    */
   public final Property<String> passwordHash() {
