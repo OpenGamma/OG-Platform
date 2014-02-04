@@ -922,7 +922,6 @@ public class CurveNodeToDefinitionConverterTest {
     assertEquals("IborONIMMSwap", swap.getSecondLeg(), onLeg);
   }
 
-  // TODO: Add test for calendar swap
   @Test
   public void testFixedONCalendarSwap() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "ECB swap 0204");
@@ -966,8 +965,6 @@ public class CurveNodeToDefinitionConverterTest {
     assertEquals("FixedONCalendarSwap: effective date", effectiveDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(0)).getFixingPeriodStartDate().toLocalDate());
     assertEquals("FixedONCalendarSwap: effective date", maturityDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(nbCpnON-1)).getAccrualEndDate().toLocalDate());
     assertEquals("FixedONCalendarSwap: effective date", maturityDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(nbCpnON-1)).getFixingPeriodEndDate().toLocalDate());
-    
-
     final int startNumber2 = 2;
     final int endNumber2 = 16; // More than 1 Year: 2 cpn
     final Period startPeriod2 = Period.ofMonths(1);

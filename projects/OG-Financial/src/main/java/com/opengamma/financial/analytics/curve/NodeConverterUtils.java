@@ -159,8 +159,8 @@ public class NodeConverterUtils {
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
    * @param unadjustedStartDate Unadjusted start date. The roll date adjuster will start at that date.
-   * @param startDateNumber The roll date adjuster start number.
-   * @param endDateNumber The roll date adjuster end number.
+   * @param startDateNumber The number of the start date in the calendar non-good business days.
+   * @param endDateNumber The number of the end date in the calendar non-good business days.
    * @param calendarStartEndDate The calendar with the start and end dates of the swap.
    * @param regionSource The region source, not null
    * @param holidaySource The holiday source, not null
@@ -473,7 +473,6 @@ public class NodeConverterUtils {
     return legConvention.accept(visitor);
   }
 
-  //TODO UTC should not be hard-coded as a string. There is a constant available in the date library
   private static AnnuityDefinition<? extends PaymentDefinition> getCalendarSwapLeg(
       final FinancialConvention legConvention, final ZonedDateTime unadjustedStartDate, final int calendarDateStartNumber, final int calendarDateEndNumber, final Calendar calendarStartEndDate,
       final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource, final SnapshotDataBundle marketData, final ExternalId dataId,
@@ -493,9 +492,9 @@ public class NodeConverterUtils {
         final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
         final ZonedDateTime effectiveDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate.toLocalDate(), calendarStartEndDate,
-            calendarDateStartNumber).atStartOfDay(ZoneId.of("UTC"));
+            calendarDateStartNumber).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
         final ZonedDateTime maturityDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendarStartEndDate,
-            calendarDateEndNumber - calendarDateStartNumber).atStartOfDay(ZoneId.of("UTC"));
+            calendarDateEndNumber - calendarDateStartNumber).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
         final StubType stub = convention.getStubType();
         if (!isPayer && isMarketDataSpread) {
           final Double spread = marketData.getDataPoint(dataId);
