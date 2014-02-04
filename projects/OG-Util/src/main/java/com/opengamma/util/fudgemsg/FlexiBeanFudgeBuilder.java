@@ -47,7 +47,7 @@ public final class FlexiBeanFudgeBuilder implements FudgeBuilder<FlexiBean> {
       if (value == null) {
         msg.add(entry.getKey(), null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else {
-        serializer.addToMessage(msg, entry.getKey(), null, value);
+        serializer.addToMessageWithClassHeaders(msg, entry.getKey(), null, value);
       }
     }
     return msg;
@@ -58,6 +58,10 @@ public final class FlexiBeanFudgeBuilder implements FudgeBuilder<FlexiBean> {
     final FlexiBean bean = new FlexiBean();
     List<FudgeField> fields = msg.getAllFields();
     for (FudgeField field : fields) {
+      if (field.getName() == null) {
+        // Ignore fields without a text label
+        continue;
+      }
       Object value = deserializer.fieldValueToObject(field);
       value = (value instanceof IndicatorType) ? null : value;
       bean.set(field.getName(), value);
