@@ -23,36 +23,36 @@ import java.util.Map;
 
 public interface SecurePortfolioMaster extends ChangeProvider {
 
-  public PortfolioSearchResult search(PortfolioCapability PortfolioCapability, PortfolioSearchRequest request);
+  PortfolioSearchResult search(PortfolioCapability portfolioCapability, PortfolioSearchRequest request);
 
-  public void remove(PortfolioCapability PortfolioCapability, ObjectIdentifiable oid);
+  void remove(PortfolioCapability portfolioCapability, ObjectIdentifiable oid);
 
-  public PortfolioDocument get(PortfolioCapability PortfolioCapability, ObjectIdentifiable objectId, VersionCorrection versionCorrection);
+  PortfolioDocument get(PortfolioCapability portfolioCapability, ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
-  public UniqueId addVersion(PortfolioCapability PortfolioCapability, ObjectIdentifiable objectId, PortfolioDocument documentToAdd);
+  UniqueId addVersion(PortfolioCapability portfolioCapability, ObjectIdentifiable objectId, PortfolioDocument documentToAdd);
 
-  public PortfolioDocument get(PortfolioCapability PortfolioCapability, UniqueId uniqueId);
+  PortfolioDocument get(PortfolioCapability portfolioCapability, UniqueId uniqueId);
 
-  public List<UniqueId> replaceAllVersions(PortfolioCapability PortfolioCapability, ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments);
+  List<UniqueId> replaceAllVersions(PortfolioCapability portfolioCapability, ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments);
 
-  public PortfolioDocument update(PortfolioCapability PortfolioCapability, PortfolioDocument document);
+  PortfolioDocument update(PortfolioCapability portfolioCapability, PortfolioDocument document);
 
-  public PortfolioHistoryResult history(PortfolioCapability PortfolioCapability, PortfolioHistoryRequest request);
+  PortfolioHistoryResult history(PortfolioCapability portfolioCapability, PortfolioHistoryRequest request);
 
-  public PortfolioDocument add(PortfolioCapability PortfolioCapability, PortfolioDocument document);
+  PortfolioDocument add(PortfolioCapability portfolioCapability, PortfolioDocument document);
 
-  public List<UniqueId> replaceVersions(PortfolioCapability PortfolioCapability, ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments);
+  List<UniqueId> replaceVersions(PortfolioCapability portfolioCapability, ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments);
 
-  public ManageablePortfolioNode getNode(PortfolioCapability PortfolioCapability, UniqueId nodeId);
+  ManageablePortfolioNode getNode(PortfolioCapability portfolioCapability, UniqueId nodeId);
 
-  public Map<UniqueId, PortfolioDocument> get(PortfolioCapability PortfolioCapability, Collection<UniqueId> uniqueIds);
+  Map<UniqueId, PortfolioDocument> get(PortfolioCapability portfolioCapability, Collection<UniqueId> uniqueIds);
 
-  public PortfolioDocument correct(PortfolioCapability PortfolioCapability, PortfolioDocument document);
+  PortfolioDocument correct(PortfolioCapability portfolioCapability, PortfolioDocument document);
 
-  public void removeVersion(PortfolioCapability PortfolioCapability, UniqueId uniqueId);
+  void removeVersion(PortfolioCapability portfolioCapability, UniqueId uniqueId);
 
-  public UniqueId replaceVersion(PortfolioCapability PortfolioCapability, PortfolioDocument replacementDocument);
+  UniqueId replaceVersion(PortfolioCapability portfolioCapability, PortfolioDocument replacementDocument);
 
-  public List<UniqueId> replaceVersion(PortfolioCapability PortfolioCapability, UniqueId uniqueId, List<PortfolioDocument> replacementDocuments);
+  List<UniqueId> replaceVersion(PortfolioCapability portfolioCapability, UniqueId uniqueId, List<PortfolioDocument> replacementDocuments);
 
 }

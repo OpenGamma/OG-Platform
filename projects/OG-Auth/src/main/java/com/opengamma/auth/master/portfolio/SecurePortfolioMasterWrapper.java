@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p/>
+ * Please see distribution for license.
+ */
 package com.opengamma.auth.master.portfolio;
 
 import com.opengamma.auth.AuthorisationException;
@@ -42,8 +47,8 @@ import static com.opengamma.lambdava.streams.Lambdava.functional;
  */
 public class SecurePortfolioMasterWrapper implements SecurePortfolioMaster, ChangeProvider {
 
-  PortfolioMaster _portfolioMaster;
-  final private Clock _timeSource;
+  private final PortfolioMaster _portfolioMaster;
+  private final Clock _timeSource;
 
   public SecurePortfolioMasterWrapper(PortfolioMaster portfolioMaster) {
     _portfolioMaster = portfolioMaster;

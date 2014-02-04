@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p/>
+ * Please see distribution for license.
+ */
 package com.opengamma.auth;
 
 import org.fudgemsg.FudgeMsg;
@@ -6,15 +11,11 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-/**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
- */
+
 public class SignedMessage<T> {
 
-  final private T _message;
-  final private String _signature;
+  private final T _message;
+  private final String _signature;
 
   private SignedMessage(T message, String signature) {
     _message = message;

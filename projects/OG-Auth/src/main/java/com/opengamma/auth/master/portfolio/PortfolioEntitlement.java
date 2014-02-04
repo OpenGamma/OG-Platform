@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p/>
+ * Please see distribution for license.
+ */
 package com.opengamma.auth.master.portfolio;
 
 import com.opengamma.auth.Either;
@@ -15,18 +20,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
- */
+
 public class PortfolioEntitlement extends Entitlement<Either<ObjectId, WholePortfolio>> {
 
-  public static PortfolioEntitlement globalPortfolioEntitlement(Instant expiry, ResourceAccess access){
+  public static PortfolioEntitlement globalPortfolioEntitlement(Instant expiry, ResourceAccess access) {
     return new PortfolioEntitlement(Either.<ObjectId, WholePortfolio>right(WholePortfolio.INSTANCE), expiry, access);
   }
 
-  public static PortfolioEntitlement singlePortfolioEntitlement(ObjectId portfolioId, Instant expiry, ResourceAccess access){
+  public static PortfolioEntitlement singlePortfolioEntitlement(ObjectId portfolioId, Instant expiry, ResourceAccess access) {
     return new PortfolioEntitlement(Either.<ObjectId, WholePortfolio>left(portfolioId), expiry, access);
   }
 

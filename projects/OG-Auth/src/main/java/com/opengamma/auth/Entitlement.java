@@ -1,28 +1,18 @@
-package com.opengamma.auth;
-
-import com.opengamma.core.user.ResourceAccess;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
-import org.threeten.bp.Instant;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.SortedSet;
-
-import static com.google.common.collect.Sets.newTreeSet;
-
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * <p/>
  * Please see distribution for license.
  */
+package com.opengamma.auth;
+
+import org.threeten.bp.Instant;
+import com.opengamma.core.user.ResourceAccess;
+
+
 public class Entitlement<IDENTIFIER> {
-  final private IDENTIFIER _identifier; // identifies the resource this entitlement entitles to.
-  final private Instant _expiry;
-  final private ResourceAccess _access;
+  private final IDENTIFIER _identifier; // identifies the resource this entitlement entitles to.
+  private final Instant _expiry;
+  private final ResourceAccess _access;
 
   public Entitlement(IDENTIFIER identifier, Instant expiry, ResourceAccess access) {
     _identifier = identifier;

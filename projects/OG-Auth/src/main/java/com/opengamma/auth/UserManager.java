@@ -1,8 +1,18 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p/>
+ * Please see distribution for license.
+ */
 package com.opengamma.auth;
 
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import org.threeten.bp.Clock;
 import com.opengamma.auth.master.portfolio.PortfolioCapability;
 import com.opengamma.auth.master.portfolio.PortfolioEntitlement;
-import com.opengamma.auth.master.portfolio.WholePortfolio;
 import com.opengamma.core.user.OGEntitlement;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.core.user.ResourceAccess;
@@ -14,13 +24,6 @@ import com.opengamma.master.user.RoleSearchRequest;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
-import org.threeten.bp.Clock;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
@@ -29,11 +32,11 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class UserManager {
 
-  final private UserMaster _userMaster;
-  final private RoleMaster _roleMaster;
+  private final UserMaster _userMaster;
+  private final RoleMaster _roleMaster;
 
   private Clock _timeSource = Clock.systemUTC();
-  final private static Long CAPABILITY_REVOCATION_TIMEOUT = 60 * 60L; // one hour
+  private static final Long CAPABILITY_REVOCATION_TIMEOUT = 60 * 60L; // one hour
 
   public UserManager(UserMaster userMaster, RoleMaster roleMaster) {
     _userMaster = userMaster;
