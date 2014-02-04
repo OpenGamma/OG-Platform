@@ -5,11 +5,10 @@
  */
 package com.opengamma.core.user;
 
-import com.opengamma.id.ExternalId;
+import java.util.Set;
+
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
-
-import java.util.Set;
 
 /**
  * Any role known to the OpenGamma Platform installation.
