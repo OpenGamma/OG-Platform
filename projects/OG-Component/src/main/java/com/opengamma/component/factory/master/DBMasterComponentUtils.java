@@ -36,8 +36,8 @@ public final class DBMasterComponentUtils {
       s_logger.warn("Change management for master enabled in {} (classifier '{}') " + 
              "but not all jms settings present: jmsChangeManagerTopic={}, jmsConnector={}. " + 
              "Will be disabled. Set enableChangeManagement=false to suppress this warning.", 
-             classifier,
              cfClazz,
+             classifier,
              jmsChangeManagerTopic, 
              jmsConnector);
     }
