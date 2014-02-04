@@ -12,7 +12,6 @@ import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
@@ -387,7 +386,8 @@ public class ExampleDatabaseCreatorGui {
                                                           toolContext.getHolidayMaster(),
                                                           toolContext.getExchangeMaster(),
                                                           toolContext.getMarketDataSnapshotMaster(),
-                                                          toolContext.getOrganizationMaster());
+                                                          toolContext.getOrganizationMaster(),
+                                                          toolContext.getConventionMaster());
     databaseRestore.restoreDatabase();
   }
 
