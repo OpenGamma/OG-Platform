@@ -37,7 +37,8 @@ public class DatabaseDumpTool extends AbstractTool<ToolContext> {
                                                  getToolContext().getHolidayMaster(),
                                                  getToolContext().getExchangeMaster(),
                                                  getToolContext().getMarketDataSnapshotMaster(),
-                                                 getToolContext().getOrganizationMaster());
+                                                 getToolContext().getOrganizationMaster(),
+                                                 getToolContext().getConventionMaster());
     databaseDump.dumpDatabase();
   }
 

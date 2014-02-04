@@ -53,6 +53,8 @@ import com.opengamma.master.config.ConfigSearchResult;
   public static final String MARKET_DATA_SNAPSHOT_MASTER_DATA = "snapshots";
   /** Type identifier for OrganizationMaster data. */
   public static final String ORGANIZATION_MASTER_DATA = "organizations";
+  /** Type identifier for ConventionMaster data. */
+  public static final String CONVENTION_MASTER_DATA = "conventions";
 
   private RegressionUtils() {
   }
@@ -94,7 +96,8 @@ import com.opengamma.master.config.ConfigSearchResult;
     // it needs to be restarted before the tests to pick up function repo changes from the database
     try (ServerProcess ignored = ServerProcess.start(workingDir, classpath, serverConfigFile, dbProps, logbackConfig); RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseRestore databaseRestore = new DatabaseRestore(databaseDumpDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
-          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster());
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster(),
+          server.getConventionMaster());
       databaseRestore.restoreDatabase();
     }
   }

@@ -37,7 +37,8 @@ public class DatabaseRestoreTool extends AbstractTool<ToolContext> {
                                                           getToolContext().getHolidayMaster(),
                                                           getToolContext().getExchangeMaster(),
                                                           getToolContext().getMarketDataSnapshotMaster(),
-                                                          getToolContext().getOrganizationMaster());
+                                                          getToolContext().getOrganizationMaster(),
+                                                          getToolContext().getConventionMaster());
     databaseRestore.restoreDatabase();
   }
 

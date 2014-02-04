@@ -24,6 +24,9 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.convention.ConventionDocument;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ManageableExchange;
@@ -69,6 +72,7 @@ import com.opengamma.util.ArgumentChecker;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
+  private final ConventionMaster _conventionMaster;
   
   private final MasterQueryManager _masterQueryManager;
   
@@ -78,22 +82,23 @@ import com.opengamma.util.ArgumentChecker;
   private int _nextId;
 
   /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      ConventionMaster conventionMaster) {
     this(outputDir, securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, organizationMaster, MasterQueryManager.queryAll());
+        exchangeMaster, snapshotMaster, organizationMaster, conventionMaster, MasterQueryManager.queryAll());
   }
 
   /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
       HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
-      MasterQueryManager masterFilterManager) {
+      ConventionMaster conventionMaster, MasterQueryManager masterFilterManager) {
     this(new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), true), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, organizationMaster, masterFilterManager);
+        exchangeMaster, snapshotMaster, organizationMaster, conventionMaster, masterFilterManager);
   }
 
   
   /* package */DatabaseDump(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster, 
-      MasterQueryManager masterQueryManager) {
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      ConventionMaster conventionMaster, MasterQueryManager masterQueryManager) {
     ArgumentChecker.notNull(io, "io");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
@@ -112,6 +117,7 @@ import com.opengamma.util.ArgumentChecker;
     _configMaster = configMaster;
     _securityMaster = securityMaster;
     _masterQueryManager = masterQueryManager;
+    _conventionMaster = conventionMaster;
     ConfigItem<IdMappings> mappingsConfigItem = RegressionUtils.loadIdMappings(_configMaster);
     if (mappingsConfigItem != null) {
       _idMappings = mappingsConfigItem.getValue();
@@ -132,7 +138,8 @@ import com.opengamma.util.ArgumentChecker;
     int exitCode = 0;
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseDump databaseDump = new DatabaseDump(dataDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
-          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster());
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster(),
+          server.getConventionMaster());
       databaseDump.dumpDatabase();
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
@@ -153,6 +160,7 @@ import com.opengamma.util.ArgumentChecker;
     ids.putAll(writeExchanges());
     ids.putAll(writeSnapshots());
     ids.putAll(writeOrganizations());
+    ids.putAll(writeConventions());
     int maxId = _idMappings.getMaxId();
     for (Integer id : ids.values()) {
       if (id > maxId) {
@@ -207,6 +215,11 @@ import com.opengamma.util.ArgumentChecker;
   private Map<ObjectId, Integer> writeOrganizations() throws IOException {
     Iterable<OrganizationDocument> result = _masterQueryManager.getOrganizationQuery().apply(_organizationMaster);
     return write(transform(result, new OrganizationTransformer()), "organizations", "org");
+  }
+
+  private Map<ObjectId, Integer> writeConventions() throws IOException {
+    Iterable<ConventionDocument> result = _masterQueryManager.getConventionQuery().apply(_conventionMaster);
+    return write(transform(result, new ConventionTransformer()), "conventions", "con");
   }
 
   private Map<ObjectId, Integer> write(Iterable<? extends UniqueIdentifiable> objects, String type, String prefix) throws IOException {
@@ -298,6 +311,13 @@ import com.opengamma.util.ArgumentChecker;
     @Override
     public ManageableOrganization apply(OrganizationDocument input) {
       return input.getOrganization();
+    }
+  }
+  
+  private class ConventionTransformer implements Function<ConventionDocument, ManageableConvention> {
+    @Override
+    public ManageableConvention apply(ConventionDocument input) {
+      return input.getConvention();
     }
   }
   

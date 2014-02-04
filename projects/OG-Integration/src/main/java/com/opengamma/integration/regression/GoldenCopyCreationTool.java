@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.impl.DataTrackingConfigMaster;
+import com.opengamma.master.convention.impl.DataTrackingConventionMaster;
 import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
 import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
@@ -91,7 +92,8 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
         (DataTrackingHolidayMaster) tc.getHolidayMaster(),
         (DataTrackingExchangeMaster) tc.getExchangeMaster(),
         (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster(),
-        (DataTrackingOrganizationMaster) tc.getOrganizationMaster());
+        (DataTrackingOrganizationMaster) tc.getOrganizationMaster(),
+        (DataTrackingConventionMaster) tc.getConventionMaster());
     
     s_logger.info("Persisting db dump with tracked data");
     goldenCopyDumpCreator.execute();
