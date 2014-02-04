@@ -28,6 +28,8 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 
 /**
  * Component factory for a data source. This has some default values designed for the masters. 
+ * <p>
+ * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
 public class DataSourceComponentFactory extends AbstractComponentFactory {
@@ -82,7 +84,8 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private int _maxConnectionsPerPartition = 10;
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     if (getPoolName() == null) {
@@ -90,8 +93,27 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     }
     initDataSource(repo);
   }
-  
-  protected DataSource initDataSource(ComponentRepository repo) {
+
+  /**
+   * Creates the data source and registers it with the component repository.
+   * 
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @return the cache manager, not null
+   */
+  protected DataSource initDataSource(final ComponentRepository repo) {
+    final DataSource dataSource = createDataSource(repo);
+    final ComponentInfo info = new ComponentInfo(DataSource.class, getClassifier());
+    repo.registerComponent(info, dataSource);
+    return dataSource;
+  }
+
+  /**
+   * Creates the data source without registering it.
+   * 
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @return the data source, not null
+   */
+  protected DataSource createDataSource(final ComponentRepository repo) {
     BoneCPDataSource dataSource = new BoneCPDataSource();
     dataSource.setDriverClass(getDriverClass());
     dataSource.setJdbcUrl(getJdbcUrl());
@@ -102,9 +124,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     dataSource.setAcquireIncrement(getAcquireIncrement());
     dataSource.setMinConnectionsPerPartition(getMinConnectionsPerPartition());
     dataSource.setMaxConnectionsPerPartition(getMaxConnectionsPerPartition());
-    
-    ComponentInfo info = new ComponentInfo(DataSource.class, getClassifier());
-    repo.registerComponent(info, dataSource);
     return dataSource;
   }
 
