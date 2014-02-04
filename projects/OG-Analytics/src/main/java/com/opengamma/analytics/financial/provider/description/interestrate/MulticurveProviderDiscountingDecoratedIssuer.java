@@ -72,6 +72,11 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   }
 
   @Override
+  public double getInvestmentFactor(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
+    return _issuerProvider.getMulticurveProvider().getInvestmentFactor(index, startTime, endTime, accrualFactor);
+  }
+
+  @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
     return _issuerProvider.getMulticurveProvider().getForwardRate(index, startTime, endTime, accrualFactor);
   }
@@ -79,6 +84,11 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime) {
     return _issuerProvider.getMulticurveProvider().getForwardRate(index, startTime, endTime);
+  }
+
+  @Override
+  public double getInvestmentFactor(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
+    return _issuerProvider.getMulticurveProvider().getInvestmentFactor(index, startTime, endTime, accrualFactor);
   }
 
   @Override

@@ -144,6 +144,14 @@ public abstract class DbDialect {
     }
   }
 
+  public String sqlWildcardAdjustValue(Object value) {
+    if (value == null) {
+      return sqlWildcardAdjustValue((String) null);
+    } else {
+      return sqlWildcardAdjustValue(value.toString());
+    }
+  }
+
   /**
    * Adjusts wildcards from the public values of * and ? to the database
    * values of % and _.

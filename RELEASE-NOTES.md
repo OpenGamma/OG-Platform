@@ -7,6 +7,213 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M8
+-----------
+* Bug
+  * [PLAT-3940] - @ExternalFunction annotations not picked up
+  * [PLAT-5491] - Scripts can't be run from different directory (windows)
+  * [PLAT-5529] - CDS Par Spread is incorrect
+  * [PLAT-5536] - DbDateUtilsTest fails in Australia
+  * [PLAT-5648] - Maven site stopped building
+  * [PLAT-5686] - The dep graph debugger does not work on windows install
+  * [PLAT-5694] - Fix the Java API for specifying point shifts and bucketed shifts for curves
+  * [PLAT-5695] - Non-stub schedule with EOM adjuster produces 0 day (start date = end date) flow
+  * [PLAT-5698] - Spot rate scaling in the scenario DSL should be consistent with curve scaling
+  * [PLAT-5706] - Force annuity dates to start of day so that payments on val date are not included
+  * [PLAT-5723] - FXForwardCurrencyExposurePnLFunction does not perform a currency conversion if the result currency is the base currency
+  * [PLAT-5750] - Add spotRate() method to Scenario
+  * [PLAT-5755] - Floating swap leg formatter accrual fraction column shows all elements of the array
+  * [PLAT-5763] - Fix index lookup for new FRA security
+  * [PLAT-5765] - Ignore signed notionals on new annuity builder, pay/receive flag should take precedence
+  * [PLAT-5766] - Check for null compound method when calling isCompounding in new annuity builder
+* Improvement
+  * [PLAT-3451] - OG-Financial: allow the "convexity adjustment" for bond futures
+  * [PLAT-4956] - Migration of data in BeanMaster
+  * [PLAT-5073] - VOD calculation for CDS
+  * [PLAT-5668] - Dividend in Carr-Lee model
+  * [PLAT-5726] - Add bond securities to types handled in BondFutureConstantSpreadThetaFunction and rename
+  * [PLAT-5732] - use the daycount of the index in CouponONCompoundedDefinition
+  * [PLAT-5733] - example of curve construction SwapFixedCompoundedONCompounded using a MulticurveProviderForward
+  * [PLAT-5734] - remove _fixingPeriodAccrualFactorsActAct from CouponONCompounded and CouponONCompoundedDefinition
+  * [PLAT-5736] - create spring viewprocess xml path variable in properties
+  * [PLAT-5737] - Add Mexican pesos to Currency
+  * [PLAT-5738] - generalised the rate cut off for Overnight arithmetic average coupon
+  * [PLAT-5739] - Add AUS-AONIA-OIS-COMPOUND to FloatingIndex
+  * [PLAT-5741] - Change CurveGroupConfiguration.typesForCurves to use <? extends CurveTypeConfiguration>
+  * [PLAT-5742] - use the daycounter business/252 in the toderive function for the files CouponFixedAccruedCompoundingDefinition, SwaptionPhysicalFixedCompoundedONCompoundedDefinition and SwaptionCashFixedCompoundedONCompoundedDefinition.
+  * [PLAT-5743] - Refactor of new AnnuityDefinitionBuilders
+  * [PLAT-5746] - Add support for CouponONArithmeticAverageDefinition in FloatingAnnuityDefinitionBuilder
+  * [PLAT-5747] - Implement initial rate for FloatingAnnuityDefinitionBuilder
+  * [PLAT-5751] - In TimeCalculator class add a function getTimeBetween using a calendar as input
+* New Feature
+  * [PLAT-5196] - Quantity column for bonds
+  * [PLAT-5605] - Make the service console a normal window so that it can be minimized
+  * [PLAT-5620] - Config env enhancements
+  * [PLAT-5687] - Config upload tool should log which file is causing the error
+  * [PLAT-5708] - Adaptive Quadrature Method
+  * [PLAT-5712] - Add a user set property to point to FunctionConfigurationSourceComponentFactory
+* Task
+  * [PLAT-5565] - Check hashCode and equals for PiecewiseInterpolator1D
+  * [PLAT-5703] - add tests to DayPeriodPreCalculatedDiscountCurve
+  * [PLAT-5719] - Upgrade to Corporate-Parent 1.1.8
+  * [PLAT-5724] - Remove BeanCompare equalsIgnoring
+  * [PLAT-5725] - Check scaling and result properties on swaption black functions
+* Sub-task
+  * [PLAT-5670] - Share CSettings instance across all initialisation code
+* Epic
+  * [PLAT-5632] - Support for in-place versioning/upgrades for Joda Beans
+
+
+To 2.2.0-M7
+-----------
+
+* Bug
+  * [PLAT-4631] - ConfigItem instances aren't always serializable
+  * [PLAT-5456] - Use last margin price in bond future conversion and remove converters that use incorrect analytics form
+  * [PLAT-5494] - Currency of futures is mislabelled in securities tab
+  * [PLAT-5513] - new constructor for CouponONArithmeticAverageDefinition implementing the rate cut off
+  * [PLAT-5515] - The swap type returned by the swap security converter no longer matches that expected by the swaption converter
+  * [PLAT-5518] - PositionGreeksFunction uses == to compare requirement names
+  * [PLAT-5520] - Possible NPE in equity option functions
+  * [PLAT-5527] - FailureResult cannot serialize FormattingTuple
+  * [PLAT-5529] - CDS Par Spread is incorrect
+  * [PLAT-5530] - Index CDS uses 105 bps as hard-coded value if market quote doesn't exist
+  * [PLAT-5531] - Index CDS returns incorrect values if the market quote is not found
+  * [PLAT-5555] - top level pom.xml points testng to non existant logback file
+  * [PLAT-5569] - Re-pointing OG-Excel server does not restart service
+  * [PLAT-5573] - Conventions with loops in cause a StackOverflowError during the compilation phase in FXMatrixFunction
+  * [PLAT-5574] - OG-Financial: incorrect TS for FederalFundsFuture converter
+  * [PLAT-5607] - VolatilitySurfaceManipulatorBuilder needs to be public
+  * [PLAT-5608] - Cannot extract value columns into Excel from extant view
+  * [PLAT-5610] - Config validator unexpected error
+  * [PLAT-5611] - It should not be possible to upload malformed xml as a config
+  * [PLAT-5612] - Config validator does not complain if curve has no nodes
+  * [PLAT-5616] - Period calculation in scenario DSL is wrong for fitted curve and surface data
+  * [PLAT-5633] - Web UI should capture ip address of client browser
+  * [PLAT-5634] - Can not create snapshot
+  * [PLAT-5646] - Add missing TestGroup.UNIT
+  * [PLAT-5647] - Upgrade to Joda-Beans 0.9.1
+  * [PLAT-5652] - Web-UI: Missing value in merged columns
+  * [PLAT-5655] - Error in curve construction should be more explanatory
+  * [PLAT-5657] - Add checks for null basket securities and null ISINs in bond future security converter
+  * [PLAT-5658] - MarkToMarketSpotFuturesFunction can throw an NPE in the graph build phase if the superclass requirements are not satisfied
+  * [PLAT-5663] - Add space support on the constraints to the dep graph debugger
+  * [PLAT-5667] - Bloomberg Examples function configuration does not include CurveFunctions
+  * [PLAT-5669] - AnalyticsParameterProviderBuilders: buildObject incorrect
+  * [PLAT-5674] - Historical time-series rating does not have a named field on the serialized xml
+  * [PLAT-5680] - NPE in integration tool context when loading LiveDataMetaDataProviders
+  * [PLAT-5684] - Bond security conversion uses the first accrual date field, which can be null, without checking that it is not null
+  * [PLAT-5685] - IRSSecurityConverter should use start of day instead of end of day
+  * [PLAT-5692] - Bloomberg Examples function configuration does not include multi-curve pricing functions
+* Improvement
+  * [PLAT-1137] - ScheduleCalculator: enhance to include all conventions and stub treatment
+  * [PLAT-3199] - Make sure that greeks are consistent for equity and index options, equity and index future options and commodity future options
+  * [PLAT-4011] - Filter ViewClient results based on user's market data entitlements
+  * [PLAT-4964] - Add support for generating unadjusted dates for dates with stubs at the start and end
+  * [PLAT-4974] - Add support for forward rate interpolation when valuing stub period coupons
+  * [PLAT-5006] - Ability to merge columns into a single, aliased column with common aggregates
+  * [PLAT-5023] - Ability for regression testing framework to run against in-process engine
+  * [PLAT-5073] - VOD calculation for CDS
+  * [PLAT-5127] - Add support for stub periods when using new swap security
+  * [PLAT-5242] - Snapshot time should be stored on the snapshot instance
+  * [PLAT-5305] - Group config elements via config annotation and display in groups in UI menu 
+  * [PLAT-5460] - Vanishing time to dividend payment in RGW model
+  * [PLAT-5488] - OG-Analytics: IssuerDiscountBuildingRepository should take arrays of issuers for each curve
+  * [PLAT-5514] - Utility script to collate all files of interest for error reporting
+  * [PLAT-5525] - EqyOptRollGeskeWhaleyPresentValueCalculator has three largely identical methods
+  * [PLAT-5526] - ListedEquityOptionRollGeskeWhaleyImpliedVolFunction contains too much logic that should be in OG-Analytics
+  * [PLAT-5543] - Consider standardising DbMaster publication
+  * [PLAT-5552] - OG-Financial: Bond converter should load rating
+  * [PLAT-5559] - Add support for jmsMarketDataAvailabilityTopic to LiveMarketDataProviderFactoryComponentFactory
+  * [PLAT-5561] - EngineDebugger should not attempt to adjust the live data provider name
+  * [PLAT-5563] - The price type property is no longer used in CDS functions and should be removed
+  * [PLAT-5584] - Turn down market data unsubscription logging
+  * [PLAT-5606] - BucketedPV01Function should work at trade level and not only position
+  * [PLAT-5618] - Disable forms authentication on /jax/components
+  * [PLAT-5623] - Same username should not be able to be used from multiple ip addresses
+  * [PLAT-5624] - Permissions check required when connecting to a running view
+  * [PLAT-5635] - Provide access to view process that a view client is attached to
+  * [PLAT-5636] - Web UI: Support starting a view by view process UniqueId
+  * [PLAT-5640] - Remove deprecated web UI resources
+  * [PLAT-5649] - UserEntitlementChecker should not fail unresolvable specs
+  * [PLAT-5650] - Extends the set of Ibor-like conventions used in SwapSecurityConverter
+  * [PLAT-5659] - Publish SecurityLoader and HTSLoader rest in OG-Bloomberg example server
+  * [PLAT-5666] - Deactivate weight adjustment in Carr-Lee model
+  * [PLAT-5683] - Quiet down messages from getRequirements() in bond and bond future functions
+  * [PLAT-5696] - Refactor of AnnuityDefinitionBuilder
+* New Feature
+  * [PLAT-3706] - Duplicate current FX implied curve functionality using new curve configurations.
+  * [PLAT-4416] - Create time series of Closing_Bid and Closing_Ask. Ensure displayed together
+  * [PLAT-4829] - Tool for creating view regression tests
+  * [PLAT-5196] - Quantity column for bonds
+  * [PLAT-5451] - OG-Analytics: New instrument: AUD bond futures
+  * [PLAT-5489] - Directly manipulate FX cross rates in scenarios
+  * [PLAT-5496] - Importing configuration files one by one is very slow
+  * [PLAT-5498] - Scheme altering wrapping HolidaySource
+  * [PLAT-5510] - New date format chooser partially not visible
+  * [PLAT-5517] - OG-Analytics: Create pricing method for AverageYieldBondFutures (AUD bond futures)
+  * [PLAT-5528] - Add AUSTRALIAN to list of valid bond security types to BondLoader
+  * [PLAT-5532] - implement an annuity definition for commodity coupon (both cash and physical settle)
+  * [PLAT-5544] - CashFlowSecurity converter
+  * [PLAT-5545] - Add support for cash flow securities to existing pricing functions
+  * [PLAT-5546] - Add support for CashFlowSecurity in PortfolioLoaderTool
+  * [PLAT-5547] - parspread market quote sensitivity calculator for future/forward/coupon/swap commodity
+  * [PLAT-5551] - Add CashFlowSecurity to instruments supported in NotionalVisitor
+  * [PLAT-5553] - FX volatility swap security object
+  * [PLAT-5556] - parspread curve sensitivity calculator for future/forward/swap commodity
+  * [PLAT-5557] - parspread market quote sensitivity calculator for future/forward/swap commodity
+  * [PLAT-5566] - Tool to check new curve configs and show any problems
+  * [PLAT-5568] - Make tracking for db masters configurable via a switch
+  * [PLAT-5571] - Add flag to config import tool to only add but not update existing configs
+  * [PLAT-5575] - Carr-Lee volatility swap valuation
+  * [PLAT-5582] - Base index class definition
+  * [PLAT-5585] - Ibor index definition
+  * [PLAT-5586] - Overnight index definition
+  * [PLAT-5587] - Equity index component
+  * [PLAT-5588] - Equity index definition
+  * [PLAT-5589] - Credit index definition
+  * [PLAT-5592] - Credit index component
+  * [PLAT-5593] - Bond index component
+  * [PLAT-5594] - Bond index
+  * [PLAT-5603] - Base index component definition
+  * [PLAT-5605] - Make the service console a normal window so that it can be minimized
+  * [PLAT-5619] - Add checking for exposure functions in configuration checker
+  * [PLAT-5625] - ADR security object
+  * [PLAT-5626] - Create ETF security object
+  * [PLAT-5627] - Create an equity warrant security
+  * [PLAT-5628] - Add equity warrants, ETF and ADR to financial security visitor
+* Task
+  * [PLAT-3715] - Test InterestRateFutureOptionMarginSecurityBlackSurfaceMethod
+  * [PLAT-4409] - Conventions for AUD
+  * [PLAT-4418] - Test and ensure consistency of PV and PNL for margined Futures and Options
+  * [PLAT-4419] - Ensure Mid prices for live and closing are consistent
+  * [PLAT-5383] - More tests for Roll-Geske-Whaley model
+  * [PLAT-5550] - Remove function that calculates jump to default for CDX
+  * [PLAT-5590] - implement a defintion file for swap fixed vs commodity
+  * [PLAT-5641] - Create CAD convention
+* Sub-task
+  * [PLAT-5026] - create abstract class CommodityFutureSecurity definition and derivative file
+  * [PLAT-5027] - create abstract class CommodityFutureTransaction definition and derivative file
+  * [PLAT-5053] - create interface and parameter interface for commodity curve provider
+  * [PLAT-5054] - create class describing a ""market" containing commodity and discount curves.
+  * [PLAT-5111] - definition and derivative file for commodity forward
+  * [PLAT-5112] - specific class for specific commodity future/forward according to the underlying type
+  * [PLAT-5113] - present value using discounting for future/forward commodity
+  * [PLAT-5114] - sensitivities using algorythme differentiantion for future/forward commodity
+  * [PLAT-5115] - parspread calculator for future/forward commodity
+  * [PLAT-5117] - last time calculator for future/forward commodity
+  * [PLAT-5149] - create coupon commodity (abstract class) definition and derivative
+  * [PLAT-5150] - create coupon commodity cash settle definition and derivative
+  * [PLAT-5151] - create coupon commodity physical settle definition and derivative
+  * [PLAT-5483] - improve the pricing method to take into account the rate cut-off
+  * [PLAT-5505] - create forward commodity cash settle definition and derivative
+  * [PLAT-5506] - create forward commodity physical settle definition and derivative
+* Epic
+  * [PLAT-3713] - Extend ValueRequirements of Interest Rate Future Options
+  * [PLAT-4705] - Regression testing of views
+  * [PLAT-5380] - Implement LegalEntities domain data model.
+
+
 To 2.2.0-M6
 -----------
 

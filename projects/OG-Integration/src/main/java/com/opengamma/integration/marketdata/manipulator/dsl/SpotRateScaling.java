@@ -112,7 +112,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
    * Gets the scalingFactor.
    * @return the value of the property, not null
    */
-  public Number getScalingFactor() {
+  public Double getScalingFactor() {
     return _scalingFactor;
   }
 
@@ -183,8 +183,8 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     /**
      * The meta-property for the {@code scalingFactor} property.
      */
-    private final MetaProperty<Number> _scalingFactor = DirectMetaProperty.ofImmutable(
-        this, "scalingFactor", SpotRateScaling.class, Number.class);
+    private final MetaProperty<Double> _scalingFactor = DirectMetaProperty.ofImmutable(
+        this, "scalingFactor", SpotRateScaling.class, Double.class);
     /**
      * The meta-property for the {@code currencyPairs} property.
      */
@@ -236,7 +236,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
      * The meta-property for the {@code scalingFactor} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Number> scalingFactor() {
+    public MetaProperty<Double> scalingFactor() {
       return _scalingFactor;
     }
 
@@ -277,7 +277,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SpotRateScaling> {
 
-    private Number _scalingFactor;
+    private Double _scalingFactor;
     private Set<CurrencyPair> _currencyPairs = new HashSet<CurrencyPair>();
 
     /**
@@ -301,7 +301,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -794828874:  // scalingFactor
-          this._scalingFactor = (Number) newValue;
+          this._scalingFactor = (Double) newValue;
           break;
         case 1094810440:  // currencyPairs
           this._currencyPairs = (Set<CurrencyPair>) newValue;
@@ -349,7 +349,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
      * @param scalingFactor  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder scalingFactor(Number scalingFactor) {
+    public Builder scalingFactor(Double scalingFactor) {
       JodaBeanUtils.notNull(scalingFactor, "scalingFactor");
       this._scalingFactor = scalingFactor;
       return this;

@@ -7,8 +7,11 @@ package com.opengamma.master.user;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
+
 
 import org.joda.beans.Bean;
+import com.opengamma.id.ObjectId;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -44,7 +47,14 @@ public class UserDocument extends AbstractDocument implements Serializable {
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
-  private UniqueId _uniqueId;  
+  private UniqueId _uniqueId;
+
+
+  /**
+   * Object identifiers of roles this user has.
+   */
+  @PropertyDefinition
+  private Set<ObjectId> _roleOids;
 
   /**
    * Creates an instance.
@@ -151,6 +161,31 @@ public class UserDocument extends AbstractDocument implements Serializable {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets object identifiers of roles this user has.
+   * @return the value of the property
+   */
+  public Set<ObjectId> getRoleOids() {
+    return _roleOids;
+  }
+
+  /**
+   * Sets object identifiers of roles this user has.
+   * @param roleOids  the new value of the property
+   */
+  public void setRoleOids(Set<ObjectId> roleOids) {
+    this._roleOids = roleOids;
+  }
+
+  /**
+   * Gets the the {@code roleOids} property.
+   * @return the property, not null
+   */
+  public final Property<Set<ObjectId>> roleOids() {
+    return metaBean().roleOids().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public UserDocument clone() {
     return (UserDocument) super.clone();
@@ -165,6 +200,7 @@ public class UserDocument extends AbstractDocument implements Serializable {
       UserDocument other = (UserDocument) obj;
       return JodaBeanUtils.equal(getUser(), other.getUser()) &&
           JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getRoleOids(), other.getRoleOids()) &&
           super.equals(obj);
     }
     return false;
@@ -175,12 +211,13 @@ public class UserDocument extends AbstractDocument implements Serializable {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRoleOids());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("UserDocument{");
     int len = buf.length();
     toString(buf);
@@ -196,6 +233,7 @@ public class UserDocument extends AbstractDocument implements Serializable {
     super.toString(buf);
     buf.append("user").append('=').append(JodaBeanUtils.toString(getUser())).append(',').append(' ');
     buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("roleOids").append('=').append(JodaBeanUtils.toString(getRoleOids())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -219,12 +257,19 @@ public class UserDocument extends AbstractDocument implements Serializable {
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", UserDocument.class, UniqueId.class);
     /**
+     * The meta-property for the {@code roleOids} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ObjectId>> _roleOids = DirectMetaProperty.ofReadWrite(
+        this, "roleOids", UserDocument.class, (Class) Set.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "user",
-        "uniqueId");
+        "uniqueId",
+        "roleOids");
 
     /**
      * Restricted constructor.
@@ -239,6 +284,8 @@ public class UserDocument extends AbstractDocument implements Serializable {
           return _user;
         case -294460212:  // uniqueId
           return _uniqueId;
+        case -266742401:  // roleOids
+          return _roleOids;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -275,6 +322,14 @@ public class UserDocument extends AbstractDocument implements Serializable {
       return _uniqueId;
     }
 
+    /**
+     * The meta-property for the {@code roleOids} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<ObjectId>> roleOids() {
+      return _roleOids;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -283,10 +338,13 @@ public class UserDocument extends AbstractDocument implements Serializable {
           return ((UserDocument) bean).getUser();
         case -294460212:  // uniqueId
           return ((UserDocument) bean).getUniqueId();
+        case -266742401:  // roleOids
+          return ((UserDocument) bean).getRoleOids();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -295,6 +353,9 @@ public class UserDocument extends AbstractDocument implements Serializable {
           return;
         case -294460212:  // uniqueId
           ((UserDocument) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -266742401:  // roleOids
+          ((UserDocument) bean).setRoleOids((Set<ObjectId>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

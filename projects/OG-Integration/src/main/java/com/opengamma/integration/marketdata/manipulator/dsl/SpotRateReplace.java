@@ -94,7 +94,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
    * Gets the value.
    * @return the value of the property, not null
    */
-  public Number getValue() {
+  public Double getValue() {
     return _value;
   }
 
@@ -153,8 +153,8 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
     /**
      * The meta-property for the {@code value} property.
      */
-    private final MetaProperty<Number> _value = DirectMetaProperty.ofImmutable(
-        this, "value", SpotRateReplace.class, Number.class);
+    private final MetaProperty<Double> _value = DirectMetaProperty.ofImmutable(
+        this, "value", SpotRateReplace.class, Double.class);
     /**
      * The meta-properties.
      */
@@ -197,7 +197,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
      * The meta-property for the {@code value} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Number> value() {
+    public MetaProperty<Double> value() {
       return _value;
     }
 
@@ -228,7 +228,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SpotRateReplace> {
 
-    private Number _value;
+    private Double _value;
 
     /**
      * Restricted constructor.
@@ -249,7 +249,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 111972721:  // value
-          this._value = (Number) newValue;
+          this._value = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -293,7 +293,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
      * @param value  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder value(Number value) {
+    public Builder value(Double value) {
       JodaBeanUtils.notNull(value, "value");
       this._value = value;
       return this;

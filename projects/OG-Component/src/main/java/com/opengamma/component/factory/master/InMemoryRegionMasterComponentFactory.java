@@ -5,6 +5,8 @@
  */
 package com.opengamma.component.factory.master;
 
+import static com.opengamma.component.factory.master.DBMasterComponentUtils.isValidJmsConfiguration;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -46,6 +48,13 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
+  
+  /**
+   * Whether to use change management. If true, requires jms settings to be non-null.
+   */
+  @PropertyDefinition
+  private boolean _enableChangeManagement = true;
+
   /**
    * The flag determining whether the component should be published by REST (default true).
    */
@@ -75,7 +84,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     // create
     String scheme = (getUniqueIdScheme() != null ? getUniqueIdScheme() : InMemoryRegionMaster.DEFAULT_OID_SCHEME);
     ChangeManager cm = new BasicChangeManager();
-    if (getJmsChangeManagerTopic() != null) {
+    if (isEnableChangeManagement() && isValidJmsConfiguration(getClassifier(), getClass(), getJmsConnector(), getJmsChangeManagerTopic())) {
       cm = new JmsChangeManager(getJmsConnector(), getJmsChangeManagerTopic());
       repo.registerLifecycle((Lifecycle) cm);
       if (getJmsConnector().getClientBrokerUri() != null) {
@@ -141,6 +150,31 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether to use change management. If true, requires jms settings to be non-null.
+   * @return the value of the property
+   */
+  public boolean isEnableChangeManagement() {
+    return _enableChangeManagement;
+  }
+
+  /**
+   * Sets whether to use change management. If true, requires jms settings to be non-null.
+   * @param enableChangeManagement  the new value of the property
+   */
+  public void setEnableChangeManagement(boolean enableChangeManagement) {
+    this._enableChangeManagement = enableChangeManagement;
+  }
+
+  /**
+   * Gets the the {@code enableChangeManagement} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> enableChangeManagement() {
+    return metaBean().enableChangeManagement().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -257,6 +291,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     if (obj != null && obj.getClass() == this.getClass()) {
       InMemoryRegionMasterComponentFactory other = (InMemoryRegionMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isEnableChangeManagement() == other.isEnableChangeManagement()) &&
           (isPublishRest() == other.isPublishRest()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
@@ -270,6 +305,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableChangeManagement());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
@@ -279,7 +315,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("InMemoryRegionMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -294,6 +330,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("enableChangeManagement").append('=').append(JodaBeanUtils.toString(isEnableChangeManagement())).append(',').append(' ');
     buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
     buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
     buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
@@ -315,6 +352,11 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", InMemoryRegionMasterComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code enableChangeManagement} property.
+     */
+    private final MetaProperty<Boolean> _enableChangeManagement = DirectMetaProperty.ofReadWrite(
+        this, "enableChangeManagement", InMemoryRegionMasterComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code publishRest} property.
      */
@@ -341,6 +383,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
+        "enableChangeManagement",
         "publishRest",
         "jmsConnector",
         "jmsChangeManagerTopic",
@@ -357,6 +400,8 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
+        case 981110710:  // enableChangeManagement
+          return _enableChangeManagement;
         case -614707837:  // publishRest
           return _publishRest;
         case -1495762275:  // jmsConnector
@@ -391,6 +436,14 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
+    }
+
+    /**
+     * The meta-property for the {@code enableChangeManagement} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> enableChangeManagement() {
+      return _enableChangeManagement;
     }
 
     /**
@@ -431,6 +484,8 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return ((InMemoryRegionMasterComponentFactory) bean).getClassifier();
+        case 981110710:  // enableChangeManagement
+          return ((InMemoryRegionMasterComponentFactory) bean).isEnableChangeManagement();
         case -614707837:  // publishRest
           return ((InMemoryRegionMasterComponentFactory) bean).isPublishRest();
         case -1495762275:  // jmsConnector
@@ -448,6 +503,9 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           ((InMemoryRegionMasterComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case 981110710:  // enableChangeManagement
+          ((InMemoryRegionMasterComponentFactory) bean).setEnableChangeManagement((Boolean) newValue);
           return;
         case -614707837:  // publishRest
           ((InMemoryRegionMasterComponentFactory) bean).setPublishRest((Boolean) newValue);

@@ -79,7 +79,14 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     final ZonedDateTime accrualEndDate = security.getEndDate().atStartOfDay(ZoneId.systemDefault());
     final double notional = security.getAmount();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCalendars().toArray(new ExternalId[security.getCalendars().size()]));
-    final IborIndex iborIndex = new IborIndex(currency, period, security.getFixingLag(), security.getDayCount(), security.getFixingBusinessDayConvention(), false);
+    final IborIndex iborIndex = new IborIndex(
+        currency,
+        period,
+        security.getFixingLag(),
+        security.getDayCount(),
+        security.getFixingBusinessDayConvention(),
+        false, // eom - this should come from the convention source or security, PLAT-5764
+        security.getUnderlyingId().getValue());
     return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate(), calendar);
   }
 

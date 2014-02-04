@@ -16,6 +16,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
+import com.opengamma.master.user.UserMaster;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -32,28 +33,28 @@ public class InMemoryUserMasterTest {
   //private static final ExternalIdBundle BUNDLE_TWO = ExternalIdBundle.of(EMAIL_ADDRESS, OTHER_USER_ID1);
   //private static final ExternalIdBundle BUNDLE_OTHER = ExternalIdBundle.of(EMAIL_ADDRESS, BLOOMBERG_SID, OTHER_USER_ID2);
 
-  private InMemoryUserMaster master;
+  public UserMaster _master;
   private UserDocument addedDoc;
 
   @BeforeMethod
   public void setUp() {
-    master = new InMemoryUserMaster();
+    _master = new InMemoryUserMaster();
     ManageableOGUser inputUser = new ManageableOGUser("testuser");
     inputUser.setExternalIdBundle(BUNDLE_FULL);
     UserDocument inputDoc = new UserDocument(inputUser);
-    addedDoc = master.add(inputDoc);
+    addedDoc = _master.add(inputDoc);
   }
 
   //-------------------------------------------------------------------------
   public void test_get_match() {
-    UserDocument result = master.get(addedDoc.getUniqueId());
+    UserDocument result = _master.get(addedDoc.getUniqueId());
     assertEquals(UniqueId.of("MemUsr", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_noMatch() {
-    master.get(UniqueId.of("A", "B"));
+    _master.get(UniqueId.of("A", "B"));
   }
 
 }

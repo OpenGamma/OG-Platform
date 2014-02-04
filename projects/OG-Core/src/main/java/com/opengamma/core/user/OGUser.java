@@ -55,14 +55,6 @@ public interface OGUser extends UniqueIdentifiable, ExternalBundleIdentifiable {
   String getPasswordHash();
 
   /**
-   * Obtains the user entitlements.
-   * Each may be interpreted as a pattern to be applied to a restricted resource.
-   * 
-   * @return the entitlements for the user in order of processing, not null
-   */
-  Set<String> getEntitlements();
-
-  /**
    * Gets the display user name, used to identify the user in a GUI.
    * 
    * @return the display user name, may be null

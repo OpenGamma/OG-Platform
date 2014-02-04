@@ -34,6 +34,41 @@ public class EuropeanVanillaOptionFunctionProviderTest {
 
   /**
    * 
+   * 
+   */
+  @Test
+  public void smoothConvergenceTest() {
+    final LatticeSpecification lattice = new FlexibleLatticeSpecification();
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              double prev = SPOT;
+              double diff = 0.;
+              if (interest - dividend > 0.) {
+                for (int i = 0; i < 15; ++i) {
+                  final int nSteps = 10 + 50 * i;
+                  final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                  final double exactDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                  final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                  diff = Math.abs(exactDiv - resDiv);
+                  assertTrue(diff < prev);
+                  prev = diff;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
+
+  /**
+   * 
    */
   @Test
   public void priceLatticeTrinomialTest() {
