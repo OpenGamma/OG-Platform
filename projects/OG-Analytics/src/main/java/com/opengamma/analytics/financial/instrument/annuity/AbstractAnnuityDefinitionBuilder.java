@@ -423,42 +423,10 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * @return the accrual end dates, adjusted if the parameters are set.
    */
   protected ZonedDateTime[] getAccrualEndDates() {
-//    ZonedDateTime startDate = getStartDate();
-//    ZonedDateTime endDate = getEndDate();
-//    
-//    // TODO missing support for start and end stub types
-//    StubType stubType = null;
-//    if (_startStub != null) {
-//      stubType = _startStub.getStubType();
-//    } else if (_endStub != null) {
-//      stubType = _endStub.getStubType();
-//    }
-//    
-//    if (stubType == null) {
-//      stubType = StubType.NONE;
-//    }
-//    
-//    ZonedDateTime[] accrualEndDates;
-//    if (_adjustedAccrualDateParameters != null) {
-//      accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(
-//          startDate,
-//          endDate,
-//          _accrualPeriodFrequency,
-//          stubType,
-//          _adjustedAccrualDateParameters.getBusinessDayConvention(),
-//          _adjustedAccrualDateParameters.getCalendar(),
-//          _rollDateAdjuster);
-//    } else {
-//      accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(
-//          startDate, endDate, _accrualPeriodFrequency, stubType);
-//    }
-//    return accrualEndDates;
     return getAccrualEndDates(true);
   }
   
   protected ZonedDateTime[] getAccrualEndDates(boolean adjusted) {
-    
-    // TODO missing support for start and end stub types
     StubType stubType = null;
     if (_startStub != null) {
       stubType = _startStub.getStubType();
@@ -501,14 +469,8 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     if (StubType.BOTH == stubType) {
       ZonedDateTime[] bothStubAccrualEndDates = new ZonedDateTime[accrualEndDates.length + 2];
       System.arraycopy(accrualEndDates, 0, bothStubAccrualEndDates, 1, accrualEndDates.length);
-      // TODO roll date adjuster
-//      if (adjusted) {
-//        bothStubAccrualEndDates[0] = _adjustedAccrualDateParameters.getBusinessDayConvention().adjustDate(_adjustedAccrualDateParameters.getCalendar(), startDate);
-//        bothStubAccrualEndDates[bothStubAccrualEndDates.length - 1] = _adjustedAccrualDateParameters.getBusinessDayConvention().adjustDate(_adjustedAccrualDateParameters.getCalendar(), actualEndDate);
-//      } else {
-        bothStubAccrualEndDates[0] = startDate;
-        bothStubAccrualEndDates[bothStubAccrualEndDates.length - 1] = actualEndDate;
-//      }
+      bothStubAccrualEndDates[0] = startDate;
+      bothStubAccrualEndDates[bothStubAccrualEndDates.length - 1] = actualEndDate;
       accrualEndDates = bothStubAccrualEndDates;
     }
     return accrualEndDates;
@@ -543,9 +505,6 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
   }
   
   protected CouponFixedDefinition getExchangeFinalNotionalCoupon() {
-//    if (!_exchangeFinalNotional) {
-//      return null;
-//    }
     ZonedDateTime endDate = getEndDate();
     
     return new CouponFixedDefinition(_currency,
@@ -558,72 +517,4 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
   }
   
   public abstract AnnuityDefinition<?> build();
-
-  /*
-   * common fields
-   * - daycount *
-   * - notional / schedule
-   * - start date
-   * - end date
-   * - stub handling (start + end)
-   * - roll date adjuster
-   * - notional exchange
-   * - payment relative to period *
-   */
-  
-  /*
-   * accrual period dates
-   * - calendar *
-   * - bus day conv *
-   * - freq *
-   */
-  
-  /*
-   * forward/fixing dates (from index)
-   * - calendar *
-   * - bus day conv *
-   */
-  
-  /*
-   * start date adj
-   * - calendar
-   * - business day conv *
-   */
-
-  /*
-   * maturity date adj
-   * - calendar *
-   * - business day conv *
-   */
-  
-  /*
-   * payment date adj (lagged)
-   * - offset
-   * - offset day type
-   * - calendar *
-   * - business day convention *
-   */
-  
-  /*
-   * reset dates adj (lagged) (from index)
-   * - offset *
-   * - offset day type *
-   * - calendar *
-   * - business day convention *
-   * - freq *
-   */
-  
-  /*
-   * index only fields
-   * - spread / schedule
-   * - initial rate
-   * - compounding method (only if reset freq < accrual period freq) *
-   * - compounding stub type
-   * - reset relative to period *
-   */
-  
-  /*
-   * fixed only fields
-   * - rate / schedule
-   */
 }
