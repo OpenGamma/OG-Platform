@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -18,20 +19,25 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.VersionUtils;
 
 /**
- * Information about a principal component of the OpenGamma system.
+ * Information about a server of the OpenGamma system.
+ * <p>
+ * This object is used to represent the entire set of components
+ * available at a single server within an OpenGamma system.
+ * Its primary purpose is to allow that data to be transferred across the network.
  */
 @BeanDefinition
-public class ComponentServer extends DirectBean {
+public class ComponentServer implements Bean {
 
   /**
    * The URI that the server is published at.
@@ -40,6 +46,21 @@ public class ComponentServer extends DirectBean {
    */
   @PropertyDefinition(validate = "notNull")
   private URI _uri;
+  /**
+   * The software version running at the server.
+   */
+  @PropertyDefinition(set = "private")
+  private String _version;
+  /**
+   * The software build running at the server.
+   */
+  @PropertyDefinition(set = "private")
+  private String _build;
+  /**
+   * The current instant based on the clock of the server.
+   */
+  @PropertyDefinition(set = "private")
+  private Instant _currentInstant;
   /**
    * The complete set of available components.
    */
@@ -55,10 +76,13 @@ public class ComponentServer extends DirectBean {
   /**
    * Creates an instance.
    * 
-   * @param uri  the uri of the server, not null
+   * @param uri  the URI of the server, not null
    */
   public ComponentServer(URI uri) {
     setUri(uri);
+    setVersion(VersionUtils.deriveVersion());
+    setBuild(VersionUtils.deriveBuild());
+    setCurrentInstant(Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -152,6 +176,16 @@ public class ComponentServer extends DirectBean {
     return ComponentServer.Meta.INSTANCE;
   }
 
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the URI that the server is published at.
@@ -182,6 +216,81 @@ public class ComponentServer extends DirectBean {
    */
   public final Property<URI> uri() {
     return metaBean().uri().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the software version running at the server.
+   * @return the value of the property
+   */
+  public String getVersion() {
+    return _version;
+  }
+
+  /**
+   * Sets the software version running at the server.
+   * @param version  the new value of the property
+   */
+  private void setVersion(String version) {
+    this._version = version;
+  }
+
+  /**
+   * Gets the the {@code version} property.
+   * @return the property, not null
+   */
+  public final Property<String> version() {
+    return metaBean().version().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the software build running at the server.
+   * @return the value of the property
+   */
+  public String getBuild() {
+    return _build;
+  }
+
+  /**
+   * Sets the software build running at the server.
+   * @param build  the new value of the property
+   */
+  private void setBuild(String build) {
+    this._build = build;
+  }
+
+  /**
+   * Gets the the {@code build} property.
+   * @return the property, not null
+   */
+  public final Property<String> build() {
+    return metaBean().build().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the current instant based on the clock of the server.
+   * @return the value of the property
+   */
+  public Instant getCurrentInstant() {
+    return _currentInstant;
+  }
+
+  /**
+   * Sets the current instant based on the clock of the server.
+   * @param currentInstant  the new value of the property
+   */
+  private void setCurrentInstant(Instant currentInstant) {
+    this._currentInstant = currentInstant;
+  }
+
+  /**
+   * Gets the the {@code currentInstant} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> currentInstant() {
+    return metaBean().currentInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -234,6 +343,9 @@ public class ComponentServer extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       ComponentServer other = (ComponentServer) obj;
       return JodaBeanUtils.equal(getUri(), other.getUri()) &&
+          JodaBeanUtils.equal(getVersion(), other.getVersion()) &&
+          JodaBeanUtils.equal(getBuild(), other.getBuild()) &&
+          JodaBeanUtils.equal(getCurrentInstant(), other.getCurrentInstant()) &&
           JodaBeanUtils.equal(getComponentInfos(), other.getComponentInfos());
     }
     return false;
@@ -243,13 +355,16 @@ public class ComponentServer extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBuild());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrentInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComponentInfos());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("ComponentServer{");
     int len = buf.length();
     toString(buf);
@@ -262,6 +377,9 @@ public class ComponentServer extends DirectBean {
 
   protected void toString(StringBuilder buf) {
     buf.append("uri").append('=').append(JodaBeanUtils.toString(getUri())).append(',').append(' ');
+    buf.append("version").append('=').append(JodaBeanUtils.toString(getVersion())).append(',').append(' ');
+    buf.append("build").append('=').append(JodaBeanUtils.toString(getBuild())).append(',').append(' ');
+    buf.append("currentInstant").append('=').append(JodaBeanUtils.toString(getCurrentInstant())).append(',').append(' ');
     buf.append("componentInfos").append('=').append(JodaBeanUtils.toString(getComponentInfos())).append(',').append(' ');
   }
 
@@ -281,6 +399,21 @@ public class ComponentServer extends DirectBean {
     private final MetaProperty<URI> _uri = DirectMetaProperty.ofReadWrite(
         this, "uri", ComponentServer.class, URI.class);
     /**
+     * The meta-property for the {@code version} property.
+     */
+    private final MetaProperty<String> _version = DirectMetaProperty.ofReadWrite(
+        this, "version", ComponentServer.class, String.class);
+    /**
+     * The meta-property for the {@code build} property.
+     */
+    private final MetaProperty<String> _build = DirectMetaProperty.ofReadWrite(
+        this, "build", ComponentServer.class, String.class);
+    /**
+     * The meta-property for the {@code currentInstant} property.
+     */
+    private final MetaProperty<Instant> _currentInstant = DirectMetaProperty.ofReadWrite(
+        this, "currentInstant", ComponentServer.class, Instant.class);
+    /**
      * The meta-property for the {@code componentInfos} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -292,6 +425,9 @@ public class ComponentServer extends DirectBean {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uri",
+        "version",
+        "build",
+        "currentInstant",
         "componentInfos");
 
     /**
@@ -305,6 +441,12 @@ public class ComponentServer extends DirectBean {
       switch (propertyName.hashCode()) {
         case 116076:  // uri
           return _uri;
+        case 351608024:  // version
+          return _version;
+        case 94094958:  // build
+          return _build;
+        case 367695400:  // currentInstant
+          return _currentInstant;
         case 1349827208:  // componentInfos
           return _componentInfos;
       }
@@ -336,6 +478,30 @@ public class ComponentServer extends DirectBean {
     }
 
     /**
+     * The meta-property for the {@code version} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> version() {
+      return _version;
+    }
+
+    /**
+     * The meta-property for the {@code build} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> build() {
+      return _build;
+    }
+
+    /**
+     * The meta-property for the {@code currentInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> currentInstant() {
+      return _currentInstant;
+    }
+
+    /**
      * The meta-property for the {@code componentInfos} property.
      * @return the meta-property, not null
      */
@@ -349,6 +515,12 @@ public class ComponentServer extends DirectBean {
       switch (propertyName.hashCode()) {
         case 116076:  // uri
           return ((ComponentServer) bean).getUri();
+        case 351608024:  // version
+          return ((ComponentServer) bean).getVersion();
+        case 94094958:  // build
+          return ((ComponentServer) bean).getBuild();
+        case 367695400:  // currentInstant
+          return ((ComponentServer) bean).getCurrentInstant();
         case 1349827208:  // componentInfos
           return ((ComponentServer) bean).getComponentInfos();
       }
@@ -361,6 +533,15 @@ public class ComponentServer extends DirectBean {
       switch (propertyName.hashCode()) {
         case 116076:  // uri
           ((ComponentServer) bean).setUri((URI) newValue);
+          return;
+        case 351608024:  // version
+          ((ComponentServer) bean).setVersion((String) newValue);
+          return;
+        case 94094958:  // build
+          ((ComponentServer) bean).setBuild((String) newValue);
+          return;
+        case 367695400:  // currentInstant
+          ((ComponentServer) bean).setCurrentInstant((Instant) newValue);
           return;
         case 1349827208:  // componentInfos
           ((ComponentServer) bean).setComponentInfos((List<ComponentInfo>) newValue);
