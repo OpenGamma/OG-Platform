@@ -21,10 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.util.time.TenorUtils;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
-import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
-import com.opengamma.financial.convention.businessday.NoAdjustBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -32,8 +29,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
-import com.opengamma.financial.convention.rolldate.EndOfMonthTemporalAdjuster;
-import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -371,7 +366,7 @@ public final class ScheduleCalculator {
       nbPeriod++;
       date = endDate.minus(tenorPeriod.multipliedBy(nbPeriod));
     }
-    if (!stubShort && !date.equals(startDate) && nbPeriod >= 1) { // For long stub the last date before end date, if any, is removed.
+    if (!stubShort && !date.equals(startDate) && nbPeriod > 1) { // For long stub the last date before end date, if any, is removed.
       dates.remove(nbPeriod - 1);
     }
     Collections.sort(dates); // To obtain the dates in chronological order.
@@ -415,7 +410,7 @@ public final class ScheduleCalculator {
       nbPeriod++;
       date = endDate.minus(tenorPeriod.multipliedBy(nbPeriod));
     }
-    if (!stubShort && !date.equals(startDate) && nbPeriod >= 1) { // For long stub the last date before end date, if any, is removed.
+    if (!stubShort && !date.equals(startDate) && nbPeriod > 1) { // For long stub the last date before end date, if any, is removed.
       dates.remove(nbPeriod - 1);
     }
     Collections.sort(dates); // To obtain the dates in chronological order.
