@@ -11,7 +11,7 @@
   <!-- website resources -->
   <dependencySets>
     <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>/platform/lib</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>644</fileMode>
       <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
@@ -19,18 +19,43 @@
     </dependencySet>
   </dependencySets>
   <fileSets>
-    <!-- config -->
+    <!-- external libs -->
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/lib</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+    <!-- properties config -->
     <fileSet>
       <directory>config</directory>
       <outputDirectory>/config</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>644</fileMode>
       <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*/*.properties</include>
+      </includes>
+    </fileSet>
+    <!-- ini and xml config -->
+    <fileSet>
+      <directory>config</directory>
+      <outputDirectory>/platform/config</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*/*.ini</include>
+        <include>*/*.xml</include>
+        <include>*.xml</include>
+      </includes>
     </fileSet>
     <!-- scripts -->
     <fileSet>
       <directory>${project.build.directory}/scripts</directory>
-      <outputDirectory>/scripts</outputDirectory>
+      <outputDirectory>/platform/scripts</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>755</fileMode>
       <lineEnding>unix</lineEnding>
@@ -40,7 +65,7 @@
     </fileSet>
     <fileSet>
       <directory>scripts</directory>
-      <outputDirectory>/scripts</outputDirectory>
+      <outputDirectory>/platform/scripts</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>755</fileMode>
       <lineEnding>unix</lineEnding>
@@ -62,21 +87,21 @@
     <!-- web directory -->
     <fileSet>
       <directory>${project.build.directory}/assembly/web-engine</directory>
-      <outputDirectory>/web-engine</outputDirectory>
+      <outputDirectory>/platform/web-engine</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>644</fileMode>
     </fileSet>
     <!-- marketdata web directory -->
     <fileSet>
       <directory>${project.build.directory}/assembly/web-marketdata</directory>
-      <outputDirectory>/web-marketdata</outputDirectory>
+      <outputDirectory>/platform/web-marketdata</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>644</fileMode>
     </fileSet>
     <!-- directory for data and logs -->
     <fileSet>
       <directory>${project.build.directory}</directory>
-      <outputDirectory>/data</outputDirectory>
+      <outputDirectory>/platform/data</outputDirectory>
       <directoryMode>755</directoryMode>
       <excludes>
         <exclude>**/*</exclude>
@@ -84,7 +109,7 @@
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}</directory>
-      <outputDirectory>/logs</outputDirectory>
+      <outputDirectory>/platform/logs</outputDirectory>
       <directoryMode>755</directoryMode>
       <excludes>
         <exclude>**/*</exclude>
