@@ -164,7 +164,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the currency.
    * @param currency  the new value of the property, not null
    */
-  public void setCurrency(final Currency currency) {
+  public void setCurrency(Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
@@ -190,7 +190,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the maturity date.
    * @param maturityDate  the new value of the property, not null
    */
-  public void setMaturityDate(final Expiry maturityDate) {
+  public void setMaturityDate(Expiry maturityDate) {
     JodaBeanUtils.notNull(maturityDate, "maturityDate");
     this._maturityDate = maturityDate;
   }
@@ -216,7 +216,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the issuance date.
    * @param issuanceDate  the new value of the property, not null
    */
-  public void setIssuanceDate(final ZonedDateTime issuanceDate) {
+  public void setIssuanceDate(ZonedDateTime issuanceDate) {
     JodaBeanUtils.notNull(issuanceDate, "issuanceDate");
     this._issuanceDate = issuanceDate;
   }
@@ -242,7 +242,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the minimum increment.
    * @param minimumIncrement  the new value of the property
    */
-  public void setMinimumIncrement(final double minimumIncrement) {
+  public void setMinimumIncrement(double minimumIncrement) {
     this._minimumIncrement = minimumIncrement;
   }
 
@@ -267,7 +267,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the number of settlement days.
    * @param daysToSettle  the new value of the property
    */
-  public void setDaysToSettle(final int daysToSettle) {
+  public void setDaysToSettle(int daysToSettle) {
     this._daysToSettle = daysToSettle;
   }
 
@@ -292,7 +292,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the region identifier.
    * @param regionId  the new value of the property, not null
    */
-  public void setRegionId(final ExternalId regionId) {
+  public void setRegionId(ExternalId regionId) {
     JodaBeanUtils.notNull(regionId, "regionId");
     this._regionId = regionId;
   }
@@ -318,7 +318,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the yield convention.
    * @param yieldConvention  the new value of the property, not null
    */
-  public void setYieldConvention(final YieldConvention yieldConvention) {
+  public void setYieldConvention(YieldConvention yieldConvention) {
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
     this._yieldConvention = yieldConvention;
   }
@@ -344,7 +344,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the day count.
    * @param dayCount  the new value of the property, not null
    */
-  public void setDayCount(final DayCount dayCount) {
+  public void setDayCount(DayCount dayCount) {
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this._dayCount = dayCount;
   }
@@ -370,7 +370,7 @@ public class BillSecurity extends FinancialSecurity {
    * Sets the legal entity identifier.
    * @param legalEntityId  the new value of the property, not null
    */
-  public void setLegalEntityId(final ExternalId legalEntityId) {
+  public void setLegalEntityId(ExternalId legalEntityId) {
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     this._legalEntityId = legalEntityId;
   }
@@ -390,12 +390,12 @@ public class BillSecurity extends FinancialSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final BillSecurity other = (BillSecurity) obj;
+      BillSecurity other = (BillSecurity) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getIssuanceDate(), other.getIssuanceDate()) &&
@@ -427,9 +427,9 @@ public class BillSecurity extends FinancialSecurity {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("BillSecurity{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -439,7 +439,7 @@ public class BillSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
     buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
@@ -529,7 +529,7 @@ public class BillSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return _currency;
@@ -643,7 +643,7 @@ public class BillSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return ((BillSecurity) bean).getCurrency();
@@ -668,7 +668,7 @@ public class BillSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           ((BillSecurity) bean).setCurrency((Currency) newValue);
@@ -702,7 +702,7 @@ public class BillSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((BillSecurity) bean)._currency, "currency");
       JodaBeanUtils.notNull(((BillSecurity) bean)._maturityDate, "maturityDate");
       JodaBeanUtils.notNull(((BillSecurity) bean)._issuanceDate, "issuanceDate");
