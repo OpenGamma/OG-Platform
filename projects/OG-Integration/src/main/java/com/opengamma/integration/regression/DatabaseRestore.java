@@ -31,6 +31,9 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.convention.ConventionDocument;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ManageableExchange;
@@ -81,20 +84,24 @@ public class DatabaseRestore {
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
+  private final ConventionMaster _conventionMaster;
 
   public DatabaseRestore(String dataDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
-    this(new File(dataDir), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster, exchangeMaster, snapshotMaster, organizationMaster);
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      ConventionMaster conventionMaster) {
+    this(new File(dataDir), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster, exchangeMaster, snapshotMaster, organizationMaster, conventionMaster);
   }
 
   public DatabaseRestore(File dataDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      ConventionMaster conventionMaster) {
     this(new SubdirsRegressionIO(dataDir, new FudgeXMLFormat(), false), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster, exchangeMaster,
-        snapshotMaster, organizationMaster);
+        snapshotMaster, organizationMaster, conventionMaster);
   }
 
   public DatabaseRestore(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      ConventionMaster conventionMaster) {
     ArgumentChecker.notNull(io, "io");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
@@ -115,6 +122,7 @@ public class DatabaseRestore {
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
     _organizationMaster = organizationMaster;
+    _conventionMaster = conventionMaster;
   }
 
   public static void main(String[] args) throws IOException {
@@ -126,7 +134,8 @@ public class DatabaseRestore {
     String serverUrl = args[1];
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseRestore databaseRestore = new DatabaseRestore(dataDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
-          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster());
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster(),
+          server.getConventionMaster());
       databaseRestore.restoreDatabase();
     }
   }
@@ -162,6 +171,7 @@ public class DatabaseRestore {
       loadExchanges();
       loadSnapshots();
       loadOrganizations();
+      loadConventions();
       _io.endRead();
       s_logger.info("Successfully restored database");
     } catch (IOException e) {
@@ -322,6 +332,14 @@ public class DatabaseRestore {
     for (ManageableOrganization organization : organizations) {
       organization.setUniqueId(null);
       _organizationMaster.add(new OrganizationDocument(organization));
+    }
+  }
+
+  private void loadConventions() throws IOException {
+    List<ManageableConvention> conventions = readAll(RegressionUtils.CONVENTION_MASTER_DATA);
+    for (ManageableConvention convention : conventions) {
+      convention.setUniqueId(null);
+      _conventionMaster.add(new ConventionDocument(convention));
     }
   }
 

@@ -33,47 +33,48 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
  * Component Factory for a shared JmsConnector.
- *
+ * <p>
  * A client broker URI must be specified
- *
+ * <p>
  * If no ConnectionFactory is provided, it will default to pooled ActiveMQ implementation with some sensible defaults.
- *
- * This class can be inherited from and protected methods overriden if necessary.
- *
+ * <p>
+ * This class can be inherited from and protected methods overridden if necessary.
  */
 @BeanDefinition
 public class JMSConnectorComponentFactory extends AbstractComponentFactory {
 
+  /**
+   * The classifier that the factory should publish under.
+   */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
+  /**
+   * The broker URI.
+   */
   @PropertyDefinition(validate = "notNull")
   private String _clientBrokerUri;
-
+  /**
+   * The JMS connection factory.
+   */
   @PropertyDefinition
   private ConnectionFactory _connectionFactory;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-
-    final ComponentInfo info = new ComponentInfo(JmsConnector.class, getClassifier());
     final JmsConnector component = initJmsConnector();
+    final ComponentInfo info = new ComponentInfo(JmsConnector.class, getClassifier());
     repo.registerComponent(info, component);
-
   }
 
   protected JmsConnector initJmsConnector() throws Exception {
-
     initDefaults();
-
     JmsConnectorFactoryBean factoryBean = new JmsConnectorFactoryBean();
     factoryBean.setName("StandardJms");
     factoryBean.setConnectionFactory(getConnectionFactory());
     factoryBean.setClientBrokerUri(new URI(getClientBrokerUri()));
     factoryBean.afterPropertiesSet();
-
     return factoryBean.getObjectCreating();
-
   }
 
   protected void initDefaults() {
@@ -117,7 +118,7 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the classifier.
+   * Gets the classifier that the factory should publish under.
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -125,7 +126,7 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the classifier.
+   * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {
@@ -143,7 +144,7 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the clientBrokerUri.
+   * Gets the broker URI.
    * @return the value of the property, not null
    */
   public String getClientBrokerUri() {
@@ -151,7 +152,7 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the clientBrokerUri.
+   * Sets the broker URI.
    * @param clientBrokerUri  the new value of the property, not null
    */
   public void setClientBrokerUri(String clientBrokerUri) {
@@ -169,7 +170,7 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the connectionFactory.
+   * Gets the JMS connection factory.
    * @return the value of the property
    */
   public ConnectionFactory getConnectionFactory() {
@@ -177,7 +178,7 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the connectionFactory.
+   * Sets the JMS connection factory.
    * @param connectionFactory  the new value of the property
    */
   public void setConnectionFactory(ConnectionFactory connectionFactory) {

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p/>
+ * Please see distribution for license.
+ */
 package com.opengamma.auth;
 
 import com.opengamma.lambdava.functions.Function1;
@@ -13,9 +18,9 @@ import org.fudgemsg.mapping.FudgeSerializer;
  * Please see distribution for license.
  */
 public class Either<A, B> {
-  final private A _a;
-  final private B _b;
-  final private boolean _isA;
+  private final A _a;
+  private final B _b;
+  private final boolean _isA;
 
   private Either(A a, B b, boolean isA) {
     this._a = a;
@@ -23,16 +28,16 @@ public class Either<A, B> {
     this._isA = isA;
   }
 
-  static public <A, B> Either<A, B> left(A a) {
+  public static <A, B> Either<A, B> left(A a) {
     return new Either<>(a, (B) null, true);
   }
 
-  static public <A, B> Either<A, B> right(B b) {
+  public static <A, B> Either<A, B> right(B b) {
     return new Either<>((A) null, b, false);
   }
 
 
-  static public <A, B, R> R match(Either<A, B> e, Function1<A, R> ifA, Function1<B, R> ifB) {
+  public static <A, B, R> R match(Either<A, B> e, Function1<A, R> ifA, Function1<B, R> ifB) {
     if (e._isA) {
       return ifA.execute(e._a);
     } else {
@@ -42,13 +47,21 @@ public class Either<A, B> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     Either either = (Either) o;
 
-    if (_a != null ? !_a.equals(either._a) : either._a != null) return false;
-    if (_b != null ? !_b.equals(either._b) : either._b != null) return false;
+    if (_a != null ? !_a.equals(either._a) : either._a != null) {
+      return false;
+    }
+    if (_b != null ? !_b.equals(either._b) : either._b != null) {
+      return false;
+    }
 
     return true;
   }

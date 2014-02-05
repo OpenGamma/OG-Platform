@@ -8,6 +8,7 @@ package com.opengamma.component;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -16,7 +17,6 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * Information about a principal component of the OpenGamma system.
  */
 @BeanDefinition
-public class ComponentInfo extends DirectBean {
+public class ComponentInfo implements Bean {
 
   /**
    * The component type representing the available functionality.
@@ -138,6 +138,16 @@ public class ComponentInfo extends DirectBean {
   @Override
   public ComponentInfo.Meta metaBean() {
     return ComponentInfo.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
   }
 
   //-----------------------------------------------------------------------

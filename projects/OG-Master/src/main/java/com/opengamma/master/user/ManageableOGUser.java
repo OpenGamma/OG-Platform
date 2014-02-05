@@ -7,10 +7,8 @@ package com.opengamma.master.user;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.Bean;
-import com.opengamma.id.ObjectId;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -64,7 +62,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
   private String _userId;
   /**
    * The hashed version of the user password, null if no password.
-   * The hash is brut-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
+   * The hash is brute-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
    */
   @PropertyDefinition
   private String _passwordHash;
@@ -234,7 +232,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
   //-----------------------------------------------------------------------
   /**
    * Gets the hashed version of the user password, null if no password.
-   * The hash is brut-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
+   * The hash is brute-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
    * @return the value of the property
    */
   public String getPasswordHash() {
@@ -243,7 +241,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
 
   /**
    * Sets the hashed version of the user password, null if no password.
-   * The hash is brut-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
+   * The hash is brute-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
    * @param passwordHash  the new value of the property
    */
   public void setPasswordHash(String passwordHash) {
@@ -252,7 +250,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
 
   /**
    * Gets the the {@code passwordHash} property.
-   * The hash is brut-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
+   * The hash is brute-force safe thanks to bcrypt thus no need for salt (it uses salt internally)
    * @return the property, not null
    */
   public final Property<String> passwordHash() {

@@ -857,42 +857,8 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       double firstInterpolatedYearFraction,
       ZonedDateTime secondInterpolatedDate,
       double secondInterpolatedYearFraction) {
-    final CouponDefinition coupon;
-    if (hasGearing()) {
-      throw new OpenGammaRuntimeException("Unsupported ibor gearing interpolated stub coupon");
-    } else if (hasSpread()) {
-      CouponDefinition fullCoupon = new CouponIborSpreadDefinition(
-          getCurrency(),
-          paymentDate,
-          accrualStartDate,
-          accrualEndDate,
-          accrualYearFraction,
-          notional,
-          fixingDate,
-          fixingPeriodStartDate,
-          fixingPeriodEndDate,
-          fixingPeriodYearFraction,
-          (IborIndex) _index,
-          _spread,
-          _adjustedResetDateParameters.getCalendar());
-      coupon = InterpolatedStubCouponDefinition.from(fullCoupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
-    } else {
-      CouponDefinition fullCoupon = new CouponIborDefinition(
-          getCurrency(),
-          paymentDate,
-          accrualStartDate,
-          accrualEndDate,
-          accrualYearFraction,
-          notional,
-          fixingDate,
-          fixingPeriodStartDate,
-          fixingPeriodEndDate,
-          fixingPeriodYearFraction,
-          (IborIndex) _index,
-          _adjustedResetDateParameters.getCalendar());
-      coupon = InterpolatedStubCouponDefinition.from(fullCoupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
-    }
-    return coupon;
+    final CouponDefinition coupon = getIborDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, fixingDate, fixingPeriodStartDate, fixingPeriodEndDate, fixingPeriodYearFraction);
+    return InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
   }
   
   private CouponDefinition getIborCompoundingDefinition(
@@ -990,68 +956,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       double firstInterpolatedYearFraction,
       ZonedDateTime secondInterpolatedDate,
       double secondInterpolatedYearFraction) {
-    final CouponDefinition coupon;
-    if (hasGearing()) {
-      throw new OpenGammaRuntimeException("Unsupported ibor compounding geared interpolated stub coupon");
-    } else if (hasSpread()) {
-      if (CompoundingMethod.FLAT == _compoundingMethod) {
-        CouponDefinition fullCoupon = CouponIborCompoundingFlatSpreadDefinition.from(
-            getCurrency(),
-            paymentDate,
-            accrualStartDate,
-            accrualEndDate,
-            accrualYearFraction,
-            notional,
-            ((IborIndex) _index),
-            compoundAccrualStartDates,
-            compoundAccrualEndDates,
-            compoundAccrualYearFractions,
-            compoundFixingDates,
-            compoundFixingStartDates,
-            compoundFixingEndDates,
-            compoundFixingYearFractions,
-            _spread,
-            initialCompoundRate);
-        coupon = InterpolatedStubCouponDefinition.from(fullCoupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
-      } else {
-        CouponDefinition fullCoupon = CouponIborCompoundingSpreadDefinition.from(
-            getCurrency(),
-            paymentDate,
-            accrualStartDate,
-            accrualEndDate,
-            accrualYearFraction,
-            notional,
-            ((IborIndex) _index),
-            compoundAccrualStartDates,
-            compoundAccrualEndDates,
-            compoundAccrualYearFractions,
-            compoundFixingDates,
-            compoundFixingStartDates,
-            compoundFixingEndDates,
-            compoundFixingYearFractions,
-            _spread,
-            initialCompoundRate);
-        coupon = InterpolatedStubCouponDefinition.from(fullCoupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
-      }
-    } else {
-      CouponDefinition fullCoupon = CouponIborCompoundingDefinition.from(
-          getCurrency(),
-          paymentDate,
-          accrualStartDate, 
-          accrualEndDate,
-          accrualYearFraction,
-          notional,
-          ((IborIndex) _index),
-          compoundAccrualStartDates,
-          compoundAccrualEndDates,
-          compoundAccrualYearFractions,
-          compoundFixingDates,
-          compoundFixingStartDates,
-          compoundFixingEndDates,
-          compoundFixingYearFractions,
-          initialCompoundRate);
-      coupon = InterpolatedStubCouponDefinition.from(fullCoupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
-    }
-    return coupon;
+    final CouponDefinition coupon = getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, compoundAccrualStartDates, compoundAccrualEndDates, compoundAccrualYearFractions, compoundFixingDates, compoundFixingStartDates, compoundFixingEndDates, compoundFixingYearFractions, initialCompoundRate);
+    return InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
   }
 }

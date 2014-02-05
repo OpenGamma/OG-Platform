@@ -17,6 +17,9 @@ import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.DataTrackingConfigMaster;
+import com.opengamma.master.convention.ConventionDocument;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.impl.DataTrackingConventionMaster;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
@@ -59,12 +62,14 @@ class GoldenCopyDumpCreator {
   private final DataTrackingExchangeMaster _exchangeMaster;
   private final DataTrackingMarketDataSnapshotMaster _snapshotMaster;
   private final DataTrackingOrganizationMaster _organizationMaster;
+  private final DataTrackingConventionMaster _conventionMaster;
   
   
   
   public GoldenCopyDumpCreator(RegressionIO regressionIO, DataTrackingSecurityMaster securityMaster, DataTrackingPositionMaster positionMaster, DataTrackingPortfolioMaster portfolioMaster,
       DataTrackingConfigMaster configMaster, DataTrackingHistoricalTimeSeriesMaster timeSeriesMaster, DataTrackingHolidayMaster holidayMaster, DataTrackingExchangeMaster exchangeMaster,
-      DataTrackingMarketDataSnapshotMaster snapshotMaster, DataTrackingOrganizationMaster organizationMaster) {
+      DataTrackingMarketDataSnapshotMaster snapshotMaster, DataTrackingOrganizationMaster organizationMaster,
+      DataTrackingConventionMaster conventionMaster) {
     _regressionIO = regressionIO;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
@@ -75,6 +80,7 @@ class GoldenCopyDumpCreator {
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
     _organizationMaster = organizationMaster;
+    _conventionMaster = conventionMaster;
   }
 
   
@@ -96,6 +102,7 @@ class GoldenCopyDumpCreator {
                                                 _exchangeMaster, 
                                                 _snapshotMaster, 
                                                 _organizationMaster,
+                                                _conventionMaster,
                                                 filterManager);
     
     
@@ -115,7 +122,8 @@ class GoldenCopyDumpCreator {
         new UniqueIdentifiableQuery<HolidayDocument, HolidayMaster>(_holidayMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<ExchangeDocument, ExchangeMaster>(_exchangeMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<MarketDataSnapshotDocument, MarketDataSnapshotMaster>(_snapshotMaster.getIdsAccessed()),
-        new UniqueIdentifiableQuery<OrganizationDocument, OrganizationMaster>(_organizationMaster.getIdsAccessed()));
+        new UniqueIdentifiableQuery<OrganizationDocument, OrganizationMaster>(_organizationMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<ConventionDocument, ConventionMaster>(_conventionMaster.getIdsAccessed()));
   }
 
 

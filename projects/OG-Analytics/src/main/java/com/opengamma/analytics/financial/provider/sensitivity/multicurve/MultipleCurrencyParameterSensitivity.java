@@ -160,6 +160,25 @@ public class MultipleCurrencyParameterSensitivity {
   }
 
   /**
+   * Returns the sensitivities for a particular curve name. An unmodifiable map
+   * of Currency -> Sensitivities will be returned. Note that this implementation
+   * will not be efficient if there are a large number of curves.
+   *
+   * @param name the name of the curve to get sensitivities for
+   * @return map of sensitivities by currency
+   */
+  public Map<Currency, DoubleMatrix1D> getSensitivityByName(String name) {
+    Map<Currency, DoubleMatrix1D> matches = new HashMap<>();
+    for (Entry<Pair<String, Currency>, DoubleMatrix1D> entry : _sensitivity.entrySet()) {
+      final Pair<String, Currency> curveName = entry.getKey();
+      if (curveName.getFirst().equals(name)) {
+        matches.put(curveName.getSecond(), entry.getValue());
+      }
+    }
+    return Collections.unmodifiableMap(matches);
+  }
+
+  /**
    * Returns the sensitivity for a given name/currency pair.
    * @param nameCcy The name and the currency, not null
    * @return The sensitivity.

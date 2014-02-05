@@ -67,6 +67,7 @@ import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.financial.analytics.CalendarECBSettlements;
+import com.opengamma.financial.analytics.CalendarTarget;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
@@ -102,6 +103,7 @@ import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.CalendarBusinessDateUtils;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -126,6 +128,7 @@ import com.opengamma.util.time.Tenor;
 public class CurveNodeToDefinitionConverterTest {
 
   private static final MondayToFridayCalendar CALENDAR = new MondayToFridayCalendar("Weekend");
+  private static final Calendar TARGET = new CalendarTarget("TARGET");
   private static final String SCHEME = "Test";
   private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
@@ -260,7 +263,7 @@ public class CurveNodeToDefinitionConverterTest {
   private static final String EUR_OVERNIGHT_NAME = "EUR Overnight";
   private static final ExternalId EUR_OVERNIGHT_ID = ExternalId.of(SCHEME, EUR_OVERNIGHT_NAME);
   private static final OvernightIndexConvention EUR_OVERNIGHT = new OvernightIndexConvention(EUR_OVERNIGHT_NAME, ExternalIdBundle.of(EUR_OVERNIGHT_ID),
-      ACT_360, 2, Currency.EUR, EU);
+      ACT_360, 0, Currency.EUR, EU);
 
   private static final String EUR_1Y_ON_CMP_NAME = "EUR 1Y ON Cmp";
   private static final ExternalId EUR_1Y_ON_CMP_ID = ExternalId.of(SCHEME, EUR_1Y_ON_CMP_NAME);
@@ -919,7 +922,6 @@ public class CurveNodeToDefinitionConverterTest {
     assertEquals("IborONIMMSwap", swap.getSecondLeg(), onLeg);
   }
 
-  // TODO: Add test for calendar swap
   @Test
   public void testFixedONCalendarSwap() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "ECB swap 0204");
@@ -939,14 +941,54 @@ public class CurveNodeToDefinitionConverterTest {
     final Map<ExternalIdBundle, Calendar> calendarMap = new HashMap<>();
     calendarMap.put(ecbId.toBundle(), ecb);
     final RegionSource regionSource = new MyRegionSource(new ExternalId[] {US, EU, GB}, new String[] {"US", "EU", "GB"}, regionMap);
-    final HolidaySource holidaySource = new MyHolidaySource(new ExternalId[] {US, EU, GB}, new Calendar[] {CALENDAR, CALENDAR, CALENDAR}, calendarMap);
+    final HolidaySource holidaySource = new MyHolidaySource(new ExternalId[] {US, EU, GB}, new Calendar[] {CALENDAR, TARGET, CALENDAR}, calendarMap);
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new CalendarSwapNodeConverter(CONVENTION_SOURCE, holidaySource, regionSource, marketValues, marketDataId, now);
     final Period startPeriod = Period.ofDays(1);
     final CalendarSwapNode swapNode = new CalendarSwapNode(ecbId, Tenor.of(startPeriod), startNumber, endNumber, EUR_SWAP_1Y_ONCMP_ID, false, SCHEME, "CalendarSwapNode0204");
-//    final InstrumentDefinition<?> definition = swapNode.accept(converter);
-//    assertTrue("FixedONCalendarSwap", definition instanceof SwapDefinition);
-//    final SwapDefinition swap = (SwapDefinition) definition;
-//    final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(CALENDAR, now.plus(startPeriod));
+    final InstrumentDefinition<?> definition = swapNode.accept(converter);
+    assertTrue("FixedONCalendarSwap: instance", definition instanceof SwapDefinition);
+    final SwapDefinition swap = (SwapDefinition) definition;
+    final LocalDate adjustedStartDate = FOLLOWING.adjustDate(CALENDAR, now.plus(startPeriod)).toLocalDate();
+    final LocalDate effectiveDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate, ecb, startNumber);
+    final LocalDate maturityDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate, ecb, endNumber);
+    final int nbCpnFixed = swap.getFirstLeg().getNumberOfPayments();
+    assertTrue("FixedONCalendarSwap: nb Coupon", nbCpnFixed == 1);
+    assertTrue("FixedONCalendarSwap: instance", swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedDefinition);
+    final AnnuityCouponFixedDefinition fixedLeg = (AnnuityCouponFixedDefinition) swap.getFirstLeg();
+    assertEquals("FixedONCalendarSwap: effective date", effectiveDate, fixedLeg.getNthPayment(0).getAccrualStartDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: maturity date", maturityDate, fixedLeg.getNthPayment(nbCpnFixed-1).getAccrualEndDate().toLocalDate());
+    assertTrue("FixedONCalendarSwap: instance", swap.getSecondLeg().getNthPayment(0) instanceof CouponONSpreadSimplifiedDefinition);
+    final AnnuityDefinition<?> onLeg = swap.getSecondLeg();
+    final int nbCpnON = onLeg.getNumberOfPayments();
+    assertTrue("FixedONCalendarSwap: nb Coupon", nbCpnON == 1);
+    assertEquals("FixedONCalendarSwap: effective date", effectiveDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(0)).getAccrualStartDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: effective date", effectiveDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(0)).getFixingPeriodStartDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: effective date", maturityDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(nbCpnON-1)).getAccrualEndDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: effective date", maturityDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(nbCpnON-1)).getFixingPeriodEndDate().toLocalDate());
+    final int startNumber2 = 2;
+    final int endNumber2 = 16; // More than 1 Year: 2 cpn
+    final Period startPeriod2 = Period.ofMonths(1);
+    final CalendarSwapNode swapNode2 = new CalendarSwapNode(ecbId, Tenor.of(startPeriod2), startNumber2, endNumber2, EUR_SWAP_1Y_ONCMP_ID, false, SCHEME, "CalendarSwapNode0204");
+    final InstrumentDefinition<?> definition2 = swapNode2.accept(converter);
+    assertTrue("FixedONCalendarSwap: instance", definition2 instanceof SwapDefinition);
+    final SwapDefinition swap2 = (SwapDefinition) definition2;
+    final LocalDate adjustedStartDate2 = FOLLOWING.adjustDate(CALENDAR, now.plus(startPeriod2)).toLocalDate();
+    final LocalDate effectiveDate2 = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate2, ecb, startNumber2);
+    final LocalDate maturityDate2 = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate2, ecb, endNumber2);
+    final int nbCpnFixed2 = swap2.getFirstLeg().getNumberOfPayments();
+    assertTrue("FixedONCalendarSwap: nb Coupon", nbCpnFixed2 == 2);
+    assertTrue("FixedONCalendarSwap: instance", swap2.getFirstLeg().getNthPayment(0) instanceof CouponFixedDefinition);
+    final AnnuityCouponFixedDefinition fixedLeg2 = (AnnuityCouponFixedDefinition) swap2.getFirstLeg();
+    assertEquals("FixedONCalendarSwap: effective date", effectiveDate2, fixedLeg2.getNthPayment(0).getAccrualStartDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: maturity date", maturityDate2, fixedLeg2.getNthPayment(nbCpnFixed2-1).getAccrualEndDate().toLocalDate());
+    assertTrue("FixedONCalendarSwap: instance", swap2.getSecondLeg().getNthPayment(0) instanceof CouponONSpreadSimplifiedDefinition);
+    final AnnuityDefinition<?> onLeg2 = swap2.getSecondLeg();
+    final int nbCpnON2 = onLeg2.getNumberOfPayments();
+    assertTrue("FixedONCalendarSwap: nb Coupon", nbCpnON2 == 2);
+    assertEquals("FixedONCalendarSwap: effective date", effectiveDate2, ((CouponONSpreadSimplifiedDefinition)onLeg2.getNthPayment(0)).getAccrualStartDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: effective date", effectiveDate2, ((CouponONSpreadSimplifiedDefinition)onLeg2.getNthPayment(0)).getFixingPeriodStartDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: effective date", maturityDate2, ((CouponONSpreadSimplifiedDefinition)onLeg2.getNthPayment(nbCpnON2-1)).getAccrualEndDate().toLocalDate());
+    assertEquals("FixedONCalendarSwap: effective date", maturityDate2, ((CouponONSpreadSimplifiedDefinition)onLeg2.getNthPayment(nbCpnON2-1)).getFixingPeriodEndDate().toLocalDate());
   }
 
   @Test

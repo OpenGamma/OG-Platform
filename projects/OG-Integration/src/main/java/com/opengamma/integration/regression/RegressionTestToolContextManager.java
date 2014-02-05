@@ -97,7 +97,8 @@ public class RegressionTestToolContextManager {
         toolContext.getHolidayMaster(),
         toolContext.getExchangeMaster(),
         toolContext.getMarketDataSnapshotMaster(),
-        toolContext.getOrganizationMaster()
+        toolContext.getOrganizationMaster(),
+        toolContext.getConventionMaster()
     );
 
     System.out.println("Initializing DB state...");

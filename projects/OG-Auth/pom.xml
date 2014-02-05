@@ -1,80 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.opengamma</groupId>
-        <artifactId>og-parent</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-        <relativePath>../OG-Parent</relativePath>
-    </parent>
-    <artifactId>og-auth</artifactId>
-    <packaging>jar</packaging>
-    <name>OG-Auth</name>
-    <description>OpenGamma platform authorisatjon and authentications</description>
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <scm>
-        <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Auth</url>
-    </scm>
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.2.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <artifactId>og-auth</artifactId>
+  <packaging>jar</packaging>
+  <name>OG-Auth</name>
+  <description>OpenGamma Platform authorization and authentication</description>
 
+  <scm>
+    <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Auth</url>
+  </scm>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.opengamma</groupId>
-            <artifactId>og-master</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.48</version>
-        </dependency>
-        <dependency>
-            <!--http://codahale.com/how-to-safely-store-a-password/-->
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.3m</version>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
-            <!--<artifactId>jersey-test-framework-core</artifactId>-->
-            <!--<version>1.17</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
-            <!--<artifactId>jersey-test-framework-http</artifactId>-->
-            <!--<version>1.17</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
-            <!--<artifactId>jersey-test-framework-external</artifactId>-->
-            <!--<version>1.17</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
-            <!--<artifactId>jersey-test-framework-grizzly</artifactId>-->
-            <!--<version>1.17</version>-->
-        <!--</dependency>-->
+  <dependencies>
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-master</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.48</version>
+    </dependency>
+    <dependency>
+        <!--http://codahale.com/how-to-safely-store-a-password/-->
+        <groupId>org.mindrot</groupId>
+        <artifactId>jbcrypt</artifactId>
+    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
+      <!--<artifactId>jersey-test-framework-core</artifactId>-->
+      <!--<version>1.17</version>-->
+      <!--<scope>test</scope>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
+      <!--<artifactId>jersey-test-framework-http</artifactId>-->
+      <!--<version>1.17</version>-->
+      <!--<scope>test</scope>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
+      <!--<artifactId>jersey-test-framework-external</artifactId>-->
+      <!--<version>1.17</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
+      <!--<artifactId>jersey-test-framework-grizzly</artifactId>-->
+      <!--<version>1.17</version>-->
+    <!--</dependency>-->
 
-        <!--<dependency>-->
-            <!--<groupId>com.sun.jersey.contribs</groupId>-->
-            <!--<artifactId>jersey-guice</artifactId>-->
-            <!--<version>1.17</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
-            <!--<artifactId>jersey-test-framework-inmemory</artifactId>-->
-            <!--<version>1.17</version>-->
-        <!--</dependency>-->
-    </dependencies>
+    <!--<dependency>-->
+      <!--<groupId>com.sun.jersey.contribs</groupId>-->
+      <!--<artifactId>jersey-guice</artifactId>-->
+      <!--<version>1.17</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>com.sun.jersey.jersey-test-framework</groupId>-->
+      <!--<artifactId>jersey-test-framework-inmemory</artifactId>-->
+      <!--<version>1.17</version>-->
+    <!--</dependency>-->
+  </dependencies>
 
-    <properties>
-        <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-        <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
-    </properties>
+  <properties>
+  </properties>
 
 </project>

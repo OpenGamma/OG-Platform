@@ -70,6 +70,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
 
   /**
    * The links to any exogenous curve configs.
+   * Currently these are private - in the future we may want to expose the links directly.
    */
   private List<ConfigLink<CurveConstructionConfiguration>> _exogenousLinks = ImmutableList.of();
 
