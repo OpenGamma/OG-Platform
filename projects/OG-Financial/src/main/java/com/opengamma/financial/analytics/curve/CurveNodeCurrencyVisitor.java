@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
@@ -82,6 +83,16 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
    */
   protected ConventionSource getConventionSource() {
     return _conventionSource;
+  }
+
+  /**
+   * {@inheritDoc}
+   * Bill nodes point to a real security in the database, so the currency information is not available
+   * in the node itself.
+   */
+  @Override
+  public Set<Currency> visitBillNode(final BillNode node) {
+    return Collections.emptySet();
   }
 
   /**

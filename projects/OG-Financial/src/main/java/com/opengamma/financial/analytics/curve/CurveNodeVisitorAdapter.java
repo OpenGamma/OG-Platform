@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
@@ -53,12 +54,17 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
   }
 
   @Override
+  public T visitBillNode(final BillNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
   public T visitBondNode(final BondNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
   @Override
-  public T visitCalendarSwapNode(CalendarSwapNode node) {
+  public T visitCalendarSwapNode(final CalendarSwapNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
@@ -163,6 +169,22 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
     protected Builder(final CurveNodeVisitor<T> visitor) {
       ArgumentChecker.notNull(visitor, "visitor");
       _visitor = visitor;
+    }
+
+    /**
+     * Adds a visitor for {@link BillNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle bill nodes
+     */
+    public Builder<T> billNodeVisitor(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitBillNode(final BillNode node) {
+          return visitor.visitBillNode(node);
+        }
+      };
+      return this;
     }
 
     /**
