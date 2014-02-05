@@ -53,6 +53,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
@@ -113,9 +114,15 @@ public class ExampleMixedCMCapFloorPortfolioLoader extends AbstractTool<Integrat
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { //CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
-    new ExampleMixedCMCapFloorPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    try {
+      boolean success =
+          new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class) &&
+          new ExampleMixedCMCapFloorPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
+      ShutdownUtils.exit(success ? 0 : -1);
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
   }
 
   //-------------------------------------------------------------------------

@@ -20,8 +20,7 @@ public class ExampleFXImpliedCurveConfigurationLoader extends AbstractTool<ToolC
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { //CSIGNORE
-    new ExampleFXImpliedCurveConfigurationLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleFXImpliedCurveConfigurationLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

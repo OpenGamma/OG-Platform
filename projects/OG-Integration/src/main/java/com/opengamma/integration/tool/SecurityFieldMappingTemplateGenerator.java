@@ -40,8 +40,7 @@ public class SecurityFieldMappingTemplateGenerator extends AbstractTool<ToolCont
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new SecurityFieldMappingTemplateGenerator().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new SecurityFieldMappingTemplateGenerator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

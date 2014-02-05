@@ -60,8 +60,7 @@ public class SyntheticPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
         return SyntheticPortfolioGeneratorTool.class;
       }
     };
-    tool.initAndRun(args, ToolContext.class);
-    System.exit(0);
+    tool.invokeAndTerminate(args);
   }
 
 }

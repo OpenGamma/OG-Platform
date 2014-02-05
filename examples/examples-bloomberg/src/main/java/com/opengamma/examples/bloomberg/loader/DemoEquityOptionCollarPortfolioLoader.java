@@ -115,8 +115,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new DemoEquityOptionCollarPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(success ? 0 : 1);
+    new DemoEquityOptionCollarPortfolioLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

@@ -163,8 +163,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleViewsPopulator().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ExampleViewsPopulator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

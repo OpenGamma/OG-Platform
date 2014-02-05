@@ -70,8 +70,7 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new CurveFutureSecurityLoaderTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new CurveFutureSecurityLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

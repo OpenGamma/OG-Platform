@@ -53,8 +53,7 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
         return PortfolioGeneratorTool.class;
       }
     };
-    tool.initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    tool.invokeAndTerminate(args);
   }
 
 }

@@ -127,8 +127,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new VolatilitySurfaceCreator().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new VolatilitySurfaceCreator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

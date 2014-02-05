@@ -53,8 +53,7 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
    */
   public static void main(final String[] args) {  // CSIGNORE
     ArgumentChecker.isTrue(args.length > 3, "At least three arguments required: data file name, scheme name and calendar name");
-    new CalendarLoaderTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new CalendarLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

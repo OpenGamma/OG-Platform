@@ -22,8 +22,7 @@ public class ExampleHistoricalDataGeneratorTool extends AbstractTool<ToolContext
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleHistoricalDataGeneratorTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleHistoricalDataGeneratorTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

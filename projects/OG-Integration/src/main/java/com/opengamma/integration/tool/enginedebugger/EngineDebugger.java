@@ -95,8 +95,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {
-    //new EngineDebugger().initialize();
-    new EngineDebugger().initAndRun(args, IntegrationToolContext.class);
+    new EngineDebugger().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

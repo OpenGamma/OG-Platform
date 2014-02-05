@@ -65,8 +65,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new ResolvingPortfolioLoaderTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ResolvingPortfolioLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

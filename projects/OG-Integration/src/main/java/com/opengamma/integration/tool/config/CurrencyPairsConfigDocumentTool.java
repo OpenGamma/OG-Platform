@@ -28,8 +28,7 @@ public class CurrencyPairsConfigDocumentTool extends AbstractTool<IntegrationToo
     if (args.length < 2) {
       throw new IllegalArgumentException("2 args required: dataFile, configName");
     }
-    new CurrencyPairsConfigDocumentTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new CurrencyPairsConfigDocumentTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

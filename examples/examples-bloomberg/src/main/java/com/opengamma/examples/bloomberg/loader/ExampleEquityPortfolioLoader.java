@@ -88,8 +88,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new ExampleEquityPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ExampleEquityPortfolioLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

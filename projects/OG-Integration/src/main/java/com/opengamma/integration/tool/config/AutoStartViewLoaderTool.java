@@ -58,8 +58,7 @@ public class AutoStartViewLoaderTool extends AbstractTool<ToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new AutoStartViewLoaderTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new AutoStartViewLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

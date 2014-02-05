@@ -79,7 +79,7 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleAnalyticServiceUsage().initAndRun(args, ToolContext.class);
+    new ExampleAnalyticServiceUsage().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

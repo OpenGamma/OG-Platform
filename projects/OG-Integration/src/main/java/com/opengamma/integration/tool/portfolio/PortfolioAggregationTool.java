@@ -52,7 +52,7 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new PortfolioAggregationTool().initAndRun(args, IntegrationToolContext.class);
+    new PortfolioAggregationTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

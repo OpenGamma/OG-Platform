@@ -51,8 +51,7 @@ public class TimeSeriesDataProviderReplaceTool extends AbstractTool<IntegrationT
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new TimeSeriesDataProviderReplaceTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new TimeSeriesDataProviderReplaceTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

@@ -29,8 +29,7 @@ public class OrphanedPositionDeleteTool extends AbstractTool<IntegrationToolCont
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
-    new OrphanedPositionDeleteTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new OrphanedPositionDeleteTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

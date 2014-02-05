@@ -123,8 +123,7 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new FuturePriceCurveCreator().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new FuturePriceCurveCreator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

@@ -69,12 +69,7 @@ public class ExampleConfigDatabasePopulator extends AbstractTool<IntegrationTool
    */
   public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
-    try {
-      new ExampleConfigDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
-    } catch (final Exception ex) {
-      s_logger.error("Caught exception", ex);
-      ex.printStackTrace();
-    }
+    new ExampleConfigDatabasePopulator().invokeAndTerminate(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null);
   }
 
   //-------------------------------------------------------------------------

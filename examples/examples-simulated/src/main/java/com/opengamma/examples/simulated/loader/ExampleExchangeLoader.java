@@ -34,8 +34,7 @@ public class ExampleExchangeLoader extends AbstractTool<ToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleExchangeLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleExchangeLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

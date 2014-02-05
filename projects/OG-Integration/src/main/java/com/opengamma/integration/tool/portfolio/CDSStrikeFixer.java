@@ -70,8 +70,7 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new CDSStrikeFixer().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new CDSStrikeFixer().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

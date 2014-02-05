@@ -43,8 +43,7 @@ public class MarketDataSnapshotImportTool extends AbstractTool<ToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new MarketDataSnapshotImportTool().initAndRun(args, ToolContext.class);
-    System.exit(success ? 0 : 1);
+    new MarketDataSnapshotImportTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

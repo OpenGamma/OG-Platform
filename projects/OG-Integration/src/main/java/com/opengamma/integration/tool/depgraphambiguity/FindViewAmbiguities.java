@@ -90,8 +90,7 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
-    new FindViewAmbiguities().initAndRun(args, ToolContext.class);
-    Runtime.getRuntime().halt(1);
+    new FindViewAmbiguities().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

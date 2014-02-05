@@ -264,8 +264,7 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new PortfolioZipFormatExamplesGenerator().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new PortfolioZipFormatExamplesGenerator().invokeAndTerminate(args);
   }
 
 }

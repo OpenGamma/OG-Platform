@@ -33,8 +33,7 @@ public class PortfolioCopyMoveTool extends AbstractTool<IntegrationToolContext> 
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    boolean success = new PortfolioCopyMoveTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(success ? 0 : 1);
+    new PortfolioCopyMoveTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

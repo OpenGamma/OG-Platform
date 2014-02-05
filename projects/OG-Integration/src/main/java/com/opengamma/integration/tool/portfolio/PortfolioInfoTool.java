@@ -29,7 +29,7 @@ public class PortfolioInfoTool extends AbstractTool<IntegrationToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new PortfolioInfoTool().initAndRun(args, IntegrationToolContext.class);
+    new PortfolioInfoTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

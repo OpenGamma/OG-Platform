@@ -49,8 +49,7 @@ public class TimeSeriesLoaderTool extends AbstractTool<ToolContext> {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new TimeSeriesLoaderTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new TimeSeriesLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

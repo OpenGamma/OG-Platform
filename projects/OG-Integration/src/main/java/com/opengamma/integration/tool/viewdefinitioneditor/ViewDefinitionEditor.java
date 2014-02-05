@@ -62,8 +62,7 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {
-    //new EngineDebugger().initialize();
-    new ViewDefinitionEditor().initAndRun(args, IntegrationToolContext.class);
+    new ViewDefinitionEditor().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

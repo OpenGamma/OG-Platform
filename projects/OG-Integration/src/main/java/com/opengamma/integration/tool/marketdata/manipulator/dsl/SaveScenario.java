@@ -40,7 +40,7 @@ public class SaveScenario extends AbstractTool<ToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {
-    new SaveScenario().initAndRun(args, ToolContext.class);
+    new SaveScenario().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

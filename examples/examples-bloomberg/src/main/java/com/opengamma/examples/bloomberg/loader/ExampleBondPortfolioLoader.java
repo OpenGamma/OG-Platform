@@ -55,8 +55,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleBondPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ExampleBondPortfolioLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

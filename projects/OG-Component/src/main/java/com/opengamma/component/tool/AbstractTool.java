@@ -5,6 +5,9 @@
  */
 package com.opengamma.component.tool;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -20,6 +23,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.StartupUtils;
 
 /**
@@ -81,6 +85,77 @@ public abstract class AbstractTool<T extends ToolContext> {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Main entry point to initialize and run the tool from standard command-line
+   * arguments, terminating the JVM once complete.
+   * <p>
+   * This base class defines three options:<br />
+   * c/config - the config file, mandatory<br />
+   * l/logback - the logback configuration, default tool-logback.xml<br />
+   * h/help - prints the help tool<br />
+   * <p>
+   * This method is intended for use from a standalone main method.
+   * It will print exceptions to system err and terminate the JVM.
+   * This method never returns.
+   * <p>
+   * This method calculates the {@code ToolContext} type by reflection of generics.
+   *
+   * @param args  the command-line arguments, not null
+   */
+  public void invokeAndTerminate(final String[] args) {
+    invokeAndTerminate(args, null, null);
+  }
+
+  /**
+   * Main entry point to initialize and run the tool from standard command-line
+   * arguments, terminating the JVM once complete.
+   * <p>
+   * This base class defines three options:<br />
+   * c/config - the config file, mandatory<br />
+   * l/logback - the logback configuration, default tool-logback.xml<br />
+   * h/help - prints the help tool<br />
+   * <p>
+   * This method is intended for use from a standalone main method.
+   * It will print exceptions to system err and terminate the JVM.
+   * This method never returns.
+   * <p>
+   * This method calculates the {@code ToolContext} type by reflection of generics.
+   *
+   * @param args  the command-line arguments, not null
+   * @param defaultConfigResource  the default configuration resource location, null if mandatory on command line
+   * @param defaultLogbackResource  the default logback resource, null to use tool-logback.xml as the default
+   */
+  public void invokeAndTerminate(final String[] args, final String defaultConfigResource, final String defaultLogbackResource) {
+    try {
+      // reflection to find the tool context type via reflection
+      Class<?> cls = getClass();
+      ParameterizedType type = null;
+      while (cls != AbstractTool.class) {
+        Type loop = cls.getGenericSuperclass();
+        if (loop instanceof ParameterizedType) {
+          type = (ParameterizedType) loop;
+          break;
+        }
+        cls = cls.getSuperclass();
+      }
+      if (type == null || type.getActualTypeArguments().length != 1 ||
+          type.getActualTypeArguments()[0] instanceof Class == false ||
+          ToolContext.class.isAssignableFrom((Class<?>) type.getActualTypeArguments()[0]) == false) {
+        System.err.println("Subclass must declare tool context type");
+        ShutdownUtils.exit(-2);
+      }
+      @SuppressWarnings("unchecked")
+      Class<T> toolContextClass = (Class<T>) type.getActualTypeArguments()[0];
+      // invoke and terminate the tool
+      boolean success = initAndRun(args, defaultConfigResource, defaultLogbackResource, toolContextClass);
+      ShutdownUtils.exit(success ? 0 : -1);
+      
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
+  }
+
   /**
    * Initializes and runs the tool from standard command-line arguments.
    * <p>

@@ -24,8 +24,7 @@ public class CoppClarkHolidayFileTool extends AbstractTool<IntegrationToolContex
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new CoppClarkHolidayFileTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new CoppClarkHolidayFileTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

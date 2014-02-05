@@ -53,8 +53,7 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleFunctionConfigurationPopulator().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleFunctionConfigurationPopulator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

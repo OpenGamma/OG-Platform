@@ -85,8 +85,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
    * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new ExampleMultiAssetPortfolioLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleMultiAssetPortfolioLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

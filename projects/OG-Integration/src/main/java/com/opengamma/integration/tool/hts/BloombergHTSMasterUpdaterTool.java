@@ -32,6 +32,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -76,14 +77,12 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
       if (!new BloombergHTSMasterUpdaterTool(feedback).initAndRun(args, IntegrationToolContext.class)) {
         feedback.done("Could not update the time-series database - check that the server has been started");
       } else {
-        System.exit(0);
+        ShutdownUtils.exit(0);
       }
     } catch (final java.awt.HeadlessException ex) {
-      if (!new BloombergHTSMasterUpdaterTool().initAndRun(args, IntegrationToolContext.class)) {
-        System.exit(-1);
-      } else {
-        System.exit(0);
-      }
+      boolean success = new BloombergHTSMasterUpdaterTool().initAndRun(args, IntegrationToolContext.class);
+      ShutdownUtils.exit(success ? 0 : -1);
+      
     } catch (final Exception ex) {
       GUIFeedback.shout(ex.getClass().getSimpleName() + " - " + ex.getMessage());
       s_logger.error("Caught exception", ex);
