@@ -475,35 +475,34 @@ public class CurveValidator {
     if (curveNodeIdMapper == null) {
       createInvalidCurveNodeValidationNode(curveNode.getResolvedMaturity(), curveNode.getClass(), validationNode, "CurveNodeIdMapper " + curveNode.getCurveNodeIdMapperName() + " is missing");
     } else {
-
-      @Override
-      public final Void visitBillNode(final BillNode node) {
-        ExternalId billNodeId;
-        try {
-          billNodeId = curveNodeIdMapper.getBondNodeId(_curveDate, node.getMaturityTenor());
-        } catch (final OpenGammaRuntimeException ogre) {
-          billNodeId = null;
-        }
-        ValidationNode bondNodeValidationNode;
-        if (billNodeId != null) {
-          try {
-            final Security bond = _securitySource.getSingle(billNodeId.toBundle());
-            if (bond == null) {
-              bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, "Bond " + billNodeId + " not found in security master");
-            } else {
-              bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, null);
-            }
-          } catch (final IllegalArgumentException iae) {
-            bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode,
-                "Bond " + billNodeId + " error thrown by security master when resolving, probably invalid ID format");
-          }
-        } else {
-          bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, "Entry missing for this tenor in CurveNodeIdMapper");
-        }
-        return null;
-      }
-
       curveNode.accept(new CurveNodeVisitor<Void>() {
+        @Override
+        public Void visitBillNode(final BillNode node) {
+          ExternalId billNodeId;
+          try {
+            billNodeId = curveNodeIdMapper.getBondNodeId(_curveDate, node.getMaturityTenor());
+          } catch (final OpenGammaRuntimeException ogre) {
+            billNodeId = null;
+          }
+          ValidationNode billNodeValidationNode;
+          if (billNodeId != null) {
+            try {
+              final Security bond = _securitySource.getSingle(billNodeId.toBundle());
+              if (bond == null) {
+                billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode, "Bill " + billNodeId + " not found in security master");
+              } else {
+                billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode, null);
+              }
+            } catch (final IllegalArgumentException iae) {
+              billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode,
+                  "Bill " + billNodeId + " error thrown by security master when resolving, probably invalid ID format");
+            }
+          } else {
+            billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode, "Entry missing for this tenor in CurveNodeIdMapper");
+          }
+          return null;
+        }
+
         @Override
         public Void visitBondNode(final BondNode node) {
           ExternalId bondNodeId;
