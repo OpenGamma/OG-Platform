@@ -6,6 +6,7 @@
 package com.opengamma.integration.analyticservice;
 
 import com.opengamma.component.OpenGammaComponentServer;
+import com.opengamma.util.ShutdownUtils;
 
 /**
  * Main entry point for OpenGamma Analytic service component-based servers.
@@ -21,7 +22,7 @@ public class AnalyticServiceComponentServer extends OpenGammaComponentServer {
    */
   public static void main(String[] args) { // CSIGNORE
     if (!new AnalyticServiceComponentServer().run(args)) {
-      System.exit(-1);
+      ShutdownUtils.exit(-1);
     }
   }
 

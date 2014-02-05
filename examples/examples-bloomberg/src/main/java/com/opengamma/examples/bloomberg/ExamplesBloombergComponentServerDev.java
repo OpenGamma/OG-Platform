@@ -6,6 +6,7 @@
 package com.opengamma.examples.bloomberg;
 
 import com.opengamma.component.OpenGammaComponentServer;
+import com.opengamma.util.ShutdownUtils;
 
 /**
  * Entry point for the OpenGamma component-based server in Examples-Bloomberg automatically
@@ -41,7 +42,7 @@ public class ExamplesBloombergComponentServerDev extends OpenGammaComponentServe
       args = new String[] {"-v", "classpath:/fullstack/fullstack-examplesbloomberg-dev.properties"};
     }
     if (!new ExamplesBloombergComponentServerDev().run(args)) {
-      System.exit(-1);
+      ShutdownUtils.exit(-1);
     }
   }
 
