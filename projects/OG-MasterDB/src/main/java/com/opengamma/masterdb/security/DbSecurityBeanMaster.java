@@ -17,6 +17,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.masterdb.ConfigurableDbChangeProvidingMaster;
 import com.opengamma.masterdb.bean.AbstractDelegatingBeanMaster;
 import com.opengamma.masterdb.bean.BeanMasterSearchRequest;
 import com.opengamma.masterdb.bean.DbBeanMaster;
@@ -35,7 +36,7 @@ import com.opengamma.util.db.DbConnector;
  */
 public class DbSecurityBeanMaster
     extends AbstractDelegatingBeanMaster<SecurityDocument, ManageableSecurity>
-    implements SecurityMaster {
+    implements SecurityMaster, ConfigurableDbChangeProvidingMaster {
 
   /**
    * The default scheme for unique identifiers.
