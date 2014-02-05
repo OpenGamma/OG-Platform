@@ -5,8 +5,6 @@
  */
 package com.opengamma.core.user;
 
-import java.util.Set;
-
 import org.threeten.bp.ZoneId;
 
 import com.opengamma.id.ExternalBundleIdentifiable;
