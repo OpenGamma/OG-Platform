@@ -54,13 +54,17 @@
       </resource>
     </resources>
     <plugins>
-      <!-- include classpath in jar files -->
+      <!-- include classpath and exclude config in jar files -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <excludes>
-            <exclude>**/*logback.xml</exclude>
+            <exclude>**/default-ehcache.xml</exclude>
+            <exclude>**/fullstack/</exclude>
+            <exclude>**/marketdata/</exclude>
+            <exclude>**/toolcontext/</exclude>
+            <exclude>**/dbtoolcontext/</exclude>
           </excludes>
           <archive>
             <manifest>
@@ -202,7 +206,7 @@
                 <configuration>
                   <descriptors>
                     <descriptor>src/main/assembly/assembly-server-unix.xml</descriptor>
-                    <descriptor>src/main/assembly/assembly-server-windows.xml</descriptor>
+                    <!--<descriptor>src/main/assembly/assembly-server-windows.xml</descriptor>-->
                   </descriptors>
                   <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
