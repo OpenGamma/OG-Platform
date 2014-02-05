@@ -61,7 +61,8 @@ import com.opengamma.util.time.Tenor;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleVanillaFxOptionPortfolioLoader extends AbstractTool<IntegrationToolContext> {
-  /** The logger */
+
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleFxForwardPortfolioLoader.class);
   /** The number of securities in this portfolio */
   private static final int SIZE = 200;
@@ -76,10 +77,11 @@ public class ExampleVanillaFxOptionPortfolioLoader extends AbstractTool<Integrat
   /** Formats the rates in the security name */
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
 
-
+  //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   * @param args The arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
@@ -87,6 +89,7 @@ public class ExampleVanillaFxOptionPortfolioLoader extends AbstractTool<Integrat
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     final Collection<FXOptionSecurity> fxOptions = createRandomFXOptions();

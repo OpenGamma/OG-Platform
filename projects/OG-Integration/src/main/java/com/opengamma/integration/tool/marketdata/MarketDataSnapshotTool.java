@@ -66,15 +66,16 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     final boolean success = new MarketDataSnapshotTool().initAndRun(args, ToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     s_context = getToolContext();

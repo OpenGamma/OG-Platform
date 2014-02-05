@@ -96,8 +96,8 @@ import com.opengamma.util.tuple.ObjectsPair;
 @Scriptable
 public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext> {
 
-  /** the logger */
-  static Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveCreator.class);
+  /** Logger */
+  private static Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveCreator.class);
 
   /** bbg surface prefix */
   private static final String BBG_PREFIX = "BBG_";
@@ -116,10 +116,11 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
   /** regexp to get strike from option ticker */
   private static final String STRIKE_REGEXP = "[CP][ ]*((\\d)+(.\\d+)*)\\b";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   *
-   * @param args  command line arguments
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
     new FuturePriceCurveCreator().initAndRun(args, IntegrationToolContext.class);

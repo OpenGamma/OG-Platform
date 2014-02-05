@@ -8,11 +8,8 @@ package com.opengamma.integration.tool.config;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -32,23 +29,25 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigSearchSortOrder;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.scripts.Scriptable;
-import com.opengamma.util.result.FailureResult;
 
 /**
  * Tool to read currency pairs from a text file and store them in the config master. The pairs must be in the format AAA/BBB, one per line in the file.
  */
 @Scriptable
 public class SingleConfigImportTool extends AbstractTool<ToolContext> {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SingleConfigImportTool.class);
   private static final long DEFAULT_MARK_BUFFER = 1000000; // 1MB should do it.
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
     new SingleConfigImportTool().initAndRun(args, ToolContext.class);

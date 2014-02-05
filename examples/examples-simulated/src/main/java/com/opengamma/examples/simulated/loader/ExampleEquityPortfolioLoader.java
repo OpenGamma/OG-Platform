@@ -90,9 +90,9 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
     new ExampleEquityPortfolioLoader().initAndRun(args, ToolContext.class);

@@ -128,9 +128,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Populating example database");

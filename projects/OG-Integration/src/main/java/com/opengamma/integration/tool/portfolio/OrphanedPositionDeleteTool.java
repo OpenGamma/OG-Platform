@@ -18,16 +18,22 @@ import com.opengamma.scripts.Scriptable;
  */
 @Scriptable
 public class OrphanedPositionDeleteTool extends AbstractTool<IntegrationToolContext> {
-  
+
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(OrphanedPositionDeleteTool.class);
+
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
     new OrphanedPositionDeleteTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     ToolContext toolContext = getToolContext();
@@ -36,5 +42,5 @@ public class OrphanedPositionDeleteTool extends AbstractTool<IntegrationToolCont
     orphanedPositionRemover.run();
     toolContext.close();
   }
-  
+
 }

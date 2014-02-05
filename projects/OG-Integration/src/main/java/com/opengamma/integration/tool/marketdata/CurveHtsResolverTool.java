@@ -49,9 +49,8 @@ import com.opengamma.util.money.Currency;
  */
 @Scriptable
 public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
-  /**
-   * Logger.
-   */
+
+  /** Logger. */
   private static Logger s_logger = LoggerFactory.getLogger(CurveHtsResolverTool.class);
 
   /** Portfolio name option flag */
@@ -66,11 +65,10 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   private static final String TIME_SERIES_DATAFIELD_OPT = "d";
 
   //-------------------------------------------------------------------------
-
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     new CurveHtsResolverTool().initAndRun(args, IntegrationToolContext.class);

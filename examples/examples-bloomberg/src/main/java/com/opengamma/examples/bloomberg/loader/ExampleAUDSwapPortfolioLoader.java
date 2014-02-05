@@ -49,6 +49,7 @@ import com.opengamma.util.time.DateUtils;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolContext> {
+
   /** The trade date */
   private static final ZonedDateTime TRADE_DATE = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
   /** The maturity */
@@ -78,9 +79,11 @@ public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolC
   /** The portfolio name */
   public static final String PORTFOLIO_NAME = "AUD Swap Portfolio";
 
+  //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   * @param args The arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
@@ -88,6 +91,7 @@ public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolC
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     final FloatingInterestRateLeg payLeg1 = new FloatingInterestRateLeg(ACT_365, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, AUD_LIBOR_3M, FloatingRateType.IBOR);

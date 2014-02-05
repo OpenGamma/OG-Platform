@@ -66,7 +66,8 @@ import com.opengamma.util.time.Tenor;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleMixedCMCapFloorPortfolioLoader extends AbstractTool<IntegrationToolContext> {
-  /** The logger */
+
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleMixedCMCapFloorPortfolioLoader.class);
   /** The trade date */
   private static final LocalDate TRADE_DATE = DateUtils.previousWeekDay().minusDays(30);
@@ -105,12 +106,19 @@ public class ExampleMixedCMCapFloorPortfolioLoader extends AbstractTool<Integrat
     TICKERS.put(Tenor.TEN_YEARS, ExternalSchemes.bloombergTickerSecurityId("USSW10 Curncy"));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) { //CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
     new ExampleMixedCMCapFloorPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     final Random random = new Random(45689);

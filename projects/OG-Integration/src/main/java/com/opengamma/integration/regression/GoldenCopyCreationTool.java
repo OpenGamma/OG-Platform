@@ -35,16 +35,24 @@ import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
  */
 public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(GoldenCopyCreationTool.class);
-  
-  private static final ImmutableSet<CharSequence> UNSUPPORTED_CHAR_SEQUENCES = ImmutableSet.<CharSequence>of("/");
-  
   /**
    * The version name to use against calculation results in the golden copy.
    */
   public static final String GOLDEN_COPY_VERSION_NAME = "Golden Copy";
-  
-  
+
+  /** Logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(GoldenCopyCreationTool.class);
+  /**
+   * Unsupported character sequence.
+   */
+  private static final ImmutableSet<CharSequence> UNSUPPORTED_CHAR_SEQUENCES = ImmutableSet.<CharSequence>of("/");
+
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(String[] args) {
     try {
       new GoldenCopyCreationTool().initAndRun(args, ToolContext.class);
@@ -53,6 +61,7 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     

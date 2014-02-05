@@ -37,6 +37,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContext> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioAggregationTool.class);
 
   private final Map<String, AggregationFunction<?>> _aggregationFunctions = new HashMap<>();
@@ -44,16 +45,17 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
   private static final String AGGREGATION_OPT = "a";
   private static final String SPLIT_OPT = "s";
 
-
+  //-------------------------------------------------------------------------
   /**
-   * Runs the tool.
-   *
-   * @param args  empty arguments
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
     new PortfolioAggregationTool().initAndRun(args, IntegrationToolContext.class);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     populateAggregationFunctionMap(getToolContext().getSecuritySource());
@@ -88,7 +90,6 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
       System.exit(1);
       return null; // idiot compiler...
     } else { 
-      @SuppressWarnings("unchecked")
       AggregationFunction<?>[] results = new AggregationFunction<?>[aggregatorNames.length];
       for (int i = 0; i < aggregatorNames.length; i++) {
         AggregationFunction<?> aggregationFunction = _aggregationFunctions.get(aggregatorNames[i].trim());

@@ -110,9 +110,9 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args the arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     final boolean success = new DemoEquityOptionCollarPortfolioLoader().initAndRun(args, IntegrationToolContext.class);

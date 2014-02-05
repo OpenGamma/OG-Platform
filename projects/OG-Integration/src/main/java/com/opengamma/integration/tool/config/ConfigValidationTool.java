@@ -12,8 +12,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
@@ -30,13 +28,16 @@ import com.opengamma.scripts.Scriptable;
  */
 @Scriptable
 public class ConfigValidationTool extends AbstractTool<ToolContext> {
-  private static final Logger s_logger = LoggerFactory.getLogger(ConfigValidationTool.class);
+  
   private static final String ERRORS_PARTIAL_GRAPH_OPTION = "errors-partial-graph";
   private static final String ERRORS_FULL_GRAPH_OPTION = "errors-full-graph";
   private static final String VERBOSE_OPTION = "verbose";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
     new ConfigValidationTool().initAndRun(args, ToolContext.class);

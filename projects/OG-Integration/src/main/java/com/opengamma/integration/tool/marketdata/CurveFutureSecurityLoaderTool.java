@@ -52,9 +52,8 @@ import com.opengamma.scripts.Scriptable;
  */
 @Scriptable
 public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolContext> {
-  /**
-   * Logger.
-   */
+
+  /** Logger. */
   private static Logger s_logger = LoggerFactory.getLogger(CurveFutureSecurityLoaderTool.class);
 
   /** Portfolio name option flag */
@@ -65,11 +64,10 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
   private static final String VERBOSE_OPT = "v";
 
   //-------------------------------------------------------------------------
-
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     new CurveFutureSecurityLoaderTool().initAndRun(args, IntegrationToolContext.class);

@@ -47,14 +47,20 @@ import com.opengamma.util.money.Currency;
  */
 public class ExampleCDSLoader extends AbstractTool<ToolContext> {
 
+  private int _counter;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(String[] args) {  // CSIGNORE
-    
     new ExampleCDSLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
-  private int _counter;
-
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     

@@ -42,6 +42,7 @@ public class TimeSeriesLoaderTool extends AbstractTool<ToolContext> {
   /** Write option flag */
   public static final String WRITE_OPT = "w";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 

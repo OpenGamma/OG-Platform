@@ -21,12 +21,15 @@ public class MultiFileConfigExportTool extends AbstractTool<ToolContext> {
 
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
     new MultiFileConfigExportTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     CommandLine commandLine = getCommandLine();

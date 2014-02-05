@@ -72,9 +72,7 @@ import com.opengamma.util.tuple.Triple;
 @Scriptable
 public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<IntegrationToolContext> {
 
-  /**
-   * Logger.
-   */
+  /** Logger. */
   private static Logger s_logger = LoggerFactory.getLogger(ExampleMultiCurrencySwapPortfolioLoader.class);
 
   /**
@@ -107,11 +105,11 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
       Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20)};
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);

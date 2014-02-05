@@ -73,7 +73,8 @@ import com.opengamma.util.tuple.Pairs;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationToolContext> {
-  /** The logger */
+
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleSwaptionPortfolioLoader.class);
   /** The currencies */
   public static final Currency[] CCYS = new Currency[] {Currency.USD};
@@ -105,12 +106,19 @@ public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationTool
     REGIONS.put(Currency.USD, ExternalSchemes.countryRegionId(Country.US));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) { //CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
     new ExampleSwaptionPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     final Map<SwaptionSecurity, SwapSecurity> securities = createRandomSwaptions();

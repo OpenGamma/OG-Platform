@@ -27,6 +27,17 @@ import com.opengamma.util.tuple.Triple;
 @Scriptable
 public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolContext> {
 
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(final String[] args) { // CSIGNORE
+    new ExampleCurveAndSurfaceDefinitionLoader().initAndRun(args, ToolContext.class);
+    System.exit(0);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
@@ -46,17 +57,6 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
     FXForwardCurveConfigPopulator.populateFXForwardCurveConfigMaster(configMaster, fxForward);
     new VolatilityCubeConfigPopulator(configMaster);
     new ExampleFXImpliedMultiCurveCalculationConfigPopulator(configMaster);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Main method to run the tool.
-   *
-   * @param args the arguments, unused
-   */
-  public static void main(final String[] args) { // CSIGNORE
-    new ExampleCurveAndSurfaceDefinitionLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
   }
 
 }

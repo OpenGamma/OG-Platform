@@ -81,11 +81,14 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
 
+  private final Set<ExternalIdBundle> _futuresToLoad = new HashSet<>();
+  private final Set<ExternalId> _historicalDataToLoad = new HashSet<>();
+
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
@@ -97,9 +100,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private final Set<ExternalIdBundle> _futuresToLoad = new HashSet<>();
-  private final Set<ExternalId> _historicalDataToLoad = new HashSet<>();
-
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     loadConventions();

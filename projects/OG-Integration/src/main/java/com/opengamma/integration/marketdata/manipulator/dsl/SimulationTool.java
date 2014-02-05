@@ -42,6 +42,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class SimulationTool extends AbstractTool<ToolContext> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SimulationTool.class);
 
   /** Command line option for view definition name. */
@@ -57,11 +58,18 @@ public class SimulationTool extends AbstractTool<ToolContext> {
   /** Command line option for the names of the market data sources used for running the view. */
   private static final String MARKET_DATA_OPTION = "m";
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) {
     new SimulationTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     ViewProcessor viewProcessor = getToolContext().getViewProcessor();

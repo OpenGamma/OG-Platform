@@ -133,9 +133,10 @@ import com.opengamma.util.tuple.Pairs;
  */
 @Scriptable
 public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> {
-  private static final String DEFAULT_CALC_CONFIG = "Default";
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
+  private static final String DEFAULT_CALC_CONFIG = "Default";
   private static final String MISSING_INPUTS = MissingInputsFunction.AGGREGATION_STYLE_MISSING;
   /** Map of currencies to curves */
   public static final Map<Currency, Pair<String, String>> CURVES_FOR_CURRENCY = new HashMap<>();
@@ -154,11 +155,12 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     CONFIGS_FOR_CURRENCY.put(Currency.CHF, "DefaultTwoCurveCHFConfig");
     CONFIGS_FOR_CURRENCY.put(Currency.GBP, "DefaultTwoCurveGBPConfig");
   }
+
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args the arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     new ExampleViewsPopulator().initAndRun(args, IntegrationToolContext.class);

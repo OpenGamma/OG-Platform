@@ -52,10 +52,11 @@ public class RedisSimulationSeriesLoaderTool extends AbstractTool<ToolContext> {
   /** Write option flag */
   public static final String WRITE_OPT = "w";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
     new RedisSimulationSeriesLoaderTool().initAndRun(args, ToolContext.class);

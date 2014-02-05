@@ -16,12 +16,10 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class ExampleHistoricalDataGeneratorTool extends AbstractTool<ToolContext> {
 
-  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * No arguments are needed.
    * 
-   * @param args  the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
     new ExampleHistoricalDataGeneratorTool().initAndRun(args, ToolContext.class);

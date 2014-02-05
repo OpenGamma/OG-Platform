@@ -39,14 +39,17 @@ import com.opengamma.util.ArgumentChecker;
  */
 @Scriptable
 public class CalendarLoaderTool extends AbstractTool<ToolContext> {
-  /** Determines whether this tool persists the calendar to the holiday master */
-  private static final String DO_NOT_PERSIST = "do-not-persist";
+
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(CalendarLoaderTool.class);
-  
+  /** Determines whether this tool persists the calendar to the holiday master */
+  private static final String DO_NOT_PERSIST = "do-not-persist";
+
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * @param args The program arguments
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
     ArgumentChecker.isTrue(args.length > 3, "At least three arguments required: data file name, scheme name and calendar name");

@@ -67,6 +67,7 @@ import com.opengamma.util.time.Expiry;
  */
 @Scriptable
 public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<IntegrationToolContext> {
+
   /** The currency */
   private static final Currency CURRENCY = Currency.EUR;
   /** Act/360 day-count */
@@ -114,11 +115,11 @@ public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<Integrati
     MONTHS.put(Month.DECEMBER, "Z");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
@@ -126,6 +127,7 @@ public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<Integrati
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     final Random random = new Random(3457);

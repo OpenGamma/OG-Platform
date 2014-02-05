@@ -42,6 +42,7 @@ import com.opengamma.util.time.DateUtils;
 @Scriptable
 public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolContext> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHTSMasterUpdaterTool.class);
 
   /** Command line option. */
@@ -53,6 +54,7 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
 
   private final GUIFeedback _feedback;
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 
@@ -98,6 +100,7 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
     System.exit(1);
   }
 
+  //-------------------------------------------------------------------------
   public BloombergHTSMasterUpdaterTool(final GUIFeedback feedback) {
     _feedback = feedback;
   }

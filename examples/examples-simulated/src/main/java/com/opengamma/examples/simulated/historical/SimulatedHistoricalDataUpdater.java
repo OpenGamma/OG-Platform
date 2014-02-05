@@ -38,6 +38,7 @@ import com.opengamma.util.tuple.Pair;
 @Scriptable
 public class SimulatedHistoricalDataUpdater extends AbstractTool<ToolContext> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedHistoricalDataUpdater.class);
 
   /**
@@ -48,10 +49,11 @@ public class SimulatedHistoricalDataUpdater extends AbstractTool<ToolContext> {
   private final SimulatedHistoricalData _data;
   private final GUIFeedback _feedback;
 
+  //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Updating example database");
@@ -69,6 +71,7 @@ public class SimulatedHistoricalDataUpdater extends AbstractTool<ToolContext> {
     System.exit(1);
   }
 
+  //-------------------------------------------------------------------------
   public SimulatedHistoricalDataUpdater(final GUIFeedback feedback) {
     _data = new SimulatedHistoricalData();
     _feedback = feedback;

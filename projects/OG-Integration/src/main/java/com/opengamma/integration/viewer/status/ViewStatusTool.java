@@ -30,19 +30,22 @@ import com.opengamma.scripts.Scriptable;
  */
 @Scriptable
 public class ViewStatusTool extends AbstractTool<ToolContext> {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusTool.class);
-    
+
+  //-------------------------------------------------------------------------
   /**
-   * Main methog to run the tool.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
     new ViewStatusTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     ViewStatusOption option = ViewStatusOption.getViewStatusReporterOption(getCommandLine(), getToolContext());
