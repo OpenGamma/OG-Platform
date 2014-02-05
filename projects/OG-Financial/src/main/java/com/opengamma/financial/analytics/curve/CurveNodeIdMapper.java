@@ -41,6 +41,8 @@ public class CurveNodeIdMapper {
   public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
   /** The name of this configuration */
   private final String _name;
+  /** Curve instrument providers for bill nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _billNodeIds;
   /** Curve instrument providers for bond nodes */
   private final Map<Tenor, CurveInstrumentProvider> _bondNodeIds;
   /** Curve instrument providers for calendar swap nodes */
@@ -79,6 +81,8 @@ public class CurveNodeIdMapper {
   public static final class Builder {
     /** The name of this configuration */
     private String _name;
+    /** Curve instrument providers for bill nodes */
+    private Map<Tenor, CurveInstrumentProvider> _billNodeIds;
     /** Curve instrument providers for bond nodes */
     private Map<Tenor, CurveInstrumentProvider> _bondNodeIds;
     /** Curve instrument providers for calendar swap nodes */
@@ -122,6 +126,16 @@ public class CurveNodeIdMapper {
      */
     public Builder name(final String name) {
       _name = name;
+      return this;
+    }
+
+    /**
+     * Curve instrument providers for bill nodes
+     * @param billNodeIds the billNodeIds
+     * @return this
+     */
+    public Builder billNodeIds(final Map<Tenor, CurveInstrumentProvider> billNodeIds) {
+      _billNodeIds = billNodeIds;
       return this;
     }
 
@@ -279,6 +293,7 @@ public class CurveNodeIdMapper {
      */
     public CurveNodeIdMapper build() {
       return new CurveNodeIdMapper(_name,
+          _billNodeIds,
           _bondNodeIds,
           _calendarSwapNodeIds,
           _cashNodeIds,
@@ -307,6 +322,7 @@ public class CurveNodeIdMapper {
 
   /**
    * @param name The name of this configuration
+   * @param billNodeIds The bill node ids
    * @param bondNodeIds The bond node ids
    * @param calendarSwapNodeIds The calendar swap node ids
    * @param cashNodeIds The cash node ids
@@ -324,6 +340,7 @@ public class CurveNodeIdMapper {
    * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
   protected CurveNodeIdMapper(final String name,
+      final Map<Tenor, CurveInstrumentProvider> billNodeIds,
       final Map<Tenor, CurveInstrumentProvider> bondNodeIds,
       final Map<Tenor, CurveInstrumentProvider> calendarSwapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
@@ -340,6 +357,7 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
     _name = name;
+    _billNodeIds = billNodeIds;
     _bondNodeIds = bondNodeIds;
     _calendarSwapNodeIds = calendarSwapNodeIds;
     _cashNodeIds = cashNodeIds;
@@ -383,6 +401,17 @@ public class CurveNodeIdMapper {
    */
   public String getName() {
     return _name;
+  }
+
+  /**
+   * Gets the bill node ids.
+   * @return The bill node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getBillNodeIds() {
+    if (_billNodeIds != null) {
+      return Collections.unmodifiableMap(_billNodeIds);
+    }
+    return null;
   }
 
   /**
@@ -551,6 +580,46 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the external id of the bill node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id of the node
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getBillNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_billNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get bill node id provider for curve node id mapper called " + _name);
+    }
+    return getId(_billNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the bill node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getBillNodeDataField(final Tenor tenor) {
+    if (_billNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get bill node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_billNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the bond node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getBillNodeDataFieldType(final Tenor tenor) {
+    if (_billNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get bill node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_billNodeIds, tenor);
+  }
+
+  /**
    * Gets the external id of the bond node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
    * @param tenor The tenor
@@ -589,7 +658,7 @@ public class CurveNodeIdMapper {
     }
     return getDataFieldType(_bondNodeIds, tenor);
   }
-  
+
   /**
    * Gets the external id of the calendar swap node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
@@ -1191,6 +1260,9 @@ public class CurveNodeIdMapper {
    */
   public SortedSet<Tenor> getAllTenors() {
     final SortedSet<Tenor> allTenors = new TreeSet<>();
+    if (_billNodeIds != null) {
+      allTenors.addAll(_billNodeIds.keySet());
+    }
     if (_bondNodeIds != null) {
       allTenors.addAll(_bondNodeIds.keySet());
     }
@@ -1289,6 +1361,7 @@ public class CurveNodeIdMapper {
     }
     final CurveNodeIdMapper other = (CurveNodeIdMapper) o;
     return ObjectUtils.equals(_name, other._name) &&
+        ObjectUtils.equals(_billNodeIds, other._billNodeIds) &&
         ObjectUtils.equals(_bondNodeIds, other._bondNodeIds) &&
         ObjectUtils.equals(_cashNodeIds, other._cashNodeIds) &&
         ObjectUtils.equals(_continuouslyCompoundedRateNodeIds, other._continuouslyCompoundedRateNodeIds) &&
@@ -1310,6 +1383,7 @@ public class CurveNodeIdMapper {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((_name == null) ? 0 : _name.hashCode());
+    result = prime * result + ((_billNodeIds == null) ? 0 : _billNodeIds.hashCode());
     result = prime * result + ((_bondNodeIds == null) ? 0 : _bondNodeIds.hashCode());
     result = prime * result + ((_cashNodeIds == null) ? 0 : _cashNodeIds.hashCode());
     result = prime * result + ((_continuouslyCompoundedRateNodeIds == null) ? 0 : _continuouslyCompoundedRateNodeIds.hashCode());
