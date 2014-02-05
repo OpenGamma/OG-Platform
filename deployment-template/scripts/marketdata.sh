@@ -42,8 +42,8 @@ CLASSPATH="lib/${PROJECTJAR}"
 if [ -d lib/override ]; then
   CLASSPATH="$(build_classpath lib/override):${CLASSPATH}"
 fi
-# add platform/config and /config
-CLASSPATH="../config:config:${CLASSPATH}"
+# add platform/config, /config and /lib
+CLASSPATH="$(build_classpath ../lib):../config:config:${CLASSPATH}"
 
 RETVAL=0
 case "$1" in
