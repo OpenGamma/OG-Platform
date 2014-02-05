@@ -13,7 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sub-class of the standard {@link OpenGammaComponentServer} that works with the Advanced Installer service wrappers when installed on Windows.
+ * Sub-class of the standard {@link OpenGammaComponentServer} that works with the
+ * Advanced Installer service wrappers when installed on Windows.
  */
 public class OpenGammaComponentService extends OpenGammaComponentServer {
 
@@ -21,13 +22,25 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
   private static final Logger s_logger = LoggerFactory.getLogger(OpenGammaComponentService.class);
   /** Logger. */
   private static final Logger s_startupLogger = LoggerFactory.getLogger(ComponentManager.class);
-
+  /**
+   * Single instance.
+   */
   private static final OpenGammaComponentService INSTANCE = new OpenGammaComponentService();
 
+  /**
+   * Latch used when stopping.
+   */
   private final CountDownLatch _stopNotify = new CountDownLatch(1);
+  /**
+   * Latch used when stopping.
+   */
   private final CountDownLatch _stopConfirm = new CountDownLatch(1);
+  /**
+   * The component repository.
+   */
   private final AtomicReference<ComponentRepository> _repository = new AtomicReference<ComponentRepository>();
 
+  //-------------------------------------------------------------------------
   /**
    * Starts the service, blocking until the stop signal is received.
    * 
