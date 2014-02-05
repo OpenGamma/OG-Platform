@@ -45,10 +45,10 @@ import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
-import com.opengamma.financial.analytics.curve.exposure.ExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurvePointsInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
@@ -82,17 +82,17 @@ import com.opengamma.util.time.Tenor;
  */
 public class CurveValidator {
   private static final Logger s_logger = LoggerFactory.getLogger(CurveValidator.class);
-  private ConfigMaster _configMaster;
-  private ConfigSource _configSource;
-  private ConventionSource _conventionSource;
+  private final ConfigMaster _configMaster;
+  private final ConfigSource _configSource;
+  private final ConventionSource _conventionSource;
   private List<ValidationNode> _curveConstructionConfigNodes = new ArrayList<>();
   private List<ValidationNode> _exposureConfigNodes = new ArrayList<>();
-  private RegionSource _regionSource;
-  private LocalDate _curveDate;
-  private SecuritySource _securitySource;
-  private HolidayMaster _holidayMaster;
+  private final RegionSource _regionSource;
+  private final LocalDate _curveDate;
+  private final SecuritySource _securitySource;
+  private final HolidayMaster _holidayMaster;
 
-  public CurveValidator(ConfigMaster configMaster, ConfigSource configSource, ConventionSource conventionSource, RegionSource regionSource, SecuritySource secSource, HolidayMaster holidayMaster) {
+  public CurveValidator(final ConfigMaster configMaster, final ConfigSource configSource, final ConventionSource conventionSource, final RegionSource regionSource, final SecuritySource secSource, final HolidayMaster holidayMaster) {
     _configMaster = configMaster;
     _configSource = configSource;
     _conventionSource = conventionSource;
@@ -108,15 +108,15 @@ public class CurveValidator {
   public void validateNewCurveSetup() {
     _curveConstructionConfigNodes = new ArrayList<>();
     _exposureConfigNodes = new ArrayList<>();
-    ConfigSearchRequest<CurveConstructionConfiguration> searchReq = new ConfigSearchRequest<>(CurveConstructionConfiguration.class);
+    final ConfigSearchRequest<CurveConstructionConfiguration> searchReq = new ConfigSearchRequest<>(CurveConstructionConfiguration.class);
     ConfigSearchResult<CurveConstructionConfiguration> searchResult;
     try {
       searchResult = _configMaster.search(searchReq);
-      Set<String> curveConstructionConfigNames = new HashSet<>();
-      for (ConfigItem<CurveConstructionConfiguration> curveConstructionConfigItem : searchResult.getValues()) {
-        CurveConstructionConfiguration curveConstructionConfig = curveConstructionConfigItem.getValue();
+      final Set<String> curveConstructionConfigNames = new HashSet<>();
+      for (final ConfigItem<CurveConstructionConfiguration> curveConstructionConfigItem : searchResult.getValues()) {
+        final CurveConstructionConfiguration curveConstructionConfig = curveConstructionConfigItem.getValue();
         curveConstructionConfigNames.add(curveConstructionConfig.getName());
-        ValidationNode validationNode = new ValidationNode();
+        final ValidationNode validationNode = new ValidationNode();
         validationNode.setName(curveConstructionConfig.getName());
         validationNode.setType(CurveConstructionConfiguration.class);
         checkCurveConstructionConfiguration(curveConstructionConfig, validationNode);
@@ -124,17 +124,17 @@ public class CurveValidator {
       }
       try {
         validateExposureFunctionsConfigurations(curveConstructionConfigNames, _exposureConfigNodes);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         s_logger.error("Error while searching config master", e);
-        ValidationNode validationNode = new ValidationNode();
+        final ValidationNode validationNode = new ValidationNode();
         validationNode.setType(ExposureFunctions.class);
         validationNode.setName("Config query error");
         validationNode.setError(true);
-        validationNode.getErrors().add(e.getMessage());        
+        validationNode.getErrors().add(e.getMessage());
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error while searching config master", e);
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setType(CurveConstructionConfiguration.class);
       validationNode.setName("Config query error");
       validationNode.setError(true);
@@ -143,43 +143,43 @@ public class CurveValidator {
     }
 
   }
-  
+
   public List<ValidationNode> getCurveConstructionConfigResults() {
     return _curveConstructionConfigNodes;
   }
-  
+
   public List<ValidationNode> getExposureFunctionsConfigResults() {
     return _exposureConfigNodes;
   }
-  
-  private void validateExposureFunctionsConfigurations(Set<String> curveConstructionConfigurationNames, List<ValidationNode> rootNodes) {
-    ConfigSearchRequest<ExposureFunctions> searchReq = new ConfigSearchRequest<>(ExposureFunctions.class);
-    ConfigSearchResult<ExposureFunctions> searchResult = _configMaster.search(searchReq);
+
+  private void validateExposureFunctionsConfigurations(final Set<String> curveConstructionConfigurationNames, final List<ValidationNode> rootNodes) {
+    final ConfigSearchRequest<ExposureFunctions> searchReq = new ConfigSearchRequest<>(ExposureFunctions.class);
+    final ConfigSearchResult<ExposureFunctions> searchResult = _configMaster.search(searchReq);
     if (searchResult.getValues().size() == 0) {
-      ValidationNode node = new ValidationNode();
+      final ValidationNode node = new ValidationNode();
       node.setName("Empty Configuration");
       node.setType(ExposureFunctions.class);
       node.getErrors().add("No ExposuresFunctions could be found");
       node.setError(true);
       rootNodes.add(node);
     }
-    for (ConfigItem<ExposureFunctions> configItem : searchResult.getValues()) {
-      ValidationNode node = checkExposureFunctionsConfiguration(configItem.getValue(), curveConstructionConfigurationNames);
+    for (final ConfigItem<ExposureFunctions> configItem : searchResult.getValues()) {
+      final ValidationNode node = checkExposureFunctionsConfiguration(configItem.getValue(), curveConstructionConfigurationNames);
       rootNodes.add(node);
     }
   }
-  
-  private ValidationNode checkExposureFunctionsConfiguration(ExposureFunctions configuration, Set<String> curveConstructionConfigurationNames) {
-    ValidationNode node = new ValidationNode();
+
+  private ValidationNode checkExposureFunctionsConfiguration(final ExposureFunctions configuration, final Set<String> curveConstructionConfigurationNames) {
+    final ValidationNode node = new ValidationNode();
     node.setName(configuration.getName());
     node.setType(ExposureFunctions.class);
     if (configuration.getIdsToNames() != null) {
-      Map<ExternalId, String> idsToNames = configuration.getIdsToNames();
-      for (Map.Entry<ExternalId, String> entry : idsToNames.entrySet()) {
-        ValidationNode mapEntry = new ValidationNode();
+      final Map<ExternalId, String> idsToNames = configuration.getIdsToNames();
+      for (final Map.Entry<ExternalId, String> entry : idsToNames.entrySet()) {
+        final ValidationNode mapEntry = new ValidationNode();
         mapEntry.setName(entry.getKey().toString());
         mapEntry.setType(Map.Entry.class);
-        String name = entry.getValue();
+        final String name = entry.getValue();
         if (!curveConstructionConfigurationNames.contains(name)) {
           mapEntry.getErrors().add("Entry in idsToNames map " + entry.getKey() + " => " + name + " points to non-existent CurveConstructionConfiguration");
           mapEntry.setError(true);
@@ -189,56 +189,56 @@ public class CurveValidator {
     }
     return node;
   }
-  
-  private void checkCurveConstructionConfiguration(CurveConstructionConfiguration curveConstructionConfig, ValidationNode validationNode) {
-    for (CurveGroupConfiguration curveGroupConfig : curveConstructionConfig.getCurveGroups()) {
-      for (Entry<String, List<? extends CurveTypeConfiguration>> curveForTypeEntry : curveGroupConfig.getTypesForCurves().entrySet()) {
+
+  private void checkCurveConstructionConfiguration(final CurveConstructionConfiguration curveConstructionConfig, final ValidationNode validationNode) {
+    for (final CurveGroupConfiguration curveGroupConfig : curveConstructionConfig.getCurveGroups()) {
+      for (final Entry<String, List<? extends CurveTypeConfiguration>> curveForTypeEntry : curveGroupConfig.getTypesForCurves().entrySet()) {
         if (!curveDefinitionOrSubclassExists(curveForTypeEntry.getKey())) {
           validationNode.getErrors().add("Could not find CurveDefinition or subclass called " + curveForTypeEntry.getKey() + " in type for curves entry");
           validationNode.setError(true);
         }
         validateCurveTypeConfigrations(curveForTypeEntry.getKey(), curveForTypeEntry.getValue(), validationNode);
-      }   
-    }    
+      }
+    }
   }
-  
-  private void validateCurveTypeConfigrations(String name, List<? extends CurveTypeConfiguration> curveTypeConfigurations, ValidationNode parentNode) {
-    for (CurveTypeConfiguration curveTypeConfig : curveTypeConfigurations) {
-      ValidationNode curveTypeConfigNode = new ValidationNode();
+
+  private void validateCurveTypeConfigrations(final String name, final List<? extends CurveTypeConfiguration> curveTypeConfigurations, final ValidationNode parentNode) {
+    for (final CurveTypeConfiguration curveTypeConfig : curveTypeConfigurations) {
+      final ValidationNode curveTypeConfigNode = new ValidationNode();
       curveTypeConfigNode.setName(name);
       curveTypeConfigNode.setType(CurveTypeConfiguration.class);
       validateCurveTypeConfiguration(name, curveTypeConfig, curveTypeConfigNode);
       parentNode.getSubNodes().add(curveTypeConfigNode);
     }
   }
-  
-  private void validateCurveTypeConfiguration(String name, CurveTypeConfiguration curveTypeConfig, ValidationNode curveTypeConfigNode) {
+
+  private void validateCurveTypeConfiguration(final String name, final CurveTypeConfiguration curveTypeConfig, final ValidationNode curveTypeConfigNode) {
     if (curveTypeConfig instanceof DiscountingCurveTypeConfiguration) {
-      DiscountingCurveTypeConfiguration discountingCurveTypeConfig = (DiscountingCurveTypeConfiguration) curveTypeConfig;
+      final DiscountingCurveTypeConfiguration discountingCurveTypeConfig = (DiscountingCurveTypeConfiguration) curveTypeConfig;
       validateDiscountingCurveTypeConfiguration(name, discountingCurveTypeConfig, curveTypeConfigNode);
     } else if (curveTypeConfig instanceof IborCurveTypeConfiguration) {
-      IborCurveTypeConfiguration iborCurveTypeConfiguration = (IborCurveTypeConfiguration) curveTypeConfig;
+      final IborCurveTypeConfiguration iborCurveTypeConfiguration = (IborCurveTypeConfiguration) curveTypeConfig;
       validateIborCurveTypeConfiguration(name, iborCurveTypeConfiguration, curveTypeConfigNode);
     } else if (curveTypeConfig instanceof InflationCurveTypeConfiguration) {
-      InflationCurveTypeConfiguration inflationCurveTypeConfiguration = (InflationCurveTypeConfiguration) curveTypeConfig;
+      final InflationCurveTypeConfiguration inflationCurveTypeConfiguration = (InflationCurveTypeConfiguration) curveTypeConfig;
       validateInflationCurveTypeConfiguration(name, inflationCurveTypeConfiguration, curveTypeConfigNode);
     } else if (curveTypeConfig instanceof IssuerCurveTypeConfiguration) {
-      IssuerCurveTypeConfiguration issuerCurveTypeConfiguration = (IssuerCurveTypeConfiguration) curveTypeConfig;
+      final IssuerCurveTypeConfiguration issuerCurveTypeConfiguration = (IssuerCurveTypeConfiguration) curveTypeConfig;
       validateIssuerCurveTypeConfiguration(name, issuerCurveTypeConfiguration, curveTypeConfigNode);
     } else if (curveTypeConfig instanceof OvernightCurveTypeConfiguration) {
-      OvernightCurveTypeConfiguration overnightCurveTypeConfiguration = (OvernightCurveTypeConfiguration) curveTypeConfig;
+      final OvernightCurveTypeConfiguration overnightCurveTypeConfiguration = (OvernightCurveTypeConfiguration) curveTypeConfig;
       validateOvernightCurveTypeConfiguration(name, overnightCurveTypeConfiguration, curveTypeConfigNode);
     } else {
       curveTypeConfigNode.getErrors().add("Unknown type of CurveTypeConfiguration: " + curveTypeConfig.getClass().getSimpleName());
       curveTypeConfigNode.setError(true);
     }
   }
-  
-  private void validateDiscountingCurveTypeConfiguration(String name, DiscountingCurveTypeConfiguration curveTypeConfiguration, ValidationNode curveTypeConfigNode) {
-    boolean regionDryRun = checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
-    boolean currencyDryRun = checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
+
+  private void validateDiscountingCurveTypeConfiguration(final String name, final DiscountingCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
+    final boolean regionDryRun = checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
+    final boolean currencyDryRun = checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
     if (regionDryRun || currencyDryRun) {
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(curveTypeConfiguration.getReference());
       if (regionDryRun) {
         validationNode.setType(Region.class);
@@ -251,26 +251,26 @@ public class CurveValidator {
       checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, false);
       checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, false);
     }
-    AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
+    final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
     if (abstractCurveDefinition instanceof CurveDefinition) {
-      CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateCurveDefinition(curveDefinition, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof SpreadCurveDefinition) {
-      SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateDiscountingCurveTypeConfiguration(curveDefinition.getFirstCurve(), curveTypeConfiguration, validationNode);
       validateDiscountingCurveTypeConfiguration(curveDefinition.getSecondCurve(), curveTypeConfiguration, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof ConstantCurveDefinition) {
-      ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
+      final ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
       // assume this is fine?
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validationNode.getErrors().add("Using IborCurveTypeConfiguration with constant curve definition: check this is okay.");
@@ -278,41 +278,41 @@ public class CurveValidator {
       curveTypeConfigNode.getSubNodes().add(validationNode);
     }
   }
-  
-  private void validateIborCurveTypeConfiguration(String name, IborCurveTypeConfiguration curveTypeConfiguration, ValidationNode curveTypeConfigNode) {
+
+  private void validateIborCurveTypeConfiguration(final String name, final IborCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
     if (!conventionExists(curveTypeConfiguration.getConvention())) {
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(curveTypeConfiguration.getConvention().getValue());
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Could not find convention " + curveTypeConfiguration.getConvention());
       validationNode.setError(true);
     } else {
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(curveTypeConfiguration.getConvention().getValue());
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Could not find convention " + curveTypeConfiguration.getConvention());
       validationNode.setError(true);
     }
-    AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
+    final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
     if (abstractCurveDefinition instanceof CurveDefinition) {
-      CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateCurveDefinition(curveDefinition, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof SpreadCurveDefinition) {
-      SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateIborCurveTypeConfiguration(curveDefinition.getFirstCurve(), curveTypeConfiguration, validationNode);
       validateIborCurveTypeConfiguration(curveDefinition.getSecondCurve(), curveTypeConfiguration, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof ConstantCurveDefinition) {
-      ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
+      final ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
       // assume this is fine?
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validationNode.getErrors().add("Using IborCurveTypeConfiguration with constant curve definition: check this is okay.");
@@ -320,12 +320,12 @@ public class CurveValidator {
       curveTypeConfigNode.getSubNodes().add(validationNode);
     }
   }
-  
-  private void validateInflationCurveTypeConfiguration(String name, InflationCurveTypeConfiguration curveTypeConfiguration, ValidationNode curveTypeConfigNode) {
-    boolean regionDryRun = checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
-    boolean currencyDryRun = checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
+
+  private void validateInflationCurveTypeConfiguration(final String name, final InflationCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
+    final boolean regionDryRun = checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
+    final boolean currencyDryRun = checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
     if (regionDryRun || currencyDryRun) {
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(curveTypeConfiguration.getReference());
       if (regionDryRun) {
         validationNode.setType(Region.class);
@@ -338,26 +338,26 @@ public class CurveValidator {
       checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, false);
       checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, false);
     }
-    AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
+    final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
     if (abstractCurveDefinition instanceof CurveDefinition) {
-      CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateCurveDefinition(curveDefinition, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof SpreadCurveDefinition) {
-      SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateInflationCurveTypeConfiguration(curveDefinition.getFirstCurve(), curveTypeConfiguration, validationNode);
       validateInflationCurveTypeConfiguration(curveDefinition.getSecondCurve(), curveTypeConfiguration, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof ConstantCurveDefinition) {
-      ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
+      final ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
       // assume this is fine?
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validationNode.getErrors().add("Using IborCurveTypeConfiguration with constant curve definition: check this is okay.");
@@ -365,29 +365,29 @@ public class CurveValidator {
       curveTypeConfigNode.getSubNodes().add(validationNode);
     }
   }
-  
-  private void validateIssuerCurveTypeConfiguration(String name, IssuerCurveTypeConfiguration curveTypeConfiguration, ValidationNode curveTypeConfigNode) {
+
+  private void validateIssuerCurveTypeConfiguration(final String name, final IssuerCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
     // currency a no-op
-    AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
+    final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
     if (abstractCurveDefinition instanceof CurveDefinition) {
-      CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateCurveDefinition(curveDefinition, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof SpreadCurveDefinition) {
-      SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateIssuerCurveTypeConfiguration(curveDefinition.getFirstCurve(), curveTypeConfiguration, validationNode);
       validateIssuerCurveTypeConfiguration(curveDefinition.getSecondCurve(), curveTypeConfiguration, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof ConstantCurveDefinition) {
-      ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
+      final ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
       // assume this is fine?
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validationNode.getErrors().add("Using IborCurveTypeConfiguration with constant curve definition: check this is okay.");
@@ -395,12 +395,12 @@ public class CurveValidator {
       curveTypeConfigNode.getSubNodes().add(validationNode);
     }
   }
-  
-  private void validateOvernightCurveTypeConfiguration(String name, OvernightCurveTypeConfiguration curveTypeConfiguration, ValidationNode curveTypeConfigNode) {
-    ValidationNode onValidationNode = new ValidationNode();
+
+  private void validateOvernightCurveTypeConfiguration(final String name, final OvernightCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
+    final ValidationNode onValidationNode = new ValidationNode();
     onValidationNode.setName(curveTypeConfiguration.getConvention().getValue());
     if (conventionExists(curveTypeConfiguration.getConvention())) {
-      ManageableConvention convention = getConvention(curveTypeConfiguration.getConvention());
+      final ManageableConvention convention = getConvention(curveTypeConfiguration.getConvention());
       onValidationNode.setType(convention.getClass());
     } else {
       onValidationNode.setType(Convention.class);
@@ -408,26 +408,26 @@ public class CurveValidator {
       onValidationNode.setError(true);
     }
     curveTypeConfigNode.getSubNodes().add(onValidationNode);
-    AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
+    final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
     if (abstractCurveDefinition instanceof CurveDefinition) {
-      CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateCurveDefinition(curveDefinition, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof SpreadCurveDefinition) {
-      SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
-      ValidationNode validationNode = new ValidationNode();
+      final SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validateOvernightCurveTypeConfiguration(curveDefinition.getFirstCurve(), curveTypeConfiguration, validationNode);
       validateOvernightCurveTypeConfiguration(curveDefinition.getSecondCurve(), curveTypeConfiguration, validationNode);
       curveTypeConfigNode.getSubNodes().add(validationNode);
     } else if (abstractCurveDefinition instanceof ConstantCurveDefinition) {
-      ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
+      final ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
       // assume this is fine?
-      ValidationNode validationNode = new ValidationNode();
+      final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(name);
       validationNode.setType(curveDefinition.getClass());
       validationNode.getErrors().add("Using IborCurveTypeConfiguration with constant curve definition: check this is okay.");
@@ -435,24 +435,24 @@ public class CurveValidator {
       curveTypeConfigNode.getSubNodes().add(validationNode);
     }
   }
-  
-  private void validateCurveDefinition(CurveDefinition curveDefinition, ValidationNode curveDefinitionNode) {
+
+  private void validateCurveDefinition(final CurveDefinition curveDefinition, final ValidationNode curveDefinitionNode) {
     if (curveDefinition.getNodes().size() == 0) {
       curveDefinitionNode.getErrors().add("Curve definition " + curveDefinition.getName() + " has zero nodes");
       curveDefinitionNode.setError(true);
     }
-    for (CurveNode node : curveDefinition.getNodes()) {
-//      ValidationNode curveNodeValidationNode = new ValidationNode();
-//      curveNodeValidationNode.setName(node.getResolvedMaturity().toFormattedString());
-//      curveNodeValidationNode.setType(node.getClass());
+    for (final CurveNode node : curveDefinition.getNodes()) {
+      //      ValidationNode curveNodeValidationNode = new ValidationNode();
+      //      curveNodeValidationNode.setName(node.getResolvedMaturity().toFormattedString());
+      //      curveNodeValidationNode.setType(node.getClass());
       validateCurveNode(node, curveDefinitionNode);
-//      curveNodeValidationNode.getSubNodes().add(curveDefinitionNode);
-//      curveDefinitionNode.getSubNodes().add(curveNodeValidationNode);
+      //      curveNodeValidationNode.getSubNodes().add(curveDefinitionNode);
+      //      curveDefinitionNode.getSubNodes().add(curveNodeValidationNode);
     }
   }
-  
-  private ValidationNode createInvalidCurveNodeValidationNode(Tenor tenor, Class<? extends CurveNode> curveNodeType, ValidationNode parentNode, String message) {
-    ValidationNode validationNode = new ValidationNode();
+
+  private ValidationNode createInvalidCurveNodeValidationNode(final Tenor tenor, final Class<? extends CurveNode> curveNodeType, final ValidationNode parentNode, final String message) {
+    final ValidationNode validationNode = new ValidationNode();
     validationNode.setName(tenor.toFormattedString());
     validationNode.setType(curveNodeType);
     if (message != null) {
@@ -462,39 +462,67 @@ public class CurveValidator {
     parentNode.getSubNodes().add(validationNode);
     return validationNode;
   }
-  
-  private boolean holidayExists(ExternalId customHolidayId) {
-    HolidaySearchRequest searchReq = new HolidaySearchRequest(HolidayType.CUSTOM, Collections.singletonList(customHolidayId));
-    HolidaySearchResult search = _holidayMaster.search(searchReq);
+
+  private boolean holidayExists(final ExternalId customHolidayId) {
+    final HolidaySearchRequest searchReq = new HolidaySearchRequest(HolidayType.CUSTOM, Collections.singletonList(customHolidayId));
+    final HolidaySearchResult search = _holidayMaster.search(searchReq);
     return search.getSingleHoliday() != null;
   }
-  
+
   // CSOFF
-  private void validateCurveNode(CurveNode curveNode, final ValidationNode validationNode) {
+  private void validateCurveNode(final CurveNode curveNode, final ValidationNode validationNode) {
     final CurveNodeIdMapper curveNodeIdMapper = getCurveNodeIdMapper(curveNode.getCurveNodeIdMapperName());
     if (curveNodeIdMapper == null) {
       createInvalidCurveNodeValidationNode(curveNode.getResolvedMaturity(), curveNode.getClass(), validationNode, "CurveNodeIdMapper " + curveNode.getCurveNodeIdMapperName() + " is missing");
     } else {
+
+      @Override
+      public final Void visitBillNode(final BillNode node) {
+        ExternalId billNodeId;
+        try {
+          billNodeId = curveNodeIdMapper.getBondNodeId(_curveDate, node.getMaturityTenor());
+        } catch (final OpenGammaRuntimeException ogre) {
+          billNodeId = null;
+        }
+        ValidationNode bondNodeValidationNode;
+        if (billNodeId != null) {
+          try {
+            final Security bond = _securitySource.getSingle(billNodeId.toBundle());
+            if (bond == null) {
+              bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, "Bond " + billNodeId + " not found in security master");
+            } else {
+              bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, null);
+            }
+          } catch (final IllegalArgumentException iae) {
+            bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode,
+                "Bond " + billNodeId + " error thrown by security master when resolving, probably invalid ID format");
+          }
+        } else {
+          bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, "Entry missing for this tenor in CurveNodeIdMapper");
+        }
+        return null;
+      }
+
       curveNode.accept(new CurveNodeVisitor<Void>() {
         @Override
-        public Void visitBondNode(BondNode node) {
+        public Void visitBondNode(final BondNode node) {
           ExternalId bondNodeId;
           try {
             bondNodeId = curveNodeIdMapper.getBondNodeId(_curveDate, node.getMaturityTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             bondNodeId = null;
           }
           ValidationNode bondNodeValidationNode;
           if (bondNodeId != null) {
             try {
-              Security bond = _securitySource.getSingle(bondNodeId.toBundle());  
+              final Security bond = _securitySource.getSingle(bondNodeId.toBundle());
               if (bond == null) {
                 bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, "Bond " + bondNodeId + " not found in security master");
               } else {
                 bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, null);
               }
-            } catch (IllegalArgumentException iae) {
-              bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, 
+            } catch (final IllegalArgumentException iae) {
+              bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode,
                   "Bond " + bondNodeId + " error thrown by security master when resolving, probably invalid ID format");
             }
           } else {
@@ -502,35 +530,35 @@ public class CurveValidator {
           }
           return null;
         }
-  
+
         @Override
-        public Void visitCalendarSwapNode(CalendarSwapNode node) {
+        public Void visitCalendarSwapNode(final CalendarSwapNode node) {
           ExternalId calendarNodeId;
           try {
             calendarNodeId = curveNodeIdMapper.getCalendarSwapNodeId(_curveDate, node.getStartTenor(), node.getCalendarDateStartNumber(), node.getCalendarDateEndNumber());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             calendarNodeId = null;
           }
           ValidationNode calendarSwapValidationNode;
           if (calendarNodeId == null) {
             if (!holidayExists(node.getCalendarId())) {
-              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode, 
+              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode,
                   "Customer holiday calendar " + node.getCalendarId() + " (and not generated by Id mapper) does not exist");
             } else {
               calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode, null);
             }
           } else {
             if (!holidayExists(calendarNodeId)) {
-              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode, 
+              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode,
                   "Customer holiday calendar " + calendarNodeId + " (generated by Id mapper) does not exist");
             } else {
               calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode, null);
             }
           }
-          ValidationNode validationNode = new ValidationNode();
+          final ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getSwapConvention().getValue());
           if (conventionExists(node.getSwapConvention())) {
-            ManageableConvention convention = getConvention(node.getSwapConvention());
+            final ManageableConvention convention = getConvention(node.getSwapConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -540,13 +568,13 @@ public class CurveValidator {
           calendarSwapValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitCashNode(CashNode node) {
+        public Void visitCashNode(final CashNode node) {
           ExternalId cashNodeId;
           try {
             cashNodeId = curveNodeIdMapper.getCashNodeId(_curveDate, node.getMaturityTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             cashNodeId = null;
           }
           ValidationNode cashNodeValidationNode;
@@ -555,10 +583,10 @@ public class CurveValidator {
           } else {
             cashNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), CashNode.class, validationNode, null);
           }
-          ValidationNode validationNode = new ValidationNode();
+          final ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getConvention().getValue());
           if (conventionExists(node.getConvention())) {
-            ManageableConvention convention = getConvention(node.getConvention());
+            final ManageableConvention convention = getConvention(node.getConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -568,13 +596,13 @@ public class CurveValidator {
           cashNodeValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitContinuouslyCompoundedRateNode(ContinuouslyCompoundedRateNode node) {
+        public Void visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
           ExternalId continuouslyCompoundedRateNodeId;
           try {
             continuouslyCompoundedRateNodeId = curveNodeIdMapper.getContinuouslyCompoundedRateNodeId(_curveDate, node.getTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             continuouslyCompoundedRateNodeId = null;
           }
           if (continuouslyCompoundedRateNodeId == null) {
@@ -586,13 +614,13 @@ public class CurveValidator {
           }
           return null;
         }
-  
+
         @Override
-        public Void visitCreditSpreadNode(CreditSpreadNode node) {
+        public Void visitCreditSpreadNode(final CreditSpreadNode node) {
           ExternalId creditSpreadNodeId;
           try {
             creditSpreadNodeId = curveNodeIdMapper.getCreditSpreadNodeId(_curveDate, node.getTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             creditSpreadNodeId = null;
           }
           if (creditSpreadNodeId == null) {
@@ -604,13 +632,13 @@ public class CurveValidator {
           }
           return null;
         }
-  
+
         @Override
-        public Void visitDeliverableSwapFutureNode(DeliverableSwapFutureNode node) {
+        public Void visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getDeliverableSwapFutureNodeId(_curveDate, node.getStartTenor(), node.getFutureTenor(), node.getFutureNumber());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode dsValidationNode;
@@ -622,7 +650,7 @@ public class CurveValidator {
           ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getFutureConvention().getValue());
           if (conventionExists(node.getFutureConvention())) {
-            ManageableConvention convention = getConvention(node.getFutureConvention());
+            final ManageableConvention convention = getConvention(node.getFutureConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -633,7 +661,7 @@ public class CurveValidator {
           validationNode = new ValidationNode();
           validationNode.setName(node.getSwapConvention().getValue());
           if (conventionExists(node.getSwapConvention())) {
-            ManageableConvention convention = getConvention(node.getSwapConvention());
+            final ManageableConvention convention = getConvention(node.getSwapConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -643,13 +671,13 @@ public class CurveValidator {
           dsValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitDiscountFactorNode(DiscountFactorNode node) {
+        public Void visitDiscountFactorNode(final DiscountFactorNode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getDiscountFactorNodeId(_curveDate, node.getTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           if (nodeId == null) {
@@ -661,13 +689,13 @@ public class CurveValidator {
           }
           return null;
         }
-  
+
         @Override
-        public Void visitFRANode(FRANode node) {
+        public Void visitFRANode(final FRANode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getFRANodeId(_curveDate, node.getFixingEnd());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode dsValidationNode;
@@ -676,10 +704,10 @@ public class CurveValidator {
           } else {
             dsValidationNode = createInvalidCurveNodeValidationNode(node.getFixingEnd(), FRANode.class, validationNode, null);
           }
-          ValidationNode validationNode = new ValidationNode();
+          final ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getConvention().getValue());
           if (conventionExists(node.getConvention())) {
-            ManageableConvention convention = getConvention(node.getConvention());
+            final ManageableConvention convention = getConvention(node.getConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -689,11 +717,11 @@ public class CurveValidator {
           dsValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitFXForwardNode(FXForwardNode node) {
-          Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = curveNodeIdMapper.getFXForwardNodeIds();
-          CurveInstrumentProvider curveInstrumentProvider = fxForwardNodeIds.get(node.getMaturityTenor());
+        public Void visitFXForwardNode(final FXForwardNode node) {
+          final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = curveNodeIdMapper.getFXForwardNodeIds();
+          final CurveInstrumentProvider curveInstrumentProvider = fxForwardNodeIds.get(node.getMaturityTenor());
           ExternalId nodeId;
           if (curveInstrumentProvider instanceof StaticCurvePointsInstrumentProvider) {
             nodeId = curveInstrumentProvider.getInstrument(_curveDate, node.getMaturityTenor());
@@ -706,10 +734,10 @@ public class CurveValidator {
           } else {
             fxValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), FXForwardNode.class, validationNode, null);
           }
-          ValidationNode validationNode = new ValidationNode();
+          final ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getFxForwardConvention().getValue());
           if (conventionExists(node.getFxForwardConvention())) {
-            ManageableConvention convention = getConvention(node.getFxForwardConvention());
+            final ManageableConvention convention = getConvention(node.getFxForwardConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -719,13 +747,13 @@ public class CurveValidator {
           fxValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitRollDateFRANode(RollDateFRANode node) {
+        public Void visitRollDateFRANode(final RollDateFRANode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getIMMFRANodeId(_curveDate, node.getStartTenor(), node.getRollDateStartNumber(), node.getRollDateEndNumber());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode dsValidationNode;
@@ -734,10 +762,10 @@ public class CurveValidator {
           } else {
             dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RollDateFRANode.class, validationNode, null);
           }
-          ValidationNode validationNode = new ValidationNode();
+          final ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getRollDateFRAConvention().getValue());
           if (conventionExists(node.getRollDateFRAConvention())) {
-            ManageableConvention convention = getConvention(node.getRollDateFRAConvention());
+            final ManageableConvention convention = getConvention(node.getRollDateFRAConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -747,13 +775,13 @@ public class CurveValidator {
           dsValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitRollDateSwapNode(RollDateSwapNode node) {
+        public Void visitRollDateSwapNode(final RollDateSwapNode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getIMMSwapNodeId(_curveDate, node.getStartTenor(), node.getRollDateStartNumber(), node.getRollDateEndNumber());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode dsValidationNode;
@@ -762,10 +790,10 @@ public class CurveValidator {
           } else {
             dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RollDateSwapNode.class, validationNode, null);
           }
-          ValidationNode validationNode = new ValidationNode();
+          final ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getRollDateSwapConvention().getValue());
           if (conventionExists(node.getRollDateSwapConvention())) {
-            ManageableConvention convention = getConvention(node.getRollDateSwapConvention());
+            final ManageableConvention convention = getConvention(node.getRollDateSwapConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -775,13 +803,13 @@ public class CurveValidator {
           dsValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitRateFutureNode(RateFutureNode node) {
+        public Void visitRateFutureNode(final RateFutureNode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getRateFutureNodeId(_curveDate, node.getStartTenor(), node.getFutureTenor(), node.getFutureNumber());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode dsValidationNode;
@@ -790,10 +818,10 @@ public class CurveValidator {
           } else {
             dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RateFutureNode.class, validationNode, null);
           }
-          ValidationNode validationNode = new ValidationNode();
+          final ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getFutureConvention().getValue());
           if (conventionExists(node.getFutureConvention())) {
-            ManageableConvention convention = getConvention(node.getFutureConvention());
+            final ManageableConvention convention = getConvention(node.getFutureConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -803,13 +831,13 @@ public class CurveValidator {
           dsValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitSwapNode(SwapNode node) {
+        public Void visitSwapNode(final SwapNode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getSwapNodeId(_curveDate, node.getMaturityTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode sValidationNode;
@@ -821,7 +849,7 @@ public class CurveValidator {
           ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getPayLegConvention().getValue());
           if (conventionExists(node.getPayLegConvention())) {
-            ManageableConvention convention = getConvention(node.getPayLegConvention());
+            final ManageableConvention convention = getConvention(node.getPayLegConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -832,7 +860,7 @@ public class CurveValidator {
           validationNode = new ValidationNode();
           validationNode.setName(node.getReceiveLegConvention().getValue());
           if (conventionExists(node.getReceiveLegConvention())) {
-            ManageableConvention convention = getConvention(node.getReceiveLegConvention());
+            final ManageableConvention convention = getConvention(node.getReceiveLegConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -842,13 +870,13 @@ public class CurveValidator {
           sValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitThreeLegBasisSwapNode(ThreeLegBasisSwapNode node) {
+        public Void visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getThreeLegBasisSwapNodeId(_curveDate, node.getMaturityTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode sValidationNode;
@@ -860,7 +888,7 @@ public class CurveValidator {
           ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getPayLegConvention().getValue());
           if (conventionExists(node.getPayLegConvention())) {
-            ManageableConvention convention = getConvention(node.getPayLegConvention());
+            final ManageableConvention convention = getConvention(node.getPayLegConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -871,7 +899,7 @@ public class CurveValidator {
           validationNode = new ValidationNode();
           validationNode.setName(node.getReceiveLegConvention().getValue());
           if (conventionExists(node.getReceiveLegConvention())) {
-            ManageableConvention convention = getConvention(node.getReceiveLegConvention());
+            final ManageableConvention convention = getConvention(node.getReceiveLegConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -882,7 +910,7 @@ public class CurveValidator {
           validationNode = new ValidationNode();
           validationNode.setName(node.getSpreadLegConvention().getValue());
           if (conventionExists(node.getSpreadLegConvention())) {
-            ManageableConvention convention = getConvention(node.getSpreadLegConvention());
+            final ManageableConvention convention = getConvention(node.getSpreadLegConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -892,13 +920,13 @@ public class CurveValidator {
           sValidationNode.getSubNodes().add(validationNode);
           return null;
         }
-  
+
         @Override
-        public Void visitZeroCouponInflationNode(ZeroCouponInflationNode node) {
+        public Void visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
           ExternalId nodeId;
           try {
             nodeId = curveNodeIdMapper.getSwapNodeId(_curveDate, node.getTenor());
-          } catch (OpenGammaRuntimeException ogre) {
+          } catch (final OpenGammaRuntimeException ogre) {
             nodeId = null;
           }
           ValidationNode sValidationNode;
@@ -910,7 +938,7 @@ public class CurveValidator {
           ValidationNode validationNode = new ValidationNode();
           validationNode.setName(node.getFixedLegConvention().getValue());
           if (conventionExists(node.getFixedLegConvention())) {
-            ManageableConvention convention = getConvention(node.getFixedLegConvention());
+            final ManageableConvention convention = getConvention(node.getFixedLegConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -921,7 +949,7 @@ public class CurveValidator {
           validationNode = new ValidationNode();
           validationNode.setName(node.getInflationLegConvention().getValue());
           if (conventionExists(node.getInflationLegConvention())) {
-            ManageableConvention convention = getConvention(node.getInflationLegConvention());
+            final ManageableConvention convention = getConvention(node.getInflationLegConvention());
             validationNode.setType(convention.getClass());
           } else {
             validationNode.setType(Convention.class);
@@ -935,24 +963,24 @@ public class CurveValidator {
     }
   }
   // CSON
-  private boolean conventionExists(ExternalId externalId) {
+  private boolean conventionExists(final ExternalId externalId) {
     return getConvention(externalId) != null;
   }
-  
-  private ManageableConvention getConvention(ExternalId externalId) {
+
+  private ManageableConvention getConvention(final ExternalId externalId) {
     try {
       return (ManageableConvention) _conventionSource.getSingle(externalId);
-    } catch (DataNotFoundException dnfe) {
+    } catch (final DataNotFoundException dnfe) {
       return null;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return null;
     }
   }
-  
-  private CurveNodeIdMapper getCurveNodeIdMapper(String curveNodeIdMapperName) {
+
+  private CurveNodeIdMapper getCurveNodeIdMapper(final String curveNodeIdMapperName) {
     return _configSource.getLatestByName(CurveNodeIdMapper.class, curveNodeIdMapperName);
   }
-  
+
   /**
    * Check the string region ISO code (2-character) for validity against the RegionSource.  Records error in node object if dryRun is not set.
    * @param regionStr the potential region code.  Will add a warning but return true if region is not a country (e.g. EU).
@@ -960,8 +988,8 @@ public class CurveValidator {
    * @param dryRun whether to omit writing an error
    * @return true, if this is a valid region code
    */
-  private boolean checkRegion(String regionStr, ValidationNode node, boolean dryRun) {
-    Region highestLevelRegion = _regionSource.getHighestLevelRegion(ExternalId.of(ExternalSchemes.ISO_COUNTRY_ALPHA2, regionStr));
+  private boolean checkRegion(final String regionStr, final ValidationNode node, final boolean dryRun) {
+    final Region highestLevelRegion = _regionSource.getHighestLevelRegion(ExternalId.of(ExternalSchemes.ISO_COUNTRY_ALPHA2, regionStr));
     if (highestLevelRegion != null) {
       if (highestLevelRegion.getCountry() == null && !dryRun) {
         node.getWarnings().add("Warning: Region string " + regionStr + " was region but not country");
@@ -974,7 +1002,7 @@ public class CurveValidator {
       return false;
     }
   }
-  
+
   /**
    * Check the string currency valid and record error if not dryRun.  Also adds warning if valid lexigraphically but not contained
    * in Currency class as a constant.
@@ -983,9 +1011,9 @@ public class CurveValidator {
    * @param dryRun doesn't record an error if true
    * @return true if valid currency
    */
-  private boolean checkCurrency(String currencyStr, ValidationNode node, boolean dryRun) {
+  private boolean checkCurrency(final String currencyStr, final ValidationNode node, final boolean dryRun) {
     try {
-      Currency currency = Currency.of(currencyStr);
+      final Currency currency = Currency.of(currencyStr);
       if (!checkCurrencyClass(currency)) {
         if (dryRun) {
           return false;
@@ -994,7 +1022,7 @@ public class CurveValidator {
           return true;
         }
       }
-    } catch (IllegalArgumentException iae) {
+    } catch (final IllegalArgumentException iae) {
       if (dryRun) {
         return false;
       } else {
@@ -1003,15 +1031,15 @@ public class CurveValidator {
     }
     return true;
   }
-  
+
   /**
    * Check the Currency class for a constant matching this currency instance
    * @param currency a currency instance, not null
    * @return true if there is a constant matching the supplied currency
    */
-  private boolean checkCurrencyClass(Currency currency) {
-    Field[] fields = Currency.class.getFields();    
-    for (Field field : fields) {
+  private boolean checkCurrencyClass(final Currency currency) {
+    final Field[] fields = Currency.class.getFields();
+    for (final Field field : fields) {
       if (field.getName().equals(currency.getCode())) {
         return true;
       }
@@ -1019,28 +1047,28 @@ public class CurveValidator {
     return false;
   }
 
-  private boolean curveDefinitionOrSubclassExists(String nameOfCurveDefinition) {
+  private boolean curveDefinitionOrSubclassExists(final String nameOfCurveDefinition) {
     return getCurveDefinitionOrSubclass(nameOfCurveDefinition) != null;
   }
-  
-  private AbstractCurveDefinition getCurveDefinitionOrSubclass(String nameOfCurveDefinition) {
-    CurveDefinition curveDefinition = _configSource.getLatestByName(CurveDefinition.class, nameOfCurveDefinition);
+
+  private AbstractCurveDefinition getCurveDefinitionOrSubclass(final String nameOfCurveDefinition) {
+    final CurveDefinition curveDefinition = _configSource.getLatestByName(CurveDefinition.class, nameOfCurveDefinition);
     if (curveDefinition != null) {
       return curveDefinition;
     }
-    InterpolatedCurveDefinition interpolatedCurveDefinition = _configSource.getLatestByName(InterpolatedCurveDefinition.class, nameOfCurveDefinition);
+    final InterpolatedCurveDefinition interpolatedCurveDefinition = _configSource.getLatestByName(InterpolatedCurveDefinition.class, nameOfCurveDefinition);
     if (interpolatedCurveDefinition != null) {
       return interpolatedCurveDefinition;
     }
-    FixedDateInterpolatedCurveDefinition fixedDateInterpolatedCurveDefinition = _configSource.getLatestByName(FixedDateInterpolatedCurveDefinition.class, nameOfCurveDefinition);
+    final FixedDateInterpolatedCurveDefinition fixedDateInterpolatedCurveDefinition = _configSource.getLatestByName(FixedDateInterpolatedCurveDefinition.class, nameOfCurveDefinition);
     if (fixedDateInterpolatedCurveDefinition != null) {
       return fixedDateInterpolatedCurveDefinition;
     }
-    ConstantCurveDefinition constantCurveDefinition = _configSource.getLatestByName(ConstantCurveDefinition.class, nameOfCurveDefinition);
+    final ConstantCurveDefinition constantCurveDefinition = _configSource.getLatestByName(ConstantCurveDefinition.class, nameOfCurveDefinition);
     if (constantCurveDefinition != null) {
       return constantCurveDefinition;
     }
-    SpreadCurveDefinition spreadCurveDefinition = _configSource.getLatestByName(SpreadCurveDefinition.class, nameOfCurveDefinition);
+    final SpreadCurveDefinition spreadCurveDefinition = _configSource.getLatestByName(SpreadCurveDefinition.class, nameOfCurveDefinition);
     if (spreadCurveDefinition != null) {
       return spreadCurveDefinition;
     }

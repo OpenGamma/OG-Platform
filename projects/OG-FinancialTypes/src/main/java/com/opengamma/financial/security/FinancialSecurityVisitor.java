@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -97,6 +98,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitMetalFutureSecurity(MetalFutureSecurity security);
 
   // ------------------------------------------------------------------------------------
+
+  T visitBillSecurity(BillSecurity security);
 
   T visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security);
 

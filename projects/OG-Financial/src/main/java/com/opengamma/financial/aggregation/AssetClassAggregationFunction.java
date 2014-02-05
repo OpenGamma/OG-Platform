@@ -16,6 +16,7 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -131,6 +132,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String EXCHANGE_TRADED_FUNDS = "Exchange-Traded Funds";
   /* package */static final String ADRS = "American Depositary Receipts";
   /* package */static final String EQUITY_WARRANTS = "Equity Warrants";
+  /* package */static final String BILLS = "Bills";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -173,6 +175,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       return finSec.accept(new FinancialSecurityVisitor<String>() {
+
+        @Override
+        public String visitBillSecurity(final BillSecurity security) {
+          return BILLS;
+        }
 
         @Override
         public String visitGovernmentBondSecurity(final GovernmentBondSecurity security) {

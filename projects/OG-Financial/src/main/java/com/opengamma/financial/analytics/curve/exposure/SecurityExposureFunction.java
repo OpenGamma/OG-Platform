@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -260,6 +261,11 @@ public class SecurityExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
+    return getSecurityUID(security);
+  }
+
+  @Override
+  public List<ExternalId> visitBillSecurity(final BillSecurity security) {
     return getSecurityUID(security);
   }
 

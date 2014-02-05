@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -270,6 +271,11 @@ public class RegionExposureFunction implements ExposureFunction {
       return Arrays.asList(payLeg.getRegionId());
     }
     return Arrays.asList(payLeg.getRegionId(), receiveLeg.getRegionId());
+  }
+
+  @Override
+  public List<ExternalId> visitBillSecurity(final BillSecurity security) {
+    return null;
   }
 
   @Override

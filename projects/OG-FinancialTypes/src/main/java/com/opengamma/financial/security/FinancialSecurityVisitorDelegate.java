@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -93,6 +94,11 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
   @Override
   public T visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
     return _delegate.visitAgricultureFutureSecurity(security);
+  }
+
+  @Override
+  public T visitBillSecurity(final BillSecurity security) {
+    return _delegate.visitBillSecurity(security);
   }
 
   @Override

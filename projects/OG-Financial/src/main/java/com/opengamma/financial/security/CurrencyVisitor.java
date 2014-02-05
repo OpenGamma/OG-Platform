@@ -11,6 +11,7 @@ import java.util.Iterator;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -109,6 +110,11 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
       }
     }
     return null;
+  }
+
+  @Override
+  public Currency visitBillSecurity(final BillSecurity security) {
+    return security.getCurrency();
   }
 
   @Override

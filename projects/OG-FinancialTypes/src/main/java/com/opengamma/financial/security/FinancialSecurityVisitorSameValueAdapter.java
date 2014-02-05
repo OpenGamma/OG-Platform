@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -90,6 +91,11 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitBillSecurity(final BillSecurity security) {
     return _value;
   }
 

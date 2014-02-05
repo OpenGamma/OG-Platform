@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -99,6 +100,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
    */
   public static <T> Builder<T> builder(final FinancialSecurityVisitor<T> visitor) {
     return new Builder<>(visitor);
+  }
+
+  @Override
+  public T visitBillSecurity(final BillSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
   @Override

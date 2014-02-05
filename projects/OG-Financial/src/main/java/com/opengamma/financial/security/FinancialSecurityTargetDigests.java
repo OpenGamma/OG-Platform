@@ -11,6 +11,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.digest.SecurityTypeTargetDigests;
 import com.opengamma.engine.target.digest.TargetDigests;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
@@ -471,6 +472,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     return _forwardSwapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
+  }
+
+  private final Digests _billSecurity = new Digests("Security");
+
+  @Override
+  public Object visitBillSecurity(final BillSecurity security) {
+    return _billSecurity.get(security.getCurrency());
   }
 
   private final Digests _governmentBondSecurity = new Digests("Security");
