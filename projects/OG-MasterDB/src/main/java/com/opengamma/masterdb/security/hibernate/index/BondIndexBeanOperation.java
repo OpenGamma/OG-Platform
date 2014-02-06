@@ -20,6 +20,7 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.index.BondIndex;
 import com.opengamma.financial.security.index.BondIndexComponent;
+import com.opengamma.financial.security.index.EquityIndex;
 import com.opengamma.financial.security.index.IndexWeightingType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -65,6 +66,9 @@ public final class BondIndexBeanOperation extends AbstractSecurityBeanOperation<
     bean.setBondComponents(bondComponentBeans);
     IndexWeightingTypeBean indexWeightingTypeBean = secMasterSession.getOrCreateIndexWeightingTypeBean(index.getWeightingType().name());
     bean.setWeightingType(indexWeightingTypeBean);
+    if (index.getIndexFamilyId() != null) {
+      bean.setIndexFamilyId(externalIdToExternalIdBean(index.getIndexFamilyId()));
+    }
     return bean;
   }
   
@@ -105,7 +109,11 @@ public final class BondIndexBeanOperation extends AbstractSecurityBeanOperation<
       BondIndexComponent bondIndexComponent = new BondIndexComponent(externalIdBundle, weight);
       components.add(bondIndexComponent);
     }
-    return new BondIndex("", description, components, weightingType);
+    BondIndex bondIndex = new BondIndex("", description, components, weightingType);
+    if (bean.getIndexFamilyId() != null) {
+      bondIndex.setIndexFamilyId(externalIdBeanToExternalId(bean.getIndexFamilyId()));
+    }
+    return bondIndex;
   }
 
 }

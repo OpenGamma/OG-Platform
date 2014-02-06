@@ -287,40 +287,39 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       }
     });
     s_dataProviders.put(Map.class, new TestDataProvider<Map<?, ?>>() {
-      private Map<?, ?> generateRandomMap(int count){
+      private Map<?, ?> generateRandomMap(int count) {
         Map<String, String> map = new HashMap<String, String>(count);
-        while(count>0){
+        while (count > 0) {
           map.put(RandomStringUtils.randomAlphanumeric(16), RandomStringUtils.randomAlphanumeric(16));
           count--;
         }
         return map;
       }
+
       @Override
       public void getValues(final Collection<Map<?, ?>> values) {
-        Random random = new Random();
-        double qty = 1 + random.nextInt(9);
-        while(qty>0){
-          values.add(generateRandomMap(1 + random.nextInt(9)));
+        double qty = 1 + s_random.nextInt(9);
+        while (qty > 0) {
+          values.add(generateRandomMap(1 + s_random.nextInt(9)));
           qty--;
         }
         values.add(new HashMap<Object, Object>());
       }
     });
     s_dataProviders.put(SortedMap.class, new TestDataProvider<SortedMap<Tenor, ExternalId>>() {
-      private SortedMap<Tenor, ExternalId> generateRandomMap(int count){
+      private SortedMap<Tenor, ExternalId> generateRandomMap(int count) {
         SortedMap<Tenor, ExternalId> map = new TreeMap<Tenor, ExternalId>();
-        Random random = new Random();
-        while(count>0){
+        while (count > 0) {
           Tenor tenor;
-          switch (random.nextInt(3)) {
+          switch (s_random.nextInt(3)) {
             case 0:
-              tenor = Tenor.ofDays(random.nextInt(28) + 1);
+              tenor = Tenor.ofDays(s_random.nextInt(28) + 1);
               break;
             case 1:
-              tenor = Tenor.ofMonths(random.nextInt(12) + 1);
+              tenor = Tenor.ofMonths(s_random.nextInt(12) + 1);
               break;
             case 2:
-              tenor = Tenor.ofYears(random.nextInt(20) + 2000);
+              tenor = Tenor.ofYears(s_random.nextInt(20) + 2000);
               break;
             default:
               throw new OpenGammaRuntimeException("Should never happen");
@@ -330,12 +329,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         }
         return map;
       }
+
       @Override
       public void getValues(final Collection<SortedMap<Tenor, ExternalId>> values) {
-        Random random = new Random();
-        double qty = 1 + random.nextInt(9);
-        while(qty>0){
-          values.add(generateRandomMap(1 + random.nextInt(9)));
+        double qty = 1 + s_random.nextInt(9);
+        while (qty > 0) {
+          values.add(generateRandomMap(1 + s_random.nextInt(9)));
           qty--;
         }
         values.add(new TreeMap<Tenor, ExternalId>());
@@ -376,12 +375,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
                 ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
         values.add(
             ExternalIdBundle.of(
-                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)),
                 ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
         values.add(
             ExternalIdBundle.of(
-                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
-                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)),
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)),
                 ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
       }
     });
@@ -401,7 +400,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     });
     s_dataProviders.put(Expiry.class, DefaultObjectPermute.of(Expiry.class));
     s_dataProviders.put(ZonedDateTime.class, new TestDataProvider<ZonedDateTime>() {
-      private final ZoneId[] _timezones = new ZoneId[] {ZoneOffset.UTC, ZoneId.of("UTC-01:00"), ZoneId.of("UTC+01:00")};
+      private final ZoneId[] _timezones = new ZoneId[] {ZoneOffset.UTC, ZoneId.of("UTC-01:00"), ZoneId.of("UTC+01:00") };
 
       @Override
       public void getValues(final Collection<ZonedDateTime> values) {
@@ -551,7 +550,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(BigDecimal.ONE);
       }
     });
-    
+
     s_dataProviders.put(InterestRateNotional.class, new TestDataProvider<Notional>() {
       @Override
       public void getValues(final Collection<Notional> values) {
@@ -561,7 +560,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     s_dataProviders.put(byte[].class, new TestDataProvider<byte[]>() {
       @Override
       public void getValues(Collection<byte[]> values) {
-        
+
         values.add(getRandomBytes());
       }
 
@@ -599,7 +598,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       public void getValues(Collection<CreditDefaultSwapIndexComponent> values) {
         values.add(new CreditDefaultSwapIndexComponent(null, null, null, null));
       }
-      
+
     });
     s_dataProviders.put(CDSIndexComponentBundle.class, new TestDataProvider<CDSIndexComponentBundle>() {
       @Override
@@ -708,7 +707,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     intializeClass(clazz);
     MetaBean mb = JodaBeanUtils.metaBean(clazz);
     List<MetaProperty<?>> mps = new ArrayList<MetaProperty<?>>(mb.metaPropertyMap().values());
-    
+
     // find the longest set of available data
     final List<?>[] parameterValues = new List<?>[mps.size()];
     int longest = 0;
@@ -718,7 +717,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         longest = parameterValues[i].size();
       }
     }
-    
+
     // prepare
     final List<Throwable> exceptions = new ArrayList<Throwable>();
     final Collection<T> objects = new ArrayList<T>();
@@ -854,7 +853,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testEquityOptionSecurity() {
     assertSecurities(EquityOptionSecurity.class);
   }
-  
+
   @Override
   public void testEquityBarrierOptionSecurity() {
     assertSecurities(EquityBarrierOptionSecurity.class);
@@ -879,12 +878,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
   }
-  
+
   @Override
   public void testNonDeliverableFXOptionSecurity() {
     assertSecurities(NonDeliverableFXOptionSecurity.class);
   }
-  
+
   @Override
   public void testFXBarrierOptionSecurity() {
     assertSecurities(FXBarrierOptionSecurity.class);
@@ -904,7 +903,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testEquityIndexDividendFutureOptionSecurity() {
     assertSecurities(EquityIndexDividendFutureOptionSecurity.class);
   }
-  
+
   @Override
   public void testGovernmentBondSecurity() {
     assertSecurities(GovernmentBondSecurity.class);
@@ -949,7 +948,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testEquityIndexOptionSecurity() {
     assertSecurities(EquityIndexOptionSecurity.class);
   }
-  
+
   @Override
   public void testFXDigitalOptionSecurity() {
     assertSecurities(FXDigitalOptionSecurity.class);
@@ -959,12 +958,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testFXForwardSecurity() {
     assertSecurities(FXForwardSecurity.class);
   }
-  
+
   @Override
   public void testNonDeliverableFXForwardSecurity() {
     assertSecurities(NonDeliverableFXForwardSecurity.class);
   }
-  
+
   @Override
   public void testCapFloorSecurity() {
     assertSecurities(CapFloorSecurity.class);
@@ -974,7 +973,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testCapFloorCMSSpreadSecurity() {
     assertSecurities(CapFloorCMSSpreadSecurity.class);
   }
-  
+
   @Override
   public void testRawSecurity() {
     assertSecurities(RawSecurity.class);
@@ -984,7 +983,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testEquityVarianceSwapSecurity() {
     assertSecurities(EquityVarianceSwapSecurity.class);
   }
-  
+
   @Override
   public void testCDSSecurity() {
     assertSecurities(CDSSecurity.class);
@@ -994,7 +993,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testStandardFixedRecoveryCDSSecurity() {
     assertSecurities(StandardFixedRecoveryCDSSecurity.class);
   }
-  
+
   @Override
   public void testStandardRecoveryLockCDSSecurity() {
     assertSecurities(StandardRecoveryLockCDSSecurity.class);
@@ -1039,30 +1038,30 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testCreditDefaultSwapOptionSecurity() {
     assertSecurities(CreditDefaultSwapOptionSecurity.class);
   }
-  
+
   @Override
   public void testBondIndex() {
     assertSecurities(BondIndex.class);
   }
-  
+
   @Override
   public void testEquityIndex() {
     assertSecurities(EquityIndex.class);
   }
-  
+
   @Override
   public void testIborIndex() {
     assertSecurities(IborIndex.class);
   }
-  
+
   @Override
   public void testOvernightIndex() {
     assertSecurities(OvernightIndex.class);
   }
-  
+
   @Override
   public void testIndexFamily() {
     assertSecurities(IndexFamily.class);
   }
-  
+
 }

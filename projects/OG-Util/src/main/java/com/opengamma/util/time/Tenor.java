@@ -27,7 +27,9 @@ public class Tenor implements Comparable<Tenor>, Serializable {
 
   /**
    * An overnight tenor.
+   * @deprecated use Tenor.ON
    */
+  @Deprecated
   public static final Tenor OVERNIGHT = new Tenor(Period.ofDays(1));
   /**
    * A tenor of one day.

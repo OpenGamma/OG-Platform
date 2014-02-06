@@ -5,14 +5,10 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
-import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
@@ -36,7 +32,6 @@ import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -56,18 +51,15 @@ public class IndexLoader extends SecurityLoader {
    */
   private static final Set<String> BLOOMBERG_INDEX_FIELDS = Collections.unmodifiableSet(Sets.newHashSet(
       FIELD_SECURITY_DES,
-      FIELD_CRNCY,
-      FIELD_FUTURES_CATEGORY,
-      FIELD_MARKET_SECTOR_DES,
       FIELD_PARSEKYABLE_DES,
       FIELD_ID_BBG_UNIQUE,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
       FIELD_ID_SEDOL1));
   
-  private static final Pattern s_tenorFromDes = Pattern.compile("(.*?)(Overnight|O\\/N|ON|OVERNIGHT|\\d+\\s*.*?)");
-  private static final Pattern s_overnight = Pattern.compile("Overnight|O\\/N|ON|OVERNIGHT");
-  private static final Pattern s_tomNext = Pattern.compile("Tomorrow\\/Next|T\\/N|TN|TOM NEXT");
+  private static final Pattern s_tenorFromDes = Pattern.compile("(.*?)(Overnight.*?|O\\/N.*?|ON.*?|OVERNIGHT.*?|Tomorrow[\\s\\/]Next.*?|T[\\s\\/]N.*?|TN.*?|TOM[\\s\\/]NEXT.*?|\\d+\\s*.*?)");
+  private static final Pattern s_overnight = Pattern.compile(".*?(Overnight|O\\/N|ON|OVERNIGHT).*?");
+  private static final Pattern s_tomNext = Pattern.compile(".*?(Tomorrow[\\s\\/]Next|T[\\s\\/]N|TN|TOM[\\s\\/]NEXT).*?");
   private static final Pattern s_numberFromTimeUnit = Pattern.compile("(\\d+)\\s*(.*?)");
   private static final String BLOOMBERG_CONVENTION_NAME = "BLOOMBERG_CONVENTION_NAME";
   private static final String BLOOMBERG_INDEX_FAMILY = "BLOOMBERG_INDEX_FAMILY";
@@ -85,11 +77,8 @@ public class IndexLoader extends SecurityLoader {
   @Override
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
     String securityDes = fieldData.getString(FIELD_SECURITY_DES);
-    String currencyStr = fieldData.getString(FIELD_CRNCY);
     String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_SECURITY_DES), " ");
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
-    String marketSector = fieldData.getString(FIELD_MARKET_SECTOR_DES);
-    String unitAmount = fieldData.getString(FIELD_FUT_VAL_PT);
 
     if (!isValidField(bbgUnique)) {
       s_logger.warn("bbgUnique is null, cannot construct index");
@@ -99,30 +88,32 @@ public class IndexLoader extends SecurityLoader {
       s_logger.warn("security description is null, cannot construct index");
       return null;
     }
-    if (!isValidField(currencyStr)) {
-      s_logger.info("currency is null, cannot construct index future security");
+    try {
+      Tenor tenor = decodeTenor(securityDes);
+      ExternalId conventionId = createConventionId(securityDes);
+      ExternalId familyId = ExternalId.of(ExternalScheme.of(BLOOMBERG_INDEX_FAMILY), conventionId.getValue());
+      
+      Index index;
+      if (tenor.equals(Tenor.ON)) {
+        index = new OvernightIndex(name, conventionId);
+        index.setIndexFamilyId(familyId);
+      } else {
+        index = new IborIndex(name, tenor, conventionId);
+        index.setIndexFamilyId(familyId);
+      }
+       
+      index.setName(name);
+      // set identifiers
+      parseIdentifiers(fieldData, index);
+      return index;
+    } catch (OpenGammaRuntimeException ogre) {
+      s_logger.error("Error loading index", ogre);
       return null;
     }
-    Currency currency = Currency.parse(currencyStr);
-    Tenor tenor = decodeTenor(securityDes);
-    ExternalId conventionId = createConventionId(securityDes);
-    ExternalId familyId = ExternalId.of(ExternalScheme.of(BLOOMBERG_INDEX_FAMILY), conventionId.getValue());
-    Index index;
-    if (tenor.equals(Tenor.OVERNIGHT)) {
-      index = new OvernightIndex(name, conventionId);
-      index.setIndexFamilyId(familyId);
-    } else {
-      index = new IborIndex(name, tenor, conventionId);
-      index.setIndexFamilyId(familyId);
-    }
-     
-    index.setName(name);
-    // set identifiers
-    parseIdentifiers(fieldData, index);
-    return index;
   }
   
-  private ExternalId createConventionId(String securityDes) {
+  // public visible for tests
+  public static ExternalId createConventionId(String securityDes) {
     Matcher matcher = s_tenorFromDes.matcher(securityDes);
     if (matcher.matches()) {
       String descriptionPart = matcher.group(1); // remember, groups are 1 indexed!
@@ -131,12 +122,13 @@ public class IndexLoader extends SecurityLoader {
     throw new OpenGammaRuntimeException("Could not decode convention name from description " + securityDes);
   }
 
-  private Tenor decodeTenor(String securityDes) {
+  // public visible for tests
+  public static Tenor decodeTenor(String securityDes) {
     Matcher matcher = s_tenorFromDes.matcher(securityDes);
     if (matcher.matches()) {
       String tenorPart = matcher.group(2); // remember, groups are 1 indexed!
       if (s_overnight.matcher(tenorPart).matches()) {
-        return Tenor.OVERNIGHT;
+        return Tenor.ON;
       } else if (s_tomNext.matcher(tenorPart).matches()) {
         return Tenor.TN;
       } else {
@@ -145,6 +137,9 @@ public class IndexLoader extends SecurityLoader {
           String numberStr = numberFromTimeMatcher.group(1).trim();
           int number = Integer.parseInt(numberStr);
           String timeUnit = numberFromTimeMatcher.group(2).trim().toUpperCase();
+          if (timeUnit.length() == 0) {
+            throw new OpenGammaRuntimeException("Could not decode tenor from description " + securityDes);
+          }
           switch (timeUnit.charAt(0)) {
             case 'D':
               // assume days!

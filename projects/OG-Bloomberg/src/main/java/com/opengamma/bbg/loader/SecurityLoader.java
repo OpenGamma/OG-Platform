@@ -126,9 +126,13 @@ public abstract class SecurityLoader {
         continue;
       }
       // get field data
-      ManageableSecurity security = createSecurity(fieldData);
-      if (security != null) {
-        result.put(securityDes, security);
+      try {
+        ManageableSecurity security = createSecurity(fieldData);
+        if (security != null) {
+          result.put(securityDes, security);
+        }
+      } catch (Exception e) {
+        _logger.error("Exception while trying to create security", e);
       }
     }
     return result;

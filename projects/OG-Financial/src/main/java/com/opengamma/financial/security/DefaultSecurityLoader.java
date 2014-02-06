@@ -208,8 +208,8 @@ public class DefaultSecurityLoader extends AbstractSecurityLoader {
         Index index = (Index) security;
         indices.add(index);
       }
-      underlyingIds.addAll(visitor.getUnderlyings());
     }
+    underlyingIds.addAll(visitor.getUnderlyings());
     
     // check which are missing
     List<ExternalIdBundle> missing = Lists.newArrayList();
@@ -244,10 +244,6 @@ public class DefaultSecurityLoader extends AbstractSecurityLoader {
     Map<ExternalIdBundle, Security> existing = new HashMap<>();
     // kep track of new FamilyIndex entries and only update once at the end.
     Map<ExternalIdBundle, Security> toAdd = new HashMap<>();
-    // Comparator to find most appropriate ExternalId to use (most readable).
-    ExternalIdDisplayComparator comparator = new ExternalIdDisplayComparator();
-    // Reused set for comparator when processing bundle
-    Set<ExternalId> ids = new TreeSet<ExternalId>(comparator);
     for (Index index : indices) {
       if (index.getIndexFamilyId() == null) {
         break; // skip if no family.
@@ -276,14 +272,12 @@ public class DefaultSecurityLoader extends AbstractSecurityLoader {
         security = secSource.getSingle(familyBundle);
         source = Source.SEC_SOURCE;
       }
-      if (security != null && security instanceof IndexFamily) {
+      if (security instanceof IndexFamily) {
         IndexFamily indexFamily = (IndexFamily) security;
         SortedMap<Tenor, ExternalId> members = indexFamily.getMembers();
         // do we need to update the members or has it been done already for this tenor on this family?
         if (!members.containsKey(tenor)) {
-          ids.clear();
-          ids.addAll(index.getExternalIdBundle().getExternalIds());
-          ExternalId preferred = ids.iterator().next();
+          ExternalId preferred = preferredExternalId(index.getExternalIdBundle());
           assert tenor != null : "Tenor should not be null here";
           members.put(tenor, preferred);
           if (source == Source.SEC_SOURCE) {
@@ -294,10 +288,7 @@ public class DefaultSecurityLoader extends AbstractSecurityLoader {
         // we haven't seen this before and it's not in the sec source, 
         // so create a new one and add to the toAdd bucket.
         IndexFamily indexFamily = new IndexFamily();
-        ids.clear();
-        ImmutableSortedSet<ExternalId> externalIds = index.getExternalIdBundle().getExternalIds();
-        ids.addAll(externalIds);
-        ExternalId preferred = ids.iterator().next();
+        ExternalId preferred = preferredExternalId(index.getExternalIdBundle());
         indexFamily.setName(index.getIndexFamilyId().getValue());
         indexFamily.setExternalIdBundle(familyBundle);
         SortedMap<Tenor, ExternalId> entries = new TreeMap<Tenor, ExternalId>();
@@ -310,16 +301,32 @@ public class DefaultSecurityLoader extends AbstractSecurityLoader {
     toAdd = enhance(toAdd);
     storeIndexFamilies(existing, toAdd);
   }
+
+  private static final ExternalIdDisplayComparator s_comparator = new ExternalIdDisplayComparator();
+  
+  private ExternalId preferredExternalId(ExternalIdBundle bundle) {
+    ExternalId preferred = null;
+    for (ExternalId current : bundle.getExternalIds()) {
+      if (preferred == null) {
+        preferred = current;
+      } else {
+        if (s_comparator.compare(preferred, current) > 0) {
+          preferred = current;
+        }
+      }
+    }
+    return preferred;
+  }
   
   private void storeIndexFamilies(
       Map<ExternalIdBundle, Security> modified,
       Map<ExternalIdBundle, Security> added) {
-    for (Map.Entry<ExternalIdBundle, Security> entry : modified.entrySet()) {
-      SecurityDocument doc = new SecurityDocument((ManageableSecurity) entry.getValue());
+    for (Security security : modified.values()) {
+      SecurityDocument doc = new SecurityDocument((ManageableSecurity) security);
       _securityMaster.update(doc);
     }
-    for (Map.Entry<ExternalIdBundle, Security> entry : added.entrySet()) {
-      SecurityDocument doc = new SecurityDocument((ManageableSecurity) entry.getValue());
+    for (Security security : added.values()) {
+      SecurityDocument doc = new SecurityDocument((ManageableSecurity) security);
       _securityMaster.add(doc);
     }
   }

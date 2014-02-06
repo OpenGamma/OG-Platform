@@ -597,11 +597,10 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     for (EquityIndexComponentBean dbComponentBean : dbComponentBeans) {
       if (!componentBeans.contains(dbComponentBean)) {
         getSession().delete(dbComponentBean);
-        beansUpdated = true;
       } else {
         getSession().update(dbComponentBean);
-        beansUpdated = true;
       }
+      beansUpdated = true;
     }
     // anything not in the database, but in the basket, must be added (null/null)
     for (EquityIndexComponentBean beanBundle : componentBeans) {

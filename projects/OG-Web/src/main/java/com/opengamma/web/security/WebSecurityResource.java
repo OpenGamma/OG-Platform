@@ -79,24 +79,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
         result = templateName;
       }
     } else {
-      switch (security.getSecurityType()) {
-        case SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE:
-          return "external-sensitivities.ftl";
-        case FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE:
-          return "external-sensitivities-risk-factors.ftl";
-        case IborIndex.INDEX_TYPE:
-          return "ibor-index.ftl";
-        case OvernightIndex.INDEX_TYPE:
-          return "overnight-index.ftl";
-        case BondIndex.INDEX_TYPE:
-          return "bond-index.ftl";
-        case EquityIndex.INDEX_TYPE:
-          return "equity-index.ftl";
-        case IndexFamily.METADATA_TYPE:
-          return "index-family.ftl";
-        default: // generalize!  BLAH_BAM_BOOM becomes blah-bam-boom.ftl
-          return security.getSecurityType().replace("_", "-").toLowerCase().concat(".ftl");
-      }
+      return security.getSecurityType().replace("_", "-").toLowerCase().concat(".ftl");
     }
     return result;
   }

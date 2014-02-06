@@ -36,7 +36,7 @@ public class IndexFamilyBuilder implements FudgeBuilder<IndexFamily> {
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IndexFamily object) {
     final MutableFudgeMsg message = serializer.newMessage();
     ManageableSecurityFudgeBuilder.toFudgeMsg(serializer, object, message);
-    message.add(null, 0, object.getClass().getName());
+    //message.add(null, 0, object.getClass().getName());
     for (final Map.Entry<Tenor, ExternalId> entry : object.getMembers().entrySet()) {
       serializer.addToMessage(message, TENOR_FIELD, null, entry.getKey());
       serializer.addToMessage(message, EXTERNAL_ID_FIELD, null, entry.getValue());

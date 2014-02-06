@@ -367,10 +367,18 @@
         <#if security.indexFamilyId?has_content>
           <@rowout label="Index Family Identifier">${security.indexFamilyId.scheme.name} - ${security.indexFamilyId.value}</@rowout>
         <#else>
-          <@rowout label="Index Family Identifier">Not set</@rowout>
+          <@rowout label="Index Family Identifier">(empty)</@rowout>
         </#if>
         <@rowout label="Tenor">${security.tenor.toFormattedString()}</@rowout>
         <#break>        
+      <#case "OVERNIGHT_INDEX">
+        <@rowout label="Convention Identifier">${security.conventionId.scheme.name} - ${security.conventionId.value}</@rowout>
+        <#if security.indexFamilyId?has_content>
+          <@rowout label="Index Family Identifier">${security.indexFamilyId.scheme.name} - ${security.indexFamilyId.value}</@rowout>
+        <#else>
+          <@rowout label="Index Family Identifier">(empty)</@rowout>
+        </#if>
+        <#break>  
       <#case "INDEX_FAMILY">
         <@subsection title="Family Member Entries">
           <#if members?has_content>

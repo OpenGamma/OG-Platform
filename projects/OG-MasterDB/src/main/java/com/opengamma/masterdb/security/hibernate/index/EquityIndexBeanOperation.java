@@ -65,6 +65,9 @@ public final class EquityIndexBeanOperation extends AbstractSecurityBeanOperatio
     bean.setEquityComponents(equityComponentBeans);
     IndexWeightingTypeBean indexWeightingTypeBean = secMasterSession.getOrCreateIndexWeightingTypeBean(index.getWeightingType().name());
     bean.setWeightingType(indexWeightingTypeBean);
+    if (index.getIndexFamilyId() != null) {
+      bean.setIndexFamilyId(externalIdToExternalIdBean(index.getIndexFamilyId()));
+    }
     return bean;
   }
   
@@ -105,7 +108,11 @@ public final class EquityIndexBeanOperation extends AbstractSecurityBeanOperatio
       EquityIndexComponent equityIndexComponent = new EquityIndexComponent(externalIdBundle, weight);
       components.add(equityIndexComponent);
     }
-    return new EquityIndex("", description, components, weightingType);
+    EquityIndex equityIndex = new EquityIndex("", description, components, weightingType);
+    if (bean.getIndexFamilyId() != null) {
+      equityIndex.setIndexFamilyId(externalIdBeanToExternalId(bean.getIndexFamilyId()));
+    }
+    return equityIndex;
   }
 
 }
