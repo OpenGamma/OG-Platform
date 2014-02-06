@@ -23,6 +23,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
@@ -43,6 +45,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -53,6 +56,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -65,9 +69,9 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- * Converts {@link BondSecurity} and {@link BondFutureSecurity} trades into the appropriate
- * classes in analytics library. The legal entity of the bond(s) is populated with as much
- * information as is currently available from the securities.
+ * Converts {@link BondSecurity}, {@link BillSecurity} and {@link BondFutureSecurity} trades
+ * into the appropriate classes in analytics library. The legal entity of the bond(s) is
+ * populated with as much information as is currently available from the securities.
  */
 public class BondAndBondFutureTradeWithEntityConverter {
   /** Excluded coupon types */
@@ -88,6 +92,8 @@ public class BondAndBondFutureTradeWithEntityConverter {
   private final RegionSource _regionSource;
   /** The security source */
   private final SecuritySource _securitySource;
+  /** The legal entity source */
+//  private final OrganizationSource _legalEntitySource;
 
   /**
    * @param holidaySource The holiday source, not null
@@ -114,8 +120,9 @@ public class BondAndBondFutureTradeWithEntityConverter {
   public InstrumentDefinition<?> convert(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     final Security security = trade.getSecurity();
-    ArgumentChecker.isTrue(security instanceof BondSecurity || security instanceof BondFutureSecurity,
-        "Can only handle trades with security type BondSecurity or BondFutureSecurity; have {}" + security);
+    ArgumentChecker.isTrue(security instanceof BondSecurity || security instanceof BondFutureSecurity
+        || security instanceof BillSecurity,
+        "Can only handle trades with security type BondSecurity, BondFutureSecurity or BillSecurity; have {}" + security);
     final LocalDate tradeDate = trade.getTradeDate();
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
@@ -134,6 +141,24 @@ public class BondAndBondFutureTradeWithEntityConverter {
       final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
       return new BondFuturesTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
+    }
+    if (trade instanceof BillSecurity) {
+      final BillSecurity bondSecurity = (BillSecurity) security;
+      final LegalEntity legalEntity = getLegalEntityForBill(trade.getAttributes(), bondSecurity);
+      final BillSecurityDefinition underlying = getBill(bondSecurity, legalEntity);
+      if (trade.getPremium() == null) {
+        throw new OpenGammaRuntimeException("Trade premium should not be null.");
+      }
+      final double price = trade.getPremium().doubleValue();
+      OffsetTime settleTime = trade.getPremiumTime();
+      if (settleTime == null) {
+        settleTime = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC); //TODO get the real time zone
+      }
+      if (trade.getPremiumDate() == null) {
+        throw new OpenGammaRuntimeException("Trade premium date should not be null");
+      }
+      final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
+      return new BillTransactionDefinition(underlying, quantity, settlementDate, price);
     }
     final BondSecurity bondSecurity = (BondSecurity) security;
     final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
@@ -203,6 +228,32 @@ public class BondAndBondFutureTradeWithEntityConverter {
     final Sector sector = Sector.of(sectorName, classifications);
     final Region region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
     final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
+    return legalEntity;
+  }
+
+  /**
+   * Constructs a legal entity for a {@link BillSecurity}
+   * @param tradeAttributes The trade attributes
+   * @param security The bond security
+   * @return A legal entity
+   */
+  private static LegalEntity getLegalEntityForBill(final Map<String, String> tradeAttributes, final BillSecurity security) {
+    final ExternalIdBundle identifiers = security.getExternalIdBundle();
+    final String ticker;
+    if (identifiers != null) {
+      final String isin = identifiers.getValue(ExternalSchemes.ISIN);
+      ticker = isin == null ? null : isin;
+    } else {
+      ticker = null;
+    }
+    final String sectorName = security.getCurrency().getCode();
+    final FlexiBean classifications = new FlexiBean();
+    if (tradeAttributes.containsKey(SECTOR_STRING)) {
+      classifications.put(SECTOR_STRING, tradeAttributes.get(SECTOR_STRING));
+    }
+    final Sector sector = Sector.of(sectorName, classifications);
+    final Region region = Region.of(security.getRegionId().getValue(), Country.of(security.getRegionId().getValue()), security.getCurrency());
+    final LegalEntity legalEntity = new LegalEntity(ticker, ticker, null, sector, region);
     return legalEntity;
   }
 
@@ -289,6 +340,24 @@ public class BondAndBondFutureTradeWithEntityConverter {
       }
 
     });
+  }
+
+  /**
+   * Creates a bill.
+   * @param security The bill security
+   * @param legalEntity The legal entity
+   * @return The bill security definition
+   */
+  private BillSecurityDefinition getBill(final BillSecurity security, final LegalEntity legalEntity) {
+    final Currency currency = security.getCurrency();
+    final ZonedDateTime maturityDate = security.getMaturityDate().getExpiry();
+    final double notional = 1;
+    final int settlementDays = security.getDaysToSettle();
+    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getRegionId());
+    final YieldConvention yieldConvention = security.getYieldConvention();
+    final DayCount dayCount = security.getDayCount();
+    return new BillSecurityDefinition(currency, maturityDate, notional, settlementDays, calendar, yieldConvention,
+        dayCount, legalEntity);
   }
 
   /**
