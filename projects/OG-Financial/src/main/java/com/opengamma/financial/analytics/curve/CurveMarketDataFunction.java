@@ -54,8 +54,9 @@ public class CurveMarketDataFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(CurveMarketDataFunction.class);
   /** The curve name */
   private final String _curveName;
-
+  /** The curve definition source */
   private CurveDefinitionSource _curveDefinitionSource;
+  /** The curve specification builder */
   private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   /**
@@ -156,7 +157,13 @@ public class CurveMarketDataFunction extends AbstractFunction {
     }
   }
 
-  /* package */static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
+  /**
+   * Gets the market data requirements from a curve specification.
+   * @param abstractSpecification The curve specification
+   * @param curveName The curve name
+   * @return
+   */
+  /* package */ static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
     final Set<ValueRequirement> requirements = new HashSet<>();
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
@@ -190,17 +197,27 @@ public class CurveMarketDataFunction extends AbstractFunction {
       if (firstRequirements == null) {
         return null;
       }
-      final Set<ValueRequirement> secondRequirements = getRequirements(spread.getSecondCurve(), curveName);
-      if (secondRequirements == null) {
-        return null;
-      }
       requirements.addAll(firstRequirements);
-      requirements.addAll(secondRequirements);
+      if (!spread.isNumericalSpread()) {
+        final Set<ValueRequirement> secondRequirements = getRequirements(spread.getSecondCurve(), curveName);
+        if (secondRequirements == null) {
+          return null;
+        }
+        requirements.addAll(secondRequirements);
+      }
     }
     return requirements;
   }
 
-  /* package */static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs, final SnapshotDataBundle marketData,
+  /**
+   * Populates a market data snapshot for a curve specification.
+   * @param abstractSpecification The specification
+   * @param inputs The function inputs
+   * @param marketData The market data snapshot bundle
+   * @param resolver The external id bundle resolver
+   * @return A populated snapshot
+   */
+  /* package */ static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs, final SnapshotDataBundle marketData,
       final ExternalIdBundleResolver resolver) {
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
@@ -268,7 +285,9 @@ public class CurveMarketDataFunction extends AbstractFunction {
     } else if (abstractSpecification instanceof SpreadCurveSpecification) {
       final SpreadCurveSpecification spread = (SpreadCurveSpecification) abstractSpecification;
       populateSnapshot(spread.getFirstCurve(), inputs, marketData, resolver);
-      populateSnapshot(spread.getSecondCurve(), inputs, marketData, resolver);
+      if (!spread.isNumericalSpread()) {
+        populateSnapshot(spread.getSecondCurve(), inputs, marketData, resolver);
+      }
     } else {
       throw new OpenGammaRuntimeException("Cannot handle specifications of type " + abstractSpecification.getClass());
     }
