@@ -18,6 +18,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurvePointsInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
@@ -536,6 +537,34 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
       validationNode.setError(true);
     }
     sValidationNode.getSubNodes().add(validationNode);
+    return null;
+  }
+
+
+  @Override
+  public Void visitBillNode(BillNode node) {
+    ExternalId billNodeId;
+    try {
+      billNodeId = _curveNodeIdMapper.getBillNodeId(_curveDate, node.getMaturityTenor());
+    } catch (OpenGammaRuntimeException ogre) {
+      billNodeId = null;
+    }
+    ValidationNode billNodeValidationNode;
+    if (billNodeId != null) {
+      try {
+        Security bill = _securitySource.getSingle(billNodeId.toBundle());  
+        if (bill == null) {
+          billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, _validationNode, "Bill " + billNodeId + " not found in security master");
+        } else {
+          billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, _validationNode, null);
+        }
+      } catch (IllegalArgumentException iae) {
+        billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, _validationNode, 
+            "Bond " + billNodeId + " error thrown by security master when resolving, probably invalid ID format");
+      }
+    } else {
+      billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, _validationNode, "Entry missing for this tenor in CurveNodeIdMapper");
+    }
     return null;
   }
 }
