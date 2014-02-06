@@ -66,6 +66,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.BillNodeConverter;
 import com.opengamma.financial.analytics.curve.BondNodeConverter;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
@@ -310,6 +311,7 @@ public class IssuerProviderDiscountingFunction extends
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
       final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
+          .billNodeVisitor(new BillNodeConverter(holidaySource, regionSource, securitySource, marketData, dataId, valuationTime))
           .bondNodeVisitor(new BondNodeConverter(conventionBundleSource, holidaySource, regionSource, securitySource, marketData, dataId, valuationTime))
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
