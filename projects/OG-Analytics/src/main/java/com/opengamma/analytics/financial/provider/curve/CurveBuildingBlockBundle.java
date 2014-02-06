@@ -18,11 +18,12 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Bundle of curves names and the curve building block associated.
  */
-// TODO: REVIEW: should this be part of the MulticurvePovider?
+// TODO: [PLAT-5768] Should this be part of the MulticurveProvider?
 public class CurveBuildingBlockBundle {
 
   /**
-   * The map with the bundle of curves to pairs of curve building blocks and the relevant part of the inverse Jacobian matrix.
+   * The map with the bundle of curves names to pairs of curve building blocks and the relevant part of the inverse Jacobian matrix.
+   * The inverse Jacobian matrix is the derivative of the curve parameters with respect to the market quotes.
    */
   private final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> _bundle;
 
