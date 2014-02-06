@@ -95,6 +95,7 @@ public final class BloombergConstants {
   public static final String FIELD_TICKER_AND_EXCH_CODE = "TICKER_AND_EXCH_CODE";
   public static final String FIELD_MARKET_SECTOR_DES = "MARKET_SECTOR_DES";
   public static final String FIELD_ISSUER = "ISSUER";
+  public static final String FIELD_ISSUE_DT = "ISSUE_DT";
   public static final String FIELD_ID_CUSIP = "ID_CUSIP";
   public static final String FIELD_ID_ISIN = "ID_ISIN";
   public static final String FIELD_ID_SEDOL1 = "ID_SEDOL1";
@@ -159,6 +160,7 @@ public final class BloombergConstants {
   public static final String FIELD_RTG_MOODY = "RTG_MOODY";
   public static final String FIELD_RTG_SP = "RTG_SP";
   public static final String FIELD_BB_COMPOSITE = "BB_COMPOSITE";
+  public static final String FIELD_DAYS_TO_SETTLE = "DAYS_TO_SETTLE";
 
   public static final String BLOOMBERG_FIELDS_REQUEST = "fields";
   public static final String BLOOMBERG_SECURITIES_REQUEST = "securities";
@@ -248,7 +250,7 @@ public final class BloombergConstants {
    */
   public static final String BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE = "NON-DELIVERABLE IRS SWAP";
   public static final String BLOOMBERG_IMM_SWAP_TYPE = "IMM SWAP";
-  
+
   public static final Name RESPONSE_ERROR = new Name("responseError");
   public static final Name SECURITY_DATA = new Name("securityData");
   public static final Name SECURITY = new Name("security");
