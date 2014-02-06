@@ -70,7 +70,7 @@ public class MulticurveBuildingDiscountingBrazilianONTest2 {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
 
-  private static final Currency BRL = Currency.BRL;
+  private static final Currency BRL = Currency.EUR;
   private static final FXMatrix FX_MATRIX = new FXMatrix(BRL);
 
   private static final double NOTIONAL = 1.0;
@@ -201,7 +201,7 @@ public class MulticurveBuildingDiscountingBrazilianONTest2 {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
     * Analyzes the shape of the forward curve.
     */
@@ -209,7 +209,7 @@ public class MulticurveBuildingDiscountingBrazilianONTest2 {
     final MulticurveProviderInterface marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
     final int jump = 1;
     final int startIndex = 0;
-    final int nbDate = 1000;
+    final int nbDate = 100;
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW, INDEX_ON_BRL.getPublicationLag() + startIndex * jump, NYC);
     final double[] dscstart = new double[nbDate];
     final double[] dscend = new double[nbDate];

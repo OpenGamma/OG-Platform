@@ -31,6 +31,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -71,13 +72,31 @@ public class CouponONCompoundedDiscountingMethodTest {
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_DELTA = 1.0E+2;
 
+  /**
+   * Compute the Annually Compounded Forward Rate.
+   * @param coupon The coupon.
+   * @param multicurve The multi-curve provider.
+   * @param startTime the start time
+   * @param endTime the end time
+   * @param accrualFactor the acrual factor
+   * @return The Annually Compounded Forward Rate.
+   */
+  public double getAnnuallyCompoundedForwardRate(final CouponONCompounded coupon, final MulticurveProviderInterface multicurve, final double startTime, final double endTime,
+      final double accrualFactor) {
+    ArgumentChecker.isTrue(accrualFactor > 0, "the accrual factor should be stricltly positive");
+    final double dicountFactorStart = multicurve.getDiscountFactor(coupon.getCurrency(), startTime);
+    final double dicountFactorEnd = multicurve.getDiscountFactor(coupon.getCurrency(), endTime);
+    return Math.pow(dicountFactorStart / dicountFactorEnd, 1 / accrualFactor) - 1;
+
+  }
+
   @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(CPN_ON_COMPOUNDED, MULTICURVES);
     double ratio = 1.0;
     for (int i = 0; i < CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors().length; i++) {
       ratio *= Math.pow(
-          1 + MULTICURVES.getForwardRate(CPN_ON_COMPOUNDED.getIndex(), CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i], CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i],
+          1 + getAnnuallyCompoundedForwardRate(CPN_ON_COMPOUNDED, MULTICURVES, CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i], CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i],
               CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]),
           CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]);
     }
@@ -99,7 +118,7 @@ public class CouponONCompoundedDiscountingMethodTest {
     double ratio = 1.0;
     for (int i = 0; i < cpnONCompoundedStarted.getFixingPeriodAccrualFactors().length; i++) {
       ratio *= Math.pow(
-          1 + MULTICURVES.getForwardRate(cpnONCompoundedStarted.getIndex(), cpnONCompoundedStarted.getFixingPeriodStartTimes()[i], cpnONCompoundedStarted.getFixingPeriodEndTimes()[i],
+          1 + getAnnuallyCompoundedForwardRate(cpnONCompoundedStarted, MULTICURVES, cpnONCompoundedStarted.getFixingPeriodStartTimes()[i], cpnONCompoundedStarted.getFixingPeriodEndTimes()[i],
               cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]), cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = MULTICURVES.getDiscountFactor(cpnONCompoundedStarted.getCurrency(), cpnONCompoundedStarted.getPaymentTime());
