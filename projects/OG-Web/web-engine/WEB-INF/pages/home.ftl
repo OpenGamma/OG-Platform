@@ -26,10 +26,10 @@
 <#-- SECTION Links -->
 <@section title="Links">
   <p>
-<#if uris.about()??>
+<#if uris.about()?has_content>
     <a href="${uris.about()}">View information about the system</a><br />
 </#if>
-<#if uris.components()??>
+<#if uris.components()?has_content>
     <a href="${uris.components()}">View the components</a><br />
 </#if>
   </p>
