@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValue
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -30,6 +31,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -60,6 +62,11 @@ public class BondAndBondFuturePresentValueFromCurvesFunction extends BondAndBond
       throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);
     }
     return Collections.singleton(new ComputedValue(spec, pv.getCurrencyAmounts()[0].getAmount()));
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
   }
 
   @Override

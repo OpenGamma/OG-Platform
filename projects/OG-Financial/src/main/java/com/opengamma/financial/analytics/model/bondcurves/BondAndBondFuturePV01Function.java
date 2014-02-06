@@ -35,6 +35,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -86,6 +87,11 @@ public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFu
       return Collections.emptySet();
     }
     return results;
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
   }
 
   @Override

@@ -74,7 +74,8 @@ public abstract class BondFromCleanPriceFunction<T> extends AbstractFunction.Non
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getTrade().getSecurity() instanceof BondSecurity;
+    final Security security = target.getTrade().getSecurity();
+    return security instanceof BondSecurity;
   }
 
   @Override
