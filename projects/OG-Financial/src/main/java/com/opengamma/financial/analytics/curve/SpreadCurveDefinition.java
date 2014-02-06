@@ -149,7 +149,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Sets the first curve.
    * @param firstCurve  the new value of the property, not null
    */
-  public void setFirstCurve(final String firstCurve) {
+  public void setFirstCurve(String firstCurve) {
     JodaBeanUtils.notNull(firstCurve, "firstCurve");
     this._firstCurve = firstCurve;
   }
@@ -175,7 +175,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Sets the second curve.
    * @param secondCurve  the new value of the property
    */
-  public void setSecondCurve(final String secondCurve) {
+  public void setSecondCurve(String secondCurve) {
     this._secondCurve = secondCurve;
   }
 
@@ -200,7 +200,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Sets the spread.
    * @param spread  the new value of the property
    */
-  public void setSpread(final double spread) {
+  public void setSpread(Double spread) {
     this._spread = spread;
   }
 
@@ -225,7 +225,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Sets the spread unit
    * @param units  the new value of the property
    */
-  public void setUnits(final String units) {
+  public void setUnits(String units) {
     this._units = units;
   }
 
@@ -250,7 +250,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Sets the operation name.
    * @param operationName  the new value of the property, not null
    */
-  public void setOperationName(final String operationName) {
+  public void setOperationName(String operationName) {
     JodaBeanUtils.notNull(operationName, "operationName");
     this._operationName = operationName;
   }
@@ -270,12 +270,12 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final SpreadCurveDefinition other = (SpreadCurveDefinition) obj;
+      SpreadCurveDefinition other = (SpreadCurveDefinition) obj;
       return JodaBeanUtils.equal(getFirstCurve(), other.getFirstCurve()) &&
           JodaBeanUtils.equal(getSecondCurve(), other.getSecondCurve()) &&
           JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
@@ -299,9 +299,9 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("SpreadCurveDefinition{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -311,7 +311,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("firstCurve").append('=').append(JodaBeanUtils.toString(getFirstCurve())).append(',').append(' ');
     buf.append("secondCurve").append('=').append(JodaBeanUtils.toString(getSecondCurve())).append(',').append(' ');
@@ -344,7 +344,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
      * The meta-property for the {@code spread} property.
      */
     private final MetaProperty<Double> _spread = DirectMetaProperty.ofReadWrite(
-        this, "spread", SpreadCurveDefinition.class, Double.TYPE);
+        this, "spread", SpreadCurveDefinition.class, Double.class);
     /**
      * The meta-property for the {@code units} property.
      */
@@ -373,7 +373,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -186618849:  // firstCurve
           return _firstCurve;
@@ -447,7 +447,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -186618849:  // firstCurve
           return ((SpreadCurveDefinition) bean).getFirstCurve();
@@ -464,7 +464,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -186618849:  // firstCurve
           ((SpreadCurveDefinition) bean).setFirstCurve((String) newValue);
@@ -486,7 +486,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((SpreadCurveDefinition) bean)._firstCurve, "firstCurve");
       JodaBeanUtils.notNull(((SpreadCurveDefinition) bean)._operationName, "operationName");
       super.validate(bean);
