@@ -54,7 +54,7 @@ public class EquityIndexTest {
   /**
    * Tests that the components cannot be empty
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEmptyComponents() {
     new EquityIndex(NAME, DESCRIPTION, new ArrayList<EquityIndexComponent>(), WEIGHTING_TYPE);
   }
@@ -73,9 +73,9 @@ public class EquityIndexTest {
   @Test
   public void testNumberOfFields() {
     List<Field> fields = IndexTestUtils.getFields(INDEX_NO_DESCRIPTION.getClass());
-    assertEquals(13, fields.size());
+    assertEquals(14, fields.size());
     fields = IndexTestUtils.getFields(INDEX_WITH_DESCRIPTION.getClass());
-    assertEquals(13, fields.size());
+    assertEquals(14, fields.size());
   }
 
   /**

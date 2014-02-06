@@ -67,9 +67,9 @@ public class IborIndexTest {
   @Test
   public void testNumberOfFields() {
     List<Field> fields = IndexTestUtils.getFields(INDEX_NO_DESCRIPTION.getClass());
-    assertEquals(13, fields.size());
+    assertEquals(14, fields.size());
     fields = IndexTestUtils.getFields(INDEX_WITH_DESCRIPTION.getClass());
-    assertEquals(13, fields.size());
+    assertEquals(14, fields.size());
   }
 
   /**
