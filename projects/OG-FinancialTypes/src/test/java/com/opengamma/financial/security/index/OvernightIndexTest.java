@@ -34,24 +34,20 @@ public class OvernightIndexTest {
   /** The convention id */
   private static final ExternalId CONVENTION_ID = ExternalId.of("SCHEME", "USD OVERNIGHT CONVENTION");
   /** The index */
-  private static final OvernightIndex INDEX_NO_DESCRIPTION = new OvernightIndex(NAME, TICKERS, CONVENTION_ID);
+  private static final OvernightIndex INDEX_NO_DESCRIPTION = new OvernightIndex(NAME, CONVENTION_ID);
   /** The index */
-  private static final OvernightIndex INDEX_WITH_DESCRIPTION = new OvernightIndex(NAME, DESCRIPTION, TICKERS, CONVENTION_ID);
+  private static final OvernightIndex INDEX_WITH_DESCRIPTION = new OvernightIndex(NAME, DESCRIPTION, CONVENTION_ID);
 
-  /**
-   * Tests that the tickers cannot be null.
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullTickers() {
-    new OvernightIndex(NAME, DESCRIPTION, null, CONVENTION_ID);
+  static {
+    INDEX_NO_DESCRIPTION.setExternalIdBundle(TICKERS);
+    INDEX_WITH_DESCRIPTION.setExternalIdBundle(TICKERS);
   }
-
   /**
    * Tests that the convention id cannot be null.
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConventionId() {
-    new OvernightIndex(NAME, DESCRIPTION, TICKERS, null);
+    new OvernightIndex(NAME, DESCRIPTION,  null);
   }
 
   /**
@@ -60,9 +56,9 @@ public class OvernightIndexTest {
   @Test
   public void testNumberOfFields() {
     List<Field> fields = IndexTestUtils.getFields(INDEX_NO_DESCRIPTION.getClass());
-    assertEquals(13, fields.size());
+    assertEquals(12, fields.size());
     fields = IndexTestUtils.getFields(INDEX_WITH_DESCRIPTION.getClass());
-    assertEquals(13, fields.size());
+    assertEquals(12, fields.size());
   }
 
   /**
@@ -74,8 +70,8 @@ public class OvernightIndexTest {
     assertEquals(NAME, INDEX_WITH_DESCRIPTION.getName());
     assertNull(INDEX_NO_DESCRIPTION.getDescription());
     assertEquals(DESCRIPTION, INDEX_WITH_DESCRIPTION.getDescription());
-    assertEquals(TICKERS, INDEX_NO_DESCRIPTION.getTickerIds());
-    assertEquals(TICKERS, INDEX_WITH_DESCRIPTION.getTickerIds());
+    assertEquals(TICKERS, INDEX_NO_DESCRIPTION.getExternalIdBundle());
+    assertEquals(TICKERS, INDEX_WITH_DESCRIPTION.getExternalIdBundle());
     assertEquals(CONVENTION_ID, INDEX_NO_DESCRIPTION.getConventionId());
     assertEquals(CONVENTION_ID, INDEX_WITH_DESCRIPTION.getConventionId());
   }

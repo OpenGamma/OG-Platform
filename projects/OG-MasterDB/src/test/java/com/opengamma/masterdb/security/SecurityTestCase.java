@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.joda.beans.BeanBuilder;
@@ -34,6 +37,7 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
@@ -80,6 +84,13 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.index.BondIndex;
+import com.opengamma.financial.security.index.BondIndexComponent;
+import com.opengamma.financial.security.index.EquityIndex;
+import com.opengamma.financial.security.index.EquityIndexComponent;
+import com.opengamma.financial.security.index.IborIndex;
+import com.opengamma.financial.security.index.IndexFamily;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -295,6 +306,41 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(new HashMap<Object, Object>());
       }
     });
+    s_dataProviders.put(SortedMap.class, new TestDataProvider<SortedMap<Tenor, ExternalId>>() {
+      private SortedMap<Tenor, ExternalId> generateRandomMap(int count){
+        SortedMap<Tenor, ExternalId> map = new TreeMap<Tenor, ExternalId>();
+        Random random = new Random();
+        while(count>0){
+          Tenor tenor;
+          switch (random.nextInt(3)) {
+            case 0:
+              tenor = Tenor.ofDays(random.nextInt(28) + 1);
+              break;
+            case 1:
+              tenor = Tenor.ofMonths(random.nextInt(12) + 1);
+              break;
+            case 2:
+              tenor = Tenor.ofYears(random.nextInt(20) + 2000);
+              break;
+            default:
+              throw new OpenGammaRuntimeException("Should never happen");
+          }
+          map.put(tenor, ExternalId.of(RandomStringUtils.randomAlphanumeric(16), RandomStringUtils.randomAlphanumeric(16)));
+          count--;
+        }
+        return map;
+      }
+      @Override
+      public void getValues(final Collection<SortedMap<Tenor, ExternalId>> values) {
+        Random random = new Random();
+        double qty = 1 + random.nextInt(9);
+        while(qty>0){
+          values.add(generateRandomMap(1 + random.nextInt(9)));
+          qty--;
+        }
+        values.add(new TreeMap<Tenor, ExternalId>());
+      }
+    });
     s_dataProviders.put(Double.class, provider = new TestDataProvider<Double>() {
       @Override
       public void getValues(final Collection<Double> values) {
@@ -499,6 +545,13 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.addAll(permuteTestObjects(SecurityNotional.class));
       }
     });
+    s_dataProviders.put(BigDecimal.class, new TestDataProvider<BigDecimal>() {
+      @Override
+      public void getValues(final Collection<BigDecimal> values) {
+        values.add(BigDecimal.ONE);
+      }
+    });
+    
     s_dataProviders.put(InterestRateNotional.class, new TestDataProvider<Notional>() {
       @Override
       public void getValues(final Collection<Notional> values) {
@@ -558,6 +611,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(CDSIndexComponentBundle.of(permuteTestObjects(CreditDefaultSwapIndexComponent.class)));
       }
     });
+    s_dataProviders.put(Pairs.of(BondIndex.class, Collection.class), DefaultCollection.of(ArrayList.class, BondIndexComponent.class));
+    s_dataProviders.put(Pairs.of(BondIndex.class, List.class), DefaultList.of(ArrayList.class, BondIndexComponent.class));
+    s_dataProviders.put(Pairs.of(EquityIndex.class, Collection.class), DefaultCollection.of(ArrayList.class, EquityIndexComponent.class));
+    s_dataProviders.put(Pairs.of(EquityIndex.class, List.class), DefaultList.of(ArrayList.class, EquityIndexComponent.class));
+    s_dataProviders.put(Pairs.of(IndexFamily.class, Collection.class), DefaultCollection.of(ArrayList.class, IndexFamily.class));
+    s_dataProviders.put(Pairs.of(IndexFamily.class, List.class), DefaultList.of(ArrayList.class, IndexFamily.class));
   }
 
   protected static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
@@ -726,6 +785,16 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     while (c != null) {
       try {
         securityType = (String) c.getDeclaredField("SECURITY_TYPE").get(null);
+      } catch (final Throwable t) {
+        // Ignore
+      }
+      try {
+        securityType = (String) c.getDeclaredField("INDEX_TYPE").get(null);
+      } catch (final Throwable t) {
+        // Ignore
+      }
+      try {
+        securityType = (String) c.getDeclaredField("METADATA_TYPE").get(null);
       } catch (final Throwable t) {
         // Ignore
       }
@@ -969,6 +1038,31 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   @Override
   public void testCreditDefaultSwapOptionSecurity() {
     assertSecurities(CreditDefaultSwapOptionSecurity.class);
+  }
+  
+  @Override
+  public void testBondIndex() {
+    assertSecurities(BondIndex.class);
+  }
+  
+  @Override
+  public void testEquityIndex() {
+    assertSecurities(EquityIndex.class);
+  }
+  
+  @Override
+  public void testIborIndex() {
+    assertSecurities(IborIndex.class);
+  }
+  
+  @Override
+  public void testOvernightIndex() {
+    assertSecurities(OvernightIndex.class);
+  }
+  
+  @Override
+  public void testIndexFamily() {
+    assertSecurities(IndexFamily.class);
   }
   
 }

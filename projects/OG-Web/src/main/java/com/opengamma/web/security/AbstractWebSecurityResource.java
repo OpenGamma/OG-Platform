@@ -6,7 +6,9 @@
 package com.opengamma.web.security;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.index.IndexFamily;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
@@ -35,6 +38,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
@@ -166,6 +170,16 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
         List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, msg.getMessage());
         List<FactorExposure> factorExposuresList = convertToFactorExposure(factorExposureDataList);
         out.put("factorExposuresList", factorExposuresList);
+      }
+      if (security.getSecurityType().equals(IndexFamily.METADATA_TYPE)) {
+        Map<String, ExternalId> convertedMap = new LinkedHashMap<>();
+        IndexFamily indexFamily = (IndexFamily) security;
+        if (indexFamily.getMembers() != null) {
+          for (Map.Entry<Tenor, ExternalId> entry : indexFamily.getMembers().entrySet()) {
+            convertedMap.put(entry.getKey().toFormattedString(), entry.getValue());
+          }
+        }
+        out.put("members", convertedMap);
       }
     }
   }

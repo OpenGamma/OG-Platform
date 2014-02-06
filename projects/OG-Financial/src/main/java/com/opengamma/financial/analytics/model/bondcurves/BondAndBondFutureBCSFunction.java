@@ -61,6 +61,7 @@ public class BondAndBondFutureBCSFunction extends BondAndBondFutureFromCurvesFun
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(context.getValuationClock());
     final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(context, target, now, inputs);
+    Object temp = target.getTrade().getSecurity();
     final ParameterIssuerProviderInterface issuerCurves = (ParameterIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final CurveBuildingBlockBundle blocks = (CurveBuildingBlockBundle) inputs.getValue(JACOBIAN_BUNDLE);
     final Set<ComputedValue> result = new HashSet<>();

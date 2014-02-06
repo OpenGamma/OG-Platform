@@ -26,6 +26,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
+import com.opengamma.financial.security.index.IndexWeightingType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
@@ -144,6 +145,12 @@ public final class Converters {
     return Tenor.of(Period.parse(tenorBean.getName()));
   }
 
+  public static IndexWeightingType indexWeightingTypeBeanToIndexWeightingType(final IndexWeightingTypeBean weightingTypeBean) {
+    if (weightingTypeBean == null) {
+      return null;
+    }
+    return IndexWeightingType.valueOf(weightingTypeBean.getName());
+  }
   //-------------------------------------------------------------------------
   public static Frequency frequencyBeanToFrequency(final FrequencyBean frequencyBean) {
     if (frequencyBean == null) {

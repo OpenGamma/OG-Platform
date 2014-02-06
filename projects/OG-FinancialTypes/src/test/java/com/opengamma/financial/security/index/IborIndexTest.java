@@ -37,24 +37,20 @@ public class IborIndexTest {
   /** The convention id */
   private static final ExternalId CONVENTION_ID = ExternalId.of("SCHEME", "USD LIBOR CONVENTION");
   /** The index */
-  private static final IborIndex INDEX_NO_DESCRIPTION = new IborIndex(NAME, TICKERS, TENOR, CONVENTION_ID);
+  private static final IborIndex INDEX_NO_DESCRIPTION = new IborIndex(NAME, TENOR, CONVENTION_ID);
   /** The index */
-  private static final IborIndex INDEX_WITH_DESCRIPTION = new IborIndex(NAME, DESCRIPTION, TICKERS, TENOR, CONVENTION_ID);
+  private static final IborIndex INDEX_WITH_DESCRIPTION = new IborIndex(NAME, DESCRIPTION, TENOR, CONVENTION_ID);
 
-  /**
-   * Tests that the tickers cannot be null.
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullTickers() {
-    new IborIndex(NAME, DESCRIPTION, null, TENOR, CONVENTION_ID);
+  static {
+    INDEX_NO_DESCRIPTION.setExternalIdBundle(TICKERS);
+    INDEX_WITH_DESCRIPTION.setExternalIdBundle(TICKERS);
   }
-
   /**
    * Tests that the tenor cannot be null.
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTenor() {
-    new IborIndex(NAME, DESCRIPTION, TICKERS, null, CONVENTION_ID);
+    new IborIndex(NAME, DESCRIPTION, null, CONVENTION_ID);
   }
 
   /**
@@ -62,7 +58,7 @@ public class IborIndexTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConventionId() {
-    new IborIndex(NAME, DESCRIPTION, TICKERS, TENOR, null);
+    new IborIndex(NAME, DESCRIPTION, TENOR, null);
   }
 
   /**
@@ -71,9 +67,9 @@ public class IborIndexTest {
   @Test
   public void testNumberOfFields() {
     List<Field> fields = IndexTestUtils.getFields(INDEX_NO_DESCRIPTION.getClass());
-    assertEquals(14, fields.size());
+    assertEquals(13, fields.size());
     fields = IndexTestUtils.getFields(INDEX_WITH_DESCRIPTION.getClass());
-    assertEquals(14, fields.size());
+    assertEquals(13, fields.size());
   }
 
   /**
@@ -85,8 +81,8 @@ public class IborIndexTest {
     assertEquals(NAME, INDEX_WITH_DESCRIPTION.getName());
     assertNull(INDEX_NO_DESCRIPTION.getDescription());
     assertEquals(DESCRIPTION, INDEX_WITH_DESCRIPTION.getDescription());
-    assertEquals(TICKERS, INDEX_NO_DESCRIPTION.getTickerIds());
-    assertEquals(TICKERS, INDEX_WITH_DESCRIPTION.getTickerIds());
+    assertEquals(TICKERS, INDEX_NO_DESCRIPTION.getExternalIdBundle());
+    assertEquals(TICKERS, INDEX_WITH_DESCRIPTION.getExternalIdBundle());
     assertEquals(TENOR, INDEX_NO_DESCRIPTION.getTenor());
     assertEquals(TENOR, INDEX_WITH_DESCRIPTION.getTenor());
     assertEquals(CONVENTION_ID, INDEX_NO_DESCRIPTION.getConventionId());

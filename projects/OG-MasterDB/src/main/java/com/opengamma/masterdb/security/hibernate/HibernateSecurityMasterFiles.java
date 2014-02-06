@@ -28,6 +28,13 @@ import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
 import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBean;
 import com.opengamma.masterdb.security.hibernate.fx.NonDeliverableFXForwardSecurityBean;
+import com.opengamma.masterdb.security.hibernate.index.BondIndexBean;
+import com.opengamma.masterdb.security.hibernate.index.BondIndexComponentBean;
+import com.opengamma.masterdb.security.hibernate.index.EquityIndexBean;
+import com.opengamma.masterdb.security.hibernate.index.EquityIndexComponentBean;
+import com.opengamma.masterdb.security.hibernate.index.IborIndexBean;
+import com.opengamma.masterdb.security.hibernate.index.IndexFamilyBean;
+import com.opengamma.masterdb.security.hibernate.index.OvernightIndexBean;
 import com.opengamma.masterdb.security.hibernate.option.BondFutureOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.CommodityFutureOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.CreditDefaultSwapOptionSecurityBean;
@@ -119,7 +126,16 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       CDSIndexFamilyBean.class,
       CreditDefaultSwapIndexDefinitionSecurityBean.class,
       CreditDefaultSwapIndexSecurityBean.class,
-      CreditDefaultSwapOptionSecurityBean.class
+      CreditDefaultSwapOptionSecurityBean.class,
+      
+      IndexWeightingTypeBean.class,
+      BondIndexBean.class,
+      BondIndexComponentBean.class,
+      EquityIndexBean.class,
+      EquityIndexComponentBean.class,
+      IborIndexBean.class,
+      OvernightIndexBean.class,
+      IndexFamilyBean.class
     };
   }
 
