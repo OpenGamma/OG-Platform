@@ -64,8 +64,18 @@ public class ExternalSchemes {
   public static final ExternalScheme BLOOMBERG_TICKER_WEAK = ExternalScheme.of("BLOOMBERG_TICKER_WEAK");
   /**
    * Identification scheme for Bloomberg tickers.
+   * @deprecated use BLOOMBERG_TICKER instead
    */
+  @Deprecated
   public static final ExternalScheme BLOOMBERG_TCM = ExternalScheme.of("BLOOMBERG_TCM");
+  /**
+   * Identification scheme for conventions, using the stub of SECURITY_DES (minus date information)
+   */
+  public static final ExternalScheme BLOOMBERG_CONVENTION_NAME = ExternalScheme.of("BLOOMBERG_CONVENTION_NAME");
+  /**
+   * Identification scheme for index families, using the stub of SECURITY_DES (minus date information)
+   */
+  public static final ExternalScheme BLOOMBERG_INDEX_FAMILY = ExternalScheme.of("BLOOMBERG_INDEX_FAMILY");
   /**
    * Identification scheme for Reuters RICs.
    */

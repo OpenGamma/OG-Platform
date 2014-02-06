@@ -34,13 +34,7 @@ public class IborIndex extends Index {
   /**
    * The index type.
    */
-  public static final String INDEX_TYPE = "IBOR";
-
-  /**
-   * A bundle of external ids for the tickers.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private ExternalIdBundle _tickerIds;
+  public static final String INDEX_TYPE = "IBOR_INDEX";
 
   /**
    * The tenor of the underlying rate.
@@ -63,13 +57,11 @@ public class IborIndex extends Index {
 
   /**
    * @param name The index name, not null
-   * @param tickerIds The bundle of ticker ids, not null
    * @param tenor The rate tenor, not null
    * @param conventionId The convention id, not null
    */
-  public IborIndex(final String name, final ExternalIdBundle tickerIds, final Tenor tenor, final ExternalId conventionId) {
+  public IborIndex(final String name, final Tenor tenor, final ExternalId conventionId) {
     super(INDEX_TYPE, name);
-    setTickerIds(tickerIds);
     setTenor(tenor);
     setConventionId(conventionId);
   }
@@ -77,14 +69,12 @@ public class IborIndex extends Index {
   /**
    * @param name The index name, not null
    * @param description The description name, not null
-   * @param tickerIds The bundle of ticker ids, not null
    * @param tenor The rate tenor, not null
    * @param conventionId The convention id, not null
    */
-  public IborIndex(final String name, final String description, final ExternalIdBundle tickerIds, final Tenor tenor,
+  public IborIndex(final String name, final String description, final Tenor tenor,
       final ExternalId conventionId) {
     super(INDEX_TYPE, name, description);
-    setTickerIds(tickerIds);
     setTenor(tenor);
     setConventionId(conventionId);
   }
@@ -106,32 +96,6 @@ public class IborIndex extends Index {
   @Override
   public IborIndex.Meta metaBean() {
     return IborIndex.Meta.INSTANCE;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets a bundle of external ids for the tickers.
-   * @return the value of the property, not null
-   */
-  public ExternalIdBundle getTickerIds() {
-    return _tickerIds;
-  }
-
-  /**
-   * Sets a bundle of external ids for the tickers.
-   * @param tickerIds  the new value of the property, not null
-   */
-  public void setTickerIds(ExternalIdBundle tickerIds) {
-    JodaBeanUtils.notNull(tickerIds, "tickerIds");
-    this._tickerIds = tickerIds;
-  }
-
-  /**
-   * Gets the the {@code tickerIds} property.
-   * @return the property, not null
-   */
-  public final Property<ExternalIdBundle> tickerIds() {
-    return metaBean().tickerIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -199,8 +163,7 @@ public class IborIndex extends Index {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborIndex other = (IborIndex) obj;
-      return JodaBeanUtils.equal(getTickerIds(), other.getTickerIds()) &&
-          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
+      return JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           JodaBeanUtils.equal(getConventionId(), other.getConventionId()) &&
           super.equals(obj);
     }
@@ -210,7 +173,6 @@ public class IborIndex extends Index {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTickerIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionId());
     return hash ^ super.hashCode();
@@ -218,7 +180,7 @@ public class IborIndex extends Index {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("IborIndex{");
     int len = buf.length();
     toString(buf);
@@ -232,7 +194,6 @@ public class IborIndex extends Index {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("tickerIds").append('=').append(JodaBeanUtils.toString(getTickerIds())).append(',').append(' ');
     buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor())).append(',').append(' ');
     buf.append("conventionId").append('=').append(JodaBeanUtils.toString(getConventionId())).append(',').append(' ');
   }
@@ -248,11 +209,6 @@ public class IborIndex extends Index {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tickerIds} property.
-     */
-    private final MetaProperty<ExternalIdBundle> _tickerIds = DirectMetaProperty.ofReadWrite(
-        this, "tickerIds", IborIndex.class, ExternalIdBundle.class);
-    /**
      * The meta-property for the {@code tenor} property.
      */
     private final MetaProperty<Tenor> _tenor = DirectMetaProperty.ofReadWrite(
@@ -267,7 +223,6 @@ public class IborIndex extends Index {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "tickerIds",
         "tenor",
         "conventionId");
 
@@ -280,8 +235,6 @@ public class IborIndex extends Index {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -71213234:  // tickerIds
-          return _tickerIds;
         case 110246592:  // tenor
           return _tenor;
         case 1520979052:  // conventionId
@@ -307,14 +260,6 @@ public class IborIndex extends Index {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tickerIds} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ExternalIdBundle> tickerIds() {
-      return _tickerIds;
-    }
-
-    /**
      * The meta-property for the {@code tenor} property.
      * @return the meta-property, not null
      */
@@ -334,8 +279,6 @@ public class IborIndex extends Index {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -71213234:  // tickerIds
-          return ((IborIndex) bean).getTickerIds();
         case 110246592:  // tenor
           return ((IborIndex) bean).getTenor();
         case 1520979052:  // conventionId
@@ -347,9 +290,6 @@ public class IborIndex extends Index {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -71213234:  // tickerIds
-          ((IborIndex) bean).setTickerIds((ExternalIdBundle) newValue);
-          return;
         case 110246592:  // tenor
           ((IborIndex) bean).setTenor((Tenor) newValue);
           return;
@@ -362,7 +302,6 @@ public class IborIndex extends Index {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((IborIndex) bean)._tickerIds, "tickerIds");
       JodaBeanUtils.notNull(((IborIndex) bean)._tenor, "tenor");
       JodaBeanUtils.notNull(((IborIndex) bean)._conventionId, "conventionId");
       super.validate(bean);

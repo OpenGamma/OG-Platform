@@ -17,6 +17,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 
 /**
@@ -33,6 +34,12 @@ public abstract class Index extends ManageableSecurity {
    */
   @PropertyDefinition
   private String _description;
+  
+  /**
+   * An optional linked IndexFamily
+   */
+  @PropertyDefinition
+  private ExternalId _indexFamilyId;
 
   /**
    * For the builder.
@@ -109,6 +116,31 @@ public abstract class Index extends ManageableSecurity {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets an optional linked IndexFamily
+   * @return the value of the property
+   */
+  public ExternalId getIndexFamilyId() {
+    return _indexFamilyId;
+  }
+
+  /**
+   * Sets an optional linked IndexFamily
+   * @param indexFamilyId  the new value of the property
+   */
+  public void setIndexFamilyId(ExternalId indexFamilyId) {
+    this._indexFamilyId = indexFamilyId;
+  }
+
+  /**
+   * Gets the the {@code indexFamilyId} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> indexFamilyId() {
+    return metaBean().indexFamilyId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -117,6 +149,7 @@ public abstract class Index extends ManageableSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       Index other = (Index) obj;
       return JodaBeanUtils.equal(getDescription(), other.getDescription()) &&
+          JodaBeanUtils.equal(getIndexFamilyId(), other.getIndexFamilyId()) &&
           super.equals(obj);
     }
     return false;
@@ -126,12 +159,13 @@ public abstract class Index extends ManageableSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexFamilyId());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("Index{");
     int len = buf.length();
     toString(buf);
@@ -146,6 +180,7 @@ public abstract class Index extends ManageableSecurity {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("description").append('=').append(JodaBeanUtils.toString(getDescription())).append(',').append(' ');
+    buf.append("indexFamilyId").append('=').append(JodaBeanUtils.toString(getIndexFamilyId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -164,11 +199,17 @@ public abstract class Index extends ManageableSecurity {
     private final MetaProperty<String> _description = DirectMetaProperty.ofReadWrite(
         this, "description", Index.class, String.class);
     /**
+     * The meta-property for the {@code indexFamilyId} property.
+     */
+    private final MetaProperty<ExternalId> _indexFamilyId = DirectMetaProperty.ofReadWrite(
+        this, "indexFamilyId", Index.class, ExternalId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "description");
+        "description",
+        "indexFamilyId");
 
     /**
      * Restricted constructor.
@@ -181,6 +222,8 @@ public abstract class Index extends ManageableSecurity {
       switch (propertyName.hashCode()) {
         case -1724546052:  // description
           return _description;
+        case 1598011025:  // indexFamilyId
+          return _indexFamilyId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -209,12 +252,22 @@ public abstract class Index extends ManageableSecurity {
       return _description;
     }
 
+    /**
+     * The meta-property for the {@code indexFamilyId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> indexFamilyId() {
+      return _indexFamilyId;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1724546052:  // description
           return ((Index) bean).getDescription();
+        case 1598011025:  // indexFamilyId
+          return ((Index) bean).getIndexFamilyId();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -224,6 +277,9 @@ public abstract class Index extends ManageableSecurity {
       switch (propertyName.hashCode()) {
         case -1724546052:  // description
           ((Index) bean).setDescription((String) newValue);
+          return;
+        case 1598011025:  // indexFamilyId
+          ((Index) bean).setIndexFamilyId((ExternalId) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

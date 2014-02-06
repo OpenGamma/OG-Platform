@@ -33,7 +33,7 @@ public class EquityIndex extends Index {
   /**
    * The index type.
    */
-  public static final String INDEX_TYPE = "EQUITY";
+  public static final String INDEX_TYPE = "EQUITY_INDEX";
 
   /**
    * The equity components of the index.
@@ -62,7 +62,7 @@ public class EquityIndex extends Index {
    */
   public EquityIndex(final String name, final List<EquityIndexComponent> equityComponents, final IndexWeightingType weightingType) {
     super(INDEX_TYPE, name);
-    ArgumentChecker.notEmpty(equityComponents, "equityComponents");
+    ArgumentChecker.notNull(equityComponents, "equityComponents");
     setEquityComponents(equityComponents);
     setWeightingType(weightingType);
   }
@@ -76,7 +76,7 @@ public class EquityIndex extends Index {
    */
   public EquityIndex(final String name, final String description, final List<EquityIndexComponent> equityComponents, final IndexWeightingType weightingType) {
     super(INDEX_TYPE, name, description);
-    ArgumentChecker.notEmpty(equityComponents, "equityComponents");
+    ArgumentChecker.notNull(equityComponents, "equityComponents");
     setEquityComponents(equityComponents);
     setWeightingType(weightingType);
   }

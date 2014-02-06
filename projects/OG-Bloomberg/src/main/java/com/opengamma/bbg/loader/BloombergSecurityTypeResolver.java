@@ -73,6 +73,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_EQUITY_INDEX_SECURITY_TYPES, SecurityType.EQUITY_INDEX);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FORWARD_CROSS_SECURITY_TYPES, SecurityType.FORWARD_CROSS);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FRA_SECURITY_TYPES, SecurityType.FRA);
+    addValidTypes(s_miscTypes, IndexLoader.VALID_SECURITY_TYPES, SecurityType.INDEX);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_RATE_TYPES, SecurityType.RATE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_SPOT_RATE_TYPES, SecurityType.SPOT_RATE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_VOLATILITY_QUOTE_TYPES, SecurityType.VOLATILITY_QUOTE);

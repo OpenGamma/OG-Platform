@@ -25,6 +25,7 @@ public class CurveBuildingBlock {
   private final LinkedHashMap<String, Pair<Integer, Integer>> _unit;
 
   // TODO: Replace the curve names by some curve ID, maybe some UniqueIdentifiable objects
+  // Review: maybe a 'copy' method would be useful.
 
   /**
    * Constructor.

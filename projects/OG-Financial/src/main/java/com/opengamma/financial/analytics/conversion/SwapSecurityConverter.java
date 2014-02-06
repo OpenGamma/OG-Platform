@@ -102,9 +102,10 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
   /**
    * @param holidaySource The holiday source, not null
    * @param conventionSource The convention source, not null
-   * @param conventionBundleSource The convention bundle. TODO: remove.
+   * @param conventionBundleSource The convention bundle. 
    * @param regionSource The region source, not null
    */
+  // TODO: remove conventionBundleSource
   public SwapSecurityConverter(final HolidaySource holidaySource, final ConventionSource conventionSource, final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");

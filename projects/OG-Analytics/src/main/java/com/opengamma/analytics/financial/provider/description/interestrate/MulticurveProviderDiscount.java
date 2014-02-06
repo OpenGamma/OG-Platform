@@ -529,6 +529,50 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   }
 
   /**
+   * Sets or replaces the discounting curve for a given currency. 
+   * If the currency has not associated curve, the currency and the curve are added.
+   * If the currency has already an associated curve, the curve for that currency is replace by the one provided.
+   * @param ccy The currency.
+   * @param curve The yield curve used for discounting.
+   */
+  public void setOrReplaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(curve, "curve");
+    _discountingCurves.put(ccy, curve);
+    setAllCurves();
+  }
+
+  /**
+   * Set or replaces the forward curve for a given index.
+   * If the currency has not associated curve, the currency and the curve are added.
+   * If the currency has already an associated curve, the curve for that currency is replace by the one provided.
+   * @param index The index.
+   * @param curve The yield curve used for forward.
+   *  @throws IllegalArgumentException if curve name NOT already present
+   */
+  public void setOrReplaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(curve, "curve");
+    _forwardIborCurves.put(index, curve);
+    setAllCurves();
+  }
+
+  /**
+   * Set or replaces the forward curve for a given ON index.
+   * If the currency has not associated curve, the currency and the curve are added.
+   * If the currency has already an associated curve, the curve for that currency is replace by the one provided.
+   * @param index The index.
+   * @param curve The yield curve used for forward.
+   *  @throws IllegalArgumentException if curve name NOT already present
+   */
+  public void setOrReplaceCurve(final IndexON index, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(curve, "curve");
+    _forwardONCurves.put(index, curve);
+    setAllCurves();
+  }
+
+  /**
    * Remove the discounting curve for a given currency.
    * @param ccy The currency.
    *  @throws IllegalArgumentException if curve name NOT already present
@@ -583,6 +627,11 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   @Override
   public Set<String> getAllCurveNames() {
     return Collections.unmodifiableSortedSet(new TreeSet<>(_allCurves.keySet()));
+  }
+
+  @Override
+  public String toString() {
+    return _allCurves.keySet().toString();
   }
 
   /**

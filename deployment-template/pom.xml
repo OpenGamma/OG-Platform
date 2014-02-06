@@ -131,26 +131,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- generate deployment bundle -->
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>dir</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly-server-dir.xml</descriptor>
-              </descriptors>
-              <finalName>server-dir</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 

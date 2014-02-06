@@ -7,7 +7,6 @@ package com.opengamma.integration.tool.config;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,17 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
@@ -46,34 +41,13 @@ import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
-import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
-import com.opengamma.financial.analytics.ircurve.StaticCurvePointsInstrumentProvider;
-import com.opengamma.financial.analytics.ircurve.strips.BillNode;
-import com.opengamma.financial.analytics.ircurve.strips.BondNode;
-import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
-import com.opengamma.financial.analytics.ircurve.strips.CashNode;
-import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
-import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
-import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
-import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
-import com.opengamma.financial.analytics.ircurve.strips.FRANode;
-import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
-import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
-import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
-import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
-import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -84,22 +58,30 @@ public class CurveValidator {
   private static final Logger s_logger = LoggerFactory.getLogger(CurveValidator.class);
   private final ConfigMaster _configMaster;
   private final ConfigSource _configSource;
-  private final ConventionSource _conventionSource;
+  private ConfigValidationUtils _configValidationUtils;
   private List<ValidationNode> _curveConstructionConfigNodes = new ArrayList<>();
   private List<ValidationNode> _exposureConfigNodes = new ArrayList<>();
   private final RegionSource _regionSource;
   private final LocalDate _curveDate;
   private final SecuritySource _securitySource;
-  private final HolidayMaster _holidayMaster;
 
-  public CurveValidator(final ConfigMaster configMaster, final ConfigSource configSource, final ConventionSource conventionSource, final RegionSource regionSource, final SecuritySource secSource, final HolidayMaster holidayMaster) {
+  /**
+   * Constructor
+   * @param configMaster the config master
+   * @param configSource the config source
+   * @param conventionSource the convention source
+   * @param regionSource the region source
+   * @param secSource the security source
+   * @param holidayMaster the holiday master
+   */
+  public CurveValidator(final ConfigMaster configMaster, final ConfigSource configSource, final ConventionSource conventionSource, 
+                        final RegionSource regionSource, final SecuritySource secSource, final HolidayMaster holidayMaster) {
     _configMaster = configMaster;
     _configSource = configSource;
-    _conventionSource = conventionSource;
+    _configValidationUtils = new ConfigValidationUtils(conventionSource, holidayMaster);
     _regionSource = regionSource;
     _securitySource = secSource;
     _curveDate = LocalDate.now();
-    _holidayMaster = holidayMaster;
   }
   /**
    * Not re-entrant.
@@ -278,10 +260,10 @@ public class CurveValidator {
       curveTypeConfigNode.getSubNodes().add(validationNode);
     }
   }
-
-  private void validateIborCurveTypeConfiguration(final String name, final IborCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
-    if (!conventionExists(curveTypeConfiguration.getConvention())) {
-      final ValidationNode validationNode = new ValidationNode();
+  
+  private void validateIborCurveTypeConfiguration(String name, IborCurveTypeConfiguration curveTypeConfiguration, ValidationNode curveTypeConfigNode) {
+    if (!_configValidationUtils.conventionExists(curveTypeConfiguration.getConvention())) {
+      ValidationNode validationNode = new ValidationNode();
       validationNode.setName(curveTypeConfiguration.getConvention().getValue());
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Could not find convention " + curveTypeConfiguration.getConvention());
@@ -399,8 +381,8 @@ public class CurveValidator {
   private void validateOvernightCurveTypeConfiguration(final String name, final OvernightCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
     final ValidationNode onValidationNode = new ValidationNode();
     onValidationNode.setName(curveTypeConfiguration.getConvention().getValue());
-    if (conventionExists(curveTypeConfiguration.getConvention())) {
-      final ManageableConvention convention = getConvention(curveTypeConfiguration.getConvention());
+    if (_configValidationUtils.conventionExists(curveTypeConfiguration.getConvention())) {
+      ManageableConvention convention = _configValidationUtils.getConvention(curveTypeConfiguration.getConvention());
       onValidationNode.setType(convention.getClass());
     } else {
       onValidationNode.setType(Convention.class);
@@ -437,17 +419,15 @@ public class CurveValidator {
   }
 
   private void validateCurveDefinition(final CurveDefinition curveDefinition, final ValidationNode curveDefinitionNode) {
+    // check for an empty curve def
+
     if (curveDefinition.getNodes().size() == 0) {
       curveDefinitionNode.getErrors().add("Curve definition " + curveDefinition.getName() + " has zero nodes");
       curveDefinitionNode.setError(true);
     }
-    for (final CurveNode node : curveDefinition.getNodes()) {
-      //      ValidationNode curveNodeValidationNode = new ValidationNode();
-      //      curveNodeValidationNode.setName(node.getResolvedMaturity().toFormattedString());
-      //      curveNodeValidationNode.setType(node.getClass());
+    // otherwise process the nodes
+    for (CurveNode node : curveDefinition.getNodes()) {
       validateCurveNode(node, curveDefinitionNode);
-      //      curveNodeValidationNode.getSubNodes().add(curveDefinitionNode);
-      //      curveDefinitionNode.getSubNodes().add(curveNodeValidationNode);
     }
   }
 
@@ -463,516 +443,12 @@ public class CurveValidator {
     return validationNode;
   }
 
-  private boolean holidayExists(final ExternalId customHolidayId) {
-    final HolidaySearchRequest searchReq = new HolidaySearchRequest(HolidayType.CUSTOM, Collections.singletonList(customHolidayId));
-    final HolidaySearchResult search = _holidayMaster.search(searchReq);
-    return search.getSingleHoliday() != null;
-  }
-
-  // CSOFF
-  private void validateCurveNode(final CurveNode curveNode, final ValidationNode validationNode) {
+  private void validateCurveNode(CurveNode curveNode, final ValidationNode validationNode) {
     final CurveNodeIdMapper curveNodeIdMapper = getCurveNodeIdMapper(curveNode.getCurveNodeIdMapperName());
     if (curveNodeIdMapper == null) {
       createInvalidCurveNodeValidationNode(curveNode.getResolvedMaturity(), curveNode.getClass(), validationNode, "CurveNodeIdMapper " + curveNode.getCurveNodeIdMapperName() + " is missing");
     } else {
-      curveNode.accept(new CurveNodeVisitor<Void>() {
-        @Override
-        public Void visitBillNode(final BillNode node) {
-          ExternalId billNodeId;
-          try {
-            billNodeId = curveNodeIdMapper.getBondNodeId(_curveDate, node.getMaturityTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            billNodeId = null;
-          }
-          ValidationNode billNodeValidationNode;
-          if (billNodeId != null) {
-            try {
-              final Security bond = _securitySource.getSingle(billNodeId.toBundle());
-              if (bond == null) {
-                billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode, "Bill " + billNodeId + " not found in security master");
-              } else {
-                billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode, null);
-              }
-            } catch (final IllegalArgumentException iae) {
-              billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode,
-                  "Bill " + billNodeId + " error thrown by security master when resolving, probably invalid ID format");
-            }
-          } else {
-            billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, validationNode, "Entry missing for this tenor in CurveNodeIdMapper");
-          }
-          return null;
-        }
-
-        @Override
-        public Void visitBondNode(final BondNode node) {
-          ExternalId bondNodeId;
-          try {
-            bondNodeId = curveNodeIdMapper.getBondNodeId(_curveDate, node.getMaturityTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            bondNodeId = null;
-          }
-          ValidationNode bondNodeValidationNode;
-          if (bondNodeId != null) {
-            try {
-              final Security bond = _securitySource.getSingle(bondNodeId.toBundle());
-              if (bond == null) {
-                bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, "Bond " + bondNodeId + " not found in security master");
-              } else {
-                bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, null);
-              }
-            } catch (final IllegalArgumentException iae) {
-              bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode,
-                  "Bond " + bondNodeId + " error thrown by security master when resolving, probably invalid ID format");
-            }
-          } else {
-            bondNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BondNode.class, validationNode, "Entry missing for this tenor in CurveNodeIdMapper");
-          }
-          return null;
-        }
-
-        @Override
-        public Void visitCalendarSwapNode(final CalendarSwapNode node) {
-          ExternalId calendarNodeId;
-          try {
-            calendarNodeId = curveNodeIdMapper.getCalendarSwapNodeId(_curveDate, node.getStartTenor(), node.getCalendarDateStartNumber(), node.getCalendarDateEndNumber());
-          } catch (final OpenGammaRuntimeException ogre) {
-            calendarNodeId = null;
-          }
-          ValidationNode calendarSwapValidationNode;
-          if (calendarNodeId == null) {
-            if (!holidayExists(node.getCalendarId())) {
-              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode,
-                  "Customer holiday calendar " + node.getCalendarId() + " (and not generated by Id mapper) does not exist");
-            } else {
-              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode, null);
-            }
-          } else {
-            if (!holidayExists(calendarNodeId)) {
-              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode,
-                  "Customer holiday calendar " + calendarNodeId + " (generated by Id mapper) does not exist");
-            } else {
-              calendarSwapValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), CalendarSwapNode.class, validationNode, null);
-            }
-          }
-          final ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getSwapConvention().getValue());
-          if (conventionExists(node.getSwapConvention())) {
-            final ManageableConvention convention = getConvention(node.getSwapConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find swap convention using ID " + node.getSwapConvention());
-            validationNode.setError(true);
-          }
-          calendarSwapValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitCashNode(final CashNode node) {
-          ExternalId cashNodeId;
-          try {
-            cashNodeId = curveNodeIdMapper.getCashNodeId(_curveDate, node.getMaturityTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            cashNodeId = null;
-          }
-          ValidationNode cashNodeValidationNode;
-          if (cashNodeId == null) {
-            cashNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), CashNode.class, validationNode, "No curve node id mapper entry for " + node.getResolvedMaturity());
-          } else {
-            cashNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), CashNode.class, validationNode, null);
-          }
-          final ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getConvention().getValue());
-          if (conventionExists(node.getConvention())) {
-            final ManageableConvention convention = getConvention(node.getConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find convention using ID " + node.getConvention());
-            validationNode.setError(true);
-          }
-          cashNodeValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
-          ExternalId continuouslyCompoundedRateNodeId;
-          try {
-            continuouslyCompoundedRateNodeId = curveNodeIdMapper.getContinuouslyCompoundedRateNodeId(_curveDate, node.getTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            continuouslyCompoundedRateNodeId = null;
-          }
-          if (continuouslyCompoundedRateNodeId == null) {
-            // the node get's attached to parent inside this call.
-            createInvalidCurveNodeValidationNode(node.getResolvedMaturity(), CashNode.class, validationNode, "No curve node id mapper entry for " + node.getResolvedMaturity());
-          } else {
-            // the node get's attached to parent inside this call.
-            createInvalidCurveNodeValidationNode(node.getResolvedMaturity(), CashNode.class, validationNode, null);
-          }
-          return null;
-        }
-
-        @Override
-        public Void visitCreditSpreadNode(final CreditSpreadNode node) {
-          ExternalId creditSpreadNodeId;
-          try {
-            creditSpreadNodeId = curveNodeIdMapper.getCreditSpreadNodeId(_curveDate, node.getTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            creditSpreadNodeId = null;
-          }
-          if (creditSpreadNodeId == null) {
-            // the node get's attached to parent inside this call.
-            createInvalidCurveNodeValidationNode(node.getResolvedMaturity(), CreditSpreadNode.class, validationNode, "No curve node id mapper entry for " + node.getResolvedMaturity());
-          } else {
-            // the node get's attached to parent inside this call.
-            createInvalidCurveNodeValidationNode(node.getResolvedMaturity(), CreditSpreadNode.class, validationNode, null);
-          }
-          return null;
-        }
-
-        @Override
-        public Void visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getDeliverableSwapFutureNodeId(_curveDate, node.getStartTenor(), node.getFutureTenor(), node.getFutureNumber());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode dsValidationNode;
-          if (nodeId == null) {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), DeliverableSwapFutureNode.class, validationNode, "No curve node id mapper entry for " + node.getStartTenor());
-          } else {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), DeliverableSwapFutureNode.class, validationNode, null);
-          }
-          ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getFutureConvention().getValue());
-          if (conventionExists(node.getFutureConvention())) {
-            final ManageableConvention convention = getConvention(node.getFutureConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find future convention using ID " + node.getFutureConvention());
-            validationNode.setError(true);
-          }
-          dsValidationNode.getSubNodes().add(validationNode);
-          validationNode = new ValidationNode();
-          validationNode.setName(node.getSwapConvention().getValue());
-          if (conventionExists(node.getSwapConvention())) {
-            final ManageableConvention convention = getConvention(node.getSwapConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find swap convention using ID " + node.getSwapConvention());
-            validationNode.setError(true);
-          }
-          dsValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitDiscountFactorNode(final DiscountFactorNode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getDiscountFactorNodeId(_curveDate, node.getTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          if (nodeId == null) {
-            // the node get's attached to parent inside this call.
-            createInvalidCurveNodeValidationNode(node.getTenor(), DiscountFactorNode.class, validationNode, "No curve node id mapper entry for " + node.getTenor());
-          } else {
-            // the node get's attached to parent inside this call.
-            createInvalidCurveNodeValidationNode(node.getTenor(), DiscountFactorNode.class, validationNode, null);
-          }
-          return null;
-        }
-
-        @Override
-        public Void visitFRANode(final FRANode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getFRANodeId(_curveDate, node.getFixingEnd());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode dsValidationNode;
-          if (nodeId == null) {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getFixingEnd(), FRANode.class, validationNode, "No curve node id mapper entry for " + node.getFixingEnd());
-          } else {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getFixingEnd(), FRANode.class, validationNode, null);
-          }
-          final ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getConvention().getValue());
-          if (conventionExists(node.getConvention())) {
-            final ManageableConvention convention = getConvention(node.getConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find convention using ID " + node.getConvention());
-            validationNode.setError(true);
-          }
-          dsValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitFXForwardNode(final FXForwardNode node) {
-          final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = curveNodeIdMapper.getFXForwardNodeIds();
-          final CurveInstrumentProvider curveInstrumentProvider = fxForwardNodeIds.get(node.getMaturityTenor());
-          ExternalId nodeId;
-          if (curveInstrumentProvider instanceof StaticCurvePointsInstrumentProvider) {
-            nodeId = curveInstrumentProvider.getInstrument(_curveDate, node.getMaturityTenor());
-          } else {
-            nodeId = curveNodeIdMapper.getFXForwardNodeId(_curveDate, node.getMaturityTenor());
-          }
-          ValidationNode fxValidationNode;
-          if (nodeId == null) {
-            fxValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), FXForwardNode.class, validationNode, "No curve node id mapper entry for " + node.getMaturityTenor());
-          } else {
-            fxValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), FXForwardNode.class, validationNode, null);
-          }
-          final ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getFxForwardConvention().getValue());
-          if (conventionExists(node.getFxForwardConvention())) {
-            final ManageableConvention convention = getConvention(node.getFxForwardConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find convention using ID " + node.getFxForwardConvention());
-            validationNode.setError(true);
-          }
-          fxValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitRollDateFRANode(final RollDateFRANode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getIMMFRANodeId(_curveDate, node.getStartTenor(), node.getRollDateStartNumber(), node.getRollDateEndNumber());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode dsValidationNode;
-          if (nodeId == null) {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RollDateFRANode.class, validationNode, "No curve node id mapper entry for " + node.getStartTenor());
-          } else {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RollDateFRANode.class, validationNode, null);
-          }
-          final ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getRollDateFRAConvention().getValue());
-          if (conventionExists(node.getRollDateFRAConvention())) {
-            final ManageableConvention convention = getConvention(node.getRollDateFRAConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find convention using ID " + node.getRollDateFRAConvention());
-            validationNode.setError(true);
-          }
-          dsValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitRollDateSwapNode(final RollDateSwapNode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getIMMSwapNodeId(_curveDate, node.getStartTenor(), node.getRollDateStartNumber(), node.getRollDateEndNumber());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode dsValidationNode;
-          if (nodeId == null) {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RollDateSwapNode.class, validationNode, "No curve node id mapper entry for " + node.getStartTenor());
-          } else {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RollDateSwapNode.class, validationNode, null);
-          }
-          final ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getRollDateSwapConvention().getValue());
-          if (conventionExists(node.getRollDateSwapConvention())) {
-            final ManageableConvention convention = getConvention(node.getRollDateSwapConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find convention using ID " + node.getRollDateSwapConvention());
-            validationNode.setError(true);
-          }
-          dsValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitRateFutureNode(final RateFutureNode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getRateFutureNodeId(_curveDate, node.getStartTenor(), node.getFutureTenor(), node.getFutureNumber());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode dsValidationNode;
-          if (nodeId == null) {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RateFutureNode.class, validationNode, "No curve node id mapper entry for " + node.getStartTenor());
-          } else {
-            dsValidationNode = createInvalidCurveNodeValidationNode(node.getStartTenor(), RateFutureNode.class, validationNode, null);
-          }
-          final ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getFutureConvention().getValue());
-          if (conventionExists(node.getFutureConvention())) {
-            final ManageableConvention convention = getConvention(node.getFutureConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find convention using ID " + node.getFutureConvention());
-            validationNode.setError(true);
-          }
-          dsValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitSwapNode(final SwapNode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getSwapNodeId(_curveDate, node.getMaturityTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode sValidationNode;
-          if (nodeId == null) {
-            sValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), SwapNode.class, validationNode, "No curve node id mapper entry for " + node.getMaturityTenor());
-          } else {
-            sValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), SwapNode.class, validationNode, null);
-          }
-          ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getPayLegConvention().getValue());
-          if (conventionExists(node.getPayLegConvention())) {
-            final ManageableConvention convention = getConvention(node.getPayLegConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find pay leg convention using ID " + node.getPayLegConvention());
-            validationNode.setError(true);
-          }
-          sValidationNode.getSubNodes().add(validationNode);
-          validationNode = new ValidationNode();
-          validationNode.setName(node.getReceiveLegConvention().getValue());
-          if (conventionExists(node.getReceiveLegConvention())) {
-            final ManageableConvention convention = getConvention(node.getReceiveLegConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find receive leg convention using ID " + node.getReceiveLegConvention());
-            validationNode.setError(true);
-          }
-          sValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getThreeLegBasisSwapNodeId(_curveDate, node.getMaturityTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode sValidationNode;
-          if (nodeId == null) {
-            sValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), ThreeLegBasisSwapNode.class, validationNode, "No curve node id mapper entry for " + node.getMaturityTenor());
-          } else {
-            sValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), ThreeLegBasisSwapNode.class, validationNode, null);
-          }
-          ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getPayLegConvention().getValue());
-          if (conventionExists(node.getPayLegConvention())) {
-            final ManageableConvention convention = getConvention(node.getPayLegConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find pay leg convention using ID " + node.getPayLegConvention());
-            validationNode.setError(true);
-          }
-          sValidationNode.getSubNodes().add(validationNode);
-          validationNode = new ValidationNode();
-          validationNode.setName(node.getReceiveLegConvention().getValue());
-          if (conventionExists(node.getReceiveLegConvention())) {
-            final ManageableConvention convention = getConvention(node.getReceiveLegConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find receive leg convention using ID " + node.getReceiveLegConvention());
-            validationNode.setError(true);
-          }
-          sValidationNode.getSubNodes().add(validationNode);
-          validationNode = new ValidationNode();
-          validationNode.setName(node.getSpreadLegConvention().getValue());
-          if (conventionExists(node.getSpreadLegConvention())) {
-            final ManageableConvention convention = getConvention(node.getSpreadLegConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find spread leg convention using ID " + node.getReceiveLegConvention());
-            validationNode.setError(true);
-          }
-          sValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-
-        @Override
-        public Void visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
-          ExternalId nodeId;
-          try {
-            nodeId = curveNodeIdMapper.getSwapNodeId(_curveDate, node.getTenor());
-          } catch (final OpenGammaRuntimeException ogre) {
-            nodeId = null;
-          }
-          ValidationNode sValidationNode;
-          if (nodeId == null) {
-            sValidationNode = createInvalidCurveNodeValidationNode(node.getTenor(), ZeroCouponInflationNode.class, validationNode, "No curve node id mapper entry for " + node.getTenor());
-          } else {
-            sValidationNode = createInvalidCurveNodeValidationNode(node.getTenor(), ZeroCouponInflationNode.class, validationNode, null);
-          }
-          ValidationNode validationNode = new ValidationNode();
-          validationNode.setName(node.getFixedLegConvention().getValue());
-          if (conventionExists(node.getFixedLegConvention())) {
-            final ManageableConvention convention = getConvention(node.getFixedLegConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find fixed leg convention using ID " + node.getFixedLegConvention());
-            validationNode.setError(true);
-          }
-          sValidationNode.getSubNodes().add(validationNode);
-          validationNode = new ValidationNode();
-          validationNode.setName(node.getInflationLegConvention().getValue());
-          if (conventionExists(node.getInflationLegConvention())) {
-            final ManageableConvention convention = getConvention(node.getInflationLegConvention());
-            validationNode.setType(convention.getClass());
-          } else {
-            validationNode.setType(Convention.class);
-            validationNode.getErrors().add("Can't find inflation leg convention using ID " + node.getInflationLegConvention());
-            validationNode.setError(true);
-          }
-          sValidationNode.getSubNodes().add(validationNode);
-          return null;
-        }
-      });
-    }
-  }
-  // CSON
-  private boolean conventionExists(final ExternalId externalId) {
-    return getConvention(externalId) != null;
-  }
-
-  private ManageableConvention getConvention(final ExternalId externalId) {
-    try {
-      return (ManageableConvention) _conventionSource.getSingle(externalId);
-    } catch (final DataNotFoundException dnfe) {
-      return null;
-    } catch (final Exception e) {
-      return null;
+      curveNode.accept(new CurveNodeValidator(_curveDate, _configValidationUtils, _securitySource, validationNode, curveNodeIdMapper));
     }
   }
 

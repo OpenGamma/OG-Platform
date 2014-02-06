@@ -7,6 +7,7 @@ package com.opengamma.master.historicaltimeseries;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.PublicSPI;
 
@@ -14,7 +15,7 @@ import com.opengamma.util.PublicSPI;
  * Resolves identifiers, such as those of a security, together with a requested data field, to the appropriate historical time-series.
  */
 @PublicSPI
-public interface HistoricalTimeSeriesResolver extends com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver {
+public interface HistoricalTimeSeriesResolver extends com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver, ChangeProvider {
 
   /**
    * Resolves a time-series from a bundle of identifiers and a data field.

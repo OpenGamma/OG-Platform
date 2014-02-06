@@ -69,6 +69,7 @@ public class BloombergBulkSecurityLoader {
     addLoader(mapBuilder, new EquityOptionLoader(_referenceDataProvider));
     addLoader(mapBuilder, new FXFutureLoader(_referenceDataProvider));
     addLoader(mapBuilder, new IndexFutureLoader(_referenceDataProvider));
+    addLoader(mapBuilder, new IndexLoader(_referenceDataProvider));
     addLoader(mapBuilder, new InterestRateFutureLoader(_referenceDataProvider));
     addLoader(mapBuilder, new IRFutureOptionLoader(_referenceDataProvider));
     addLoader(mapBuilder, new BondFutureOptionLoader(_referenceDataProvider));

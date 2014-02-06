@@ -520,7 +520,7 @@ public final class BloombergDataUtils {
       identifiers.add(ExternalIdWithDates.of(isinId, null, null));
     }
     if (isValidField(securityIdentifier)) {
-      final ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityIdentifier);
+      final ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityIdentifier.replaceAll("\\s+", " "));
       LocalDate validFrom = null;
       if (isValidField(validFromStr)) {
         try {

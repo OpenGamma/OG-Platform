@@ -25,6 +25,10 @@ import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
+import com.opengamma.masterdb.security.hibernate.index.BondIndexBean;
+import com.opengamma.masterdb.security.hibernate.index.BondIndexComponentBean;
+import com.opengamma.masterdb.security.hibernate.index.EquityIndexBean;
+import com.opengamma.masterdb.security.hibernate.index.EquityIndexComponentBean;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -314,6 +318,24 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     return getBeansFromNamedQuery("CouponTypeBean.all");
   }
   
+  @Override
+  public IndexWeightingTypeBean getOrCreateIndexWeightingTypeBean(String name) {
+    Query query = getSession().getNamedQuery("IndexWeightingTypeBean.one");
+    query.setString("name", name);
+    IndexWeightingTypeBean indexWeightingType = (IndexWeightingTypeBean) query.uniqueResult();
+    if (indexWeightingType == null) {
+      indexWeightingType = persistBean(new IndexWeightingTypeBean(name));
+    } 
+    return indexWeightingType;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<IndexWeightingTypeBean> getIndexWeightingTypeBeans() {
+    Query query = getSession().getNamedQuery("IndexWeightingTypeBean.all");
+    return query.list();
+  }
+  
   // Identifiers
   private IdentifierAssociationBean createIdentifierAssociationBean(Date now, String scheme, String identifier, SecurityBean security) {
     final IdentifierAssociationBean association = new IdentifierAssociationBean(security, new ExternalIdBean(scheme, identifier));
@@ -503,6 +525,100 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
    * }
    */
   
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<BondIndexComponentBean> getBondIndexComponentBeans(BondIndexBean bondIndex) {
+    Query query;
+    query = getSession().getNamedQuery("BondIndexComponentBean.many.byBondIndex");
+    query.setParameter("bondIndex", bondIndex);
+    return query.list();
+  }
+  
+  @Override
+  public void persistBondIndexComponentBeans(final BondIndexBean bondIndex) {
+    OperationTimer timer = new OperationTimer(s_logger, "persistFutureBundleBeans");
+    final List<BondIndexComponentBean> componentBeans = bondIndex.getBondComponents();
+    for (BondIndexComponentBean componentBean : componentBeans) { 
+      // now bond index has an id, we point the components at it
+      componentBean.setBondIndex(bondIndex);
+    }
+    final List<BondIndexComponentBean> dbComponentBeans = getBondIndexComponentBeans(bondIndex);
+    // anything in the database with any timestamp that isn't null/null must be deleted
+    // anything in the database, but not in the basket, must be deleted
+    boolean beansUpdated = false;
+    for (BondIndexComponentBean dbComponentBean : dbComponentBeans) {
+      if (!componentBeans.contains(dbComponentBean)) {
+        getSession().delete(dbComponentBean);
+        beansUpdated = true;
+      } else {
+        getSession().update(dbComponentBean);
+        beansUpdated = true;
+      }
+    }
+    // anything not in the database, but in the basket, must be added (null/null)
+    for (BondIndexComponentBean beanBundle : componentBeans) {
+      if (!dbComponentBeans.contains(beanBundle)) {
+        if (beanBundle.getId() != null) {
+          getSession().update(beanBundle);
+        } else {
+          Long id = (Long) getSession().save(beanBundle);
+          beanBundle.setId(id);
+        }
+        beansUpdated = true;
+      }
+    }
+    if (beansUpdated) {
+      getSession().flush();
+    }
+    timer.finished();
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<EquityIndexComponentBean> getEquityIndexComponentBeans(EquityIndexBean equityIndex) {
+    Query query;
+    query = getSession().getNamedQuery("EquityIndexComponentBean.many.byEquityIndex");
+    query.setParameter("equityIndex", equityIndex);
+    return query.list();
+  }
+  
+  @Override
+  public void persistEquityIndexComponentBeans(final EquityIndexBean equityIndex) {
+    OperationTimer timer = new OperationTimer(s_logger, "persistFutureBundleBeans");
+    final List<EquityIndexComponentBean> componentBeans = equityIndex.getEquityComponents();
+    for (EquityIndexComponentBean componentBean : componentBeans) { 
+      // now equity index has an id, we point the components at it
+      componentBean.setEquityIndex(equityIndex);
+    }
+    final List<EquityIndexComponentBean> dbComponentBeans = getEquityIndexComponentBeans(equityIndex);
+    // anything in the database with any timestamp that isn't null/null must be deleted
+    // anything in the database, but not in the basket, must be deleted
+    boolean beansUpdated = false;
+    for (EquityIndexComponentBean dbComponentBean : dbComponentBeans) {
+      if (!componentBeans.contains(dbComponentBean)) {
+        getSession().delete(dbComponentBean);
+      } else {
+        getSession().update(dbComponentBean);
+      }
+      beansUpdated = true;
+    }
+    // anything not in the database, but in the basket, must be added (null/null)
+    for (EquityIndexComponentBean beanBundle : componentBeans) {
+      if (!dbComponentBeans.contains(beanBundle)) {
+        if (beanBundle.getId() != null) {
+          getSession().update(beanBundle);
+        } else {
+          Long id = (Long) getSession().save(beanBundle);
+          beanBundle.setId(id);
+        }
+        beansUpdated = true;
+      }
+    }
+    if (beansUpdated) {
+      getSession().flush();
+    }
+    timer.finished();
+  }
   // Futures
   
   @SuppressWarnings("unchecked")

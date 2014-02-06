@@ -33,7 +33,7 @@ public class BondIndex extends Index {
   /**
    * The index type.
    */
-  public static final String INDEX_TYPE = "EQUITY";
+  public static final String INDEX_TYPE = "BOND_INDEX";
 
   /**
    * The bond components of the index.
@@ -62,7 +62,7 @@ public class BondIndex extends Index {
    */
   public BondIndex(final String name, final List<BondIndexComponent> bondComponents, final IndexWeightingType weightingType) {
     super(INDEX_TYPE, name);
-    ArgumentChecker.notEmpty(bondComponents, "bondComponents");
+    ArgumentChecker.notNull(bondComponents, "bondComponents");
     setBondComponents(bondComponents);
     setWeightingType(weightingType);
   }
@@ -76,7 +76,7 @@ public class BondIndex extends Index {
    */
   public BondIndex(final String name, final String description, final List<BondIndexComponent> bondComponents, final IndexWeightingType weightingType) {
     super(INDEX_TYPE, name, description);
-    ArgumentChecker.notEmpty(bondComponents, "bondComponents");
+    ArgumentChecker.notNull(bondComponents, "bondComponents");
     setBondComponents(bondComponents);
     setWeightingType(weightingType);
   }

@@ -21,6 +21,12 @@ import javax.ws.rs.core.Response.Status;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.index.BondIndex;
+import com.opengamma.financial.security.index.EquityIndex;
+import com.opengamma.financial.security.index.IborIndex;
+import com.opengamma.financial.security.index.Index;
+import com.opengamma.financial.security.index.IndexFamily;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalIdBundle;
@@ -73,12 +79,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
         result = templateName;
       }
     } else {
-      if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
-        result = "external-sensitivities.ftl";
-      }
-      if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
-        result = "external-sensitivities-risk-factors.ftl";
-      }
+      return security.getSecurityType().replace("_", "-").toLowerCase().concat(".ftl");
     }
     return result;
   }
