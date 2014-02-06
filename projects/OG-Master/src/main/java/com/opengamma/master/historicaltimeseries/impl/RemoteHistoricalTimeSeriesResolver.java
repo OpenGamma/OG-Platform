@@ -13,6 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
@@ -30,8 +32,22 @@ import com.opengamma.util.rest.UniformInterfaceException404NotFound;
  */
 public class RemoteHistoricalTimeSeriesResolver extends AbstractRemoteClient implements HistoricalTimeSeriesResolver {
 
+
+  private final ChangeManager _changeManager;
+
   public RemoteHistoricalTimeSeriesResolver(final URI baseUri) {
     super(baseUri);
+    _changeManager = new BasicChangeManager();
+  }
+
+  public RemoteHistoricalTimeSeriesResolver(final URI baseUri, ChangeManager changeManager) {
+    super(baseUri);
+    _changeManager = changeManager;
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
   private class Adjuster implements HistoricalTimeSeriesAdjuster {

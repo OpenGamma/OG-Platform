@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -100,6 +102,14 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
     // Prime document search cache
     HistoricalTimeSeriesInfoSearchRequest defaultSearch = new HistoricalTimeSeriesInfoSearchRequest();
     _documentSearchCache.prefetch(defaultSearch, PagingRequest.FIRST_PAGE);
+
+    underlying.changeManager().addChangeListener(new ChangeListener() {
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        _historySearchCache.getCache().removeAll();
+        _documentSearchCache.getCache().removeAll();
+      }
+    });
   }
 
   @Override
