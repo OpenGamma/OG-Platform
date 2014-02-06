@@ -52,6 +52,17 @@
           </@rowout>
         </#if>
         <#break>
+      <#case "BILL">
+        <@rowout label="Issuer">${security.legalEntityId}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Region">${security.regionId}</@rowout>
+        <@rowout label="Issue date">${security.issueDate.toLocalDate()}</@rowout>
+        <@rowout label="Maturity date">${security.maturityDate.expiry.toLocalDate()}</@rowout>
+        <@rowout label="Yield convention">${security.yieldConvention.conventionName}</@rowout>
+        <@rowout label="Day count convention">${security.dayCount.conventionName}</@rowout>
+        <@rowout label="Minimum increment">${security.minimumIncrement}</@rowout>
+        <@rowout label="Days to settle">${security.daysToSettle}</@rowout>
+        <#break> 
       <#case "BOND">
         <@rowout label="Issuer name">${security.issuerName}</@rowout>
         <@rowout label="Issuer type">${security.issuerType}</@rowout>
