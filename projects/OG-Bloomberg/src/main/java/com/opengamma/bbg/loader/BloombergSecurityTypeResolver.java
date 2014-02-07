@@ -69,7 +69,6 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
   static {
     addValidTypes(s_miscTypes, EquityLoader.VALID_SECURITY_TYPES, SecurityType.EQUITY);
     addValidTypes(s_miscTypes, BondLoader.VALID_SECURITY_TYPES, SecurityType.BOND);
-    addValidTypes(s_miscTypes, BillLoader.VALID_SECURITY_TYPES, SecurityType.BILL);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_EQUITY_INDEX_SECURITY_TYPES, SecurityType.EQUITY_INDEX);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FORWARD_CROSS_SECURITY_TYPES, SecurityType.FORWARD_CROSS);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FRA_SECURITY_TYPES, SecurityType.FRA);
@@ -78,6 +77,11 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_SPOT_RATE_TYPES, SecurityType.SPOT_RATE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_VOLATILITY_QUOTE_TYPES, SecurityType.VOLATILITY_QUOTE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FX_FORWARD_TYPES, SecurityType.FX_FORWARD);
+  }
+  
+  private static final Map<String, SecurityType> s_type2Types = Maps.newConcurrentMap();
+  static {
+    addValidTypes(s_type2Types, BillLoader.VALID_SECURITY_TYPES2, SecurityType.BILL);
   }
 
   //private static final Map<String, SecurityType> s_cdsTypes = Maps.newConcurrentMap();
@@ -115,6 +119,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
         final FudgeMsg fudgeMsg = securityTypeResult.get(bbgKey);
         if (fudgeMsg != null) {
           final String bbgSecurityType = fudgeMsg.getString(BloombergConstants.FIELD_SECURITY_TYPE);
+          final String bbgSecurityType2 = fudgeMsg.getString(BloombergConstants.FIELD_SECURITY_TYPE2);
           final String futureCategory = fudgeMsg.getString(BloombergConstants.FIELD_FUTURES_CATEGORY);
 
           SecurityType securityType = null;
@@ -132,6 +137,8 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
                     s_optionTypes.get(futureCategory);
             } else if (bbgSecurityType.toUpperCase().endsWith("SWAP")) {
               securityType = s_swapTypes.get(bbgSecurityType);
+            } else if (bbgSecurityType2.toUpperCase().contains("BILL")) {
+              securityType = s_type2Types.get(bbgSecurityType2);
             } else {
               securityType = s_miscTypes.get(bbgSecurityType);
             }

@@ -66,6 +66,7 @@ public final class BloombergConstants {
   public static final String MARKET_SECTOR_MTGE = "Mtge";
 
   public static final String FIELD_SECURITY_TYPE = "SECURITY_TYP";
+  public static final String FIELD_SECURITY_TYPE2 = "SECURITY_TYP2";
   public static final String FIELD_OPT_EXERCISE_TYP = "OPT_EXER_TYP";
   public static final String FIELD_OPT_PUT_CALL = "OPT_PUT_CALL";
   public static final String FIELD_OPT_STRIKE_PX = "OPT_STRIKE_PX";

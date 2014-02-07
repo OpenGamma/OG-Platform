@@ -99,29 +99,7 @@ public class BillLoader extends SecurityLoader {
   /**
    * The valid Bloomberg security types for bills
    */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
-      "Prvt CMO FLT",
-      "EURO MTN",
-      "EURO-ZONE",
-      "CF",
-      "ABS Other",
-      "EURO NON-DOLLAR",
-      "CMBS",
-      "ABS Auto",
-      "PRIV PLACEMENT",
-      "GLOBAL",
-      "EURO-DOLLAR",
-      "YANKEE",
-      "US DOMESTIC",
-      "ABS Card",
-      "Prvt CMO Other",
-      "SN",
-      "Agncy ABS Other",
-      "US GOVERNMENT",
-      "UK GILT STOCK",
-      "CANADIAN",
-      "DOMESTIC",
-      "AUSTRALIAN");
+  public static final Set<String> VALID_SECURITY_TYPES2 = ImmutableSet.of("Bill");
 
   private static final String SOVEREIGN = "Sovereign";
 
