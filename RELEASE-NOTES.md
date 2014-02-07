@@ -10,8 +10,10 @@ To 2.2.0-M9
 -----------
 * Database Schemas
   * sec - security master tables will need upgrading from V67 to V68 either manually or using DB upgrade tool.
-* New Feature
+* Scenario support
   * [PLAT-4100] - Scenario support for raw curve data. YieldCurveSpecificationFunction renamed YieldCurveDataFunction
+* Error codes
+  * [PLAT-5792] - All tools now return 0 on success and -1 or -2 on failure if run via the main method
 
 To 2.2.0-M8
 -----------
