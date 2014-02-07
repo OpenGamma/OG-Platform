@@ -137,7 +137,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
                     s_optionTypes.get(futureCategory);
             } else if (bbgSecurityType.toUpperCase().endsWith("SWAP")) {
               securityType = s_swapTypes.get(bbgSecurityType);
-            } else if (bbgSecurityType2.toUpperCase().contains("BILL")) {
+            } else if (bbgSecurityType2 != null && bbgSecurityType2.toUpperCase().contains("BILL")) {
               securityType = s_type2Types.get(bbgSecurityType2);
             } else {
               securityType = s_miscTypes.get(bbgSecurityType);
