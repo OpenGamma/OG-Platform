@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,8 +9,8 @@ import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -83,8 +83,8 @@ public final class LocalMastersTestUtils extends MastersTestUtils {
    * @return the organization source, not null
    */
   @Override
-  public OrganizationSource getOrganizationSource() {
-    return _toolContext.getOrganizationSource();
+  public LegalEntitySource getLegalEntitySource() {
+    return _toolContext.getLegalEntitySource();
   }
 
   //-------------------------------------------------------------------------

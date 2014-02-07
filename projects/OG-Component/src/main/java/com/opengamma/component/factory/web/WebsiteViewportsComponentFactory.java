@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -55,8 +55,8 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -146,7 +146,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * The organization master.
    */
   @PropertyDefinition(validate = "notNull")
-  private OrganizationMaster _organizationMaster;
+  private LegalEntityMaster _legalEntityMaster;
   /**
    * The user master.
    */
@@ -294,7 +294,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     providers.add(getSecurityMaster());
     providers.add(getHistoricalTimeSeriesMaster());
     providers.add(getConfigMaster());
-    providers.add(getOrganizationMaster());
+    providers.add(getLegalEntityMaster());
     return new AggregatingChangeManager(providers);
   }
 
@@ -305,7 +305,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     providers.put(MasterType.SECURITY, getSecurityMaster());
     providers.put(MasterType.TIME_SERIES, getHistoricalTimeSeriesMaster());
     providers.put(MasterType.CONFIG, getConfigMaster());
-    providers.put(MasterType.ORGANIZATION, getOrganizationMaster());
+    providers.put(MasterType.ORGANIZATION, getLegalEntityMaster());
     providers.put(MasterType.MARKET_DATA_SNAPSHOT, getMarketDataSnapshotMaster());
     return new MasterChangeManager(providers);
   }
@@ -567,25 +567,25 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Gets the organization master.
    * @return the value of the property, not null
    */
-  public OrganizationMaster getOrganizationMaster() {
-    return _organizationMaster;
+  public LegalEntityMaster getLegalEntityMaster() {
+    return _legalEntityMaster;
   }
 
   /**
    * Sets the organization master.
-   * @param organizationMaster  the new value of the property, not null
+   * @param legalEntityMaster  the new value of the property, not null
    */
-  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
-    JodaBeanUtils.notNull(organizationMaster, "organizationMaster");
-    this._organizationMaster = organizationMaster;
+  public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
+    JodaBeanUtils.notNull(legalEntityMaster, "legalEntityMaster");
+    this._legalEntityMaster = legalEntityMaster;
   }
 
   /**
-   * Gets the the {@code organizationMaster} property.
+   * Gets the the {@code legalEntityMaster} property.
    * @return the property, not null
    */
-  public final Property<OrganizationMaster> organizationMaster() {
-    return metaBean().organizationMaster().createProperty(this);
+  public final Property<LegalEntityMaster> legalEntityMaster() {
+    return metaBean().legalEntityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -956,7 +956,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           JodaBeanUtils.equal(getFunctions(), other.getFunctions()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
           JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
           JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
@@ -987,7 +987,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
@@ -1029,7 +1029,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
     buf.append("functions").append('=').append(JodaBeanUtils.toString(getFunctions())).append(',').append(' ');
     buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
-    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
+    buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
     buf.append("userPositionMaster").append('=').append(JodaBeanUtils.toString(getUserPositionMaster())).append(',').append(' ');
     buf.append("userPortfolioMaster").append('=').append(JodaBeanUtils.toString(getUserPortfolioMaster())).append(',').append(' ');
     buf.append("userConfigMaster").append('=').append(JodaBeanUtils.toString(getUserConfigMaster())).append(',').append(' ');
@@ -1101,10 +1101,10 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesMaster", WebsiteViewportsComponentFactory.class, HistoricalTimeSeriesMaster.class);
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      */
-    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", WebsiteViewportsComponentFactory.class, OrganizationMaster.class);
+    private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
+        this, "legalEntityMaster", WebsiteViewportsComponentFactory.class, LegalEntityMaster.class);
     /**
      * The meta-property for the {@code userPositionMaster} property.
      */
@@ -1184,7 +1184,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "computationTargetResolver",
         "functions",
         "historicalTimeSeriesMaster",
-        "organizationMaster",
+        "legalEntityMaster",
         "userPositionMaster",
         "userPortfolioMaster",
         "userConfigMaster",
@@ -1226,8 +1226,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _functions;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
-        case -1158737547:  // organizationMaster
-          return _organizationMaster;
+        case -1944474242:  // legalEntityMaster
+          return _legalEntityMaster;
         case 1808868758:  // userPositionMaster
           return _userPositionMaster;
         case 686514815:  // userPortfolioMaster
@@ -1347,11 +1347,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganizationMaster> organizationMaster() {
-      return _organizationMaster;
+    public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
+      return _legalEntityMaster;
     }
 
     /**
@@ -1482,8 +1482,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteViewportsComponentFactory) bean).getFunctions();
         case 173967376:  // historicalTimeSeriesMaster
           return ((WebsiteViewportsComponentFactory) bean).getHistoricalTimeSeriesMaster();
-        case -1158737547:  // organizationMaster
-          return ((WebsiteViewportsComponentFactory) bean).getOrganizationMaster();
+        case -1944474242:  // legalEntityMaster
+          return ((WebsiteViewportsComponentFactory) bean).getLegalEntityMaster();
         case 1808868758:  // userPositionMaster
           return ((WebsiteViewportsComponentFactory) bean).getUserPositionMaster();
         case 686514815:  // userPortfolioMaster
@@ -1544,8 +1544,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         case 173967376:  // historicalTimeSeriesMaster
           ((WebsiteViewportsComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
           return;
-        case -1158737547:  // organizationMaster
-          ((WebsiteViewportsComponentFactory) bean).setOrganizationMaster((OrganizationMaster) newValue);
+        case -1944474242:  // legalEntityMaster
+          ((WebsiteViewportsComponentFactory) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
           return;
         case 1808868758:  // userPositionMaster
           ((WebsiteViewportsComponentFactory) bean).setUserPositionMaster((PositionMaster) newValue);
@@ -1600,7 +1600,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._positionSource, "positionSource");
       JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
       JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._organizationMaster, "organizationMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._legalEntityMaster, "legalEntityMaster");
       JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._userPositionMaster, "userPositionMaster");
       JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._userPortfolioMaster, "userPortfolioMaster");
       JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._userConfigMaster, "userConfigMaster");

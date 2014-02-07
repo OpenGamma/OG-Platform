@@ -29,12 +29,12 @@ import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTime
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
+import com.opengamma.master.legalentity.LegalEntityDocument;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.impl.DataTrackingLegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.DataTrackingMarketDataSnapshotMaster;
-import com.opengamma.master.organization.impl.DataTrackingOrganizationMaster;
-import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.impl.DataTrackingPortfolioMaster;
@@ -61,14 +61,14 @@ class GoldenCopyDumpCreator {
   private final DataTrackingHolidayMaster _holidayMaster;
   private final DataTrackingExchangeMaster _exchangeMaster;
   private final DataTrackingMarketDataSnapshotMaster _snapshotMaster;
-  private final DataTrackingOrganizationMaster _organizationMaster;
+  private final DataTrackingLegalEntityMaster _legalEntityMaster;
   private final DataTrackingConventionMaster _conventionMaster;
   
   
   
   public GoldenCopyDumpCreator(RegressionIO regressionIO, DataTrackingSecurityMaster securityMaster, DataTrackingPositionMaster positionMaster, DataTrackingPortfolioMaster portfolioMaster,
       DataTrackingConfigMaster configMaster, DataTrackingHistoricalTimeSeriesMaster timeSeriesMaster, DataTrackingHolidayMaster holidayMaster, DataTrackingExchangeMaster exchangeMaster,
-      DataTrackingMarketDataSnapshotMaster snapshotMaster, DataTrackingOrganizationMaster organizationMaster,
+      DataTrackingMarketDataSnapshotMaster snapshotMaster, DataTrackingLegalEntityMaster legalEntityMaster,
       DataTrackingConventionMaster conventionMaster) {
     _regressionIO = regressionIO;
     _securityMaster = securityMaster;
@@ -79,7 +79,7 @@ class GoldenCopyDumpCreator {
     _holidayMaster = holidayMaster;
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
-    _organizationMaster = organizationMaster;
+    _legalEntityMaster = legalEntityMaster;
     _conventionMaster = conventionMaster;
   }
 
@@ -100,8 +100,8 @@ class GoldenCopyDumpCreator {
                                                 _timeSeriesMaster, 
                                                 _holidayMaster, 
                                                 _exchangeMaster, 
-                                                _snapshotMaster, 
-                                                _organizationMaster,
+                                                _snapshotMaster,
+                                                _legalEntityMaster,
                                                 _conventionMaster,
                                                 filterManager);
     
@@ -122,7 +122,7 @@ class GoldenCopyDumpCreator {
         new UniqueIdentifiableQuery<HolidayDocument, HolidayMaster>(_holidayMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<ExchangeDocument, ExchangeMaster>(_exchangeMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<MarketDataSnapshotDocument, MarketDataSnapshotMaster>(_snapshotMaster.getIdsAccessed()),
-        new UniqueIdentifiableQuery<OrganizationDocument, OrganizationMaster>(_organizationMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<LegalEntityDocument, LegalEntityMaster>(_legalEntityMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<ConventionDocument, ConventionMaster>(_conventionMaster.getIdsAccessed()));
   }
 

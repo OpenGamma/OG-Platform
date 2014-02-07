@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma
  group of companies
  *
  * Please see distribution for license.
@@ -19,6 +19,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.Rating;
 import com.opengamma.core.obligor.CreditRating;
 import com.opengamma.core.obligor.CreditRatingFitch;
 import com.opengamma.core.obligor.CreditRatingMoodys;
@@ -35,10 +36,11 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.organization.impl.MasterOrganizationSource;
-import com.opengamma.master.orgs.ManageableOrganization;
-import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.impl.InMemoryOrganizationMaster;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.legalentity.LegalEntityDocument;
+import com.opengamma.master.legalentity.ManageableLegalEntity;
+import com.opengamma.master.legalentity.impl.InMemoryLegalEntityMaster;
+import com.opengamma.master.legalentity.impl.MasterLegalEntitySource;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
@@ -51,16 +53,16 @@ public class ObligorMarkitSectorAggregatorFunctionTest {
 
   private AggregationFunction<String> _aggregator;
   private InMemorySecurityMaster _securityMaster;
-  private InMemoryOrganizationMaster _organizationMaster;
+  private InMemoryLegalEntityMaster _legalEntityMaster;
 
   @BeforeMethod
   public void setup() {
 
     _securityMaster = new InMemorySecurityMaster();
-    _organizationMaster = new InMemoryOrganizationMaster();
+    _legalEntityMaster = new InMemoryLegalEntityMaster();
 
     _aggregator = new ObligorMarkitSectorAggregationFunction(
-        new MasterSecuritySource(_securityMaster), new MasterOrganizationSource(_organizationMaster));
+        new MasterSecuritySource(_securityMaster), new MasterLegalEntitySource(_legalEntityMaster));
   }
 
   @Test
@@ -110,12 +112,13 @@ public class ObligorMarkitSectorAggregatorFunctionTest {
   @Test
   public void testObligorWithMatchingRedCodeIsUsed() {
 
-    ManageableOrganization org = new ManageableOrganization("ShortName", "39FF64", "Ticker", Region.NORTHAMERICA,
-                                                            "US", Sector.FINANCIALS, CreditRating.NR, CreditRating.NR,
-                                                            CreditRatingFitch.NR, CreditRatingMoodys.NR,
-                                                            CreditRatingStandardAndPoors.NR, false);
+    ExternalIdBundle bundle = ExternalIdBundle.of(ExternalId.of(ExternalSchemes.MARKIT_RED_CODE, "39FF64"), ExternalId.of("TICKEER", "Ticker"));
+    ManageableLegalEntity legalEntity = new ManageableLegalEntity("ShortName", bundle);
+    legalEntity.getAttributes().put("region", Region.NORTHAMERICA.name());
+    legalEntity.getAttributes().put("sector", Sector.FINANCIALS.name());
+    legalEntity.getAttributes().put("country", "US");
 
-    _organizationMaster.add(new OrganizationDocument(org));
+    _legalEntityMaster.add(new LegalEntityDocument(legalEntity));
 
     SecurityDocument document = new SecurityDocument();
     ManageableSecurity cds = createCdsWithRedCode("39FF64");

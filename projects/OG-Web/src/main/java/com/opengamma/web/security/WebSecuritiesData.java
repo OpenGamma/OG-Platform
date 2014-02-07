@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -79,7 +79,7 @@ public class WebSecuritiesData extends DirectBean {
    * The organization master.
    */
   @PropertyDefinition
-  private OrganizationMaster _organizationMaster;
+  private LegalEntityMaster _legalEntityMaster;
 
   /**
    * Creates an instance.
@@ -332,24 +332,24 @@ public class WebSecuritiesData extends DirectBean {
    * Gets the organization master.
    * @return the value of the property
    */
-  public OrganizationMaster getOrganizationMaster() {
-    return _organizationMaster;
+  public LegalEntityMaster getLegalEntityMaster() {
+    return _legalEntityMaster;
   }
 
   /**
    * Sets the organization master.
-   * @param organizationMaster  the new value of the property
+   * @param legalEntityMaster  the new value of the property
    */
-  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
-    this._organizationMaster = organizationMaster;
+  public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
+    this._legalEntityMaster = legalEntityMaster;
   }
 
   /**
-   * Gets the the {@code organizationMaster} property.
+   * Gets the the {@code legalEntityMaster} property.
    * @return the property, not null
    */
-  public final Property<OrganizationMaster> organizationMaster() {
-    return metaBean().organizationMaster().createProperty(this);
+  public final Property<LegalEntityMaster> legalEntityMaster() {
+    return metaBean().legalEntityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -383,7 +383,7 @@ public class WebSecuritiesData extends DirectBean {
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster());
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster());
     }
     return false;
   }
@@ -399,7 +399,7 @@ public class WebSecuritiesData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
     return hash;
   }
 
@@ -425,7 +425,7 @@ public class WebSecuritiesData extends DirectBean {
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
     buf.append("security").append('=').append(JodaBeanUtils.toString(getSecurity())).append(',').append(' ');
     buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
-    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
+    buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -479,10 +479,10 @@ public class WebSecuritiesData extends DirectBean {
     private final MetaProperty<SecurityDocument> _versioned = DirectMetaProperty.ofReadWrite(
         this, "versioned", WebSecuritiesData.class, SecurityDocument.class);
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      */
-    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", WebSecuritiesData.class, OrganizationMaster.class);
+    private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
+        this, "legalEntityMaster", WebSecuritiesData.class, LegalEntityMaster.class);
     /**
      * The meta-properties.
      */
@@ -496,7 +496,7 @@ public class WebSecuritiesData extends DirectBean {
         "uriVersionId",
         "security",
         "versioned",
-        "organizationMaster");
+        "legalEntityMaster");
 
     /**
      * Restricted constructor.
@@ -523,8 +523,8 @@ public class WebSecuritiesData extends DirectBean {
           return _security;
         case -1407102089:  // versioned
           return _versioned;
-        case -1158737547:  // organizationMaster
-          return _organizationMaster;
+        case -1944474242:  // legalEntityMaster
+          return _legalEntityMaster;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -610,11 +610,11 @@ public class WebSecuritiesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganizationMaster> organizationMaster() {
-      return _organizationMaster;
+    public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
+      return _legalEntityMaster;
     }
 
     //-----------------------------------------------------------------------
@@ -637,8 +637,8 @@ public class WebSecuritiesData extends DirectBean {
           return ((WebSecuritiesData) bean).getSecurity();
         case -1407102089:  // versioned
           return ((WebSecuritiesData) bean).getVersioned();
-        case -1158737547:  // organizationMaster
-          return ((WebSecuritiesData) bean).getOrganizationMaster();
+        case -1944474242:  // legalEntityMaster
+          return ((WebSecuritiesData) bean).getLegalEntityMaster();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -670,8 +670,8 @@ public class WebSecuritiesData extends DirectBean {
         case -1407102089:  // versioned
           ((WebSecuritiesData) bean).setVersioned((SecurityDocument) newValue);
           return;
-        case -1158737547:  // organizationMaster
-          ((WebSecuritiesData) bean).setOrganizationMaster((OrganizationMaster) newValue);
+        case -1944474242:  // legalEntityMaster
+          ((WebSecuritiesData) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

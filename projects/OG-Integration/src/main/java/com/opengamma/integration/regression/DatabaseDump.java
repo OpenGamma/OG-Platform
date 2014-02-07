@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -37,11 +37,11 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.master.legalentity.LegalEntityDocument;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.ManageableLegalEntity;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.orgs.ManageableOrganization;
-import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -71,33 +71,29 @@ import com.opengamma.util.ArgumentChecker;
   private final HolidayMaster _holidayMaster;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
-  private final OrganizationMaster _organizationMaster;
   private final ConventionMaster _conventionMaster;
-  
   private final MasterQueryManager _masterQueryManager;
-  
-  
+  private final LegalEntityMaster _legalEntityMaster;
   private final IdMappings _idMappings;
 
   private int _nextId;
 
   /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, LegalEntityMaster legalEntityMaster,
       ConventionMaster conventionMaster) {
     this(outputDir, securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, organizationMaster, conventionMaster, MasterQueryManager.queryAll());
+        exchangeMaster, snapshotMaster, legalEntityMaster, conventionMaster, MasterQueryManager.queryAll());
   }
 
   /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, LegalEntityMaster legalEntityMaster,
       ConventionMaster conventionMaster, MasterQueryManager masterFilterManager) {
     this(new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), true), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, organizationMaster, conventionMaster, masterFilterManager);
+        exchangeMaster, snapshotMaster, legalEntityMaster, conventionMaster, masterFilterManager);
   }
 
-  
   /* package */DatabaseDump(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, LegalEntityMaster legalEntityMaster,
       ConventionMaster conventionMaster, MasterQueryManager masterQueryManager) {
     ArgumentChecker.notNull(io, "io");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
@@ -107,7 +103,7 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(masterQueryManager, "_masterFilterManager");
     _io = io;
-    _organizationMaster = organizationMaster;
+    _legalEntityMaster = legalEntityMaster;
     _snapshotMaster = snapshotMaster;
     _exchangeMaster = exchangeMaster;
     _holidayMaster = holidayMaster;
@@ -138,7 +134,7 @@ import com.opengamma.util.ArgumentChecker;
     int exitCode = 0;
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseDump databaseDump = new DatabaseDump(dataDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
-          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster(),
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getLegalEntityMaster(),
           server.getConventionMaster());
       databaseDump.dumpDatabase();
     } catch (Exception e) {
@@ -213,8 +209,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   private Map<ObjectId, Integer> writeOrganizations() throws IOException {
-    Iterable<OrganizationDocument> result = _masterQueryManager.getOrganizationQuery().apply(_organizationMaster);
-    return write(transform(result, new OrganizationTransformer()), "organizations", "org");
+    Iterable<LegalEntityDocument> result = _masterQueryManager.getLegalEntityQuery().apply(_legalEntityMaster);
+    return write(transform(result, new LegalEntityTransformer()), "legalentities", "org");
   }
 
   private Map<ObjectId, Integer> writeConventions() throws IOException {
@@ -251,21 +247,21 @@ import com.opengamma.util.ArgumentChecker;
       return input.getSecurity();
     }
   }
-  
+
   private class PositionTransformer implements Function<PositionDocument, ManageablePosition> {
     @Override
     public ManageablePosition apply(PositionDocument input) {
       return input.getPosition();
     }
   }
-  
+
   private class PortfolioTransformer implements Function<PortfolioDocument, ManageablePortfolio> {
     @Override
     public ManageablePortfolio apply(PortfolioDocument input) {
       return input.getPortfolio();
     }
   }
-  
+
   private class ConfigTransformer implements Function<ConfigDocument, ConfigItem<?>> {
 
     @Override
@@ -273,9 +269,9 @@ import com.opengamma.util.ArgumentChecker;
       return input.getConfig();
     }
   }
-  
+
   private class TimeSeriesTransformer implements Function<HistoricalTimeSeriesInfoDocument, TimeSeriesWithInfo> {
-    
+
     @Override
     public TimeSeriesWithInfo apply(HistoricalTimeSeriesInfoDocument infoDoc) {
       ManageableHistoricalTimeSeriesInfo info = infoDoc.getInfo();
@@ -285,41 +281,40 @@ import com.opengamma.util.ArgumentChecker;
       return timeSeriesWithInfo;
     }
   }
-  
+
   private class HolidayTransformer implements Function<HolidayDocument, ManageableHoliday> {
     @Override
     public ManageableHoliday apply(HolidayDocument input) {
       return input.getHoliday();
     }
   }
-  
+
   private class ExchangeTransformer implements Function<ExchangeDocument, ManageableExchange> {
     @Override
     public ManageableExchange apply(ExchangeDocument input) {
       return input.getExchange();
     }
   }
-  
+
   private class SnapshotTransformer implements Function<MarketDataSnapshotDocument, ManageableMarketDataSnapshot> {
     @Override
     public ManageableMarketDataSnapshot apply(MarketDataSnapshotDocument input) {
       return input.getSnapshot();
     }
   }
-  
-  private class OrganizationTransformer implements Function<OrganizationDocument, ManageableOrganization> {
+
+  private class LegalEntityTransformer implements Function<LegalEntityDocument, ManageableLegalEntity> {
     @Override
-    public ManageableOrganization apply(OrganizationDocument input) {
-      return input.getOrganization();
+    public ManageableLegalEntity apply(LegalEntityDocument input) {
+      return input.getLegalEntity();
     }
   }
-  
+
   private class ConventionTransformer implements Function<ConventionDocument, ManageableConvention> {
     @Override
     public ManageableConvention apply(ConventionDocument input) {
       return input.getConvention();
     }
   }
-  
-  
+
 }

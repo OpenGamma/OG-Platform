@@ -24,8 +24,8 @@ import com.opengamma.master.convention.impl.DataTrackingConventionMaster;
 import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
 import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
+import com.opengamma.master.legalentity.impl.DataTrackingLegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.impl.DataTrackingMarketDataSnapshotMaster;
-import com.opengamma.master.organization.impl.DataTrackingOrganizationMaster;
 import com.opengamma.master.portfolio.impl.DataTrackingPortfolioMaster;
 import com.opengamma.master.position.impl.DataTrackingPositionMaster;
 import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
@@ -97,7 +97,7 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
         (DataTrackingHolidayMaster) tc.getHolidayMaster(),
         (DataTrackingExchangeMaster) tc.getExchangeMaster(),
         (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster(),
-        (DataTrackingOrganizationMaster) tc.getOrganizationMaster(),
+        (DataTrackingLegalEntityMaster) tc.getLegalEntityMaster(),
         (DataTrackingConventionMaster) tc.getConventionMaster());
     
     s_logger.info("Persisting db dump with tracked data");
