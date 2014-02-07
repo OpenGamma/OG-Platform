@@ -31,8 +31,10 @@ import com.opengamma.util.RegexUtils;
 /**
  * Request for searching for configuration documents.
  * <p>
- * Documents will be returned that match the search criteria. This class provides the ability to page the results and to search as at a specific version and correction instant. See
- * {@link ConfigHistoryRequest} for more details on how history works.
+ * Documents will be returned that match the search criteria.
+ * This class provides the ability to page the results and to search
+ * as at a specific version and correction instant.
+ * See {@link ConfigHistoryRequest} for more details on how history works.
  * 
  * @param <T> the configuration element type
  */
@@ -41,7 +43,8 @@ import com.opengamma.util.RegexUtils;
 public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
   /**
-   * The set of configuration object identifiers, null to not limit by configuration object identifiers. Note that an empty set will return no configurations.
+   * The set of configuration object identifiers, null to not limit by configuration object identifiers.
+   * Note that an empty set will return no configurations.
    */
   @PropertyDefinition(set = "manual")
   private List<ObjectId> _configIds;
@@ -157,7 +160,8 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the set of configuration object identifiers, null to not limit by configuration object identifiers. Note that an empty set will return no configurations.
+   * Gets the set of configuration object identifiers, null to not limit by configuration object identifiers.
+   * Note that an empty set will return no configurations.
    * @return the value of the property
    */
   public List<ObjectId> getConfigIds() {
@@ -166,6 +170,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
   /**
    * Gets the the {@code configIds} property.
+   * Note that an empty set will return no configurations.
    * @return the property, not null
    */
   public final Property<List<ObjectId>> configIds() {

@@ -39,13 +39,6 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   }
   
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_invalid_searchRequest() {
-    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
-    _cfgMaster.search(request);
-  }
-  
-  //-------------------------------------------------------------------------
   @Test
   public void test_search_all_documents() {
     ConfigSearchRequest<Object> request = new ConfigSearchRequest<Object>(Object.class);
