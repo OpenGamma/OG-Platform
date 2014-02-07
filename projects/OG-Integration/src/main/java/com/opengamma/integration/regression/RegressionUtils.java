@@ -32,6 +32,9 @@ import com.opengamma.master.config.ConfigSearchResult;
   public static final String ID_MAPPINGS = "Regression test ID mappings";
   /** Name of the ID mappings Fudge XML file. */
   public static final String ID_MAPPINGS_IDENTIFIER = "idMappings";
+  /** Name of the ref data accesses Fudge XML file */
+  public static final String REF_DATA_ACCESSES_IDENTIFIER = "refDataAccesses";
+  
   /** Name of the ID mappings Fudge XML file. */
   public static final String ID_MAPPINGS_FILE = ID_MAPPINGS_IDENTIFIER + FudgeXMLFormat.FILE_EXTENSION;
 

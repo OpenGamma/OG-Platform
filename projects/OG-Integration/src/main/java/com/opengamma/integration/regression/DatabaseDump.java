@@ -81,21 +81,6 @@ import com.opengamma.util.ArgumentChecker;
 
   private int _nextId;
 
-  /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
-      ConventionMaster conventionMaster) {
-    this(outputDir, securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, organizationMaster, conventionMaster, MasterQueryManager.queryAll());
-  }
-
-  /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
-      ConventionMaster conventionMaster, MasterQueryManager masterFilterManager) {
-    this(new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), true), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, organizationMaster, conventionMaster, masterFilterManager);
-  }
-
-  
   /* package */DatabaseDump(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
       HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
       ConventionMaster conventionMaster, MasterQueryManager masterQueryManager) {
@@ -134,13 +119,19 @@ import com.opengamma.util.ArgumentChecker;
       System.exit(1);
     }
     String dataDir = args[0];
+    SubdirsRegressionIO io = new SubdirsRegressionIO(new File(dataDir), new FudgeXMLFormat(), true);
     String serverUrl = args[1];
     int exitCode = 0;
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
-      DatabaseDump databaseDump = new DatabaseDump(dataDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
+      DatabaseDump databaseDump = new DatabaseDump(io, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
           server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster(),
-          server.getConventionMaster());
-      databaseDump.dumpDatabase();
+          server.getConventionMaster(), MasterQueryManager.queryAll());
+      io.beginWrite();
+      try {
+        databaseDump.dumpDatabase();
+      } finally {
+        io.endWrite();
+      }
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
       exitCode = 1;
@@ -148,8 +139,13 @@ import com.opengamma.util.ArgumentChecker;
     System.exit(exitCode);
   }
 
+  /**
+   * Dump db to injected {@link RegressionIO} instance. Note the
+   * regression io instance should have already been opened
+   * before this method is called.
+   * @throws IOException if an IO exception is thrown
+   */
   public void dumpDatabase() throws IOException {
-    _io.beginWrite();
     Map<ObjectId, Integer> ids = Maps.newHashMap(_idMappings.getIds());
     ids.putAll(writeSecurities());
     ids.putAll(writePositions());
@@ -169,7 +165,6 @@ import com.opengamma.util.ArgumentChecker;
     }
     IdMappings idMappings = new IdMappings(ids, maxId);
     _io.write(null, idMappings, RegressionUtils.ID_MAPPINGS_IDENTIFIER);
-    _io.endWrite();
   }
 
   private Map<ObjectId, Integer> writeSecurities() throws IOException {
