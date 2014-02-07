@@ -29,7 +29,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
@@ -62,12 +61,12 @@ public class DiscountingPVFunction extends DiscountingFunction {
       @Override
       public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity) {
-          if (InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
-            return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
-          }
-          return false;
-        }
+//        if (security instanceof SwapSecurity) {
+//          if (InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+//            return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
+//          }
+//          return false;
+//        }
         return security instanceof CashSecurity ||
             security instanceof CashFlowSecurity ||
             security instanceof FRASecurity ||

@@ -10,6 +10,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSI
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.CONVEXITY;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.GROSS_BASIS;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
@@ -46,6 +47,7 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
     BUCKETED_PV01,
     CLEAN_PRICE,
     CONVEXITY,
+    FX_PRESENT_VALUE,
     GAMMA_PV01,
     GROSS_BASIS,
     MACAULAY_DURATION,
