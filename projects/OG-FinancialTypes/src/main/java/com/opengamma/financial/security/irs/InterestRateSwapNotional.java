@@ -43,13 +43,11 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    */
   @PropertyDefinition
   private List<LocalDate> _dates;
-
   /**
    * The custom notionals. Possible this should be delta's on top of first notional.
    */
   @PropertyDefinition
   private List<Double> _notionals;
-
   /**
    * Controls if the custom notionals are delta on the original or absolute values.
    */
@@ -149,7 +147,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    */
   public static InterestRateSwapNotional of(Currency ccy, final List<LocalDate> dates, final List<Double> notionals) {
     List<Rate.ShiftType> types = Lists.newArrayListWithExpectedSize(notionals.size());
-    for (LocalDate _ : dates) {
+    for (int i = 0; i < dates.size(); i++) {
       types.add(Rate.ShiftType.OUTRIGHT);
     }
     return of(ccy, dates, notionals, types);
@@ -180,7 +178,6 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    *
    * @param ccy the currency
    * @param notional the notional value
-   * @return the constant notional
    */
   public InterestRateSwapNotional(final Currency ccy, final double notional) {
     super(ccy, notional);

@@ -27,7 +27,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A floating rate swap leg.

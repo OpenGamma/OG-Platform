@@ -1,6 +1,14 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.core.link;
 
-// TODO should usages of this be replaced with MarketDataItem?
+/**
+ * Market data result.
+ */
 public interface MarketDataResult {
+// TODO should usages of this be replaced with MarketDataItem?
  // marker interface to be replaced by real one.
 }

@@ -51,9 +51,9 @@ public class ResultGenerator {
    * Generate a result object indicating that a function completed successfully
    * with the supplied value as the result.
    *
-   * @param value the value that the invoked function returned
    * @param <T> the type of the value to be returned
-   * @return a result object wrapping the actual function invocation result
+   * @param value  the value that the invoked function returned
+   * @return a result object wrapping the actual function invocation result, not null
    */
   public static <T> Result<T> success(T value) {
     return new SuccessResult<>(value);
@@ -63,12 +63,12 @@ public class ResultGenerator {
    * Generate a result object indicating that a function did not complete
    * successfully.
    *
-   * @param status an indication of why the invocation failed
-   * @param message a detailed parameterized message indicating why the function
-   * invocation failed. Uses SLF4J placeholders for parameters.
-   * @param messageArgs the arguments to be used for the formatted message
+   * @param status  an indication of why the invocation failed, not null
+   * @param message  a detailed parameterized message indicating why the function
+   *  invocation failed, uses SLF4J placeholders for parameters, not null
+   * @param messageArgs  the arguments to be used for the formatted message, not null
    * @param <T> the type of the value which would have been returned if successful
-   * @return a result object wrapping the failure details
+   * @return a result object wrapping the failure details, not null
    */
   public static <T> Result<T> failure(FailureStatus status, String message, Object... messageArgs) {
     return new FailureResult<>(status, message, messageArgs);
@@ -78,9 +78,9 @@ public class ResultGenerator {
    * Propagate a failure result, ensuring that its generic type signature
    * matches the one required.
    *
-   * @param result the failure to be propagated
-   * @param <T> the required type of the new result object
-   * @return the new function result object
+   * @param <T>  the required type of the new result object
+   * @param result  the failure to be propagated, not null
+   * @return the new function result object, not null
    */
   public static <T> Result<T> propagateFailure(Result<?> result) {
     // todo remove the cast
@@ -89,15 +89,14 @@ public class ResultGenerator {
   }
 
   /**
-   * Transforms a result containing a type R into one containing a type T. If the
-   * passed result is a failure then the original object will be passed through
-   * unaltered.
+   * Transforms a result containing a type R into one containing a type T.
+   * If the passed result is a failure then the original object will be passed through unaltered.
    *
-   * @param result the result to be transformed
-   * @param mapper the mapper object to transform the value with, not null
-   * @param <R> the type of the result object to be transformed
-   * @param <T> the required type of the new result object
-   * @return the new function result object
+   * @param <R>  the type of the result object to be transformed
+   * @param <T>  the required type of the new result object
+   * @param result  the result to be transformed, not null
+   * @param mapper  the mapper object to transform the value with, not null
+   * @return the new function result object, not null
    */
   public static <R, T> Result<T> map(Result<R> result, ResultMapper<R, T> mapper) {
     if (result.isValueAvailable()) {
@@ -110,7 +109,7 @@ public class ResultGenerator {
   /**
    * Check a set of results to see if there are any failures.
    *
-   * @param results the set of results to be checked
+   * @param results  the set of results to be checked, not null
    * @return true if the set of results contains at least one failure
    */
   public static boolean anyFailures(Result<?>... results) {
@@ -127,10 +126,10 @@ public class ResultGenerator {
    * can be recorded. Any successes included in the set are ignored. If there
    * are no failures in the set then an exception will be thrown.
    *
-   * @param result1 result to be included in the combined result, not null
-   * @param result2 result to be included in the combined result, not null
-   * @param results results to be included in the combined result, not null
-   * @param <T> the required type of the new result object
+   * @param <T>  the required type of the new result object
+   * @param result1  result to be included in the combined result, not null
+   * @param result2  result to be included in the combined result, not null
+   * @param results  results to be included in the combined result, not null
    * @return the new function result object
    * @throws IllegalArgumentException if there are no failures in the results set
    */
@@ -156,8 +155,22 @@ public class ResultGenerator {
     return new MultipleFailureResult<>(failures);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Functional interface that can transform a result.
+   * 
+   * @param <R> the result type
+   * @param <T> the type of the mapped result
+   */
   public interface ResultMapper<R, T> {
 
+    /**
+     * Transforms the input.
+     * 
+     * @param result  the result to be transformed
+     * @return the result
+     */
     Result<T> map(R result);
   }
+
 }

@@ -211,7 +211,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
-   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
+   * Indicates if currency amounts should be displayed in the UI without the currency code.
+   * Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    */
   @PropertyDefinition
@@ -908,7 +909,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code.
+   * Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the value of the property
    */
@@ -917,7 +919,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code.
+   * Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @param suppressCurrencyDisplay  the new value of the property
    */
@@ -927,6 +930,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code suppressCurrencyDisplay} property.
+   * Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the property, not null
    */

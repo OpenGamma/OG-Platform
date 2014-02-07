@@ -19,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Class representing an overnight interest rate index.
@@ -50,7 +49,6 @@ public class OvernightIndex extends Index {
 
   /**
    * @param name The index name, not null
-   * @param tickerIds The bundle of ticker ids, not null
    * @param conventionId The convention id, not null
    */
   public OvernightIndex(final String name, final ExternalId conventionId) {
@@ -61,7 +59,6 @@ public class OvernightIndex extends Index {
   /**
    * @param name The index name, not null
    * @param description The description name, not null
-   * @param tickerIds The bundle of ticker ids, not null
    * @param conventionId The convention id, not null
    */
   public OvernightIndex(final String name, final String description, final ExternalId conventionId) {

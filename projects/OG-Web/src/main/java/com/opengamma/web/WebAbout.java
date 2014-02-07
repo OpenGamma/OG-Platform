@@ -37,7 +37,7 @@ import freemarker.template.TemplateModelException;
  * RESTful resource for the about page.
  */
 @Path("/about")
-public class WebAbout extends AbstractWebResource {
+public class WebAbout {
 
   /**
    * The servlet context.

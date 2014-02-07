@@ -3,8 +3,7 @@
 <html>
   <head>
     <title>${title} - OpenGamma</title>
-    <link type="text/css" rel="stylesheet" href="/green/css/og-base.css" />
-    <link rel="stylesheet" href="/css/jquery/smoothness/jquery-ui-1.8.5.custom.css" />
+    <link type="text/css" rel="stylesheet" href="/css/og-base.css"/>
   </head>
   <body>
     <div id="header">

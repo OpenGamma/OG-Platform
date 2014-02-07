@@ -78,10 +78,8 @@
 <#-- SECTION Links -->
 <@section title="Links">
   <p>
-<#if uris.about()??>
     <a href="${uris.home()}">Return home</a><br />
-</#if>
-<#if uris.components()??>
+<#if uris.components()?has_content>
     <a href="${uris.components()}">View the components</a><br />
 </#if>
   </p>

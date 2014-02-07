@@ -5,13 +5,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.fudgemsg.UnmodifiableFudgeField;
-import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;

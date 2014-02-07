@@ -16,10 +16,13 @@ import com.opengamma.id.ExternalScheme;
  * Comparator to define order in which schemes are sorted in ExternalIdBundles that work best for display purposes.
  * Here we're defining a table of scores for each scheme
  */
+@SuppressWarnings("deprecation")
 public class ExternalIdDisplayComparator implements Comparator<ExternalId> {
+
+  /**
+   * The map of scores.
+   */
   static final Map<ExternalScheme, Integer> s_scoreMap = Maps.newHashMap();
-  private Map<ExternalScheme, Integer> _scoreMap;
-  
   static {
     s_scoreMap.put(ExternalSchemes.BLOOMBERG_TCM, 20); // beacuse if there's both ticker and tcm, you want to see tcm.
     s_scoreMap.put(ExternalSchemes.BLOOMBERG_TICKER, 19);
@@ -34,22 +37,28 @@ public class ExternalIdDisplayComparator implements Comparator<ExternalId> {
     s_scoreMap.put(ExternalSchemes.BLOOMBERG_BUID, 5);
     s_scoreMap.put(ExternalSchemes.BLOOMBERG_BUID_WEAK, 4);
   }
-  
+
+  /**
+   * The map of scores.
+   */
+  private Map<ExternalScheme, Integer> _scoreMap;
+
   /**
    * Uses hard-coded default information about scores.
    */
   public ExternalIdDisplayComparator() {
     _scoreMap = s_scoreMap;
   }
-  
+
   /**
-   * Initialize comparator using configuration object stored in config database
-   * @param orderConfig sourced from a ConfigSource
+   * Initialize comparator using configuration object stored in config database.
+   * 
+   * @param orderConfig  sourced from a ConfigSource
    */
   public ExternalIdDisplayComparator(ExternalIdOrderConfig orderConfig) {
-    
+    // TODO: code missing!
   }
-  
+
   private int scoreExternalId(ExternalId id) {
     if (_scoreMap.containsKey(id.getScheme())) {
       return _scoreMap.get(id.getScheme());
@@ -68,4 +77,5 @@ public class ExternalIdDisplayComparator implements Comparator<ExternalId> {
       return id0.compareTo(id1);
     }
   }
+
 }

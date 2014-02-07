@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.regression;
 
+import java.io.File;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -34,7 +36,8 @@ public class DatabaseDumpTool extends AbstractTool<ToolContext> {
   @Override
   protected void doRun() throws Exception {
     String dataDir = getCommandLine().getOptionValue(DATA_DIRECTORY);
-    DatabaseDump databaseDump = new DatabaseDump(dataDir,
+    SubdirsRegressionIO io = new SubdirsRegressionIO(new File(dataDir), new FudgeXMLFormat(), true);
+    DatabaseDump databaseDump = new DatabaseDump(io,
                                                  getToolContext().getSecurityMaster(),
                                                  getToolContext().getPositionMaster(),
                                                  getToolContext().getPortfolioMaster(),
@@ -44,8 +47,14 @@ public class DatabaseDumpTool extends AbstractTool<ToolContext> {
                                                  getToolContext().getExchangeMaster(),
                                                  getToolContext().getMarketDataSnapshotMaster(),
                                                  getToolContext().getLegalEntityMaster(),
-                                                 getToolContext().getConventionMaster());
-    databaseDump.dumpDatabase();
+                                                 getToolContext().getConventionMaster(),
+                                                 MasterQueryManager.queryAll());
+    io.beginWrite();
+    try {
+      databaseDump.dumpDatabase();
+    } finally {
+      io.endWrite();
+    }
   }
 
   @Override

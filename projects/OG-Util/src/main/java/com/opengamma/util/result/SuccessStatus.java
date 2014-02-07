@@ -25,10 +25,11 @@ public enum SuccessStatus implements ResultStatus {
    */
   //AWAITING_MARKET_DATA;
 
+  //-------------------------------------------------------------------------
   /**
-   * Indicates if a Result with this status has a return value populated.
+   * Returns true to indicate that a result is available.
    *
-   * @return true if the Result has its return value populated
+   * @return true
    */
   public boolean isResultAvailable() {
     return true;

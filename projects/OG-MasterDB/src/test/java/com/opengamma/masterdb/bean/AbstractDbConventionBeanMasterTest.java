@@ -12,7 +12,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.Types;
 
-import org.joda.beans.ser.JodaBeanSer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;

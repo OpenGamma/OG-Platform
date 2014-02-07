@@ -20,7 +20,6 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.index.BondIndex;
 import com.opengamma.financial.security.index.BondIndexComponent;
-import com.opengamma.financial.security.index.EquityIndex;
 import com.opengamma.financial.security.index.IndexWeightingType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

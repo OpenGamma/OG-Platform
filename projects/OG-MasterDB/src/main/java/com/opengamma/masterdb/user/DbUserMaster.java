@@ -32,7 +32,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.user.ManageableOGUser;
-import com.opengamma.master.user.RoleDocument;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.master.user.UserHistoryRequest;
 import com.opengamma.master.user.UserHistoryResult;
@@ -46,44 +45,24 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.threeten.bp.ZoneId;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * A user master implementation using a database for persistence.
- * <p/>
+ * <p>
  * This is a full implementation of the user master using an SQL database.
  * Full details of the API are in {@link UserMaster}.
- * <p/>
+ * <p>
  * The SQL is stored externally in {@code DbUserMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
  * specific overrides, such as {@code DbUserMaster-MySpecialDB.elsql}.
- * <p/>
+ * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbUserMaster
     extends AbstractDocumentDbMaster<UserDocument>
     implements UserMaster {
 
-  /**
-   * Logger.
-   */
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbUserMaster.class);
 
   /**
@@ -94,8 +73,7 @@ public class DbUserMaster
   /**
    * SQL order by.
    */
-  protected static final EnumMap<UserSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<>(UserSearchSortOrder.class);
-
+  protected static final EnumMap<UserSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<UserSearchSortOrder, String>(UserSearchSortOrder.class);
   static {
     ORDER_BY_MAP.put(UserSearchSortOrder.OBJECT_ID_ASC, "oid ASC");
     ORDER_BY_MAP.put(UserSearchSortOrder.OBJECT_ID_DESC, "oid DESC");
@@ -109,8 +87,8 @@ public class DbUserMaster
 
   /**
    * Creates an instance.
-   *
-   * @param dbConnector the database connector, not null
+   * 
+   * @param dbConnector  the database connector, not null
    */
   public DbUserMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
@@ -124,10 +102,10 @@ public class DbUserMaster
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
-
+    
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final UserSearchResult result = new UserSearchResult(vc);
-
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
@@ -135,20 +113,16 @@ public class DbUserMaster
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-        .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-        .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-        .addValueNullIgnored("userid", getDialect().sqlWildcardAdjustValue(request.getUsername()))
-        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
-        .addValueNullIgnored("time_zone", getDialect().sqlWildcardAdjustValue(request.getTimeZone()))
-        .addValueNullIgnored("email_address", getDialect().sqlWildcardAdjustValue(request.getEmailAddress()))
-        .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
-        .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()))
-        .addValueNullIgnored("role_oid", getDialect().sqlWildcardAdjustValue(request.getRoleObjectId() == null ? null : request.getRoleObjectId().getValue()))
-        .addValueNullIgnored("resource_oid", getDialect().sqlWildcardAdjustValue(request.getResourceExternalId().toString()))
-        .addValueNullIgnored("resource_type", getDialect().sqlWildcardAdjustValue(request.getResourceType()))
-        .addValueNullIgnored("resource_access", getDialect().sqlWildcardAdjustValue(request.getResourceAccess()));
-
+    
+    final DbMapSqlParameterSource args = createParameterSource()
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+      .addValueNullIgnored("userid", getDialect().sqlWildcardAdjustValue(request.getUserId()))
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("time_zone", getDialect().sqlWildcardAdjustValue(request.getTimeZone()))
+      .addValueNullIgnored("email_address", getDialect().sqlWildcardAdjustValue(request.getEmailAddress()))
+      .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
+      .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
     if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
       int i = 0;
       for (ExternalId id : externalIdSearch) {
@@ -172,7 +146,7 @@ public class DbUserMaster
     args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
-
+    
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     doSearch(request.getPagingRequest(), sql, args, new UserDocumentExtractor(), result);
     return result;
@@ -180,10 +154,10 @@ public class DbUserMaster
 
   /**
    * Gets the SQL to find all the ids for a single bundle.
-   * <p/>
+   * <p>
    * This is too complex for the elsql mechanism.
-   *
-   * @param idSearch the identifier search, not null
+   * 
+   * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
   protected String sqlSelectIdKeys(final ExternalIdSearch idSearch) {
@@ -213,11 +187,10 @@ public class DbUserMaster
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Inserts a new document.
-   *
-   * @param document the document, not null
+   * 
+   * @param document  the document, not null
    * @return the new document, not null
    */
   @Override
@@ -232,64 +205,60 @@ public class DbUserMaster
     final ManageableOGUser user = document.getUser();
     user.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
-
+    
     // the arguments for inserting into the user table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-        .addValue("doc_id", docId)
-        .addValue("doc_oid", docOid)
-        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-        .addValue("userid", user.getUserId())
-        .addValue("password", user.getPasswordHash())
-        .addValue("name", user.getName())
-        .addValue("time_zone", user.getTimeZone().getId())
-        .addValue("email_address", user.getEmailAddress());
-
-
+    final DbMapSqlParameterSource docArgs = createParameterSource()
+      .addValue("doc_id", docId)
+      .addValue("doc_oid", docOid)
+      .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+      .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+      .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+      .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+      .addValue("userid", user.getUserId())
+      .addValue("password", user.getPasswordHash())
+      .addValue("name", user.getName())
+      .addValue("time_zone", user.getTimeZone().getId())
+      .addValue("email_address", user.getEmailAddress());
+    
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
     final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
-
     for (ExternalId id : user.getExternalIdBundle()) {
-
-      final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
-          .addValue("doc_id", docId)
-          .addValue("key_scheme", id.getScheme().getName())
-          .addValue("key_value", id.getValue());
-
+      final DbMapSqlParameterSource assocArgs = createParameterSource()
+        .addValue("doc_id", docId)
+        .addValue("key_scheme", id.getScheme().getName())
+        .addValue("key_value", id.getValue());
       assocList.add(assocArgs);
       if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long idKeyId = nextId("usr_idkey_seq");
-        final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
-            .addValue("idkey_id", idKeyId)
-            .addValue("key_scheme", id.getScheme().getName())
-            .addValue("key_value", id.getValue());
+        final DbMapSqlParameterSource idkeyArgs = createParameterSource()
+          .addValue("idkey_id", idKeyId)
+          .addValue("key_scheme", id.getScheme().getName())
+          .addValue("key_value", id.getValue());
         idKeyList.add(idkeyArgs);
       }
     }
-
-    final List<DbMapSqlParameterSource> roleAssocList = new ArrayList<DbMapSqlParameterSource>();
-    if (document.getRoleOids() != null) {
-      for (ObjectId roleOid : document.getRoleOids()) {
-        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
-            .addValue("doc_id", docId)
-            .addValue("ogrole_oid", extractOid(roleOid));
-        roleAssocList.add(assocArgs);
-      }
+    
+    final List<DbMapSqlParameterSource> entitlementList = new ArrayList<DbMapSqlParameterSource>();
+    int iEntitlement = 0;
+    for (String entitlement : user.getEntitlements()) {
+      entitlementList.add(createParameterSource()
+        .addValue("oguser_id", docId)
+        .addValue("entitlement_index", iEntitlement)
+        .addValue("entitlement_pattern", entitlement));
+      iEntitlement++;
     }
-
+    
     final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
     final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
     final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
-    final String sqlDoc2RoleKey = getElSqlBundle().getSql("InsertDoc2RoleKey");
+    final String sqlEntitlement = getElSqlBundle().getSql("InsertEntitlement");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
-    getJdbcTemplate().batchUpdate(sqlDoc2RoleKey, roleAssocList.toArray(new DbMapSqlParameterSource[roleAssocList.size()]));
+    getJdbcTemplate().batchUpdate(sqlEntitlement, entitlementList.toArray(new DbMapSqlParameterSource[entitlementList.size()]));
     return document;
   }
 
@@ -305,55 +274,40 @@ public class DbUserMaster
     return doHistory(request, new UserHistoryResult(), new UserDocumentExtractor());
   }
 
-
-  public void setRoles(UserDocument document, RoleDocument... roleDocs) {
-    Set<ObjectId> roleOids = newHashSet();
-    for (RoleDocument roleDoc : roleDocs) {
-      roleOids.add(roleDoc.getObjectId());
-    }
-    setRoles(document, roleOids);
-  }
-
-  public void setRoles(UserDocument document, ObjectId... roleOids) {
-    setRoles(document, newHashSet(Arrays.asList(roleOids)));
-  }
-
-  public void setRoles(UserDocument document, Set<ObjectId> roleOids) {
-    document.setRoleOids(roleOids);
-    update(document);
-  }
   //-------------------------------------------------------------------------
-
   /**
    * Mapper from SQL rows to a UserDocument.
    */
   protected final class UserDocumentExtractor implements ResultSetExtractor<List<UserDocument>> {
     private long _previousDocId = -1L;
     private ManageableOGUser _currUser;
-    private Set<ExternalId> _currExternalIds = new HashSet<>();
-    private List<UserDocument> _documents = new ArrayList<>();
+    private Set<ExternalId> _currExternalIds = new HashSet<ExternalId>();
+    private Set<String> _currEntitlements = new HashSet<String>();
+    private List<UserDocument> _documents = new ArrayList<UserDocument>();
 
     @Override
     public List<UserDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
-
-        //System.out.println("===================");
-        //System.out.println(rs.getObject("DOC_ID"));
-        //System.out.println(rs.getObject("IDKEY_ID"));
-        //System.out.println(rs.getObject("KEY_SCHEME"));
-        //System.out.println(rs.getObject("KEY_VALUE"));
-
+//        System.out.println("===================");
+//        System.out.println(rs.getObject("DOC_ID"));
+//        System.out.println(rs.getObject("IDKEY_ID"));
+//        System.out.println(rs.getObject("KEY_SCHEME"));
+//        System.out.println(rs.getObject("KEY_VALUE"));
+//        System.out.println(rs.getObject("ENTITLEMENT_PATTERN"));
+        
         final long docId = rs.getLong("DOC_ID");
         // DOC_ID tells us when we're on a new document.
         if (docId != _previousDocId) {
           if (_previousDocId >= 0) {
             _currUser.setExternalIdBundle(ExternalIdBundle.of(_currExternalIds));
+            _currUser.setEntitlements(_currEntitlements);
           }
           _previousDocId = docId;
           buildUser(rs, docId);
           _currExternalIds.clear();
+          _currEntitlements.clear();
         }
-
+        
         // always read sub-tables and use set to deduplicate
         // note that there is an effective CROSS JOIN between entitlements
         // and externalIds, which may be a problem
@@ -362,10 +316,15 @@ public class DbUserMaster
         if (idKey != null && idValue != null) {
           _currExternalIds.add(ExternalId.of(idKey, idValue));
         }
+        String entitlementPattern = rs.getString("ENTITLEMENT_PATTERN");
+        if (entitlementPattern != null) {
+          _currEntitlements.add(entitlementPattern);
+        }
       }
       // patch up last document read
       if (_previousDocId >= 0) {
         _currUser.setExternalIdBundle(ExternalIdBundle.of(_currExternalIds));
+        _currUser.setEntitlements(_currEntitlements);
       }
       return _documents;
     }
@@ -376,9 +335,9 @@ public class DbUserMaster
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-
+      
       UniqueId uniqueId = createUniqueId(docOid, docId);
-
+      
       ManageableOGUser user = new ManageableOGUser(rs.getString("USERID"));
       user.setPasswordHash(rs.getString("PASSWORD"));
       user.setName(rs.getString("NAME"));
@@ -386,7 +345,7 @@ public class DbUserMaster
       user.setEmailAddress(rs.getString("EMAIL_ADDRESS"));
       user.setUniqueId(uniqueId);
       _currUser = user;
-
+      
       UserDocument doc = new UserDocument();
       doc.setUniqueId(uniqueId);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));

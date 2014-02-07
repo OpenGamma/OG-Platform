@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.impl.DataTrackingConfigMaster;
 import com.opengamma.master.convention.impl.DataTrackingConventionMaster;
 import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
@@ -29,11 +28,12 @@ import com.opengamma.master.marketdatasnapshot.impl.DataTrackingMarketDataSnapsh
 import com.opengamma.master.portfolio.impl.DataTrackingPortfolioMaster;
 import com.opengamma.master.position.impl.DataTrackingPositionMaster;
 import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
+import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
  * 
  */
-public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
+public class GoldenCopyCreationTool extends AbstractTool<IntegrationToolContext> {
 
   /**
    * The version name to use against calculation results in the golden copy.
@@ -83,22 +83,10 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
       s_logger.info("Persisted golden copy for {} against snapshot {}", viewName, snapshotName);
     }
     
-    ToolContext tc = getToolContext();
-    
     RegressionIO io = ZipFileRegressionIO.createWriter(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat());
-    
-    
-    GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
-        (DataTrackingSecurityMaster) tc.getSecurityMaster(),
-        (DataTrackingPositionMaster) tc.getPositionMaster(),
-        (DataTrackingPortfolioMaster) tc.getPortfolioMaster(),
-        (DataTrackingConfigMaster) tc.getConfigMaster(),
-        (DataTrackingHistoricalTimeSeriesMaster) tc.getHistoricalTimeSeriesMaster(),
-        (DataTrackingHolidayMaster) tc.getHolidayMaster(),
-        (DataTrackingExchangeMaster) tc.getExchangeMaster(),
-        (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster(),
-        (DataTrackingLegalEntityMaster) tc.getLegalEntityMaster(),
-        (DataTrackingConventionMaster) tc.getConventionMaster());
+    IntegrationToolContext tc = getToolContext();
+
+    GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, tc);
     
     s_logger.info("Persisting db dump with tracked data");
     goldenCopyDumpCreator.execute();
