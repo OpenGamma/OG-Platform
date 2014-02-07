@@ -113,6 +113,7 @@ public class BloombergRateClassifier {
       case IR_FUTURE_OPTION:
       case BOND_FUTURE_OPTION:
       case RATE:
+      case INDEX:
       case SWAP:
       case VOLATILITY_QUOTE:
       case CD:
