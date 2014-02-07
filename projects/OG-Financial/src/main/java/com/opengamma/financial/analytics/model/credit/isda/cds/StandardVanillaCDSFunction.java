@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantC
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -88,7 +88,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-    final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
+    final LegalEntitySource legalEntitySource = OpenGammaExecutionContext.getLegalEntitySource(executionContext);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
@@ -97,7 +97,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       throw new OpenGammaRuntimeException("Could not get recovery rate with identifier " + recoveryRateIdentifier.getExternalId());
     }
     final double recoveryRate = (Double) recoveryRateObject;
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource, recoveryRate, valuationTime);
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, legalEntitySource, recoveryRate, valuationTime);
     final LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {

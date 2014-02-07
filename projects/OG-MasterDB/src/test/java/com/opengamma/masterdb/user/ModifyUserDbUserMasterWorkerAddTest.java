@@ -19,6 +19,7 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 
+import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.ManageableOGUser;
@@ -63,6 +64,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     user.setName("Test Name");
     user.setEmailAddress("test@test.com");
     user.setExternalIdBundle(BUNDLE);
+    user.setEntitlements(Sets.newHashSet("A", "B"));
     ZoneId zone = user.getTimeZone();
     UserDocument doc = new UserDocument(user);
     UserDocument test = _usrMaster.add(doc);
@@ -85,6 +87,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     assertEquals(zone, testUser.getTimeZone());
     assertEquals("test@test.com", testUser.getEmailAddress());
     assertEquals(BUNDLE, testUser.getExternalIdBundle());
+    assertEquals(Sets.newHashSet("A", "B"), testUser.getEntitlements());
   }
 
   @Test
@@ -92,6 +95,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     ManageableOGUser user = new ManageableOGUser("Test");
     user.setName("Test Name");
     user.setEmailAddress("test@test.com");
+    user.setEntitlements(Sets.newHashSet("A", "B"));
     UserDocument doc = new UserDocument(user);
     UserDocument added = _usrMaster.add(doc);
     

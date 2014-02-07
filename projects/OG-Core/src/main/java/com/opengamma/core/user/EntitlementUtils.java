@@ -108,8 +108,20 @@ public final class EntitlementUtils {
    * @return true if access is permitted, false if not permitted
    */
   public static boolean userHasEntitlement(OGUser user, String requirement) {
-    //TODO implement it DK
-    return false;
+    ArgumentChecker.notNull(user, "user");
+    ArgumentChecker.notNull(requirement, "requirement");
+    for (String entitlement : user.getEntitlements()) {
+      switch (checkEntitlement(entitlement, requirement)) {
+        case MATCHES_NOT_ALLOWED:
+          return false;
+        case MATCHES_ALLOWED:
+          return true;
+        default:
+          continue;
+      }
+    }
+    // TODO kirk 2012-08-21 -- http://jira.opengamma.com/browse/PLAT-2556
+    return true;  // TODO: should default to false I assume...
   }
 
 }

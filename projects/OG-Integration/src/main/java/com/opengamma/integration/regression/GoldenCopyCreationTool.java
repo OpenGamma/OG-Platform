@@ -18,6 +18,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.master.config.impl.DataTrackingConfigMaster;
+import com.opengamma.master.convention.impl.DataTrackingConventionMaster;
+import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
+import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTimeSeriesMaster;
+import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
+import com.opengamma.master.legalentity.impl.DataTrackingLegalEntityMaster;
+import com.opengamma.master.marketdatasnapshot.impl.DataTrackingMarketDataSnapshotMaster;
+import com.opengamma.master.portfolio.impl.DataTrackingPortfolioMaster;
+import com.opengamma.master.position.impl.DataTrackingPositionMaster;
+import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
 import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
@@ -75,7 +85,7 @@ public class GoldenCopyCreationTool extends AbstractTool<IntegrationToolContext>
     
     RegressionIO io = ZipFileRegressionIO.createWriter(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat());
     IntegrationToolContext tc = getToolContext();
-    
+
     GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, tc);
     
     s_logger.info("Persisting db dump with tracked data");

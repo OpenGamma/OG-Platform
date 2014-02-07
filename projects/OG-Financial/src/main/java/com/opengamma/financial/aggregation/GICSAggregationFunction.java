@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,9 +14,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntity;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.obligor.definition.Obligor;
-import com.opengamma.core.organization.Organization;
-import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
@@ -97,19 +98,19 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private SecuritySource _secSource;
   private boolean _includeEmptyCategories;
 
-  public GICSAggregationFunction(SecuritySource secSource, OrganizationSource organizationSource, String level) {
-    this(secSource, organizationSource, Enum.valueOf(Level.class, level));
+  public GICSAggregationFunction(SecuritySource secSource, LegalEntitySource legalEntitySource, String level) {
+    this(secSource, legalEntitySource, Enum.valueOf(Level.class, level));
   }
 
-  public GICSAggregationFunction(SecuritySource secSource, OrganizationSource organizationSource, Level level) {
-    this(secSource, organizationSource, level, false);
+  public GICSAggregationFunction(SecuritySource secSource, LegalEntitySource legalEntitySource, Level level) {
+    this(secSource, legalEntitySource, level, false);
   }
 
   public GICSAggregationFunction(SecuritySource secSource,
-                                 OrganizationSource organizationSource,
+                                 LegalEntitySource legalEntitySource,
                                  Level level,
                                  boolean useAttributes) {
-    this(secSource, organizationSource, level, useAttributes, true);
+    this(secSource, legalEntitySource, level, useAttributes, true);
   }
 
   public GICSAggregationFunction(SecuritySource secSource, String level) {
@@ -133,14 +134,14 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   }
 
   public GICSAggregationFunction(SecuritySource secSource,
-                                 OrganizationSource organizationSource, Level level,
+                                 LegalEntitySource legalEntitySource, Level level,
                                  boolean useAttributes,
                                  boolean includeEmptyCategories) {
     _secSource = secSource;
     _level = level;
     _useAttributes = useAttributes;
     _includeEmptyCategories = includeEmptyCategories;
-    if (organizationSource == null) {
+    if (legalEntitySource == null) {
       if (_level == Level.SECTOR) {
         s_logger.warn("No organization source supplied - will be unable to show sectors for CDS reference entities");
       }
@@ -148,8 +149,8 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
       _cdsOptionSectorExtractor = null;
       _cdsIndexFamilyExtractor = null;
     } else {
-      _obligorSectorExtractor = new CdsObligorSectorExtractor(organizationSource);
-      _cdsOptionSectorExtractor = new CdsOptionObligorSectorExtractor(secSource, organizationSource);
+      _obligorSectorExtractor = new CdsObligorSectorExtractor(legalEntitySource);
+      _cdsOptionSectorExtractor = new CdsOptionObligorSectorExtractor(secSource, legalEntitySource);
       _cdsIndexFamilyExtractor = new CdsIndexFamilyExtractor(secSource);
     }
   }
@@ -321,16 +322,16 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
    */
   private static class CdsObligorSectorExtractor {
 
-    private final CdsRedCodeExtractor<Obligor> _obligorExtractor;
+    private final CdsRedCodeExtractor<LegalEntity> _obligorExtractor;
 
-    public CdsObligorSectorExtractor(OrganizationSource organizationSource) {
-      _obligorExtractor = new CdsRedCodeExtractor<>(new CdsObligorExtractor(organizationSource));
+    public CdsObligorSectorExtractor(LegalEntitySource legalEntitySource) {
+      _obligorExtractor = new CdsRedCodeExtractor<>(new CdsObligorExtractor(legalEntitySource));
     }
 
     public String extractOrElse(CreditDefaultSwapSecurity cds, String alternative) {
 
-      Obligor obligor = _obligorExtractor.extract(cds);
-      return obligor != null ? obligor.getSector().name() : alternative;
+      LegalEntity legalEntity = _obligorExtractor.extract(cds);
+      return legalEntity != null && legalEntity.getAttributes().get("sector") != null ? legalEntity.getAttributes().get("sector") : alternative;
     }
   }
 
@@ -339,18 +340,17 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
    */
   private static class CdsOptionObligorSectorExtractor {
 
-    private final CdsOptionValueExtractor<Obligor> _obligorExtractor;
+    private final CdsOptionValueExtractor<LegalEntity> _obligorExtractor;
 
-    public CdsOptionObligorSectorExtractor(final SecuritySource securitySource, final OrganizationSource organizationSource) {
-      _obligorExtractor = new CdsOptionValueExtractor<Obligor>() {
+    public CdsOptionObligorSectorExtractor(final SecuritySource securitySource, final LegalEntitySource legalEntitySource) {
+      _obligorExtractor = new CdsOptionValueExtractor<LegalEntity>() {
         @Override
-        public Obligor extract(CreditDefaultSwapOptionSecurity cdsOption) {
+        public LegalEntity extract(CreditDefaultSwapOptionSecurity cdsOption) {
           ExternalId underlyingId = cdsOption.getUnderlyingId();
           Security underlying = securitySource.getSingle(underlyingId.toBundle());
           if (underlying instanceof AbstractCreditDefaultSwapSecurity) {
             String redCode = ((CreditDefaultSwapSecurity) underlying).getReferenceEntity().getValue();
-            Organization organisation = organizationSource.getOrganizationByRedCode(redCode);
-            return organisation.getObligor();
+            return legalEntitySource.getSingle(ExternalId.of(ExternalSchemes.MARKIT_RED_CODE, redCode));
           }
           return null;
         }
@@ -359,8 +359,8 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
     public String extractOrElse(CreditDefaultSwapOptionSecurity cdsOption, String alternative) {
 
-      Obligor obligor = _obligorExtractor.extract(cdsOption);
-      return obligor != null ? obligor.getSector().name() : alternative;
+      LegalEntity legalEntity = _obligorExtractor.extract(cdsOption);
+      return legalEntity != null && legalEntity.getAttributes().get("sector") != null ? legalEntity.getAttributes().get("sector") : alternative;
     }
   }
 

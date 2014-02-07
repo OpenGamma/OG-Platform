@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.underlyingpool.definition;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -36,7 +37,7 @@ public class UnderlyingPool {
   private final String _poolName;
 
   // A vector of obligors constituting the underlying pool
-  private final Obligor[] _obligors;
+  private final LegalEntity[] _obligors;
 
   // The number of obligors in the underlying pool (usually 125 for CDX and iTraxx - although defaults can reduce this)
   private final int _numberOfObligors;
@@ -74,7 +75,7 @@ public class UnderlyingPool {
 
   public UnderlyingPool(
       final String poolName,
-      final Obligor[] obligors,
+      final LegalEntity[] obligors,
       final Currency[] currency,
       final DebtSeniority[] debtSeniority,
       final RestructuringClause[] restructuringClause,
@@ -137,7 +138,7 @@ public class UnderlyingPool {
     int numberOfDefaultedObligors = 0;
 
     for (int i = 0; i < _numberOfObligors; i++) {
-      if (obligors[i].getHasDefaulted() == true) {
+      if (obligors[i].isHasDefaulted() == true) {
         numberOfDefaultedObligors++;
       }
     }
@@ -161,7 +162,7 @@ public class UnderlyingPool {
     return _poolName;
   }
 
-  public Obligor[] getObligors() {
+  public LegalEntity[] getObligors() {
     return _obligors;
   }
 

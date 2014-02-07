@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -40,7 +40,7 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -71,11 +71,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
-   * @param organizationMaster the organization master, not null
+   * @param legalEntityMaster the organization master, not null
    */
   public WebSecuritiesResource(
-      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, final OrganizationMaster organizationMaster) {
-    super(securityMaster, securityLoader, htsMaster, organizationMaster);
+      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, final LegalEntityMaster legalEntityMaster) {
+    super(securityMaster, securityLoader, htsMaster, legalEntityMaster);
   }
 
   //-------------------------------------------------------------------------

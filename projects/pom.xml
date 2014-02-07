@@ -28,7 +28,6 @@
   <!-- ==================================================================== -->
   <modules>
     <module>OG-Analytics</module>
-    <!-- module>OG-Auth</module-->
     <module>OG-Bloomberg</module>
     <module>OG-Client</module>
     <module>OG-Component</module>

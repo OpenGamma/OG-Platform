@@ -31,12 +31,12 @@ import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTime
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
+import com.opengamma.master.legalentity.LegalEntityDocument;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.impl.DataTrackingLegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.DataTrackingMarketDataSnapshotMaster;
-import com.opengamma.master.organization.impl.DataTrackingOrganizationMaster;
-import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.impl.DataTrackingPortfolioMaster;
@@ -63,8 +63,9 @@ class GoldenCopyDumpCreator {
   private final DataTrackingHolidayMaster _holidayMaster;
   private final DataTrackingExchangeMaster _exchangeMaster;
   private final DataTrackingMarketDataSnapshotMaster _snapshotMaster;
-  private final DataTrackingOrganizationMaster _organizationMaster;
+  private final DataTrackingLegalEntityMaster _legalEntityMaster;
   private final DataTrackingConventionMaster _conventionMaster;
+
 
   private InMemoryCachingReferenceDataProvider _referenceDataProvider;
 
@@ -78,7 +79,7 @@ class GoldenCopyDumpCreator {
     _holidayMaster =      (DataTrackingHolidayMaster) tc.getHolidayMaster();
     _exchangeMaster =     (DataTrackingExchangeMaster) tc.getExchangeMaster();
     _snapshotMaster =     (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster();
-    _organizationMaster = (DataTrackingOrganizationMaster) tc.getOrganizationMaster();
+    _legalEntityMaster = (DataTrackingLegalEntityMaster) tc.getLegalEntityMaster();
     _conventionMaster =   (DataTrackingConventionMaster) tc.getConventionMaster();
     _referenceDataProvider = (InMemoryCachingReferenceDataProvider) tc.getBloombergReferenceDataProvider();
   }
@@ -105,7 +106,7 @@ class GoldenCopyDumpCreator {
                                                   _holidayMaster,
                                                   _exchangeMaster,
                                                   _snapshotMaster,
-                                                  _organizationMaster,
+                                                  _legalEntityMaster,
                                                   _conventionMaster,
                                                   filterManager);
 
@@ -126,7 +127,7 @@ class GoldenCopyDumpCreator {
         new UniqueIdentifiableQuery<HolidayDocument, HolidayMaster>(_holidayMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<ExchangeDocument, ExchangeMaster>(_exchangeMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<MarketDataSnapshotDocument, MarketDataSnapshotMaster>(_snapshotMaster.getIdsAccessed()),
-        new UniqueIdentifiableQuery<OrganizationDocument, OrganizationMaster>(_organizationMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<LegalEntityDocument, LegalEntityMaster>(_legalEntityMaster.getIdsAccessed()),
         new UniqueIdentifiableQuery<ConventionDocument, ConventionMaster>(_conventionMaster.getIdsAccessed()));
   }
 

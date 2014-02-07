@@ -399,7 +399,12 @@ public class ComponentManager {
     if (factory instanceof Bean) {
       Bean bean = (Bean) factory;
       for (MetaProperty<?> mp : bean.metaBean().metaPropertyIterable()) {
-        String value = remainingConfig.remove(mp.name());
+        String value = null;
+        try {
+          value = remainingConfig.remove(mp.name());
+        } catch (NullPointerException e) {
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         setProperty(bean, mp, value);
       }
     }

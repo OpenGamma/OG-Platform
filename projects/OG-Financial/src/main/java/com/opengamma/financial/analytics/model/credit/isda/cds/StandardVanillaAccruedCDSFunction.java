@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.leg
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -67,7 +67,7 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-    OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
+    LegalEntitySource legalEntitySource = OpenGammaExecutionContext.getLegalEntitySource(executionContext);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(
@@ -80,7 +80,7 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
       //recoveryRateObject = 0.4;
     }
     final double recoveryRate = (Double) recoveryRateObject;
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource, recoveryRate, valuationTime);
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, legalEntitySource, recoveryRate, valuationTime);
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
     //definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0)));
     //definition = getStartDate(definition, security, valuationTime);

@@ -96,7 +96,7 @@ public class RegressionTestToolContextManager {
         toolContext.getHolidayMaster(),
         toolContext.getExchangeMaster(),
         toolContext.getMarketDataSnapshotMaster(),
-        toolContext.getOrganizationMaster(),
+        toolContext.getLegalEntityMaster(),
         toolContext.getConventionMaster()
     );
 

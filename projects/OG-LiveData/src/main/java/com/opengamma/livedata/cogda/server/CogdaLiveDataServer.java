@@ -212,6 +212,7 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
     if (getUserSource() == null) {
       // Nothing will work without an OG User. So we return a mock one.
       SimpleOGUser simpleUser = new SimpleOGUser(userId);
+      simpleUser.getEntitlements().add("*");
       return simpleUser;
     }
     try {
