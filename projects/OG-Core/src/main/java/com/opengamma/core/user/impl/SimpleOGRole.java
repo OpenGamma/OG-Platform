@@ -5,18 +5,14 @@
  */
 package com.opengamma.core.user.impl;
 
-import com.google.common.collect.Sets;
-import com.opengamma.core.user.OGEntitlement;
-import com.opengamma.core.user.OGRole;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.OpenGammaClock;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
@@ -25,12 +21,12 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.ZoneId;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-import org.joda.beans.Bean;
+import com.google.common.collect.Sets;
+import com.opengamma.core.user.OGEntitlement;
+import com.opengamma.core.user.OGRole;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueId;
 
 /**
  * Simple implementation of {@code OGRole}.

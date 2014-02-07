@@ -1,5 +1,9 @@
 package com.opengamma.masterdb.user;
 
+import static com.google.common.collect.Sets.newHashSet;
+
+import java.util.Arrays;
+
 import com.opengamma.core.user.OGEntitlement;
 import com.opengamma.core.user.ResourceAccess;
 import com.opengamma.id.ExternalId;
@@ -8,15 +12,8 @@ import com.opengamma.master.user.ManageableOGRole;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.RoleDocument;
 import com.opengamma.master.user.UserDocument;
-import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.test.AbstractDbTest;
-
-import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.Arrays;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies

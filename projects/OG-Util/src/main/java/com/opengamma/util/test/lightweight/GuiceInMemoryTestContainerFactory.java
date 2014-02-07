@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.test.lightweight;
 
 import java.net.URI;
@@ -27,48 +32,50 @@ import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
  * @see https://github.com/runepeter/jersey-guice-test-framework#readme
  */
 public class GuiceInMemoryTestContainerFactory implements TestContainerFactory {
-  private final Injector injector;
+
+  private final Injector _injector;
 
   public GuiceInMemoryTestContainerFactory(final Injector injector) {
-    this.injector = injector;
+    this._injector = injector;
   }
 
+  @SuppressWarnings("unchecked")
   public Class<LowLevelAppDescriptor> supports() {
     return LowLevelAppDescriptor.class;
   }
 
   public TestContainer create(URI uri, AppDescriptor descriptor) throws IllegalArgumentException {
-    return new GuiceInMemoryTestContainer(uri, (LowLevelAppDescriptor) descriptor, injector);
+    return new GuiceInMemoryTestContainer(uri, (LowLevelAppDescriptor) descriptor, _injector);
   }
 
   private static class GuiceInMemoryTestContainer implements TestContainer {
 
-    private final URI baseUri;
-    private final ResourceConfig config;
-    private final WebApplication application;
-    private final Injector injector;
+    private final URI _baseUri;
+    private final ResourceConfig _config;
+    private final WebApplication _application;
+    private final Injector _injector;
 
     public GuiceInMemoryTestContainer(final URI baseUri, final LowLevelAppDescriptor descriptor, final Injector injector) {
-      this.baseUri = baseUri;
-      this.config = descriptor.getResourceConfig();
-      this.application = WebApplicationFactory.createWebApplication();
-      this.injector = injector;
+      this._baseUri = baseUri;
+      this._config = descriptor.getResourceConfig();
+      this._application = WebApplicationFactory.createWebApplication();
+      this._injector = injector;
     }
 
     public Client getClient() {
       //return new Client(new TestResourceClientHandler(baseUri, application));
       ClientConfig config = new DefaultClientConfig(FudgeObjectBinaryConsumer.class, FudgeObjectBinaryProducer.class);
-      Client client = new Client(new TestResourceClientHandler(baseUri, application), config);
+      Client client = new Client(new TestResourceClientHandler(_baseUri, _application), config);
       return client;
     }
 
     public URI getBaseUri() {
-      return baseUri;
+      return _baseUri;
     }
 
     public void start() {
-      if (!application.isInitiated()) {
-        application.initiate(config, new GuiceComponentProviderFactory(config, injector) {
+      if (!_application.isInitiated()) {
+        _application.initiate(_config, new GuiceComponentProviderFactory(_config, _injector) {
           @Override
           public Map<Scope, ComponentScope> createScopeMap() {
             Map<Scope, ComponentScope> m = super.createScopeMap();
@@ -81,8 +88,8 @@ public class GuiceInMemoryTestContainerFactory implements TestContainerFactory {
     }
 
     public void stop() {
-      if (application.isInitiated()) {
-        application.destroy();
+      if (_application.isInitiated()) {
+        _application.destroy();
       }
     }
 

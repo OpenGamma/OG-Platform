@@ -62,8 +62,8 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
   }
 
   @Override
-  public void writeTo(Object obj, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
-      throws IOException, WebApplicationException {
+  public void writeTo(Object obj, Class<?> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
 
     FudgeMsgEnvelope msg;
     if (obj instanceof FudgeResponse) {

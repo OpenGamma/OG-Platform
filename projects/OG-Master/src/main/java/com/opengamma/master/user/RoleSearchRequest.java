@@ -5,17 +5,11 @@
  */
 package com.opengamma.master.user;
 
-import com.opengamma.core.user.OGEntitlement;
-import com.opengamma.core.user.ResourceAccess;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.master.AbstractDocument;
-import com.opengamma.master.AbstractSearchRequest;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicSPI;
-import com.opengamma.util.RegexUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,10 +20,16 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.joda.beans.Bean;
+import com.opengamma.core.user.OGEntitlement;
+import com.opengamma.core.user.ResourceAccess;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.master.AbstractDocument;
+import com.opengamma.master.AbstractSearchRequest;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
+import com.opengamma.util.RegexUtils;
 
 /**
  * Request for searching for roles.

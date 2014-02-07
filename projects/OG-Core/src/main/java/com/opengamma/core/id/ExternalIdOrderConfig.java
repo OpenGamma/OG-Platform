@@ -32,6 +32,7 @@ import com.opengamma.id.ExternalScheme;
 /**
  * Class to hold configuration of custom display ordering of external ids.
  */
+@SuppressWarnings("deprecation")
 @BeanDefinition
 public class ExternalIdOrderConfig extends DirectBean {
   @PropertyDefinition(validate = "notNull")

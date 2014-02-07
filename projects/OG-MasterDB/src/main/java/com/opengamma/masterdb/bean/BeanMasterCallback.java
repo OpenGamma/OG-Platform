@@ -8,7 +8,6 @@ package com.opengamma.masterdb.bean;
 import java.util.Map;
 
 import org.joda.beans.Bean;
-import org.joda.beans.ser.JodaBeanSer;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.AbstractDocument;

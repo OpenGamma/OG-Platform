@@ -21,6 +21,7 @@ import com.opengamma.util.test.TestGroup;
 public class OrderIdConfigFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testFudgeBuilder() {
     Map<ExternalScheme, Integer> _scoreMap = Maps.newHashMap();
     _scoreMap.put(ExternalSchemes.BLOOMBERG_TCM, 20); // beacuse if there's both ticker and tcm, you want to see tcm.

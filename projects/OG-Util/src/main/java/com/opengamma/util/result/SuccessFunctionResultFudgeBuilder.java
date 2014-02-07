@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
- * Fudge builder for SuccessResult
+ * Fudge builder for SuccessResult.
  */
 @FudgeBuilderFor(SuccessResult.class)
 public class SuccessFunctionResultFudgeBuilder implements FudgeBuilder<SuccessResult<?>> {
@@ -33,4 +33,5 @@ public class SuccessFunctionResultFudgeBuilder implements FudgeBuilder<SuccessRe
     Object result = deserializer.fieldValueToObject(msg.getByName(RESULT));
     return new SuccessResult(result);
   }
+
 }

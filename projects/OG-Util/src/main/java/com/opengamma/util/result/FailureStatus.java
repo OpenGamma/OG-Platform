@@ -10,6 +10,7 @@ package com.opengamma.util.result;
  */
 public enum FailureStatus implements ResultStatus {
   // TODO rename failure reason? create FailureStatus marker interface it can implement?
+
   /**
    * Some data required for the function was missing and therefore it could not
    * be successfully completed.
@@ -30,8 +31,15 @@ public enum FailureStatus implements ResultStatus {
    */
   MULTIPLE;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns false to indicate that a result is not available.
+   *
+   * @return false
+   */
   @Override
   public boolean isResultAvailable() {
     return false;
   }
+
 }

@@ -20,13 +20,12 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> the type of object provided by the resolver
  * @param <S> the source used to resolve the link
  */
-/* package */ abstract class SourceLinkResolver<I, T, S extends Source> implements LinkResolver<T> {
+/* package */ abstract class SourceLinkResolver<I, T, S extends Source<?>> implements LinkResolver<T> {
 
   /**
    * The identifier to use when resolving.
    */
   private final I _identifier;
-
   /**
    * The specific service context to be used to look up service providers.
    * May be null in which case a thread-local context will be used.
@@ -44,6 +43,7 @@ import com.opengamma.util.ArgumentChecker;
     _serviceContext = serviceContext;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Return the identifier to be used.
    *
@@ -54,7 +54,6 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   private ServiceContext getServiceContext() {
-
     final ServiceContext serviceContext = _serviceContext != null ?
         _serviceContext :
         ThreadLocalServiceContext.getInstance();
@@ -62,7 +61,6 @@ import com.opengamma.util.ArgumentChecker;
     if (serviceContext == null) {
       throw new IllegalStateException("No service context was found for use by the current thread.");
     }
-
     return serviceContext;
   }
 
@@ -73,14 +71,15 @@ import com.opengamma.util.ArgumentChecker;
     return executeQuery(source, getVersionCorrection(vcProvider));
   }
 
-  private <S> S lookupService(Class<S> serviceClass) {
-    final S service = getServiceContext().getService(serviceClass);
+  private <R> R lookupService(Class<R> serviceClass) {
+    final R service = getServiceContext().getService(serviceClass);
     if (service == null) {
       throw new IllegalStateException("No service of class: [" + serviceClass + "] was found");
     }
     return service;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Get the {@link Source} class to be used to resolve the link target.
    *
@@ -89,10 +88,10 @@ import com.opengamma.util.ArgumentChecker;
   protected abstract Class<S> getSourceClass();
 
   /**
-   * Get the VersionCorrection to be used during the link resolution. It is expected,
-   * but not required, that the supplied VersionCorrectionProvider is used.
+   * Get the VersionCorrection to be used during the link resolution.
+   * It is expected, but not required, that the supplied VersionCorrectionProvider is used.
    *
-   * @param vcProvider the version correction provider (retrieved from the service context), not null
+   * @param vcProvider  the version correction provider (retrieved from the service context), not null
    * @return the VersionCorrection to be used, not null
    */
   protected abstract VersionCorrection getVersionCorrection(VersionCorrectionProvider vcProvider);
@@ -100,9 +99,10 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Execute a query against the source to retrieve the target of the link.
    *
-   * @param source the source to retrieve the object from, not null
-   * @param versionCorrection the version correction to be used during the query, not null
+   * @param source  the source to retrieve the object from, not null
+   * @param versionCorrection  the version correction to be used during the query, not null
    * @return the target of the link if found, otherwise null
    */
   protected abstract T executeQuery(S source, VersionCorrection versionCorrection);
+
 }

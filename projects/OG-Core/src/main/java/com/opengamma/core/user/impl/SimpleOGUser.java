@@ -7,7 +7,6 @@ package com.opengamma.core.user.impl;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -23,7 +22,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZoneId;
 
-import com.google.common.collect.Sets;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;

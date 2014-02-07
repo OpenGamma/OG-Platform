@@ -22,6 +22,7 @@ public class InterestRateSwapNotionalTest {
 
   private final static double TOLERACE = 1e-10;
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testConstantNotional() throws Exception {
     InterestRateSwapNotional notional = InterestRateSwapNotional.of(Currency.GBP, 1e6);
