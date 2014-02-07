@@ -17,17 +17,17 @@
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
     ik.key_value as key_value,
-    r.name as role_name
+    ent.entitlement_pattern as entitlement_pattern
   FROM
     usr_oguser main
     LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
     LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
-    LEFT JOIN usr_oguser2ogrole ur ON (ur.oguser_id = main.id)
-    LEFT JOIN usr_ogrole r ON (r.oid = ur.ogrole_oid)
+    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   WHERE main.id = :doc_id
     AND main.oid = :doc_oid
   ORDER BY
-    idkey_id
+    idkey_id,
+    ent.entitlement_index
 
 
 -- ==========================================================================
@@ -47,16 +47,19 @@
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
     ik.key_scheme as key_scheme,
-    ik.key_value as key_value
+    ik.key_value as key_value,
+    ent.entitlement_pattern as entitlement_pattern
   FROM
     usr_oguser main
     LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
     LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
+    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   WHERE main.oid = :doc_oid
     AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
     AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
   ORDER BY
-    idkey_id
+    idkey_id,
+    ent.entitlement_index
 
 
 -- ==========================================================================
@@ -77,14 +80,13 @@
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
     ik.key_value as key_value,
-    r.name as role_name
+    ent.entitlement_pattern as entitlement_pattern
   FROM
     usr_oguser main
     INNER JOIN cte_docs ON main.id = cte_docs.id
     LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
     LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
-    LEFT JOIN usr_oguser2ogrole ur ON (ur.oguser_id = main.id)
-    LEFT JOIN usr_ogrole r ON (r.oid = ur.ogrole_oid)
+    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   ORDER BY
     main.@VALUE(:sort_order),
     main.id
@@ -236,14 +238,13 @@
     ik.key_scheme as key_scheme,
     ik.key_scheme as key_scheme,
     ik.key_value as key_value,
-    r.name as role_name
+    ent.entitlement_pattern as entitlement_pattern
   FROM
     usr_oguser main
     INNER JOIN cte_docs ON main.id = cte_docs.id
     LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
     LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
-    LEFT JOIN usr_oguser2ogrole ur ON (ur.oguser_id = main.id)
-    LEFT JOIN usr_ogrole r ON (r.oid = ur.ogrole_oid)
+    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   ORDER BY
     main.ver_from_instant DESC,
     main.corr_from_instant DESC
@@ -299,18 +300,19 @@
 
 
 -- ==========================================================================
+@NAME(InsertEntitlement)
+  INSERT INTO usr_entitlement
+    (oguser_id, entitlement_index, entitlement_pattern)
+  VALUES
+    (:oguser_id, :entitlement_index, :entitlement_pattern)
+
+
+-- ==========================================================================
 @NAME(InsertDoc2IdKey)
   INSERT INTO usr_oguser2idkey
     (oguser_id, idkey_id)
   VALUES
     (:doc_id, ( @INCLUDE(SelectIdKey) ))
-
--- ==========================================================================
-@NAME(InsertDoc2RoleKey)
-  INSERT INTO usr_oguser2ogrole
-    (oguser_id, ogrole_oid)
-  VALUES
-    (:doc_id, :ogrole_oid)
 
 
 -- ==========================================================================

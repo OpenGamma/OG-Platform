@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -27,6 +27,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for users.
+ * <p>
  * The users resource receives and processes RESTful calls to the user master.
  */
 @Path("userMaster")
@@ -86,6 +87,7 @@ public class DataUserMasterResource extends AbstractDataResource {
     return responseCreatedFudge(createdUri, result);
   }
 
+  //-------------------------------------------------------------------------
   @Path("users/{userId}")
   public DataUserResource findUser(@PathParam("userId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);

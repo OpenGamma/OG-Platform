@@ -46,7 +46,7 @@ public class MasterUserSource extends AbstractMasterSource<OGUser, UserDocument,
   @Override
   public OGUser getUser(String userId, VersionCorrection versionCorrection) {
     UserSearchRequest searchRequest = new UserSearchRequest();
-    searchRequest.setUsername(userId);
+    searchRequest.setUserId(userId);
     searchRequest.setVersionCorrection(versionCorrection);
     List<ManageableOGUser> result = getMaster().search(searchRequest).getUsers();
     if (result.size() == 1) {

@@ -19,7 +19,6 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * Abstract base class for remote masters.
@@ -49,10 +48,6 @@ public abstract class AbstractRemoteDocumentMaster<D extends AbstractDocument>
    */
   public AbstractRemoteDocumentMaster(final URI baseUri, ChangeManager changeManager) {
     super(baseUri, changeManager);
-  }
-
-  public AbstractRemoteDocumentMaster(URI baseUri, FudgeRestClient client) {
-    super(baseUri, client);
   }
 
   //-------------------------------------------------------------------------

@@ -14,7 +14,6 @@ common/deploy.properties
 !/projects/src
 !/projects/OG-Parent
 !/projects/OG-Analytics
-!/projects/OG-Auth
 !/projects/OG-Bloomberg
 !/projects/OG-BloombergExample
 !/projects/OG-Component

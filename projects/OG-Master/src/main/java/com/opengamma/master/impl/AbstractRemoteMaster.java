@@ -11,7 +11,6 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
-import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * Abstract base class for remote masters.
@@ -24,12 +23,6 @@ public abstract class AbstractRemoteMaster extends AbstractRemoteClient {
    * The change manager.
    */
   private final ChangeManager _changeManager;
-
-
-  protected AbstractRemoteMaster(URI baseUri, FudgeRestClient client) {
-    super(baseUri, client);
-    this._changeManager = new BasicChangeManager();
-  }
 
   /**
    * Creates an instance.

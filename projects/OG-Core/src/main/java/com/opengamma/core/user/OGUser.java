@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.user;
 
+import java.util.Set;
+
 import org.threeten.bp.ZoneId;
 
 import com.opengamma.id.ExternalBundleIdentifiable;
@@ -51,6 +53,14 @@ public interface OGUser extends UniqueIdentifiable, ExternalBundleIdentifiable {
    * @return the hashed password for the user account, may be null
    */
   String getPasswordHash();
+
+  /**
+   * Obtains the user entitlements.
+   * Each may be interpreted as a pattern to be applied to a restricted resource.
+   * 
+   * @return the entitlements for the user in order of processing, not null
+   */
+  Set<String> getEntitlements();
 
   /**
    * Gets the display user name, used to identify the user in a GUI.

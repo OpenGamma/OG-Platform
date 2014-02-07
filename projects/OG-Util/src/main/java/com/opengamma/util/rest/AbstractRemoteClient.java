@@ -43,6 +43,7 @@ public abstract class AbstractRemoteClient {
     _client = client;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the base URI.
    * 

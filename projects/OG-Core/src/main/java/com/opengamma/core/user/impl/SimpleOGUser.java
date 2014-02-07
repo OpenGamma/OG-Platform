@@ -7,6 +7,7 @@ package com.opengamma.core.user.impl;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -22,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZoneId;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -64,10 +66,11 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   @PropertyDefinition
   private String _passwordHash;
   /**
-   * The user password salt, null if no password.
+   * The entitlements for the user.
+   * This is a set of entitlements that the user has, which enables access restriction.
    */
-  @PropertyDefinition
-  private String _salt;
+  @PropertyDefinition(validate = "notNull")
+  private final Set<String> _entitlements = Sets.newHashSet();
   /**
    * The display user name, used to identify the user in a GUI.
    */
@@ -225,27 +228,32 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the user password salt, null if no password.
-   * @return the value of the property
+   * Gets the entitlements for the user.
+   * This is a set of entitlements that the user has, which enables access restriction.
+   * @return the value of the property, not null
    */
-  public String getSalt() {
-    return _salt;
+  public Set<String> getEntitlements() {
+    return _entitlements;
   }
 
   /**
-   * Sets the user password salt, null if no password.
-   * @param salt  the new value of the property
+   * Sets the entitlements for the user.
+   * This is a set of entitlements that the user has, which enables access restriction.
+   * @param entitlements  the new value of the property, not null
    */
-  public void setSalt(String salt) {
-    this._salt = salt;
+  public void setEntitlements(Set<String> entitlements) {
+    JodaBeanUtils.notNull(entitlements, "entitlements");
+    this._entitlements.clear();
+    this._entitlements.addAll(entitlements);
   }
 
   /**
-   * Gets the the {@code salt} property.
+   * Gets the the {@code entitlements} property.
+   * This is a set of entitlements that the user has, which enables access restriction.
    * @return the property, not null
    */
-  public final Property<String> salt() {
-    return metaBean().salt().createProperty(this);
+  public final Property<Set<String>> entitlements() {
+    return metaBean().entitlements().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -351,7 +359,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
           JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
           JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
           JodaBeanUtils.equal(getPasswordHash(), other.getPasswordHash()) &&
-          JodaBeanUtils.equal(getSalt(), other.getSalt()) &&
+          JodaBeanUtils.equal(getEntitlements(), other.getEntitlements()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
           JodaBeanUtils.equal(getEmailAddress(), other.getEmailAddress());
@@ -366,7 +374,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordHash());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSalt());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlements());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
@@ -391,7 +399,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
     buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
     buf.append("userId").append('=').append(JodaBeanUtils.toString(getUserId())).append(',').append(' ');
     buf.append("passwordHash").append('=').append(JodaBeanUtils.toString(getPasswordHash())).append(',').append(' ');
-    buf.append("salt").append('=').append(JodaBeanUtils.toString(getSalt())).append(',').append(' ');
+    buf.append("entitlements").append('=').append(JodaBeanUtils.toString(getEntitlements())).append(',').append(' ');
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("timeZone").append('=').append(JodaBeanUtils.toString(getTimeZone())).append(',').append(' ');
     buf.append("emailAddress").append('=').append(JodaBeanUtils.toString(getEmailAddress())).append(',').append(' ');
@@ -428,10 +436,11 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
     private final MetaProperty<String> _passwordHash = DirectMetaProperty.ofReadWrite(
         this, "passwordHash", SimpleOGUser.class, String.class);
     /**
-     * The meta-property for the {@code salt} property.
+     * The meta-property for the {@code entitlements} property.
      */
-    private final MetaProperty<String> _salt = DirectMetaProperty.ofReadWrite(
-        this, "salt", SimpleOGUser.class, String.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<String>> _entitlements = DirectMetaProperty.ofReadWrite(
+        this, "entitlements", SimpleOGUser.class, (Class) Set.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -456,7 +465,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
         "externalIdBundle",
         "userId",
         "passwordHash",
-        "salt",
+        "entitlements",
         "name",
         "timeZone",
         "emailAddress");
@@ -478,8 +487,8 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
           return _userId;
         case 566700617:  // passwordHash
           return _passwordHash;
-        case 3522646:  // salt
-          return _salt;
+        case -1704576794:  // entitlements
+          return _entitlements;
         case 3373707:  // name
           return _name;
         case -2077180903:  // timeZone
@@ -539,11 +548,11 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
     }
 
     /**
-     * The meta-property for the {@code salt} property.
+     * The meta-property for the {@code entitlements} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> salt() {
-      return _salt;
+    public final MetaProperty<Set<String>> entitlements() {
+      return _entitlements;
     }
 
     /**
@@ -582,8 +591,8 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
           return ((SimpleOGUser) bean).getUserId();
         case 566700617:  // passwordHash
           return ((SimpleOGUser) bean).getPasswordHash();
-        case 3522646:  // salt
-          return ((SimpleOGUser) bean).getSalt();
+        case -1704576794:  // entitlements
+          return ((SimpleOGUser) bean).getEntitlements();
         case 3373707:  // name
           return ((SimpleOGUser) bean).getName();
         case -2077180903:  // timeZone
@@ -594,6 +603,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -609,8 +619,8 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
         case 566700617:  // passwordHash
           ((SimpleOGUser) bean).setPasswordHash((String) newValue);
           return;
-        case 3522646:  // salt
-          ((SimpleOGUser) bean).setSalt((String) newValue);
+        case -1704576794:  // entitlements
+          ((SimpleOGUser) bean).setEntitlements((Set<String>) newValue);
           return;
         case 3373707:  // name
           ((SimpleOGUser) bean).setName((String) newValue);
@@ -629,6 +639,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((SimpleOGUser) bean)._externalIdBundle, "externalIdBundle");
       JodaBeanUtils.notNull(((SimpleOGUser) bean)._userId, "userId");
+      JodaBeanUtils.notNull(((SimpleOGUser) bean)._entitlements, "entitlements");
       JodaBeanUtils.notNull(((SimpleOGUser) bean)._timeZone, "timeZone");
     }
 
