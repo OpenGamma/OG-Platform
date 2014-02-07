@@ -32,7 +32,7 @@ cd "${BASEDIR}" || exit 1
 load_default_config
 
 # Component specific default configs
-CONFIG=classpath:fullstack/fullstack-bin.properties
+CONFIG=classpath:fullstack/fullstack.properties
 LOGBACK_CONFIG=fullstack/fullstack-logback.xml
 LOGFILE=logs/fullstack-console.log
 
