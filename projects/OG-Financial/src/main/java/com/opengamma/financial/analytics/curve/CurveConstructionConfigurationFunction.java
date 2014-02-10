@@ -39,7 +39,7 @@ public class CurveConstructionConfigurationFunction extends AbstractFunction {
 
   /** The configuration name */
   private final String _configurationName;
-
+  /** The curve construction configuration source */
   private ConfigDBCurveConstructionConfigurationSource _curveConstructionConfigurationSource;
 
   /**

@@ -6,11 +6,13 @@
 package com.opengamma.financial.analytics.model.bondcleanprice;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.Z_SPREAD;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +36,13 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
+import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.tuple.Pair;
 
 
@@ -45,12 +54,23 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
   private static final Logger s_logger = LoggerFactory.getLogger(BondZSpreadFromCleanPriceFunction.class);
   /** The z-spread calculator */
   private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
+  /** The curve construction configuration source */
+  private ConfigDBCurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+  /** The instrument exposures provider */
+  private InstrumentExposuresProvider _instrumentExposuresProvider;
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#Z_SPREAD}
    */
   public BondZSpreadFromCleanPriceFunction() {
     super(Z_SPREAD);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    super.init(context);
+    _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
+    _instrumentExposuresProvider = ConfigDBInstrumentExposuresProvider.init(context, this);
   }
 
   @Override
@@ -85,7 +105,26 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
     if (requirements == null) {
       return null;
     }
+    final String curveExposureConfig = desiredValue.getConstraint(CURVE_EXPOSURES);
+    final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final String curve = Iterables.getOnlyElement(curves);
+    final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+    boolean curveNameFound = false;
+    for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
+      final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
+      final List<CurveGroupConfiguration> groups = curveConstructionConfiguration.getCurveGroups();
+      for (final CurveGroupConfiguration group : groups) {
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+          if (curve.equals(entry.getKey())) {
+            curveNameFound = true;
+            break;
+          }
+        }
+      }
+    }
+    if (!curveNameFound) {
+      return null;
+    }
     final ValueProperties curveProperties = ValueProperties.builder()
         .with(CURVE, curve)
         .with(PROPERTY_CURVE_TYPE, constraints.getValues(PROPERTY_CURVE_TYPE))

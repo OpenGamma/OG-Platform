@@ -9,9 +9,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -33,6 +35,8 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class MergedOutputPositionFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(MergedOutputPositionFunction.class);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -67,7 +71,8 @@ public class MergedOutputPositionFunction extends AbstractFunction.NonCompiledIn
       return null;
     }
     if (inputs.size() > 1) {
-      throw new OpenGammaRuntimeException("Expected requirements for merged output to be mutually exclusive, but multiple resolved successfully: " + inputs);
+      s_logger.error("Expected requirements for merged output to be mutually exclusive, but multiple resolved successfully: " + inputs);
+      return null;
     }
     final ValueRequirement inputRequirement = Iterables.getOnlyElement(inputs.values());
     final ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());

@@ -117,21 +117,20 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
+    final String curveExposureConfig = Iterables.getOnlyElement(curveExposureConfigs);
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(new ValueRequirement(MARKET_VALUE, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
     try {
-      for (final String curveExposureConfig : curveExposureConfigs) {
-        final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
-        for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
-          final ValueProperties properties = ValueProperties.builder()
-              .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
-              .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
-              .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE))
-              .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS))
-              .with(PROPERTY_CURVE_TYPE, curveTypes)
-              .get();
-          requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
-        }
+      final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+      for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
+        final ValueProperties properties = ValueProperties.builder()
+            .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
+            .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
+            .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE))
+            .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS))
+            .with(PROPERTY_CURVE_TYPE, curveTypes)
+            .get();
+        requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
       return requirements;
     } catch (final Exception e) {
