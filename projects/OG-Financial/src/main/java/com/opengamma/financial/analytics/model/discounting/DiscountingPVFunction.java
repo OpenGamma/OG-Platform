@@ -69,10 +69,14 @@ public class DiscountingPVFunction extends DiscountingFunction {
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
         final Currency currency;
         if (type == InterestRateInstrumentType.SWAP_CROSS_CURRENCY) {
-          currency = ((InterestRateNotional) ((SwapSecurity) security).getPayLeg().getNotional()).getCurrency();
-        } else {
-          currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+          final SwapSecurity swapSecurity = (SwapSecurity) security;
+          currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency();
+          final Currency otherCurrency = ((InterestRateNotional) swapSecurity.getReceiveLeg().getNotional()).getCurrency();
+          final double fx = data.getFxRate(otherCurrency, currency);
+          final double pv = mca.getAmount(currency) + fx * mca.getAmount(otherCurrency);
+          return Collections.singleton(new ComputedValue(spec, pv));
         }
+        currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
         return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));
       }
 
