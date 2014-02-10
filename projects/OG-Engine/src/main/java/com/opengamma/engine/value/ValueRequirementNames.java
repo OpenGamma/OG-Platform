@@ -1661,5 +1661,11 @@ public final class ValueRequirementNames {
    * External position quantity.
    */
   public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
+  
+  /**
+   * Delta Equivalent value of a position. Essentially equivalent to {@link ValueRequirementNames#VALUE_DELTA}
+   */
+  public static final String NET_MARKET_VALUE = "Net Market Value";
+
 
 }

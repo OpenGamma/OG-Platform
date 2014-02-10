@@ -7,6 +7,7 @@ package com.opengamma.web.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -15,6 +16,8 @@ import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.QuantityFunction;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
@@ -30,6 +33,7 @@ import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpo
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerExchangeDefaults;
+import com.opengamma.financial.analytics.model.equity.option.ListedEquityOptionPerSecurityTypeDefaults;
 import com.opengamma.financial.analytics.model.equity.option.ListedEquityOptionPerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
@@ -49,6 +53,11 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixLookupFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.value.SimpleRenamingFunction;
+import com.opengamma.financial.value.ValueRenamingFunction;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
 
 /**
@@ -87,6 +96,21 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     addEquityPureVolatilitySurfaceDefaults(functions);
     addEquityVarianceSwapDefaults(functions);
     addEquityOptionCalculationMethodDefaults(functions);
+    addListedEquityOptionDefaults(functions);
+    addValueRenamingFunctions(functions);
+  }
+
+  /**
+   * These functions provide aliases for the user to rename one of OpenGamma's ValueRequirementNames to one of their own.
+   * In addition to adding the name to a class that extends ValueRenamingFunction, such as SimpleRenamingFunction, one must also
+   * add the name into ValueRequirementNames or to a project-specific name class 
+   * and include that into the [webBasics] section of the engine.ini configuration file. <p>
+   * eg: [webBasics] <p>
+   *  valueRequirementNameClasses = com.opengamma.engine.value.ValueRequirementNames,com.opengamma.yourproject.function.YourProjectValueRequirementNames
+   * @param functions Extends this List<FunctionConfiguration>
+   */
+  protected void addValueRenamingFunctions(List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(SimpleRenamingFunction.class, ValueRequirementNames.VALUE_DELTA, ValueRequirementNames.NET_MARKET_VALUE));
   }
 
   @Override
@@ -579,10 +603,17 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
 
   protected void addEquityOptionCalculationMethodDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(),
-        CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD, // (American) Equity Options
+        CalculationPropertyNamesAndValues.ROLL_GESKE_WHALEY_LISTED_METHOD, // (American) Equity Options
         CalculationPropertyNamesAndValues.BLACK_LISTED_METHOD, // (European) EquityIndexOptions
         CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD); // (American) EquityIndexFutureOptions
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionCalculationMethodDefaultFunction.class.getName(), defaults));
+  }
+  
+  protected void addListedEquityOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(ListedEquityOptionPerSecurityTypeDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+        EquityOptionSecurity.SECURITY_TYPE, "OIS", "DefaultTwoCurveUSDConfig", "Forward3M", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD,
+        EquityIndexOptionSecurity.SECURITY_TYPE, "OIS", "DefaultTwoCurveUSDConfig", "Forward3M", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD,
+        EquityIndexFutureOptionSecurity.SECURITY_TYPE, "OIS", "DefaultTwoCurveUSDConfig", "Forward3M", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD));
   }
 
   @Override
