@@ -224,7 +224,7 @@
               <constructor-arg ref="combinedSecuritySource" />
               <!-- Note the organization source does not cache therefore performance
               is likely to be poor-->
-              <constructor-arg ref="sharedOrganizationSource" />
+              <constructor-arg ref="sharedLegalEntitySource" />
               <constructor-arg value="SECTOR" />
               <constructor-arg value="false" />
               <constructor-arg value="false" />
@@ -233,7 +233,7 @@
               <constructor-arg ref="combinedSecuritySource" />
               <!-- Note the organization source does not cache therefore performance
               is likely to be poor-->
-              <constructor-arg ref="sharedOrganizationSource" />
+              <constructor-arg ref="sharedLegalEntitySource" />
               <constructor-arg value="INDUSTRY_GROUP" />
               <constructor-arg value="false" />
             </bean>
@@ -241,7 +241,7 @@
               <constructor-arg ref="combinedSecuritySource" />
               <!-- Note the organization source does not cache therefore performance
               is likely to be poor-->
-              <constructor-arg ref="sharedOrganizationSource" />
+              <constructor-arg ref="sharedLegalEntitySource" />
               <constructor-arg value="INDUSTRY" />
               <constructor-arg value="false" />
             </bean>
@@ -249,7 +249,7 @@
               <constructor-arg ref="combinedSecuritySource" />
               <!-- Note the organization source does not cache therefore performance
               is likely to be poor-->
-              <constructor-arg ref="sharedOrganizationSource" />
+              <constructor-arg ref="sharedLegalEntitySource" />
               <constructor-arg value="SUB_INDUSTRY" />
               <constructor-arg value="false" />
             </bean>
@@ -278,11 +278,11 @@
             </bean>
             <bean class="com.opengamma.financial.aggregation.CdsObligorTickerAggregationFunction">
               <constructor-arg ref="combinedSecuritySource" />
-              <constructor-arg ref="sharedOrganizationSource" />
+              <constructor-arg ref="sharedLegalEntitySource" />
             </bean>
             <bean class="com.opengamma.financial.aggregation.EntityNameAggregationFunction">
               <constructor-arg ref="combinedSecuritySource" />
-              <constructor-arg ref="sharedOrganizationSource" />
+              <constructor-arg ref="sharedLegalEntitySource" />
             </bean>
             <bean class="com.opengamma.financial.aggregation.SeniorityAggregationFunction">
               <constructor-arg ref="combinedSecuritySource" />
