@@ -11,7 +11,11 @@ import static com.opengamma.engine.value.ValueRequirementNames.Z_SPREAD;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -37,6 +41,8 @@ import com.opengamma.util.tuple.Pair;
  * Calculates the z-spread of a bond from the clean price.
  */
 public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurvesFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(BondZSpreadFromCleanPriceFunction.class);
   /** The z-spread calculator */
   private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
 
@@ -89,8 +95,29 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
   }
 
   @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String curveName = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      if (entry.getKey().getValueName().equals(YIELD_CURVE)) {
+        curveName = entry.getKey().getProperty(CURVE);
+        break;
+      }
+    }
+    if (curveName == null) {
+      s_logger.error("Could not get curve name from inputs; missing yield curve");
+      return null;
+    }
+    final ValueProperties properties = getResultProperties(target)
+        .withoutAny(CURVE)
+        .with(CURVE, curveName)
+        .get();
+    return Collections.singleton(new ValueSpecification(Z_SPREAD, target.toSpecification(), properties));
+  }
+
+  @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return super.getResultProperties(target)
         .withAny(CURVE);
   }
+
 }

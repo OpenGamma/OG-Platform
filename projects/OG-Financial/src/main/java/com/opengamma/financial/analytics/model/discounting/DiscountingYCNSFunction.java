@@ -26,7 +26,6 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -44,7 +43,6 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -66,13 +64,6 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
-
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final Security security = target.getTrade().getSecurity();
-        return super.canApplyTo(compilationContext, target) ||
-            security instanceof FederalFundsFutureSecurity;
-      }
 
       @SuppressWarnings("synthetic-access")
       @Override

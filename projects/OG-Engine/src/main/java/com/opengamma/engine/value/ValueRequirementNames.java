@@ -64,17 +64,17 @@ public final class ValueRequirementNames {
   //  public static final String DAILY_CALL_IMP_VOL_30D = "Last Call Implied Vol 30D";
   /**
    * The mark as of the previous close (e.g. equity price) <p>
-   * Used in {@link ExternallyProvidedSecurityMarkFunction} 
+   * Used in {@link ExternallyProvidedSecurityMarkFunction}
    */
   public static final String MARK = "Mark";
-  /** 
-   * Current value of a security. 
+  /**
+   * Current value of a security.
    * This is typically the mid of bid/ask prices, but if these are not available, may be formed in another fashion
    */
   public static final String MARK_CURRENT = "Mark - Current";
-  
-  /** 
-   * Previous value of a security. 
+
+  /**
+   * Previous value of a security.
    * This is typically the mid of previous bid/ask prices, but if these are not available, may be formed in another fashion
    */
   public static final String MARK_PREVIOUS = "Mark - Previous";
@@ -104,7 +104,7 @@ public final class ValueRequirementNames {
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
   /**
    * For margined securities, the reference or margin price. This will either be the security's close price or,
-   * on the transaction date itself, the traded price 
+   * on the transaction date itself, the traded price
    */
   public static final String MARGIN_PRICE = "Margin Price";
   /**
@@ -218,11 +218,11 @@ public final class ValueRequirementNames {
    * A series of yield curves calculated using historical data
    */
   public static final String YIELD_CURVE_SERIES = "Yield Curve Series";
-  /** 
+  /**
    * The FX matrix associated with a bundle of curves.
    */
   public static final String FX_MATRIX = "FX Matrix";
-  /** 
+  /**
    * A set of parameters for the Hull-White one factor model.
    */
   public static final String HULL_WHITE_ONE_FACTOR_PARAMETERS = "Hull-White One Factor Parameters";
@@ -231,7 +231,7 @@ public final class ValueRequirementNames {
    */
   public static final String G2PP_PARAMETERS = "G2pp Parameters";
   /**
-   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
+   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections,
    * ignoring the type of instrument etc.).
    */
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
@@ -241,7 +241,7 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   /**
    * The transition matrix between the sensitivity with respect to the new currency parameters and the initial currency market data.
-   * Used for FX swaps implied curves calibration. 
+   * Used for FX swaps implied curves calibration.
    */
   public static final String FX_IMPLIED_TRANSITION_MATRIX = "FXImpliedTransitionMatrix";
   /**
@@ -292,11 +292,11 @@ public final class ValueRequirementNames {
    */
   public static final String CURVE_DEFINITION = "CurveDefinition";
   /**
-   * A vector of P&L series for the nodal points of a yield curve. 
+   * A vector of P&L series for the nodal points of a yield curve.
    */
   public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
   /**
-   * A vector of P&L series for the nodal points of a curve. 
+   * A vector of P&L series for the nodal points of a curve.
    */
   public static final String CURVE_PNL_SERIES = "Curve P&L Series";
   /**
@@ -346,7 +346,7 @@ public final class ValueRequirementNames {
   /**
    * A bundle of curves
    */
-  public static final String CURVE_BUNDLE = "Curve Bundle"; 
+  public static final String CURVE_BUNDLE = "Curve Bundle";
   /**
    * A bundle of Jacobians
    */
@@ -455,7 +455,7 @@ public final class ValueRequirementNames {
    * The shifts to apply to a log-normal volatility surface
    */
   public static final String LOGNORMAL_SURFACE_SHIFTS = "LognormalSurfaceShifts";
-  
+
   ///// Pricing
 
   /**
@@ -618,6 +618,10 @@ public final class ValueRequirementNames {
    * The PV01 of a cash-flow based fixed-income instrument.
    */
   public static final String PV01 = "PV01";
+  /**
+   * All PV01s of a cash-flow based fixed-income instrument.
+   */
+  public static final String ALL_PV01S = "All PV01s";
   /**
    * The Gamma PV01 of a cash-flow based fixed-income instrument.
    */
@@ -875,7 +879,7 @@ public final class ValueRequirementNames {
   /**
    * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
    * {@link #DELTA} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
-   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t), 
+   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t),
    * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
    */
   public static final String VALUE_DELTA = "ValueDelta";
@@ -1283,7 +1287,7 @@ public final class ValueRequirementNames {
    * The convexity of a bond.
    */
   public static final String CONVEXITY = "Convexity";
-  /** 
+  /**
    * The accrued interest of a bond.
    */
   public static final String ACCRUED_INTEREST = "Accrued Interest";
@@ -1636,7 +1640,7 @@ public final class ValueRequirementNames {
    * The named used for a value published as a merged output.
    */
   public static final String MERGED_OUTPUT = "MergedOutput";
-  
+
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.

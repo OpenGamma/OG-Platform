@@ -30,62 +30,63 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class MergedOutputPositionFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return ImmutableSet.of(ValueSpecification.of(ValueRequirementNames.MERGED_OUTPUT, target.toSpecification(), ValueProperties.all()));
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    String mergedOutputName = desiredValue.getConstraint(ValuePropertyNames.NAME);
-    ViewCalculationConfiguration calcConfig = context.getViewCalculationConfiguration();
-    MergedOutput mergedOutput = calcConfig.getMergedOutput(mergedOutputName);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String mergedOutputName = desiredValue.getConstraint(ValuePropertyNames.NAME);
+    final ViewCalculationConfiguration calcConfig = context.getViewCalculationConfiguration();
+    final MergedOutput mergedOutput = calcConfig.getMergedOutput(mergedOutputName);
     if (mergedOutput == null) {
       return null;
     }
-    Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (Pair<String, ValueProperties> requirement : mergedOutput.getPortfolioRequirements()) {
-      String valueName = requirement.getFirst();
-      ValueProperties constraints = requirement.getSecond().copy().with(ValuePropertyNames.NAME, mergedOutputName).withOptional(ValuePropertyNames.NAME).get();
+    final Set<ValueRequirement> requirements = new HashSet<>();
+    for (final Pair<String, ValueProperties> requirement : mergedOutput.getPortfolioRequirements()) {
+      final String valueName = requirement.getFirst();
+      final ValueProperties constraints = requirement.getSecond().copy().with(ValuePropertyNames.NAME, mergedOutputName).withOptional(ValuePropertyNames.NAME).get();
       requirements.add(new ValueRequirement(valueName, target.toSpecification(), constraints));
     }
     return requirements;
   }
-  
+
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     if (inputs.size() == 0) {
       return null;
     }
     if (inputs.size() > 1) {
       throw new OpenGammaRuntimeException("Expected requirements for merged output to be mutually exclusive, but multiple resolved successfully: " + inputs);
     }
-    ValueRequirement inputRequirement = Iterables.getOnlyElement(inputs.values());
-    ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
-    ValueProperties properties = getResultProperties(inputRequirement.getConstraint(ValuePropertyNames.NAME), inputSpec);
+    final ValueRequirement inputRequirement = Iterables.getOnlyElement(inputs.values());
+    final ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
+    final ValueProperties properties = getResultProperties(inputRequirement.getConstraint(ValuePropertyNames.NAME), inputSpec);
     return ImmutableSet.of(ValueSpecification.of(ValueRequirementNames.MERGED_OUTPUT, target.toSpecification(), properties));
   }
 
-  private ValueProperties getResultProperties(String mergedOutputName, ValueSpecification inputSpec) {
+  private ValueProperties getResultProperties(final String mergedOutputName, final ValueSpecification inputSpec) {
     return inputSpec.getProperties().copy()
         .with(ValuePropertyNames.NAME, mergedOutputName)
         .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues); 
-    ComputedValue result = Iterables.getOnlyElement(inputs.getAllValues());
-    ValueSpecification valueSpec = ValueSpecification.of(ValueRequirementNames.MERGED_OUTPUT, target.toSpecification(), desiredValue.getConstraints());
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+    final ComputedValue result = Iterables.getOnlyElement(inputs.getAllValues());
+    final ValueSpecification valueSpec = ValueSpecification.of(ValueRequirementNames.MERGED_OUTPUT, target.toSpecification(), desiredValue.getConstraints());
     return ImmutableSet.of(new ComputedValue(valueSpec, result.getValue()));
   }
 
@@ -93,5 +94,5 @@ public class MergedOutputPositionFunction extends AbstractFunction.NonCompiledIn
   public boolean canHandleMissingRequirements() {
     return true;
   }
-  
+
 }

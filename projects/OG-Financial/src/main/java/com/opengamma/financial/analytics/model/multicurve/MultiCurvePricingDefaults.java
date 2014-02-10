@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.multicurve;
 
 import static com.opengamma.engine.value.ValueRequirementNames.ACCRUED_INTEREST;
+import static com.opengamma.engine.value.ValueRequirementNames.ALL_PV01S;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
@@ -43,6 +44,7 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
   /** The value requirement names for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ACCRUED_INTEREST,
+    ALL_PV01S,
     BLOCK_CURVE_SENSITIVITIES,
     BUCKETED_PV01,
     CLEAN_PRICE,
