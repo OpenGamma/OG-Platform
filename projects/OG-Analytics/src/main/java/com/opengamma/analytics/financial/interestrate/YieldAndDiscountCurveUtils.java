@@ -68,7 +68,7 @@ public class YieldAndDiscountCurveUtils {
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingDate, index, cal);
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(curveDate, fixingPeriodEndDate);
     final double accrualFixing = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate);
-    final double forwardRate = multicurve.getForwardRate(index, fixingPeriodStartTime, fixingPeriodEndTime, accrualFixing);
+    final double forwardRate = multicurve.getSimplyCompoundForwardRate(index, fixingPeriodStartTime, fixingPeriodEndTime, accrualFixing);
     return forwardRate;
   }
 

@@ -83,9 +83,9 @@ public class CouponIborAverageDiscountingMethodTest {
   @Test
   public void presentValueMarketDiscount() {
     final MultipleCurrencyAmount pvComputed = METHOD_CPN_IBOR__AVERAGE.presentValue(CPN_IBOR__AVERAGE, MULTICURVES);
-    final double forward1 = MULTICURVES.getForwardRate(CPN_IBOR__AVERAGE.getIndex1(), CPN_IBOR__AVERAGE.getFixingPeriodStartTime1(), CPN_IBOR__AVERAGE.getFixingPeriodEndTime1(),
+    final double forward1 = MULTICURVES.getSimplyCompoundForwardRate(CPN_IBOR__AVERAGE.getIndex1(), CPN_IBOR__AVERAGE.getFixingPeriodStartTime1(), CPN_IBOR__AVERAGE.getFixingPeriodEndTime1(),
         CPN_IBOR__AVERAGE.getFixingAccrualFactor1());
-    final double forward2 = MULTICURVES.getForwardRate(CPN_IBOR__AVERAGE.getIndex2(), CPN_IBOR__AVERAGE.getFixingPeriodStartTime2(), CPN_IBOR__AVERAGE.getFixingPeriodEndTime2(),
+    final double forward2 = MULTICURVES.getSimplyCompoundForwardRate(CPN_IBOR__AVERAGE.getIndex2(), CPN_IBOR__AVERAGE.getFixingPeriodStartTime2(), CPN_IBOR__AVERAGE.getFixingPeriodEndTime2(),
         CPN_IBOR__AVERAGE.getFixingAccrualFactor2());
 
     final double df = MULTICURVES.getDiscountFactor(CPN_IBOR__AVERAGE.getCurrency(), CPN_IBOR_1.getPaymentTime());

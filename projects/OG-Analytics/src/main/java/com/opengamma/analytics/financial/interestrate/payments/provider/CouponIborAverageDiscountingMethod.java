@@ -53,8 +53,8 @@ public final class CouponIborAverageDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final CouponIborAverage coupon, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    final double forward1 = multicurves.getForwardRate(coupon.getIndex1(), coupon.getFixingPeriodStartTime1(), coupon.getFixingPeriodEndTime1(), coupon.getFixingAccrualFactor1());
-    final double forward2 = multicurves.getForwardRate(coupon.getIndex2(), coupon.getFixingPeriodStartTime2(), coupon.getFixingPeriodEndTime2(), coupon.getFixingAccrualFactor2());
+    final double forward1 = multicurves.getSimplyCompoundForwardRate(coupon.getIndex1(), coupon.getFixingPeriodStartTime1(), coupon.getFixingPeriodEndTime1(), coupon.getFixingAccrualFactor1());
+    final double forward2 = multicurves.getSimplyCompoundForwardRate(coupon.getIndex2(), coupon.getFixingPeriodStartTime2(), coupon.getFixingPeriodEndTime2(), coupon.getFixingAccrualFactor2());
     final double forward = coupon.getWeight1() * forward1 + coupon.getWeight2() * forward2;
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * df;
@@ -70,8 +70,8 @@ public final class CouponIborAverageDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponIborAverage coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Curves");
-    final double forward1 = multicurve.getForwardRate(coupon.getIndex1(), coupon.getFixingPeriodStartTime1(), coupon.getFixingPeriodEndTime1(), coupon.getFixingAccrualFactor1());
-    final double forward2 = multicurve.getForwardRate(coupon.getIndex2(), coupon.getFixingPeriodStartTime2(), coupon.getFixingPeriodEndTime2(), coupon.getFixingAccrualFactor2());
+    final double forward1 = multicurve.getSimplyCompoundForwardRate(coupon.getIndex1(), coupon.getFixingPeriodStartTime1(), coupon.getFixingPeriodEndTime1(), coupon.getFixingAccrualFactor1());
+    final double forward2 = multicurve.getSimplyCompoundForwardRate(coupon.getIndex2(), coupon.getFixingPeriodStartTime2(), coupon.getFixingPeriodEndTime2(), coupon.getFixingAccrualFactor2());
     final double forward = coupon.getWeight1() * forward1 + coupon.getWeight2() * forward2;
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep

@@ -29,8 +29,8 @@ public final class OvernightInterpolatedStubForwardRateProvider implements Forwa
       final double fixingPeriodEndTime,
       double fixingPeriodYearFraction) {
     IndexON index = coupon.getIndex();
-    double forwardInterpStart = multicurves.getForwardRate(index, fixingPeriodStartTime, _coupon.getFirstInterpolatedTime(), _coupon.getFirstInterpolatedYearFraction());
-    double forwardInterpEnd = multicurves.getForwardRate(index, fixingPeriodStartTime, _coupon.getSecondInterpolatedTime(), _coupon.getSecondInterpolatedYearFraction());
+    double forwardInterpStart = multicurves.getSimplyCompoundForwardRate(index, fixingPeriodStartTime, _coupon.getFirstInterpolatedTime(), _coupon.getFirstInterpolatedYearFraction());
+    double forwardInterpEnd = multicurves.getSimplyCompoundForwardRate(index, fixingPeriodStartTime, _coupon.getSecondInterpolatedTime(), _coupon.getSecondInterpolatedYearFraction());
 
     double forward = forwardInterpStart + (forwardInterpEnd - forwardInterpStart) 
         * (fixingPeriodYearFraction - _coupon.getFirstInterpolatedYearFraction()) / (_coupon.getSecondInterpolatedYearFraction() - _coupon.getFirstInterpolatedYearFraction());

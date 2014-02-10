@@ -52,7 +52,7 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
     final int nbFixing = futures.getFixingPeriodAccrualFactor().length;
     final double[] rates = new double[nbFixing];
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
-      rates[loopfix] = multicurve.getMulticurveProvider().getForwardRate(index, futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1],
+      rates[loopfix] = multicurve.getMulticurveProvider().getSimplyCompoundForwardRate(index, futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1],
           futures.getFixingPeriodAccrualFactor()[loopfix]);
     }
     // Backward sweep

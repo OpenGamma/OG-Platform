@@ -32,7 +32,7 @@ public class OISForwardRateProvider implements ForwardRateProvider<IndexON> {
       final double fixingPeriodStartTime,
       final double fixingPeriodEndTime,
       final double fixingPeriodYearFraction) {
-    return multicurves.getForwardRate(coupon.getIndex(), fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodYearFraction);
+    return multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodYearFraction);
   }
 
 }

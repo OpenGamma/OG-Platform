@@ -35,15 +35,15 @@ public final class IborCompoundingInterpolationStubForwardRateProvider implement
     
     if (Double.compare(fixingPeriodStartTimes[0], fullFixingPeriodStartTime) == 0) {
       IborIndex index = _coupon.getFullCoupon().getIndex();
-      double forwardInterpStart = multicurves.getForwardRate(index, fullFixingPeriodStartTime, _coupon.getFirstInterpolatedTime(), _coupon.getFirstInterpolatedYearFraction());
-      double forwardInterpEnd = multicurves.getForwardRate(index, fullFixingPeriodStartTime, _coupon.getSecondInterpolatedTime(), _coupon.getSecondInterpolatedYearFraction());
+      double forwardInterpStart = multicurves.getSimplyCompoundForwardRate(index, fullFixingPeriodStartTime, _coupon.getFirstInterpolatedTime(), _coupon.getFirstInterpolatedYearFraction());
+      double forwardInterpEnd = multicurves.getSimplyCompoundForwardRate(index, fullFixingPeriodStartTime, _coupon.getSecondInterpolatedTime(), _coupon.getSecondInterpolatedYearFraction());
 
       forward = forwardInterpStart + (forwardInterpEnd - forwardInterpStart) 
           * (fullFixingPeriodYearFraction - _coupon.getFirstInterpolatedYearFraction()) / 
           (_coupon.getSecondInterpolatedYearFraction() - _coupon.getFirstInterpolatedYearFraction());
       return Double.NaN;
     } else {
-      forward = multicurves.getForwardRate(_coupon.getFullCoupon().getIndex(), fullFixingPeriodStartTime, fullFixingPeriodEndTime, fullFixingPeriodYearFraction);
+      forward = multicurves.getSimplyCompoundForwardRate(_coupon.getFullCoupon().getIndex(), fullFixingPeriodStartTime, fullFixingPeriodEndTime, fullFixingPeriodYearFraction);
     }
     
     return forward;

@@ -73,7 +73,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final double paymentTime = payment.getPaymentTime();
     final double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final double af = payment.getFixingAccrualFactor();
-    final double beta = (1.0 + af * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
+    final double beta = (1.0 + af * multicurves.getSimplyCompoundForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
     final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
     final double forwardBar = af * dfRatio * betaBar;
 
@@ -105,7 +105,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final double paymentTime = payment.getPaymentTime();
     final double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final double af = payment.getFixingAccrualFactor();
-    final double beta = (1.0 + af * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
+    final double beta = (1.0 + af * multicurves.getSimplyCompoundForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
     final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
     final double forwardBar = af * dfRatio * betaBar;
 

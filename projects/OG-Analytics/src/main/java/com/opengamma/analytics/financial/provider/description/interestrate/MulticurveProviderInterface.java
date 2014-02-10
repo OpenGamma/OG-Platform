@@ -54,7 +54,7 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @param accrualFactor The Ibor accrual factor.
    * @return The forward rate.
    */
-  double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor);
+  double getSimplyCompoundForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor);
 
   /**
    * Gets the forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
@@ -63,7 +63,26 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @param endTime The end time.
    * @return The forward rate.
    */
-  double getForwardRate(IborIndex index, double startTime, double endTime);
+  double getSimplyCompoundForwardRate(IborIndex index, double startTime, double endTime);
+
+  /**
+   * Gets the forward for one Ibor index between start and end times.
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @param accrualFactor The Ibor accrual factor.
+   * @return The forward rate.
+   */
+  double getAnnuallyCompoundForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor);
+
+  /**
+   * Gets the forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @return The forward rate.
+   */
+  double getAnnuallyCompoundForwardRate(IborIndex index, double startTime, double endTime);
 
   /**
    * Gets the investment factor for one Ibor index between start and end times.
@@ -85,7 +104,7 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @return The forward rate.
    */
   // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
-  double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor);
+  double getSimplyCompoundForwardRate(IndexON index, double startTime, double endTime, double accrualFactor);
 
   /**
    * Gets the forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
@@ -95,7 +114,28 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @return The forward rate.
    */
   // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
-  double getForwardRate(IndexON index, double startTime, double endTime);
+  double getSimplyCompoundForwardRate(IndexON index, double startTime, double endTime);
+
+  /**
+   * Gets the annual compound forward ( it corresponds to $\frac{DiscountFactor(t_1)}{DiscountFactor(t_1)}^(1/accrualFactor)-1$)for one Ibor index between start and end times.
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @param accrualFactor The Ibor accrual factor.
+   * @return The forward rate.
+   */
+  // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
+  double getAnnuallyCompoundForwardRate(IndexON index, double startTime, double endTime, double accrualFactor);
+
+  /**
+   * Gets the annual compound forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @return The forward rate.
+   */
+  // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
+  double getAnnuallyCompoundForwardRate(IndexON index, double startTime, double endTime);
 
   /**
    * Return the exchange rate between two currencies.

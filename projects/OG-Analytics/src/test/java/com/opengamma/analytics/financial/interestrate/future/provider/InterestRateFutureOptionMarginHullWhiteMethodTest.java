@@ -158,7 +158,7 @@ public class InterestRateFutureOptionMarginHullWhiteMethodTest {
     final double alphaOpt = MODEL_HW.alpha(HW_PARAMETERS, 0.0, expiry, t1, t2);
     final double gammaFut = MODEL_HW.futuresConvexityFactor(HW_PARAMETERS, t0, t1, t2);
     final double ktilde = 1 - STRIKE_1;
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t1, t2, delta);
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, t1, t2, delta);
     final double exerciseBoundary = -1.0 / alphaOpt * (Math.log((1.0 + delta * ktilde) / (1 + delta * forward) / gammaFut) + alphaOpt * alphaOpt / 2.0);
     final double nKC = NORMAL.getCDF(-exerciseBoundary);
     final double nAKC = NORMAL.getCDF(-alphaOpt - exerciseBoundary);

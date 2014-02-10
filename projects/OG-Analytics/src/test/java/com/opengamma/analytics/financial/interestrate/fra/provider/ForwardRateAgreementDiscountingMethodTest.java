@@ -92,7 +92,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   @Test
   public void parRate() {
     final double forward = FRA_METHOD.parRate(FRA, PROVIDER);
-    final double forwardExpected = PROVIDER.getForwardRate(USDLIBOR3M, FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime(), FRA.getFixingYearFraction());
+    final double forwardExpected = PROVIDER.getSimplyCompoundForwardRate(USDLIBOR3M, FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime(), FRA.getFixingYearFraction());
     assertEquals("FRA discounting: par rate", forwardExpected, forward, TOLERANCE_RATE);
   }
 

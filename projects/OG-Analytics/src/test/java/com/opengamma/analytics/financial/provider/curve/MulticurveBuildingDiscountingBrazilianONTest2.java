@@ -232,9 +232,9 @@ public class MulticurveBuildingDiscountingBrazilianONTest2 {
         accrualFactorActAct[loopdate] = TimeCalculator.getTimeBetween(startDate, endDate);
         dscstart[loopdate] = marketDsc.getDiscountFactor(BRL, startTime2[loopdate]);
         dscend[loopdate] = marketDsc.getDiscountFactor(BRL, endTime2);
-        rateDsc[loopdate] = marketDsc.getForwardRate(INDEX_ON_BRL, startTime2[loopdate], endTime2, accrualFactor[loopdate]);
-        rateDsc2[loopdate] = marketDsc.getForwardRate(INDEX_ON_BRL, startTime[loopdate], endTime, accrualFactor[loopdate]);
-        rateDscNormal[loopdate] = marketDsc.getForwardRate(INDEX_ON_BRL, startTime[loopdate], endTime, accrualFactorActAct[loopdate]);
+        rateDsc[loopdate] = marketDsc.getSimplyCompoundForwardRate(INDEX_ON_BRL, startTime2[loopdate], endTime2, accrualFactor[loopdate]);
+        rateDsc2[loopdate] = marketDsc.getSimplyCompoundForwardRate(INDEX_ON_BRL, startTime[loopdate], endTime, accrualFactor[loopdate]);
+        rateDscNormal[loopdate] = marketDsc.getSimplyCompoundForwardRate(INDEX_ON_BRL, startTime[loopdate], endTime, accrualFactorActAct[loopdate]);
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
         writer.append(0.0 + "," + startTime[loopdate] + "," + dscstart[loopdate] + "," + dscend[loopdate] + "," + rateDsc[loopdate] + "," + rateDsc2[loopdate] + "," + rateDscNormal[loopdate] + "\n");
       }

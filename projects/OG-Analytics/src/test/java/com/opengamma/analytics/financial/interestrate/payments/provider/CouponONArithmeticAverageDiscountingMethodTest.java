@@ -269,10 +269,10 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
         final int nbON = cpnON.getFixingPeriodAccrualFactors().length;
         final double fwdON[] = new double[nbON];
         for (int loopon = 0; loopon < nbON; loopon++) {
-          fwdON[loopon] = multicurvesCst.getForwardRate(FEDFUND, cpnON.getFixingPeriodStartTimes()[loopon], cpnON.getFixingPeriodEndTimes()[loopon], cpnON.getFixingPeriodAccrualFactors()[loopon]);
+          fwdON[loopon] = multicurvesCst.getSimplyCompoundForwardRate(FEDFUND, cpnON.getFixingPeriodStartTimes()[loopon], cpnON.getFixingPeriodEndTimes()[loopon], cpnON.getFixingPeriodAccrualFactors()[loopon]);
         }
         // Compounded period forward
-        payComp[looplevel][loopstart] = multicurvesCst.getForwardRate(FEDFUND, cpnON.getFixingPeriodStartTimes()[0], cpnON.getFixingPeriodStartTimes()[nbON],
+        payComp[looplevel][loopstart] = multicurvesCst.getSimplyCompoundForwardRate(FEDFUND, cpnON.getFixingPeriodStartTimes()[0], cpnON.getFixingPeriodStartTimes()[nbON],
             cpnON.getFixingPeriodRemainingAccrualFactor())
             *
             cpnON.getFixingPeriodRemainingAccrualFactor();

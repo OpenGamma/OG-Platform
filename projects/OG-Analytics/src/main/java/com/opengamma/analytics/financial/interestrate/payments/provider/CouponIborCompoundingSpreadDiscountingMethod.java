@@ -101,7 +101,7 @@ public final class CouponIborCompoundingSpreadDiscountingMethod {
     final double[] forward = new double[nbSubPeriod];
     final double[] investFactor = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      forward[loopsub] = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub],
+      forward[loopsub] = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub],
           coupon.getFixingPeriodAccrualFactors()[loopsub]);
       investFactor[loopsub] = 1.0 + coupon.getPaymentAccrualFactors()[loopsub] * (forward[loopsub] + coupon.getSpread());
       notionalAccrued *= investFactor[loopsub];

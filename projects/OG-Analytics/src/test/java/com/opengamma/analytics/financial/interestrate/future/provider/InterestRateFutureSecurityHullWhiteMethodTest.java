@@ -85,7 +85,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
    */
   public void price() {
     final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
     final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedPrice = 1.0 - factor * forward + (1 - factor) / ERU2.getFixingPeriodAccrualFactor();
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", expectedPrice, price, TOLERANCE_PRICE);
@@ -128,7 +128,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
    */
   public void convexityAdjustment() {
     final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
     final double convexityAdjustment = METHOD_IRFUT_HW.convexityAdjustment(ERU2, HW_MULTICURVES);
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: convexity adjustment", price - (1.0d - forward), convexityAdjustment, TOLERANCE_PRICE);
     final double caCalculator = ERU2.accept(CAHWC, HW_MULTICURVES);

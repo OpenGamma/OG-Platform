@@ -243,7 +243,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
-    return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
+    return _multicurveProvider.getSimplyCompoundForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
@@ -258,7 +258,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
-    return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
+    return _multicurveProvider.getSimplyCompoundForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
