@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
@@ -266,9 +267,18 @@ public final class ValueRequirementNames {
    */
   public static final String BUCKETED_PV01 = "Bucketed PV01";
   /**
-   * The bucketed PV01.
+   * International Securities Identification Number (ISIN) uniquely identifies a security
    */
   public static final String ISIN = "ISIN";
+  /**
+   * Ticker symbol used to identify a security in Bloomberg. See {@link ExternalSchemes}
+   */
+  public static final String BLOOMBERG_TICKER = "BLOOMBERG_TICKER";
+  /**
+   * Bloomberg's older security identifier scheme. 
+   * They now wish users to adopt their new Bloomberg Global ID (BBGID). See {@link ExternalSchemes}
+   */
+  public static final String BLOOMBERG_BUID = "BLOOMBERG_BUID";
   /**
    * Curve property metadata.
    */
