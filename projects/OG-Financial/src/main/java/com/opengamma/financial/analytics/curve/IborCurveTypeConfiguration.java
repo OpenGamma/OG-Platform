@@ -18,8 +18,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.Link;
-import com.opengamma.core.convention.Convention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -37,12 +35,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _convention;
-
-  /**
-   * The convention of the index.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private Link<Convention> _link;
 
   /**
    * The tenor of the index.
@@ -114,32 +106,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the convention of the index.
-   * @return the value of the property, not null
-   */
-  public Link<Convention> getLink() {
-    return _link;
-  }
-
-  /**
-   * Sets the convention of the index.
-   * @param link  the new value of the property, not null
-   */
-  public void setLink(Link<Convention> link) {
-    JodaBeanUtils.notNull(link, "link");
-    this._link = link;
-  }
-
-  /**
-   * Gets the the {@code link} property.
-   * @return the property, not null
-   */
-  public final Property<Link<Convention>> link() {
-    return metaBean().link().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the tenor of the index.
    * @return the value of the property, not null
    */
@@ -178,7 +144,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     if (obj != null && obj.getClass() == this.getClass()) {
       IborCurveTypeConfiguration other = (IborCurveTypeConfiguration) obj;
       return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
-          JodaBeanUtils.equal(getLink(), other.getLink()) &&
           JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           super.equals(obj);
     }
@@ -189,14 +154,13 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("IborCurveTypeConfiguration{");
     int len = buf.length();
     toString(buf);
@@ -211,7 +175,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention())).append(',').append(' ');
-    buf.append("link").append('=').append(JodaBeanUtils.toString(getLink())).append(',').append(' ');
     buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor())).append(',').append(' ');
   }
 
@@ -231,12 +194,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     private final MetaProperty<ExternalId> _convention = DirectMetaProperty.ofReadWrite(
         this, "convention", IborCurveTypeConfiguration.class, ExternalId.class);
     /**
-     * The meta-property for the {@code link} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Link<Convention>> _link = DirectMetaProperty.ofReadWrite(
-        this, "link", IborCurveTypeConfiguration.class, (Class) Link.class);
-    /**
      * The meta-property for the {@code tenor} property.
      */
     private final MetaProperty<Tenor> _tenor = DirectMetaProperty.ofReadWrite(
@@ -247,7 +204,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "convention",
-        "link",
         "tenor");
 
     /**
@@ -261,8 +217,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
       switch (propertyName.hashCode()) {
         case 2039569265:  // convention
           return _convention;
-        case 3321850:  // link
-          return _link;
         case 110246592:  // tenor
           return _tenor;
       }
@@ -294,14 +248,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     }
 
     /**
-     * The meta-property for the {@code link} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Link<Convention>> link() {
-      return _link;
-    }
-
-    /**
      * The meta-property for the {@code tenor} property.
      * @return the meta-property, not null
      */
@@ -315,23 +261,17 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
       switch (propertyName.hashCode()) {
         case 2039569265:  // convention
           return ((IborCurveTypeConfiguration) bean).getConvention();
-        case 3321850:  // link
-          return ((IborCurveTypeConfiguration) bean).getLink();
         case 110246592:  // tenor
           return ((IborCurveTypeConfiguration) bean).getTenor();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 2039569265:  // convention
           ((IborCurveTypeConfiguration) bean).setConvention((ExternalId) newValue);
-          return;
-        case 3321850:  // link
-          ((IborCurveTypeConfiguration) bean).setLink((Link<Convention>) newValue);
           return;
         case 110246592:  // tenor
           ((IborCurveTypeConfiguration) bean).setTenor((Tenor) newValue);
@@ -343,7 +283,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((IborCurveTypeConfiguration) bean)._convention, "convention");
-      JodaBeanUtils.notNull(((IborCurveTypeConfiguration) bean)._link, "link");
       JodaBeanUtils.notNull(((IborCurveTypeConfiguration) bean)._tenor, "tenor");
       super.validate(bean);
     }
