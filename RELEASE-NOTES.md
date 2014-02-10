@@ -6,12 +6,70 @@ These release notes cover changes from v2.1 to v2.2.
 
 Upgrading from 2.1.0
 ====================
+
 To 2.2.0-M9
 -----------
 * Database Schemas
   * sec - security master tables will need upgrading from V67 to V68 either manually or using DB upgrade tool.
-* New Feature
+* Scenario support
   * [PLAT-4100] - Scenario support for raw curve data. YieldCurveSpecificationFunction renamed YieldCurveDataFunction
+* Error codes
+  * [PLAT-5792] - All tools now return 0 on success and -1 or -2 on failure if run via the main method
+
+* Bug
+    * [PLAT-1973] - Component loader: if a property being passed to a String field is undefined then the text referencing the property in the ini file is injected instead
+    * [PLAT-3723] - Exceptions thrown during component factory initialisation don't halt the process
+    * [PLAT-5744] - Server needs a restart to pick up new timeseries
+    * [PLAT-5771] - Fix initial rate on ZC floating leg
+    * [PLAT-5772] - ConfigSearchRequest with null type fails
+    * [PLAT-5779] - MultiYieldCurveParRateMethodSeriesFunction throws NPE when starting the examples server
+    * [PLAT-5783] - ScheduleCalculator generates empty schedule when frequency is greater than end date
+    * [PLAT-5786] - FlexiBeanFudgeBuilder does not work correctly
+    * [PLAT-5788] - Correct toDerivative() call in FixedIncomeDataProvider
+    * [PLAT-5817] - Regression framework does not support capture of reference data
+* Improvement
+    * [PLAT-3012] - NPE if tool context file passed to a tool does not exist
+    * [PLAT-4766] - Servers should publish their code/build version numbers
+    * [PLAT-4890] - Component Repository requires an MBean server
+    * [PLAT-5377] - OG-Financial: CurveNodeToDefinitionConverterTest - Holiday and Region sources
+    * [PLAT-5644] - Refactor regression tool context configs so common across all tests
+    * [PLAT-5735] - Set up development environment to extend development platform 
+    * [PLAT-5740] - add function getinvestmentfactor in MulticurveProviderInterface
+    * [PLAT-5776] - Add ability to enable JMS connectivity for db masters via a flag
+    * [PLAT-5784] - Tidy up interpolated stub coupon code in FloatingAnnuityDefinitionBuilder
+    * [PLAT-5785] - Remove commented blocks from new annuity builders
+    * [PLAT-5790] - System.exit can fail to exit the JVM
+    * [PLAT-5792] - Tools should check for failure on startup and exit
+    * [PLAT-5794] - Add component factory for security bean master
+* New Feature
+    * [PLAT-4578] - Flexible binomial tree model
+    * [PLAT-5497] - Renderer for YieldCurveData
+    * [PLAT-5570] - DB Dump Tool doesn't capture ConventionMaster data
+    * [PLAT-5595] - Database persistence for ibor index definitions
+    * [PLAT-5596] - Database persistence for overnight index definitions
+    * [PLAT-5597] - Database persistence for equity index components
+    * [PLAT-5598] - Database persisntence for equity index definitions
+    * [PLAT-5601] - Database persistence for bond index components
+    * [PLAT-5602] - Database persistence for bond index definitions
+    * [PLAT-5711] - Move config as sibling of project
+    * [PLAT-5714] - Ensure extended engine functions can be used in deployment template 
+    * [PLAT-5756] - Smoothing technique in binomial model
+    * [PLAT-5773] - Prioritization/Weighting of Lifecycle start()/stop() operations
+    * [PLAT-5797] - Bill nodes for curves
+    * [PLAT-5798] - Add support for bills in curve node id mapper
+    * [PLAT-5799] - Add support for bill nodes in node visitor
+    * [PLAT-5800] - Create a bill security
+    * [PLAT-5801] - Write a bill node converter.
+    * [PLAT-5803] - Write a bill security converter
+    * [PLAT-5805] - Write a Bloomberg bill security loader
+    * [PLAT-5806] - Add support for bills to financial security visitor
+    * [PLAT-5814] - Web UI support for BillSecurity
+    * [PLAT-5816] - Add bill securities to appropriate integration functions
+* Task
+    * [PLAT-5704] - match input curve using DayPeriodPreCalculatedDiscountCurve
+    * [PLAT-5777] - add the daycount act/365.25 to the file daycounts
+    * [PLAT-5819] - Upgrade to Joda-Beans 0.9.4
+
 
 To 2.2.0-M8
 -----------
