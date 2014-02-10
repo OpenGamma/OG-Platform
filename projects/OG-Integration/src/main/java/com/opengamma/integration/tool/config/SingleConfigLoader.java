@@ -179,7 +179,7 @@ public class SingleConfigLoader {
         ConfigMasterUtils.storeByName(_configMaster, item);          
       }  
     } else if (config instanceof CurrencyMatrix) {
-      ConfigItem<?> item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME);
+      ConfigItem<?> item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME, CurrencyMatrix.class);
       if (_doNotUpdateExisting  && configExists(item)) {
         s_logger.info("Existing config present, skipping");
       } else {
@@ -209,7 +209,7 @@ public class SingleConfigLoader {
     } else if (config instanceof HistoricalTimeSeriesRating) {
       item = ConfigItem.of(config, DEFAULT_HTS_RATING_NAME);
     } else if (config instanceof CurrencyMatrix) {
-      item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME);
+      item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME, CurrencyMatrix.class);
     } else {
       item = ConfigItem.of(config);
     }
