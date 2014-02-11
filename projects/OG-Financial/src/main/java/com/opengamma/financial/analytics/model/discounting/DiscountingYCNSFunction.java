@@ -18,8 +18,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -51,8 +49,6 @@ import com.opengamma.util.tuple.Pair;
  * curves constructed using the discounting method.
  */
 public class DiscountingYCNSFunction extends DiscountingFunction {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingYCNSFunction.class);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
@@ -65,7 +61,6 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
@@ -86,8 +81,15 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
             return Collections.singleton(new ComputedValue(spec, ycns));
           }
         }
-        s_logger.info("Could not get sensitivities to " + curveName + " for " + target.getName());
-        return Collections.emptySet();
+        final ValueProperties properties = desiredValue.getConstraints().copy()
+            .with(CURVE, curveName)
+            .get();
+        final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
+            ValueProperties.builder().with(CURVE, curveName).get()));
+        final double[] zeroes = new double[curveDefinition.getNodes().size()];
+        final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
+        final DoubleLabelledMatrix1D ycns = MultiCurveUtils.getLabelledMatrix(new DoubleMatrix1D(zeroes), curveDefinition);
+        return Collections.singleton(new ComputedValue(spec, ycns));
       }
 
       @Override

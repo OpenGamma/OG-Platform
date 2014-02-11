@@ -78,8 +78,13 @@ public class DiscountingPV01Function extends DiscountingFunction {
             return results;
           }
         }
-        s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
-        return Collections.emptySet();
+        final ValueProperties curveSpecificProperties = properties.copy()
+            .withoutAny(CURVE)
+            .with(CURVE, desiredCurveName)
+            .get();
+        final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
+        results.add(new ComputedValue(spec, 0.));
+        return results;
       }
 
       @Override
