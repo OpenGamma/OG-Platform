@@ -142,7 +142,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
       return new BondFuturesTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
     }
-    if (trade instanceof BillSecurity) {
+    if (security instanceof BillSecurity) {
       final BillSecurity bondSecurity = (BillSecurity) security;
       final LegalEntity legalEntity = getLegalEntityForBill(trade.getAttributes(), bondSecurity);
       final BillSecurityDefinition underlying = getBill(bondSecurity, legalEntity);

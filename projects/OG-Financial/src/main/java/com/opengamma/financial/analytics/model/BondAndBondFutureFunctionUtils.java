@@ -37,6 +37,7 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
@@ -117,6 +118,9 @@ public class BondAndBondFutureFunctionUtils {
     if (security instanceof BondSecurity) {
       return getBondDerivative(context, target, date);
     }
+    if (security instanceof BillSecurity) {
+      return getBillDerivative(context, target, date);
+    }
     if (security instanceof BondFutureSecurity) {
       ArgumentChecker.notNull(inputs, "inputs");
       final HistoricalTimeSeries futurePriceSeries = (HistoricalTimeSeries) inputs.getValue(HISTORICAL_TIME_SERIES);
@@ -134,6 +138,19 @@ public class BondAndBondFutureFunctionUtils {
    * @return The derivative form of a bond security
    */
   private static InstrumentDerivative getBondDerivative(final FunctionExecutionContext context, final ComputationTarget target, final ZonedDateTime date) {
+    final InstrumentDefinition<?> definition = getDefinition(context, target, date);
+    return definition.toDerivative(date);
+  }
+
+  /**
+   * Converts a bill trade into the {@link InstrumentDerivative} form that is used in pricing
+   * functions in the the analytics library.
+   * @param context The execution context, not null
+   * @param target The computation target, not null
+   * @param date The valuation date / time, not null
+   * @return The derivative form of a bill security
+   */
+  private static InstrumentDerivative getBillDerivative(final FunctionExecutionContext context, final ComputationTarget target, final ZonedDateTime date) {
     final InstrumentDefinition<?> definition = getDefinition(context, target, date);
     return definition.toDerivative(date);
   }
