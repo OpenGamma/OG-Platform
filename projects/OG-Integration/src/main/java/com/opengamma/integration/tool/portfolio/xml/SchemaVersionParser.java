@@ -108,6 +108,8 @@ public class SchemaVersionParser {
 
   private XMLEventReader createXmlEventReader() throws XMLStreamException {
     XMLInputFactory factory = XMLInputFactory.newFactory();
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     return factory.createXMLEventReader(_reader);
   }
 }
