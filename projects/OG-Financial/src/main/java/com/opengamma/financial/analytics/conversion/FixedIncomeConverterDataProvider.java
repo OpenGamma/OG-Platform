@@ -52,6 +52,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -153,6 +154,9 @@ public class FixedIncomeConverterDataProvider {
     }
     if (security instanceof FRASecurity) {
       return _fraSecurity;
+    }
+    if (security instanceof ForwardRateAgreementSecurity) {
+      return _forwardRateAgreementSecurity;
     }
     if (security instanceof CapFloorSecurity) {
       if (((CapFloorSecurity) security).isIbor()) {
@@ -392,6 +396,69 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
+      final ExternalId indexId = security.getUnderlyingId();
+      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
+      if (indexConvention == null) {
+        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
+      }
+      final ExternalIdBundle indexIdBundle = indexConvention.getIdentifiers();
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
+      if (ts == null) {
+        throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
+      }
+      LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
+      //TODO this normalization should not be done here
+      localDateTS = localDateTS.divide(100);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS);
+      // TODO: remove the zone
+      return definition.toDerivative(now, indexTS);
+    }
+  };
+
+  private final Converter<ForwardRateAgreementSecurity, ForwardRateAgreementDefinition> _forwardRateAgreementSecurity = new Converter<ForwardRateAgreementSecurity, ForwardRateAgreementDefinition>() {
+
+    @Override
+    public Set<ValueRequirement> getTimeSeriesRequirements(final ForwardRateAgreementSecurity security) {
+      final ExternalId indexId = security.getUnderlyingId();
+      final ConventionBundle indexConvention = getConventionSource().getConventionBundle(indexId);
+      if (indexConvention == null) {
+        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
+      }
+      final ExternalIdBundle indexIdBundle = indexConvention.getIdentifiers();
+      final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(indexIdBundle, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+      if (timeSeries == null) {
+        return null;
+      }
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+                                                                                          DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public InstrumentDerivative convert(final ForwardRateAgreementSecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now, final String[] curveNames,
+                                        final HistoricalTimeSeriesBundle timeSeries) {
+      final ExternalId indexId = security.getUnderlyingId();
+      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
+      if (indexConvention == null) {
+        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
+      }
+      final ExternalIdBundle indexIdBundle = indexConvention.getIdentifiers();
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
+      if (ts == null) {
+        throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
+      }
+      LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
+      //TODO this normalization should not be done here
+      localDateTS = localDateTS.divide(100);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS);
+      // TODO: remove the zone
+      return definition.toDerivative(now, indexTS, curveNames);
+    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public InstrumentDerivative convert(final ForwardRateAgreementSecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
+                                        final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId indexId = security.getUnderlyingId();
       final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
       if (indexConvention == null) {
