@@ -55,7 +55,7 @@ public final class CouponONCompoundedDiscountingMethod {
     double ratio = 1.0;
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       ratio *= Math.pow(
-          1 + getAnnuallyCompoundedForwardRate(coupon, multicurve, coupon.getFixingPeriodStartTimes()[i], coupon.getFixingPeriodEndTimes()[i], coupon.getFixingPeriodAccrualFactors()[i]),
+          1 + multicurve.getAnnuallyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[i], coupon.getFixingPeriodEndTimes()[i], coupon.getFixingPeriodAccrualFactors()[i]),
           coupon.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -76,7 +76,7 @@ public final class CouponONCompoundedDiscountingMethod {
     double ratio = 1.0;
     final double[] forward = new double[coupon.getFixingPeriodAccrualFactors().length];
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      forward[i] = getAnnuallyCompoundedForwardRate(coupon, multicurve, coupon.getFixingPeriodStartTimes()[i], coupon.getFixingPeriodEndTimes()[i], coupon.getFixingPeriodAccrualFactors()[i]);
+      forward[i] = multicurve.getAnnuallyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[i], coupon.getFixingPeriodEndTimes()[i], coupon.getFixingPeriodAccrualFactors()[i]);
       ratio *= Math.pow(1 + forward[i], coupon.getFixingPeriodAccrualFactors()[i]);
     }
     // Backward sweep
@@ -104,24 +104,6 @@ public final class CouponONCompoundedDiscountingMethod {
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
-  }
-
-  /**
-   * Compute the Annually Compounded Forward Rate.
-   * @param coupon The coupon.
-   * @param multicurve The multi-curve provider.
-   * @param startTime the start time
-   * @param endTime the end time
-   * @param accrualFactor the acrual factor
-   * @return The Annually Compounded Forward Rate.
-   */
-  public double getAnnuallyCompoundedForwardRate(final CouponONCompounded coupon, final MulticurveProviderInterface multicurve, final double startTime, final double endTime,
-      final double accrualFactor) {
-    ArgumentChecker.isTrue(accrualFactor > 0, "the accrual factor should be stricltly positive");
-    final double dicountFactorStart = multicurve.getDiscountFactor(coupon.getCurrency(), startTime);
-    final double dicountFactorEnd = multicurve.getDiscountFactor(coupon.getCurrency(), endTime);
-    return Math.pow(dicountFactorStart / dicountFactorEnd, 1 / accrualFactor) - 1;
-
   }
 
 }
