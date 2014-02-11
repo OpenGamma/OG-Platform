@@ -101,8 +101,6 @@ public class BillLoader extends SecurityLoader {
    */
   public static final Set<String> VALID_SECURITY_TYPES2 = ImmutableSet.of("Bill");
 
-  private static final String SOVEREIGN = "Sovereign";
-
   /**
    * Creates an instance.
    * @param referenceDataProvider  the provider, not null
