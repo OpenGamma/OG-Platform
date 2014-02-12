@@ -9,6 +9,11 @@ Upgrading from 2.1.0
 
 To 2.2.0-M9
 -----------
+* Source compatibility
+  * [PLAT-5000] Remove Map as super-interface of Map2. Required for JDK 8 compatibility.
+
+To 2.2.0-M9
+-----------
 * Database Schemas
   * sec - security master tables will need upgrading from V67 to V68 either manually or using DB upgrade tool.
 * Scenario support
