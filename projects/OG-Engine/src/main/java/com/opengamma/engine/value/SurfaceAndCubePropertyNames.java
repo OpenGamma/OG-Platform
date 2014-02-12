@@ -6,7 +6,8 @@
 package com.opengamma.engine.value;
 
 /**
- *
+ * Class containing string constants used to define volatility surfaces
+ * and cubes.
  */
 public class SurfaceAndCubePropertyNames {
   /** The name of the surface quote type property */
@@ -35,6 +36,10 @@ public class SurfaceAndCubePropertyNames {
   public static final String PROPERTY_CUBE_UNITS = "CubeUnits";
   /** The name of the cube quote units property */
   public static final String PROPERTY_EXERCISE_TYPE = "ExerciseType";
-  /** The type of the cube instrument */
+  /** The type of the instrument */
   public static final String INSTRUMENT_TYPE = "InstrumentType";
+  /** Represents lognormal volatility quotes */
+  public static final String LOGNORMAL = "Lognormal";
+  /** Represents normal volatility quotes */
+  public static final String NORMAL = "Normal";
 }
