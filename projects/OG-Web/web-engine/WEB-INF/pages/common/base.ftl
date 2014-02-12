@@ -5,6 +5,14 @@
     <title>${title} - OpenGamma</title>
     <link type="text/css" rel="stylesheet" href="/green/css/og-base.css" />
     <link rel="stylesheet" href="/css/jquery/smoothness/jquery-ui-1.8.5.custom.css" />
+    
+    <script src="/prototype/scripts/lib/jquery/jquery-1.8.0.js"></script>
+    <script src="/prototype/scripts/lib/jquery/ui/jquery-ui-1.8.11.custom.min.js"></script>
+    <script src="/prototype/scripts/lib/jquery/ui/jquery.ui.datepicker.js"></script>
+    
+    <script src="/prototype/scripts/lib/ace/ace.js"></script>
+    <script src="/prototype/scripts/lib/ace/theme-textmate.js"></script>
+    <script src="/prototype/scripts/lib/ace/mode-xml.js"></script>
   </head>
   <body>
     <div id="header">
@@ -99,8 +107,8 @@
 </#macro>
 
 <#-- Macro to produce a standard form handling RESTful tunneling -->
-<#macro form action method="GET">
-  <form method="<#if method == "GET">GET<#else>POST</#if>" action="${action}"><#rt>
+<#macro form action method="GET" id="">
+  <form <#if id?has_content>id="${id}"</#if> method="<#if method == "GET">GET<#else>POST</#if>" action="${action}"><#rt>
 <#if method == "PUT" || method == "DELETE"><input type="hidden" name="method" value="${method}" /></#if>
 <#nested>
   </form>
