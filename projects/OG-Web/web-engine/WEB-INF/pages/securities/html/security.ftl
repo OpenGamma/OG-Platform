@@ -427,9 +427,25 @@
 
 <#-- SECTION Update security -->
 <@section title="Update security" if=!deleted>
-  <@form method="PUT" action="${uris.security()}">
+  <@form method="PUT" action="${uris.security()}" id="updateSecurityForm">
   <p>
+    <@rowin><input type="checkbox" name="useXml" value="true">Use XML</input></@rowin>
+    <@rowin>
+      <div id="security-xml-editor">${securityXml}</div>
+    </@rowin>
+    <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
     <@rowin><input type="submit" value="Update" /></@rowin>
+    
+<script type="text/javascript">
+var editor = ace.edit("security-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#security-xml-editor").show()
+
+$("#updateSecurityForm").submit( function(eventObj) {
+  $("#security-xml").val(editor.getSession().getValue())
+  return true
+})
+</script>
   </p>
   </@form>
 </@section>

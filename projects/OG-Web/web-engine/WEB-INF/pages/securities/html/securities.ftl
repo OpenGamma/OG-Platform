@@ -36,7 +36,7 @@
 
 <#-- SECTION Add security -->
 <@section title="Add securities">
-  <@form method="POST" action="${uris.securities()}">
+  <@form method="POST" action="${uris.securities()}" id="addSecurityForm">
   <p>
     <@rowin label="Scheme type">
       <select name="idscheme">
@@ -49,9 +49,28 @@
         <option value="SEDOL1">SEDOL</option>
       </select>
     </@rowin>
-    <@rowin label="Identifiers"></@rowin>
-    <@rowin><textarea name="idvalue" cols="35" rows="10"></textarea></@rowin>
+    <@rowin label="Identifiers">
+      <textarea name="idvalue" cols="35" rows="10"></textarea>
+    </@rowin>
+    
+    <@subsection title="Security Bean XML">
+      <@rowin label="">
+        <div id="security-xml-editor"></div>
+      </@rowin>
+    </@subsection>
+    
+    <@rowin><input type="hidden" name="securityxml" id="securityxml"/></@rowin>
     <@rowin><input type="submit" value="Add" /></@rowin>
+<script type="text/javascript">
+var editor = ace.edit("security-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#security-xml-editor").show()
+
+$("#addSecurityForm").submit( function(eventObj) {
+  $("#securityxml").val(editor.getSession().getValue())
+  return true
+})
+</script>
   </p>
   </@form>
 </@section>
