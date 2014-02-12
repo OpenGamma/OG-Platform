@@ -399,7 +399,7 @@ public class CurveNodeToDefinitionConverterTest {
     marketValues.setDataPoint(marketDataId, rate);
     final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, ExternalId.of(SCHEME, "Test"),
         "Mapper");
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
         marketValues, marketDataId, NOW);
     futureNode.accept(converter);
   }
@@ -412,7 +412,7 @@ public class CurveNodeToDefinitionConverterTest {
     marketValues.setDataPoint(marketDataId, rate);
     final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS,
         Tenor.THREE_MONTHS, FIXED_LEG_ID, "Mapper");
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
         marketValues, marketDataId, NOW);
     futureNode.accept(converter);
   }
@@ -728,7 +728,7 @@ public class CurveNodeToDefinitionConverterTest {
     RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     final IborIndex index = new IborIndex(Currency.USD, Tenor.THREE_MONTHS.getPeriod(), 2, ACT_360, MODIFIED_FOLLOWING, false, USDLIBOR_ACT_360_NAME);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     InstrumentDefinition<?> definition = futureNode.accept(converter);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 6, 17), index, 1, 0.25, "", CALENDAR);
@@ -763,7 +763,7 @@ public class CurveNodeToDefinitionConverterTest {
     RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     final IborIndex index = new IborIndex(Currency.USD, Tenor.THREE_MONTHS.getPeriod(), 2, ACT_360, MODIFIED_FOLLOWING, false, USDLIBOR_ACT_360_NAME);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     InstrumentDefinition<?> definition = futureNode.accept(converter);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 5, 13), index, 1, 0.25, "", CALENDAR);
@@ -799,7 +799,7 @@ public class CurveNodeToDefinitionConverterTest {
     RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     final IborIndex index = new IborIndex(Currency.USD, Tenor.ONE_MONTH.getPeriod(), 2, ACT_360, MODIFIED_FOLLOWING, false, USDLIBOR_ACT_360_NAME);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     InstrumentDefinition<?> definition = futureNode.accept(converter);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 6, 17), index, 1, accrual, "", CALENDAR);
@@ -1306,7 +1306,7 @@ public class CurveNodeToDefinitionConverterTest {
     final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.ONE_DAY, FED_FUND_FUTURE_ID, "Mapper");
     final IndexON index = new IndexON(USD_OVERNIGHT_CONVENTION_ID.getValue(), Currency.USD, ACT_360, 1);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     final InstrumentDefinition<?> definition = futureNode.accept(converter);
     final FederalFundsFutureTransactionDefinition future = (FederalFundsFutureTransactionDefinition) definition;
     final FederalFundsFutureSecurityDefinition securityDefinition = FederalFundsFutureSecurityDefinition.from(DateUtils.getUTCDate(2013, 5, 1), index, 1, 1. / 12, "", CALENDAR);

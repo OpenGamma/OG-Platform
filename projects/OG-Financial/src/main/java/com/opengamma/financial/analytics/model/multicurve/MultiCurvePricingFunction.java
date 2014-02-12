@@ -142,7 +142,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
-    final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(holidaySource, conventionSource, regionSource);
+    final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter)
         .cashFlowSecurityVisitor(cashFlowSecurityConverter)

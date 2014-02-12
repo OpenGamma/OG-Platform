@@ -238,7 +238,8 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitFederalFundsFutureConvention(final FederalFundsFutureConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIndexConvention(), FinancialConvention.class);
+    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getIndexConvention().toBundle());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(index.getConventionId(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 

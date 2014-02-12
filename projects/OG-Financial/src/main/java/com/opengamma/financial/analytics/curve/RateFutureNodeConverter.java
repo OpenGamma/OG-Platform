@@ -23,6 +23,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
@@ -34,6 +35,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculatorFactory;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -47,6 +49,8 @@ import com.opengamma.util.money.Currency;
  * The futures notional is 1.
  */
 public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
+  /** The security source */
+  private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -61,6 +65,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private final ZonedDateTime _valuationTime;
 
   /**
+   * @param securitySource The security source, not null
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
@@ -68,14 +73,16 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
    */
-  public RateFutureNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+  public RateFutureNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
+    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -140,11 +147,9 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(), OvernightIndexConvention.class);
-    final Currency currency = indexConvention.getCurrency();
-    final DayCount dayCount = indexConvention.getDayCount();
-    final int publicationLag = indexConvention.getPublicationLag();
-    final IndexON index = new IndexON(indexConvention.getName(), currency, dayCount, publicationLag);
+    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(futureConvention.getIndexConvention().toBundle());
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
+    final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
     final double paymentAccrualFactor = 1 / 12.;
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
     final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
@@ -153,7 +158,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
     final ZoneId timeZone = startDate.getZone();
     final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), calendar), time, timeZone);
     final FederalFundsFutureSecurityDefinition securityDefinition = FederalFundsFutureSecurityDefinition.from(expiryDate,
-        index, 1, paymentAccrualFactor, "", calendar);
+        indexON, 1, paymentAccrualFactor, "", calendar);
     final FederalFundsFutureTransactionDefinition transactionDefinition = new FederalFundsFutureTransactionDefinition(securityDefinition, 1, _valuationTime, price);
     return transactionDefinition;
   }

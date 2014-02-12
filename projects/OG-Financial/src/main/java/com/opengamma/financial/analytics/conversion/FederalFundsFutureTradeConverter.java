@@ -19,6 +19,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -31,15 +32,16 @@ public class FederalFundsFutureTradeConverter {
   private final FederalFundsFutureSecurityConverter _securityConverter;
 
   /**
+   * @param securitySource The security source, not null.
    * @param holidaySource The holiday source, not null
    * @param conventionSource The convention source, not null
    * @param regionSource The region source, not null
    */
-  public FederalFundsFutureTradeConverter(final HolidaySource holidaySource, final ConventionSource conventionSource, final RegionSource regionSource) {
+  public FederalFundsFutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource, final RegionSource regionSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(regionSource, "region source");
-    _securityConverter = new FederalFundsFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    _securityConverter = new FederalFundsFutureSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
   }
 
   public InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]> convert(final Trade trade) { //CSIGNORE

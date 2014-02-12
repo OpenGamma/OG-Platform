@@ -361,6 +361,8 @@ public class NodeConverterUtils {
 
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitVanillaIborLegConvention(final VanillaIborLegConvention convention) {
+        
+        
         final IborIndexConvention indexConvention = conventionSource.getSingle(convention.getIborIndexConvention(), IborIndexConvention.class);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final boolean eomLeg = convention.isIsEOM();
