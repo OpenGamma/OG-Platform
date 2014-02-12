@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
@@ -57,6 +58,7 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -66,15 +68,20 @@ import com.opengamma.util.money.Currency;
  * to the curve node.
  */
 public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>, FinancialConventionVisitor<Set<Currency>> {
+  
+  /** The security source */
+  private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
 
   /**
+   * @param securitySource The security source. Not null.
    * @param conventionSource The convention source, not null
    */
-  public CurveNodeCurrencyVisitor(final ConventionSource conventionSource) {
+  public CurveNodeCurrencyVisitor(final ConventionSource conventionSource, final SecuritySource securitySource) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     _conventionSource = conventionSource;
+    _securitySource = securitySource;
   }
 
   /**
@@ -83,6 +90,14 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
    */
   protected ConventionSource getConventionSource() {
     return _conventionSource;
+  }
+
+  /**
+   * Gets the security source.
+   * @return The security source
+   */
+  protected SecuritySource getSecuritySource() {
+    return _securitySource;
   }
 
   /**
@@ -281,7 +296,8 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitOISLegConvention(final OISLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getOvernightIndexConvention(), FinancialConvention.class);
+    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(index.getConventionId(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 

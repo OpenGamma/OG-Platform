@@ -50,6 +50,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -84,6 +85,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -156,6 +158,7 @@ public class MultiCurveDiscountingFunction extends
         final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final FunctionExecutionContext context,
         final FXMatrix fx) {
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -176,8 +179,8 @@ public class MultiCurveDiscountingFunction extends
         final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
         int j = 0;
         for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
-          final List<IborIndex> iborIndex = new ArrayList<>();
-          final List<IndexON> overnightIndex = new ArrayList<>();
+          final List<IborIndex> iborIndexList = new ArrayList<>();
+          final List<IndexON> overnightIndexList = new ArrayList<>();
           final String curveName = entry.getKey();
           final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();
           final CurveSpecification specification =
@@ -214,21 +217,22 @@ public class MultiCurveDiscountingFunction extends
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
               final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ibor.getConvention(), IborIndexConvention.class);
               final int spotLag = iborIndexConvention.getSettlementDays();
-              iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
+              iborIndexList.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnight.getConvention(), OvernightIndexConvention.class);
-              overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
+              final OvernightIndex overnightIndex = (OvernightIndex) securitySource.getSingle(overnight.getConvention().toBundle());
+              final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnightIndex.getConventionId(), OvernightIndexConvention.class);
+              overnightIndexList.add(new IndexON(overnightIndex.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
           } // type - end
-          if (!iborIndex.isEmpty()) {
-            forwardIborMap.put(curveName, iborIndex.toArray(new IborIndex[iborIndex.size()]));
+          if (!iborIndexList.isEmpty()) {
+            forwardIborMap.put(curveName, iborIndexList.toArray(new IborIndex[iborIndexList.size()]));
           }
-          if (!overnightIndex.isEmpty()) {
-            forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
+          if (!overnightIndexList.isEmpty()) {
+            forwardONMap.put(curveName, overnightIndexList.toArray(new IndexON[overnightIndexList.size()]));
           }
           final GeneratorYDCurve generator = getGenerator(definition, now.toLocalDate());
           singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
@@ -288,6 +292,7 @@ public class MultiCurveDiscountingFunction extends
     protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final FunctionExecutionContext context,
         final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData,
         final ZonedDateTime valuationTime, final FXMatrix fx) {
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
@@ -298,8 +303,8 @@ public class MultiCurveDiscountingFunction extends
           .immFRANode(new RollDateFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .immSwapNode(new RollDateSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, fx))
-          .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .swapNode(new SwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, fx))
+          .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .create();
     }
 

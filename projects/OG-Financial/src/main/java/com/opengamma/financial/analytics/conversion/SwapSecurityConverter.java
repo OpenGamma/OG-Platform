@@ -15,7 +15,6 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.LIBOR;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.LIBOR_CONV;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OIS_ON_LEG;
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OVERNIGHT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SWAP_INDEX;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
@@ -49,6 +48,8 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -67,6 +68,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
@@ -88,6 +90,8 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** A security source */
+  private final SecuritySource _securitySource;
   /** A holiday source */
   private final HolidaySource _holidaySource;
   /** A convention bundle source */
@@ -98,16 +102,21 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
   private final RegionSource _regionSource;
 
   /**
+   * @param securitySource The security source, not null
    * @param holidaySource The holiday source, not null
    * @param conventionSource The convention source, not null
    * @param conventionBundleSource The convention bundle. 
    * @param regionSource The region source, not null
    */
   // TODO: remove conventionBundleSource
-  public SwapSecurityConverter(final HolidaySource holidaySource, final ConventionSource conventionSource, final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
+  public SwapSecurityConverter(final SecuritySource securitySource, final HolidaySource holidaySource, 
+                               final ConventionSource conventionSource, final ConventionBundleSource conventionBundleSource, 
+                               final RegionSource regionSource) {
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(regionSource, "region source");
+    _securitySource = securitySource;
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
     _conventionBundle = conventionBundleSource;
@@ -289,13 +298,13 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
     final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
-    final String overnightConventionName = getConventionName(currency, OVERNIGHT);
-    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, overnightConventionName), OvernightIndexConvention.class);
+    final OvernightIndex overnightIndex = (OvernightIndex) _securitySource.getSingle(floatLeg.getFloatingReferenceRateId().toBundle());
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(overnightIndex.getConventionId(), OvernightIndexConvention.class);
+    final IndexON index = ConverterUtils.indexON(overnightIndex.getName(), indexConvention);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
     final String currencyString = currency.getCode();
     final Integer publicationLag = indexConvention.getPublicationLag();
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
-    final IndexON index = new IndexON(indexConvention.getName(), currency, indexConvention.getDayCount(), publicationLag);
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currencyString + "_OIS_Convention", index, paymentFrequency, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(),
         fixedLeg.isEom(), 0, 1 - publicationLag, calendar); // TODO: The payment lag is not available at the security level!
     final double notionalFixed = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();

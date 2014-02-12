@@ -28,6 +28,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.FinancialConvention;
@@ -50,6 +51,7 @@ import com.opengamma.financial.convention.calendar.CalendarBusinessDateUtils;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -76,6 +78,7 @@ public class NodeConverterUtils {
    * @param receiveLegConvention The receive leg convention, not null
    * @param startTenor The start tenor, not null
    * @param maturityTenor The maturity tenor, not null
+   * @param securitySource The security source, not null
    * @param regionSource The region source, not null
    * @param holidaySource The holiday source, not null
    * @param conventionSource The convention source, not null
@@ -86,13 +89,14 @@ public class NodeConverterUtils {
    * @return A swap definition
    */
   public static SwapDefinition getSwapDefinition(
-      final FinancialConvention payLegConvention, final FinancialConvention receiveLegConvention, final Period startTenor, final Period maturityTenor,
-      final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource, final SnapshotDataBundle marketData,
-      final ExternalId dataId, final ZonedDateTime valuationTime, final FXMatrix fx) {
+      final FinancialConvention payLegConvention, final FinancialConvention receiveLegConvention, final Period startTenor, final Period maturityTenor, 
+      final SecuritySource securitySource, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource, 
+      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final FXMatrix fx) {
     ArgumentChecker.notNull(payLegConvention, "pay leg convention");
     ArgumentChecker.notNull(receiveLegConvention, "receive leg convention");
     ArgumentChecker.notNull(startTenor, "start tenor");
     ArgumentChecker.notNull(maturityTenor, "maturity tenor");
+    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");
@@ -101,7 +105,7 @@ public class NodeConverterUtils {
     ArgumentChecker.notNull(valuationTime, "valuation time");
     ArgumentChecker.notNull(fx, "FX matrix");
     final boolean isFloatFloat = isFloatFloat(payLegConvention, receiveLegConvention);
-    final CurveNodeCurrencyVisitor ccyVisitor = new CurveNodeCurrencyVisitor(conventionSource);
+    final CurveNodeCurrencyVisitor ccyVisitor = new CurveNodeCurrencyVisitor(conventionSource, securitySource);
     final Set<Currency> ccySetPay = payLegConvention.accept(ccyVisitor);
     final Set<Currency> ccySetRec = receiveLegConvention.accept(ccyVisitor);
     ArgumentChecker.isTrue(ccySetPay.size() == 1, "More than one currency for one leg");
@@ -110,9 +114,9 @@ public class NodeConverterUtils {
     final Currency ccyRec = ccySetRec.iterator().next();
     final boolean isXCcy = !(ccyPay.equals(ccyRec));
     final double notionalRec = fx.getFxRate(ccyPay, ccyRec);
-    final AnnuityDefinition<? extends PaymentDefinition> payLeg = getSwapLeg(payLegConvention, startTenor, maturityTenor, regionSource, holidaySource,
+    final AnnuityDefinition<? extends PaymentDefinition> payLeg = getSwapLeg(payLegConvention, startTenor, maturityTenor, securitySource, regionSource, holidaySource,
         conventionSource, marketData, dataId, valuationTime, true, isFloatFloat, isXCcy, 1.0);
-    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = getSwapLeg(receiveLegConvention, startTenor, maturityTenor, regionSource, holidaySource,
+    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = getSwapLeg(receiveLegConvention, startTenor, maturityTenor, securitySource, regionSource, holidaySource,
         conventionSource, marketData, dataId, valuationTime, false, isFloatFloat, isXCcy, notionalRec);
     return new SwapDefinition(payLeg, receiveLeg);
   }
@@ -196,6 +200,7 @@ public class NodeConverterUtils {
    * @param legConvention The leg convention
    * @param startTenor The start tenor of the swap
    * @param maturityTenor The maturity tenor of the swap
+   * @param securitySource A security source
    * @param regionSource A region source
    * @param holidaySource A holiday source
    * @param conventionSource A convention source
@@ -210,7 +215,7 @@ public class NodeConverterUtils {
    * @throws UnsupportedOperationException If the convention type has not been implemented
    */
   public static AnnuityDefinition<? extends PaymentDefinition> getSwapLeg(
-      final FinancialConvention legConvention, final Period startTenor, final Period maturityTenor, final RegionSource regionSource,
+      final FinancialConvention legConvention, final Period startTenor, final Period maturityTenor, final SecuritySource securitySource, final RegionSource regionSource,
       final HolidaySource holidaySource, final ConventionSource conventionSource, final SnapshotDataBundle marketData, final ExternalId dataId,
       final ZonedDateTime valuationTime, final boolean isPayer, final boolean isMarketDataSpread, final boolean isXCcy, final double notional) {
 
@@ -223,7 +228,7 @@ public class NodeConverterUtils {
         }
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
-        final IndexON indexON = indexON(indexConvention);
+        final IndexON indexON = ConverterUtils.indexON(indexConvention.getName(), indexConvention);
         final int spotLagLeg = convention.getSettlementDays();
         final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
@@ -297,9 +302,10 @@ public class NodeConverterUtils {
         if (isXCcy) {
           throw new NotImplementedException("Cross-currency OIS leg not implemented.");
         }
-        final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
+        final OvernightIndex index = (OvernightIndex) securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        final OvernightIndexConvention indexConvention = conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
+        final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
-        final IndexON indexON = indexON(indexConvention);
         final int spotLagLeg = convention.getSettlementDays();
         final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
@@ -450,7 +456,7 @@ public class NodeConverterUtils {
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitONCompoundedLegRollDateConvention(final ONCompoundedLegRollDateConvention convention) {
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
-        final IndexON index = indexON(indexConvention);
+        final IndexON index = ConverterUtils.indexON(indexConvention.getName(), indexConvention);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final Period paymentTenor = convention.getPaymentTenor().getPeriod();
         final StubType stub = convention.getStubType();
@@ -485,7 +491,7 @@ public class NodeConverterUtils {
       public AnnuityDefinition<? extends PaymentDefinition> visitOISLegConvention(final OISLegConvention convention) {
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
-        final IndexON indexON = indexON(indexConvention);
+        final IndexON indexON = ConverterUtils.indexON(indexConvention.getName(), indexConvention);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
         final boolean eomLeg = convention.isIsEOM();
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
@@ -795,19 +801,6 @@ public class NodeConverterUtils {
     final int spotLag = indexConvention.getSettlementDays();
     final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eomIndex, indexConvention.getName());
     return iborIndex;
-  }
-
-  /**
-   * Create an IndexON from the convention.
-   * @param indexConvention The overnight index convention.
-   * @return The IndexON object.
-   */
-  public static IndexON indexON(final OvernightIndexConvention indexConvention) {
-    final Currency currency = indexConvention.getCurrency();
-    final DayCount dayCount = indexConvention.getDayCount();
-    final int publicationLag = indexConvention.getPublicationLag();
-    final IndexON indexON = new IndexON(indexConvention.getName(), currency, dayCount, publicationLag);
-    return indexON;
   }
 
 }
