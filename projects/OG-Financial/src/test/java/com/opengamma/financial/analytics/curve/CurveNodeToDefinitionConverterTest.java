@@ -579,21 +579,21 @@ public class CurveNodeToDefinitionConverterTest {
     final CashDefinition expectedCash = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 5, 1), DateUtils.getUTCDate(2013, 5, 2), 1, rate, 1. / 360);
     assertEquals("CashNode: converter with P0D-P1D", expectedCash, cash);
     // P0D-ON
-    final CurveNode cashNodeON = new CashNode(Tenor.of(Period.ZERO), Tenor.OVERNIGHT, DEPOSIT_1D_ID, "Mapper");
+    final CurveNode cashNodeON = new CashNode(Tenor.of(Period.ZERO), Tenor.ON, DEPOSIT_1D_ID, "Mapper");
     final InstrumentDefinition<?> definitionON = cashNodeON.accept(converter);
     assertTrue("CashNode: converter with P0D-ON", definitionON instanceof CashDefinition);
     final CashDefinition cashON = (CashDefinition) definitionON;
     final CashDefinition expectedCashON = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 5, 1), DateUtils.getUTCDate(2013, 5, 2), 1, rate, 1. / 360);
     assertEquals("CashNode: converter with P0D-ON", expectedCashON, cashON);
     // P1D-ON
-    final CurveNode cashNode1DON = new CashNode(Tenor.ONE_DAY, Tenor.OVERNIGHT, DEPOSIT_1D_ID, "Mapper");
+    final CurveNode cashNode1DON = new CashNode(Tenor.ONE_DAY, Tenor.ON, DEPOSIT_1D_ID, "Mapper");
     final InstrumentDefinition<?> definition1DON = cashNode1DON.accept(converter);
     assertTrue("CashNode: converter with P1D-ON", definition1DON instanceof CashDefinition);
     final CashDefinition cash1DON = (CashDefinition) definition1DON;
     final CashDefinition expectedCash1DON = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 5, 2), DateUtils.getUTCDate(2013, 5, 3), 1, rate, 1. / 360);
     assertEquals("CashNode: converter with P1D-ON", expectedCash1DON, cash1DON);
     // ON-ON
-    final CurveNode cashNodeONON = new CashNode(Tenor.ONE_DAY, Tenor.OVERNIGHT, DEPOSIT_1D_ID, "Mapper");
+    final CurveNode cashNodeONON = new CashNode(Tenor.ONE_DAY, Tenor.ON, DEPOSIT_1D_ID, "Mapper");
     final InstrumentDefinition<?> definitionONON = cashNodeONON.accept(converter);
     assertTrue("CashNode: converter with P1D-ON", definitionONON instanceof CashDefinition);
     final CashDefinition cashONON = (CashDefinition) definitionONON;
