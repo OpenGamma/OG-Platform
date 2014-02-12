@@ -40,6 +40,10 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
  * 
  */
 public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
+  /**
+   * Config xml form parameter name 
+   */
+  protected static final String CONFIG_XML = "configXML";
     
   /**
    * HTML ftl directory
