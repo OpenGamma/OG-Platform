@@ -4,7 +4,7 @@
 
 <#-- SECTION Add configuration -->
 <@section title="Add configuration">
-  <@form method="POST" action="${uris.configs()}">
+  <@form method="POST" action="${uris.configs()}" id="addConfigForm">
   <p>
     <#if err_nameMissing??><div class="err">The name must be entered</div></#if>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${name}" /></@rowin>
@@ -20,9 +20,20 @@
     
     <#if err_xmlMissing??><div class="err">The data must be entered</div></#if>
     <@rowin label="Configuration (XML)">
-      <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="configxml" id="xmltextarea">${xml}</textarea></div>
+      <div id="config-xml-editor">${configXML}</div>
     </@rowin>
+    <@rowin><input type="hidden" name="configXML" id="config-xml"/></@rowin>
     <@rowin><input type="submit" value="Add" /></@rowin>
+<script type="text/javascript">
+var editor = ace.edit("config-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#config-xml-editor").show()
+
+$("#addConfigForm").submit( function(eventObj) {
+  $("#config-xml").val(editor.getSession().getValue())
+  return true
+})
+</script>   
   </p>
   </@form>
 </@section>

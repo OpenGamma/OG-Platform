@@ -17,8 +17,15 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-    <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="configxml" id="xmltextarea">${configXml}</textarea></div>
+    <div id="config-xml-editor">${configXML}</div>
 </@subsection>
+
+<script type="text/javascript">
+var editor = ace.edit("config-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#config-xml-editor").show()
+</script>
+
 </@section>
 
 

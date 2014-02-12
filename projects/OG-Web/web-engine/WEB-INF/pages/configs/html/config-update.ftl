@@ -4,25 +4,25 @@
 
 <#-- SECTION Update configuration -->
 <@section title="Update configuration">
-  <@form method="PUT" action="${uris.config()}">
+  <@form method="PUT" action="${uris.config()}" id="updateConfigForm">
   <p>
     <#if err_nameMissing??><div class="err">The name must be entered</div></#if>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${configDoc.name}" /></@rowin>
     <@rowin label="Configuration (XML)">
-      <div style="border:2px solid black;padding:2px;"><textarea rows="30" cols="80" name="configxml" id="xmltextarea">${configXml}</textarea></div>
+      <div id="config-xml-editor">${configXML}</div>
     </@rowin>
+    <@rowin><input type="hidden" name="configXML" id="config-xml"/></@rowin>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript" src="/js/lib/codemirror/codemirror.js"></script>
 <script type="text/javascript">
-var editor = CodeMirror.fromTextArea("xmltextarea", {
-  parserfile: ["parsexml.js"],
-  path: "/js/lib/codemirror/",
-  stylesheet: "/css/lib/codemirror/xmlcolors.css",
-  width: "650px",
-  height: "dynamic",
-  minHeight: "300",
-  reindentOnLoad: true
-});
+var editor = ace.edit("config-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#config-xml-editor").show()
+
+
+$("#updateConfigForm").submit( function(eventObj) {
+  $("#config-xml").val(editor.getSession().getValue())
+  return true
+})
 </script>
   </p>
   </@form>
