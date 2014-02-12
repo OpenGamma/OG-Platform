@@ -834,7 +834,7 @@ public class CurveNodeToDefinitionConverterTest {
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 3, 1);
     final int startNumber = 4;
     final int endNumber = 8;
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     final Period startPeriod = Period.ofDays(1);
     final RollDateSwapNode swapNode = new RollDateSwapNode(Tenor.of(startPeriod), startNumber, endNumber, SWAP_QIMM_6MLIBOR3M_CONVENTION_ID, true, SCHEME, "SwapIMMQ0408");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
@@ -859,7 +859,7 @@ public class CurveNodeToDefinitionConverterTest {
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 3, 1);
     final int startNumber = 4;
     final int endNumber = 8;
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     final Period startPeriod = Period.ofDays(1);
     final RollDateSwapNode swapNode = new RollDateSwapNode(Tenor.of(startPeriod), startNumber, endNumber, SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_ID, true, SCHEME, "SwapIMMQ0408");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
@@ -889,7 +889,7 @@ public class CurveNodeToDefinitionConverterTest {
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 3, 1);
     final int startNumber = 4;
     final int endNumber = 5;
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     final Period startPeriod = Period.ofDays(1);
     final RollDateSwapNode swapNode = new RollDateSwapNode(Tenor.of(startPeriod), startNumber, endNumber, SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_ID, true, SCHEME, "SwapIMMQ0405");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
@@ -917,7 +917,7 @@ public class CurveNodeToDefinitionConverterTest {
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 3, 1);
     final int startNumber = 4;
     final int endNumber = 8;
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RollDateSwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
     final Period startPeriod = Period.ofDays(1);
     final RollDateSwapNode swapNode = new RollDateSwapNode(Tenor.of(startPeriod), startNumber, endNumber, SWAP_QIMM_LIBOR3MFF3M_CONVENTION_ID, true, SCHEME, "SwapIMMQ0408");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
@@ -955,7 +955,7 @@ public class CurveNodeToDefinitionConverterTest {
     calendarMap.put(ecbId.toBundle(), ecb);
     final RegionSource regionSource = new MyRegionSource(new ExternalId[] {US, EU, GB}, new String[] {"US", "EU", "GB"}, regionMap);
     final HolidaySource holidaySource = new MyHolidaySource(new ExternalId[] {US, EU, GB}, new Calendar[] {CALENDAR, TARGET, CALENDAR}, calendarMap);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new CalendarSwapNodeConverter(CONVENTION_SOURCE, holidaySource, regionSource, marketValues, marketDataId, now);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new CalendarSwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, holidaySource, regionSource, marketValues, marketDataId, now);
     final Period startPeriod = Period.ofDays(1);
     final CalendarSwapNode swapNode = new CalendarSwapNode(ecbId, Tenor.of(startPeriod), startNumber, endNumber, EUR_SWAP_1Y_ONCMP_ID, false, SCHEME, "CalendarSwapNode0204");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
