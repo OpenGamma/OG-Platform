@@ -4,15 +4,25 @@
 
 <#-- SECTION Update security -->
 <@section title="Update security">
-  <@form method="PUT" action="${uris.security()}">
+  <@form method="PUT" action="${uris.security()}" id="updateSecurityForm">
   <p>
-    <@rowin label="Type">${security.securityType}</@rowin>
-    <#if err_nameMissing??><div class="err">The name must be entered</div></#if>
-    <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="" /></@rowin>
-    <#if err_idschemeMissing??><div class="err">The scheme type must be entered</div></#if>
-    <@rowin label="Scheme type"><input type="text" size="30" maxlength="80" name="idscheme" value="" /></@rowin>
-    <#if err_idvalueMissing??><div class="err">The scheme id must be entered</div></#if>
-    <@rowin label="Scheme id"><input type="text" size="30" maxlength="80" name="idvalue" value="" /></@rowin>
+    <#if err_securityXml??>
+      <div class="err">${err_securityXmlMsg}</div>
+      <@rowin><input type="checkbox" name="useXml" value="true">Use XML</input></@rowin>
+      <@rowin><div id="security-xml-editor">${securityXml}</div></@rowin>
+      <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
+      <script type="text/javascript">
+        var editor = ace.edit("security-xml-editor")
+        editor.getSession().setMode('ace/mode/xml')
+        $("#security-xml-editor").show()
+
+        $("#updateSecurityForm").submit( function(eventObj) {
+          $("#security-xml").val(editor.getSession().getValue())
+          return true
+        })
+      </script>
+    </#if>
+    
     <@rowin><input type="submit" value="Update" /></@rowin>
   </p>
   </@form>
