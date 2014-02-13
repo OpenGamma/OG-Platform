@@ -82,15 +82,16 @@ public class RemoteDependencyGraphTraceProviderTest {
   public void getTraceDefaultProperties() {
     DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
 
-    String defaultPropertiesStr = "{A=[foo,bar],B=[*]}";
-    ValueProperties parsed = ValueProperties.parse(defaultPropertiesStr);
+    String defaultPropertiesStr1 = "{A=[foo,bar],B=[*]}";
+    String defaultPropertiesStr2 = "{A=[bar,foo],B=[*]}";
+    ValueProperties parsed = ValueProperties.parse(defaultPropertiesStr1);
 
     properties = properties.defaultProperties(parsed);
 
     URI uri = _provider.buildUri(properties);
 
     String uriStr = decode(uri);
-    assertTrue(uriStr.contains("defaultProperties/" + defaultPropertiesStr));
+    assertTrue(uriStr.contains("defaultProperties/" + defaultPropertiesStr1) || uriStr.contains("defaultProperties/" + defaultPropertiesStr2));
 
   }
 

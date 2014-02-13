@@ -207,11 +207,13 @@ public class DependencyGraphTraceProviderResourceTest {
 
   @Test
   public void uriDefaultProperties() throws UnsupportedEncodingException {
-    String defaultPropertiesStr = "{A=[foo,bar],B=[*]}";
-    ValueProperties parsed = ValueProperties.parse(defaultPropertiesStr);
+    String defaultPropertiesStr1 = "{A=[foo,bar],B=[*]}";
+    String defaultPropertiesStr2 = "{A=[bar,foo],B=[*]}";
+    ValueProperties parsed = ValueProperties.parse(defaultPropertiesStr1);
     URI uri = DependencyGraphTraceProviderResource.uriDefaultProperties(_baseUri, parsed);
     String url = decode(uri);
-    assertEquals(s_testUrl + "defaultProperties/" + defaultPropertiesStr, url);
+    assertTrue(url.equals(s_testUrl + "defaultProperties/" + defaultPropertiesStr1) ||
+        url.equals(s_testUrl + "defaultProperties/" + defaultPropertiesStr2));
   }
 
   @Test
