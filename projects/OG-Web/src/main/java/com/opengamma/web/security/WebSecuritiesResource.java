@@ -247,6 +247,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
         ManageableSecurity security = addSecurity(securityXml);
         out.put("addedSecurities", getAddedSecurityId(security));
         break;
+      case "": // create security by ID if type is missing
       case "id":
         idScheme = StringUtils.trimToNull(idScheme);
         idValue = StringUtils.trimToNull(idValue);

@@ -132,6 +132,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
         securityXml = StringUtils.trimToNull(securityXml);
         updateSecurity(securityXml);
         break;
+      case "": // update security by ID if type is missing
       case "id":
         updateSecurity(doc);
         break;
