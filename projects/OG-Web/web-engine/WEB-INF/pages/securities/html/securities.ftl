@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Securities">
+<@page title="Securities" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Security search -->
@@ -35,8 +35,33 @@
 
 
 <#-- SECTION Add security -->
-<@section title="Add securities">
+<@section title="Add security by XML">
   <@form method="POST" action="${uris.securities()}" id="addSecurityForm">
+  <p>
+    <@rowin>
+      <div id="security-xml-editor"></div>
+    </@rowin>
+    <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
+    <input type="hidden" name="type" value="xml"/>
+    <@rowin><input type="submit" value="Add" /></@rowin>
+  </p>
+  
+<script type="text/javascript">
+var editor = ace.edit("security-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#security-xml-editor").show()
+
+$("#addSecurityForm").submit( function(eventObj) {
+  $("#security-xml").val(editor.getSession().getValue())
+  return true
+})
+</script>
+  </@form>
+</@section>
+
+<#-- SECTION Load and Add security -->
+<@section title="Load securities by ID">
+  <@form method="POST" action="${uris.securities()}">
   <p>
     <@rowin label="Scheme type">
       <select name="idscheme">
@@ -52,29 +77,11 @@
     <@rowin label="Identifiers">
       <textarea name="idvalue" cols="35" rows="10"></textarea>
     </@rowin>
-    
-    <@subsection title="Security Bean XML">
-      <@rowin label="">
-        <div id="security-xml-editor"></div>
-      </@rowin>
-    </@subsection>
-    
-    <@rowin><input type="hidden" name="securityxml" id="securityxml"/></@rowin>
+    <input type="hidden" name="type" value="id"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
-<script type="text/javascript">
-var editor = ace.edit("security-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#security-xml-editor").show()
-
-$("#addSecurityForm").submit( function(eventObj) {
-  $("#securityxml").val(editor.getSession().getValue())
-  return true
-})
-</script>
   </p>
   </@form>
 </@section>
-
 
 <#-- SECTION Links -->
 <@section title="Links">

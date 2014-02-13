@@ -1,6 +1,6 @@
 <#escape x as x?html>
 <#setting number_format="0.#####">
-<@page title="Security - ${security.name}">
+<@page title="Security - ${security.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This security has been deleted</p>
@@ -429,11 +429,11 @@
 <@section title="Update security" if=!deleted>
   <@form method="PUT" action="${uris.security()}" id="updateSecurityForm">
   <p>
-    <@rowin><input type="checkbox" name="useXml" value="true">Use XML</input></@rowin>
     <@rowin>
       <div id="security-xml-editor">${securityXml}</div>
     </@rowin>
     <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
+    <input type="hidden" name="type" value="xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
     
 <script type="text/javascript">
@@ -450,6 +450,15 @@ $("#updateSecurityForm").submit( function(eventObj) {
   </@form>
 </@section>
 
+<#-- SECTION Reload security -->
+<@section title="Reload security" if=!deleted>
+  <@form method="PUT" action="${uris.security()}">
+  <p>
+    <input type="hidden" name="type" value="id"/>
+    <@rowin><input type="submit" value="Reload" /></@rowin>
+  </p>
+  </@form>
+</@section>
 
 <#-- SECTION Delete security -->
 <@section title="Delete security" if=!deleted>

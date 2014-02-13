@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Update - ${security.name}">
+<@page title="Update - ${security.name}" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Update security -->
@@ -8,8 +8,8 @@
   <p>
     <#if err_securityXml??>
       <div class="err">${err_securityXmlMsg}</div>
-      <@rowin><input type="checkbox" name="useXml" value="true">Use XML</input></@rowin>
-      <@rowin><div id="security-xml-editor">${securityXml}</div></@rowin>
+    </#if>
+      <@rowin><div id="security-xml-editor"><#if securityXml?has_content>${securityXml}</#if></div></@rowin>
       <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
       <script type="text/javascript">
         var editor = ace.edit("security-xml-editor")
@@ -21,13 +21,11 @@
           return true
         })
       </script>
-    </#if>
-    
+    <input type="hidden" name="type" value="xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
   </p>
   </@form>
 </@section>
-
 
 <#-- SECTION Links -->
 <@section title="Links">
