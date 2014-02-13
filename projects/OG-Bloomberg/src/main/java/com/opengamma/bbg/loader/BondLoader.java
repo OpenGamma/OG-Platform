@@ -15,9 +15,13 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_CPN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CPN_FREQ;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CPN_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_DAYS_TO_SETTLE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_DAY_CNT_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FIRST_CPN_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FLOATER;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FLT_BENCH_MULTIPLIER;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FLT_DAYS_PRIOR;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FLT_SPREAD;
 import static com.opengamma.bbg.BloombergConstants.FIELD_GUARANTOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
@@ -28,6 +32,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_SECTOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LINKED_INDICATOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INT_ACC_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUER;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_IS_PERPETUAL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
@@ -37,6 +42,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_PIECE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MTY_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PAR_AMT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_REDEMP_VAL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_RESET_IDX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_FITCH;
 import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_MOODY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_SP;
@@ -74,6 +80,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -134,7 +141,13 @@ public class BondLoader extends SecurityLoader {
       FIELD_ID_SEDOL1,
       FIELD_TICKER,
       FIELD_MARKET_SECTOR_DES,
-      FIELD_SECURITY_DES);
+      FIELD_SECURITY_DES,
+      FIELD_FLT_DAYS_PRIOR,
+      FIELD_FLT_SPREAD,
+      FIELD_FLT_BENCH_MULTIPLIER,
+      FIELD_ISSUE_DT,
+      FIELD_DAYS_TO_SETTLE,
+      FIELD_RESET_IDX);
 
   /**
    * The valid Bloomberg security types for Bond
@@ -222,6 +235,14 @@ public class BondLoader extends SecurityLoader {
     return localDate.atTime(expiryTime).atZone(zone);
   }
 
+  private Integer validateAndGetIntegerField(final FudgeMsg fieldData, final String fieldName) {
+    if (!isValidField(fieldData.getString(fieldName))) {
+      s_logger.warn(fieldName + " is null, cannot construct bond security");
+      throw new OpenGammaRuntimeException(fieldName + " is null, cannot construct bond security");
+    }
+    return fieldData.getInt(fieldName);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   protected ManageableSecurity createSecurity(final FudgeMsg fieldData) {
@@ -234,6 +255,8 @@ public class BondLoader extends SecurityLoader {
       final boolean isPerpetual = (isPerpetualStr != null && isPerpetualStr.trim().toUpperCase().contains("Y"));
       final String isBulletStr = validateAndGetNullableStringField(fieldData, FIELD_BULLET);
       final boolean isBullet = (isBulletStr != null && isBulletStr.trim().toUpperCase().contains("Y"));
+      final String isFloaterStr = validateAndGetNullableStringField(fieldData, FIELD_FLOATER);
+      final boolean isFloater = (isFloaterStr != null && isFloaterStr.trim().toUpperCase().contains("Y"));
       final String maturityType = validateAndGetNullableStringField(fieldData, FIELD_MTY_TYPE);
       final boolean isCallable = (maturityType != null && maturityType.trim().toUpperCase().contains("CALL"));
       final String issuerDomicile = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
@@ -314,6 +337,19 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+      } else if (isFloater) {
+        final ExternalId legalEntityId = ExternalId.of("TEST", "TEST");
+        final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?
+        final ExternalId benchmarkRateId = ExternalSchemes.bloombergTickerSecurityId(benchmarkRateStr);
+        final ZonedDateTime issueDate = validateAndGetNullableDateField(fieldData, FIELD_ISSUE_DT);
+        final int daysToSettle = validateAndGetIntegerField(fieldData, FIELD_DAYS_TO_SETTLE);
+        final int resetDays = validateAndGetIntegerField(fieldData, FIELD_FLT_DAYS_PRIOR);
+        final double spread = validateAndGetDoubleField(fieldData, FIELD_FLT_SPREAD);
+        final double leverage = validateAndGetDoubleField(fieldData, FIELD_FLT_BENCH_MULTIPLIER);
+        final String country = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
+        final ExternalId regionId = ExternalSchemes.financialRegionId(country);
+        bondSecurity = new FloatingRateNoteSecurity(currency, maturity, issueDate, minimumIncrement, daysToSettle,
+            resetDays, dayCount, regionId, legalEntityId, benchmarkRateId, spread, leverage, couponFrequency);
       } else if (issuerType.trim().equals(SOVEREIGN)) {
         bondSecurity = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
@@ -330,7 +366,6 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
-
       } else {
         bondSecurity = new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
