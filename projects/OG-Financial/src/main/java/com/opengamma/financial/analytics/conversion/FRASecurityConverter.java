@@ -57,8 +57,13 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     final ZonedDateTime accrualStartDate = security.getStartDate();
     final ZonedDateTime accrualEndDate = security.getEndDate();
     final long months = getMonths(accrualStartDate, accrualEndDate);
+    
+    
     final String tenorString = months + "M";
     final VanillaIborLegConvention vanillaIborLegConvention = getIborLegConvention(currency, tenorString);
+    
+    
+    
     final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(vanillaIborLegConvention.getIborIndexConvention(), IborIndexConvention.class);
     final double notional = security.getAmount();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency)); //TODO exchange region?

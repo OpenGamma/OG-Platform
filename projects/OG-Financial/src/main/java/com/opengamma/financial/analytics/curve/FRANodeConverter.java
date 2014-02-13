@@ -17,15 +17,14 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.convention.IborIndexConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 /**
  * Convert a FRA node into an Instrument definition.
@@ -36,6 +35,8 @@ import com.opengamma.util.money.Currency;
  * The FRA notional is 1.
  */
 public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
+  /** The security source */
+  private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -50,6 +51,7 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
   private final ZonedDateTime _valuationTime;
 
   /**
+   * @param securitySource The security source, not null
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
@@ -57,14 +59,16 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
    */
-  public FRANodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+  public FRANodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
+    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -80,27 +84,25 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(fraNode.getConvention(), IborIndexConvention.class);
-    final Period startPeriod = fraNode.getFixingStart().getPeriod();
-    final Period endPeriod = fraNode.getFixingEnd().getPeriod();
-    //TODO probably need a specific FRA convention to hold the reset tenor
-    final long months = endPeriod.toTotalMonths() - startPeriod.toTotalMonths();
-    final Period indexTenor = Period.ofMonths((int) months);
+    final Security sec = _securitySource.getSingle(fraNode.getConvention().toBundle()); 
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Ibor index with id " + fraNode.getConvention() + " was null");
+    }
+    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec; 
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + fraNode.getConvention() + " was null");
     }
-    final Currency currency = indexConvention.getCurrency();
+    final IborIndex index = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
+    final Period startPeriod = fraNode.getFixingStart().getPeriod();
+    final Period endPeriod = fraNode.getFixingEnd().getPeriod();
     final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
     final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
     final int spotLag = indexConvention.getSettlementDays();
-    final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
-    final DayCount dayCount = indexConvention.getDayCount();
-    final boolean eom = indexConvention.isIsEOM();
-    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, spotLag, regionCalendar);
-    final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, regionCalendar, eom);
-    final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, businessDayConvention, regionCalendar, eom);
-    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, iborIndex, rate, fixingCalendar);
+    final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, index, regionCalendar);
+    final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, index, regionCalendar);
+    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, index, rate, fixingCalendar);
   }
 
 }

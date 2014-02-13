@@ -5,10 +5,14 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Utilities for different converters (Node and securities)/
@@ -27,6 +31,23 @@ public class ConverterUtils {
     final int publicationLag = indexConvention.getPublicationLag();
     final IndexON indexON = new IndexON(name, currency, dayCount, publicationLag);
     return indexON;
+  }
+  
+  /**
+   * Create a IborIndex object from the convention and the tenor.
+   * @param name The name of the index.
+   * @param indexConvention The index convention.
+   * @param indexTenor The index tenor.
+   * @return The IborIndex object.
+   */
+  public static IborIndex indexIbor(final String name, final IborIndexConvention indexConvention, final Tenor indexTenor) {
+    final Currency currency = indexConvention.getCurrency();
+    final DayCount dayCount = indexConvention.getDayCount();
+    final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
+    final boolean eomIndex = indexConvention.isIsEOM();
+    final int spotLag = indexConvention.getSettlementDays();
+    final IborIndex iborIndex = new IborIndex(currency, indexTenor.getPeriod(), spotLag, dayCount, businessDayConvention, eomIndex, name);
+    return iborIndex;
   }
 
 }

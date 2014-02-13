@@ -28,6 +28,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
@@ -231,7 +232,11 @@ public class NodeConverterUtils {
         if (isXCcy) {
           throw new NotImplementedException("Cross-currency ON Arithmetic Average leg not implemented.");
         }
-        final OvernightIndex index = (OvernightIndex) securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        final Security sec = securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Overnight index with id " + convention.getOvernightIndexConvention() + " was null");
+        }
+        final OvernightIndex index = (OvernightIndex) sec;
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
         final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
@@ -261,15 +266,20 @@ public class NodeConverterUtils {
         if (isXCcy) {
           throw new NotImplementedException("Cross-currency Ibor compounded leg not implemented.");
         }
-        final IborIndexConvention indexConvention = conventionSource.getSingle(convention.getIborIndexConvention(), IborIndexConvention.class);
+        final Security sec = securitySource.getSingle(convention.getIborIndexConvention().toBundle()); 
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Ibor index with id " + convention.getIborIndexConvention() + " was null");
+        }
+        final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+        final IborIndexConvention indexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+        final IborIndex index = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final boolean eomLeg = convention.isIsEOM();
-        final Period indexTenor = convention.getCompositionTenor().getPeriod();
+//        final Period indexTenor = convention.getCompositionTenor().getPeriod();
         final Period paymentTenor = convention.getPaymentTenor().getPeriod();
-        final IborIndex iborIndex = indexIbor(indexConvention, indexTenor);
         final int spotLagLeg = convention.getSettlementDays();
         final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
-        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, iborIndex.getBusinessDayConvention(), calendar, eomLeg);
+        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, index.getBusinessDayConvention(), calendar, eomLeg);
         final StubType stubLeg = convention.getStubTypeLeg();
         final StubType stubComp = convention.getStubTypeCompound();
         final CompoundingType compound = convention.getCompoundingType();
@@ -282,22 +292,22 @@ public class NodeConverterUtils {
           }
           switch (compound) {
             case COMPOUNDING:
-              return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, notional, spread, iborIndex, stubComp, isPayer,
-                  iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+              return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, notional, spread, index, stubComp, isPayer,
+                  index.getBusinessDayConvention(), eom, calendar, stubLeg);
             case FLAT_COMPOUNDING:
-              return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, notional, spread, iborIndex, stubComp, isPayer,
-                  iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+              return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, notional, spread, index, stubComp, isPayer,
+                  index.getBusinessDayConvention(), eom, calendar, stubLeg);
             default:
               throw new NotImplementedException("Compounding method unimplemented: only COMPOUNDING and FLAT_COMPOUNDING implemented");
           }
         }
         switch (compound) {
           case COMPOUNDING:
-            return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, notional, iborIndex, stubComp, isPayer,
-              iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+            return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, notional, index, stubComp, isPayer,
+              index.getBusinessDayConvention(), eom, calendar, stubLeg);
           case FLAT_COMPOUNDING:
-            return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, notional, 0.0, iborIndex, stubComp, isPayer,
-                iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+            return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, notional, 0.0, index, stubComp, isPayer,
+                index.getBusinessDayConvention(), eom, calendar, stubLeg);
           default:
             throw new NotImplementedException("Compounding method unimplemented: only COMPOUNDING and FLAT_COMPOUNDING implemented");
         }
@@ -308,7 +318,11 @@ public class NodeConverterUtils {
         if (isXCcy) {
           throw new NotImplementedException("Cross-currency OIS leg not implemented.");
         }
-        final OvernightIndex index = (OvernightIndex) securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        final Security sec = securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Overnight index with id " + convention.getOvernightIndexConvention() + " was null");
+        }
+        final OvernightIndex index = (OvernightIndex) sec;
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
         final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
@@ -361,16 +375,19 @@ public class NodeConverterUtils {
 
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitVanillaIborLegConvention(final VanillaIborLegConvention convention) {
-        
-        
-        final IborIndexConvention indexConvention = conventionSource.getSingle(convention.getIborIndexConvention(), IborIndexConvention.class);
+        final Security sec = securitySource.getSingle(convention.getIborIndexConvention().toBundle()); 
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Ibor index with id " + convention.getIborIndexConvention() + " was null");
+        }
+        final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+        final IborIndexConvention indexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+        final IborIndex index = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final boolean eomLeg = convention.isIsEOM();
         final Period indexTenor = convention.getResetTenor().getPeriod();
-        final IborIndex iborIndex = indexIbor(indexConvention, indexTenor);
         final int spotLagLeg = convention.getSettlementDays();
         final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
-        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, iborIndex.getBusinessDayConvention(), calendar, eomLeg);
+        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, index.getBusinessDayConvention(), calendar, eomLeg);
         final StubType stub = convention.getStubType();
         final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
@@ -380,16 +397,16 @@ public class NodeConverterUtils {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
           if (isXCcy) {
-            return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(startDate, maturityDate, notional, spread, iborIndex, isPayer, calendar, stub, paymentLag, true, true);
+            return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(startDate, maturityDate, notional, spread, index, isPayer, calendar, stub, paymentLag, true, true);
           }
-          return AnnuityDefinitionBuilder.couponIborSpread(startDate, maturityDate, indexTenor, notional, spread, iborIndex, isPayer, iborIndex.getDayCount(),
-              iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
+          return AnnuityDefinitionBuilder.couponIborSpread(startDate, maturityDate, indexTenor, notional, spread, index, isPayer, index.getDayCount(),
+              index.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
         }
         if (isXCcy) {
-          return AnnuityDefinitionBuilder.couponIborWithNotional(startDate, maturityDate, notional, iborIndex, isPayer, calendar, stub, paymentLag, true, true);
+          return AnnuityDefinitionBuilder.couponIborWithNotional(startDate, maturityDate, notional, index, isPayer, calendar, stub, paymentLag, true, true);
         }
-        return AnnuityDefinitionBuilder.couponIbor(startDate, maturityDate, indexTenor, notional, iborIndex, isPayer, iborIndex.getDayCount(),
-            iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
+        return AnnuityDefinitionBuilder.couponIbor(startDate, maturityDate, indexTenor, notional, index, isPayer, index.getDayCount(),
+            index.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
       }
     };
 
@@ -443,10 +460,14 @@ public class NodeConverterUtils {
       @SuppressWarnings("synthetic-access")
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitVanillaIborLegRollDateConvention(final VanillaIborLegRollDateConvention convention) {
-        final IborIndexConvention indexConvention = conventionSource.getSingle(convention.getIborIndexConvention(), IborIndexConvention.class);
+        final Security sec = securitySource.getSingle(convention.getIborIndexConvention().toBundle()); 
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Ibor index with id " + convention.getIborIndexConvention() + " was null");
+        }
+        final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+        final IborIndexConvention indexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
-        final Period indexTenor = convention.getResetTenor().getPeriod();
-        final IborIndex indexIbor = indexIbor(indexConvention, indexTenor);
+        final IborIndex indexIbor = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
         final StubType stub = convention.getStubType();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
         if (!isPayer && isMarketDataSpread) { // The spread is on the receiver leg.
@@ -464,7 +485,11 @@ public class NodeConverterUtils {
       @SuppressWarnings("synthetic-access")
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitONCompoundedLegRollDateConvention(final ONCompoundedLegRollDateConvention convention) {
-        final OvernightIndex index = (OvernightIndex) securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        final Security sec = securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Overnight index with id " + convention.getOvernightIndexConvention() + " was null");
+        }
+        final OvernightIndex index = (OvernightIndex) sec;
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
         final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());

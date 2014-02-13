@@ -83,7 +83,7 @@ public class VanillaIborLegRollDateConvention extends FinancialConvention {
    * @param externalIdBundle  the external identifiers for this convention, not null
    * @param iborIndexConvention  the underlying ibor index convention, not null
    * @param isAdvanceFixing  true if fixing is in advance
-   * @param resetTenor  the reset tenor, not null
+   * @param resetTenor  the reset tenor, not null TODO: Remove: in iborIndex
    * @param stubType  the stub type, not null
    * @param isExchangeNotional  true if notional is to be exchanged
    * @param paymentLag  the payment lag in days

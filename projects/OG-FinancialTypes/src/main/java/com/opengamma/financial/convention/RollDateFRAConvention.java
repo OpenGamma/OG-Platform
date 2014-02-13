@@ -60,7 +60,7 @@ public class RollDateFRAConvention extends FinancialConvention {
    * 
    * @param name  the convention name, not null
    * @param externalIdBundle  the external identifiers for this convention, not null
-   * @param indexConvention  the index convention, not null
+   * @param indexConvention  the index convention, not null TODO: Index
    * @param rollDateConvention  the roll date convention, not null
    */
   public RollDateFRAConvention(
