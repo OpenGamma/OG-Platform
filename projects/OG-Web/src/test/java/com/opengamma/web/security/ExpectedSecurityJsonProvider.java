@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.json.JSONObject;
 
 import com.google.common.collect.Maps;
@@ -29,6 +30,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -68,6 +70,7 @@ import com.opengamma.util.time.Expiry;
       templateData.put("gicsCode", security.getGicsCode().toString());
     }
     secMap.put(TEMPLATE_DATA, templateData);
+    addSecurityXml(security, secMap);
     addExternalIds(security, secMap);
     return new JSONObject(secMap);
   }
@@ -154,11 +157,17 @@ import com.opengamma.util.time.Expiry;
         }
         templateData.put("unitAmount", security.getUnitAmount());
         secMap.put(TEMPLATE_DATA, templateData);
+        addSecurityXml(security, secMap);
         addExternalIds(security, secMap);
         return new JSONObject(secMap);
       }
     });
     return result;
+  }
+  
+  private void addSecurityXml(FinancialSecurity security, Map<String, Object> secMap) {
+    String secXml = JodaBeanSerialization.serializer(true).xmlWriter().write((Bean) security, true);
+    secMap.put("securityXml", secXml);
   }
 
   private void addExternalIds(FinancialSecurity security, Map<String, Object> secMap) {
