@@ -25,6 +25,7 @@ import groovy.lang.Script;
  * Base class for scripts that create {@link Simulation}s and {@link Scenario}s. The methods in this class are available
  * in the script and form the basis of a DSL.
  */
+@SuppressWarnings("unused") // it is used reflectively by Groovy
 public abstract class SimulationScript extends Script {
 
   /** The currently building simulation. */
@@ -152,7 +153,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void curve(Closure<?> body) {
-    YieldCurveBuilder selector = new YieldCurveBuilder(_scenario);
+    DslYieldCurveSelectorBuilder selector = new DslYieldCurveSelectorBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -163,7 +164,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void curveData(Closure<?> body) {
-    YieldCurveDataBuilder selector = new YieldCurveDataBuilder(_scenario);
+    DslYieldCurveDataSelectorBuilder selector = new DslYieldCurveDataSelectorBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -174,7 +175,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void marketData(Closure<?> body) {
-    PointBuilder selector = new PointBuilder(_scenario);
+    DslPointSelectorBuilder selector = new DslPointSelectorBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -185,7 +186,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void surface(Closure<?> body) {
-    SurfaceBuilder selector = new SurfaceBuilder(_scenario);
+    DslVolatilitySurfaceSelectorBuilder selector = new DslVolatilitySurfaceSelectorBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -196,173 +197,9 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void spotRate(Closure<?> body) {
-    SpotRateBuilder builder = new SpotRateBuilder(_scenario);
+    DslSpotRateSelectorBuilder builder = new DslSpotRateSelectorBuilder(_scenario);
     body.setDelegate(builder);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
-  }
-
-  /**
-   * Delegate class for closures that define a surface transformation in the DSL.
-   */
-  private static final class SurfaceBuilder extends VolatilitySurfaceSelector.Builder {
-
-    private SurfaceBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    @SuppressWarnings("unused")
-    public void apply(Closure<?> body) {
-      GroovyVolatilitySurfaceManipulatorBuilder builder =
-          new GroovyVolatilitySurfaceManipulatorBuilder(getScenario(), getSelector());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
-  }
-
-  /**
-   * Delegate class for blocks that define a market data point transformation in the DSL.
-   */
-  private static final class PointBuilder extends PointSelector.Builder {
-
-    private PointBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    @SuppressWarnings("unused")
-    public void apply(Closure<?> body) {
-      PointManipulatorBuilder builder = new PointManipulatorBuilder(getScenario(), getSelector());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
-  }
-
-  /**
-   * Delegate class for closures that define a curve transformation in the DSL.
-   */
-  private static final class YieldCurveBuilder extends YieldCurveSelector.Builder {
-
-    private YieldCurveBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    @SuppressWarnings("unused")
-    public void apply(Closure<?> body) {
-      YieldCurveManipulatorBuilder builder = new GroovyYieldCurveManipulatorBuilder(getSelector(), getScenario());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
-  }
-
-  /**
-   * Delegate class for closures that define a spot rate transformation in the DSL.
-   */
-  private static final class SpotRateBuilder extends SpotRateSelectorBuilder {
-
-    private SpotRateBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    public void apply(Closure<?> body) {
-      SpotRateManipulatorBuilder builder = new SpotRateManipulatorBuilder(getScenario(), getSelector());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
-  }
-
-  /**
-   * Delegate class for closures that define a curve data transformation in the DSL.
-   * This affects raw curve data before it's fitted.
-   */
-  private static final class YieldCurveDataBuilder extends YieldCurveDataSelectorBuilder {
-
-    private YieldCurveDataBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    @SuppressWarnings("unused")
-    public void apply(Closure<?> body) {
-      YieldCurveDataManipulatorBuilder builder = new GroovyYieldCurveDataManipulatorBuilder(getSelector(), getScenario());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
-  }
-
-  private static final class GroovyYieldCurveDataManipulatorBuilder extends YieldCurveDataManipulatorBuilder {
-
-    /* package */ GroovyYieldCurveDataManipulatorBuilder(YieldCurveDataSelector selector, Scenario scenario) {
-      super(selector, scenario);
-    }
-
-    public void bucketedShifts(ScenarioShiftType shiftType, Closure<?> body) {
-      YieldCurveDataBucketedShiftsManipulatorBuilder builder =
-          new YieldCurveDataBucketedShiftsManipulatorBuilder(getSelector(), getScenario(), shiftType);
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-      builder.build();
-    }
-
-    public void pointShifts(ScenarioShiftType shiftType, Closure<?> body) {
-      YieldCurveDataPointShiftsManipulatorBuilder builder =
-          new YieldCurveDataPointShiftsManipulatorBuilder(getSelector(), getScenario(), shiftType);
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-      builder.build();
-    }
-
-  }
-
-    /**
-   * Delegate class for closures that defines closure compatible builder methods
-   * for {@link YieldCurveManipulatorBuilder} in the DSL.
-   */
-  private static final class GroovyYieldCurveManipulatorBuilder extends YieldCurveManipulatorBuilder {
-
-    /* package */ GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
-      super(selector, scenario);
-    }
-    
-    @SuppressWarnings("unused")
-    public void bucketedShifts(ScenarioShiftType shiftType, Closure<?> body) {
-      BucketedShiftManipulatorBuilder builder =
-          new BucketedShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-      builder.apply();
-    }
-    
-    @SuppressWarnings("unused")
-    public void pointShifts(ScenarioShiftType shiftType, Closure<?> body) {
-      PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-      builder.apply();
-    }
-    
-  }
-
-  private static final class GroovyVolatilitySurfaceManipulatorBuilder extends VolatilitySurfaceManipulatorBuilder {
-
-    /* package */ GroovyVolatilitySurfaceManipulatorBuilder(Scenario scenario, VolatilitySurfaceSelector selector) {
-      super(scenario, selector);
-    }
-
-    public void shifts(ScenarioShiftType shiftType, Closure<?> body) {
-      VolatilitySurfaceShiftManipulatorBuilder builder =
-          new VolatilitySurfaceShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-      builder.build();
-    }
   }
 }

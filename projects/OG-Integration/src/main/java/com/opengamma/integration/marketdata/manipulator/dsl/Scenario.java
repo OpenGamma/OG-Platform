@@ -65,8 +65,6 @@ public class Scenario {
     _name = name;
   }
 
-
-
   /**
    * @return A object for specifying which curves should be transformed
    */

@@ -46,9 +46,8 @@ public class PointShiftManipulatorBuilder {
   /**
    * Adds the configured shifts to the scenario.
    * Should only be called once per {@link PointShiftManipulatorBuilder}.
-   * TODO rename build() to make it clear it's not related to the apply() methods on the selector builders
    */
-  public void apply() {
+  public void build() {
     YieldCurvePointShiftManipulator pointShifts = new YieldCurvePointShiftManipulator(_shiftType, _shiftList);
     _scenario.add(_selector, pointShifts);
   }
