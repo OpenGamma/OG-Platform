@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -43,7 +44,7 @@ import com.opengamma.util.time.DateUtils;
 @Test(groups = TestGroup.UNIT)
 public class ForwardRateAgreementDiscountingMethodTest {
 
-  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
+  private static final MulticurveProviderDiscount MULTICURVE = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex USDLIBOR3M = INDEX_LIST[2];
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getUSDCalendar();
@@ -66,6 +67,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final ForwardRateAgreementDiscountingProviderMethod FRA_METHOD = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final double SHIFT = 1.0E-6;
@@ -82,24 +84,31 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void parRate() {
-    final double forward = FRA_METHOD.parRate(FRA, PROVIDER);
-    final double forwardExpected = PROVIDER.getSimplyCompoundForwardRate(USDLIBOR3M, FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime(), FRA.getFixingYearFraction());
+    final double forward = FRA_METHOD.parRate(FRA, MULTICURVE);
+    final double forwardExpected = MULTICURVE.getSimplyCompoundForwardRate(USDLIBOR3M, FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime(), FRA.getFixingYearFraction());
     assertEquals("FRA discounting: par rate", forwardExpected, forward, TOLERANCE_RATE);
   }
 
   @Test
+  public void parRateMethodVsCalculator() {
+    final double forwardMethod = FRA_METHOD.parRate(FRA, MULTICURVE);
+    final double forwardCalculator = FRA.accept(PRDC, MULTICURVE);
+    assertEquals("FRA discounting: par rate", forwardMethod, forwardCalculator, TOLERANCE_RATE);
+  }
+
+  @Test
   public void presentValue() {
-    final double forward = FRA_METHOD.parRate(FRA, PROVIDER);
-    final double dfSettle = PROVIDER.getDiscountFactor(CUR, FRA.getPaymentTime());
+    final double forward = FRA_METHOD.parRate(FRA, MULTICURVE);
+    final double dfSettle = MULTICURVE.getDiscountFactor(CUR, FRA.getPaymentTime());
     final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getPaymentYearFraction() * forward);
-    final MultipleCurrencyAmount pv = FRA_METHOD.presentValue(FRA, PROVIDER);
+    final MultipleCurrencyAmount pv = FRA_METHOD.presentValue(FRA, MULTICURVE);
     assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(CUR), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    final MultipleCurrencyAmount pvMethod = FRA_METHOD.presentValue(FRA, PROVIDER);
-    final MultipleCurrencyAmount pvCalculator = FRA.accept(PVDC, PROVIDER);
+    final MultipleCurrencyAmount pvMethod = FRA_METHOD.presentValue(FRA, MULTICURVE);
+    final MultipleCurrencyAmount pvCalculator = FRA.accept(PVDC, MULTICURVE);
     assertEquals("FRA discounting: present value calculator vs method", pvCalculator.getAmount(CUR), pvMethod.getAmount(CUR), 1.0E-2);
   }
 
@@ -108,8 +117,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
         FIXING_DATE, USDLIBOR3M, FRA_RATE, CALENDAR);
     final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE);
-    final MultipleCurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, PROVIDER);
-    final MultipleCurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, PROVIDER);
+    final MultipleCurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, MULTICURVE);
+    final MultipleCurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, MULTICURVE);
     assertEquals("FRA discounting: present value - buy/sell parity", pvSell.getAmount(CUR), -pvBuy.getAmount(CUR), 1.0E-2);
   }
 
@@ -118,32 +127,32 @@ public class ForwardRateAgreementDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
-    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FRA, PROVIDER);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FRA, MULTICURVE, MULTICURVE.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FRA, MULTICURVE);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    final MultipleCurrencyMulticurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = FRA.accept(PVCSDC, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, MULTICURVE);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = FRA.accept(PVCSDC, MULTICURVE);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void parSpread() {
-    final double parSpread = FRA_METHOD.parSpread(FRA, PROVIDER);
+    final double parSpread = FRA_METHOD.parSpread(FRA, MULTICURVE);
     final ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
         USDLIBOR3M, FRA_RATE + parSpread, CALENDAR);
     final ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE);
-    final MultipleCurrencyAmount pv0 = fra0.accept(PVDC, PROVIDER);
+    final MultipleCurrencyAmount pv0 = fra0.accept(PVDC, MULTICURVE);
     assertEquals("FRA discounting: par spread", pv0.getAmount(CUR), 0, TOLERANCE_PV);
   }
 
   @Test
   public void parSpreadMethodVsCalculator() {
-    final double parSpreadMethod = FRA_METHOD.parSpread(FRA, PROVIDER);
-    final double parSpreadCalculator = FRA.accept(PSMQDC, PROVIDER);
+    final double parSpreadMethod = FRA_METHOD.parSpread(FRA, MULTICURVE);
+    final double parSpreadCalculator = FRA.accept(PSMQDC, MULTICURVE);
     assertEquals("FRA discounting: par spread", parSpreadMethod, parSpreadCalculator, TOLERANCE_RATE);
   }
 
@@ -152,8 +161,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
    * Tests the par spread curve sensitivity versus a finite difference computation.
    */
   public void parSpreadCurveSensitivity() {
-    final SimpleParameterSensitivity psComputed = PSPSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
-    final SimpleParameterSensitivity psFD = PSMQCS_FDC.calculateSensitivity(FRA, PROVIDER);
+    final SimpleParameterSensitivity psComputed = PSPSC.calculateSensitivity(FRA, MULTICURVE, MULTICURVE.getAllNames());
+    final SimpleParameterSensitivity psFD = PSMQCS_FDC.calculateSensitivity(FRA, MULTICURVE);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_SPREAD_DELTA);
   }
 
@@ -162,8 +171,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
    * Tests the par spread curve sensitivity through the method and through the calculator.
    */
   public void parSpreadCurveSensitivityMethodVsCalculator() {
-    final MulticurveSensitivity pvcsMethod = FRA_METHOD.parSpreadCurveSensitivity(FRA, PROVIDER);
-    final MulticurveSensitivity pvcsCalculator = FRA.accept(PSMQCSDC, PROVIDER);
+    final MulticurveSensitivity pvcsMethod = FRA_METHOD.parSpreadCurveSensitivity(FRA, MULTICURVE);
+    final MulticurveSensitivity pvcsCalculator = FRA.accept(PSMQCSDC, MULTICURVE);
     assertEquals("Forex swap present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
