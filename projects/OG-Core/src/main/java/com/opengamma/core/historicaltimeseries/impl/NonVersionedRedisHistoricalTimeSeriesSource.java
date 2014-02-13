@@ -122,10 +122,10 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeseries, "timeseries");
     
-    updateTimeSeries(toRedisKey(uniqueId), timeseries);
+    updateTimeSeries(toRedisKey(uniqueId), timeseries, 20);
   }
   
-  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries) {    
+  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries, int attempts) {    
     try (Timer.Context context = _updateSeriesTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       try {
@@ -156,8 +156,18 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
         s_logger.error("Unable to put timeseries with id: " + redisKey, e);
+        if (attempts > 0) {
+          s_logger.info("Retrying: " + attempts + " left");
+          // implementation note : see jira [MGN-190], under windows the function updateTimeSeries don't work at the first attempt because redis is timing out.
+          updateTimeSeries(redisKey, timeseries, attempts - 1);    
+        }  else {
+          throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + redisKey, e);
+        }
+         
+        
+        
+      } finally {
         getJedisPool().returnBrokenResource(jedis);
-        throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + redisKey, e);
       }
     }
   }
@@ -189,7 +199,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   protected void updateTimeSeriesPoint(String redisKey, LocalDate valueDate, double value) {
     LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
     builder.put(valueDate, value);
-    updateTimeSeries(redisKey, builder.build());
+    updateTimeSeries(redisKey, builder.build(), 20);
   }
     
   /**

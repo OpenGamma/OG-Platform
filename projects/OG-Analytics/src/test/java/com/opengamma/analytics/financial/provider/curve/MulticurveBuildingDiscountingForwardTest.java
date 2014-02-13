@@ -246,7 +246,7 @@ public class MulticurveBuildingDiscountingForwardTest {
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, USDLIBOR3M, NYC);
         final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
         final double accrualFactor = USDLIBOR3M.getDayCount().getDayCountFraction(startDate, endDate);
-        rateFwd[loopdate] = marketFwd.getForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
+        rateFwd[loopdate] = marketFwd.getSimplyCompoundForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateFwd[loopdate] + "\n");
       }

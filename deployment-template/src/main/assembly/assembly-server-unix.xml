@@ -62,6 +62,9 @@
       <includes>
         <include>*.sh</include>
       </includes>
+      <excludes>
+        <exclude>run-tool.sh</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>scripts</directory>

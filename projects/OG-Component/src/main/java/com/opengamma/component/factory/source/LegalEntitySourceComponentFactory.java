@@ -8,6 +8,8 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -28,11 +30,7 @@ import com.opengamma.core.legalentity.impl.DataLegalEntitySourceResource;
 import com.opengamma.core.legalentity.impl.EHCachingLegalEntitySource;
 import com.opengamma.core.legalentity.impl.RemoteLegalEntitySource;
 import com.opengamma.master.legalentity.LegalEntityMaster;
-import com.opengamma.master.legalentity.impl.DataLegalEntityMasterResource;
 import com.opengamma.master.legalentity.impl.MasterLegalEntitySource;
-import com.opengamma.master.legalentity.impl.RemoteLegalEntityMaster;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory providing the {@link LegalEntitySource}.

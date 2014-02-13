@@ -27,6 +27,7 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
    * @param putStrikes The strikes for put options
    * @param callStrikes The strikes for call options
    * @param timeToExpiry The time to expiry
+   * @param timeFromInception The time after the inception date
    * @param interestRate The interest rate
    * @param dividend The dividend
    * @param putVols The volatilities for put options
@@ -34,8 +35,8 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
    * @param rvReturns The realized variance of log returns
    * @return  {@link VolatilitySwapCalculatorResult}
    */
-  public VolatilitySwapCalculatorResult evaluate(final double spot, final double[] putStrikes, final double[] callStrikes, final double timeToExpiry, final double interestRate, final double dividend,
-      final double[] putVols, final double[] callVols, final double rvReturns) {
+  public VolatilitySwapCalculatorResult evaluate(final double spot, final double[] putStrikes, final double[] callStrikes, final double timeToExpiry, final double timeFromInception,
+      final double interestRate, final double dividend, final double[] putVols, final double[] callVols, final double rvReturns) {
     ArgumentChecker.notNull(callStrikes, "callStrikes");
     ArgumentChecker.notNull(putStrikes, "putStrikes");
     ArgumentChecker.notNull(callVols, "callVols");
@@ -50,6 +51,8 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
     ArgumentChecker.isTrue(spot > 0., "spot should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(timeFromInception), "timeFromInception should be finite");
+    ArgumentChecker.isTrue(timeFromInception > 0., "timeFromInception should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(dividend), "dividend should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(rvReturns), "rvReturns should be finite");
@@ -79,8 +82,9 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
     final double forward = spot * Math.exp(rate * timeToExpiry);
     ArgumentChecker.isTrue((callStrikes[0] > forward && putStrikes[nPuts - 1] < forward), "Max(putStrikes) < forward < Min(callStrikes) should hold");
 
-    final double u = 100. / Math.sqrt(timeToExpiry);
-    final double resRV = rvReturns * timeToExpiry * 1.e-4;
+    final double u = 100. / Math.sqrt(timeToExpiry + timeFromInception);
+    final double us = 100. / Math.sqrt(timeFromInception);
+    final double resRV = rvReturns * timeFromInception * 1.e-4;
     final double coef = u * Math.sqrt(2. / Math.PI);
 
     final double[] callWeights = getWeight(forward, callStrikes, deltaK, resRV, coef);
@@ -101,7 +105,7 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
     for (int i = 0; i < nPuts; ++i) {
       putPrices[i] = BlackScholesFormulaRepository.price(spot, putStrikes[i], timeToExpiry, putVols[i], interestRate, rate, false);
     }
-    final double cash = Math.exp(-interestRate * timeToExpiry) * Math.sqrt(rvReturns);
+    final double cash = Math.exp(-interestRate * timeToExpiry) * Math.sqrt(rvReturns) * u / us;
 
     return new VolatilitySwapCalculatorResult(putWeights, 0., callWeights, putPrices, 0., callPrices, cash);
   }
@@ -157,7 +161,8 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
       @Override
       public Double evaluate(final Double x) {
         final double tmp = 1. + x * x;
-        return Math.exp(-0.125 * resRV * tmp) * (x * Math.cos(0.5 * logKF * x) - Math.sin(0.5 * logKF * x)) / Math.sqrt(tmp);
+        final double half = 0.5 * logKF;
+        return Math.exp(-0.125 * resRV * tmp) * ((0.25 * resRV * x * x - half) * tmp - 1.) * Math.sin(half * x) / Math.pow(tmp, 1.5) / half;
       }
     };
   }

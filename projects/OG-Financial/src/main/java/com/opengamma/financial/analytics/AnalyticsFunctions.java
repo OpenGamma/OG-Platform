@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToVa
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.volatility.VolatilityFunctions;
 import com.opengamma.financial.security.function.DefaultSecurityAttributeFunction;
+import com.opengamma.financial.security.function.SecurityFunctions;
 import com.opengamma.financial.security.lookup.SecurityAttribute;
 
 /**
@@ -104,7 +105,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
     functions.add(functionConfiguration(BucketedPV01Function.class));
-    functions.add(functionConfiguration(ISINFunction.class));
 
     //security attribute functions
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.DIRECTION.name(), ValueRequirementNames.PAY_REC));
@@ -310,8 +310,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
 
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.BUCKETED_PV01);
 
-    functions.add(functionConfiguration(ISINFunction.class));
-
     functions.add(functionConfiguration(MarketQuotePositionFunction.class));
   }
 
@@ -334,6 +332,10 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   protected FunctionConfigurationSource modelFunctionConfiguration() {
     return ModelFunctions.instance();
   }
+  
+  protected FunctionConfigurationSource securityFunctionConfiguration() {
+    return SecurityFunctions.instance();
+  }
 
   protected FunctionConfigurationSource timeSeriesFunctionConfiguration() {
     return TimeSeriesFunctions.instance();
@@ -346,7 +348,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), covarianceFunctionConfiguration(), irCurveFunctionConfiguration(),
-        fxForwardCurveFunctionConfiguration(), modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
+        fxForwardCurveFunctionConfiguration(), modelFunctionConfiguration(), securityFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 
 }

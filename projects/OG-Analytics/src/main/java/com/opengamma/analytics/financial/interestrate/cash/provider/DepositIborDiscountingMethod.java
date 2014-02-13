@@ -53,7 +53,7 @@ public final class DepositIborDiscountingMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
     final double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    final double pv = deposit.getAccrualFactor() * (deposit.getRate() - multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(),
+    final double pv = deposit.getAccrualFactor() * (deposit.getRate() - multicurves.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(),
         deposit.getEndTime(), deposit.getAccrualFactor())) * dfEnd;
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
@@ -68,7 +68,7 @@ public final class DepositIborDiscountingMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
     final double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    final double forward = multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+    final double forward = multicurves.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
     // Backward sweep
     final double forwardBar = deposit.getAccrualFactor() * dfEnd;
     final double dfEndBar = deposit.getAccrualFactor() * (deposit.getRate() - forward);
@@ -93,7 +93,7 @@ public final class DepositIborDiscountingMethod {
    * @return The spread.
    */
   public double parSpread(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
-    return multicurve.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor()) - deposit.getRate();
+    return multicurve.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor()) - deposit.getRate();
   }
 
   /**

@@ -30,7 +30,7 @@ public class DbLegalEntityMasterComponentFactory extends AbstractDocumentDbMaste
 
   
   public DbLegalEntityMasterComponentFactory() {
-    super("org", LegalEntityMaster.class, RemoteLegalEntityMaster.class);
+    super("len", LegalEntityMaster.class, RemoteLegalEntityMaster.class);
   }
   
 

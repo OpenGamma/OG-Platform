@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.legalentity.impl;
 
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,10 +12,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collection;
-import java.util.Collections;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.internal.matchers.Any;
@@ -130,6 +126,7 @@ public class MasterLegalEntitySourceTest {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   public void test_getLegalEntitiesByExternalIdBundle() throws Exception {
     LegalEntityMaster mock = mock(LegalEntityMaster.class);
     LegalEntitySearchRequest request = new LegalEntitySearchRequest();
@@ -156,6 +153,7 @@ public class MasterLegalEntitySourceTest {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   public void test_getLegalEntity_ExternalId() throws Exception {
     LegalEntityMaster mock = mock(LegalEntityMaster.class);
     LegalEntitySearchRequest request = new LegalEntitySearchRequest();

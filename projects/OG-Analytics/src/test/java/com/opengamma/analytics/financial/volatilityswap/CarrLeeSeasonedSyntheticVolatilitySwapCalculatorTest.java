@@ -30,12 +30,13 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
    * 
    */
   @Test
-  public void callModTest() {
+  public void putModTest() {
     final double s0 = 1.35;
-    final double time = 0.246;
+    final double time = 3. / 12.;
+    final double timeS = 1. / 12.;
     final double[] volData = new double[] {8. / 100., 7.35 / 100., 6.75 / 100., 6.65 / 100., 6.85 / 100. };
-    final double rd = 0.06 / 100.;
-    final double rf = 0.082 / 100.;
+    final double rd = 6. * 0.01;
+    final double rf = 8.2 * 0.01;
     final double rQV = 6.7 * 6.7;
 
     final double forward = s0 * Math.exp((rd - rf) * time);
@@ -48,6 +49,10 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
     strikesData[2] = s0 * Math.exp((rf - rd) * time);
     strikesData[3] = BlackFormulaRepository.strikeForDelta(forward, deltas[3] / 100., time, volData[3], true);
     strikesData[4] = BlackFormulaRepository.strikeForDelta(forward, deltas[4] / 100., time, volData[4], true);
+
+    final double tmp = 3.0 * Math.sqrt(rQV * timeS) / 100.;
+    strikesData[0] = Math.min(strikesData[0], forward * Math.exp(-tmp));
+    strikesData[4] = Math.max(strikesData[4], forward * Math.exp(tmp));
 
     final double deltaK = (strikesData[4] - strikesData[0]) / nPoints;
     final double[] strikes = new double[nPoints + 1];
@@ -67,13 +72,13 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
     System.arraycopy(strikes, 0, putStrikes, 0, nPuts);
     System.arraycopy(strikes, index + 1, callStrikes, 0, nCalls);
 
-    final double[] putVolsExp = new double[] {0.0804044638015739, 0.0795181724337925, 0.0786617291709581, 0.0778351340130695, 0.0770383869601272, 0.0762714880121314, 0.0755344371690825,
-        0.0748272344309794, 0.0741498797978221, 0.0735023732696123, 0.0728847148463478, 0.0722969045280303, 0.0717389423146585, 0.0712108282062337, 0.0707125622027547, 0.0702441443042227,
-        0.0698055745106365, 0.0693968528219966, 0.0690179792383032, 0.0686689537595561, 0.0683497763857554 };
+    final double[] putVolsExp = new double[] {0.0804340060863720, 0.0795761243670020, 0.0787465184703351, 0.0779451883963705, 0.0771721341451092, 0.0764273557165501, 0.0757108531106940,
+        0.0750226263275405, 0.0743626753670895, 0.0737310002293418, 0.0731276009142962, 0.0725524774219539, 0.0720056297523135, 0.0714870579053769, 0.0709967618811422, 0.0705347416796104,
+        0.0701009973007811, 0.0696955287446548, 0.0693183360112315, 0.0689694191005103 };
 
-    final double[] callVolsExp = new double[] {0.0680604471169011, 0.0678009659529931, 0.0675713328940310, 0.0673715479400158, 0.0672016110909465, 0.0670615223468241, 0.0669512817076475,
-        0.0668708891734178, 0.0668203447441340, 0.0667996484197965, 0.0668088002004055, 0.0668478000859608, 0.0669166480764625, 0.0670153441719100, 0.0671438883723045, 0.0673022806776453,
-        0.0674905210879325, 0.0677086096031656, 0.0679565462233450, 0.0682343309484708 };
+    final double[] callVolsExp = new double[] {0.0686487780124921, 0.0683564127471763, 0.0680923233045635, 0.0678565096846532, 0.0676489718874458, 0.0674697099129409, 0.0673187237611396,
+        0.0671960134320400, 0.0671015789256435, 0.0670354202419495, 0.0669975373809584, 0.0669879303426697, 0.0670065991270843, 0.0670535437342014, 0.0671287641640208, 0.0672322604165433,
+        0.0673640324917682, 0.0675240803896961, 0.0677124041103269, 0.0679290036536600, 0.0681738790196960 };
 
     final PolynomialsLeastSquaresFitter fitter = new PolynomialsLeastSquaresFitter();
     final LeastSquaresRegressionResult polyRes = fitter.regress(strikesData, volData, 2);
@@ -87,23 +92,24 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
       assertEquals(callVolsExp[i], callVols[i], 1.e-12);
     }
 
-    final double[] putWeightsExp = new double[] {3.86612724961741, 4.26676765505071, 4.68620366756127, 5.12150973652564, 5.56923104329309, 6.02541643821822, 6.48566755627858, 6.94520360550750,
-        7.39894069312904, 7.84158393960672, 8.26773006135017, 8.67197760763825, 9.04904164583095, 9.39386940976287, 9.70175331078434, 9.96843770622082, 10.1902160019830, 10.3640149664027,
-        10.4874635729286, 10.5589442366225, 10.5776249407862 };
-    final double[] callWeightsExp = new double[] {10.5412992391437, 10.4572393997860, 10.3204471515968, 10.1353301600597, 9.90477918894068, 9.63226441028596, 9.32174820898218, 8.97758966663260,
-        8.60444385140665, 8.20715905244955, 7.79067498936842, 7.35992481413708, 6.91974340807581, 6.47478411360794, 6.02944559125494, 5.58781004978312, 5.15359362362750, 4.73010922033863,
-        4.32024173650165, 3.92643516054523 };
-    final double[] putPricesExp = new double[] {0.00262561131930905, 0.00287524325897690, 0.00315263108963929, 0.00346067070117392, 0.00380248187028501, 0.00418140603736952, 0.00460099915560247,
-        0.00506501881324489, 0.00557740488399044, 0.00614225306692678, 0.00676378084422608, 0.00744628561491090, 0.00819409505658242, 0.00901151011819429, 0.00990274144376413, 0.0108718404507486,
-        0.0119226267126107, 0.0130586136926287, 0.0142829352116669, 0.0155982752725142, 0.0170068039765215 };
-    final double[] callPricesExp = new double[] {0.0178544406075641, 0.0162838358216021, 0.0148093521977040, 0.0134306742702354, 0.0121468276067401, 0.0109561954331448, 0.00985655095673205,
-        0.00884510413081263, 0.00791856094703064, 0.00707319280737784, 0.00630491315394521, 0.00560935834112925, 0.00498196972687753, 0.00441807412514250, 0.00391296007574618, 0.00346194781501044,
-        0.00306045132973937, 0.00270403140628472, 0.00238843910636713, 0.00210964957915266 };
-    final double cashExp = 6.69901115297871;
-    final double optionTotalExp = 2.905063898591213;
-    final double fairValueExp = 9.604075051569918;
+    final double[] putWeightsExp = new double[] {0.493726715658473, 0.628628866130493, 0.827612209950565, 1.11222515249467, 1.50711421506441, 2.03860572903232, 2.73241720665300, 3.61052218485728,
+        4.68736633875543, 5.96582751113782, 7.43348794602065, 9.05989559493323, 10.7954886714047, 12.5727165376716, 14.3096121480158, 15.9156924643967, 17.2996501421644, 18.3779367534582,
+        19.0831073735407, 19.3525727276836 };
+    final double[] callWeightsExp = new double[] {19.2240572893118, 18.6552385457138, 17.7038720939929, 16.4322515091469, 14.9186283170502, 13.2493060912483, 11.5106812103248, 9.78221050947683,
+        8.13103318509909, 6.60864038436859, 5.24964209388712, 4.07238883753048, 3.08100597371603, 2.26830633613504, 1.61905459910282, 1.11313960277885, 0.728336809569212, 0.442480546242545,
+        0.234989746438180, 0.0877860725848968, -0.0142962965209807 };
+    final double[] putPricesExp = new double[] {0.00172289028574982, 0.00195648039309593, 0.00222331473644613, 0.00252775510621570, 0.00287459167863147, 0.00326904601130995, 0.00371676325061859,
+        0.00422379133699968, 0.00479654510618413, 0.00544175346638975, 0.00616638831037136, 0.00697757451104625, 0.00788248124764240, 0.00888819599117097, 0.0100015836931923, 0.0112291349938216,
+        0.0125768084935084, 0.0140498732014309, 0.0156527580585205, 0.0173889158205927 };
+    final double[] callPricesExp = new double[] {0.0170336406385245, 0.0152029725262308, 0.0135090785741024, 0.0119506671568582, 0.0105252235222882, 0.00922907110103699, 0.00805746835819465,
+        0.00700473636749643, 0.00606441061399821, 0.00522940936931082, 0.00449221042015183, 0.00384502798574513, 0.00327998228742407, 0.00278925533444108, 0.00236522792464938, 0.00200059447001055,
+        0.00168845388930539, 0.00142237632781486, 0.00119644676171908, 0.00100528755731055, 0.000844062754189821 };
+    final double cashExp = 3.300124997670261;
+    final double optionTotalExp = 3.471819024521614;
+    final double fairValueExp = 6.771944022191875;
 
-    final VolatilitySwapCalculatorResult res = calculator.evaluate(s0, putStrikes, callStrikes, time, rd, rf, putVols, callVols, rQV);
+    final VolatilitySwapCalculatorResult res = calculator.evaluate(s0, putStrikes, callStrikes, time, timeS, rd, rf, putVols, callVols, rQV);
+
     final double[] putWeights = res.getPutWeights();
     final double[] callWeights = res.getCallWeights();
     final double[] putPrices = res.getPutPrices();
@@ -132,6 +138,7 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
   public void noModTest() {
     final double s0 = 100.;
     final double time = 0.5;
+    final double timeS = 0.6;
     final double forward = 105.;
     final double rate = Math.log(forward / s0) / time;
     final double rQV = 6.7 * 6.7;
@@ -143,15 +150,15 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
     final int nPuts = putStrikes.length;
     final int nCalls = callStrikes.length;
 
-    final double[] putWeightsExp = new double[] {0.164219291887088, 0.129647191901360, 0.122359678082097, 1.77520099049661 };
-    final double[] callWeightsExp = new double[] {1.50926504727883, -0.0216140021581800, -0.0553115195745108 };
+    final double[] putWeightsExp = new double[] {0.110713674914064, 0.0874082803121186, 0.0962983872737028, 1.19103156830239 };
+    final double[] callWeightsExp = new double[] {1.00843583960796, 0.00731609252897404, -0.0370857540745987 };
     final double[] putPricesExp = new double[] {0.185069301821616, 0.220173838830819, 0.775393995934012, 2.17655187245948 };
     final double[] callPricesExp = new double[] {1.34648036125710, 0.145887392233156, 0.000727204210875021 };
-    final double cashExp = 6.380952380952381;
-    final double optionTotalExp = 6.046633182128545;
-    final double fairValueExp = 12.427585563080925;
+    final double cashExp = 4.712645654637311;
+    final double optionTotalExp = 4.065625310961250;
+    final double fairValueExp = 8.778270965598562;
 
-    final VolatilitySwapCalculatorResult res = calculator.evaluate(s0, putStrikes, callStrikes, time, rate, 0., putVols, callVols, rQV);
+    final VolatilitySwapCalculatorResult res = calculator.evaluate(s0, putStrikes, callStrikes, time, timeS, rate, 0., putVols, callVols, rQV);
     final double[] putWeights = res.getPutWeights();
     final double[] callWeights = res.getCallWeights();
     final double[] putPrices = res.getPutPrices();
@@ -177,9 +184,10 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
    * 
    */
   @Test
-  public void putModTest() {
-    final double s0 = 90.;
-    final double time = 1.;
+  public void callModTest() {
+    final double s0 = 93.;
+    final double time = 3. / 12.;
+    final double timeS = 9. / 12.;
     final double[] volData = new double[] {5. / 100., 5.35 / 100., 3.75 / 100., 6.65 / 100., 9.85 / 100. };
     final double rd = 0.01 * 11.;
     final double rf = 0.01 * 7.6;
@@ -195,6 +203,10 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
     strikesData[2] = s0 * Math.exp((rf - rd) * time);
     strikesData[3] = BlackFormulaRepository.strikeForDelta(forward, deltas[3] / 100., time, volData[3], true);
     strikesData[4] = BlackFormulaRepository.strikeForDelta(forward, deltas[4] / 100., time, volData[4], true);
+
+    final double tmp = 3.0 * Math.sqrt(rQV * timeS) / 100.;
+    strikesData[0] = Math.min(strikesData[0], forward * Math.exp(-tmp));
+    strikesData[4] = Math.max(strikesData[4], forward * Math.exp(tmp));
 
     final double deltaK = (strikesData[4] - strikesData[0]) / nPoints;
     final double[] strikes = new double[nPoints + 1];
@@ -224,21 +236,21 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
       callVols[i] = func.evaluate(callStrikes[i]);
     }
 
-    final double[] putWeightsExp = new double[] {0.0632227679352531, 0.0644669470890660, 0.0654729247603504, 0.0662316827894234, 0.0667373368415006, 0.0669871521589274, 0.0669814960180471,
-        0.0667237311723738, 0.0662200558624038, 0.0654698794450783 };
-    final double[] callWeightsExp = new double[] {0.0645126645334880, 0.0633334734350443, 0.0619568441400882, 0.0603993870400588, 0.0586788805160578, 0.0568139494461217, 0.0548237510664958,
-        0.0527276742223698, 0.0505450571244024, 0.0482949279405268, 0.0459957713717994, 0.0436653237074037, 0.0413203976238064, 0.0389767375417652, 0.0366489052420849, 0.0343501949781924,
-        0.0320925766851622, 0.0298866654271784, 0.0277417148614030, 0.0256656322322753, 0.0236650122405786 };
-    final double[] putPricesExp = new double[] {0.135620281646017, 0.207936239866960, 0.305278515154164, 0.431116145097279, 0.588082679355679, 0.777829492090586, 1.00099725987368, 1.25728819993949,
-        1.54560893638445, 1.86425077100896 };
-    final double[] callPricesExp = new double[] {1.70297188945804, 1.51684380305268, 1.35402378725570, 1.21203578498272, 1.08850289240265, 0.981203743350072, 0.888105204894451, 0.807376772663126,
-        0.737391704577554, 0.676719187321567, 0.624110953813698, 0.578484922095083, 0.538907688456989, 0.504577110357600, 0.474805756880448, 0.449005669656014, 0.426674642886608, 0.407384074703788,
-        0.390768343406078, 0.376515604629310, 0.364359876314382 };
-    final double cashExp = 9.854175488261811;
-    final double optionTotalExp = 1.364793985648267;
-    final double fairValueExp = 11.218969473910079;
+    final double[] putWeightsExp = new double[] {0.0249474493801584, 0.0278727573073654, 0.0336865845443051, 0.0434456985487412, 0.0580049953306695, 0.0776753838333571, 0.101919999499214,
+        0.129212732725244, 0.157145855665674, 0.182792230742784, 0.203236485321117, 0.216128826978535, 0.220109753615713 };
+    final double[] callWeightsExp = new double[] {0.214660120905978, 0.201745432852571, 0.182119954984908, 0.158359265590309, 0.132753739494195, 0.107329622250425, 0.0836477737614967,
+        0.0627278642026246, 0.0450752973751680, 0.0307742980521283, 0.0196098079587889, 0.0111885052370588, 0.00504032962375662, 0.000692458429669695, -0.00228441565968938, -0.00425299389125248,
+        -0.00550311359439542, -0.00625606821071965 };
+    final double[] putPricesExp = new double[] {1.20495882111873e-32, 3.30831077550115e-28, 5.65674306042692e-24, 5.19862512756670e-20, 2.25876128639990e-16, 4.19066519964571e-13,
+        3.09643184999959e-10, 8.80773444437869e-08, 9.67406079316530e-06, 0.000426604440314463, 0.00811624526118482, 0.0736397606725694, 0.359935395501147 };
+    final double[] callPricesExp = new double[] {0.856472747478669, 0.305773377958982, 0.0878441615157666, 0.0212128441537016, 0.00455088435984047, 0.000918360481547489, 0.000183780702638331,
+        3.81651640754552e-05, 8.53170609677501e-06, 2.11104302097817e-06, 5.89621768995195e-07, 1.88210261079810e-07, 6.90926903853884e-08, 2.92088165207333e-08, 1.41835145257063e-08,
+        7.86830752379933e-09, 4.94943320546829e-09, 3.49920498057163e-09 };
+    final double cashExp = 9.267876087690137;
+    final double optionTotalExp = 0.362487290806207;
+    final double fairValueExp = 9.630363378496344;
 
-    final VolatilitySwapCalculatorResult res = calculator.evaluate(s0, putStrikes, callStrikes, time, rd, rf, putVols, callVols, rQV);
+    final VolatilitySwapCalculatorResult res = calculator.evaluate(s0, putStrikes, callStrikes, time, timeS, rd, rf, putVols, callVols, rQV);
 
     final double[] putWeights = res.getPutWeights();
     final double[] callWeights = res.getCallWeights();
@@ -267,6 +279,7 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
   @Test
   public void errorTest() {
     final double timeToExpiry = 3.;
+    final double timeSeasoned = 2.;
     final double spot = 45.;
     //    final double forward = 102.;
     //    final double interestRate = Math.log(forward / spot) / timeToExpiry;
@@ -288,91 +301,98 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
     }
 
     try {
-      calculator.evaluate(spot, putStrikes, new double[] {50., 55., 60. }, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, putStrikes, new double[] {50., 55., 60. }, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, new double[] {30., 35., 40., 45, }, callStrikes, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, new double[] {30., 35., 40., 45, }, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(-spot, putStrikes, callStrikes, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(-spot, putStrikes, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, putStrikes, callStrikes, -timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, putStrikes, callStrikes, -timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, putStrikes, callStrikes, timeToExpiry, interestRate, dividend, putVols, callVols, -rvReturns);
+      calculator.evaluate(spot, putStrikes, callStrikes, timeToExpiry, -timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, putStrikes, new double[] {-50., 55. }, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, -rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, new double[] {-10., -5., 0., }, new double[] {5., 10. }, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, putStrikes, new double[] {-50., 55. }, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, new double[] {35., 40., 43, }, callStrikes, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, new double[] {-10., -5., 0., }, new double[] {5., 10. }, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, putStrikes, new double[] {50., 60. }, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, new double[] {35., 40., 43, }, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot - 10., putStrikes, callStrikes, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot, putStrikes, new double[] {50., 60. }, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot + 10., putStrikes, callStrikes, timeToExpiry, interestRate, dividend, putVols, callVols, rvReturns);
+      calculator.evaluate(spot - 10., putStrikes, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, putStrikes, callStrikes, timeToExpiry, interestRate, dividend, putVols, new double[] {-15., 20. }, rvReturns);
+      calculator.evaluate(spot + 10., putStrikes, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
-      calculator.evaluate(spot, putStrikes, callStrikes, timeToExpiry, interestRate, dividend, new double[] {-15., 20., 10 }, callVols, rvReturns);
+      calculator.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, putVols, new double[] {-15., 20. }, rvReturns);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+
+    try {
+      calculator.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeSeasoned, interestRate, dividend, new double[] {-15., 20., 10 }, callVols, rvReturns);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);

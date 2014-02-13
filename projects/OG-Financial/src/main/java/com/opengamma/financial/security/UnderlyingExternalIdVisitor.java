@@ -11,6 +11,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -268,4 +269,10 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
     }
     return null;
   }
+
+  @Override
+  public Void visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return null; //TODO the index?
+  }
+
 }

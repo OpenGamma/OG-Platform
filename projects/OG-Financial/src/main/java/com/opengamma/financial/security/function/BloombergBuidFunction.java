@@ -1,10 +1,15 @@
-package com.opengamma.financial.analytics;
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.security.function;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.engine.function.dsl.Function.function;
 import static com.opengamma.engine.function.dsl.Function.output;
 import static com.opengamma.engine.function.dsl.TargetSpecificationReference.originalTarget;
-import static com.opengamma.engine.value.ValueRequirementNames.ISIN;
+import static com.opengamma.engine.value.ValueRequirementNames.BLOOMBERG_BUID;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Set;
@@ -26,58 +31,42 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
+ * If attached to security's ExternalIdBundle, displays its {@link ExternalSchemes.BLOOMBERG_BUID}
  */
-public class ISINFunction extends BaseNonCompiledInvoker {
+public class BloombergBuidFunction extends BaseNonCompiledInvoker {
 
   @Override
   protected FunctionSignature functionSignature() {
 
-    return function("ISIN", ComputationTargetType.POSITION_OR_TRADE)
-        .outputs(
-            output(ISIN)
-                .targetSpec(originalTarget())
-                .properties(ValueProperties.all())
-        )
+    return function(this.getClass().getName(), ComputationTargetType.POSITION_OR_TRADE)
+      .outputs(
+          output(BLOOMBERG_BUID)
+              .targetSpec(originalTarget())
+              .properties(ValueProperties.all())
+      )
         .inputs();
   }
-
+  
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
                                     final FunctionInputs inputs,
                                     ComputationTarget target,
                                     Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-
-
+    
     ValueRequirement desiredValue = functional(desiredValues).first();
     ValueSpecification valueSpecification = ValueSpecification.of(desiredValue.getValueName(),
                                                                   target.toSpecification(),
                                                                   desiredValue.getConstraints());
-
-    Security security = null;
-    if (target.getType().equals(ComputationTargetType.POSITION)) {
-      security = target.getPosition().getSecurity();
-    }
-    if (target.getType().equals(ComputationTargetType.TRADE)) {
-      security = target.getTrade().getSecurity();
-    }
+    Security security = target.getPositionOrTrade().getSecurity();
     if (security != null) {
       ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
       if (externalIdBundle != null) {
-        ExternalId externalId = externalIdBundle.getExternalId(ExternalSchemes.ISIN);
+        ExternalId externalId = externalIdBundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID);
         if (externalId != null) {
           return newHashSet(new ComputedValue(valueSpecification, externalId.getValue()));
         }
       }
     }
     return newHashSet(new ComputedValue(valueSpecification, ""));
-
-  }
-
-  @Override
-  public String getUniqueId() {
-    return "ISIN";
   }
 }

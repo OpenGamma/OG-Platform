@@ -68,7 +68,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
     ArgumentChecker.notNull(fra, "FRA");
     ArgumentChecker.notNull(multicurve, "Multiurves");
     final double discountFactorSettlement = multicurve.getDiscountFactor(fra.getCurrency(), fra.getPaymentTime());
-    final double forward = multicurve.getForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
+    final double forward = multicurve.getSimplyCompoundForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
     final double presentValue = discountFactorSettlement * fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward);
     return MultipleCurrencyAmount.of(fra.getCurrency(), presentValue);
   }
@@ -83,7 +83,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
     ArgumentChecker.notNull(fra, "FRA");
     ArgumentChecker.notNull(multicurve, "Multiurves");
     final double df = multicurve.getDiscountFactor(fra.getCurrency(), fra.getPaymentTime());
-    final double forward = multicurve.getForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
+    final double forward = multicurve.getSimplyCompoundForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
     // Backward sweep
     final double pvBar = 1.0;
     final double forwardBar = df * fra.getPaymentYearFraction() * fra.getNotional() * (1 - (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward) * fra.getPaymentYearFraction())
@@ -110,7 +110,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
   public double parRate(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(fra, "FRA");
     ArgumentChecker.notNull(multicurve, "Multiurves");
-    return multicurve.getForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
+    return multicurve.getSimplyCompoundForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
   }
 
   /**
@@ -122,7 +122,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
   public double parSpread(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(fra, "FRA");
     ArgumentChecker.notNull(multicurve, "Multiurves");
-    final double forward = multicurve.getForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
+    final double forward = multicurve.getSimplyCompoundForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
     return forward - fra.getRate();
   }
 

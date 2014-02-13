@@ -8,13 +8,10 @@ package com.opengamma.util.map;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.MapMaker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Implementation of {@link Map2} backed by a standard {@link ConcurrentHashMap}.
@@ -114,6 +111,20 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
   }
 
   // Map2
+
+  @Override
+  public int size() {
+    int size = 0;
+    for (final ConcurrentMap<K2, V> map : _values.values()) {
+      size += map.size();
+    }
+    return size;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return _values.isEmpty();
+  }
 
   @Override
   public V get(final K1 key1, final K2 key2) {
@@ -221,90 +232,10 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
     return result;
   }
 
-  // Map
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public V get(final Object key) {
-    if (key instanceof Pair) {
-      return get(((Pair<K1, K2>) key).getFirst(), ((Pair<K1, K2>) key).getSecond());
-    } else {
-      return null;
-    }
-  }
-
-  @Override
-  public V put(final Pair<K1, K2> key, final V value) {
-    final V result = put(key.getFirst(), key.getSecond(), value);
-    housekeep();
-    return result;
-  }
-
-  @Override
-  public int size() {
-    int size = 0;
-    for (final ConcurrentMap<K2, V> map : _values.values()) {
-      size += map.size();
-    }
-    return size;
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return _values.isEmpty();
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean containsKey(final Object key) {
-    if (key instanceof Pair) {
-      return containsKey(((Pair<K1, K2>) key).getFirst(), ((Pair<K1, K2>) key).getSecond());
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public boolean containsValue(final Object value) {
-    throw new UnsupportedOperationException();
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public V remove(final Object key) {
-    if (key instanceof Pair) {
-      final V result = remove(((Pair<K1, K2>) key).getFirst(), ((Pair<K1, K2>) key).getSecond());
-      housekeep();
-      return result;
-    } else {
-      return null;
-    }
-  }
-
-  @Override
-  public void putAll(final Map<? extends Pair<K1, K2>, ? extends V> m) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public void clear() {
     _values.clear();
     housekeep();
-  }
-
-  @Override
-  public Set<Pair<K1, K2>> keySet() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Collection<V> values() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<Map.Entry<Pair<K1, K2>, V>> entrySet() {
-    throw new UnsupportedOperationException();
   }
 
 }

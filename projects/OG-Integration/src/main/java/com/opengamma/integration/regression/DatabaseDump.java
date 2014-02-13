@@ -166,7 +166,7 @@ import com.opengamma.util.ArgumentChecker;
     ids.putAll(writeHolidays());
     ids.putAll(writeExchanges());
     ids.putAll(writeSnapshots());
-    ids.putAll(writeOrganizations());
+    ids.putAll(writeLegalEntities());
     ids.putAll(writeConventions());
     int maxId = _idMappings.getMaxId();
     for (Integer id : ids.values()) {
@@ -218,9 +218,9 @@ import com.opengamma.util.ArgumentChecker;
     return write(transform(result, new SnapshotTransformer()), "snapshots", "snp");
   }
 
-  private Map<ObjectId, Integer> writeOrganizations() throws IOException {
+  private Map<ObjectId, Integer> writeLegalEntities() throws IOException {
     Iterable<LegalEntityDocument> result = _masterQueryManager.getLegalEntityQuery().apply(_legalEntityMaster);
-    return write(transform(result, new LegalEntityTransformer()), "legalentities", "org");
+    return write(transform(result, new LegalEntityTransformer()), "legalentities", "len");
   }
 
   private Map<ObjectId, Integer> writeConventions() throws IOException {

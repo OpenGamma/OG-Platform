@@ -45,7 +45,9 @@ import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposu
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
@@ -103,7 +105,10 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return security instanceof BondSecurity || security instanceof BondFutureSecurity;
+    return security instanceof BondSecurity ||
+        security instanceof BondFutureSecurity ||
+        security instanceof BillSecurity ||
+        security instanceof FloatingRateNoteSecurity;
   }
 
   @Override
@@ -132,6 +137,10 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
     try {
       for (final String curveExposureConfig : curveExposureConfigs) {
         final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+        if (curveConstructionConfigurationNames == null) {
+          s_logger.error("Could not get curve construction configuration names for curve exposure configuration called {}", curveExposureConfig);
+          return null;
+        }
         for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
           final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
               .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))

@@ -52,7 +52,7 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
   public double price(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    final double forward = multicurves.getMulticurveProvider().getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
+    final double forward = multicurves.getMulticurveProvider().getSimplyCompoundForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
         futures.getFixingPeriodAccrualFactor());
     final double price = 1.0 - forward;
     return price;
@@ -67,7 +67,7 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
   public double parRate(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    return multicurves.getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
+    return multicurves.getSimplyCompoundForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
   }
 
   /**

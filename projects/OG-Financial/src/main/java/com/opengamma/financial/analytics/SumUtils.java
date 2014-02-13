@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics;
 
+import static com.opengamma.engine.value.ValueRequirementNames.ALL_PV01S;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,14 +18,17 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -141,19 +146,32 @@ public class SumUtils {
       final MultipleCurrencyInflationSensitivity previousSensitivity = (MultipleCurrencyInflationSensitivity) currentTotal;
       final MultipleCurrencyInflationSensitivity currentSensitivity = (MultipleCurrencyInflationSensitivity) value;
       return previousSensitivity.plus(currentSensitivity);
+    } else if (valueName.equals(ALL_PV01S)) {
+      @SuppressWarnings("unchecked")
+      final Map<Pair<String, Currency>, Double> previousAmount = (Map<Pair<String, Currency>, Double>) currentTotal;
+      final ReferenceAmount<Pair<String, Currency>> referenceAmount = new ReferenceAmount<>();
+      for (final Map.Entry<Pair<String, Currency>, Double> entry : previousAmount.entrySet()) {
+        referenceAmount.add(entry.getKey(), entry.getValue());
+      }
+      @SuppressWarnings("unchecked")
+      final Map<Pair<String, Currency>, Double> currentAmount = (Map<Pair<String, Currency>, Double>) value;
+      for (final Map.Entry<Pair<String, Currency>, Double> entry : currentAmount.entrySet()) {
+        referenceAmount.add(entry.getKey(), entry.getValue());
+      }
+      return referenceAmount.getMap();
     } else {
       throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
     }
   }
 
-  private static Object calculateCurrencyAmount(Object currentTotal, CurrencyAmount currentAmount) {
+  private static Object calculateCurrencyAmount(final Object currentTotal, final CurrencyAmount currentAmount) {
 
     // if we have a currency amount and the requested addition is the same currency then we add to it
     // If we have a multiple currency amount we use it,
     // Otherwise we create a new MultipleCurrencyAmount
     if (currentTotal instanceof CurrencyAmount) {
 
-      CurrencyAmount total = (CurrencyAmount) currentTotal;
+      final CurrencyAmount total = (CurrencyAmount) currentTotal;
       if (total.getCurrency() == currentAmount.getCurrency()) {
         return total.plus(currentAmount);
       } else {
@@ -167,7 +185,7 @@ public class SumUtils {
     }
   }
 
-  private static Object calculateCurrencyAmount(Object currentTotal, MultipleCurrencyAmount currentAmount) {
+  private static Object calculateCurrencyAmount(final Object currentTotal, final MultipleCurrencyAmount currentAmount) {
 
     // if we have a currency amount and the requested addition is the same currency then we add to it
     // If we have a multiple currency amount we use it,
@@ -184,7 +202,7 @@ public class SumUtils {
 
   /**
    * Gets the intersection of two sets of properties.
-   * 
+   *
    * @param currentIntersection The current intersection of the properties
    * @param properties The new set of properties
    * @return The intersection of the two sets of properties

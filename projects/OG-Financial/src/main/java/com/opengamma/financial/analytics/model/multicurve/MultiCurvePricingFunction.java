@@ -202,9 +202,11 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       final Currency initialCurrency = iter.next();
       while (iter.hasNext()) {
         final Currency otherCurrency = iter.next();
-        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair
+        final Double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair
             .of(otherCurrency, initialCurrency))));
-        fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+        if (spotRate != null) {
+          fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+        }
       }
       return getValues(executionContext, inputs, target, desiredValues, derivative, fxMatrix);
     }
@@ -223,7 +225,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
           security instanceof SwapSecurity ||
           security instanceof FXForwardSecurity ||
           security instanceof NonDeliverableFXForwardSecurity ||
-          security instanceof InterestRateFutureSecurity;
+          security instanceof InterestRateFutureSecurity ||
+          security instanceof FederalFundsFutureSecurity;
     }
 
     @SuppressWarnings("synthetic-access")

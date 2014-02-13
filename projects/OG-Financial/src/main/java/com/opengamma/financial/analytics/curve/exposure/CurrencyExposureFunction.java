@@ -15,6 +15,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -441,17 +442,22 @@ public class CurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
-    return null;
+    return getExternalIds(security);
   }
 
   @Override
   public List<ExternalId> visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
-    return null;
+    return getExternalIds(security);
   }
 
   @Override
   public List<ExternalId> visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
-    return null;
+    return getExternalIds(security);
+  }
+
+  @Override
+  public List<ExternalId> visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return getExternalIds(security);
   }
 
 }

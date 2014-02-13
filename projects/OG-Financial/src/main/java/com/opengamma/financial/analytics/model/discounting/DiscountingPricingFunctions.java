@@ -16,12 +16,18 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
  */
 public class DiscountingPricingFunctions extends AbstractFunctionConfigurationBean {
 
+  /**
+   * Creates an instance of this function configuration source.
+   * @return A function configuration source populated with pricing functions
+   * from this package.
+   */
   public static FunctionConfigurationSource instance() {
     return new DiscountingPricingFunctions().getObjectCreating();
   }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(DiscountingAllPV01Function.class));
     functions.add(functionConfiguration(DiscountingBCSFunction.class));
     functions.add(functionConfiguration(DiscountingCurrencyExposureFunction.class));
     functions.add(functionConfiguration(DiscountingFXPVFunction.class));

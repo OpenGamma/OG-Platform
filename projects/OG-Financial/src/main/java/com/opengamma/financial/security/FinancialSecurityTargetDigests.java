@@ -13,6 +13,7 @@ import com.opengamma.engine.target.digest.SecurityTypeTargetDigests;
 import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -568,6 +569,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return _fxVolatilitySwapSecurity.get(security.getCurrency());
+  }
+
+  private final Digests _floatingRateNoteSecurity = new Digests("Security");
+
+  @Override
+  public Object visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return _floatingRateNoteSecurity.get(security.getCurrency());
   }
 
   // NotionalVisitor

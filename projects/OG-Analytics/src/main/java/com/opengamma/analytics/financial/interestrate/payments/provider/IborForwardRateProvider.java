@@ -31,7 +31,7 @@ public final class IborForwardRateProvider implements ForwardRateProvider<IborIn
       final double fixingPeriodStartTime,
       double fixingPeriodEndTime,
       double fixingPeriodYearFraction) {
-    return multicurves.getForwardRate(
+    return multicurves.getSimplyCompoundForwardRate(
         coupon.getIndex(), fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodYearFraction);
   }
 }

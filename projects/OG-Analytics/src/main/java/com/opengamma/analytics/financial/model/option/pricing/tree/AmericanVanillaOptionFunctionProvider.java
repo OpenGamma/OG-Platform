@@ -29,6 +29,7 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
   }
 
   /**
+   * American vanilla option function with acceleration technique in binomial model
    * @param strike Strike price
    * @param timeToExpiry Time to expiry
    * @param steps Number of steps
@@ -44,6 +45,7 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
   }
 
   /**
+   * American vanilla option function with truncation technique in binomial model
    * @param strike Strike price
    * @param timeToExpiry Time to expiry
    * @param steps Number of steps
@@ -53,8 +55,7 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
    * @param dividend Dividend
    * @param stdDev Truncation parameter
    */
-  public AmericanVanillaOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double volatility,
-      final double interestRate,
+  public AmericanVanillaOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double volatility, final double interestRate,
       final double dividend, final double stdDev) {
     super(strike, timeToExpiry, steps, isCall);
     _calc = new TruncationCalculator(volatility, interestRate, dividend, stdDev);

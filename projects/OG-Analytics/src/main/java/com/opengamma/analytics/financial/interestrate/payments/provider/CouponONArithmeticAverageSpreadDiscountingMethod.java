@@ -51,7 +51,7 @@ public class CouponONArithmeticAverageSpreadDiscountingMethod {
     final double[] forwardON = new double[nbFwd];
     double rateAccrued = coupon.getRateAccrued();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
-      forwardON[loopfwd] = multicurve.getForwardRate(coupon.getIndex(), times[loopfwd], times[loopfwd + 1], delta[loopfwd]);
+      forwardON[loopfwd] = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), times[loopfwd], times[loopfwd + 1], delta[loopfwd]);
       rateAccrued += forwardON[loopfwd] * delta[loopfwd];
     }
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -75,7 +75,7 @@ public class CouponONArithmeticAverageSpreadDiscountingMethod {
     final double[] forwardON = new double[nbFwd];
     double rateAccrued = coupon.getRateAccrued();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
-      forwardON[loopfwd] = multicurve.getForwardRate(coupon.getIndex(), times[loopfwd], times[loopfwd + 1], delta[loopfwd]);
+      forwardON[loopfwd] = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), times[loopfwd], times[loopfwd + 1], delta[loopfwd]);
       rateAccrued += forwardON[loopfwd] * delta[loopfwd];
     }
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());

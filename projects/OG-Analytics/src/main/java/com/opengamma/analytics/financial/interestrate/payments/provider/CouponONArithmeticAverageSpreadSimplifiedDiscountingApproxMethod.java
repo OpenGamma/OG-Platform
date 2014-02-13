@@ -57,7 +57,7 @@ public final class CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMet
     final double tStart = coupon.getFixingPeriodStartTime();
     final double tEnd = coupon.getFixingPeriodEndTime();
     final double delta = coupon.getFixingPeriodAccrualFactor();
-    final double rateAccruedCompounded = multicurve.getForwardRate(coupon.getIndex(), tStart, tEnd, delta) * delta;
+    final double rateAccruedCompounded = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), tStart, tEnd, delta) * delta;
     final double rateAccrued = Math.log(1.0 + rateAccruedCompounded);
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = df * (rateAccrued * coupon.getNotional() + coupon.getSpreadAmount());
@@ -77,7 +77,7 @@ public final class CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMet
     final double tStart = coupon.getFixingPeriodStartTime();
     final double tEnd = coupon.getFixingPeriodEndTime();
     final double delta = coupon.getFixingPeriodAccrualFactor();
-    final double rateAccruedCompounded = multicurve.getForwardRate(coupon.getIndex(), tStart, tEnd, delta) * delta;
+    final double rateAccruedCompounded = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), tStart, tEnd, delta) * delta;
     final double rateAccrued = Math.log(1.0 + rateAccruedCompounded);
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     //    final double pv = df * (rateAccrued * coupon.getNotional() + coupon.getSpreadAmount());

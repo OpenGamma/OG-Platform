@@ -82,7 +82,7 @@ public class CouponIborCompoundingFlatSpreadDiscountingMethodTest {
     final int nbSub = CPN_BEFORE.getFixingTimes().length;
     double[] forward = new double[nbSub];
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {
-      forward[loopsub] = MULTICURVES.getForwardRate(CADCDOR3M, CPN_BEFORE.getFixingSubperiodsStartTimes()[loopsub],
+      forward[loopsub] = MULTICURVES.getSimplyCompoundForwardRate(CADCDOR3M, CPN_BEFORE.getFixingSubperiodsStartTimes()[loopsub],
           CPN_BEFORE.getFixingSubperiodsEndTimes()[loopsub], CPN_BEFORE.getFixingSubperiodsAccrualFactors()[loopsub]);
     }
     final double cpa = cpa(CPN_BEFORE.getCompoundingPeriodAmountAccumulated(), forward, CPN_BEFORE.getSubperiodsAccrualFactors(), SPREAD);
@@ -114,7 +114,7 @@ public class CouponIborCompoundingFlatSpreadDiscountingMethodTest {
     final int nbSub = CPN_1.getFixingTimes().length;
     double[] forward = new double[nbSub];
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {
-      forward[loopsub] = MULTICURVES.getForwardRate(CADCDOR3M, CPN_1.getFixingSubperiodsStartTimes()[loopsub],
+      forward[loopsub] = MULTICURVES.getSimplyCompoundForwardRate(CADCDOR3M, CPN_1.getFixingSubperiodsStartTimes()[loopsub],
           CPN_1.getFixingSubperiodsEndTimes()[loopsub], CPN_1.getFixingSubperiodsAccrualFactors()[loopsub]);
     }
     final double cpa = cpa(CPN_1.getCompoundingPeriodAmountAccumulated() / NOTIONAL, forward, CPN_1.getSubperiodsAccrualFactors(), SPREAD);

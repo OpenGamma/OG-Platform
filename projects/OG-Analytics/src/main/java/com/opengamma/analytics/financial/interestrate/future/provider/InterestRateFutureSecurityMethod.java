@@ -40,7 +40,7 @@ public abstract class InterestRateFutureSecurityMethod {
   public double convexityAdjustment(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurve) {
     ArgumentChecker.notNull(futures, "swap futures");
     ArgumentChecker.notNull(multicurve, "parameter provider");
-    double rate = multicurve.getMulticurveProvider().getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
+    double rate = multicurve.getMulticurveProvider().getSimplyCompoundForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
         futures.getFixingPeriodAccrualFactor());
     double price = price(futures, multicurve);
     return price - (1.0d - rate);

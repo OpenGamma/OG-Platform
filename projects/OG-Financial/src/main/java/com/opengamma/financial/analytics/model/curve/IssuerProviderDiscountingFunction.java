@@ -118,7 +118,6 @@ public class IssuerProviderDiscountingFunction extends
    */
   public IssuerProviderDiscountingFunction(final String configurationName) {
     super(configurationName);
-    System.err.println(configurationName);
   }
 
   @Override

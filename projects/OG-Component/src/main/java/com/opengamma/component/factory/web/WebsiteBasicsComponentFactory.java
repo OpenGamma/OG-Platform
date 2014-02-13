@@ -57,7 +57,6 @@ import com.opengamma.web.function.WebFunctionsResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
 import com.opengamma.web.holiday.WebHolidaysResource;
 import com.opengamma.web.legalentity.WebLegalEntitiesResource;
-import com.opengamma.web.legalentity.WebLegalEntityResource;
 import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotsResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.position.WebPositionsResource;

@@ -59,15 +59,15 @@ public class CouponIbor extends CouponFloating implements DepositIndexCoupon<Ibo
       final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
-    _fixingPeriodStartTime = fixingPeriodStartTime;
     ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
-    _fixingPeriodEndTime = fixingPeriodEndTime;
     ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
-    _fixingAccrualFactor = fixingYearFraction;
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
-    _forwardCurveName = forwardCurveName;
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Index currency incompatible with coupon currency");
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingAccrualFactor = fixingYearFraction;
+    _forwardCurveName = forwardCurveName;
     _index = index;
   }
 
@@ -87,14 +87,14 @@ public class CouponIbor extends CouponFloating implements DepositIndexCoupon<Ibo
       final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction) {
     super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
     ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
-    _fixingPeriodStartTime = fixingPeriodStartTime;
     ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
-    _fixingPeriodEndTime = fixingPeriodEndTime;
     ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
-    _fixingAccrualFactor = fixingYearFraction;
-    _forwardCurveName = null;
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Index currency incompatible with coupon currency");
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingAccrualFactor = fixingYearFraction;
+    _forwardCurveName = null;
     _index = index;
   }
 
@@ -139,6 +139,7 @@ public class CouponIbor extends CouponFloating implements DepositIndexCoupon<Ibo
    * Gets the Ibor-like index.
    * @return The index.
    */
+  @Override
   public IborIndex getIndex() {
     return _index;
   }

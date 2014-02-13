@@ -29,7 +29,7 @@ public final class OvernightForwardRateProvider implements ForwardRateProvider<I
   @Override
   public <T extends DepositIndexCoupon<IndexON>> double getRate(MulticurveProviderInterface multicurves, T coupon, double fixingPeriodStartTime, double fixingPeriodEndTime,
       double fixingPeriodYearFraction) {
-    return multicurves.getForwardRate(
+    return multicurves.getSimplyCompoundForwardRate(
         coupon.getIndex(), fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodYearFraction);
   }
 }

@@ -63,7 +63,11 @@ public class IndexLoader extends SecurityLoader {
   private static final Pattern s_numberFromTimeUnit = Pattern.compile("(\\d+)\\s*(.*?)");
   private static final String BLOOMBERG_CONVENTION_NAME = "BLOOMBERG_CONVENTION_NAME";
   private static final String BLOOMBERG_INDEX_FAMILY = "BLOOMBERG_INDEX_FAMILY";
-
+  
+  private static final String FED_FUNDS_SECURITY_DES = "Federal Funds Effective Rate U";
+  private static final Set<String> BLOOMBERG_SECURITY_DES_OVERNIGHT_EXCEPTIONS = Collections.unmodifiableSet(Sets.newHashSet(
+      FED_FUNDS_SECURITY_DES
+  ));
 
   /**
    * Creates an instance.
@@ -114,6 +118,9 @@ public class IndexLoader extends SecurityLoader {
   
   // public visible for tests
   public static ExternalId createConventionId(String securityDes) {
+    if (BLOOMBERG_SECURITY_DES_OVERNIGHT_EXCEPTIONS.contains(securityDes)) {
+      return ExternalId.of(ExternalScheme.of(BLOOMBERG_CONVENTION_NAME), securityDes.trim());
+    }
     Matcher matcher = s_tenorFromDes.matcher(securityDes);
     if (matcher.matches()) {
       String descriptionPart = matcher.group(1); // remember, groups are 1 indexed!
@@ -124,6 +131,9 @@ public class IndexLoader extends SecurityLoader {
 
   // public visible for tests
   public static Tenor decodeTenor(String securityDes) {
+    if (BLOOMBERG_SECURITY_DES_OVERNIGHT_EXCEPTIONS.contains(securityDes)) {
+      return Tenor.ON;
+    }
     Matcher matcher = s_tenorFromDes.matcher(securityDes);
     if (matcher.matches()) {
       String tenorPart = matcher.group(2); // remember, groups are 1 indexed!

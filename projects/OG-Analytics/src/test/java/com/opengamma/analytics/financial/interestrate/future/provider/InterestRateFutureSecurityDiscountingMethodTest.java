@@ -79,7 +79,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    */
   public void price() {
     final double price = METHOD_IRFUT_SEC_DSC.price(ERU2, MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL);
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL);
     final double expectedPrice = 1.0 - forward;
     assertEquals("Future price from curves", expectedPrice, price, TOLERANCE_PRICE);
   }
@@ -100,7 +100,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    */
   public void parRate() {
     final double rate = METHOD_IRFUT_SEC_DSC.parRate(ERU2, MULTICURVES);
-    final double expectedRate = MULTICURVES.getForwardRate(EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL);
+    final double expectedRate = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL);
     assertEquals("Future price from curves", expectedRate, rate, TOLERANCE_PRICE);
   }
 
