@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Add configuration">
+<@page title="Add configuration" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Add configuration -->

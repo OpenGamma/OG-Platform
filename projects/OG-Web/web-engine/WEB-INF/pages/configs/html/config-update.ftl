@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Update - ${configDoc.name}">
+<@page title="Update - ${configDoc.name}" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Update configuration -->

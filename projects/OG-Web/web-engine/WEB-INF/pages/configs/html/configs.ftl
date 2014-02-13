@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Configurations">
+<@page title="Configurations" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Config search -->

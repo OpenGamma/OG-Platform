@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Configuration - ${configDoc.name}">
+<@page title="Configuration - ${configDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This configuration has been deleted</p>
