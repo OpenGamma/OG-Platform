@@ -8,6 +8,7 @@ package com.opengamma.web.security;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -326,6 +327,11 @@ public class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameVa
   @Override
   public String visitBillSecurity(final BillSecurity security) {
     return "bill.ftl";
+  }
+
+  @Override
+  public String visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return "floating-rate-note.ftl";
   }
 
   private String getBond() {

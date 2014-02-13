@@ -63,6 +63,21 @@
         <@rowout label="Minimum increment">${security.minimumIncrement}</@rowout>
         <@rowout label="Days to settle">${security.daysToSettle}</@rowout>
         <#break> 
+      <#case "FLOATING_RATE_NOTE">
+        <@rowout label="Issuer">${security.legalEntityId}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Region">${security.regionId}</@rowout>
+        <@rowout label="Issue date">${security.issueDate.toLocalDate()}</@rowout>
+        <@rowout label="Maturity date">${security.maturityDate.expiry.toLocalDate()}</@rowout>
+        <@rowout label="Day count convention">${security.dayCount.conventionName}</@rowout>
+        <@rowout label="Minimum increment">${security.minimumIncrement}</@rowout>
+        <@rowout label="Days to settle">${security.daysToSettle}</@rowout>
+        <@rowout label="Reset days">${security.resetDays}</@rowout>
+        <@rowout label="Benchmark rate">${security.benchmarkRateId}</@rowout>
+        <@rowout label="Spread">${security.spread}</@rowout>
+        <@rowout label="Leverage factor">${security.leverageFactor}</@rowout>
+        <@rowout label="Coupon frequency">${security.couponFrequency.conventionName}</@rowout>       
+        <#break> 
       <#case "BOND">
         <@rowout label="Issuer name">${security.issuerName}</@rowout>
         <@rowout label="Issuer type">${security.issuerType}</@rowout>
