@@ -136,10 +136,14 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     
-    updateTimeSeries(toRedisKey(uniqueId), timeSeries, true);
+    updateTimeSeries(toRedisKey(uniqueId), timeSeries, true, 5);
   }
-  
-  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries, boolean clear) {    
+
+  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries, boolean clear) {
+    updateTimeSeries(redisKey, timeseries, clear, 5);
+  }
+
+  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries, boolean clear, int attempts) {
     try (Timer.Context context = _updateSeriesTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       try {
@@ -158,17 +162,19 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
         if (clear) {
           jedis.del(redisHtsDaysKey);
         } else {
-          jedis.zrem(redisHtsDaysKey, dates.inverse().keySet().toArray(new String[0]));
+          jedis.zrem(redisHtsDaysKey, dates.inverse().keySet().toArray(new String[dates.size()]));
         }
         
         jedis.zadd(redisHtsDaysKey, dates);
         
         getJedisPool().returnResource(jedis);
-      } catch (Exception e) {
-        s_logger.error("Unable to put timeseries with id: " + redisKey, e);
-        throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + redisKey, e);
-      } finally {
+      } catch (Throwable e) {
         getJedisPool().returnBrokenResource(jedis);
+        if (attempts > 0) {
+          s_logger.warn("Unable to put timeseries with id, will retry: " + redisKey, e);
+          updateTimeSeries(redisKey, timeseries, clear, attempts - 1);
+        }
+        throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + redisKey, e);
       }
     }
   }
