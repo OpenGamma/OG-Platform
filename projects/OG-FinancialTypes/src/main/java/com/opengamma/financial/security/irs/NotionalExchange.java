@@ -318,6 +318,20 @@ public final class NotionalExchange implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1976228493:  // exchangeFinalNotional
+          return _exchangeFinalNotional;
+        case -1304307199:  // exchangeInitialNotional
+          return _exchangeInitialNotional;
+        case -250302019:  // exchangeInterimNotional
+          return _exchangeInterimNotional;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1976228493:  // exchangeFinalNotional

@@ -289,6 +289,18 @@ public final class DoubleDoubleSurfaceShift extends VolatilitySurfaceShiftManipu
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1681280954:  // xValues
+          return _xValues;
+        case -1726182661:  // yValues
+          return _yValues;
+        default:
+          return super.get(propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1681280954:  // xValues
@@ -298,7 +310,8 @@ public final class DoubleDoubleSurfaceShift extends VolatilitySurfaceShiftManipu
           this._yValues = (double[]) newValue;
           break;
         default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
+          super.set(propertyName, newValue);
+          break;
       }
       return this;
     }

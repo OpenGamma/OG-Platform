@@ -573,6 +573,32 @@ public final class StubCalculationMethod implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return _type;
+        case -579843714:  // firstStubRate
+          return _firstStubRate;
+        case 153142116:  // lastStubRate
+          return _lastStubRate;
+        case 1938251211:  // firstStubEndDate
+          return _firstStubEndDate;
+        case -1589587419:  // lastStubEndDate
+          return _lastStubEndDate;
+        case 1932095406:  // firstStubStartIndex
+          return _firstStubStartIndex;
+        case -38764971:  // firstStubEndIndex
+          return _firstStubEndIndex;
+        case 1941202196:  // lastStubStartIndex
+          return _lastStubStartIndex;
+        case -2027580101:  // lastStubEndIndex
+          return _lastStubEndIndex;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3575610:  // type

@@ -288,6 +288,18 @@ public final class AutoStartViewDefinition implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -545262317:  // viewDefinitionId
+          return _viewDefinitionId;
+        case -1448089498:  // executionOptions
+          return _executionOptions;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -545262317:  // viewDefinitionId

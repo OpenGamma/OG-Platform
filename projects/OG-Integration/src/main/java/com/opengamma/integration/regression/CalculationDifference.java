@@ -755,6 +755,34 @@ public final class CalculationDifference implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1019962594:  // equalResultCount
+          return _equalResultCount;
+        case -10926973:  // viewDefinitionName
+          return _viewDefinitionName;
+        case -931708305:  // snapshotName
+          return _snapshotName;
+        case 113591406:  // valuationTime
+          return _valuationTime;
+        case -1641901881:  // baseVersion
+          return _baseVersion;
+        case -40990746:  // testVersion
+          return _testVersion;
+        case -2069633891:  // onlyBase
+          return _onlyBase;
+        case -2069093794:  // onlyTest
+          return _onlyTest;
+        case 1302679609:  // different
+          return _different;
+        case 567051852:  // differentProperties
+          return _differentProperties;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

@@ -294,6 +294,18 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1043480710:  // shiftAmount
+          return _shiftAmount;
+        case 1094810440:  // currencyPairs
+          return _currencyPairs;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

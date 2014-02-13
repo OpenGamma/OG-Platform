@@ -357,6 +357,22 @@ public final class GoldenCopy implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -931708305:  // snapshotName
+          return _snapshotName;
+        case 1195658960:  // viewName
+          return _viewName;
+        case 113591406:  // valuationTime
+          return _valuationTime;
+        case 2096132333:  // calculationResults
+          return _calculationResults;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -931708305:  // snapshotName

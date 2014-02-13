@@ -380,6 +380,18 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -353187684:  // startDateInclusive
+          return _startDateInclusive;
+        case 292475075:  // endDateInclusive
+          return _endDateInclusive;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -353187684:  // startDateInclusive

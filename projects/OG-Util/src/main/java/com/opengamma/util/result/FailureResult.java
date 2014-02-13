@@ -321,6 +321,18 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -892481550:  // status
+          return _status;
+        case 1203236063:  // errorMessage
+          return _errorMessage;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -892481550:  // status

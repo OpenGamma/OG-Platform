@@ -395,6 +395,22 @@ public final class CalculatedValue implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 111972721:  // value
+          return _value;
+        case -2128969066:  // specificationProperties
+          return _specificationProperties;
+        case 486622315:  // targetType
+          return _targetType;
+        case 486420412:  // targetName
+          return _targetName;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 111972721:  // value

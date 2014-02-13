@@ -388,6 +388,18 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3016401:  // base
+          return _base;
+        case 957830652:  // counter
+          return _counter;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3016401:  // base

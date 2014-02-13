@@ -271,6 +271,18 @@ public final class YieldCurvePointShift implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 110246592:  // tenor
+          return _tenor;
+        case 109407362:  // shift
+          return _shift;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 110246592:  // tenor

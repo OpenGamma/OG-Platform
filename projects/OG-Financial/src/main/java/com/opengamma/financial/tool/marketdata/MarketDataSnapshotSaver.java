@@ -583,6 +583,22 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1697555603:  // viewProcessor
+          return _viewProcessor;
+        case 10395716:  // configMaster
+          return _configMaster;
+        case 2090650860:  // marketDataSnapshotMaster
+          return _marketDataSnapshotMaster;
+        case -168565795:  // snapshotter
+          return _snapshotter;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1697555603:  // viewProcessor

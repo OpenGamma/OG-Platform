@@ -344,6 +344,20 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return _name;
+        case -880905839:  // target
+          return _target;
+        case -877322829:  // tenors
+          return _tenors;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

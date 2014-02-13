@@ -312,6 +312,18 @@ public final class Expiry implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          return _expiry;
+        case -2131707655:  // accuracy
+          return _accuracy;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1289159373:  // expiry

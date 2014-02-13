@@ -320,6 +320,18 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 893345500:  // shiftType
+          return _shiftType;
+        case -903338959:  // shifts
+          return _shifts;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

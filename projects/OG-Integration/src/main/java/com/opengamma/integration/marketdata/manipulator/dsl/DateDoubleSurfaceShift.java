@@ -294,6 +294,18 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1726182661:  // yValues
+          return _yValues;
+        case 1681280954:  // xValues
+          return _xValues;
+        default:
+          return super.get(propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
@@ -305,7 +317,8 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
           this._xValues = (List<Period>) newValue;
           break;
         default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
+          super.set(propertyName, newValue);
+          break;
       }
       return this;
     }

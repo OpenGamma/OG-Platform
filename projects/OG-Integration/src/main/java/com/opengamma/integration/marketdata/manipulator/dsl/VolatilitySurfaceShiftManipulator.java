@@ -465,6 +465,18 @@ public class VolatilitySurfaceShiftManipulator implements StructureManipulator<V
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 893345500:  // shiftType
+          return _shiftType;
+        case -453440444:  // shiftValues
+          return _shiftValues;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType

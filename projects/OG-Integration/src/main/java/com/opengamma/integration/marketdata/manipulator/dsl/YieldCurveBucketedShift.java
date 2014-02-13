@@ -314,6 +314,20 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 109757538:  // start
+          return _start;
+        case 100571:  // end
+          return _end;
+        case 109407362:  // shift
+          return _shift;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 109757538:  // start

@@ -265,6 +265,16 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 111972721:  // value
+          return _value;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder<T> set(String propertyName, Object newValue) {

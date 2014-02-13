@@ -275,6 +275,18 @@ public final class IRSwapSecurity implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1431153139:  // swapSecurity
+          return _swapSecurity;
+        case 483100802:  // rawInput
+          return _rawInput;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1431153139:  // swapSecurity

@@ -392,6 +392,22 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          return _convention;
+        case 95356549:  // dates
+          return _dates;
+        case -522438625:  // paymentDates
+          return _paymentDates;
+        case 739970364:  // calculationDates
+          return _calculationDates;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 2039569265:  // convention
