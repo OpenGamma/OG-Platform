@@ -170,7 +170,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code LegalEntityCreditRatings}.
-   * 
    * @return the meta-bean, not null
    */
   public static LegalEntityCreditRatings.Meta meta() {
@@ -199,7 +198,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
   //-----------------------------------------------------------------------
   /**
    * Gets true if the rating is to be used as a filter.
-   * 
    * @return the value of the property
    */
   public boolean isUseRating() {
@@ -208,8 +206,7 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
   /**
    * Sets true if the rating is to be used as a filter.
-   * 
-   * @param useRating the new value of the property
+   * @param useRating  the new value of the property
    */
   public void setUseRating(boolean useRating) {
     this._useRating = useRating;
@@ -217,7 +214,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
   /**
    * Gets the the {@code useRating} property.
-   * 
    * @return the property, not null
    */
   public final Property<Boolean> useRating() {
@@ -227,7 +223,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
   //-----------------------------------------------------------------------
   /**
    * Gets a set of agencies to be used to filter by rating.
-   * 
    * @return the value of the property, not null
    */
   public Set<String> getPerAgencyRatings() {
@@ -236,7 +231,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
   /**
    * Gets the the {@code perAgencyRatings} property.
-   * 
    * @return the property, not null
    */
   public final Property<Set<String>> perAgencyRatings() {
@@ -246,7 +240,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
   //-----------------------------------------------------------------------
   /**
    * Gets true if the rating description is to be used as a filter.
-   * 
    * @return the value of the property
    */
   public boolean isUseRatingDescription() {
@@ -255,8 +248,7 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
   /**
    * Sets true if the rating description is to be used as a filter.
-   * 
-   * @param useRatingDescription the new value of the property
+   * @param useRatingDescription  the new value of the property
    */
   public void setUseRatingDescription(boolean useRatingDescription) {
     this._useRatingDescription = useRatingDescription;
@@ -264,7 +256,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
   /**
    * Gets the the {@code useRatingDescription} property.
-   * 
    * @return the property, not null
    */
   public final Property<Boolean> useRatingDescription() {
@@ -274,7 +265,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
   //-----------------------------------------------------------------------
   /**
    * Gets a set of agencies to be used to filter by rating description.
-   * 
    * @return the value of the property, not null
    */
   public Set<String> getPerAgencyRatingDescriptions() {
@@ -283,7 +273,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
   /**
    * Gets the the {@code perAgencyRatingDescriptions} property.
-   * 
    * @return the property, not null
    */
   public final Property<Set<String>> perAgencyRatingDescriptions() {
@@ -313,8 +302,10 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LegalEntityCreditRatings other = (LegalEntityCreditRatings) obj;
-      return (isUseRating() == other.isUseRating()) && JodaBeanUtils.equal(getPerAgencyRatings(), other.getPerAgencyRatings()) &&
-          (isUseRatingDescription() == other.isUseRatingDescription()) && JodaBeanUtils.equal(getPerAgencyRatingDescriptions(), other.getPerAgencyRatingDescriptions());
+      return (isUseRating() == other.isUseRating()) &&
+          JodaBeanUtils.equal(getPerAgencyRatings(), other.getPerAgencyRatings()) &&
+          (isUseRatingDescription() == other.isUseRatingDescription()) &&
+          JodaBeanUtils.equal(getPerAgencyRatingDescriptions(), other.getPerAgencyRatingDescriptions());
     }
     return false;
   }
@@ -362,26 +353,33 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
     /**
      * The meta-property for the {@code useRating} property.
      */
-    private final MetaProperty<Boolean> _useRating = DirectMetaProperty.ofReadWrite(this, "useRating", LegalEntityCreditRatings.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _useRating = DirectMetaProperty.ofReadWrite(
+        this, "useRating", LegalEntityCreditRatings.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code perAgencyRatings} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<String>> _perAgencyRatings = DirectMetaProperty.ofReadWrite(this, "perAgencyRatings", LegalEntityCreditRatings.class, (Class) Set.class);
+    private final MetaProperty<Set<String>> _perAgencyRatings = DirectMetaProperty.ofReadWrite(
+        this, "perAgencyRatings", LegalEntityCreditRatings.class, (Class) Set.class);
     /**
      * The meta-property for the {@code useRatingDescription} property.
      */
-    private final MetaProperty<Boolean> _useRatingDescription = DirectMetaProperty.ofReadWrite(this, "useRatingDescription", LegalEntityCreditRatings.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _useRatingDescription = DirectMetaProperty.ofReadWrite(
+        this, "useRatingDescription", LegalEntityCreditRatings.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code perAgencyRatingDescriptions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<String>> _perAgencyRatingDescriptions = DirectMetaProperty.ofReadWrite(this, "perAgencyRatingDescriptions", LegalEntityCreditRatings.class,
-        (Class) Set.class);
+    private final MetaProperty<Set<String>> _perAgencyRatingDescriptions = DirectMetaProperty.ofReadWrite(
+        this, "perAgencyRatingDescriptions", LegalEntityCreditRatings.class, (Class) Set.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, null, "useRating", "perAgencyRatings", "useRatingDescription",
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "useRating",
+        "perAgencyRatings",
+        "useRatingDescription",
         "perAgencyRatingDescriptions");
 
     /**
@@ -393,13 +391,13 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -574758396: // useRating
+        case -574758396:  // useRating
           return _useRating;
-        case 594236564: // perAgencyRatings
+        case 594236564:  // perAgencyRatings
           return _perAgencyRatings;
-        case 159817560: // useRatingDescription
+        case 159817560:  // useRatingDescription
           return _useRatingDescription;
-        case -81474218: // perAgencyRatingDescriptions
+        case -81474218:  // perAgencyRatingDescriptions
           return _perAgencyRatingDescriptions;
       }
       return super.metaPropertyGet(propertyName);
@@ -423,7 +421,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code useRating} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> useRating() {
@@ -432,7 +429,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
     /**
      * The meta-property for the {@code perAgencyRatings} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Set<String>> perAgencyRatings() {
@@ -441,7 +437,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
     /**
      * The meta-property for the {@code useRatingDescription} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> useRatingDescription() {
@@ -450,7 +445,6 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
 
     /**
      * The meta-property for the {@code perAgencyRatingDescriptions} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Set<String>> perAgencyRatingDescriptions() {
@@ -461,13 +455,13 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -574758396: // useRating
+        case -574758396:  // useRating
           return ((LegalEntityCreditRatings) bean).isUseRating();
-        case 594236564: // perAgencyRatings
+        case 594236564:  // perAgencyRatings
           return ((LegalEntityCreditRatings) bean).getPerAgencyRatings();
-        case 159817560: // useRatingDescription
+        case 159817560:  // useRatingDescription
           return ((LegalEntityCreditRatings) bean).isUseRatingDescription();
-        case -81474218: // perAgencyRatingDescriptions
+        case -81474218:  // perAgencyRatingDescriptions
           return ((LegalEntityCreditRatings) bean).getPerAgencyRatingDescriptions();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -477,16 +471,16 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -574758396: // useRating
+        case -574758396:  // useRating
           ((LegalEntityCreditRatings) bean).setUseRating((Boolean) newValue);
           return;
-        case 594236564: // perAgencyRatings
+        case 594236564:  // perAgencyRatings
           ((LegalEntityCreditRatings) bean).setPerAgencyRatings((Set<String>) newValue);
           return;
-        case 159817560: // useRatingDescription
+        case 159817560:  // useRatingDescription
           ((LegalEntityCreditRatings) bean).setUseRatingDescription((Boolean) newValue);
           return;
-        case -81474218: // perAgencyRatingDescriptions
+        case -81474218:  // perAgencyRatingDescriptions
           ((LegalEntityCreditRatings) bean).setPerAgencyRatingDescriptions((Set<String>) newValue);
           return;
       }

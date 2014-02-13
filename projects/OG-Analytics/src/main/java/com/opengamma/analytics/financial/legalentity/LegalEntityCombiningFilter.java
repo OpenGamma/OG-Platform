@@ -113,7 +113,6 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code LegalEntityCombiningFilter}.
-   * 
    * @return the meta-bean, not null
    */
   public static LegalEntityCombiningFilter.Meta meta() {
@@ -142,7 +141,6 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
   //-----------------------------------------------------------------------
   /**
    * Gets the filters to use
-   * 
    * @return the value of the property, not null
    */
   public Set<LegalEntityFilter<LegalEntity>> getFiltersToUse() {
@@ -151,8 +149,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
 
   /**
    * Sets the filters to use
-   * 
-   * @param filtersToUse the new value of the property, not null
+   * @param filtersToUse  the new value of the property, not null
    */
   public void setFiltersToUse(Set<LegalEntityFilter<LegalEntity>> filtersToUse) {
     JodaBeanUtils.notNull(filtersToUse, "filtersToUse");
@@ -161,7 +158,6 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
 
   /**
    * Gets the the {@code filtersToUse} property.
-   * 
    * @return the property, not null
    */
   public final Property<Set<LegalEntityFilter<LegalEntity>>> filtersToUse() {
@@ -234,11 +230,14 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
      * The meta-property for the {@code filtersToUse} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<LegalEntityFilter<LegalEntity>>> _filtersToUse = DirectMetaProperty.ofReadWrite(this, "filtersToUse", LegalEntityCombiningFilter.class, (Class) Set.class);
+    private final MetaProperty<Set<LegalEntityFilter<LegalEntity>>> _filtersToUse = DirectMetaProperty.ofReadWrite(
+        this, "filtersToUse", LegalEntityCombiningFilter.class, (Class) Set.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, null, "filtersToUse");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "filtersToUse");
 
     /**
      * Restricted constructor.
@@ -249,7 +248,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1274996271: // filtersToUse
+        case -1274996271:  // filtersToUse
           return _filtersToUse;
       }
       return super.metaPropertyGet(propertyName);
@@ -273,7 +272,6 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code filtersToUse} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Set<LegalEntityFilter<LegalEntity>>> filtersToUse() {
@@ -284,7 +282,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1274996271: // filtersToUse
+        case -1274996271:  // filtersToUse
           return ((LegalEntityCombiningFilter) bean).getFiltersToUse();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -294,7 +292,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1274996271: // filtersToUse
+        case -1274996271:  // filtersToUse
           ((LegalEntityCombiningFilter) bean).setFiltersToUse((Set<LegalEntityFilter<LegalEntity>>) newValue);
           return;
       }
