@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Market Data Snapshot">
+<@page title="Market Data Snapshot" jquery=true jqueryDate=true>
 
 
 <#-- SECTION Market Data Snapshot search -->
