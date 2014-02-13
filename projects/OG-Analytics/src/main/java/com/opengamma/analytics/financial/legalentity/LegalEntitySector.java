@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.legalentity;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.types.ParameterizedTypeImpl;
+import com.opengamma.util.types.VariantType;
 
 /**
  * Gets the sector of an {@link LegalEntity}.
@@ -52,9 +55,15 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
   private Set<String> _classifications;
 
   /**
+   * A set of types that the classifications might result in.
+   */
+  @PropertyDefinition
+  private Set<? extends Type> _classificationValueTypes;
+
+  /**
    * For the builder.
    */
-  /* package */ LegalEntitySector() {
+  /* package */LegalEntitySector() {
     setUseSectorName(false);
     setUseClassificationName(false);
     setClassifications(Collections.<String>emptySet());
@@ -101,9 +110,34 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
     return selections;
   }
 
+  @Override
+  public Type getFilteredDataType() {
+    if (!(_useSectorName || _useClassificationName)) {
+      return LegalEntity.meta().sector().propertyGenericType();
+    }
+    Type setMember = null;
+    if (_useSectorName) {
+      // Set may contain a String
+      setMember = VariantType.either(setMember, String.class);
+    }
+    if (_useClassificationName) {
+      Set<? extends Type> types = getClassificationValueTypes();
+      if ((types == null) || types.isEmpty()) {
+        // Arbitrary objects. Not good.
+        setMember = VariantType.either(setMember, Object.class);
+      } else {
+        // Union of possible types.
+        for (Type type : types) {
+          setMember = VariantType.either(setMember, type);
+        }
+      }
+    }
+    return ParameterizedTypeImpl.of(Set.class, setMember);
+  }
+
   /**
-   * Sets the agencies with which to filter ratings. This also sets
-   * the {@link LegalEntitySector#_useClassificationName} field to true.
+   * Sets the agencies with which to filter ratings. This also sets the {@link LegalEntitySector#_useClassificationName} field to true.
+   * 
    * @param classifications The new value of the property, not null
    */
   public void setClassifications(final Set<String> classifications) {
@@ -211,6 +245,31 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets a set of types that the classifications might result in.
+   * @return the value of the property
+   */
+  public Set<? extends Type> getClassificationValueTypes() {
+    return _classificationValueTypes;
+  }
+
+  /**
+   * Sets a set of types that the classifications might result in.
+   * @param classificationValueTypes  the new value of the property
+   */
+  public void setClassificationValueTypes(Set<? extends Type> classificationValueTypes) {
+    this._classificationValueTypes = classificationValueTypes;
+  }
+
+  /**
+   * Gets the the {@code classificationValueTypes} property.
+   * @return the property, not null
+   */
+  public final Property<Set<? extends Type>> classificationValueTypes() {
+    return metaBean().classificationValueTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public LegalEntitySector clone() {
     BeanBuilder<? extends LegalEntitySector> builder = metaBean().builder();
@@ -235,7 +294,8 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
       LegalEntitySector other = (LegalEntitySector) obj;
       return (isUseSectorName() == other.isUseSectorName()) &&
           (isUseClassificationName() == other.isUseClassificationName()) &&
-          JodaBeanUtils.equal(getClassifications(), other.getClassifications());
+          JodaBeanUtils.equal(getClassifications(), other.getClassifications()) &&
+          JodaBeanUtils.equal(getClassificationValueTypes(), other.getClassificationValueTypes());
     }
     return false;
   }
@@ -246,12 +306,13 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
     hash += hash * 31 + JodaBeanUtils.hashCode(isUseSectorName());
     hash += hash * 31 + JodaBeanUtils.hashCode(isUseClassificationName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifications());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassificationValueTypes());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("LegalEntitySector{");
     int len = buf.length();
     toString(buf);
@@ -266,6 +327,7 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
     buf.append("useSectorName").append('=').append(JodaBeanUtils.toString(isUseSectorName())).append(',').append(' ');
     buf.append("useClassificationName").append('=').append(JodaBeanUtils.toString(isUseClassificationName())).append(',').append(' ');
     buf.append("classifications").append('=').append(JodaBeanUtils.toString(getClassifications())).append(',').append(' ');
+    buf.append("classificationValueTypes").append('=').append(JodaBeanUtils.toString(getClassificationValueTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -295,13 +357,20 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
     private final MetaProperty<Set<String>> _classifications = DirectMetaProperty.ofReadWrite(
         this, "classifications", LegalEntitySector.class, (Class) Set.class);
     /**
+     * The meta-property for the {@code classificationValueTypes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<? extends Type>> _classificationValueTypes = DirectMetaProperty.ofReadWrite(
+        this, "classificationValueTypes", LegalEntitySector.class, (Class) Set.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "useSectorName",
         "useClassificationName",
-        "classifications");
+        "classifications",
+        "classificationValueTypes");
 
     /**
      * Restricted constructor.
@@ -318,6 +387,8 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
           return _useClassificationName;
         case -1032042163:  // classifications
           return _classifications;
+        case -412942834:  // classificationValueTypes
+          return _classificationValueTypes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -362,6 +433,14 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
       return _classifications;
     }
 
+    /**
+     * The meta-property for the {@code classificationValueTypes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<? extends Type>> classificationValueTypes() {
+      return _classificationValueTypes;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -372,6 +451,8 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
           return ((LegalEntitySector) bean).isUseClassificationName();
         case -1032042163:  // classifications
           return ((LegalEntitySector) bean).getClassifications();
+        case -412942834:  // classificationValueTypes
+          return ((LegalEntitySector) bean).getClassificationValueTypes();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -388,6 +469,9 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
           return;
         case -1032042163:  // classifications
           ((LegalEntitySector) bean).setClassifications((Set<String>) newValue);
+          return;
+        case -412942834:  // classificationValueTypes
+          ((LegalEntitySector) bean).setClassificationValueTypes((Set<? extends Type>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

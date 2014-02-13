@@ -23,12 +23,15 @@ import java.util.Set;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+import com.opengamma.util.types.ParameterizedTypeImpl;
+import com.opengamma.util.types.VariantType;
 
 /**
  * Tests for the classes that extract data from an {@link LegalEntity}.
@@ -93,6 +96,7 @@ public class LegalEntityFilterTest {
     assertEquals(CREDIT_RATINGS, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
     final Set<CreditRating> creditRatings = new HashSet<>(CREDIT_RATINGS);
     creditRatings.add(CreditRating.of("C", "Poor", "Test", false));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, CreditRating.class), filter.getFilteredDataType());
     filter = new LegalEntityCreditRatings();
     filter.setUseRating(true);
     Set<Pair<String, String>> expected = new HashSet<>();
@@ -106,18 +110,21 @@ public class LegalEntityFilterTest {
     expected.add(Pairs.of("S&P", "A"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, ParameterizedTypeImpl.of(Pair.class, String.class, String.class)), filter.getFilteredDataType());
     filter = new LegalEntityCreditRatings();
     filter.setPerAgencyRatings(Collections.singleton("Moody's"));
     expected = new HashSet<>();
     expected.add(Pairs.of("Moody's", "B"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, ParameterizedTypeImpl.of(Pair.class, String.class, String.class)), filter.getFilteredDataType());
     filter = new LegalEntityCreditRatings();
     filter.setPerAgencyRatings(Collections.singleton("S&P"));
     expected = new HashSet<>();
     expected.add(Pairs.of("S&P", "A"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, ParameterizedTypeImpl.of(Pair.class, String.class, String.class)), filter.getFilteredDataType());
     filter = new LegalEntityCreditRatings();
     filter.setUseRatingDescription(true);
     expected = new HashSet<>();
@@ -131,6 +138,7 @@ public class LegalEntityFilterTest {
     expected.add(Pairs.of("S&P", "Prime"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, ParameterizedTypeImpl.of(Pair.class, String.class, String.class)), filter.getFilteredDataType());
     filter = new LegalEntityCreditRatings();
     filter.setPerAgencyRatingDescriptions(Collections.singleton("Moody's"));
     expected = new HashSet<>();
@@ -143,6 +151,7 @@ public class LegalEntityFilterTest {
     expected.add(Pairs.of("S&P", "Prime"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, ParameterizedTypeImpl.of(Pair.class, String.class, String.class)), filter.getFilteredDataType());
   }
 
   /**
@@ -150,7 +159,9 @@ public class LegalEntityFilterTest {
    */
   @Test
   public void testREDCode() {
-    assertEquals(RED_CODE, new LegalEntityREDCode().getFilteredData(LEGAL_ENTITY_RED_CODE));
+    LegalEntityREDCode filter = new LegalEntityREDCode();
+    assertEquals(RED_CODE, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(String.class, filter.getFilteredDataType());
   }
 
   /**
@@ -170,26 +181,32 @@ public class LegalEntityFilterTest {
     LegalEntityRegion filter = new LegalEntityRegion();
     assertEquals(REGION, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(REGION, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(Region.class, filter.getFilteredDataType());
     filter = new LegalEntityRegion();
     filter.setUseName(true);
     assertEquals(Collections.singleton(REGION.getName()), filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(Collections.singleton(REGION.getName()), filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, String.class), filter.getFilteredDataType());
     filter = new LegalEntityRegion();
     filter.setUseCountry(true);
     assertEquals(Sets.newHashSet(Country.US, Country.CA), filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(Sets.newHashSet(Country.US, Country.CA), filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, Country.class), filter.getFilteredDataType());
     filter = new LegalEntityRegion();
     filter.setCountries(Collections.singleton(Country.US));
     assertEquals(Sets.newHashSet(Country.US), filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(Sets.newHashSet(Country.US), filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, Country.class), filter.getFilteredDataType());
     filter = new LegalEntityRegion();
     filter.setUseCurrency(true);
     assertEquals(Sets.newHashSet(Currency.CAD, Currency.USD), filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(Sets.newHashSet(Currency.CAD, Currency.USD), filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, Currency.class), filter.getFilteredDataType());
     filter = new LegalEntityRegion();
     filter.setCurrencies(Collections.singleton(Currency.USD));
     assertEquals(Sets.newHashSet(Currency.USD), filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(Sets.newHashSet(Currency.USD), filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, Currency.class), filter.getFilteredDataType());
     //TODO test builder chaining and currency / country pairs
   }
 
@@ -225,21 +242,33 @@ public class LegalEntityFilterTest {
     LegalEntitySector filter = new LegalEntitySector();
     assertEquals(SECTOR, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(SECTOR, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(Sector.class, filter.getFilteredDataType());
     filter = new LegalEntitySector();
     filter.setUseSectorName(true);
     assertEquals(Collections.singleton(SECTOR.getName()), filter.getFilteredData(LEGAL_ENTITY));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, String.class), filter.getFilteredDataType());
     filter = new LegalEntitySector();
     filter.setClassifications(Collections.singleton(GICSCode.NAME));
+    filter.setClassificationValueTypes(Collections.singleton(GICSCode.class));
     assertEquals(Collections.singleton(GICSCode.of(10203040)), filter.getFilteredData(LEGAL_ENTITY));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, GICSCode.class), filter.getFilteredDataType());
     filter = new LegalEntitySector();
     filter.setClassifications(Collections.singleton(ICBCode.NAME));
+    filter.setClassificationValueTypes(Collections.singleton(ICBCode.class));
     assertEquals(Collections.singleton(ICBCode.of("1020")), filter.getFilteredData(LEGAL_ENTITY));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, ICBCode.class), filter.getFilteredDataType());
+    filter = new LegalEntitySector();
+    filter.setClassifications(ImmutableSet.of(GICSCode.NAME, ICBCode.NAME));
+    filter.setClassificationValueTypes(ImmutableSet.of(GICSCode.class, ICBCode.class));
+    assertEquals(ImmutableSet.of(GICSCode.of(10203040), ICBCode.of("1020")), filter.getFilteredData(LEGAL_ENTITY));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, VariantType.either(GICSCode.class, ICBCode.class)), filter.getFilteredDataType());
     filter = new LegalEntitySector();
     filter.setUseClassificationName(true);
     assertTrue(filter.getFilteredData(LEGAL_ENTITY) instanceof Set);
     assertTrue(((Set<?>) filter.getFilteredData(LEGAL_ENTITY)).isEmpty());
     assertTrue(filter.getFilteredData(LEGAL_ENTITY_RED_CODE) instanceof Set);
     assertTrue(((Set<?>) filter.getFilteredData(LEGAL_ENTITY_RED_CODE)).isEmpty());
+    assertEquals(ParameterizedTypeImpl.of(Set.class, Object.class), filter.getFilteredDataType());
   }
 
   /**
@@ -273,11 +302,13 @@ public class LegalEntityFilterTest {
     final LegalEntitySector sectorFilter = new LegalEntitySector();
     sectorFilter.setUseSectorName(true);
     underlyingFilters.add(sectorFilter);
+    underlyingFilters.add(new LegalEntityCombiningFilter());
     filter.setFiltersToUse(underlyingFilters);
     final Set<Object> expected = new HashSet<>();
     expected.add(SECTOR.getName());
     expected.add(Pairs.of("S&P", "A"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
+    assertEquals(ParameterizedTypeImpl.of(Set.class, VariantType.either(String.class, ParameterizedTypeImpl.of(Pair.class, String.class, String.class))), filter.getFilteredDataType());
   }
 }
