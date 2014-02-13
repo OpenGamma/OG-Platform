@@ -14,7 +14,6 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -97,8 +96,6 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
 
   private VanillaIborLegConvention getIborLegConvention(final Currency currency, final String tenorString) {
     String vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
-    VanillaIborLegConvention vanillaIborLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName), VanillaIborLegConvention.class);
-    vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
     return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName), VanillaIborLegConvention.class);
   }
 
