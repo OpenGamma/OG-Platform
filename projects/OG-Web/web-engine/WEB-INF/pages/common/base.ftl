@@ -1,18 +1,27 @@
 <#-- Macro to produce a standard page with html/head/body -->
-<#macro page title="OpenGamma">
+<#macro page title="OpenGamma" aceXmlEditor=false jquery=false jqueryDate=false>
 <html>
   <head>
     <title>${title} - OpenGamma</title>
     <link type="text/css" rel="stylesheet" href="/green/css/og-base.css" />
+<#if jqueryDate>
     <link rel="stylesheet" href="/css/jquery/smoothness/jquery-ui-1.8.5.custom.css" />
-    
+</#if>
+
+<#if jquery>
     <script src="/prototype/scripts/lib/jquery/jquery-1.8.0.js"></script>
+</#if>
+ 
+<#if jqueryDate>    
     <script src="/prototype/scripts/lib/jquery/ui/jquery-ui-1.8.11.custom.min.js"></script>
     <script src="/prototype/scripts/lib/jquery/ui/jquery.ui.datepicker.js"></script>
-    
+</#if>  
+  
+<#if aceXmlEditor>
     <script src="/prototype/scripts/lib/ace/ace.js"></script>
     <script src="/prototype/scripts/lib/ace/theme-textmate.js"></script>
     <script src="/prototype/scripts/lib/ace/mode-xml.js"></script>
+</#if>
   </head>
   <body>
     <div id="header">
