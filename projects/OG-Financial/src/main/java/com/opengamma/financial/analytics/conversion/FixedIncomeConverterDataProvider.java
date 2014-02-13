@@ -1355,7 +1355,7 @@ public class FixedIncomeConverterDataProvider {
           return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);

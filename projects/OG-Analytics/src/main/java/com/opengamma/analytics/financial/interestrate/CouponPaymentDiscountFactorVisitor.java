@@ -5,9 +5,12 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.google.common.collect.Iterables;
+import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
@@ -16,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -95,4 +99,17 @@ public class CouponPaymentDiscountFactorVisitor extends InstrumentDerivativeVisi
     final YieldAndDiscountCurve curve = curves.getCurve(payment.getFundingCurveName());
     return curve.getDiscountFactor(payment.getPaymentTime());
   }
+
+  @Override
+  public Double visitCouponFixedCompounding(final CouponFixedCompounding payment, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve curve = curves.getCurve(payment.getFundingCurveName());
+    return curve.getDiscountFactor(payment.getPaymentTime());
+  }
+
+  @Override
+  public Double visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve curve = curves.getCurve(payment.getFundingCurveName());
+    return curve.getDiscountFactor(payment.getPaymentTime());
+  }
+
 }

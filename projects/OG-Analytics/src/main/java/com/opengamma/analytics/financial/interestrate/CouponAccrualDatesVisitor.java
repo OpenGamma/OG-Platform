@@ -10,6 +10,7 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
@@ -19,6 +20,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.util.tuple.Pair;
@@ -91,6 +93,16 @@ public class CouponAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapte
 
   @Override
   public Pair<LocalDate, LocalDate> visitCouponCMSDefinition(final CouponCMSDefinition payment) {
+    return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
+  }
+
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponFixedCompoundingDefinition(final CouponFixedCompoundingDefinition payment) {
+    return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
+  }
+
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
