@@ -21,6 +21,8 @@ import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -269,5 +271,15 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   @Override
   public CurrencyAmount visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return CurrencyAmount.of(security.getCurrency(), security.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitFRASecurity(final FRASecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
   }
 }
