@@ -101,6 +101,7 @@ public final class BloombergConstants {
   public static final String FIELD_ID_ISIN = "ID_ISIN";
   public static final String FIELD_ID_SEDOL1 = "ID_SEDOL1";
   public static final String FIELD_ID_BBG_UNIQUE = "ID_BB_UNIQUE";
+  public static final String FIELD_ID_BB_SEC_NUM_DES = "ID_BB_SEC_NUM_DES";
   public static final String FIELD_UNDL_ID_BB_UNIQUE = "UNDL_ID_BB_UNIQUE";
   public static final String FIELD_FUT_LAST_TRADE_DT = "FUT_LAST_TRADE_DT";
   public static final String FIELD_FUT_FIRST_TRADE_DT = "FUT_FIRST_TRADE_DT";
@@ -116,8 +117,8 @@ public final class BloombergConstants {
    */
   public static final String FIELD_FUT_VAL_PT = "FUT_VAL_PT";
   public static final String FIELD_GICS_SUB_INDUSTRY = "GICS_SUB_INDUSTRY";
-  public static final String FIELD_FUT_DELIVERABLE_BONDS = "FUT_DELIVERABLE_BONDS";
   public static final String FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE = "FUT_DLVRBLE_BNDS_BB_UNIQUE";
+  public static final String FIELD_FUT_DELIVERABLE_BONDS = "FUT_DELIVERABLE_BONDS";
   public static final String FIELD_QUOTE_TYP = "QUOTE_TYP";
   public static final String FIELD_QUOTE_UNITS = "QUOTE_UNITS";
   public static final String FIELD_QUOTED_CRNCY = "QUOTED_CRNCY";

@@ -24,6 +24,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_FLT_DAYS_PRIOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FLT_SPREAD;
 import static com.opengamma.bbg.BloombergConstants.FIELD_GUARANTOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BB_SEC_NUM_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
@@ -51,6 +52,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
@@ -147,7 +149,9 @@ public class BondLoader extends SecurityLoader {
       FIELD_FLT_BENCH_MULTIPLIER,
       FIELD_ISSUE_DT,
       FIELD_DAYS_TO_SETTLE,
-      FIELD_RESET_IDX);
+      FIELD_RESET_IDX,
+      FIELD_PARSEKYABLE_DES,
+      FIELD_ID_BB_SEC_NUM_DES);
 
   /**
    * The valid Bloomberg security types for Bond
@@ -421,6 +425,8 @@ public class BondLoader extends SecurityLoader {
     final String coupon = fieldData.getString(FIELD_CPN);
     final String maturity = fieldData.getString(FIELD_MATURITY);
     final String marketSector = fieldData.getString(FIELD_MARKET_SECTOR_DES);
+    final String parsekyableDes = fieldData.getString(FIELD_PARSEKYABLE_DES);
+    final String idBbSecNumDes = fieldData.getString(FIELD_ID_BB_SEC_NUM_DES);
 
     final Set<ExternalId> identifiers = new HashSet<ExternalId>();
     if (isValidField(bbgUnique)) {
@@ -435,6 +441,14 @@ public class BondLoader extends SecurityLoader {
     }
     if (isValidField(isin)) {
       identifiers.add(ExternalSchemes.isinSecurityId(isin));
+    }
+    if (isValidField(idBbSecNumDes) && isValidField(marketSector)) {
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(idBbSecNumDes.replaceAll("\\s+", " ").concat(" ").concat(marketSector.trim())));      
+    } else if (isValidField(parsekyableDes)) {
+      s_logger.warn("For {} Could not find valid field BB_SEC_NUM_DES and/or MARKET_SECTOR " + 
+                    "(essentially the Ticker, coupon, maturity + yellow key) so falling back to PARSEKYABLE_DES.  " + 
+                    " This may mean bond future baskets won't link to the underlying correctly as they are in the TCM format.", parsekyableDes);
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(parsekyableDes.replaceAll("\\s+", " ")));
     }
     if (isValidField(ticker) && isValidField(coupon) && isValidField(maturity) && isValidField(marketSector)) {
       try {
