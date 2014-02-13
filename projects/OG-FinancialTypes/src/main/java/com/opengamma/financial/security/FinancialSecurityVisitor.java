@@ -7,6 +7,7 @@ package com.opengamma.financial.security;
 
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -132,6 +133,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitEquitySecurity(EquitySecurity security);
 
   T visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security);
+
+  T visitFloatingRateNoteSecurity(FloatingRateNoteSecurity security);
 
   T visitFRASecurity(FRASecurity security);
 

@@ -18,6 +18,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -133,6 +134,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String ADRS = "American Depositary Receipts";
   /* package */static final String EQUITY_WARRANTS = "Equity Warrants";
   /* package */static final String BILLS = "Bills";
+  /* package */static final String FLOATING_RATE_NOTES = "Floating Rate Notes";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -141,7 +143,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
       SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS, FX_VOLATILITY_SWAPS,
-      EXCHANGE_TRADED_FUNDS, ADRS, EQUITY_WARRANTS, UNKNOWN);
+      EXCHANGE_TRADED_FUNDS, ADRS, EQUITY_WARRANTS, FLOATING_RATE_NOTES, UNKNOWN);
 
   private final boolean _includeEmptyCategories;
 
@@ -510,6 +512,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
           return EQUITY_WARRANTS;
+        }
+
+        @Override
+        public String visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+          return FLOATING_RATE_NOTES;
         }
       });
     } else {

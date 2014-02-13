@@ -128,13 +128,13 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
       final InstrumentDefinition<?> definition = security.accept(_visitor);
       final Map<LocalDate, MultipleCurrencyAmount> cashFlows;
       if (inputs.getAllValues().isEmpty()) {
-        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
+        cashFlows = new TreeMap<>(definition.accept(_cashFlowVisitor));
       } else {
         final HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
         if (fixingSeries == null) {
-          cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
+          cashFlows = new TreeMap<>(definition.accept(_cashFlowVisitor));
         } else {
-          cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
+          cashFlows = new TreeMap<>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
         }
       }
       final String label = security.accept(CashFlowFunctionHelper.getReferenceIndexVisitor());

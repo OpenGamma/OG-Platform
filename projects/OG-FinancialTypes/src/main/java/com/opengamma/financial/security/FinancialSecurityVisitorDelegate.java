@@ -7,6 +7,7 @@ package com.opengamma.financial.security;
 
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -425,4 +426,10 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
   public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
     return _delegate.visitEquityWarrantSecurity(security);
   }
+
+  @Override
+  public T visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return _delegate.visitFloatingRateNoteSecurity(security);
+  }
+
 }
