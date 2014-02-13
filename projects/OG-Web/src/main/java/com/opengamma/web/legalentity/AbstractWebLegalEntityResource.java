@@ -20,9 +20,9 @@ import com.opengamma.web.WebHomeUris;
 public abstract class AbstractWebLegalEntityResource extends AbstractPerRequestWebResource {
 
   /** HTML ftl directory */
-  protected static final String HTML_DIR = "legalEntities/html/";
+  protected static final String HTML_DIR = "legalentities/html/";
   /** JSON ftl directory */
-  protected static final String JSON_DIR = "legalEntities/json/";
+  protected static final String JSON_DIR = "legalentities/json/";
 
   /** The backing bean. */
   private final WebLegalEntityData _data;
