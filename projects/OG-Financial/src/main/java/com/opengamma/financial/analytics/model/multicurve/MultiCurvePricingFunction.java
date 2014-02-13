@@ -137,8 +137,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final CashFlowSecurityConverter cashFlowSecurityConverter = new CashFlowSecurityConverter();
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
+    final FRASecurityConverter fraConverter = new FRASecurityConverter(securitySource, holidaySource, regionSource, conventionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);

@@ -42,7 +42,7 @@ public class InterestRateFutureOptionSecurityConverter extends FinancialSecurity
   public InterestRateFutureOptionSecurityConverter(final HolidaySource holidaySource, final ConventionSource conventionSource, final RegionSource regionSource,
       final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "security source");
-    _underlyingConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    _underlyingConverter = new InterestRateFutureSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     _securitySource = securitySource;
   }
 

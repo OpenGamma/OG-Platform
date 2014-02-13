@@ -200,7 +200,7 @@ public class MultiCurveDiscountingFunction extends
             if (marketData == null) {
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
-            parameterGuessForCurves[k] = 0.02; // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
+            parameterGuessForCurves[k] = 0.02; // TODO: [PlAT-5883] Get a better starting point.
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(context,
                 snapshot, node.getIdentifier(), timeSeries, now, fx));
             derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);

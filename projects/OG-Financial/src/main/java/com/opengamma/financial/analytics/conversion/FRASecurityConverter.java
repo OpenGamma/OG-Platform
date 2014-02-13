@@ -5,15 +5,11 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_IBOR_LEG;
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
-
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -21,9 +17,11 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.IborIndexConvention;
-import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -37,14 +35,18 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** A security source. Used to retrieve Ibor index. */
+  private final SecuritySource _securitySource;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final ConventionSource _conventionSource;
 
-  public FRASecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final ConventionSource conventionSource) {
+  public FRASecurityConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final RegionSource regionSource, final ConventionSource conventionSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(conventionSource, "convention source");
+    _securitySource = securitySource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _conventionSource = conventionSource;
@@ -53,24 +55,18 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
   @Override
   public ForwardRateAgreementDefinition visitFRASecurity(final FRASecurity security) {
     ArgumentChecker.notNull(security, "security");
+    final Security sec = _securitySource.getSingle(security.getUnderlyingId().toBundle()); 
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Ibor index with id " + security.getUnderlyingId() + " was null");
+    }
+    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+    final IborIndex iborIndex = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
     final Currency currency = security.getCurrency();
     final ZonedDateTime accrualStartDate = security.getStartDate();
     final ZonedDateTime accrualEndDate = security.getEndDate();
-    final long months = getMonths(accrualStartDate, accrualEndDate);
-    
-    
-    final String tenorString = months + "M";
-    final VanillaIborLegConvention vanillaIborLegConvention = getIborLegConvention(currency, tenorString);
-    
-    
-    
-    final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(vanillaIborLegConvention.getIborIndexConvention(), IborIndexConvention.class);
     final double notional = security.getAmount();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency)); //TODO exchange region?
-    final int spotLag = iborIndexConvention.getSettlementDays();
-    final Period indexTenor = Period.ofMonths((int) months);
-    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, iborIndexConvention.getDayCount(), iborIndexConvention.getBusinessDayConvention(),
-        iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate(), calendar);
   }
 
@@ -93,16 +89,5 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
         security.getUnderlyingId().getValue());
     return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate(), calendar);
   }
-
-  //TODO shouldn't have to get the FRA tenor this way
-  private static long getMonths(final ZonedDateTime accrualStart, final ZonedDateTime accrualEnd) {
-    Period diff = Period.between(accrualStart.toLocalDate(), accrualEnd.toLocalDate());
-    return diff.getMonths() + (diff.getDays() > 15 ? 1 : 0);
-  }
-
-  private VanillaIborLegConvention getIborLegConvention(final Currency currency, final String tenorString) {
-    String vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
-    return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName), VanillaIborLegConvention.class);
-  }
-
+  
 }
