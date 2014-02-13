@@ -47,6 +47,7 @@ import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
@@ -104,8 +105,10 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return security instanceof BondSecurity || security instanceof BondFutureSecurity ||
-        security instanceof BillSecurity;
+    return security instanceof BondSecurity ||
+        security instanceof BondFutureSecurity ||
+        security instanceof BillSecurity ||
+        security instanceof FloatingRateNoteSecurity;
   }
 
   @Override

@@ -45,9 +45,6 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class with methods related to bond security valued by discounting.
  */
-/**
- *
- */
 public final class BondSecurityDiscountingMethod {
   /**
    * The unique instance of the class.
