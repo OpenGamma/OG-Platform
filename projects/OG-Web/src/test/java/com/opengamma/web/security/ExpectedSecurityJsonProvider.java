@@ -150,7 +150,7 @@ import com.opengamma.util.time.Expiry;
         if (!basket.isEmpty()) {
           Map<String, String> underlyingBond = Maps.newHashMap();
           for (BondFutureDeliverable bondFutureDeliverable : basket) {
-            underlyingBond.put(ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID),
+            underlyingBond.put(ExternalSchemes.BLOOMBERG_TICKER.getName() + "-" + bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_TICKER),
               String.valueOf(bondFutureDeliverable.getConversionFactor()));
           }
           templateData.put("underlyingBond", underlyingBond);
