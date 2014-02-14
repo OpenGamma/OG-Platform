@@ -7,10 +7,53 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
-To 2.2.0-M9
------------
+To 2.2.0-M10
+------------
 * Source compatibility
   * [PLAT-5000] Remove Map as super-interface of Map2. Required for JDK 8 compatibility.
+
+* Bug
+    * [PLAT-5103] - Jar version in .classpath differs from POM version
+    * [PLAT-5767] - If back-end server is down at start up, service is active but doesn't respond
+    * [PLAT-5793] - Volatility should be correctly annualised in Carr-Lee model
+    * [PLAT-5820] - Present Value should return Present Value even if the trade has more than one currency
+    * [PLAT-5821] - Add FX present value to list of requirements in multi-curve defaults function
+    * [PLAT-5824] - Loading a bond throws an error - it recognizes it as a bill
+    * [PLAT-5828] - Remote referencing of legal entity source fails
+    * [PLAT-5830] - MarkToMarketPnLFunction does not throw an exception if the trade type property is not set when execute() is reached.
+    * [PLAT-5843] - error in quant sanbox due to some changes in MultiCurveInterface
+* Improvement
+    * [PLAT-5721] - Integrator for Carr-Lee model
+    * [PLAT-5762] - Compute assetPrice at expiry in OptionFunctionProvider
+    * [PLAT-5818] - Functions to access a config-source
+    * [PLAT-5823] - Replace ExternalIdBundleFunction with a type converter
+    * [PLAT-5835] - ISINFunction: Clean up target and move to SecurityFunctions
+    * [PLAT-5840] - Add ability to create/modify securities by providing xml definitions in WebUI
+    * [PLAT-5841] - Allow z spreads to be used in merged outputs
+    * [PLAT-5884] - Base asset price at expiry for trinomial tree
+    * [PLAT-5888] - Notional  is not working for Fra
+    * [PLAT-5890] - Remove System.out from BeanCompare
+* New Feature
+    * [PLAT-5715] - Document Deployment Template
+    * [PLAT-5836] - Add SimpleRenamingFunction which adds alias for single ValueRequirementName
+* Task
+    * [PLAT-5000] - Ensure OpenGamma runs on JDK8
+    * [PLAT-5811] - implement consistent forward formula for couponONCompoundedDiscountingMethod
+    * [PLAT-5812] - have a more general implementation of the function parameterForwardSensitivity in Multicurve provider interface
+    * [PLAT-5829] - add function to get the annually compounded forward in multicurveproviderinterface
+    * [PLAT-5837] - Add EquityBlackVolatilitySurfaceFromSinglePriceFunction to BlackFunctions Repo
+    * [PLAT-5838] - Add Cash, Equity, and EquityOption Securities to NotionalVisitor
+    * [PLAT-5848] - Add separate converter for ForwardRateAgreement 
+    * [PLAT-5859] - Remove BeanBuilderHack
+    * [PLAT-5861] - Add type querying method to LegalEntityFilter
+    * [PLAT-5863] - handle CouponFixedCompounding in CouponPaymentVisitor
+    * [PLAT-5867] - handle CouponFixedCompounding in CouponFixedRateVisitor
+    * [PLAT-5881] - Upgrade to Joda-Beans 0.9.6
+* Sub-task
+    * [PLAT-5672] - Improve response time of svcStart method
+    * [PLAT-5673] - Improve response time of svcAccept
+    * [PLAT-5892] - og-financial : create fudge builder for both sub class
+
 
 To 2.2.0-M9
 -----------
