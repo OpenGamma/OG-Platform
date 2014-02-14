@@ -334,6 +334,7 @@ public class BondLoader extends SecurityLoader {
       final String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
 
       ManageableSecurity bondSecurity;
+      final ExternalId legalEntityId = ExternalId.of("CUSIP_ISSUER_STUB", cusip.substring(0, 6));
       if ((inflationIndicator != null) && (inflationIndicator.trim().toUpperCase().startsWith("Y"))) {
         bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
@@ -343,7 +344,7 @@ public class BondLoader extends SecurityLoader {
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
       } else if (isFloater) {
-        final ExternalId legalEntityId = ExternalId.of("CUSIP_ISSUER_STUB", cusip.substring(0, 6));
+        // six character stub of CUSIP to link to legal entity.
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?
         final ExternalId benchmarkRateId = ExternalSchemes.bloombergTickerSecurityId(benchmarkRateStr);
         final ZonedDateTime issueDate = validateAndGetNullableDateField(fieldData, FIELD_ISSUE_DT);
@@ -386,6 +387,7 @@ public class BondLoader extends SecurityLoader {
       bondSecurity.addAttribute("Callable", isCallable ? "Y" : "N");
       bondSecurity.addAttribute("Perpetual", isPerpetual ? "Y" : "N");
       bondSecurity.addAttribute("EOM", isEOM ? "Y" : "N");
+      bondSecurity.addAttribute("LegalEntityId", legalEntityId.toString());
       if (rtgFitch != null) {
         bondSecurity.addAttribute("RatingFitch", rtgFitch);
       }
