@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,22 +75,22 @@ public class ManageableLegalEntity
   private String _name = "";
 
   @PropertyDefinition(validate = "notNull")
-  private Collection<Rating> _ratings = new ArrayList<>();
+  private List<Rating> _ratings = new ArrayList<>();
 
   @PropertyDefinition(validate = "notNull")
-  private Collection<Capability> _capabilities = new ArrayList<>();
+  private List<Capability> _capabilities = new ArrayList<>();
 
   @PropertyDefinition(validate = "notNull")
-  private Collection<ExternalIdBundle> _issuedSecurities = new ArrayList<>();
+  private List<ExternalIdBundle> _issuedSecurities = new ArrayList<>();
 
   @PropertyDefinition(validate = "notNull")
-  private Collection<Obligation> _obligations = new ArrayList<>();
+  private List<Obligation> _obligations = new ArrayList<>();
 
   @PropertyDefinition()
   private RootPortfolio _rootPortfolio;
 
   @PropertyDefinition(validate = "notNull")
-  private Collection<Account> _accounts = new ArrayList<>();
+  private List<Account> _accounts = new ArrayList<>();
 
   /** Creates a legal entity. */
   protected ManageableLegalEntity() {
@@ -322,7 +323,7 @@ public class ManageableLegalEntity
    * Gets the ratings.
    * @return the value of the property, not null
    */
-  public Collection<Rating> getRatings() {
+  public List<Rating> getRatings() {
     return _ratings;
   }
 
@@ -330,7 +331,7 @@ public class ManageableLegalEntity
    * Sets the ratings.
    * @param ratings  the new value of the property, not null
    */
-  public void setRatings(Collection<Rating> ratings) {
+  public void setRatings(List<Rating> ratings) {
     JodaBeanUtils.notNull(ratings, "ratings");
     this._ratings = ratings;
   }
@@ -339,7 +340,7 @@ public class ManageableLegalEntity
    * Gets the the {@code ratings} property.
    * @return the property, not null
    */
-  public final Property<Collection<Rating>> ratings() {
+  public final Property<List<Rating>> ratings() {
     return metaBean().ratings().createProperty(this);
   }
 
@@ -348,7 +349,7 @@ public class ManageableLegalEntity
    * Gets the capabilities.
    * @return the value of the property, not null
    */
-  public Collection<Capability> getCapabilities() {
+  public List<Capability> getCapabilities() {
     return _capabilities;
   }
 
@@ -356,7 +357,7 @@ public class ManageableLegalEntity
    * Sets the capabilities.
    * @param capabilities  the new value of the property, not null
    */
-  public void setCapabilities(Collection<Capability> capabilities) {
+  public void setCapabilities(List<Capability> capabilities) {
     JodaBeanUtils.notNull(capabilities, "capabilities");
     this._capabilities = capabilities;
   }
@@ -365,7 +366,7 @@ public class ManageableLegalEntity
    * Gets the the {@code capabilities} property.
    * @return the property, not null
    */
-  public final Property<Collection<Capability>> capabilities() {
+  public final Property<List<Capability>> capabilities() {
     return metaBean().capabilities().createProperty(this);
   }
 
@@ -374,7 +375,7 @@ public class ManageableLegalEntity
    * Gets the issuedSecurities.
    * @return the value of the property, not null
    */
-  public Collection<ExternalIdBundle> getIssuedSecurities() {
+  public List<ExternalIdBundle> getIssuedSecurities() {
     return _issuedSecurities;
   }
 
@@ -382,7 +383,7 @@ public class ManageableLegalEntity
    * Sets the issuedSecurities.
    * @param issuedSecurities  the new value of the property, not null
    */
-  public void setIssuedSecurities(Collection<ExternalIdBundle> issuedSecurities) {
+  public void setIssuedSecurities(List<ExternalIdBundle> issuedSecurities) {
     JodaBeanUtils.notNull(issuedSecurities, "issuedSecurities");
     this._issuedSecurities = issuedSecurities;
   }
@@ -391,7 +392,7 @@ public class ManageableLegalEntity
    * Gets the the {@code issuedSecurities} property.
    * @return the property, not null
    */
-  public final Property<Collection<ExternalIdBundle>> issuedSecurities() {
+  public final Property<List<ExternalIdBundle>> issuedSecurities() {
     return metaBean().issuedSecurities().createProperty(this);
   }
 
@@ -400,7 +401,7 @@ public class ManageableLegalEntity
    * Gets the obligations.
    * @return the value of the property, not null
    */
-  public Collection<Obligation> getObligations() {
+  public List<Obligation> getObligations() {
     return _obligations;
   }
 
@@ -408,7 +409,7 @@ public class ManageableLegalEntity
    * Sets the obligations.
    * @param obligations  the new value of the property, not null
    */
-  public void setObligations(Collection<Obligation> obligations) {
+  public void setObligations(List<Obligation> obligations) {
     JodaBeanUtils.notNull(obligations, "obligations");
     this._obligations = obligations;
   }
@@ -417,7 +418,7 @@ public class ManageableLegalEntity
    * Gets the the {@code obligations} property.
    * @return the property, not null
    */
-  public final Property<Collection<Obligation>> obligations() {
+  public final Property<List<Obligation>> obligations() {
     return metaBean().obligations().createProperty(this);
   }
 
@@ -451,7 +452,7 @@ public class ManageableLegalEntity
    * Gets the accounts.
    * @return the value of the property, not null
    */
-  public Collection<Account> getAccounts() {
+  public List<Account> getAccounts() {
     return _accounts;
   }
 
@@ -459,7 +460,7 @@ public class ManageableLegalEntity
    * Sets the accounts.
    * @param accounts  the new value of the property, not null
    */
-  public void setAccounts(Collection<Account> accounts) {
+  public void setAccounts(List<Account> accounts) {
     JodaBeanUtils.notNull(accounts, "accounts");
     this._accounts = accounts;
   }
@@ -468,7 +469,7 @@ public class ManageableLegalEntity
    * Gets the the {@code accounts} property.
    * @return the property, not null
    */
-  public final Property<Collection<Account>> accounts() {
+  public final Property<List<Account>> accounts() {
     return metaBean().accounts().createProperty(this);
   }
 
@@ -595,26 +596,26 @@ public class ManageableLegalEntity
      * The meta-property for the {@code ratings} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Rating>> _ratings = DirectMetaProperty.ofReadWrite(
-        this, "ratings", ManageableLegalEntity.class, (Class) Collection.class);
+    private final MetaProperty<List<Rating>> _ratings = DirectMetaProperty.ofReadWrite(
+        this, "ratings", ManageableLegalEntity.class, (Class) List.class);
     /**
      * The meta-property for the {@code capabilities} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Capability>> _capabilities = DirectMetaProperty.ofReadWrite(
-        this, "capabilities", ManageableLegalEntity.class, (Class) Collection.class);
+    private final MetaProperty<List<Capability>> _capabilities = DirectMetaProperty.ofReadWrite(
+        this, "capabilities", ManageableLegalEntity.class, (Class) List.class);
     /**
      * The meta-property for the {@code issuedSecurities} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<ExternalIdBundle>> _issuedSecurities = DirectMetaProperty.ofReadWrite(
-        this, "issuedSecurities", ManageableLegalEntity.class, (Class) Collection.class);
+    private final MetaProperty<List<ExternalIdBundle>> _issuedSecurities = DirectMetaProperty.ofReadWrite(
+        this, "issuedSecurities", ManageableLegalEntity.class, (Class) List.class);
     /**
      * The meta-property for the {@code obligations} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Obligation>> _obligations = DirectMetaProperty.ofReadWrite(
-        this, "obligations", ManageableLegalEntity.class, (Class) Collection.class);
+    private final MetaProperty<List<Obligation>> _obligations = DirectMetaProperty.ofReadWrite(
+        this, "obligations", ManageableLegalEntity.class, (Class) List.class);
     /**
      * The meta-property for the {@code rootPortfolio} property.
      */
@@ -624,8 +625,8 @@ public class ManageableLegalEntity
      * The meta-property for the {@code accounts} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Account>> _accounts = DirectMetaProperty.ofReadWrite(
-        this, "accounts", ManageableLegalEntity.class, (Class) Collection.class);
+    private final MetaProperty<List<Account>> _accounts = DirectMetaProperty.ofReadWrite(
+        this, "accounts", ManageableLegalEntity.class, (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -738,7 +739,7 @@ public class ManageableLegalEntity
      * The meta-property for the {@code ratings} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<Rating>> ratings() {
+    public final MetaProperty<List<Rating>> ratings() {
       return _ratings;
     }
 
@@ -746,7 +747,7 @@ public class ManageableLegalEntity
      * The meta-property for the {@code capabilities} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<Capability>> capabilities() {
+    public final MetaProperty<List<Capability>> capabilities() {
       return _capabilities;
     }
 
@@ -754,7 +755,7 @@ public class ManageableLegalEntity
      * The meta-property for the {@code issuedSecurities} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<ExternalIdBundle>> issuedSecurities() {
+    public final MetaProperty<List<ExternalIdBundle>> issuedSecurities() {
       return _issuedSecurities;
     }
 
@@ -762,7 +763,7 @@ public class ManageableLegalEntity
      * The meta-property for the {@code obligations} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<Obligation>> obligations() {
+    public final MetaProperty<List<Obligation>> obligations() {
       return _obligations;
     }
 
@@ -778,7 +779,7 @@ public class ManageableLegalEntity
      * The meta-property for the {@code accounts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<Account>> accounts() {
+    public final MetaProperty<List<Account>> accounts() {
       return _accounts;
     }
 
@@ -832,22 +833,22 @@ public class ManageableLegalEntity
           ((ManageableLegalEntity) bean).setName((String) newValue);
           return;
         case 983597686:  // ratings
-          ((ManageableLegalEntity) bean).setRatings((Collection<Rating>) newValue);
+          ((ManageableLegalEntity) bean).setRatings((List<Rating>) newValue);
           return;
         case -1487597642:  // capabilities
-          ((ManageableLegalEntity) bean).setCapabilities((Collection<Capability>) newValue);
+          ((ManageableLegalEntity) bean).setCapabilities((List<Capability>) newValue);
           return;
         case 1643621609:  // issuedSecurities
-          ((ManageableLegalEntity) bean).setIssuedSecurities((Collection<ExternalIdBundle>) newValue);
+          ((ManageableLegalEntity) bean).setIssuedSecurities((List<ExternalIdBundle>) newValue);
           return;
         case 809305781:  // obligations
-          ((ManageableLegalEntity) bean).setObligations((Collection<Obligation>) newValue);
+          ((ManageableLegalEntity) bean).setObligations((List<Obligation>) newValue);
           return;
         case -2027978106:  // rootPortfolio
           ((ManageableLegalEntity) bean).setRootPortfolio((RootPortfolio) newValue);
           return;
         case -2137146394:  // accounts
-          ((ManageableLegalEntity) bean).setAccounts((Collection<Account>) newValue);
+          ((ManageableLegalEntity) bean).setAccounts((List<Account>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
