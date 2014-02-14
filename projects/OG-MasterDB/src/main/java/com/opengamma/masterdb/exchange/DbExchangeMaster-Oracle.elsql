@@ -1,0 +1,35 @@
+-- ==========================================================================
+@NAME(SelectKeyValuesExact)
+  SELECT
+    matched_doc_id AS doc_id
+  FROM
+    (
+      SELECT
+        exchange_id AS matched_doc_id,
+        COUNT(exchange_id) AS matched_count
+      FROM
+        exg_exchange2idkey,
+        exg_exchange
+      WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
+        AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
+        AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
+        AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
+      GROUP BY
+        exchange_id
+      HAVING
+        COUNT(exchange_id) >= :id_search_size
+    ) , (
+      SELECT
+        exchange_id AS total_doc_id,
+        COUNT(exchange_id) AS total_count
+      FROM
+        exg_exchange2idkey,
+        exg_exchange
+      WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
+        AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
+        AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
+      GROUP BY
+        exchange_id
+    )
+  WHERE matched_doc_id = total_doc_id
+    AND matched_count = total_count
