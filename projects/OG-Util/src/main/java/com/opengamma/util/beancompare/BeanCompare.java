@@ -128,7 +128,6 @@ public class BeanCompare {
    *  {@link org.joda.beans.JodaBeanUtils#equal(Object, Object)} if there is no comparator for the property
    */
   private boolean equal(MetaProperty<?> property, Object value1, Object value2) {
-    System.out.println(property);
     Comparator<Object> comparator = _propertyComparators.get(property);
     if (comparator == null) {
       comparator = _typeComparators.get(property.propertyType());
