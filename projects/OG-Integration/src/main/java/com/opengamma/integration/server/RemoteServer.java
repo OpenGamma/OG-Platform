@@ -14,6 +14,8 @@ import com.opengamma.financial.tool.ToolContext;
  */
 public class RemoteServer extends ToolContext {
 
+  private static final String HTTP_PREFIX = "http://";
+
   /**
    * Creates a connection to a remote server.
    * @param url The URL of the server. Doesn't require the "/jax" suffix.
@@ -23,7 +25,13 @@ public class RemoteServer extends ToolContext {
    */
   @SuppressWarnings("unchecked")
   public static <T extends RemoteServer> T create(String url, Class<T> type) {
-    return (T) ToolContextUtils.getToolContext(url, type);
+    String httpUrl;
+    if (url.startsWith(HTTP_PREFIX)) {
+      httpUrl = url;
+    } else {
+      httpUrl = HTTP_PREFIX + url;
+    }
+    return (T) ToolContextUtils.getToolContext(httpUrl, type);
   }
 
   /**

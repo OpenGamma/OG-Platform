@@ -57,11 +57,7 @@ public final class SimulationUtils {
 
   private static <T extends Enum<T> & GroovyAliasable> void registerEnumAliases(Class<? extends T> enumClazz) {  // CSIGNORE (CS doesn't support funky syntax here)
     T[] aliases = enumClazz.getEnumConstants();
-
-    for (GroovyAliasable alias : aliases) {
-      s_aliases.add(alias);
-    }
-
+    Collections.addAll(s_aliases, aliases);
   }
 
   private SimulationUtils() {
@@ -166,9 +162,11 @@ public final class SimulationUtils {
   }
 
   /**
-   * @param binding 
+   * Registers aliases in a script's bindings to allow Java enum values to be referred to without being imported
+   * and qualified with the type name.
+   * @param binding The script binding in which to register the aliases
    */
-  private static void registerAliases(Binding binding) {
+  /* package */ static void registerAliases(Binding binding) {
 
     for (GroovyAliasable aliasable : s_aliases) {
 

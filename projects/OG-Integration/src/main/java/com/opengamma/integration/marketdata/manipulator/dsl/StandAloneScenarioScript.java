@@ -108,8 +108,6 @@ public abstract class StandAloneScenarioScript extends Script {
 
   private String _name;
   private String _server;
-  private String _valuationTime;
-  private List<String> _aggregators;
   private final MarketDataDelegate _marketDataDelegate = new MarketDataDelegate();
 
   /* package */ void name(String name) {
@@ -118,14 +116,6 @@ public abstract class StandAloneScenarioScript extends Script {
 
   /* package */ void server(String server) {
     _server = server;
-  }
-
-  /* package */ void valuationTime(String valuationTime) {
-    _valuationTime = valuationTime;
-  }
-
-  /* package */ void aggregators(String... aggregators) {
-    _aggregators = Arrays.asList(aggregators);
   }
 
   /* package */ void marketData(Closure<?> body) {
@@ -139,14 +129,6 @@ public abstract class StandAloneScenarioScript extends Script {
 
   /* package */ String getServer() {
     return _server;
-  }
-
-  /* package */ String getValuationTime() {
-    return _valuationTime;
-  }
-
-  /* package */ List<String> getAggregators() {
-    return _aggregators;
   }
 
   /** Visible for testing */
@@ -194,6 +176,14 @@ public abstract class StandAloneScenarioScript extends Script {
     /* package */ MarketDataSpec(MarketDataType type, String spec) {
       _type = type;
       _spec = spec;
+    }
+
+    /* package */ MarketDataType getType() {
+      return _type;
+    }
+
+    /* package */ String getSpec() {
+      return _spec;
     }
 
     @Override
@@ -260,8 +250,8 @@ public abstract class StandAloneScenarioScript extends Script {
 
     for (Object outerVarValue : outerVarValues) {
       for (Object innerVarValue : innerVarValues) {
-        // use a tree map so the var names appear alphabetically - this makes for predictable scenario names
-        Map<String, Object> paramMap = Maps.newTreeMap();
+        // use a linked map so the var names appear in insertion order - this makes for predictable scenario names
+        Map<String, Object> paramMap = Maps.newLinkedHashMap();
         paramMap.put(outerVarName, outerVarValue);
         paramMap.put(innerVarName, innerVarValue);
         params.add(paramMap);
@@ -285,8 +275,8 @@ public abstract class StandAloneScenarioScript extends Script {
     }
     // create a map for each scenario and populate it with a value from each shock list
     for (int i = 0; i < nScenarios; i++) {
-      // use a tree map so the var names appear alphabetically - this makes for predictable scenario names
-      Map<String, Object> map = Maps.newTreeMap();
+      // use a linked map so the var names appear in insertion order - this makes for predictable scenario names
+      Map<String, Object> map = Maps.newLinkedHashMap();
       for (Map.Entry<String, List<?>> entry : _vars.entrySet()) {
         String varName = entry.getKey();
         List<?> varValues = entry.getValue();
@@ -307,6 +297,14 @@ public abstract class StandAloneScenarioScript extends Script {
 
   /* package */ ScenarioDelegate(Scenario scenario) {
     _scenario = scenario;
+  }
+
+  public void valuationTime(String valuationTime) {
+    _scenario.valuationTime(valuationTime);
+  }
+
+  public void calculationConfigurations(String... configNames) {
+    _scenario.calculationConfigurations(configNames);
   }
 
   /**

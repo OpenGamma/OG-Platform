@@ -7,8 +7,6 @@
 view {
   name "an example view"
   server "devsvr-lx-2:8080" // optional, for windows installs can load from registry, for others from config file
-  valuationTime "2014-01-28 12:00" // optional, defaults to now
-  aggregation "Currency", "Asset Class" // optional
 
   marketData {
     live "Bloomberg"
@@ -18,13 +16,15 @@ view {
   }
 }
 
+// creates the cartesian product of the parameters and runs a scenario for each
+// the alternative is shockList where there is a scenario using vol[0] and spot[0], vol[1] and spot[1], ...
 shockGrid {
   vol = [-10.pc, -5.pc, 0, 5.pc, 10.pc]
   spot = [-10.pc, -5.pc, 0, 5.pc, 10.pc]
 }
 
-// how do I express how to combine the values? cartesian product or zip?
 scenarios {
+  valuationTime "2014-01-28 12:00" // optional, defaults to now
   spotRate {
     currencyPair "USDMXN"
     apply {

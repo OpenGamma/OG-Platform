@@ -9,27 +9,35 @@ import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDel
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.SimpleFunctionParameters;
 import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.test.TestGroup;
 
 import groovy.lang.GroovyShell;
 
 @Test(groups = TestGroup.UNIT)
 public class StandAloneScenarioScriptTest {
+
+  private static final DateTimeFormatter s_dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
   private static final String FOO = "foo";
   private static final String BAR = "bar";
@@ -40,15 +48,11 @@ public class StandAloneScenarioScriptTest {
         "view {\n" +
         "  name 'an example view'\n" +
         "  server 'svr:8080'\n" +
-        "  valuationTime '2014-01-28 12:00'\n" +
-        "  aggregators 'agg1', 'agg2', 'agg3'\n" +
         "}";
     StandAloneScenarioScript script = createScript(scriptText);
     ViewDelegate viewDelegate = script.getViewDelegate();
     assertEquals("an example view", viewDelegate.getName());
     assertEquals("svr:8080", viewDelegate.getServer());
-    assertEquals("2014-01-28 12:00", viewDelegate.getValuationTime());
-    assertEquals(ImmutableList.of("agg1", "agg2", "agg3"), viewDelegate.getAggregators());
   }
 
   @Test
@@ -127,8 +131,10 @@ public class StandAloneScenarioScriptTest {
         "shockList {\n" +
         "  foo = [1, 2]\n" +
         "  bar = ['a', 'b']\n" +
+        "  valTime = ['2014-01-14 12:03', '2014-02-14 12:03']\n" +
         "}\n" +
         "scenarios {\n" +
+        "  valuationTime valTime\n" +
         "  marketData {\n" +
         "    id 'SCHEME', bar\n" +
         "    apply {\n" +
@@ -142,8 +148,8 @@ public class StandAloneScenarioScriptTest {
     Map<String, Scenario> scenarios = simulation.getScenarios();
     assertEquals(2, scenarios.size());
 
-    checkScenario(scenarios, "a", 1);
-    checkScenario(scenarios, "b", 2);
+    checkScenario(scenarios, "a", 1, "2014-01-14 12:03");
+    checkScenario(scenarios, "b", 2, "2014-02-14 12:03");
   }
 
   @Test
@@ -166,16 +172,45 @@ public class StandAloneScenarioScriptTest {
     Simulation simulation = script.getSimulation();
     Map<String, Scenario> scenarios = simulation.getScenarios();
     assertEquals(4, scenarios.size());
-    checkScenario(scenarios, "a", 1);
-    checkScenario(scenarios, "a", 2);
-    checkScenario(scenarios, "b", 1);
-    checkScenario(scenarios, "b", 2);
+    checkScenario(scenarios, "a", 1, null);
+    checkScenario(scenarios, "a", 2, null);
+    checkScenario(scenarios, "b", 1, null);
+    checkScenario(scenarios, "b", 2, null);
   }
 
-  private static void checkScenario(Map<String, Scenario> scenarios , String id, double shiftAmount) {
-    Scenario scenario = scenarios.get("bar='" + id + "', foo=" + (int) shiftAmount + "");
+  @Test
+  public void initialize() {
+    String scriptText =
+        "shockList {\n" +
+        "  foo = [100.bp, 20.pc, 1.y]\n" +
+        "}";
+    StandAloneScenarioScript script = createScript(scriptText);
+    List<Map<String,Object>> params = script.getScenarioParameters();
+    assertEquals(3, params.size());
+
+    assertEquals(new BigDecimal("0.01"), params.get(0).get(FOO));
+    assertEquals(new BigDecimal("0.2"), params.get(1).get(FOO));
+    assertEquals(Period.ofYears(1), params.get(2).get(FOO));
+  }
+
+  private static void checkScenario(Map<String, Scenario> scenarios, String id, double shiftAmount, String valuationTime) {
+    String scenarioName;
+    if (valuationTime != null) {
+      scenarioName = "foo=" + (int) shiftAmount + ", bar='" + id + "', valTime='" + valuationTime + "'";
+    } else {
+      scenarioName = "foo=" + (int) shiftAmount + ", bar='" + id + "'";
+    }
+    Scenario scenario = scenarios.get(scenarioName);
     assertNotNull(scenario);
     ScenarioDefinition definition = scenario.createDefinition();
+    Instant valuationInstant;
+    if (valuationTime != null) {
+      LocalDateTime localTime = LocalDateTime.parse(valuationTime, s_dateFormatter);
+      valuationInstant = ZonedDateTime.of(localTime, OpenGammaClock.getZone()).toInstant();
+    } else {
+      valuationInstant = null;
+    }
+    assertEquals(valuationInstant, scenario.getValuationTime());
     Map<DistinctMarketDataSelector, FunctionParameters> definitionMap = definition.getDefinitionMap();
     PointSelector selector =
         new PointSelector(null, ImmutableSet.of(ExternalId.of("SCHEME", id)), null, null, null, null, null);
