@@ -24,8 +24,11 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -59,13 +62,18 @@ import com.opengamma.util.tuple.Pairs;
 public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** A holiday source */
   private final HolidaySource _holidaySource;
+  /** A convention source */
+  private final ConventionSource _conventionSource;
 
   /**
    * @param holidaySource The holiday source, not <code>null</code>
+   * @param conventionSource The convention source, not <code>null</code>
    */
-  public InterestRateSwapSecurityConverter(final HolidaySource holidaySource) {
-    ArgumentChecker.notNull(holidaySource, "holiday source");
+  public InterestRateSwapSecurityConverter(final HolidaySource holidaySource, final ConventionSource conventionSource) {
+    ArgumentChecker.notNull(holidaySource, "holidaySource");
+    ArgumentChecker.notNull(conventionSource, "conventionSource");
     _holidaySource = holidaySource;
+    _conventionSource = conventionSource;
   }
 
   @Override
@@ -129,7 +137,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
     int paymentOffset = 0;
     
-    IndexDeposit index;
+    final IndexDeposit index;
     if (FloatingRateType.IBOR == floatLeg.getFloatingRateType()) {
       index = new IborIndex(
           leg.getNotional().getCurrency(),
@@ -141,15 +149,24 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           floatLeg.getFloatingReferenceRateId().getValue());
       
       paymentOffset = 0; // TODO handle payment lag properly
-    } else {
-      int publicationLag = -1; // TODO the float leg doesn't have this, and we don't have access to the convention source
+    } else if (FloatingRateType.OIS == floatLeg.getFloatingRateType()) {
+      Convention convention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
+      if (convention == null) {
+        throw new OpenGammaRuntimeException("Convention not found for " + floatLeg.getFloatingReferenceRateId());
+      }
+      if (!(convention instanceof OvernightIndexConvention)) {
+        throw new OpenGammaRuntimeException("Mis-match between floating rate type " + floatLeg.getFloatingRateType() + " and convention " + convention.getClass());
+      }
+      OvernightIndexConvention onIndexConvention = (OvernightIndexConvention) convention;
       index = new IndexON(
           floatLeg.getFloatingReferenceRateId().getValue(),
           leg.getNotional().getCurrency(),
           floatLeg.getDayCountConvention(),
-          -publicationLag);
+          onIndexConvention.getPublicationLag());
       
-      paymentOffset = -publicationLag;
+      paymentOffset = 0;
+    } else {
+      throw new OpenGammaRuntimeException("Unsupported floating rate type " + floatLeg.getFloatingRateType());
     }
 
     OffsetAdjustedDateParameters paymentDateParameters = null;
