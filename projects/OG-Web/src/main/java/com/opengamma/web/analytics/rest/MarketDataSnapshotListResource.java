@@ -22,8 +22,8 @@ import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -70,7 +70,7 @@ public class MarketDataSnapshotListResource {
     MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
     snapshotSearchRequest.setIncludeData(false);
     
-    Multimap<String, ManageableMarketDataSnapshot> snapshotsByBasisView = ArrayListMultimap.create();
+    Multimap<String, ManageableMarketDataSnapshot> snapshotsByBasisView = LinkedListMultimap.create();
     for (MarketDataSnapshotDocument doc : MarketDataSnapshotSearchIterator.iterable(_snapshotMaster, snapshotSearchRequest)) {
       ManageableMarketDataSnapshot snapshot = doc.getSnapshot();
       if (snapshot.getUniqueId() == null) {
