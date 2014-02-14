@@ -5,7 +5,9 @@
  */
 package com.opengamma.util.result;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -83,9 +85,14 @@ public class ResultGenerator {
    * @return the new function result object, not null
    */
   public static <T> Result<T> propagateFailure(Result<?> result) {
-    // todo remove the cast
-    FailureResult<?> failureFunctionResult = (FailureResult<?>) result;
-    return new FailureResult<>(failureFunctionResult.getStatus(), failureFunctionResult.getErrorMessage());
+    // todo remove the casts
+    if (result instanceof FailureResult) {
+      FailureResult<?> failureResult = (FailureResult<?>) result;
+      return new FailureResult<>(failureResult.getStatus(), failureResult.getErrorMessage());
+    } else {
+      MultipleFailureResult<?> failureResult = (MultipleFailureResult<?>) result;
+      return new MultipleFailureResult<>(failureResult.getFailures());
+    }
   }
 
   /**
@@ -138,15 +145,21 @@ public class ResultGenerator {
                                                         Result<?> result2,
                                                         Result<?>... results) {
 
-    // todo - what if one of the results was itself a MultipleFailureResult?
     List<Result<?>> resultList = Lists.newArrayListWithCapacity(results.length + 2);
     resultList.add(result1);
     resultList.add(result2);
     resultList.addAll(Arrays.asList(results));
-    List<Result<?>> failures = Lists.newArrayList();
-    for (Result<?> result : resultList) {
+    return propagateFailures(resultList);
+  }
+
+
+
+  public static <T> Result<T> propagateFailures(Collection<Result<?>> results) {
+    // todo - what if one of the results was itself a MultipleFailureResult?
+    List<Result<?>> failures = new ArrayList<>();
+    for (Result<?> result : results) {
       if (result instanceof FailureResult) {
-        failures.add((FailureResult<?>) result);
+        failures.add(result);
       }
     }
     if (failures.isEmpty()) {
