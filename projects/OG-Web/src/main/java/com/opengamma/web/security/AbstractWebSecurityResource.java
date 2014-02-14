@@ -49,7 +49,10 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
-  
+  /**
+   * Security XML parameter name
+   */
+  protected static final String SECURITY_XML = "securityXml";
   /**
    * HTML ftl directory
    */

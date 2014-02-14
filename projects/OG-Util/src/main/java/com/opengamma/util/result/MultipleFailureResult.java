@@ -385,6 +385,20 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 675938345:  // failures
+          return _failures;
+        case -1704954083:  // failureMessage
+          return _failureMessage;
+        case -892481550:  // status
+          return _status;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder<T> set(String propertyName, Object newValue) {

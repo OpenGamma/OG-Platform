@@ -478,6 +478,24 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 875311394:  // calcConfigName
+          return _calcConfigName;
+        case -765894756:  // valueName
+          return _valueName;
+        case -926053069:  // properties
+          return _properties;
+        case 3433509:  // path
+          return _path;
+        case -441951604:  // targetId
+          return _targetId;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

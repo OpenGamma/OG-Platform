@@ -322,6 +322,20 @@ public final class VolatilitySurfaceShift implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 120:  // x
+          return _x;
+        case 121:  // y
+          return _y;
+        case 109407362:  // shift
+          return _shift;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 120:  // x

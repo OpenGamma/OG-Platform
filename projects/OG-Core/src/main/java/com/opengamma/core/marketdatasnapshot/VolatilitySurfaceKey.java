@@ -479,6 +479,24 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -880905839:  // target
+          return _target;
+        case 3373707:  // name
+          return _name;
+        case 1956846529:  // instrumentType
+          return _instrumentType;
+        case -1482972202:  // quoteType
+          return _quoteType;
+        case 1273091667:  // quoteUnits
+          return _quoteUnits;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -880905839:  // target

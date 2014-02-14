@@ -49,9 +49,14 @@ public final class AnnuityFixingDatesVisitor extends InstrumentDefinitionVisitor
     for (int i = 0; i < n; i++) {
       final PaymentDefinition payment = annuity.getNthPayment(i);
       if (payment.getPaymentDate().toLocalDate().isAfter(date)) {
-        final Pair<LocalDate, LocalDate> dates = annuity.getNthPayment(i).accept(COUPON_VISITOR);
-        startDates.add(dates.getFirst());
-        endDates.add(dates.getSecond());
+        try {
+          final Pair<LocalDate, LocalDate> dates = annuity.getNthPayment(i).accept(COUPON_VISITOR);
+          startDates.add(dates.getFirst());
+          endDates.add(dates.getSecond());
+        } catch (UnsupportedOperationException ex) {
+          startDates.add(null);
+          endDates.add(null);
+        }
         count++;
       }
     }

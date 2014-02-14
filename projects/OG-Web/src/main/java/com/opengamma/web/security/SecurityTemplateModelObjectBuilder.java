@@ -118,8 +118,8 @@ public class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitor
     addFutureSecurityType("BondFuture");
     Map<String, String> basket = new TreeMap<String, String>();
     for (BondFutureDeliverable bondFutureDeliverable : security.getBasket()) {
-      String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID);
-      basket.put(ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
+      String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_TICKER);
+      basket.put(ExternalSchemes.BLOOMBERG_TICKER.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
     }
     _out.put("basket", basket);
     return null;

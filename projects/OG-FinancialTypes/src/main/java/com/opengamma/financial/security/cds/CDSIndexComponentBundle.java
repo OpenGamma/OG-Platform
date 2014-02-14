@@ -427,6 +427,16 @@ public final class CDSIndexComponentBundle
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -447446250:  // components
+          return _components;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

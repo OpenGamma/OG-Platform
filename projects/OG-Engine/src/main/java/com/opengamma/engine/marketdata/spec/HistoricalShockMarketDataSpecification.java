@@ -359,6 +359,22 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1829201148:  // shockType
+          return _shockType;
+        case 1567137528:  // historicalSpecification1
+          return _historicalSpecification1;
+        case 1567137529:  // historicalSpecification2
+          return _historicalSpecification2;
+        case 1357301170:  // baseSpecification
+          return _baseSpecification;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1829201148:  // shockType

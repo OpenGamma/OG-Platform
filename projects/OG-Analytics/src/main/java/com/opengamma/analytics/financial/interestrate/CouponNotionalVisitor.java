@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
@@ -17,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.util.money.CurrencyAmount;
@@ -88,6 +90,16 @@ public class CouponNotionalVisitor extends InstrumentDefinitionVisitorAdapter<Vo
 
   @Override
   public CurrencyAmount visitCouponCMSDefinition(final CouponCMSDefinition payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponArithmeticAverageONSpreadDefinition(CouponONArithmeticAverageSpreadDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 

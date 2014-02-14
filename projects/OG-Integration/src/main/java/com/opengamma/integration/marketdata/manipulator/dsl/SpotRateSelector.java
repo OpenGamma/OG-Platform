@@ -320,6 +320,18 @@ public final class SpotRateSelector implements DistinctMarketDataSelector, Immut
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1364849553:  // calcConfigNames
+          return _calcConfigNames;
+        case 1094810440:  // currencyPairs
+          return _currencyPairs;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

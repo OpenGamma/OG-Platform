@@ -348,6 +348,20 @@ public final class RegressionTestResults implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1641901881:  // baseVersion
+          return _baseVersion;
+        case -40990746:  // testVersion
+          return _testVersion;
+        case 2039608022:  // differences
+          return _differences;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

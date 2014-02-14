@@ -396,6 +396,18 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return _currency;
+        case -1413853096:  // amount
+          return _amount;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency

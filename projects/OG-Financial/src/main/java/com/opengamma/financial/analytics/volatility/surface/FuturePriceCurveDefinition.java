@@ -346,6 +346,20 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return _name;
+        case -880905839:  // target
+          return _target;
+        case 3835:  // xs
+          return _xs;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder<X> set(String propertyName, Object newValue) {

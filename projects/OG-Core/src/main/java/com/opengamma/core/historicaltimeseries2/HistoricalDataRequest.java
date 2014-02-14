@@ -455,6 +455,28 @@ public final class HistoricalDataRequest implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1377881982:  // bundle
+          return _bundle;
+        case 97427706:  // field
+          return _field;
+        case 3151786:  // from
+          return _from;
+        case 637452642:  // fromInclusive
+          return _fromInclusive;
+        case 3707:  // to
+          return _to;
+        case -2118589007:  // toInclusive
+          return _toInclusive;
+        case -341328890:  // resolver
+          return _resolver;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1377881982:  // bundle

@@ -271,6 +271,16 @@ public final class CDSIndexTerms
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -877322829:  // tenors
+          return _tenors;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

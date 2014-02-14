@@ -286,6 +286,18 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2146129620:  // columnSet
+          return _columnSet;
+        case -755281390:  // valueRequirement
+          return _valueRequirement;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -2146129620:  // columnSet

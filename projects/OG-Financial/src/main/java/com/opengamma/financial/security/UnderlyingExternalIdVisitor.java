@@ -13,6 +13,7 @@ import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -86,6 +87,11 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
     return null;
   }
 
+  @Override
+  public Void visitInflationBondSecurity(final InflationBondSecurity security) {
+    return null;
+  }
+  
   @Override
   public Void visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
     return null;

@@ -253,6 +253,16 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1272470629:  // dataSource
+          return _dataSource;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1272470629:  // dataSource

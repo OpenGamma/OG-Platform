@@ -296,6 +296,18 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -794828874:  // scalingFactor
+          return _scalingFactor;
+        case 1094810440:  // currencyPairs
+          return _currencyPairs;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

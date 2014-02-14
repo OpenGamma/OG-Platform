@@ -514,6 +514,16 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -218001197:  // currencyAmountMap
+          return _currencyAmountMap;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

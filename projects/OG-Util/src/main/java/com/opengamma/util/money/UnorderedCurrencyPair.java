@@ -388,6 +388,18 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1878034719:  // firstCurrency
+          return _firstCurrency;
+        case 564126885:  // secondCurrency
+          return _secondCurrency;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1878034719:  // firstCurrency

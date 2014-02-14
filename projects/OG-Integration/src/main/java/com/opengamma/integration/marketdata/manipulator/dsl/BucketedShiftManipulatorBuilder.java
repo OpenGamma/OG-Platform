@@ -52,9 +52,8 @@ public class BucketedShiftManipulatorBuilder {
   /**
    * Apply shifts to the scenario.
    * Should only be called once per {@link BucketedShiftManipulatorBuilder}.
-   * TODO rename build() to make it clear it's not related to the apply() methods on the selector builders
    */
-  public void apply() {
+  public void build() {
     YieldCurveBucketedShiftManipulator shifts =
         new YieldCurveBucketedShiftManipulator(_shiftType, ImmutableList.copyOf(_shiftList));
     _scenario.add(_selector, shifts);

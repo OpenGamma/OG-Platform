@@ -404,6 +404,20 @@ public final class ExternalIdWithDates implements ImmutableBean,
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1699764666:  // externalId
+          return _externalId;
+        case -1110590010:  // validFrom
+          return _validFrom;
+        case 231246743:  // validTo
+          return _validTo;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1699764666:  // externalId

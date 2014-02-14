@@ -10,7 +10,7 @@
         "minimumIncrement":"${security.minimumIncrement}",
         "daysToSettle":"${security.daysToSettle}",
         "resetDays":"${security.resetDays}",
-        "benchmarkRate":"${security.benchmarkRateId.scheme.name}~${security.benchmarkRateId.value}",
+        "benchmarkRateId":"${security.benchmarkRateId.scheme.name}~${security.benchmarkRateId.value}",
         "spread":"${security.spread}",
         "leverageFactor":"${security.leverageFactor}",
         "couponFrequency":"${security.couponFrequency.conventionName}",
