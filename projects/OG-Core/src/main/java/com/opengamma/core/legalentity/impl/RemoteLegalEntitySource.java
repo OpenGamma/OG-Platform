@@ -137,7 +137,11 @@ public class RemoteLegalEntitySource
   public LegalEntity getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    return doGetSingle(bundle, versionCorrection, null);
+    LegalEntity legalEntity = doGetSingle(bundle, versionCorrection, null);
+    if (legalEntity == null) {
+      throw new DataNotFoundException("No legal entity: " + bundle + " " + versionCorrection);
+    }
+    return legalEntity;
   }
 
   @SuppressWarnings("unchecked")

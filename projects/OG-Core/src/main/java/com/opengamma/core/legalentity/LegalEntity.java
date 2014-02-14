@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.legalentity;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.Attributable;
@@ -50,35 +50,35 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
    *
    * @return the ratings, not null
    */
-  Collection<Rating> getRatings();
+  List<Rating> getRatings();
 
   /**
    * Gets the capabilities of the legal entity.
    *
    * @return the capabilities, not null
    */
-  Collection<Capability> getCapabilities();
+  List<Capability> getCapabilities();
 
   /**
    * Gets the securities issued by the legal entity
    *
    * @return the securities issued by the legal entity
    */
-  Collection<ExternalIdBundle> getIssuedSecurities(); //TODO refactor <ExternalIdBundle> to <SecurityLink> when SecurityLink is ready.
+  List<ExternalIdBundle> getIssuedSecurities(); //TODO refactor <ExternalIdBundle> to <SecurityLink> when SecurityLink is ready.
 
   /**
    * Gets the obligations of the legal entity
    *
    * @return the obligations of a legal entity
    */
-  Collection<Obligation> getObligations();
+  List<Obligation> getObligations();
 
   /**
    * Gets the accounts of the legal entity
    *
    * @return the accounts of a legal entity
    */
-  Collection<Account> getAccounts();
+  List<Account> getAccounts();
 
   /**
    * Gets the portfolio of the legal entity
