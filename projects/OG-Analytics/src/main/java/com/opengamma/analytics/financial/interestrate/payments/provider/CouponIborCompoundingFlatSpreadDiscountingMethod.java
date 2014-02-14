@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -55,7 +56,7 @@ public final class CouponIborCompoundingFlatSpreadDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
     return presentValue(coupon, multicurve, IborForwardRateProvider.getInstance());
   }
-  
+
   /**
    * Compute the present value of a Ibor compounded coupon with compounding type "Flat Compounding" using the specified
    * forward rate provider by discounting.
@@ -98,9 +99,9 @@ public final class CouponIborCompoundingFlatSpreadDiscountingMethod {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curve provider");
     final int nbSubPeriod = coupon.getFixingTimes().length;
-    double[] cpa = new double[nbSubPeriod + 1];
-    double[] cpaAccumulated = new double[nbSubPeriod + 1];
-    double[] forward = new double[nbSubPeriod];
+    final double[] cpa = new double[nbSubPeriod + 1];
+    final double[] cpaAccumulated = new double[nbSubPeriod + 1];
+    final double[] forward = new double[nbSubPeriod];
     cpa[0] = coupon.getCompoundingPeriodAmountAccumulated();
     cpaAccumulated[0] = coupon.getCompoundingPeriodAmountAccumulated();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
@@ -132,7 +133,8 @@ public final class CouponIborCompoundingFlatSpreadDiscountingMethod {
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      listForward.add(new ForwardSensitivity(coupon.getFixingSubperiodsStartTimes()[loopsub], coupon.getFixingSubperiodsEndTimes()[loopsub], coupon.getFixingSubperiodsAccrualFactors()[loopsub],
+      listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingSubperiodsStartTimes()[loopsub], coupon.getFixingSubperiodsEndTimes()[loopsub],
+          coupon.getFixingSubperiodsAccrualFactors()[loopsub],
           forwardBar[loopsub]));
     }
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);

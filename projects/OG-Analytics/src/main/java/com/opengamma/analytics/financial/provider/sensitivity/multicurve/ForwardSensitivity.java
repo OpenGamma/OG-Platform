@@ -10,7 +10,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Object representing the sensitivity to a forward curve at a reference point (start time, end time, accrual factor).
  */
-public class ForwardSensitivity {
+public abstract class ForwardSensitivity {
   private final double _startTime;
   private final double _endTime;
   private final double _accrualFactor;
@@ -62,6 +62,22 @@ public class ForwardSensitivity {
   public double getValue() {
     return _value;
   }
+
+  /**
+   * Returns the derivative of the forward with respect to yield  of discount factor at the start time.
+   * @param dicountfactorStart The discount factor at the start time
+   * @param dicountfactorEnd he discount factor at the end time
+   * @return the derivative of the forward with respect to yield  of discount factor at the start time.
+   */
+  public abstract double derivativeToYieldStart(final double dicountfactorStart, final double dicountfactorEnd);
+
+  /**
+   * Returns the derivative of the forward with respect to yield  of discount factor at the end time.
+   * @param dicountfactorStart The discount factor at the start time
+   * @param dicountfactorEnd he discount factor at the end time
+   * @return the derivative of the forward with respect to yield  of discount factor at the end time.
+   */
+  public abstract double derivativeToYieldEnd(final double dicountfactorStart, final double dicountfactorEnd);
 
   @Override
   public String toString() {

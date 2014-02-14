@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -87,9 +88,9 @@ public final class CouponIborAverageDiscountingMethod {
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward1 = new ArrayList<>();
     final List<ForwardSensitivity> listForward2 = new ArrayList<>();
-    listForward1.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime1(), coupon.getFixingPeriodEndTime1(), coupon.getFixingAccrualFactor1(), forward1Bar));
+    listForward1.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime1(), coupon.getFixingPeriodEndTime1(), coupon.getFixingAccrualFactor1(), forward1Bar));
     mapFwd.put(multicurve.getName(coupon.getIndex1()), listForward1);
-    listForward2.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime2(), coupon.getFixingPeriodEndTime2(), coupon.getFixingAccrualFactor2(), forward2Bar));
+    listForward2.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime2(), coupon.getFixingPeriodEndTime2(), coupon.getFixingAccrualFactor2(), forward2Bar));
     mapFwd.put(multicurve.getName(coupon.getIndex2()), listForward2);
     return MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
   }

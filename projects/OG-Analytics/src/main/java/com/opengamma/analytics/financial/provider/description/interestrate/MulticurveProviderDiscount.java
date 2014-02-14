@@ -214,8 +214,8 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
         // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
         final double dfForwardStart = curve.getDiscountFactor(startTime);
         final double dfForwardEnd = curve.getDiscountFactor(endTime);
-        final double dFwddyStart = -startTime * dfForwardStart / (dfForwardEnd * accrualFactor);
-        final double dFwddyEnd = endTime * dfForwardStart / (dfForwardEnd * accrualFactor);
+        final double dFwddyStart = timeAndS.derivativeToYieldStart(dfForwardStart, dfForwardEnd);
+        final double dFwddyEnd = timeAndS.derivativeToYieldEnd(dfForwardStart, dfForwardEnd);
         final double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
         final double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
         for (int loopparam = 0; loopparam < nbParameters; loopparam++) {

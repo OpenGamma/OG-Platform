@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -95,7 +96,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
     mapDsc.put(multicurve.getName(fra.getCurrency()), listDiscounting);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), forwardBar));
     mapFwd.put(multicurve.getName(fra.getIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(fra.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
@@ -137,7 +138,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
     ArgumentChecker.notNull(multicurve, "Multiurves");
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), 1.0));
+    listForward.add(new SimplyCompoundedForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), 1.0));
     mapFwd.put(multicurve.getName(fra.getIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);
   }

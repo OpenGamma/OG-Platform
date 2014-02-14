@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.HullW
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -106,7 +107,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
     final double forwardBar = -futureConvexityFactor * priceBar;
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(hwMulticurves.getMulticurveProvider().getName(futures.getIborIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);
   }

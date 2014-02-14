@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -80,7 +81,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final Map<Double, MulticurveSensitivity> result = new HashMap<>();
     final Map<String, List<ForwardSensitivity>> resultFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
     resultFwd.put(multicurves.getName(payment.getIndex()), listForward);
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<>();
@@ -112,7 +113,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final Map<Double, MulticurveSensitivity> result = new HashMap<>();
     final Map<String, List<ForwardSensitivity>> resultFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
     resultFwd.put(multicurves.getName(payment.getIndex()), listForward);
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<>();

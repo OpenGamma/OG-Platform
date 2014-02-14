@@ -23,11 +23,13 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.AnnuallyCompoundedForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
@@ -38,16 +40,16 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Contains results of calculations associated with curves
  */
-/* package */ final class CurveResultBuilders {
+/* package */final class CurveResultBuilders {
 
   private CurveResultBuilders() {
   }
 
   /**
-   * Fudge builder for {@link ForwardSensitivity}
+   * Fudge builder for {@link SimplyCompoundedForwardSensitivity}
    */
-  @FudgeBuilderFor(ForwardSensitivity.class)
-  public static final class ForwardSensitivityBuilder extends AbstractFudgeBuilder<ForwardSensitivity> {
+  @FudgeBuilderFor(SimplyCompoundedForwardSensitivity.class)
+  public static final class SimplyCompoundedForwardSensitivityBuilder extends AbstractFudgeBuilder<SimplyCompoundedForwardSensitivity> {
     /** The start time field */
     private static final String START_TIME = "startTime";
     /** The end time field */
@@ -58,16 +60,49 @@ import com.opengamma.util.tuple.Pairs;
     private static final String VALUE = "value";
 
     @Override
-    public ForwardSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public SimplyCompoundedForwardSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double startTime = message.getDouble(START_TIME);
       final double endTime = message.getDouble(END_TIME);
       final double accrualFactor = message.getDouble(ACCRUAL_FACTOR);
       final double value = message.getDouble(VALUE);
-      return new ForwardSensitivity(startTime, endTime, accrualFactor, value);
+      return new SimplyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, value);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ForwardSensitivity object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SimplyCompoundedForwardSensitivity object) {
+      message.add(START_TIME, object.getStartTime());
+      message.add(END_TIME, object.getEndTime());
+      message.add(ACCRUAL_FACTOR, object.getAccrualFactor());
+      message.add(VALUE, object.getValue());
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link AnnuallyCompoundedForwardSensitivity}
+   */
+  @FudgeBuilderFor(AnnuallyCompoundedForwardSensitivity.class)
+  public static final class AnnuallyCompoundedForwardSensitivityBuilder extends AbstractFudgeBuilder<AnnuallyCompoundedForwardSensitivity> {
+    /** The start time field */
+    private static final String START_TIME = "startTime";
+    /** The end time field */
+    private static final String END_TIME = "endTime";
+    /** The accrual factor */
+    private static final String ACCRUAL_FACTOR = "accrualFactor";
+    /** The value */
+    private static final String VALUE = "value";
+
+    @Override
+    public AnnuallyCompoundedForwardSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double startTime = message.getDouble(START_TIME);
+      final double endTime = message.getDouble(END_TIME);
+      final double accrualFactor = message.getDouble(ACCRUAL_FACTOR);
+      final double value = message.getDouble(VALUE);
+      return new AnnuallyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, value);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final AnnuallyCompoundedForwardSensitivity object) {
       message.add(START_TIME, object.getStartTime());
       message.add(END_TIME, object.getEndTime());
       message.add(ACCRUAL_FACTOR, object.getAccrualFactor());

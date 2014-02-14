@@ -110,7 +110,7 @@ public class MulticurveSensitivityUtils {
             sensi += list.get(looplist).getValue();
           }
         }
-        listClean.add(new ForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
+        listClean.add(new SimplyCompoundedForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
       }
       result.put(entry.getKey(), listClean);
     }
@@ -137,7 +137,7 @@ public class MulticurveSensitivityUtils {
           }
         }
         if (Math.abs(sensi) > tolerance) {
-          listClean.add(new ForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
+          listClean.add(new SimplyCompoundedForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
         }
       }
       result.put(entry.getKey(), listClean);
@@ -309,7 +309,7 @@ public class MulticurveSensitivityUtils {
     for (final Map.Entry<String, List<ForwardSensitivity>> entry : map.entrySet()) {
       final List<ForwardSensitivity> curveSensi = new ArrayList<>();
       for (final ForwardSensitivity pair : entry.getValue()) {
-        curveSensi.add(new ForwardSensitivity(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor(), pair.getValue() * factor));
+        curveSensi.add(new SimplyCompoundedForwardSensitivity(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor(), pair.getValue() * factor));
       }
       result.put(entry.getKey(), curveSensi);
     }
@@ -332,7 +332,7 @@ public class MulticurveSensitivityUtils {
         for (final ForwardSensitivity pair1 : entry.getValue()) {
           for (int i = 0; i < length2; ++i) {
             if (pair1.getStartTime() == map2.get(name).get(i).getStartTime() && pair1.getEndTime() == map2.get(name).get(i).getEndTime()) {
-              curveSensi.add(new ForwardSensitivity(pair1.getStartTime(), pair1.getEndTime(), pair1.getAccrualFactor(), pair1.getValue() * map2.get(name).get(i).getValue()));
+              curveSensi.add(new SimplyCompoundedForwardSensitivity(pair1.getStartTime(), pair1.getEndTime(), pair1.getAccrualFactor(), pair1.getValue() * map2.get(name).get(i).getValue()));
             }
           }
         }

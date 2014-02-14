@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -51,13 +52,13 @@ public final class CouponONDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponON coupon, final MulticurveProviderInterface multicurve) {
-//    ArgumentChecker.notNull(coupon, "Coupon");
-//    ArgumentChecker.notNull(multicurve, "Market");
-//    final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor()
-//        * multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
-//    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-//    final double pv = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * df;
-//    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
+    //    ArgumentChecker.notNull(coupon, "Coupon");
+    //    ArgumentChecker.notNull(multicurve, "Market");
+    //    final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor()
+    //        * multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
+    //    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    //    final double pv = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * df;
+    //    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
     return presentValue(coupon, multicurve, OvernightForwardRateProvider.getInstance());
   }
 
@@ -105,7 +106,7 @@ public final class CouponONDiscountingMethod {
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
@@ -136,7 +137,7 @@ public final class CouponONDiscountingMethod {
     final double forwardBar = 1.0;
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.ofForward(mapFwd));
     return result;
