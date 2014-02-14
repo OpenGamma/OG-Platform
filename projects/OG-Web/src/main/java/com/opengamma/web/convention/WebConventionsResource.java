@@ -157,13 +157,22 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       String html = getFreemarker().build(HTML_DIR + "convention-add.ftl", out);
       return Response.ok(html).build();
     }
-
-    final ManageableConvention convention = parseXML(xml, typeClazz);
-    convention.setName(name);
-    ConventionDocument doc = new ConventionDocument(convention);
-    ConventionDocument added = data().getConventionMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return Response.seeOther(uri).build();
+    try {
+      final ManageableConvention convention = parseXML(xml, typeClazz);
+      convention.setName(name);
+      ConventionDocument doc = new ConventionDocument(convention);
+      ConventionDocument added = data().getConventionMaster().add(doc);
+      URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
+      return Response.seeOther(uri).build();
+    } catch (Exception ex) {
+      FlexiBean out = createRootData();
+      out.put("name", StringUtils.defaultString(name));
+      out.put("type", StringUtils.defaultString(typeName));
+      out.put("conventionXml", StringUtils.defaultString(xml));
+      out.put("err_conventionXmlMsg", StringUtils.defaultString(ex.getMessage()));
+      String html = getFreemarker().build(HTML_DIR + "convention-add.ftl", out);
+      return Response.ok(html).build();
+    }
   }
 
   @POST

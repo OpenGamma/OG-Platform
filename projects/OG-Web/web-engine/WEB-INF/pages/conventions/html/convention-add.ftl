@@ -19,6 +19,7 @@
     </@rowin>
     
     <#if err_xmlMissing??><div class="err">The data must be entered</div></#if>
+    <#if err_conventionXmlMsg?has_content><div class="err">${err_conventionXmlMsg}</div></#if>
     <@rowin>
       <div id="ace-xml-editor">${conventionXml}</div>
     </@rowin>

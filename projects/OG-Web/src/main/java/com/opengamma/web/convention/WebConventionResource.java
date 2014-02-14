@@ -96,9 +96,17 @@ public class WebConventionResource extends AbstractWebConventionResource {
       return Response.ok(html).build();
     }
 
-    ManageableConvention convention = parseXML(xml, data().getConvention().getConvention().getClass());
-    final URI uri = updateConvention(name, convention);
-    return Response.seeOther(uri).build();
+    try {
+      ManageableConvention convention = parseXML(xml, data().getConvention().getConvention().getClass());
+      final URI uri = updateConvention(name, convention);
+      return Response.seeOther(uri).build();
+    } catch (Exception ex) {
+      final FlexiBean out = createRootData();
+      out.put("conventionXml", StringUtils.defaultString(xml));
+      out.put("err_conventionXmlMsg", StringUtils.defaultString(ex.getMessage()));
+      final String html = getFreemarker().build(HTML_DIR + "convention-update.ftl", out);
+      return Response.ok(html).build();
+    }
   }
 
   @PUT

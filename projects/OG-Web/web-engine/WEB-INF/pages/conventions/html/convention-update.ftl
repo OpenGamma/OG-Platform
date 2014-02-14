@@ -8,6 +8,7 @@
   <p>
     <#if err_nameMissing??><div class="err">The name must be entered</div></#if>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${conventionDoc.name}" /></@rowin>
+    <#if err_conventionXmlMsg?has_content><div class="err">${err_conventionXmlMsg}</div></#if>
     <@rowin>
       <div id="ace-xml-editor">${conventionXml}</div>
     </@rowin>
