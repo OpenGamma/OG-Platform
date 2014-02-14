@@ -23,25 +23,23 @@
 
 <#-- SECTION Update legal entity -->
 <@section title="Update legal entity" if=!deleted>
-  <@form method="PUT" action="${uris.legalEntity()}">
+  <@form method="PUT" action="${uris.legalEntity()}" id="updateForm">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${legalEntityDoc.name}" /></@rowin>
-    <@rowin label="LegalEntity (XML)">
-      <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="legalEntityXML" id="xmltextarea">${legalEntityXML}</textarea></div>
+    <@rowin>
+      <div id="ace-xml-editor">${legalEntityXML}</div>
     </@rowin>
+    <input type="hidden" name="legalEntityXML" id="legalEntity-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript" src="/js/lib/codemirror/codemirror.js"></script>
 <script type="text/javascript">
-var editor = CodeMirror.fromTextArea("xmltextarea", {
-  parserfile: ["parsexml.js"],
-  path: "/js/lib/codemirror/",
-  stylesheet: "/css/lib/codemirror/xmlcolors.css",
-  width: "650px",
-  height: "dynamic",
-  minHeight: "300",
-  reindentOnLoad: true,
-  iframeClass: "xmleditor"
-});
+var editor = ace.edit("ace-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#ace-xml-editor").show()
+
+$("#updateForm").submit( function(eventObj) {
+  $("#legalEntity-xml").val(editor.getSession().getValue())
+  return true
+})
 </script>
   </p>
   </@form>

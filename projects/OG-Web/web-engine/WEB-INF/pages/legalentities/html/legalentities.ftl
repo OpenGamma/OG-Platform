@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="LegalEntities">
+<@page title="LegalEntities" jquery=true aceXmlEditor=true>
 
 <#-- SECTION LegalEntity search -->
 <@section title="LegalEntity search" if=searchRequest??>
@@ -25,13 +25,24 @@
 
 <#-- SECTION Add legal entity -->
 <@section title="Add legal entity">
-  <@form method="POST" action="${uris.legalEntities()}">
+  <@form method="POST" action="${uris.legalEntities()}" id="addForm">
   <p>
     <@rowin label="Name"><input type="text" size="30" name="name" value="" /></@rowin>
-    <@rowin label="LegalEntity (XML)">
-      <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="legalEntityXML" id="xmltextarea"></textarea></div>
+    <@rowin>
+      <div id="ace-xml-editor"></div>
     </@rowin>
+    <input type="hidden" name="legalEntityXML" id="legalEntity-xml"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
+<script type="text/javascript">
+var editor = ace.edit("ace-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#ace-xml-editor").show()
+
+$("#addForm").submit( function(eventObj) {
+  $("#legalEntity-xml").val(editor.getSession().getValue())
+  return true
+})
+</script>
   </p>
   </@form>
 </@section>

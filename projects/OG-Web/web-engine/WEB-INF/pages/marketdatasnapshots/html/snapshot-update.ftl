@@ -1,28 +1,27 @@
 <#escape x as x?html>
-<@page title="Update - ${snapshotDoc.name}">
+<@page title="Update - ${snapshotDoc.name}" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Update MarketDataSnapshot -->
 <@section title="Update MarketDataSnapshot">
-  <@form method="PUT" action="${uris.snapshot()}">
+  <@form method="PUT" action="${uris.snapshot()}" id="updateForm">
   <p>
     <#if err_nameMissing??><div class="err">The name must be entered</div></#if>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${snapshotDoc.name}" /></@rowin>
-    <@rowin label="Market Data Snapshot (XML)">
-      <div style="border:2px solid black;padding:2px;"><textarea rows="30" cols="120" name="snapshotxml" id="xmltextarea">${snapshotXml}</textarea></div>
+    <@rowin>
+      <div id="ace-xml-editor">${snapshotXml}</div>
     </@rowin>
+    <input type="hidden" name="snapshotxml" id="snapshot-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript" src="/js/lib/codemirror/codemirror.js"></script>
 <script type="text/javascript">
-var editor = CodeMirror.fromTextArea("xmltextarea", {
-  parserfile: ["parsexml.js"],
-  path: "/js/lib/codemirror/",
-  stylesheet: "/css/lib/codemirror/xmlcolors.css",
-  width: "650px",
-  height: "dynamic",
-  minHeight: "300",
-  reindentOnLoad: true
-});
+var editor = ace.edit("ace-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#ace-xml-editor").show()
+
+$("#updateForm").submit( function(eventObj) {
+  $("#snapshot-xml").val(editor.getSession().getValue())
+  return true
+})
 </script>
   </p>
   </@form>

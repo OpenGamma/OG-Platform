@@ -172,6 +172,9 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     }
     
     final Object configObj = parseXML(configXml, type);
+    if (configObj == null || !type.isAssignableFrom(configObj.getClass())) {
+      throw new IllegalArgumentException("Given configuration XML is not of type: " + typeName);
+    }
     ConfigItem<?> item = ConfigItem.of(configObj);
     item.setName(name);
     item.setType(type);
@@ -206,7 +209,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       } else if (configXml != null) {
         configObj = parseXML(configXml, type);
       }
-      if (configObj == null) {
+      if (configObj == null || !type.isAssignableFrom(configObj.getClass())) {
         result = Response.status(Status.BAD_REQUEST).build();
       } else {
         ConfigItem<?> item = ConfigItem.of(configObj);

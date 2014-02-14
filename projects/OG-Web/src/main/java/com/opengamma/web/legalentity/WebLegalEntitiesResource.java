@@ -149,7 +149,7 @@ public class WebLegalEntitiesResource extends AbstractWebLegalEntityResource {
       }
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put("xml", StringUtils.defaultString(xml));
+      out.put("legalEntityXML", StringUtils.defaultString(xml));
       String html = getFreemarker().build(HTML_DIR + "legalentity-add.ftl", out);
       return Response.ok(html).build();
     }

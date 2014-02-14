@@ -39,7 +39,7 @@
   <@form method="POST" action="${uris.securities()}" id="addSecurityForm">
   <p>
     <@rowin>
-      <div id="security-xml-editor"></div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
     <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
     <input type="hidden" name="type" value="xml"/>
@@ -47,9 +47,9 @@
   </p>
   
 <script type="text/javascript">
-var editor = ace.edit("security-xml-editor")
+var editor = ace.edit("ace-xml-editor")
 editor.getSession().setMode('ace/mode/xml')
-$("#security-xml-editor").show()
+$("#ace-xml-editor").show()
 
 $("#addSecurityForm").submit( function(eventObj) {
   $("#security-xml").val(editor.getSession().getValue())
