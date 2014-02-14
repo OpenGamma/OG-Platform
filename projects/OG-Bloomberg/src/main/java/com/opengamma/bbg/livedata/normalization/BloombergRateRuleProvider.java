@@ -5,9 +5,12 @@
  */
 package com.opengamma.bbg.livedata.normalization;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -23,12 +26,13 @@ public class BloombergRateRuleProvider implements SecurityRuleProvider {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRateRuleProvider.class);
 
-  private static final NormalizationRule RULE_10 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.1);
-  private static final NormalizationRule RULE_100 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.01);
-  private static final NormalizationRule RULE_1000 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.001);
-  private static final NormalizationRule RULE_10000 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.0001);
-  private static final NormalizationRule RULE_100000 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.00001);
-  private static final NormalizationRule RULE_1000000 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.000001);
+  private static final Set<String> FIELDS = Sets.newHashSet(MarketDataRequirementNames.MARKET_VALUE, MarketDataRequirementNames.DIRTY_PRICE_MID);
+  private static final NormalizationRule RULE_10 = new UnitChange(FIELDS, 0.1);
+  private static final NormalizationRule RULE_100 = new UnitChange(FIELDS, 0.01);
+  private static final NormalizationRule RULE_1000 = new UnitChange(FIELDS, 0.001);
+  private static final NormalizationRule RULE_10000 = new UnitChange(FIELDS, 0.0001);
+  private static final NormalizationRule RULE_100000 = new UnitChange(FIELDS, 0.00001);
+  private static final NormalizationRule RULE_1000000 = new UnitChange(FIELDS, 0.000001);
 
   private final BloombergRateClassifier _classifier;
   
