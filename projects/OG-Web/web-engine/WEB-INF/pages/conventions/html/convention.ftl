@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Convention - ${conventionDoc.name}">
+<@page title="Convention - ${conventionDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This convention has been deleted</p>
@@ -24,25 +24,23 @@
 
 <#-- SECTION Update convention -->
 <@section title="Update convention" if=!deleted>
-  <@form method="PUT" action="${uris.convention()}">
+  <@form method="PUT" action="${uris.convention()}" id="updateForm">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${conventionDoc.name}" /></@rowin>
-    <@rowin label="Convention (XML)">
-      <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="conventionxml" id="xmltextarea">${conventionXml}</textarea></div>
+    <@rowin>
+      <div id="ace-xml-editor">${conventionXml}</div>
     </@rowin>
+    <input type="hidden" name="conventionxml" id="convention-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript" src="/js/lib/codemirror/codemirror.js"></script>
 <script type="text/javascript">
-var editor = CodeMirror.fromTextArea("xmltextarea", {
-  parserfile: ["parsexml.js"],
-  path: "/js/lib/codemirror/",
-  stylesheet: "/css/lib/codemirror/xmlcolors.css",
-  width: "650px",
-  height: "dynamic",
-  minHeight: "300",
-  reindentOnLoad: true,
-  iframeClass: "xmleditor"
-});
+var editor = ace.edit("ace-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#ace-xml-editor").show()
+
+$("#updateForm").submit( function(eventObj) {
+  $("#convention-xml").val(editor.getSession().getValue())
+  return true
+})
 </script>
   </p>
   </@form>

@@ -20,14 +20,14 @@
     
     <#if err_xmlMissing??><div class="err">The data must be entered</div></#if>
     <@rowin label="Configuration (XML)">
-      <div id="config-xml-editor">${configXML}</div>
+      <div id="ace-xml-editor">${configXML}</div>
     </@rowin>
     <@rowin><input type="hidden" name="configXML" id="config-xml"/></@rowin>
     <@rowin><input type="submit" value="Add" /></@rowin>
 <script type="text/javascript">
-var editor = ace.edit("config-xml-editor")
+var editor = ace.edit("ace-xml-editor")
 editor.getSession().setMode('ace/mode/xml')
-$("#config-xml-editor").show()
+$("#ace-xml-editor").show()
 
 $("#addConfigForm").submit( function(eventObj) {
   $("#config-xml").val(editor.getSession().getValue())

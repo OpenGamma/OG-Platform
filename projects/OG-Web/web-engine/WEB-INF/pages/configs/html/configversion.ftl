@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Configuration - ${configDoc.name}">
+<@page title="Configuration - ${configDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This configuration has been deleted</p>
@@ -17,13 +17,13 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-    <div id="config-xml-editor">${configXML}</div>
+    <div id="ace-xml-editor">${configXML}</div>
 </@subsection>
 
 <script type="text/javascript">
-var editor = ace.edit("config-xml-editor")
+var editor = ace.edit("ace-xml-editor")
 editor.getSession().setMode('ace/mode/xml')
-$("#config-xml-editor").show()
+$("#ace-xml-editor").show()
 </script>
 
 </@section>

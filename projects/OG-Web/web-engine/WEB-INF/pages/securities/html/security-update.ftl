@@ -9,12 +9,12 @@
     <#if err_securityXml??>
       <div class="err">${err_securityXmlMsg}</div>
     </#if>
-      <@rowin><div id="security-xml-editor"><#if securityXml?has_content>${securityXml}</#if></div></@rowin>
+      <@rowin><div id="ace-xml-editor"><#if securityXml?has_content>${securityXml}</#if></div></@rowin>
       <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
       <script type="text/javascript">
-        var editor = ace.edit("security-xml-editor")
+        var editor = ace.edit("ace-xml-editor")
         editor.getSession().setMode('ace/mode/xml')
-        $("#security-xml-editor").show()
+        $("#ace-xml-editor").show()
 
         $("#updateSecurityForm").submit( function(eventObj) {
           $("#security-xml").val(editor.getSession().getValue())

@@ -153,7 +153,7 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       }
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put("xml", StringUtils.defaultString(xml));
+      out.put("conventionXml", StringUtils.defaultString(xml));
       String html = getFreemarker().build(HTML_DIR + "convention-add.ftl", out);
       return Response.ok(html).build();
     }

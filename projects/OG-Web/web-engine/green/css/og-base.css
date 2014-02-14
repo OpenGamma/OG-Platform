@@ -189,13 +189,7 @@ img {
   text-decoration: none;
 }
 
-#config-xml-editor {
-  height: 500px;
-  width: 650px;
-  display:none;
-}
-
-#security-xml-editor {
+#ace-xml-editor {
   height: 500px;
   width: 650px;
   display:none;
