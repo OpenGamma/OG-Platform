@@ -16,12 +16,12 @@ public class AnnuallyCompoundedForwardSensitivity extends ForwardSensitivity {
 
   @Override
   public double derivativeToYieldStart(final double dicountfactorStart, final double dicountfactorEnd) {
-    return -getStartTime() / dicountfactorStart * Math.pow(dicountfactorStart / dicountfactorEnd, 1 / getAccrualFactor());
+    return -getStartTime() / getAccrualFactor() * Math.pow(dicountfactorStart / dicountfactorEnd, 1 / getAccrualFactor());
   }
 
   @Override
   public double derivativeToYieldEnd(final double dicountfactorStart, final double dicountfactorEnd) {
-    return getEndTime() / dicountfactorStart * Math.pow(dicountfactorStart / dicountfactorEnd, 1 / getAccrualFactor());
+    return getEndTime() / getAccrualFactor() * Math.pow(dicountfactorStart / dicountfactorEnd, 1 / getAccrualFactor());
   }
 
   /* (non-Javadoc)
