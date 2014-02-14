@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -12,19 +14,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.OpenGammaRuntimeException;
 
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.Script;
 
 /**
- * TODO run initialization script to add methods to numbers for periods, bp and percent
  * TODO enforce ordering ordering: view, shocks, scenarios
  */
 @SuppressWarnings("unused") // it is used reflectively by Groovy
@@ -33,6 +36,15 @@ public abstract class StandAloneScenarioScript extends Script {
   private final ViewDelegate _viewDelegate = new ViewDelegate();
   private final List<Map<String, Object>> _scenarioParams = Lists.newArrayList();
   private final Simulation _simulation = new Simulation("todo - what name for the simulation? does it matter?");
+
+  public StandAloneScenarioScript() {
+    InputStream scriptStream = SimulationScript.class.getResourceAsStream("InitializeScript.groovy");
+    try {
+      evaluate(IOUtils.toString(scriptStream));
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Failed to initialize DSL script", e);
+    }
+  }
 
   public void view(Closure<?> body) {
     body.setDelegate(_viewDelegate);
@@ -274,7 +286,7 @@ public abstract class StandAloneScenarioScript extends Script {
     // create a map for each scenario and populate it with a value from each shock list
     for (int i = 0; i < nScenarios; i++) {
       // use a tree map so the var names appear alphabetically - this makes for predictable scenario names
-      Map<String,Object> map = Maps.newTreeMap();
+      Map<String, Object> map = Maps.newTreeMap();
       for (Map.Entry<String, List<?>> entry : _vars.entrySet()) {
         String varName = entry.getKey();
         List<?> varValues = entry.getValue();
@@ -286,6 +298,9 @@ public abstract class StandAloneScenarioScript extends Script {
   }
 }
 
+/**
+ * Delegate for the closure passed to the {@code scenarios} block in the script.
+ */
 /* package */ class ScenarioDelegate {
 
   private final Scenario _scenario;
