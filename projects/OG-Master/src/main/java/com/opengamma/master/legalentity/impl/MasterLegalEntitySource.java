@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.legalentity.LegalEntity;
@@ -75,7 +76,11 @@ public class MasterLegalEntitySource extends AbstractMasterSource<LegalEntity, L
     LegalEntitySearchRequest searchRequest = new LegalEntitySearchRequest(bundle);
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionCorrection(versionCorrection);
-    return getMaster().search(searchRequest).getFirstLegalEntity();
+    ManageableLegalEntity firstLegalEntity = getMaster().search(searchRequest).getFirstLegalEntity();
+    if (firstLegalEntity == null) {
+      throw new DataNotFoundException("No legal entity: " + bundle + " " + versionCorrection);
+    }
+    return firstLegalEntity;
   }
 
   @Override

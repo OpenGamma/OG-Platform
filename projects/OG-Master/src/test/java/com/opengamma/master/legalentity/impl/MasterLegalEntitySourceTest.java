@@ -71,6 +71,18 @@ public class MasterLegalEntitySourceTest {
     assertEquals(example(), testResult);
   }
 
+  @Test(expectedExceptions = com.opengamma.DataNotFoundException.class)
+  public void test_getLegalEntity_not_found() throws Exception {
+    LegalEntityMaster mock = mock(LegalEntityMaster.class);
+
+    ArgumentCaptor<LegalEntitySearchRequest> searchRequest = ArgumentCaptor.forClass(LegalEntitySearchRequest.class);
+    LegalEntitySearchResult searchResult = mock(LegalEntitySearchResult.class);
+    when(mock.search(searchRequest.capture())).thenReturn(searchResult);
+    MasterLegalEntitySource test = new MasterLegalEntitySource(mock);
+    LegalEntity testResult = test.getSingle(ExternalId.of("b", "a"));
+    assertEquals(example(), testResult);
+  }
+
   public void test_getLegalEntity_UniqueId_found() throws Exception {
     LegalEntityMaster mock = mock(LegalEntityMaster.class);
 

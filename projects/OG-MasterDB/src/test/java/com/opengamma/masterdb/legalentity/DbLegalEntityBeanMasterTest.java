@@ -20,6 +20,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractDbTest;
@@ -71,6 +72,13 @@ public class DbLegalEntityBeanMasterTest extends AbstractDbTest {
 
     LegalEntityDocument loaded = _lenMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_get_not_existent() throws Exception {
+    LegalEntityDocument loaded = _lenMaster.get(UniqueId.of("Len", "b"));
+    assertEquals(null, loaded);
   }
 
   //-------------------------------------------------------------------------
