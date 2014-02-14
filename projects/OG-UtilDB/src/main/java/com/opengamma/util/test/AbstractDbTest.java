@@ -91,10 +91,27 @@ public abstract class AbstractDbTest implements TableCreationCallback {
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
       s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
+
+      String user = dbTool.getUser();
+      String password = dbTool.getPassword();
+      String systemUser = System.getProperty("system.user");
+      String systemPassword = System.getProperty("system.password");
+      if (systemUser != null && systemPassword != null) {
+        dbTool.setUser(systemUser);
+        dbTool.setPassword(systemPassword);
+      } else {
+        dbTool.setUser(user);
+        dbTool.setPassword(password);
+      }
+
       dbTool.setTargetVersion(getDatabaseVersion());
       dbTool.setCreateVersion(getDatabaseVersion());
       dbTool.dropTestSchema();
       dbTool.createTestSchema();
+      //
+      dbTool.setUser(user);
+      dbTool.setPassword(password);
+      //
       dbTool.createTestTables(this);
     }
     dbTool.clearTestTables();
