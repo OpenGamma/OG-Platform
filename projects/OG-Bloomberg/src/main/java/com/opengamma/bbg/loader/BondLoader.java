@@ -293,6 +293,7 @@ public class BondLoader extends SecurityLoader {
       final String couponType = validateAndGetStringField(fieldData, FIELD_CPN_TYP);
       final Double couponRate = validateAndGetDoubleField(fieldData, FIELD_CPN);
       final String zeroCoupon = validateAndGetStringField(fieldData, FIELD_ZERO_CPN);
+      final String cusip = validateAndGetStringField(fieldData, FIELD_ID_CUSIP);
       Frequency couponFrequency;
       if ("Y".equals(zeroCoupon)) {
         couponFrequency = SimpleFrequency.NEVER;
@@ -342,7 +343,7 @@ public class BondLoader extends SecurityLoader {
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
       } else if (isFloater) {
-        final ExternalId legalEntityId = ExternalId.of("TEST", "TEST");
+        final ExternalId legalEntityId = ExternalId.of("CUSIP_ISSUER_STUB", cusip.substring(0, 6));
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?
         final ExternalId benchmarkRateId = ExternalSchemes.bloombergTickerSecurityId(benchmarkRateStr);
         final ZonedDateTime issueDate = validateAndGetNullableDateField(fieldData, FIELD_ISSUE_DT);
