@@ -6,11 +6,10 @@
 package com.opengamma.core.legalentity.impl;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -24,121 +23,152 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.LocalDate;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.opengamma.core.holiday.Holiday;
-import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.core.legalentity.Account;
+import com.opengamma.core.legalentity.Capability;
+import com.opengamma.core.legalentity.LegalEntity;
+import com.opengamma.core.legalentity.Obligation;
+import com.opengamma.core.legalentity.Rating;
+import com.opengamma.core.legalentity.RootPortfolio;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 /**
- * Simple implementation of {@code Holiday}.
+ * Simple implementation of {@code LegalEntity}.
  * <p>
- * This is the simplest possible implementation of the {@link Holiday} interface.
+ * This is the simplest possible implementation of the {@link LegalEntity} interface.
  * <p>
  * This class is mutable and not thread-safe.
- * It is intended to be used in the engine via the read-only {@code Holiday} interface.
+ * It is intended to be used in the engine via the read-only {@code LegalEntity} interface.
  */
 @BeanDefinition
 public class SimpleLegalEntity extends DirectBean
-    implements Holiday, MutableUniqueIdentifiable, Serializable {
+    implements LegalEntity, MutableUniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * The unique identifier of the holiday.
+   * The unique identifier of the legal entity.
    */
   @PropertyDefinition
   private UniqueId _uniqueId;
   /**
-   * The type of the holiday.
+   * The bundle of external identifiers that define the legal entity.
    */
-  @PropertyDefinition
-  private HolidayType _type;
+  @PropertyDefinition(validate = "notNull")
+  private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
-   * The region external identifier bundle, used when this is a holiday of type BANK.
-   * This must be null if the type is not BANK.
+   * The map of attributes, which can be used for attaching additional application-level information.
    */
   @PropertyDefinition
-  private ExternalId _regionExternalId;
+  private final Map<String, String> _attributes = new HashMap<>();
   /**
-   * The exchange external identifier bundle, used when this is a holiday of type SETTLEMENT or TRADING.
-   * This must be null if the type is not SETTLEMENT or TRADING.
+   * The map of details, which can be used for attaching additional application-level information.
    */
   @PropertyDefinition
-  private ExternalId _exchangeExternalId;
+  private final Map<String, String> _details = new HashMap<>();
   /**
-   * The custom external identifier bundle, used when this is a holiday of type CUSTOM.
-   * This must be null if the type is not CUSTOM.
+   * The name of the legal entity.
    */
-  @PropertyDefinition
-  private ExternalId _customExternalId;
+  @PropertyDefinition(validate = "notNull")
+  private String _name = "";
   /**
-   * The currency, used when this is a holiday of type CURRENCY.
-   * This must be null if the type is not CURRENCY.
+   * The ratings.
    */
-  @PropertyDefinition
-  private Currency _currency;
+  @PropertyDefinition(validate = "notNull")
+  private List<Rating> _ratings = new ArrayList<>();
   /**
-   * The list of dates that the target (currency/region/exchange) is on holiday, not null.
+   * The capabilities.
    */
-  @PropertyDefinition
-  private final List<LocalDate> _holidayDates = Lists.newArrayList();
+  @PropertyDefinition(validate = "notNull")
+  private List<Capability> _capabilities = new ArrayList<>();
+  /**
+   * The external identifier bundle.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private List<ExternalIdBundle> _issuedSecurities = new ArrayList<>();
+  /**
+   * The obligations.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private List<Obligation> _obligations = new ArrayList<>();
+  /**
+   * The root portfolio.
+   */
+  @PropertyDefinition()
+  private RootPortfolio _rootPortfolio;
+  /**
+   * The accounts.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private List<Account> _accounts = new ArrayList<>();
 
   /**
-   * Creates an instance.
+   * Creates a legal entity.
    */
-  public SimpleLegalEntity() {
+  protected SimpleLegalEntity() {
   }
 
   /**
-   * Creates an instance populated with a set of dates.
+   * Creates a legal entity specifying the values of the main fields.
    *
-   * @param dates  the dates to add, not null
+   * @param name the name of the legal entity, not null
+   * @param externalIdBundle the bundle of identifiers that define the legal entity, not null
    */
-  public SimpleLegalEntity(final Iterable<LocalDate> dates) {
-    addHolidayDates(dates);
+  public SimpleLegalEntity(String name, ExternalIdBundle externalIdBundle) {
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(externalIdBundle, "externalIdBundle");
+    setName(name);
+    setExternalIdBundle(externalIdBundle);
+  }
+
+  /**
+   * Creates a legal entity specifying the values of the main fields.
+   *
+   * @param uniqueId the unique identifier, not null
+   * @param name the name of the legal entity, not null
+   * @param externalIdBundle the bundle of identifiers that define the legal entity, not null
+   */
+  protected SimpleLegalEntity(UniqueId uniqueId, String name, ExternalIdBundle externalIdBundle) {
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(externalIdBundle, "externalIdBundle");
+    setUniqueId(uniqueId);
+    setName(name);
+    setExternalIdBundle(externalIdBundle);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a holiday date to the list.
+   * Adds an external identifier to the bundle representing this legal entity.
    *
-   * @param date  the date to add, not null
+   * @param legalEntityId the identifier to add, not null
    */
-  public void addHolidayDate(final LocalDate date) {
-    ArgumentChecker.notNull(date, "date");
-    if (_holidayDates.contains(date) == false) {
-      int index = Collections.binarySearch(_holidayDates, date);
-      index = (index < 0 ? -(index + 1) : index);
-      _holidayDates.add(index, date);
-    }
+  public void addExternalId(ExternalId legalEntityId) {
+    setExternalIdBundle(getExternalIdBundle().withExternalId(legalEntityId));
   }
 
-  /**
-   * Adds a set of holiday dates to the list.
-   *
-   * @param dates  the dates to add, not null
-   */
-  public void addHolidayDates(final Iterable<LocalDate> dates) {
-    ArgumentChecker.notNull(dates, "dates");
-    Set<LocalDate> deduplicatedAdditions = new HashSet<>();
-    Iterables.addAll(deduplicatedAdditions, dates);
-    deduplicatedAdditions.removeAll(_holidayDates);
-    _holidayDates.addAll(deduplicatedAdditions);
-    Collections.sort(_holidayDates);
+  @Override
+  public void addAttribute(String key, String value) {
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _attributes.put(key, value);
+  }
+
+  @Override
+  public void addDetail(String key, String value) {
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _details.put(key, value);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SimpleHoliday}.
+   * The meta-bean for {@code SimpleLegalEntity}.
    * @return the meta-bean, not null
    */
   public static SimpleLegalEntity.Meta meta() {
@@ -156,7 +186,7 @@ public class SimpleLegalEntity extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unique identifier of the holiday.
+   * Gets the unique identifier of the legal entity.
    * @return the value of the property
    */
   public UniqueId getUniqueId() {
@@ -164,7 +194,7 @@ public class SimpleLegalEntity extends DirectBean
   }
 
   /**
-   * Sets the unique identifier of the holiday.
+   * Sets the unique identifier of the legal entity.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueId uniqueId) {
@@ -181,166 +211,263 @@ public class SimpleLegalEntity extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of the holiday.
-   * @return the value of the property
-   */
-  public HolidayType getType() {
-    return _type;
-  }
-
-  /**
-   * Sets the type of the holiday.
-   * @param type  the new value of the property
-   */
-  public void setType(HolidayType type) {
-    this._type = type;
-  }
-
-  /**
-   * Gets the the {@code type} property.
-   * @return the property, not null
-   */
-  public final Property<HolidayType> type() {
-    return metaBean().type().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the region external identifier bundle, used when this is a holiday of type BANK.
-   * This must be null if the type is not BANK.
-   * @return the value of the property
-   */
-  public ExternalId getRegionExternalId() {
-    return _regionExternalId;
-  }
-
-  /**
-   * Sets the region external identifier bundle, used when this is a holiday of type BANK.
-   * This must be null if the type is not BANK.
-   * @param regionExternalId  the new value of the property
-   */
-  public void setRegionExternalId(ExternalId regionExternalId) {
-    this._regionExternalId = regionExternalId;
-  }
-
-  /**
-   * Gets the the {@code regionExternalId} property.
-   * This must be null if the type is not BANK.
-   * @return the property, not null
-   */
-  public final Property<ExternalId> regionExternalId() {
-    return metaBean().regionExternalId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the exchange external identifier bundle, used when this is a holiday of type SETTLEMENT or TRADING.
-   * This must be null if the type is not SETTLEMENT or TRADING.
-   * @return the value of the property
-   */
-  public ExternalId getExchangeExternalId() {
-    return _exchangeExternalId;
-  }
-
-  /**
-   * Sets the exchange external identifier bundle, used when this is a holiday of type SETTLEMENT or TRADING.
-   * This must be null if the type is not SETTLEMENT or TRADING.
-   * @param exchangeExternalId  the new value of the property
-   */
-  public void setExchangeExternalId(ExternalId exchangeExternalId) {
-    this._exchangeExternalId = exchangeExternalId;
-  }
-
-  /**
-   * Gets the the {@code exchangeExternalId} property.
-   * This must be null if the type is not SETTLEMENT or TRADING.
-   * @return the property, not null
-   */
-  public final Property<ExternalId> exchangeExternalId() {
-    return metaBean().exchangeExternalId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the custom external identifier bundle, used when this is a holiday of type CUSTOM.
-   * This must be null if the type is not CUSTOM.
-   * @return the value of the property
-   */
-  public ExternalId getCustomExternalId() {
-    return _customExternalId;
-  }
-
-  /**
-   * Sets the custom external identifier bundle, used when this is a holiday of type CUSTOM.
-   * This must be null if the type is not CUSTOM.
-   * @param customExternalId  the new value of the property
-   */
-  public void setCustomExternalId(ExternalId customExternalId) {
-    this._customExternalId = customExternalId;
-  }
-
-  /**
-   * Gets the the {@code customExternalId} property.
-   * This must be null if the type is not CUSTOM.
-   * @return the property, not null
-   */
-  public final Property<ExternalId> customExternalId() {
-    return metaBean().customExternalId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the currency, used when this is a holiday of type CURRENCY.
-   * This must be null if the type is not CURRENCY.
-   * @return the value of the property
-   */
-  public Currency getCurrency() {
-    return _currency;
-  }
-
-  /**
-   * Sets the currency, used when this is a holiday of type CURRENCY.
-   * This must be null if the type is not CURRENCY.
-   * @param currency  the new value of the property
-   */
-  public void setCurrency(Currency currency) {
-    this._currency = currency;
-  }
-
-  /**
-   * Gets the the {@code currency} property.
-   * This must be null if the type is not CURRENCY.
-   * @return the property, not null
-   */
-  public final Property<Currency> currency() {
-    return metaBean().currency().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the list of dates that the target (currency/region/exchange) is on holiday, not null.
+   * Gets the bundle of external identifiers that define the legal entity.
    * @return the value of the property, not null
    */
-  public List<LocalDate> getHolidayDates() {
-    return _holidayDates;
+  public ExternalIdBundle getExternalIdBundle() {
+    return _externalIdBundle;
   }
 
   /**
-   * Sets the list of dates that the target (currency/region/exchange) is on holiday, not null.
-   * @param holidayDates  the new value of the property, not null
+   * Sets the bundle of external identifiers that define the legal entity.
+   * @param externalIdBundle  the new value of the property, not null
    */
-  public void setHolidayDates(List<LocalDate> holidayDates) {
-    JodaBeanUtils.notNull(holidayDates, "holidayDates");
-    this._holidayDates.clear();
-    this._holidayDates.addAll(holidayDates);
+  public void setExternalIdBundle(ExternalIdBundle externalIdBundle) {
+    JodaBeanUtils.notNull(externalIdBundle, "externalIdBundle");
+    this._externalIdBundle = externalIdBundle;
   }
 
   /**
-   * Gets the the {@code holidayDates} property.
+   * Gets the the {@code externalIdBundle} property.
    * @return the property, not null
    */
-  public final Property<List<LocalDate>> holidayDates() {
-    return metaBean().holidayDates().createProperty(this);
+  public final Property<ExternalIdBundle> externalIdBundle() {
+    return metaBean().externalIdBundle().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the map of attributes, which can be used for attaching additional application-level information.
+   * @return the value of the property, not null
+   */
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  /**
+   * Sets the map of attributes, which can be used for attaching additional application-level information.
+   * @param attributes  the new value of the property, not null
+   */
+  public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
+    this._attributes.clear();
+    this._attributes.putAll(attributes);
+  }
+
+  /**
+   * Gets the the {@code attributes} property.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> attributes() {
+    return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the map of details, which can be used for attaching additional application-level information.
+   * @return the value of the property, not null
+   */
+  public Map<String, String> getDetails() {
+    return _details;
+  }
+
+  /**
+   * Sets the map of details, which can be used for attaching additional application-level information.
+   * @param details  the new value of the property, not null
+   */
+  public void setDetails(Map<String, String> details) {
+    JodaBeanUtils.notNull(details, "details");
+    this._details.clear();
+    this._details.putAll(details);
+  }
+
+  /**
+   * Gets the the {@code details} property.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> details() {
+    return metaBean().details().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of the legal entity.
+   * @return the value of the property, not null
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name of the legal entity.
+   * @param name  the new value of the property, not null
+   */
+  public void setName(String name) {
+    JodaBeanUtils.notNull(name, "name");
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the ratings.
+   * @return the value of the property, not null
+   */
+  public List<Rating> getRatings() {
+    return _ratings;
+  }
+
+  /**
+   * Sets the ratings.
+   * @param ratings  the new value of the property, not null
+   */
+  public void setRatings(List<Rating> ratings) {
+    JodaBeanUtils.notNull(ratings, "ratings");
+    this._ratings = ratings;
+  }
+
+  /**
+   * Gets the the {@code ratings} property.
+   * @return the property, not null
+   */
+  public final Property<List<Rating>> ratings() {
+    return metaBean().ratings().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the capabilities.
+   * @return the value of the property, not null
+   */
+  public List<Capability> getCapabilities() {
+    return _capabilities;
+  }
+
+  /**
+   * Sets the capabilities.
+   * @param capabilities  the new value of the property, not null
+   */
+  public void setCapabilities(List<Capability> capabilities) {
+    JodaBeanUtils.notNull(capabilities, "capabilities");
+    this._capabilities = capabilities;
+  }
+
+  /**
+   * Gets the the {@code capabilities} property.
+   * @return the property, not null
+   */
+  public final Property<List<Capability>> capabilities() {
+    return metaBean().capabilities().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the external identifier bundle.
+   * @return the value of the property, not null
+   */
+  public List<ExternalIdBundle> getIssuedSecurities() {
+    return _issuedSecurities;
+  }
+
+  /**
+   * Sets the external identifier bundle.
+   * @param issuedSecurities  the new value of the property, not null
+   */
+  public void setIssuedSecurities(List<ExternalIdBundle> issuedSecurities) {
+    JodaBeanUtils.notNull(issuedSecurities, "issuedSecurities");
+    this._issuedSecurities = issuedSecurities;
+  }
+
+  /**
+   * Gets the the {@code issuedSecurities} property.
+   * @return the property, not null
+   */
+  public final Property<List<ExternalIdBundle>> issuedSecurities() {
+    return metaBean().issuedSecurities().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the obligations.
+   * @return the value of the property, not null
+   */
+  public List<Obligation> getObligations() {
+    return _obligations;
+  }
+
+  /**
+   * Sets the obligations.
+   * @param obligations  the new value of the property, not null
+   */
+  public void setObligations(List<Obligation> obligations) {
+    JodaBeanUtils.notNull(obligations, "obligations");
+    this._obligations = obligations;
+  }
+
+  /**
+   * Gets the the {@code obligations} property.
+   * @return the property, not null
+   */
+  public final Property<List<Obligation>> obligations() {
+    return metaBean().obligations().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the root portfolio.
+   * @return the value of the property
+   */
+  public RootPortfolio getRootPortfolio() {
+    return _rootPortfolio;
+  }
+
+  /**
+   * Sets the root portfolio.
+   * @param rootPortfolio  the new value of the property
+   */
+  public void setRootPortfolio(RootPortfolio rootPortfolio) {
+    this._rootPortfolio = rootPortfolio;
+  }
+
+  /**
+   * Gets the the {@code rootPortfolio} property.
+   * @return the property, not null
+   */
+  public final Property<RootPortfolio> rootPortfolio() {
+    return metaBean().rootPortfolio().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the accounts.
+   * @return the value of the property, not null
+   */
+  public List<Account> getAccounts() {
+    return _accounts;
+  }
+
+  /**
+   * Sets the accounts.
+   * @param accounts  the new value of the property, not null
+   */
+  public void setAccounts(List<Account> accounts) {
+    JodaBeanUtils.notNull(accounts, "accounts");
+    this._accounts = accounts;
+  }
+
+  /**
+   * Gets the the {@code accounts} property.
+   * @return the property, not null
+   */
+  public final Property<List<Account>> accounts() {
+    return metaBean().accounts().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -367,12 +494,16 @@ public class SimpleLegalEntity extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       SimpleLegalEntity other = (SimpleLegalEntity) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getRegionExternalId(), other.getRegionExternalId()) &&
-          JodaBeanUtils.equal(getExchangeExternalId(), other.getExchangeExternalId()) &&
-          JodaBeanUtils.equal(getCustomExternalId(), other.getCustomExternalId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getHolidayDates(), other.getHolidayDates());
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
+          JodaBeanUtils.equal(getDetails(), other.getDetails()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getRatings(), other.getRatings()) &&
+          JodaBeanUtils.equal(getCapabilities(), other.getCapabilities()) &&
+          JodaBeanUtils.equal(getIssuedSecurities(), other.getIssuedSecurities()) &&
+          JodaBeanUtils.equal(getObligations(), other.getObligations()) &&
+          JodaBeanUtils.equal(getRootPortfolio(), other.getRootPortfolio()) &&
+          JodaBeanUtils.equal(getAccounts(), other.getAccounts());
     }
     return false;
   }
@@ -381,19 +512,23 @@ public class SimpleLegalEntity extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCustomExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDetails());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRatings());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuedSecurities());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligations());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRootPortfolio());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAccounts());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
-    buf.append("SimpleHoliday{");
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("SimpleLegalEntity{");
     int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
@@ -405,17 +540,21 @@ public class SimpleLegalEntity extends DirectBean
 
   protected void toString(StringBuilder buf) {
     buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
-    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
-    buf.append("regionExternalId").append('=').append(JodaBeanUtils.toString(getRegionExternalId())).append(',').append(' ');
-    buf.append("exchangeExternalId").append('=').append(JodaBeanUtils.toString(getExchangeExternalId())).append(',').append(' ');
-    buf.append("customExternalId").append('=').append(JodaBeanUtils.toString(getCustomExternalId())).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
-    buf.append("holidayDates").append('=').append(JodaBeanUtils.toString(getHolidayDates())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
+    buf.append("details").append('=').append(JodaBeanUtils.toString(getDetails())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("ratings").append('=').append(JodaBeanUtils.toString(getRatings())).append(',').append(' ');
+    buf.append("capabilities").append('=').append(JodaBeanUtils.toString(getCapabilities())).append(',').append(' ');
+    buf.append("issuedSecurities").append('=').append(JodaBeanUtils.toString(getIssuedSecurities())).append(',').append(' ');
+    buf.append("obligations").append('=').append(JodaBeanUtils.toString(getObligations())).append(',').append(' ');
+    buf.append("rootPortfolio").append('=').append(JodaBeanUtils.toString(getRootPortfolio())).append(',').append(' ');
+    buf.append("accounts").append('=').append(JodaBeanUtils.toString(getAccounts())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SimpleHoliday}.
+   * The meta-bean for {@code SimpleLegalEntity}.
    */
   public static class Meta extends DirectMetaBean {
     /**
@@ -429,48 +568,78 @@ public class SimpleLegalEntity extends DirectBean
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", SimpleLegalEntity.class, UniqueId.class);
     /**
-     * The meta-property for the {@code type} property.
+     * The meta-property for the {@code externalIdBundle} property.
      */
-    private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(
-        this, "type", SimpleLegalEntity.class, HolidayType.class);
+    private final MetaProperty<ExternalIdBundle> _externalIdBundle = DirectMetaProperty.ofReadWrite(
+        this, "externalIdBundle", SimpleLegalEntity.class, ExternalIdBundle.class);
     /**
-     * The meta-property for the {@code regionExternalId} property.
-     */
-    private final MetaProperty<ExternalId> _regionExternalId = DirectMetaProperty.ofReadWrite(
-        this, "regionExternalId", SimpleLegalEntity.class, ExternalId.class);
-    /**
-     * The meta-property for the {@code exchangeExternalId} property.
-     */
-    private final MetaProperty<ExternalId> _exchangeExternalId = DirectMetaProperty.ofReadWrite(
-        this, "exchangeExternalId", SimpleLegalEntity.class, ExternalId.class);
-    /**
-     * The meta-property for the {@code customExternalId} property.
-     */
-    private final MetaProperty<ExternalId> _customExternalId = DirectMetaProperty.ofReadWrite(
-        this, "customExternalId", SimpleLegalEntity.class, ExternalId.class);
-    /**
-     * The meta-property for the {@code currency} property.
-     */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
-        this, "currency", SimpleLegalEntity.class, Currency.class);
-    /**
-     * The meta-property for the {@code holidayDates} property.
+     * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _holidayDates = DirectMetaProperty.ofReadWrite(
-        this, "holidayDates", SimpleLegalEntity.class, (Class) List.class);
+    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
+        this, "attributes", SimpleLegalEntity.class, (Class) Map.class);
+    /**
+     * The meta-property for the {@code details} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, String>> _details = DirectMetaProperty.ofReadWrite(
+        this, "details", SimpleLegalEntity.class, (Class) Map.class);
+    /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", SimpleLegalEntity.class, String.class);
+    /**
+     * The meta-property for the {@code ratings} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Rating>> _ratings = DirectMetaProperty.ofReadWrite(
+        this, "ratings", SimpleLegalEntity.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code capabilities} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Capability>> _capabilities = DirectMetaProperty.ofReadWrite(
+        this, "capabilities", SimpleLegalEntity.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code issuedSecurities} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<ExternalIdBundle>> _issuedSecurities = DirectMetaProperty.ofReadWrite(
+        this, "issuedSecurities", SimpleLegalEntity.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code obligations} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Obligation>> _obligations = DirectMetaProperty.ofReadWrite(
+        this, "obligations", SimpleLegalEntity.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code rootPortfolio} property.
+     */
+    private final MetaProperty<RootPortfolio> _rootPortfolio = DirectMetaProperty.ofReadWrite(
+        this, "rootPortfolio", SimpleLegalEntity.class, RootPortfolio.class);
+    /**
+     * The meta-property for the {@code accounts} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Account>> _accounts = DirectMetaProperty.ofReadWrite(
+        this, "accounts", SimpleLegalEntity.class, (Class) List.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "type",
-        "regionExternalId",
-        "exchangeExternalId",
-        "customExternalId",
-        "currency",
-        "holidayDates");
+        "externalIdBundle",
+        "attributes",
+        "details",
+        "name",
+        "ratings",
+        "capabilities",
+        "issuedSecurities",
+        "obligations",
+        "rootPortfolio",
+        "accounts");
 
     /**
      * Restricted constructor.
@@ -483,18 +652,26 @@ public class SimpleLegalEntity extends DirectBean
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case 3575610:  // type
-          return _type;
-        case -62093222:  // regionExternalId
-          return _regionExternalId;
-        case 323354825:  // exchangeExternalId
-          return _exchangeExternalId;
-        case -1550240617:  // customExternalId
-          return _customExternalId;
-        case 575402001:  // currency
-          return _currency;
-        case -367347:  // holidayDates
-          return _holidayDates;
+        case -736922008:  // externalIdBundle
+          return _externalIdBundle;
+        case 405645655:  // attributes
+          return _attributes;
+        case 1557721666:  // details
+          return _details;
+        case 3373707:  // name
+          return _name;
+        case 983597686:  // ratings
+          return _ratings;
+        case -1487597642:  // capabilities
+          return _capabilities;
+        case 1643621609:  // issuedSecurities
+          return _issuedSecurities;
+        case 809305781:  // obligations
+          return _obligations;
+        case -2027978106:  // rootPortfolio
+          return _rootPortfolio;
+        case -2137146394:  // accounts
+          return _accounts;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -524,51 +701,83 @@ public class SimpleLegalEntity extends DirectBean
     }
 
     /**
-     * The meta-property for the {@code type} property.
+     * The meta-property for the {@code externalIdBundle} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<HolidayType> type() {
-      return _type;
+    public final MetaProperty<ExternalIdBundle> externalIdBundle() {
+      return _externalIdBundle;
     }
 
     /**
-     * The meta-property for the {@code regionExternalId} property.
+     * The meta-property for the {@code attributes} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> regionExternalId() {
-      return _regionExternalId;
+    public final MetaProperty<Map<String, String>> attributes() {
+      return _attributes;
     }
 
     /**
-     * The meta-property for the {@code exchangeExternalId} property.
+     * The meta-property for the {@code details} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> exchangeExternalId() {
-      return _exchangeExternalId;
+    public final MetaProperty<Map<String, String>> details() {
+      return _details;
     }
 
     /**
-     * The meta-property for the {@code customExternalId} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> customExternalId() {
-      return _customExternalId;
+    public final MetaProperty<String> name() {
+      return _name;
     }
 
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code ratings} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> currency() {
-      return _currency;
+    public final MetaProperty<List<Rating>> ratings() {
+      return _ratings;
     }
 
     /**
-     * The meta-property for the {@code holidayDates} property.
+     * The meta-property for the {@code capabilities} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<LocalDate>> holidayDates() {
-      return _holidayDates;
+    public final MetaProperty<List<Capability>> capabilities() {
+      return _capabilities;
+    }
+
+    /**
+     * The meta-property for the {@code issuedSecurities} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<ExternalIdBundle>> issuedSecurities() {
+      return _issuedSecurities;
+    }
+
+    /**
+     * The meta-property for the {@code obligations} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<Obligation>> obligations() {
+      return _obligations;
+    }
+
+    /**
+     * The meta-property for the {@code rootPortfolio} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<RootPortfolio> rootPortfolio() {
+      return _rootPortfolio;
+    }
+
+    /**
+     * The meta-property for the {@code accounts} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<Account>> accounts() {
+      return _accounts;
     }
 
     //-----------------------------------------------------------------------
@@ -577,18 +786,26 @@ public class SimpleLegalEntity extends DirectBean
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return ((SimpleLegalEntity) bean).getUniqueId();
-        case 3575610:  // type
-          return ((SimpleLegalEntity) bean).getType();
-        case -62093222:  // regionExternalId
-          return ((SimpleLegalEntity) bean).getRegionExternalId();
-        case 323354825:  // exchangeExternalId
-          return ((SimpleLegalEntity) bean).getExchangeExternalId();
-        case -1550240617:  // customExternalId
-          return ((SimpleLegalEntity) bean).getCustomExternalId();
-        case 575402001:  // currency
-          return ((SimpleLegalEntity) bean).getCurrency();
-        case -367347:  // holidayDates
-          return ((SimpleLegalEntity) bean).getHolidayDates();
+        case -736922008:  // externalIdBundle
+          return ((SimpleLegalEntity) bean).getExternalIdBundle();
+        case 405645655:  // attributes
+          return ((SimpleLegalEntity) bean).getAttributes();
+        case 1557721666:  // details
+          return ((SimpleLegalEntity) bean).getDetails();
+        case 3373707:  // name
+          return ((SimpleLegalEntity) bean).getName();
+        case 983597686:  // ratings
+          return ((SimpleLegalEntity) bean).getRatings();
+        case -1487597642:  // capabilities
+          return ((SimpleLegalEntity) bean).getCapabilities();
+        case 1643621609:  // issuedSecurities
+          return ((SimpleLegalEntity) bean).getIssuedSecurities();
+        case 809305781:  // obligations
+          return ((SimpleLegalEntity) bean).getObligations();
+        case -2027978106:  // rootPortfolio
+          return ((SimpleLegalEntity) bean).getRootPortfolio();
+        case -2137146394:  // accounts
+          return ((SimpleLegalEntity) bean).getAccounts();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -600,23 +817,35 @@ public class SimpleLegalEntity extends DirectBean
         case -294460212:  // uniqueId
           ((SimpleLegalEntity) bean).setUniqueId((UniqueId) newValue);
           return;
-        case 3575610:  // type
-          ((SimpleLegalEntity) bean).setType((HolidayType) newValue);
+        case -736922008:  // externalIdBundle
+          ((SimpleLegalEntity) bean).setExternalIdBundle((ExternalIdBundle) newValue);
           return;
-        case -62093222:  // regionExternalId
-          ((SimpleLegalEntity) bean).setRegionExternalId((ExternalId) newValue);
+        case 405645655:  // attributes
+          ((SimpleLegalEntity) bean).setAttributes((Map<String, String>) newValue);
           return;
-        case 323354825:  // exchangeExternalId
-          ((SimpleLegalEntity) bean).setExchangeExternalId((ExternalId) newValue);
+        case 1557721666:  // details
+          ((SimpleLegalEntity) bean).setDetails((Map<String, String>) newValue);
           return;
-        case -1550240617:  // customExternalId
-          ((SimpleLegalEntity) bean).setCustomExternalId((ExternalId) newValue);
+        case 3373707:  // name
+          ((SimpleLegalEntity) bean).setName((String) newValue);
           return;
-        case 575402001:  // currency
-          ((SimpleLegalEntity) bean).setCurrency((Currency) newValue);
+        case 983597686:  // ratings
+          ((SimpleLegalEntity) bean).setRatings((List<Rating>) newValue);
           return;
-        case -367347:  // holidayDates
-          ((SimpleLegalEntity) bean).setHolidayDates((List<LocalDate>) newValue);
+        case -1487597642:  // capabilities
+          ((SimpleLegalEntity) bean).setCapabilities((List<Capability>) newValue);
+          return;
+        case 1643621609:  // issuedSecurities
+          ((SimpleLegalEntity) bean).setIssuedSecurities((List<ExternalIdBundle>) newValue);
+          return;
+        case 809305781:  // obligations
+          ((SimpleLegalEntity) bean).setObligations((List<Obligation>) newValue);
+          return;
+        case -2027978106:  // rootPortfolio
+          ((SimpleLegalEntity) bean).setRootPortfolio((RootPortfolio) newValue);
+          return;
+        case -2137146394:  // accounts
+          ((SimpleLegalEntity) bean).setAccounts((List<Account>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -624,7 +853,15 @@ public class SimpleLegalEntity extends DirectBean
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._holidayDates, "holidayDates");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._attributes, "attributes");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._details, "details");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._name, "name");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._ratings, "ratings");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._capabilities, "capabilities");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._issuedSecurities, "issuedSecurities");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._obligations, "obligations");
+      JodaBeanUtils.notNull(((SimpleLegalEntity) bean)._accounts, "accounts");
     }
 
   }
