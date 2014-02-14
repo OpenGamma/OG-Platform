@@ -334,7 +334,7 @@ public class BondLoader extends SecurityLoader {
       final String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
 
       ManageableSecurity bondSecurity;
-      final ExternalId legalEntityId = ExternalId.of("CUSIP_ISSUER_STUB", cusip.substring(0, 6));
+      final ExternalId legalEntityId = ExternalId.of(ExternalSchemes.CUSIP_ENTITY_STUB, cusip.substring(0, 6));
       if ((inflationIndicator != null) && (inflationIndicator.trim().toUpperCase().startsWith("Y"))) {
         bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,

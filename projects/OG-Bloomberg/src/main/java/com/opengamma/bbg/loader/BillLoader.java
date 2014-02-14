@@ -202,7 +202,7 @@ public class BillLoader extends SecurityLoader {
       final String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
       final ExternalId regionId = ExternalSchemes.financialRegionId(country);
       final String cusip = validateAndGetStringField(fieldData, FIELD_ID_CUSIP);
-      final ExternalId legalEntityId = ExternalId.of("CUSIP_ISSUER_STUB", cusip.substring(0, 6));
+      final ExternalId legalEntityId = ExternalId.of(ExternalSchemes.CUSIP_ENTITY_STUB, cusip.substring(0, 6));
       final ManageableSecurity billSecurity = new BillSecurity(currency, maturity, issueDate, minimumIncrement, daysToSettle,
           regionId, yieldConvention, dayCount, legalEntityId);
 
