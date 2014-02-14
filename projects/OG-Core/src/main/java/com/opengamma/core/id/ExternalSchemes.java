@@ -41,6 +41,10 @@ public class ExternalSchemes {
    */
   public static final ExternalScheme CUSIP = ExternalScheme.of("CUSIP");
   /**
+   * Identification scheme for the CUSIP entity stub code.
+   */
+  public static final ExternalScheme CUSIP_ENTITY_STUB = ExternalScheme.of("CUSIP_ENTITY_STUB");
+  /**
    * Identification scheme for SEDOL1.
    */
   public static final ExternalScheme SEDOL1 = ExternalScheme.of("SEDOL1");
