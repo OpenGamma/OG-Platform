@@ -114,7 +114,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   @Override
   public CurveNodeIdMapper buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String name;
-    if (message.hasField(NAME_FIELD)) {
+  if (message.hasField(NAME_FIELD)) {
       name = message.getString(NAME_FIELD);
     } else {
       name = null;

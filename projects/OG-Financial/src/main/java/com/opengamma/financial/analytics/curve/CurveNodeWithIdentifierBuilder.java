@@ -75,9 +75,9 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
   @Override
   public CurveNodeWithIdentifier visitBillNode(final BillNode node) {
     final Tenor tenor = node.getMaturityTenor();
-    final ExternalId identifier = _nodeIdMapper.getBondNodeId(_curveDate, tenor);
-    final String dataField = _nodeIdMapper.getBondNodeDataField(tenor);
-    final DataFieldType fieldType = _nodeIdMapper.getBondNodeDataFieldType(tenor);
+    final ExternalId identifier = _nodeIdMapper.getBillNodeId(_curveDate, tenor);
+    final String dataField = _nodeIdMapper.getBillNodeDataField(tenor);
+    final DataFieldType fieldType = _nodeIdMapper.getBillNodeDataFieldType(tenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 
