@@ -21,6 +21,7 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -55,6 +56,8 @@ public enum InterestRateInstrumentType {
   FRA,
   /** Interest rate future */
   IR_FUTURE,
+  /** Fed fund future */
+  FED_FUND_FUTURE,
   /** Coupon bond */
   COUPON_BOND,
   /** Bond future */
@@ -138,6 +141,11 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
       return InterestRateSwapSecurityUtils.getSwapType(security);
+    }
+    
+    @Override
+    public InterestRateInstrumentType visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+      return FED_FUND_FUTURE;
     }
   }
 

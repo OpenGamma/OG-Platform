@@ -77,8 +77,8 @@ public class DataSetsUSD20140122OnOisLibor3MIrs {
   private static final double NOTIONAL = 1.0;
 
   private static final GeneratorSwapFixedON GENERATOR_OIS_USD = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
-  private static final IndexON INDEX_ON_USD = GENERATOR_OIS_USD.getIndex();
-  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, INDEX_ON_USD.getDayCount());
+  private static final IndexON USDFEDFUND = GENERATOR_OIS_USD.getIndex();
+  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, USDFEDFUND.getDayCount());
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", NYC);
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
@@ -184,7 +184,7 @@ public class DataSetsUSD20140122OnOisLibor3MIrs {
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD };
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
-    FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
+    FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {USDFEDFUND });
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_USD, new IborIndex[] {USDLIBOR3M });
   }
 
@@ -212,6 +212,30 @@ public class DataSetsUSD20140122OnOisLibor3MIrs {
 
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSD() {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0);
+  }
+
+  /**
+   * Returns the array of Ibor index used in the curve data set. 
+   * @return The array: USDLIBOR3M 
+   */
+  public static IborIndex[] indexIborArray() {
+    return new IborIndex[] {USDLIBOR3M };
+  }
+
+  /**
+   * Returns the array of overnight index used in the curve data set. 
+   * @return The array: USDFEDFUND 
+   */
+  public static IndexON[] indexONArray() {
+    return new IndexON[] {USDFEDFUND };
+  }
+
+  /**
+   * Returns the array of calendars used in the curve data set. 
+   * @return The array: NYC 
+   */
+  public static Calendar[] calendarArray() {
+    return new Calendar[] {NYC };
   }
 
   @SuppressWarnings("unchecked")

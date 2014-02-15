@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -42,9 +41,9 @@ import com.opengamma.util.tuple.Pair;
 @Test(groups = TestGroup.UNIT)
 public class ForwardRateAgreementDiscountingMethodE2ETest {
 
-  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
-  private static final IborIndex USDLIBOR3M = INDEX_LIST[2];
-  private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getUSDCalendar();
+  private static final IborIndex[] INDEX_IBOR_LIST = DataSetsUSD20140122OnOisLibor3MIrs.indexIborArray();
+  private static final IborIndex USDLIBOR3M = INDEX_IBOR_LIST[0];
+  private static final Calendar CALENDAR = DataSetsUSD20140122OnOisLibor3MIrs.calendarArray()[0];
   private static final Currency CUR = USDLIBOR3M.getCurrency();
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
