@@ -29,7 +29,7 @@ public class AnnuallyCompoundedForwardSensitivity extends ForwardSensitivity {
    */
   @Override
   public String toString() {
-    return "AnnualyCompoundedForwardSensitivity []";
+    return "AnnuallyCompoundedForwardSensitivity []";
   }
 
 }
