@@ -5,14 +5,10 @@
  */
 package com.opengamma.web.legalentity;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -33,12 +29,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.legalentity.Account;
 import com.opengamma.core.legalentity.Obligation;
-import com.opengamma.core.legalentity.RootPortfolio;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.legalentity.LegalEntityDocument;

@@ -7,7 +7,6 @@ package com.opengamma.web.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -16,7 +15,6 @@ import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.QuantityFunction;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
@@ -57,7 +55,6 @@ import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.value.SimpleRenamingFunction;
-import com.opengamma.financial.value.ValueRenamingFunction;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
 
 /**

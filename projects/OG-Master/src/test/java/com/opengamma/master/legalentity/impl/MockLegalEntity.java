@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.legalentity.impl;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
