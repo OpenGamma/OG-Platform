@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.model.option.pricing.tree.BarrierOption
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Adaptive mesh method for single barrier options
  */
 public class AdaptiveLatticeSpecification extends LatticeSpecification {
   private static final double SHIFT = 1.e-12;
@@ -55,10 +55,8 @@ public class AdaptiveLatticeSpecification extends LatticeSpecification {
     final double dx0 = volatility * Math.sqrt(3.) * rootDt;
 
     final int position = (int) Math.round(Math.log(spot / barrier) / dx0);
-    final double lambdaSqRoot = Math.log(modBarrier / spot) / (position * volatility * rootDt);
+    final double lambdaSqRoot = Math.abs(Math.log(modBarrier / spot) / (position * volatility * rootDt));
     final double dx = volatility * lambdaSqRoot * rootDt;
-
-    //    System.out.println(spot * Math.exp(position * dx));
 
     final double upFactor = Math.exp(dx);
     final double downFactor = Math.exp(-dx);

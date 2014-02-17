@@ -34,68 +34,6 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
   private static final double[] INTERESTS = new double[] {0.015, 0.05 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
 
-  @Test(enabled = false)
-  public void testc() {
-    final String type = "UpAndOut";
-    final boolean isCall = false;
-    final double strike = 114.;
-    final double interest = 0.05;
-    final double vol = 0.02;
-    final double dividend = 0.005;
-    final double barrier = 112.;
-    final int[] nStepsSet = new int[] {420, 421, 422 };
-    for (final int nSteps : nStepsSet) {
-      final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
-          EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-      final LatticeSpecification lattice1 = new AdaptiveLatticeSpecification(function);
-      final LatticeSpecification lattice2 = new CoxRossRubinsteinLatticeSpecification();
-      double exact = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
-      final double res1 = _modelTrinomial.getPrice(lattice1, function, SPOT, vol, interest, dividend);
-      final double res2 = _modelTrinomial.getPrice(lattice2, function, SPOT, vol, interest, dividend);
-      System.out.println(nSteps + "\t" + res1 + "\t" + res2 + "\t" + exact);
-    }
-  }
-
-  /**
-   * 
-   */
-  @Test(enabled = false)
-  public void test() {
-    final double[] vols = new double[] {0.02 };
-
-    final double[] barrierSet = new double[] {90., 112. };
-    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
-    final boolean[] tfSet = new boolean[] {true, false };
-    for (final double barrier : barrierSet) {
-      for (final String type : typeSet) {
-        for (final boolean isCall : tfSet) {
-          for (final double strike : STRIKES) {
-            for (final double interest : INTERESTS) {
-              for (final double vol : vols) {
-                for (final double dividend : DIVIDENDS) {
-
-                  System.out.println(type + "\t" + isCall + "\t" + strike + "\t" + interest + "\t" + vol + "\t" + dividend + "\t" + barrier);
-                  for (int i = 0; i < 400; ++i) {
-                    final int nSteps = 41 + 1 * i;
-                    final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
-                        EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                    final LatticeSpecification lattice1 = new AdaptiveLatticeSpecification(function);
-                    final LatticeSpecification lattice2 = new CoxRossRubinsteinLatticeSpecification();
-                    double exact = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
-                    final double res1 = _modelTrinomial.getPrice(lattice1, function, SPOT, vol, interest, dividend);
-                    final double res2 = _modelTrinomial.getPrice(lattice2, function, SPOT, vol, interest, dividend);
-                    System.out.println(nSteps + "\t" + res1 + "\t" + res2 + "\t" + exact);
-                  }
-                  System.out.println("\n");
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
   /**
    * 
    */
@@ -105,7 +43,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
     final double[] vols = new double[] {0.02 };
 
     final int nSteps = 3121;
-    final int nStepsAd = 165;
+    final int nStepsAdm = 165;
     final double[] barrierSet = new double[] {90., 112. };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
     final boolean[] tfSet = new boolean[] {true, false };
@@ -122,11 +60,11 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                   final double res = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
                   assertEquals(res, exact, Math.max(exact, 1.) * 1.e-2);
 
-                  final OptionFunctionProvider1D functionAd = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nStepsAd, isCall, barrier,
+                  final OptionFunctionProvider1D functionAdm = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nStepsAdm, isCall, barrier,
                       EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                  final LatticeSpecification latticeAd = new AdaptiveLatticeSpecification(functionAd);
-                  final double resAd = _modelTrinomial.getPrice(latticeAd, functionAd, SPOT, vol, interest, dividend);
-                  assertEquals(resAd, exact, Math.max(exact, 1.) * 1.e-2);
+                  final LatticeSpecification latticeAdm = new AdaptiveLatticeSpecification(functionAdm);
+                  final double resAdm = _modelTrinomial.getPrice(latticeAdm, functionAdm, SPOT, vol, interest, dividend);
+                  assertEquals(resAdm, exact, Math.max(exact, 1.) * 1.e-2);
                 }
               }
             }
