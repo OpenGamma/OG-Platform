@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.ser.xml.JodaBeanXmlWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.convention.ConventionType;
 import com.opengamma.id.VersionCorrection;
@@ -50,6 +53,7 @@ import com.opengamma.util.JodaBeanSerialization;
  */
 @BeanDefinition
 public class MultiFileConventionSaver extends DirectBean {
+  private static final Logger s_logger = LoggerFactory.getLogger(MultiFileConventionSaver.class);
   private static final boolean PRETTY = true;
   @PropertyDefinition
   private File _zipFileName;
@@ -83,18 +87,36 @@ public class MultiFileConventionSaver extends DirectBean {
     for (ConventionDocument document : searchResult.getDocuments()) {
       latest.add(getConventionMaster().get(document.getObjectId(), VersionCorrection.LATEST));
     }
-    JodaBeanXmlWriter xmlWriter = JodaBeanSerialization.serializer(PRETTY).xmlWriter();
+
+    Set<String> fileNames = new HashSet<String>();
     for (ConventionDocument document : latest) {
       ManageableConvention convention = document.getConvention();
-      ZipEntry entry = new ZipEntry(conventionType.getName() + "/" + document.getName());
+      String fileName = escapeFileName(convention.getName());
+      if (!convention.getName().equals(document.getName())) {
+        s_logger.warn("Convention document {} contains convention with differing name {}", document.getName(), convention.getName());
+      }
+      if (fileNames.contains(fileName)) {
+        int count = 1;
+        String duplicateFileName;
+        do {
+          duplicateFileName = fileName + " (" + count + ")";
+        } while (fileNames.contains(duplicateFileName));
+        s_logger.warn("Found duplicate convention {}, exporting as {}", fileName, duplicateFileName);
+        fileName = duplicateFileName;
+      }
+      fileNames.add(fileName);
+      ZipEntry entry = new ZipEntry(conventionType.getName() + "/" + fileName + ".xml");
       out.putNextEntry(entry);
-      StringBuilder sb = new StringBuilder();
-      xmlWriter.writeToBuilder(convention, PRETTY);
-      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-      writer.write(sb.toString());
-      writer.flush();
+      JodaBeanXmlWriter xmlWriter = JodaBeanSerialization.serializer(PRETTY).xmlWriter();
+      StringBuilder sb = xmlWriter.writeToBuilder(convention, PRETTY);
+      out.write(sb.toString().getBytes(Charset.forName("UTF-8")));
       out.closeEntry();
     }
+  }
+  
+  private String escapeFileName(String name) {
+    String escapedForwardSlashes = name.replaceAll("/", "\\/");
+    return escapedForwardSlashes.replaceAll("~", "\\~");
   }
   
 
