@@ -23,9 +23,11 @@ $.register_module({
             details = common.details, history = common.util.history,
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
-            view, details_page, portfolio_name,
+            view, details_page, portfolio_name, dialog
             create_portolio = function () {
-                $(this).dialog('close');
+                if(dialog) {
+                  dialog.dialog('close');
+                }
                 api.rest.portfolios.put({
                     handler: function (result) {
                         var args = routes.current().args, rule = view.rules.load_item;
@@ -39,7 +41,7 @@ $.register_module({
             },
             toolbar_buttons = {
                 'new': function () {
-                    ui.dialog({
+                    dialog = ui.dialog({
                         width: 400, height: 190,
                         type: 'input',
                         title: 'Add New Portfolio',
@@ -47,14 +49,6 @@ $.register_module({
                         buttons: {
                             'OK': create_portolio,
                             'Cancel': function () {$(this).dialog('close');}
-                        },
-                        open: function (event, ui) {
-                            $(this).keydown(function (event) {
-                                if (event.which === $.ui.keyCode.ENTER) {
-                                    $(this).dialog('close');
-                                    create_portolio();
-                                }
-                            });
                         }
                     });
                 },

@@ -151,6 +151,7 @@ $.register_module({
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');
+            return $obj;
         };
     }
 });
