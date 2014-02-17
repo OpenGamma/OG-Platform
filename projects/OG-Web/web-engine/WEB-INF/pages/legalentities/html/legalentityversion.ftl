@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="LegalEntity - ${legalEntityDoc.name}">
+<@page title="LegalEntity - ${legalEntityDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This legal entity has been deleted</p>
@@ -16,10 +16,15 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-    <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="legalEntityXML" id="xmltextarea" readonly>${legalEntityXML}</textarea></div>
+    <div id="ace-xml-editor">${legalEntityXML}</div>
 </@subsection>
-</@section>
 
+<script type="text/javascript">
+var editor = ace.edit("ace-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+$("#ace-xml-editor").show()
+</script>
+</@section>
 
 <#-- SECTION Links -->
 <@section title="Links">
