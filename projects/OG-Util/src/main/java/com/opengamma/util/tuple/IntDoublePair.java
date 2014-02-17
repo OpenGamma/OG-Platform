@@ -16,7 +16,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -336,7 +336,7 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
   /**
    * The bean-builder for {@code IntDoublePair}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<IntDoublePair> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IntDoublePair> {
 
     /** The first element. */
     private int _first;
@@ -347,7 +347,7 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
      * Restricted constructor.
      */
     private Builder() {
-      super(IntDoublePair.Meta.INSTANCE);
+      super();
     }
 
     //-----------------------------------------------------------------------
@@ -363,6 +363,12 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
       return this;
     }
 

@@ -14,7 +14,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -224,7 +224,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable 
    * The bean-builder for {@code ObjectsPair}.
    */
   @SuppressWarnings({"rawtypes" })
-  private static final class Builder extends BasicImmutableBeanBuilder<ObjectsPair> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ObjectsPair> {
 
     /** The first element. */
     private Object _first;
@@ -235,7 +235,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable 
      * Restricted constructor.
      */
     private Builder() {
-      super(ObjectsPair.Meta.INSTANCE);
+      super();
     }
 
     //-----------------------------------------------------------------------
@@ -251,6 +251,12 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable 
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
