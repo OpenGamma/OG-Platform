@@ -116,7 +116,7 @@ public class MultiFileConventionSaver extends DirectBean {
   
   private String escapeFileName(String name) {
     String escapedForwardSlashes = name.replaceAll("/", " SLASH ");
-    return escapedForwardSlashes.replaceAll("~", " TILDE ").replaceAll("\\", " BACKSLASH ");
+    return escapedForwardSlashes.replaceAll("~", " TILDE ").replaceAll("\\\\", " BACKSLASH ");
   }
   
 
