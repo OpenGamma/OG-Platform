@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="LegalEntity - ${legalEntityDoc.name}">
+<@page title="LegalEntity - ${legalEntityDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This legal entity has been deleted</p>
