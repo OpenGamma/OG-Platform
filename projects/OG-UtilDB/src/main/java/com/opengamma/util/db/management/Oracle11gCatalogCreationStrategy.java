@@ -60,6 +60,8 @@ public class Oracle11gCatalogCreationStrategy implements CatalogCreationStrategy
     try {
       if (_systemUser != null && !_systemUser.equals("")) {
         conn = DriverManager.getConnection(getCatalogToConnectTo(), _systemUser, _systemPassword);
+      } else if (_user != null && !_user.equals("")) {
+        conn = DriverManager.getConnection(getCatalogToConnectTo(), _user, _password);
       } else {
         // PLAT-2745, if we do not have a user, then client may be
         // attempting to login to MSSQL using integratedSecurity
