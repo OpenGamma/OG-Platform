@@ -73,22 +73,22 @@ public class MultiFileConventionSaver extends DirectBean {
     ConventionMetaDataResult result = getConventionMaster().metaData(request);
     
     for (ConventionType conventionType : result.getConventionTypes()) {
-      outputFilesForConfigClass(conventionType, out);
+      outputFilesForConventionType(conventionType, out);
     }
     out.close();
   }
   
-  protected void outputFilesForConfigClass(ConventionType conventionType, ZipOutputStream out) throws IOException {
-    System.out.println("Outputting files for " + conventionType);
+  protected void outputFilesForConventionType(ConventionType conventionType, ZipOutputStream out) throws IOException {
+    s_logger.info("Outputting files for {}", conventionType);
     ConventionSearchRequest searchRequest = new ConventionSearchRequest();
     searchRequest.setConventionType(conventionType);
     ConventionSearchResult searchResult = getConventionMaster().search(searchRequest);
-    Set<ConventionDocument> latest = new HashSet<ConventionDocument>();
+    Set<ConventionDocument> latest = new HashSet<>();
     for (ConventionDocument document : searchResult.getDocuments()) {
       latest.add(getConventionMaster().get(document.getObjectId(), VersionCorrection.LATEST));
     }
 
-    Set<String> fileNames = new HashSet<String>();
+    Set<String> fileNames = new HashSet<>();
     for (ConventionDocument document : latest) {
       ManageableConvention convention = document.getConvention();
       String fileName = escapeFileName(convention.getName());
@@ -115,8 +115,8 @@ public class MultiFileConventionSaver extends DirectBean {
   }
   
   private String escapeFileName(String name) {
-    String escapedForwardSlashes = name.replaceAll("/", "\\/");
-    return escapedForwardSlashes.replaceAll("~", "\\~");
+    String escapedForwardSlashes = name.replaceAll("/", " SLASH ");
+    return escapedForwardSlashes.replaceAll("~", " TILDE ").replaceAll("\\", " BACKSLASH ");
   }
   
 
