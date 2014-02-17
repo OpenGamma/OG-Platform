@@ -7,6 +7,9 @@ package com.opengamma.core.convention;
 
 import java.io.Serializable;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -30,6 +33,7 @@ public final class ConventionType implements Comparable<ConventionType>, Seriali
    * @param name  the convention name, not null
    * @return the convention type, not null
    */
+  @FromString
   public static ConventionType of(String name) {
     return new ConventionType(name);
   }
@@ -103,6 +107,7 @@ public final class ConventionType implements Comparable<ConventionType>, Seriali
    * @return the string form, not null
    */
   @Override
+  @ToString
   public String toString() {
     return _name;
   }
