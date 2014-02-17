@@ -7,6 +7,24 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M10p01
+--------------
+* Improvement
+    * [PLAT-5688] - Port CFG DB sub-system to Oracle
+
+    Add the following dependency to your project's pom.xml for oracle database support.
+
+    <dependency>
+       <groupId>com.oracle</groupId>
+       <artifactId>ojdbc6</artifactId>
+       <version>11.2.0</version>
+    </dependency>
+
+    In order to add the oracle driver binary to your local mavan repository, issue following command :            ]
+
+    mvn install:install-file -Dfile={Path/to/your/ojdbc.jar} -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0 -Dpackaging=jar
+
+
 To 2.2.0-M10
 ------------
 * Source compatibility
