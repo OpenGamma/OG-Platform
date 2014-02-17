@@ -7,7 +7,6 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -34,8 +33,11 @@ import groovy.lang.Script;
 public abstract class StandAloneScenarioScript extends Script {
 
   private final ViewDelegate _viewDelegate = new ViewDelegate();
-  private final List<Map<String, Object>> _scenarioParams = Lists.newArrayList();
+  private final List<Map<String, Object>> _scenarioParamList = Lists.newArrayList();
   private final Simulation _simulation = new Simulation("todo - what name for the simulation? does it matter?");
+
+  /** Scenario parameters keyed by scenario name. The parameters are parameter values keyed by parameter name. */
+  private final Map<String, Map<String, Object>> _scenarioParameters = Maps.newHashMap();
 
   public StandAloneScenarioScript() {
     InputStream scriptStream = SimulationScript.class.getResourceAsStream("InitializeScript.groovy");
@@ -56,7 +58,7 @@ public abstract class StandAloneScenarioScript extends Script {
     body.setDelegate(delegate);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
-    _scenarioParams.addAll(delegate.cartesianProduct());
+    _scenarioParamList.addAll(delegate.cartesianProduct());
   }
 
   public void shockList(Closure<?> body) {
@@ -64,11 +66,11 @@ public abstract class StandAloneScenarioScript extends Script {
     body.setDelegate(delegate);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
-    _scenarioParams.addAll(delegate.list());
+    _scenarioParamList.addAll(delegate.list());
   }
 
   public void scenarios(Closure<?> body) {
-    for (Map<String, Object> params : _scenarioParams) {
+    for (Map<String, Object> params : _scenarioParamList) {
       List<String> varNamesAndValues = Lists.newArrayListWithCapacity(params.size());
       for (Map.Entry<String, Object> entry : params.entrySet()) {
         String varName = entry.getKey();
@@ -77,7 +79,9 @@ public abstract class StandAloneScenarioScript extends Script {
         String varStr = (varValue instanceof String) ? "'" + varValue + "'" : varValue.toString();
         varNamesAndValues.add(varName + "=" + varStr);
       }
-      Scenario scenario = _simulation.scenario(StringUtils.join(varNamesAndValues, ", "));
+      String scenarioName = StringUtils.join(varNamesAndValues, ", ");
+      Scenario scenario = _simulation.scenario(scenarioName);
+      _scenarioParameters.put(scenarioName, params);
       body.setDelegate(new ScenarioDelegate(scenario));
       body.call();
     }
@@ -88,8 +92,16 @@ public abstract class StandAloneScenarioScript extends Script {
     return _viewDelegate;
   }
 
-  /* package */ List<Map<String, Object>> getScenarioParameters() {
-    return _scenarioParams;
+  /* package */ List<Map<String, Object>> getScenarioParameterList() {
+    return Collections.unmodifiableList(_scenarioParamList);
+  }
+
+  /* package */ Map<String, Object> getScenarioParameters(String scenarioName) {
+    Map<String, Object> parameters = _scenarioParameters.get(scenarioName);
+    if (parameters == null) {
+      throw new IllegalArgumentException("No scenario found named " + scenarioName);
+    }
+    return parameters;
   }
 
   /* package */ Simulation getSimulation() {

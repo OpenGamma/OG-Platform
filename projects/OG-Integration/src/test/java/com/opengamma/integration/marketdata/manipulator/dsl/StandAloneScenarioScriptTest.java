@@ -88,7 +88,7 @@ public class StandAloneScenarioScriptTest {
         "  bar = ['a', 'b', 'c']\n" +
         "}";
     StandAloneScenarioScript script = createScript(scriptText);
-    List<Map<String,Object>> params = script.getScenarioParameters();
+    List<Map<String,Object>> params = script.getScenarioParameterList();
     assertEquals(3, params.size());
 
     assertEquals(1, params.get(0).get(FOO));
@@ -109,7 +109,7 @@ public class StandAloneScenarioScriptTest {
         "  bar = ['a', 'b']\n" +
         "}";
     StandAloneScenarioScript script = createScript(scriptText);
-    List<Map<String,Object>> params = script.getScenarioParameters();
+    List<Map<String,Object>> params = script.getScenarioParameterList();
     assertEquals(4, params.size());
 
     assertEquals(1, params.get(0).get(FOO));
@@ -185,7 +185,7 @@ public class StandAloneScenarioScriptTest {
         "  foo = [100.bp, 20.pc, 1.y]\n" +
         "}";
     StandAloneScenarioScript script = createScript(scriptText);
-    List<Map<String,Object>> params = script.getScenarioParameters();
+    List<Map<String,Object>> params = script.getScenarioParameterList();
     assertEquals(3, params.size());
 
     assertEquals(new BigDecimal("0.01"), params.get(0).get(FOO));

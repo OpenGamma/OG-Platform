@@ -50,7 +50,7 @@ public class StandAloneScenarioRunner {
    * @throws IOException If the script file can't be found or read
    * @throws IllegalArgumentException If any data in the script is invalid or missing
    */
-  public static ScenarioResults runScenarioScript(String scriptFileName) throws IOException {
+  public static List<ScenarioResultModel> runScenarioScript(String scriptFileName) throws IOException {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(StandAloneScenarioScript.class.getName());
     GroovyShell shell = new GroovyShell(config);
@@ -88,10 +88,16 @@ public class StandAloneScenarioRunner {
       }
       List<MarketDataSpecification> dataSpecs = convertMarketData(marketDataSpecs,
                                                                   server.getMarketDataSnapshotMaster());
-      listener = new ScenarioListener();
-      script.getSimulation().run(viewDef.getUniqueId(), dataSpecs, false, listener, server.getViewProcessor());
+      Simulation simulation = script.getSimulation();
+      listener = new ScenarioListener(simulation.getScenarioNames());
+      simulation.run(viewDef.getUniqueId(), dataSpecs, false, listener, server.getViewProcessor());
     }
-    return listener.getResults();
+    List<SimpleResultModel> results = listener.getResults();
+    List<ScenarioResultModel> scenarioResults = Lists.newArrayListWithCapacity(results.size());
+    for (SimpleResultModel result : results) {
+      scenarioResults.add(new ScenarioResultModel(result, script.getScenarioParameters(result.getCycleName())));
+    }
+    return scenarioResults;
   }
 
   /**
