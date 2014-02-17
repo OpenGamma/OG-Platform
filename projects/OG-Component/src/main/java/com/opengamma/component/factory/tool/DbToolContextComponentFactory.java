@@ -123,6 +123,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   }
 
   static final String getStandardCatalog(final String jdbcUrl) {
+    if (jdbcUrl.startsWith("jdbc:oracle")) {
+      return "";
+    }
     // REVIEW jonathan 2012-10-12 -- workaround for PLAT-2745
     int lastSlashIdx = jdbcUrl.lastIndexOf("/");
     if (lastSlashIdx == -1) {
