@@ -10,6 +10,7 @@
     <table>
       <tr><td>OpenGamma version</td><td>${about.openGammaVersion}</td></tr>
       <tr><td>OpenGamma build</td><td>${about.openGammaBuild}</td></tr>
+      <tr><td>OpenGamma build ID</td><td>${about.openGammaBuildId}</td></tr>
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
       <tr><td>Time</td><td>${now.toInstant()} (UTC)</td></tr>
       <tr><td>Zoned time</td><td>${now}</td></tr>

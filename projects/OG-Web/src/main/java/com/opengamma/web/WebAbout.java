@@ -18,6 +18,7 @@ import java.util.TimeZone;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.ZoneId;
@@ -167,16 +168,25 @@ public class WebAbout {
    */
   public String getOpenGammaVersion() {
     String version = VersionUtils.deriveVersion();
-    return (version != null ? version : "?");
+    return StringUtils.defaultIfEmpty(version, "?");
   }
 
   /**
-   * Gets the OpenGamma version.
-   * @return the version, not null
+   * Gets the OpenGamma build.
+   * @return the build, not null
    */
   public String getOpenGammaBuild() {
     String build = VersionUtils.deriveBuild();
-    return (build != null ? build : "?");
+    return StringUtils.defaultIfEmpty(build, "?");
+  }
+
+  /**
+   * Gets the OpenGamma build ID.
+   * @return the build ID, not null
+   */
+  public String getOpenGammaBuildId() {
+    String buildId = VersionUtils.deriveBuildId();
+    return StringUtils.defaultIfEmpty(buildId, "?");
   }
 
   /**

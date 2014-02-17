@@ -57,6 +57,11 @@ public class ComponentServer implements Bean {
   @PropertyDefinition(set = "private")
   private String _build;
   /**
+   * The software build ID running at the server.
+   */
+  @PropertyDefinition(set = "private")
+  private String _buildId;
+  /**
    * The current instant based on the clock of the server.
    */
   @PropertyDefinition(set = "private")
@@ -82,6 +87,7 @@ public class ComponentServer implements Bean {
     setUri(uri);
     setVersion(VersionUtils.deriveVersion());
     setBuild(VersionUtils.deriveBuild());
+    setBuildId(VersionUtils.deriveBuildId());
     setCurrentInstant(Instant.now());
   }
 
@@ -270,6 +276,31 @@ public class ComponentServer implements Bean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the software build ID running at the server.
+   * @return the value of the property
+   */
+  public String getBuildId() {
+    return _buildId;
+  }
+
+  /**
+   * Sets the software build ID running at the server.
+   * @param buildId  the new value of the property
+   */
+  private void setBuildId(String buildId) {
+    this._buildId = buildId;
+  }
+
+  /**
+   * Gets the the {@code buildId} property.
+   * @return the property, not null
+   */
+  public final Property<String> buildId() {
+    return metaBean().buildId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the current instant based on the clock of the server.
    * @return the value of the property
    */
@@ -345,6 +376,7 @@ public class ComponentServer implements Bean {
       return JodaBeanUtils.equal(getUri(), other.getUri()) &&
           JodaBeanUtils.equal(getVersion(), other.getVersion()) &&
           JodaBeanUtils.equal(getBuild(), other.getBuild()) &&
+          JodaBeanUtils.equal(getBuildId(), other.getBuildId()) &&
           JodaBeanUtils.equal(getCurrentInstant(), other.getCurrentInstant()) &&
           JodaBeanUtils.equal(getComponentInfos(), other.getComponentInfos());
     }
@@ -357,6 +389,7 @@ public class ComponentServer implements Bean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBuild());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBuildId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrentInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComponentInfos());
     return hash;
@@ -364,7 +397,7 @@ public class ComponentServer implements Bean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("ComponentServer{");
     int len = buf.length();
     toString(buf);
@@ -379,6 +412,7 @@ public class ComponentServer implements Bean {
     buf.append("uri").append('=').append(JodaBeanUtils.toString(getUri())).append(',').append(' ');
     buf.append("version").append('=').append(JodaBeanUtils.toString(getVersion())).append(',').append(' ');
     buf.append("build").append('=').append(JodaBeanUtils.toString(getBuild())).append(',').append(' ');
+    buf.append("buildId").append('=').append(JodaBeanUtils.toString(getBuildId())).append(',').append(' ');
     buf.append("currentInstant").append('=').append(JodaBeanUtils.toString(getCurrentInstant())).append(',').append(' ');
     buf.append("componentInfos").append('=').append(JodaBeanUtils.toString(getComponentInfos())).append(',').append(' ');
   }
@@ -409,6 +443,11 @@ public class ComponentServer implements Bean {
     private final MetaProperty<String> _build = DirectMetaProperty.ofReadWrite(
         this, "build", ComponentServer.class, String.class);
     /**
+     * The meta-property for the {@code buildId} property.
+     */
+    private final MetaProperty<String> _buildId = DirectMetaProperty.ofReadWrite(
+        this, "buildId", ComponentServer.class, String.class);
+    /**
      * The meta-property for the {@code currentInstant} property.
      */
     private final MetaProperty<Instant> _currentInstant = DirectMetaProperty.ofReadWrite(
@@ -427,6 +466,7 @@ public class ComponentServer implements Bean {
         "uri",
         "version",
         "build",
+        "buildId",
         "currentInstant",
         "componentInfos");
 
@@ -445,6 +485,8 @@ public class ComponentServer implements Bean {
           return _version;
         case 94094958:  // build
           return _build;
+        case 230943785:  // buildId
+          return _buildId;
         case 367695400:  // currentInstant
           return _currentInstant;
         case 1349827208:  // componentInfos
@@ -494,6 +536,14 @@ public class ComponentServer implements Bean {
     }
 
     /**
+     * The meta-property for the {@code buildId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> buildId() {
+      return _buildId;
+    }
+
+    /**
      * The meta-property for the {@code currentInstant} property.
      * @return the meta-property, not null
      */
@@ -519,6 +569,8 @@ public class ComponentServer implements Bean {
           return ((ComponentServer) bean).getVersion();
         case 94094958:  // build
           return ((ComponentServer) bean).getBuild();
+        case 230943785:  // buildId
+          return ((ComponentServer) bean).getBuildId();
         case 367695400:  // currentInstant
           return ((ComponentServer) bean).getCurrentInstant();
         case 1349827208:  // componentInfos
@@ -539,6 +591,9 @@ public class ComponentServer implements Bean {
           return;
         case 94094958:  // build
           ((ComponentServer) bean).setBuild((String) newValue);
+          return;
+        case 230943785:  // buildId
+          ((ComponentServer) bean).setBuildId((String) newValue);
           return;
         case 367695400:  // currentInstant
           ((ComponentServer) bean).setCurrentInstant((Instant) newValue);

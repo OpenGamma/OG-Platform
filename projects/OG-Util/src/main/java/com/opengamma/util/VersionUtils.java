@@ -29,8 +29,10 @@ public final class VersionUtils {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(VersionUtils.class);
-  /** Build name. */
+  /** Build name (git hash). */
   private static final Attributes.Name IMPLEMENTATION_BUILD = new Attributes.Name("Implementation-Build");
+  /** Build ID (CI server ID). */
+  private static final Attributes.Name IMPLEMENTATION_BUILD_ID = new Attributes.Name("Implementation-Build-Id");
   /**
    * The local build version number.
    */
@@ -90,7 +92,7 @@ public final class VersionUtils {
   /**
    * Derives the OpenGamma version from the classpath and dependencies.
    * 
-   * @return the version, empty string if not known
+   * @return the version, null if not known
    */
   public static String deriveVersion() {
     URL url = ClasspathHelper.forClass(VersionUtils.class, VersionUtils.class.getClassLoader());
@@ -128,7 +130,7 @@ public final class VersionUtils {
   /**
    * Derives the OpenGamma build from the classpath and dependencies.
    * 
-   * @return the build, empty string if not known
+   * @return the build, null if not known
    */
   public static String deriveBuild() {
     URL url = ClasspathHelper.forClass(VersionUtils.class, VersionUtils.class.getClassLoader());
@@ -142,6 +144,36 @@ public final class VersionUtils {
             if (attributes != null) {
               if (attributes.getValue(IMPLEMENTATION_BUILD) != null) {
                 return attributes.getValue(IMPLEMENTATION_BUILD);
+              }
+            }
+          }
+        }
+      } catch (Exception ex) {
+        s_logger.warn(ex.getMessage(), ex);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Derives the OpenGamma build ID from the classpath and dependencies.
+   * <p>
+   * This ID is derived from the CI server.
+   * 
+   * @return the build ID, null if not known
+   */
+  public static String deriveBuildId() {
+    URL url = ClasspathHelper.forClass(VersionUtils.class, VersionUtils.class.getClassLoader());
+    if (url != null && url.toString().contains(".jar")) {
+      try {
+        final String part = ClasspathHelper.cleanPath(url);
+        try (JarFile myJar = new JarFile(part)) {
+          final Manifest manifest = myJar.getManifest();
+          if (manifest != null) {
+            Attributes attributes = manifest.getMainAttributes();
+            if (attributes != null) {
+              if (attributes.getValue(IMPLEMENTATION_BUILD_ID) != null) {
+                return attributes.getValue(IMPLEMENTATION_BUILD_ID);
               }
             }
           }
