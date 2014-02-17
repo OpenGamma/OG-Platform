@@ -91,7 +91,8 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
 
   //TODO shouldn't have to get the FRA tenor this way
   private static long getMonths(final ZonedDateTime accrualStart, final ZonedDateTime accrualEnd) {
-    return accrualStart.periodUntil(accrualEnd, ChronoUnit.MONTHS);
+    Period diff = Period.between(accrualStart.toLocalDate(), accrualEnd.toLocalDate());
+    return diff.getMonths() + (diff.getDays() > 15 ? 1 : 0);
   }
 
   private VanillaIborLegConvention getIborLegConvention(final Currency currency, final String tenorString) {
