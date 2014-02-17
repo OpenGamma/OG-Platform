@@ -53,7 +53,6 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(middleProbability < 1., "middleProbability should be smaller than 1.");
     ArgumentChecker.isTrue(downProbability > 0., "downProbability should be greater than 0.");
 
-    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(discount, upProbability, middleProbability, downProbability, values, spot, 0., downFactor, middleOverDown, i);
@@ -117,7 +116,6 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(downProbability[i] > 0., "downProbability should be greater than 0.");
     }
 
-    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(df[i], upProbability[i], middleProbability[i], downProbability[i], values, spot, 0., downFactor, middleOverDown, i);
@@ -171,7 +169,6 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    //    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiryTrinomial(assetPriceBase, downFactor, middleOverDown);
 
     int counter = 0;
@@ -297,7 +294,6 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(middleProbability < 1., "middleProbability should be smaller than 1.");
     ArgumentChecker.isTrue(downProbability > 0., "downProbability should be greater than 0.");
 
-    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     final double[] res = new double[4];
 
@@ -383,7 +379,6 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(downProbability[i] > 0., "downProbability should be greater than 0.");
     }
 
-    //    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     final double[] res = new double[4];
 
@@ -461,7 +456,6 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    //    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiryTrinomial(assetPriceBase, downFactor, middleOverDown);
 
     int counter = 0;
