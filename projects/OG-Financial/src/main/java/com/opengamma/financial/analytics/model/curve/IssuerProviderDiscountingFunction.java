@@ -53,6 +53,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -309,8 +310,9 @@ public class IssuerProviderDiscountingFunction extends
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
       final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+      final LegalEntitySource legalEntitySource = OpenGammaExecutionContext.getLegalEntitySource(context);
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
-          .billNodeVisitor(new BillNodeConverter(holidaySource, regionSource, securitySource, marketData, dataId, valuationTime))
+          .billNodeVisitor(new BillNodeConverter(holidaySource, regionSource, securitySource, legalEntitySource, marketData, dataId, valuationTime))
           .bondNodeVisitor(new BondNodeConverter(conventionBundleSource, holidaySource, regionSource, securitySource, marketData, dataId, valuationTime))
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))

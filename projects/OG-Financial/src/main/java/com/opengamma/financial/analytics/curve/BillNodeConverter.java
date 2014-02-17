@@ -5,16 +5,23 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
+import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntitySource;
+import com.opengamma.core.legalentity.Rating;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -41,6 +48,8 @@ public class BillNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   private final HolidaySource _holidaySource;
   /** The security source */
   private final SecuritySource _securitySource;
+  /** The legal entity source */
+  private final LegalEntitySource _legalEntitySource;
   /** The market data */
   private final SnapshotDataBundle _marketData;
   /** The market data id */
@@ -52,21 +61,24 @@ public class BillNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
    * @param regionSource The region source, not null
    * @param holidaySource The holiday source, not null
    * @param securitySource The security source, not null
+   * @param legalEntitySource The legal entity source, not null
    * @param marketData The market data, not null
    * @param dataId The market data id, not null
    * @param valuationTime The valuation time, not null
    */
-  public BillNodeConverter(final HolidaySource holidaySource, final RegionSource regionSource, final SecuritySource securitySource,
+  public BillNodeConverter(final HolidaySource holidaySource, final RegionSource regionSource, final SecuritySource securitySource, final LegalEntitySource legalEntitySource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(securitySource, "security source");
+    ArgumentChecker.notNull(legalEntitySource, "legalEntitySource");
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
     _regionSource = regionSource;
     _holidaySource = holidaySource;
     _securitySource = securitySource;
+    _legalEntitySource = legalEntitySource;
     _marketData = marketData;
     _dataId = dataId;
     _valuationTime = valuationTime;
@@ -78,8 +90,7 @@ public class BillNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     if (yield == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final Security security = _securitySource.getSingle(_dataId.toBundle()); //TODO this is in here because
-    // we can't ask for data by ISIN directly.
+    final Security security = _securitySource.getSingle(_dataId.toBundle()); //TODO this is in here because we can't ask for data by ISIN directly.
     if (!(security instanceof BillSecurity)) {
       throw new OpenGammaRuntimeException("Could not get security for " + security);
     }
@@ -92,10 +103,28 @@ public class BillNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final YieldConvention yieldConvention = billSecurity.getYieldConvention();
     final int settlementDays = billSecurity.getDaysToSettle();
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
-    final String isin = identifiers.getValue(ExternalSchemes.ISIN);
-    final String ticker = isin == null ? null : isin;
+    // TODO: [PLAT-5905] Add legal entity to node.
+    // Legal Entity
+    final com.opengamma.core.legalentity.LegalEntity legalEntityFromSource = _legalEntitySource.getSingle(billSecurity.getLegalEntityId());
+    final Collection<Rating> ratings = legalEntityFromSource.getRatings();
+    final String ticker;
+    if (identifiers != null) {
+      final String isin = identifiers.getValue(ExternalSchemes.ISIN);
+      ticker = isin == null ? null : isin;
+    } else {
+      ticker = null;
+    }
+    final String shortName = legalEntityFromSource.getName();
+    Set<CreditRating> creditRatings = null;
+    for (final Rating rating : ratings) {
+      if (creditRatings == null) {
+        creditRatings = new HashSet<>();
+      }
+      //TODO seniority level needs to go into the credit rating
+      creditRatings.add(CreditRating.of(rating.getRater(), rating.getScore().toString(), true));
+    }
     final Region region = Region.of(regionId.getValue(), Country.of(regionId.getValue()), billSecurity.getCurrency());
-    final LegalEntity legalEntity = new LegalEntity(ticker, ticker, null, null, region);
+    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, null, region);
     final BillSecurityDefinition securityDefinition = new BillSecurityDefinition(currency, maturityDate, 1, settlementDays, calendar, yieldConvention, dayCount, legalEntity);
     return BillTransactionDefinition.fromYield(securityDefinition, 1, _valuationTime, yield, calendar);
   }

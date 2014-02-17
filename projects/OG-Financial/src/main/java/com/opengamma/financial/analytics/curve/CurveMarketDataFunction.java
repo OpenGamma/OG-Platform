@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
@@ -174,7 +175,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
       for (final CurveNodeWithIdentifier id : nodes) {
         try {
           if (id.getDataField() != null) {
-            if (id.getCurveNode() instanceof BondNode) {
+            if ((id.getCurveNode() instanceof BondNode) || (id.getCurveNode() instanceof BillNode))  {
               requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
             } else {
               requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
@@ -237,7 +238,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
       for (final CurveNodeWithIdentifier id : specification.getNodes()) {
         if (id.getDataField() != null) {
           final ComputedValue value;
-          if (id.getCurveNode() instanceof BondNode) {
+          if ((id.getCurveNode() instanceof BondNode) || (id.getCurveNode() instanceof BillNode)) {
             value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
           } else {
             value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
