@@ -1194,7 +1194,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     for (int count : counts) {
       totalCount += count;
     }
-    if (totalCount != batchArgsArray.length && totalCount != -2) {
+    if (totalCount != batchArgsArray.length && totalCount != java.sql.Statement.SUCCESS_NO_INFO) {
       throw new RuntimeException(rowType + " insert count is wrong: expected = " +
         batchArgsArray.length + " actual = " + totalCount);
     }
