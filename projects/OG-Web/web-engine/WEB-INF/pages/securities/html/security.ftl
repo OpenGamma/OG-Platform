@@ -444,22 +444,13 @@
   <@form method="PUT" action="${uris.security()}" id="updateSecurityForm">
   <p>
     <@rowin>
-      <div id="ace-xml-editor">${securityXml}</div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
     <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
     <input type="hidden" name="type" value="xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
-    
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
 
-$("#updateSecurityForm").submit( function(eventObj) {
-  $("#security-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+<#noescape><@xmlEditorScript formId="updateSecurityForm" inputId="security-xml" xmlValue="${securityXml}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>

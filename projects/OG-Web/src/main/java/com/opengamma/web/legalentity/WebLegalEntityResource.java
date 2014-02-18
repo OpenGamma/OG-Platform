@@ -97,7 +97,7 @@ public class WebLegalEntityResource extends AbstractWebLegalEntityResource {
 
     final FlexiBean out = createRootData();
     final LegalEntityDocument doc = data().getLegalEntity();
-    out.put("legalEntityXML", createBeanXML(doc.getLegalEntity()));
+    out.put("legalEntityXML", StringEscapeUtils.escapeJava(createBeanXML(doc.getLegalEntity())));
     return getFreemarker().build(HTML_DIR + "legalentity.ftl", out);
   }
 

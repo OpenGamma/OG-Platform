@@ -27,20 +27,12 @@
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${legalEntityDoc.name}" /></@rowin>
     <@rowin>
-      <div id="ace-xml-editor">${legalEntityXML}</div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
     <input type="hidden" name="legalEntityXML" id="legalEntity-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-
-$("#updateForm").submit( function(eventObj) {
-  $("#legalEntity-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+    
+    <#noescape><@xmlEditorScript formId="updateForm" inputId="legalEntity-xml" xmlValue="${legalEntityXML}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>

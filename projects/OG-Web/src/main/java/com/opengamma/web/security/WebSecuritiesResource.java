@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -159,7 +160,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @FormParam("idvalue") String idValue,
       @FormParam(SECURITY_XML) String securityXml) {
     
-    type = StringUtils.defaultString(StringUtils.trimToNull(type), "");
+    type = StringUtils.defaultString(StringUtils.trimToNull(type));
     FlexiBean out = createRootData();
     URI responseURI = null;
     
@@ -175,7 +176,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
         } catch (Exception ex) {
           out.put("err_securityXml", true);
           out.put("err_securityXmlMsg", ex.getMessage());
-          out.put(SECURITY_XML, securityXml);
+          out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(securityXml)));
           String html = getFreemarker().build(HTML_DIR + "securities-add.ftl", out);
           return Response.ok(html).build();
         }

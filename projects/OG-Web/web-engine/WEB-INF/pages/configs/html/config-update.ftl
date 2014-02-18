@@ -8,22 +8,14 @@
   <p>
     <#if err_nameMissing??><div class="err">The name must be entered</div></#if>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${configDoc.name}" /></@rowin>
+    <#if err_xmlMissing??><div class="err">The configuration xml must be entered</div></#if>
     <@rowin label="Configuration (XML)">
-      <div id="ace-xml-editor">${configXML}</div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
     <@rowin><input type="hidden" name="configXML" id="config-xml"/></@rowin>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
 
-
-$("#updateConfigForm").submit( function(eventObj) {
-  $("#config-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+  <#noescape><@xmlEditorScript formId="updateConfigForm" inputId="config-xml" xmlValue="${configXML}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>

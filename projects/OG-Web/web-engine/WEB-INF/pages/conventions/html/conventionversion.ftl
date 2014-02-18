@@ -18,14 +18,11 @@
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
     <@rowin>
-      <div id="ace-xml-editor">${conventionXml}</div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
 </@subsection>
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-</script>
+
+<#noescape><@xmlEditorScript  xmlValue="${conventionXml}" readOnly=true></@xmlEditorScript></#noescape>
 </@section>
 
 

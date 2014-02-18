@@ -47,15 +47,8 @@
     </@rowin>
     <@rowin><input type="hidden" name="configXML" id="config-xml"/></@rowin>
     <@rowin><input type="submit" value="Add" /></@rowin>
-    <script type="text/javascript">
-      var editor = ace.edit("ace-xml-editor")
-      editor.getSession().setMode('ace/mode/xml')
-      $("#ace-xml-editor").show()
-      $("#addConfigForm").submit( function(eventObj) {
-        $("#config-xml").val(editor.getSession().getValue())
-        return true
-       })
-    </script>    
+    
+    <#noescape><@xmlEditorScript formId="addConfigForm" inputId="config-xml"></@xmlEditorScript></#noescape>  
   </p>
   </@form>
 </@section>

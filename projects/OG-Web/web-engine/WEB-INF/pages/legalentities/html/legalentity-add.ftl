@@ -11,21 +11,13 @@
     
     <#if err_xmlMissing??><div class="err">The data must be entered</div></#if>
     <@rowin>
-      <div id="ace-xml-editor">${legalEntityXML}}</div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
     
     <input type="hidden" name="legalEntityXML" id="legalEntity-xml"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-
-$("#addForm").submit( function(eventObj) {
-  $("#legalEntity-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+    
+    <#noescape><@xmlEditorScript formId="addForm" inputId="legalEntity-xml" xmlValue="${legalEntityXML}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>

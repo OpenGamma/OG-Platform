@@ -50,7 +50,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
   public String getHTML() {
     FlexiBean out = createRootData();
     ConfigDocument doc = data().getVersioned();
-    out.put(CONFIG_XML, createBeanXML(doc.getConfig().getValue()));
+    out.put(CONFIG_XML, StringEscapeUtils.escapeJavaScript(createBeanXML(doc.getConfig().getValue())));
     return getFreemarker().build(HTML_DIR + "configversion.ftl", out);
   }
 

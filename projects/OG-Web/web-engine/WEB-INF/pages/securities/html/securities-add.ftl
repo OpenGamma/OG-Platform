@@ -9,21 +9,14 @@
       <div class="err">${err_securityXmlMsg}</div>
     </#if>
       <@rowin>
-        <div id="ace-xml-editor"><#if securityXml?has_content>${securityXml}</#if></div>
+        <div id="ace-xml-editor"></div>
       </@rowin>
       <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
-      <script type="text/javascript">
-        var editor = ace.edit("ace-xml-editor")
-        editor.getSession().setMode('ace/mode/xml')
-        $("#ace-xml-editor").show()
-
-        $("#addSecurityForm").submit( function(eventObj) {
-          $("#security-xml").val(editor.getSession().getValue())
-          return true
-        })
-      </script>
     <input type="hidden" name="type" value="xml"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
+    
+    <#noescape><@xmlEditorScript formId="addSecurityForm" inputId="security-xml" xmlValue="${securityXml}"></@xmlEditorScript></#noescape>
+    
   </p>
   </@form>
 </@section>

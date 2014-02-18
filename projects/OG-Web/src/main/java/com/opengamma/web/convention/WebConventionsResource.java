@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -153,7 +154,7 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       }
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put("conventionXml", StringUtils.defaultString(xml));
+      out.put("conventionXml", StringEscapeUtils.escapeJava(StringUtils.defaultString(xml)));
       String html = getFreemarker().build(HTML_DIR + "convention-add.ftl", out);
       return Response.ok(html).build();
     }
@@ -168,7 +169,7 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       FlexiBean out = createRootData();
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put("conventionXml", StringUtils.defaultString(xml));
+      out.put("conventionXml", StringEscapeUtils.escapeJava(StringUtils.defaultString(xml)));
       out.put("err_conventionXmlMsg", StringUtils.defaultString(ex.getMessage()));
       String html = getFreemarker().build(HTML_DIR + "convention-add.ftl", out);
       return Response.ok(html).build();

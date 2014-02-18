@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -145,7 +146,7 @@ public class WebLegalEntitiesResource extends AbstractWebLegalEntityResource {
       }
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put("legalEntityXML", StringUtils.defaultString(xml));
+      out.put("legalEntityXML", StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(xml)));
       String html = getFreemarker().build(HTML_DIR + "legalentity-add.ftl", out);
       return Response.ok(html).build();
     }

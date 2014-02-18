@@ -62,7 +62,6 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    out.put(SECURITY_XML, StringEscapeUtils.escapeJava(out.getString(SECURITY_XML)));
     return getFreemarker().build(JSON_DIR + getFreemarkerTemplateName(), out);
   }
 
@@ -103,7 +102,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
           FlexiBean out = createRootData();
           out.put("err_securityXml", true);
           out.put("err_securityXmlMsg", ex.getMessage());
-          out.put(SECURITY_XML, securityXml);
+          out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(securityXml));
           String html = getFreemarker().build(HTML_DIR + "security-update.ftl", out);
           return Response.ok(html).build();
         }
@@ -213,7 +212,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     out.put("deleted", !securityDoc.isLatest());
     addSecuritySpecificMetaData(security, out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
-    out.put(SECURITY_XML, createBeanXML(security));
+    out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(createBeanXML(security)));
     return out;
   }
 

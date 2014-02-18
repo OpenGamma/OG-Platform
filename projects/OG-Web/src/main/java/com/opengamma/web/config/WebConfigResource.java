@@ -54,7 +54,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
   public String getHTML() {
     final FlexiBean out = createRootData();
     final ConfigDocument doc = data().getConfig();
-    out.put(CONFIG_XML, createBeanXML(doc.getConfig().getValue()));
+    out.put(CONFIG_XML, StringEscapeUtils.escapeJava(createBeanXML(doc.getConfig().getValue())));
     return getFreemarker().build(HTML_DIR + "config.ftl", out);
   }
 
@@ -105,6 +105,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     configXml = StringUtils.trimToNull(configXml);
     if (name == null || configXml == null) {
       final FlexiBean out = createRootData();
+      out.put(CONFIG_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(configXml)));
       if (name == null) {
         out.put("err_nameMissing", true);
       }

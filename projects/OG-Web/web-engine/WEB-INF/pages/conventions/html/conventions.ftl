@@ -45,16 +45,8 @@
     </@rowin>
     <input type="hidden" name="conventionxml" id="convention-xml"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-
-$("#addForm").submit( function(eventObj) {
-  $("#convention-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+    
+    <#noescape><@xmlEditorScript formId="addForm" inputId="convention-xml"></@xmlEditorScript></#noescape>  
   </p>
   </@form>
 </@section>

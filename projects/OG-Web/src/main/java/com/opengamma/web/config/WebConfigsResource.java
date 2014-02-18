@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -166,7 +167,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       }
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put(CONFIG_XML, StringUtils.defaultString(configXml));
+      out.put(CONFIG_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(configXml)));
       String html = getFreemarker().build(HTML_DIR + "config-add.ftl", out);
       return Response.ok(html).build();
     }

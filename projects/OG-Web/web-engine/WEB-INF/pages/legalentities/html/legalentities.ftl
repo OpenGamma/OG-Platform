@@ -33,16 +33,8 @@
     </@rowin>
     <input type="hidden" name="legalEntityXML" id="legalEntity-xml"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-
-$("#addForm").submit( function(eventObj) {
-  $("#legalEntity-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+    
+    <#noescape><@xmlEditorScript formId="addForm" inputId="legalEntity-xml"></@xmlEditorScript></#noescape>  
   </p>
   </@form>
 </@section>

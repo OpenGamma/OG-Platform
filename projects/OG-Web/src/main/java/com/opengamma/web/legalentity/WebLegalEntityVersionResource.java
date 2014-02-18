@@ -42,8 +42,6 @@ public class WebLegalEntityVersionResource extends AbstractWebLegalEntityResourc
   @GET
   public String getHTML() {
     FlexiBean out = createRootData();
-    LegalEntityDocument doc = data().getVersioned();
-    out.put("legalEntityXML", createBeanXML(doc.getLegalEntity()));
     return getFreemarker().build(HTML_DIR + "legalentityversion.ftl", out);
   }
 
@@ -57,7 +55,6 @@ public class WebLegalEntityVersionResource extends AbstractWebLegalEntityResourc
     }
     FlexiBean out = createRootData();
     LegalEntityDocument doc = data().getVersioned();
-    out.put("legalEntityXML", StringEscapeUtils.escapeJavaScript(createBeanXML(doc.getLegalEntity())));
     out.put("type", data().getTypeMap().inverse().get(doc.getLegalEntity().getClass()));
     String json = getFreemarker().build(JSON_DIR + "legalentity.ftl", out);
     return Response.ok(json).tag(etag).build();
@@ -78,7 +75,7 @@ public class WebLegalEntityVersionResource extends AbstractWebLegalEntityResourc
     out.put("latestLegalEntity", latestDoc.getLegalEntity());
     out.put("legalEntityDoc", versionedLegalEntity);
     out.put("legalEntity", versionedLegalEntity.getLegalEntity());
-    out.put("legalEntityXML", createXML(versionedLegalEntity.getLegalEntity()));
+    out.put("legalEntityXML", StringEscapeUtils.escapeJavaScript(createXML(versionedLegalEntity.getLegalEntity())));
     out.put("deleted", !latestDoc.isLatest());
     return out;
   }

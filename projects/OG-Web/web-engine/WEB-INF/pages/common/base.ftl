@@ -141,3 +141,24 @@
 <#macro space>
 <hr style="border: none; border-top: 1px solid #ccc;" />
 </#macro>
+
+<#-- Macro to produce script tag for ace xml editor -->
+<#macro xmlEditorScript formId="" inputId="" xmlValue="" readOnly=false>
+<script type="text/javascript">
+var editor = ace.edit("ace-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+editor.getSession().setValue("${xmlValue}")
+<#if readOnly>
+editor.setReadOnly(true)
+</#if>
+
+<#if formId?has_content>
+$("#${formId}").submit( function(eventObj) {
+  <#if inputId?has_content>
+  $("#${inputId}").val(editor.getSession().getValue())
+  </#if>
+  return true
+})
+</#if>
+</script>
+</#macro>

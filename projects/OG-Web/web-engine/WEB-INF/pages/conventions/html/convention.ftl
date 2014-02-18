@@ -28,20 +28,12 @@
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${conventionDoc.name}" /></@rowin>
     <@rowin>
-      <div id="ace-xml-editor">${conventionXml}</div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
     <input type="hidden" name="conventionxml" id="convention-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-
-$("#updateForm").submit( function(eventObj) {
-  $("#convention-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+    
+    <#noescape><@xmlEditorScript formId="updateForm" inputId="convention-xml" xmlValue="${conventionXml}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>

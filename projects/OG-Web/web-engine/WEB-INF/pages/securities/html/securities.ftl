@@ -46,16 +46,7 @@
     <@rowin><input type="submit" value="Add" /></@rowin>
   </p>
   
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-
-$("#addSecurityForm").submit( function(eventObj) {
-  $("#security-xml").val(editor.getSession().getValue())
-  return true
-})
-</script>
+  <#noescape><@xmlEditorScript formId="addSecurityForm" inputId="security-xml"></@xmlEditorScript></#noescape>  
   </@form>
 </@section>
 

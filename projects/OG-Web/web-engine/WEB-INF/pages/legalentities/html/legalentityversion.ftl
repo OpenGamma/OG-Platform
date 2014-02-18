@@ -16,14 +16,10 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-    <div id="ace-xml-editor">${legalEntityXML}</div>
+    <div id="ace-xml-editor"></div>
 </@subsection>
 
-<script type="text/javascript">
-var editor = ace.edit("ace-xml-editor")
-editor.getSession().setMode('ace/mode/xml')
-$("#ace-xml-editor").show()
-</script>
+<#noescape><@xmlEditorScript  xmlValue="${legalEntityXML}" readOnly=true></@xmlEditorScript></#noescape>
 </@section>
 
 <#-- SECTION Links -->
