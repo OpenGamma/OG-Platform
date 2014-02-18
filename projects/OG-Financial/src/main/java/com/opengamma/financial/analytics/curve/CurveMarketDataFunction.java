@@ -162,9 +162,9 @@ public class CurveMarketDataFunction extends AbstractFunction {
    * Gets the market data requirements from a curve specification.
    * @param abstractSpecification The curve specification
    * @param curveName The curve name
-   * @return
+   * @return The set of requirements
    */
-  /* package */ static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
+  /* package */static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
     final Set<ValueRequirement> requirements = new HashSet<>();
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
@@ -175,7 +175,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
       for (final CurveNodeWithIdentifier id : nodes) {
         try {
           if (id.getDataField() != null) {
-            if ((id.getCurveNode() instanceof BondNode) || (id.getCurveNode() instanceof BillNode))  {
+            if ((id.getCurveNode() instanceof BondNode) || (id.getCurveNode() instanceof BillNode)) {
               requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
             } else {
               requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
@@ -218,7 +218,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
    * @param resolver The external id bundle resolver
    * @return A populated snapshot
    */
-  /* package */ static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs, final SnapshotDataBundle marketData,
+  /* package */static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs, final SnapshotDataBundle marketData,
       final ExternalIdBundleResolver resolver) {
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
@@ -237,9 +237,14 @@ public class CurveMarketDataFunction extends AbstractFunction {
       final CurveSpecification specification = (CurveSpecification) abstractSpecification;
       for (final CurveNodeWithIdentifier id : specification.getNodes()) {
         if (id.getDataField() != null) {
-          final ComputedValue value;
+          ComputedValue value;
           if ((id.getCurveNode() instanceof BondNode) || (id.getCurveNode() instanceof BillNode)) {
-            value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+            try {
+              value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+            } catch (final NullPointerException e) {
+              // happens when the target cannot be resolved
+              value = null;
+            }
           } else {
             value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
           }
