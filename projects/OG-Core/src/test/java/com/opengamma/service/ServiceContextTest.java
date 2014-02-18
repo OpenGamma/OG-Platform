@@ -58,6 +58,17 @@ public class ServiceContextTest {
     ServiceContext.of(services);
   }
 
+  @Test(expectedExceptions = ClassCastException.class)
+  public void testCreateServiceWithIncorrectTypeIsDetected() {
+
+    // Generics prevent ServiceContext.of(ConfigSource.class, MOCK_SECURITY_SOURCE)
+    // from compiling. This test ensures we get equivalent safety when we configure
+    // via a Map (where the generics can't help).
+    Map<Class<?>, Object> services = new HashMap<>();
+    services.put(ConfigSource.class, MOCK_SECURITY_SOURCE);
+    ServiceContext.of(services);
+  }
+
   public void testCreateServiceWorks() {
     ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
 
