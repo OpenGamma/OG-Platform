@@ -468,7 +468,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       } else {
         Map<String, Object> result = results.get(0);
         for (ComputationTargetSpecification obj : attribsToObjects.getValue()) {
-          cache.put(obj, (Long) result.get("ID"));
+          cache.put(obj, ((Number) result.get("ID")).longValue());
         }
       }
     }
@@ -516,7 +516,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       } else {
         Map<String, Object> result = results.get(0);
         for (T obj : attribsToObjects.getValue()) {
-          cache.put(obj, (Long) result.get("ID"));
+          cache.put(obj, ((Number) result.get("ID")).longValue());
         }
       }
     }
@@ -873,7 +873,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     String sqlUpdate = getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", "));
     getJdbcTemplate().getJdbcOperations().update(sqlUpdate);
     
-    String sqlDelete = "DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", "));
+    String sqlDelete = getElSqlBundle().getSql("DeleteMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", "));
     getJdbcTemplate().getJdbcOperations().update(sqlDelete);
   }
 
@@ -1194,7 +1194,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     for (int count : counts) {
       totalCount += count;
     }
-    if (totalCount != batchArgsArray.length) {
+    if (totalCount != batchArgsArray.length && totalCount != -2) {
       throw new RuntimeException(rowType + " insert count is wrong: expected = " +
         batchArgsArray.length + " actual = " + totalCount);
     }
