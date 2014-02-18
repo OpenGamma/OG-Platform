@@ -75,10 +75,9 @@ public class DbLegalEntityBeanMasterTest extends AbstractDbTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
+  @Test(expectedExceptions = com.opengamma.DataNotFoundException.class)
   public void test_get_not_existent() throws Exception {
-    LegalEntityDocument loaded = _lenMaster.get(UniqueId.of("Len", "b"));
-    assertEquals(null, loaded);
+    _lenMaster.get(UniqueId.of("DbLen", "12331"));
   }
 
   //-------------------------------------------------------------------------
