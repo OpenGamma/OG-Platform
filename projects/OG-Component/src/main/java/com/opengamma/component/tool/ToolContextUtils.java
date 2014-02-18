@@ -93,7 +93,7 @@ public final class ToolContextUtils {
       ComponentManager manager = new ComponentManager("toolcontext");
       manager.start(configResourceLocation);
       ComponentRepository repo = manager.getRepository();
-      return repo.getInstance(toolContextClazz, "tool");
+      return toolContextClazz.cast(repo.getInstance(ToolContext.class, "tool"));
     }
   }
 
