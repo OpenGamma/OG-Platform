@@ -8,7 +8,6 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -39,88 +38,113 @@ public class ScenarioResultsWriterTest {
                              ComputationTargetSpecification.NULL,
                              ValueProperties.with(ValuePropertyNames.FUNCTION, "bar").get());
 
+  private final String _scenario1Name = "scenario1Name";
+  private final String _scenario2Name = "scenario2Name";
+  private final String _valuationTime1 = "2014-02-17T12:00Z";
+  private final String _valuationTime2 = "2013-02-17T12:00Z";
+  private final String _id1 = "Tst~123";
+  private final String _id2 = "Tst~234";
+  private final String _param1Value1 = "param1Value1";
+  private final String _param1Value2 = "param1Value2";
+  private final String _param2Value1 = "param2Value1";
+  private final String _param2Value2 = "param2Value2";
+  private final String _res1Name = "Result1";
+  private final String _res2Name = "Result2";
+  private final String _param1Name = "param1Name";
+  private final String _param2Name = "param2Name";
+
   @Test
   public void shortFormat() throws IOException {
-    String scenario1Name = "scenario1Name";
-    String scenario2Name = "scenario2Name";
-    String valuationTime1 = "2014-02-17T12:00Z";
-    String valuationTime2 = "2013-02-17T12:00Z";
-    String id1 = "Tst~123";
-    String id2 = "Tst~234";
-    String param1Value1 = "param1Value1";
-    String param1Value2 = "param1Value2";
-    String param2Value1 = "param2Value1";
-    String param2Value2 = "param2Value2";
-    String col1Name = "Col1";
-    String col2Name = "Col2";
-    String param1Name = "param1Name";
-    String param2Name = "param2Name";
     List<String> expectedList =
         ImmutableList.of(
-            // header row -----
-            row("ScenarioName", "ValuationTime", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", col1Name, col2Name),
+            // header -----
+            row("ScenarioName", "ValuationTime", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", _res1Name, _res2Name),
             // scenario 1 trade 1 -----
-            row(scenario1Name, valuationTime1, id1, param1Name, param1Value1, param2Name, param2Value1, value(0, 0), value(0, 1)),
+            row(_scenario1Name, _valuationTime1, _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, 1, 2),
             // scenario 1 trade 2 -----
-            row(scenario1Name, valuationTime1, id2, param1Name, param1Value1, param2Name, param2Value1, value(1, 0), value(1, 1)),
+            row(_scenario1Name, _valuationTime1, _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, 3, 4),
             // scenario 2 trade 1 -----
-            row(scenario2Name, valuationTime2, id1, param1Name, param1Value2, param2Name, param2Value2, value(2, 0), value(2, 1)),
+            row(_scenario2Name, _valuationTime2, _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, 5, 6),
             // scenario 2 trade 2 -----
-            row(scenario2Name, valuationTime2, id2, param1Name, param1Value2, param2Name, param2Value2, value(3, 0), value(3, 1)));
+            row(_scenario2Name, _valuationTime2, _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, 7, 8));
     String expected = StringUtils.join(expectedList, "\n") + "\n";
 
-    List<UniqueIdentifiable> ids = ImmutableList.<UniqueIdentifiable>of(UniqueId.parse(id1), UniqueId.parse(id2));
-    List<String> columnNames = ImmutableList.of(col1Name, col2Name);
-
-    Table<Integer, Integer, Object> table1 = TreeBasedTable.create();
-    table1.put(0, 0, compuatedValue(0, 0));
-    table1.put(0, 1, compuatedValue(0, 1));
-    table1.put(1, 0, compuatedValue(1, 0));
-    table1.put(1, 1, compuatedValue(1, 1));
-    ViewCycleExecutionOptions executionOptions1 =
-        ViewCycleExecutionOptions.builder()
-            .setValuationTime(Instant.parse(valuationTime1))
-            .setName(scenario1Name)
-            .create();
-    SimpleResultModel simpleResultModel1 = new SimpleResultModel(ids, columnNames, table1, executionOptions1);
-    Map<String, Object> scenarioParams1 = ImmutableMap.<String, Object>of(param1Name, param1Value1, param2Name, param2Value1);
-    ScenarioResultModel scenarioResultModel1 = new ScenarioResultModel(simpleResultModel1, scenarioParams1);
-
-    Table<Integer, Integer, Object> table2 = TreeBasedTable.create();
-    table2.put(0, 0, compuatedValue(2, 0));
-    table2.put(0, 1, compuatedValue(2, 1));
-    table2.put(1, 0, compuatedValue(3, 0));
-    table2.put(1, 1, compuatedValue(3, 1));
-    ViewCycleExecutionOptions executionOptions2 =
-        ViewCycleExecutionOptions.builder()
-            .setValuationTime(Instant.parse(valuationTime2))
-            .setName(scenario2Name)
-            .create();
-    SimpleResultModel simpleResultModel2 = new SimpleResultModel(ids, columnNames, table2, executionOptions2);
-    Map<String, Object> scenarioParams2 = ImmutableMap.<String, Object>of(param1Name, param1Value2, param2Name, param2Value2);
-    ScenarioResultModel scenarioResultModel2 = new ScenarioResultModel(simpleResultModel2, scenarioParams2);
-
     StringBuilder builder = new StringBuilder();
-    ScenarioResultsWriter.writeShortFormat(ImmutableList.of(scenarioResultModel1, scenarioResultModel2), builder);
-
+    ScenarioResultsWriter.writeShortFormat(scenarioResults(), builder);
     assertEquals(expected, builder.toString());
   }
 
-  private static String value(int row, int col) {
-    return "cellValue" + row + col;
-  }
-
-  private static Object compuatedValue(int row, int col) {
-    return new ComputedValueResult(VALUE_SPEC, value(row, col), EmptyAggregatedExecutionLog.INSTANCE);
-  }
-
-  private static String row(String... values) {
-    return StringUtils.join(values, ScenarioResultsWriter.DELIMITER);
-  }
-
   @Test
-  public void longFormat() {
+  public void longFormat() throws IOException {
+    List<String> expectedList =
+        ImmutableList.of(
+            // header -----
+            row("ScenarioName", "ValuationTime", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", "ResultName", "ResultValue"),
+            // scenario 1 trade 1 result 1-----
+            row(_scenario1Name, _valuationTime1, _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, _res1Name, 1),
+            // scenario 1 trade 1 result 2 -----
+            row(_scenario1Name, _valuationTime1, _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, _res2Name, 2),
+            // scenario 1 trade 2 result 1 -----
+            row(_scenario1Name, _valuationTime1, _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, _res1Name, 3),
+            // scenario 1 trade 2 result 2 -----
+            row(_scenario1Name, _valuationTime1, _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, _res2Name, 4),
+            // scenario 2 trade 1 result 1 -----
+            row(_scenario2Name, _valuationTime2, _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, _res1Name, 5),
+            // scenario 2 trade 1 result 2-----
+            row(_scenario2Name, _valuationTime2, _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, _res2Name, 6),
+            // scenario 2 trade 2 result 1 -----
+            row(_scenario2Name, _valuationTime2, _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, _res1Name, 7),
+            // scenario 2 trade 2 result 2 -----
+            row(_scenario2Name, _valuationTime2, _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, _res2Name, 8));
+    String expected = StringUtils.join(expectedList, "\n") + "\n";
 
+    StringBuilder builder = new StringBuilder();
+    ScenarioResultsWriter.writeLongFormat(scenarioResults(), builder);
+    assertEquals(expected, builder.toString());
+  }
 
+  private List<ScenarioResultModel> scenarioResults() {
+    List<UniqueIdentifiable> ids = ImmutableList.<UniqueIdentifiable>of(UniqueId.parse(_id1), UniqueId.parse(_id2));
+    List<String> columnNames = ImmutableList.of(_res1Name, _res2Name);
+
+    Table<Integer, Integer, Object> table1 = TreeBasedTable.create();
+    table1.put(0, 0, compuatedValue(1));
+    table1.put(0, 1, compuatedValue(2));
+    table1.put(1, 0, compuatedValue(3));
+    table1.put(1, 1, compuatedValue(4));
+    ViewCycleExecutionOptions executionOptions1 =
+        ViewCycleExecutionOptions.builder()
+            .setValuationTime(Instant.parse(_valuationTime1))
+            .setName(_scenario1Name)
+            .create();
+    SimpleResultModel simpleResultModel1 = new SimpleResultModel(ids, columnNames, table1, executionOptions1);
+    Map<String, Object> scenarioParams1 = ImmutableMap.<String, Object>of(_param1Name, _param1Value1,
+                                                                          _param2Name, _param2Value1);
+    ScenarioResultModel scenarioResultModel1 = new ScenarioResultModel(simpleResultModel1, scenarioParams1);
+
+    Table<Integer, Integer, Object> table2 = TreeBasedTable.create();
+    table2.put(0, 0, compuatedValue(5));
+    table2.put(0, 1, compuatedValue(6));
+    table2.put(1, 0, compuatedValue(7));
+    table2.put(1, 1, compuatedValue(8));
+    ViewCycleExecutionOptions executionOptions2 =
+        ViewCycleExecutionOptions.builder()
+            .setValuationTime(Instant.parse(_valuationTime2))
+            .setName(_scenario2Name)
+            .create();
+    SimpleResultModel simpleResultModel2 = new SimpleResultModel(ids, columnNames, table2, executionOptions2);
+    Map<String, Object> scenarioParams2 = ImmutableMap.<String, Object>of(_param1Name, _param1Value2,
+                                                                          _param2Name, _param2Value2);
+    ScenarioResultModel scenarioResultModel2 = new ScenarioResultModel(simpleResultModel2, scenarioParams2);
+
+    return ImmutableList.of(scenarioResultModel1, scenarioResultModel2);
+  }
+
+  private static Object compuatedValue(int value) {
+    return new ComputedValueResult(VALUE_SPEC, value, EmptyAggregatedExecutionLog.INSTANCE);
+  }
+
+  private static String row(Object... values) {
+    return StringUtils.join(values, ScenarioResultsWriter.DELIMITER);
   }
 }
