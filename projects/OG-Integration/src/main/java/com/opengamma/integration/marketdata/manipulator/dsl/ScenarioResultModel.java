@@ -24,6 +24,13 @@ public class ScenarioResultModel {
   }
 
   /**
+   * @return The scenario name.
+   */
+  public String getScenarioName() {
+    return _results.getCycleName();
+  }
+
+  /**
    * @return The calculated results.
    */
   public SimpleResultModel getResults() {

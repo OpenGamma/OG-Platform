@@ -79,7 +79,7 @@ public abstract class StandAloneScenarioScript extends Script {
         String varStr = (varValue instanceof String) ? "'" + varValue + "'" : varValue.toString();
         varNamesAndValues.add(varName + "=" + varStr);
       }
-      String scenarioName = StringUtils.join(varNamesAndValues, ", ");
+      String scenarioName = StringUtils.join(varNamesAndValues, " ");
       Scenario scenario = _simulation.scenario(scenarioName);
       _scenarioParameters.put(scenarioName, params);
       body.setDelegate(new ScenarioDelegate(scenario));
