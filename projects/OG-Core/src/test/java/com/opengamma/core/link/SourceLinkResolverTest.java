@@ -58,7 +58,7 @@ public class SourceLinkResolverTest {
     return ServiceContext.of(serviceMap);
   }
 
-  @Test(expectedExceptions = IllegalStateException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void noVersionCorrectionGivesError() {
 
     ServiceContext serviceContext = createContext(ConfigSource.class);
@@ -67,7 +67,7 @@ public class SourceLinkResolverTest {
     resolver.resolve();
   }
 
-  @Test(expectedExceptions = IllegalStateException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void noSourceGivesError() {
 
     ServiceContext serviceContext = createContext(VersionCorrectionProvider.class);

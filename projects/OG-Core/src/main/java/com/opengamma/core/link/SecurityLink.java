@@ -105,7 +105,7 @@ public abstract class SecurityLink<T extends Security> extends AbstractLink<Exte
       @Override
       public HistoricalTimeSeries getHistoricalData(HistoricalDataRequest request) {
         //VersionCorrectionProvider vcProvider = serviceContext.getService(VersionCorrectionProvider.class);
-        HistoricalTimeSeriesSource htsSource = serviceContext.getService(HistoricalTimeSeriesSource.class);
+        HistoricalTimeSeriesSource htsSource = serviceContext.get(HistoricalTimeSeriesSource.class);
         return htsSource.getHistoricalTimeSeries(request);
       }
 

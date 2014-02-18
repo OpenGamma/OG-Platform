@@ -54,17 +54,6 @@ import com.opengamma.util.ArgumentChecker;
     return _identifier;
   }
 
-  private ServiceContext getServiceContext() {
-    final ServiceContext serviceContext = _serviceContext != null ?
-        _serviceContext :
-        ThreadLocalServiceContext.getInstance();
-
-    if (serviceContext == null) {
-      throw new IllegalStateException("No service context was found for use by the current thread.");
-    }
-    return serviceContext;
-  }
-
   @Override
   public T resolve() {
     VersionCorrectionProvider vcProvider = lookupService(VersionCorrectionProvider.class);
@@ -73,11 +62,18 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   private <R> R lookupService(Class<R> serviceClass) {
-    final R service = getServiceContext().getService(serviceClass);
-    if (service == null) {
-      throw new IllegalStateException("No service of class: [" + serviceClass + "] was found");
+    return getServiceContext().get(serviceClass);
+  }
+
+  private ServiceContext getServiceContext() {
+    ServiceContext serviceContext = _serviceContext;
+    if (serviceContext == null) {
+      serviceContext = ThreadLocalServiceContext.getInstance();
+      if (serviceContext == null) {
+        throw new IllegalStateException("No service context found for use by the current thread");
+      }
     }
-    return service;
+    return serviceContext;
   }
 
   //-------------------------------------------------------------------------

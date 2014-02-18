@@ -11,6 +11,7 @@ import static org.hamcrest.core.Is.is;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -18,8 +19,15 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
 @Test(groups = TestGroup.UNIT)
 public class ServiceContextTest {
+
+  private static final ConfigSource MOCK_CONFIG_SOURCE = Mockito.mock(ConfigSource.class);
+  private static final ConfigSource MOCK_CONFIG_SOURCE2 = Mockito.mock(ConfigSource.class);
+  private static final SecuritySource MOCK_SECURITY_SOURCE = Mockito.mock(SecuritySource.class);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCreateServiceHandlesNullClass() {
@@ -51,47 +59,38 @@ public class ServiceContextTest {
   }
 
   public void testCreateServiceWorks() {
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
 
-    final Object o1 = new Object();
-    ServiceContext context = ServiceContext.of(ConfigSource.class, o1);
-
-    assertThat(context.getService(ConfigSource.class), is(o1));
+    assertThat(context.get(ConfigSource.class), is(MOCK_CONFIG_SOURCE));
   }
 
   public void testCreateServiceWithMapWorks() {
-
-    final Object o1 = new Object();
-    final Object o2 = new Object();
     final Map<Class<?>, Object> services = ImmutableMap.<Class<?>, Object>of(
-        ConfigSource.class, o1,
-        SecuritySource.class, o2);
+        ConfigSource.class, MOCK_CONFIG_SOURCE,
+        SecuritySource.class, MOCK_SECURITY_SOURCE);
     ServiceContext context = ServiceContext.of(services);
 
-    assertThat(context.getService(ConfigSource.class), is(o1));
-    assertThat(context.getService(SecuritySource.class), is(o2));
+    assertThat(context.get(ConfigSource.class), is(MOCK_CONFIG_SOURCE));
+    assertThat(context.get(SecuritySource.class), is(MOCK_SECURITY_SOURCE));
   }
 
   public void testAddingServiceWorks() {
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
+    ServiceContext context2 = context.with(SecuritySource.class, MOCK_SECURITY_SOURCE);
 
-    final Object o1 = new Object();
-    ServiceContext context = ServiceContext.of(ConfigSource.class, o1);
-
-    final Object o2 = new Object();
-    ServiceContext context2 = context.with(SecuritySource.class, o2);
-
-    assertThat(context2.getService(ConfigSource.class), is(o1));
-    assertThat(context2.getService(SecuritySource.class), is(o2));
+    assertThat(context2.get(ConfigSource.class), is(MOCK_CONFIG_SOURCE));
+    assertThat(context2.get(SecuritySource.class), is(MOCK_SECURITY_SOURCE));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddingServiceWithNullClassIsHandled() {
-    ServiceContext context = ServiceContext.of(ConfigSource.class, new Object());
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
     context.with(null, new Object());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddingServiceWithNullObjectIsHandled() {
-    ServiceContext context = ServiceContext.of(ConfigSource.class, new Object());
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
     context.with(ConfigSource.class, null);
   }
 
@@ -99,7 +98,7 @@ public class ServiceContextTest {
   public void testAddServiceWithMapHandlesNullKeys() {
     Map<Class<?>, Object> services = new HashMap<>();
     services.put(ConfigSource.class, null);
-    ServiceContext context = ServiceContext.of(ConfigSource.class, new Object());
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
     context.with(services);
   }
 
@@ -107,35 +106,27 @@ public class ServiceContextTest {
   public void testAddServiceWithMapHandlesNullValues() {
     Map<Class<?>, Object> services = new HashMap<>();
     services.put(null, new Object());
-    ServiceContext context = ServiceContext.of(ConfigSource.class, new Object());
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
     context.with(services);
   }
 
   public void testUpdatingServiceWorks() {
-    final Object o1 = new Object();
-    ServiceContext context = ServiceContext.of(ConfigSource.class, o1);
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
+    ServiceContext context2 = context.with(ConfigSource.class, MOCK_CONFIG_SOURCE2);
 
-    final Object o2 = new Object();
-    ServiceContext context2 = context.with(ConfigSource.class, o2);
-
-    assertThat(context2.getService(ConfigSource.class), is(o2));
+    assertThat(context2.get(ConfigSource.class), is(MOCK_CONFIG_SOURCE2));
 
   }
 
   public void testUpdatingServiceWithMapWorks() {
-
-    final Object o1 = new Object();
-    ServiceContext context = ServiceContext.of(ConfigSource.class, o1);
-
-    final Object o2 = new Object();
-    final Object o3 = new Object();
+    ServiceContext context = ServiceContext.of(ConfigSource.class, MOCK_CONFIG_SOURCE);
     final Map<Class<?>, Object> services = ImmutableMap.<Class<?>, Object>of(
-        ConfigSource.class, o3,
-        SecuritySource.class, o2);
-
+        ConfigSource.class, MOCK_CONFIG_SOURCE2,
+        SecuritySource.class, MOCK_SECURITY_SOURCE);
     ServiceContext context2 = context.with(services);
 
-    assertThat(context2.getService(ConfigSource.class), is(o3));
-    assertThat(context2.getService(SecuritySource.class), is(o2));
+    assertThat(context2.get(ConfigSource.class), is(MOCK_CONFIG_SOURCE2));
+    assertThat(context2.get(SecuritySource.class), is(MOCK_SECURITY_SOURCE));
   }
+
 }
