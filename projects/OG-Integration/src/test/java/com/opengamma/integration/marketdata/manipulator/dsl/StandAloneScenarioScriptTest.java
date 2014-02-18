@@ -196,9 +196,9 @@ public class StandAloneScenarioScriptTest {
   private static void checkScenario(Map<String, Scenario> scenarios, String id, double shiftAmount, String valuationTime) {
     String scenarioName;
     if (valuationTime != null) {
-      scenarioName = "foo=" + (int) shiftAmount + ", bar='" + id + "', valTime='" + valuationTime + "'";
+      scenarioName = "foo=" + (int) shiftAmount + " bar='" + id + "' valTime='" + valuationTime + "'";
     } else {
-      scenarioName = "foo=" + (int) shiftAmount + ", bar='" + id + "'";
+      scenarioName = "foo=" + (int) shiftAmount + " bar='" + id + "'";
     }
     Scenario scenario = scenarios.get(scenarioName);
     assertNotNull(scenario);
