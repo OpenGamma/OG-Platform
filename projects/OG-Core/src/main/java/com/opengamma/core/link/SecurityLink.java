@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries2.HistoricalDataRequest;
 import com.opengamma.core.historicaltimeseries2.HistoricalTimeSeriesSource;
@@ -187,7 +188,13 @@ public abstract class SecurityLink<T extends Security> extends AbstractLink<Exte
     @Override
     @SuppressWarnings("unchecked")
     protected S executeQuery(SecuritySource source, VersionCorrection versionCorrection) {
-      return (S) source.getSingle(getIdentifier(), versionCorrection);
+      final S result = (S) source.getSingle(getIdentifier(), versionCorrection);
+      if (result != null) {
+        return result;
+      } else {
+        throw new DataNotFoundException("No security found with id bundle: [" + getIdentifier() +
+                                        "] and versionCorrection: [" + versionCorrection + "]");
+      }
     }
   }
 }

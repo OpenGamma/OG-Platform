@@ -148,6 +148,7 @@ public final class ConventionLink<T extends Convention> extends AbstractLink<Ext
     @Override
     @SuppressWarnings("unchecked")
     protected C executeQuery(ConventionSource source, VersionCorrection versionCorrection) {
+      // ConfigSource already throws DataNotFoundException when there is no data
       return (C) source.getSingle(getIdentifier(), versionCorrection);
     }
   }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.link;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Represents a link to an object using an identifier for the object. The link can be
  * resolved on demand. Use of links allows provision of objects by remote servers while
@@ -17,31 +19,31 @@ package com.opengamma.core.link;
 public abstract class AbstractLink<I, T> implements Link<I, T> {
 
   /**
-   * The identifier for the linked object.
+   * The identifier for the linked object, not null.
    */
   private final I _identifier;
 
   /**
-   * The class of the object being linked to.
+   * The class of the object being linked to, not null.
    */
   private final Class<T> _type;
 
   /**
-   * The resolver used to resolve the link on demand.
+   * The resolver used to resolve the link on demand, not null.
    */
   private final LinkResolver<T> _resolver;
 
   /**
    * Constructs the abstract link.
    *
-   * @param identifier the identifier for the linked object
-   * @param type The class of the object being linked to.
-   * @param resolver The resolver used to resolve the link on demand.
+   * @param identifier the identifier for the linked object, not null
+   * @param type The class of the object being linked to, not null
+   * @param resolver The resolver used to resolve the link on demand, not null
    */
   public AbstractLink(I identifier, Class<T> type, LinkResolver<T> resolver) {
-    _type = type;
-    _identifier = identifier;
-    _resolver = resolver;
+    _type = ArgumentChecker.notNull(type, "type");
+    _identifier = ArgumentChecker.notNull(identifier, "identifier");
+    _resolver = ArgumentChecker.notNull(resolver, "resolver");
   }
 
   @Override

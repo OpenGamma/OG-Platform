@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.VersionCorrection;
@@ -157,7 +158,13 @@ public final class ConfigLink<T> extends AbstractLink<String, T> {
             }
           });
 
-      return (T) selectResult(results);
+      final T result = (T) selectResult(results);
+      if (result != null) {
+        return result;
+      } else {
+        throw new DataNotFoundException("No config found with type: [" + type.getName() + "], id: [" +
+                                        identifier + "] and versionCorrection: [" + versionCorrection + "]");
+      }
     }
 
     private <R> R selectResult(Iterable<ConfigItem<R>> results) {

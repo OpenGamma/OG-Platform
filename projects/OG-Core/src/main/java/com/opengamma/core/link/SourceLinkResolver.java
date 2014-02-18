@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Source;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
@@ -99,9 +100,10 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Execute a query against the source to retrieve the target of the link.
    *
-   * @param source  the source to retrieve the object from, not null
+   * @param source the source to retrieve the object from, not null
    * @param versionCorrection  the version correction to be used during the query, not null
-   * @return the target of the link if found, otherwise null
+   * @return the target of the link
+   * @throws DataNotFoundException if the link is not resolvable
    */
   protected abstract T executeQuery(S source, VersionCorrection versionCorrection);
 
