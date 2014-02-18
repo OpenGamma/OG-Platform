@@ -304,6 +304,20 @@
         <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <@rowout label="Delivery Currency">${security.deliveryCurrency}</@rowout>
         <#break>
+      <#case "FX_VOLATILITY_SWAP">
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Base Currency">${security.baseCurrency}</@rowout>
+        <@rowout label="Counter Currency">${security.counterCurrency}</@rowout>
+        <@rowout label="Strike">${security.strike}</@rowout>
+        <@rowout label="Notional">${security.notional}</@rowout>
+        <@rowout label="Settlement Date">${security.settlementDate}</@rowout>
+        <@rowout label="Maturity Date">${security.maturityDate}</@rowout>
+        <@rowout label="Volatility Swap Type">${security.volatilitySwapType}</@rowout>
+        <@rowout label="Annualization Factor">${security.annualizationFactor}</@rowout>
+        <@rowout label="First Observation Date">${security.firstObservationDate}</@rowout>
+        <@rowout label="Last Observation Date">${security.lastObservationDate}</@rowout>
+        <@rowout label="Observation Frequency">${security.observationFrequency}</@rowout>
+        <#break>
       <#case "EQUITY_INDEX_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>

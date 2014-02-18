@@ -39,6 +39,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -65,6 +66,9 @@ import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
  */
 public class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameValueAdapter<String> {
 
+  /**
+   * Default constructor.
+   */
   SecurityTemplateNameProvider() {
     super("default-security.ftl");
   }
@@ -334,13 +338,25 @@ public class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameVa
     return "floating-rate-note.ftl";
   }
 
+  @Override
+  public String visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return "fx-volatility-swap.ftl";
+  }
+
+  /**
+   * Gets the template for all bonds.
+   * @return The bond template
+   */
   private String getBond() {
     return "bond.ftl";
   }
 
+  /**
+   * Gets the template for all futures.
+   * @return The future template
+   */
   private String getFuture() {
     return "future.ftl";
   }
-
 
 }
