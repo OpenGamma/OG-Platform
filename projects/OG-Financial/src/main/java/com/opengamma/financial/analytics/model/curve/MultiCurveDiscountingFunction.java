@@ -218,12 +218,18 @@ public class MultiCurveDiscountingFunction extends
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
               final Security sec = securitySource.getSingle(ibor.getConvention().toBundle()); 
+              if (sec == null) {
+                throw new OpenGammaRuntimeException("Cannot find Ibor index " + ibor.getConvention());
+              }
               final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
               final IborIndexConvention indexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
               iborIndexList.add(ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
               final OvernightIndex overnightIndex = (OvernightIndex) securitySource.getSingle(overnight.getConvention().toBundle());
+              if (overnightIndex == null) {
+                throw new OpenGammaRuntimeException("Cannot find overnight index " + overnight.getConvention());
+              }
               final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnightIndex.getConventionId(), OvernightIndexConvention.class);
               overnightIndexList.add(ConverterUtils.indexON(overnightIndex.getName(), overnightConvention));
             } else {

@@ -410,8 +410,16 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitVanillaIborLegRollDateConvention(final VanillaIborLegRollDateConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIborIndexConvention(), FinancialConvention.class);
-    return underlyingConvention.accept(this);
+    final Security sec = _securitySource.getSingle(convention.getIborIndexConvention().toBundle()); 
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegRollDateConvention: Ibor index with id " + convention.getIborIndexConvention() + " was null");
+    }
+    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec; 
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegRollDateConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
+    }
+    return indexConvention.accept(this);
   }
 
 }
