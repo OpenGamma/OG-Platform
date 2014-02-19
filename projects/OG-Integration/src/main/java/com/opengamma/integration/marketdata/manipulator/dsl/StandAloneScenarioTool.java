@@ -95,6 +95,7 @@ public class StandAloneScenarioTool {
         ScenarioResultsWriter.writeLongFormat(results, writer);
       }
     }
+    System.out.println("Successfully wrote scenario results to " + resultsFile.getAbsolutePath());
     System.exit(0);
   }
 
