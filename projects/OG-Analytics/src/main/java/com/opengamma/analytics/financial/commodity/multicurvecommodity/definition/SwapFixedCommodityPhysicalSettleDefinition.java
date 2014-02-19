@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.commodity.multicurvecommodity.definition;
 
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.annuity.AnnuityCouponCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;

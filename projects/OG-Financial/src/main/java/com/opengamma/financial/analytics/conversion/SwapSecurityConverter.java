@@ -93,7 +93,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
    * @param conventionSource The convention source, not null
    * @param regionSource The region source, not null
    */
-  public SwapSecurityConverter(final SecuritySource securitySource, final HolidaySource holidaySource, 
+  public SwapSecurityConverter(final SecuritySource securitySource, final HolidaySource holidaySource,
       final ConventionSource conventionSource, final RegionSource regionSource) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
@@ -153,7 +153,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       spread = 0;
     }
     // Ibor Leg
-    final Security sec = _securitySource.getSingle(iborLeg.getFloatingReferenceRateId().toBundle()); 
+    final Security sec = _securitySource.getSingle(iborLeg.getFloatingReferenceRateId().toBundle());
     if (sec == null) {
       throw new OpenGammaRuntimeException("Ibor index with id " + iborLeg.getFloatingReferenceRateId() + " was null");
     }
@@ -288,9 +288,11 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final DayCount dayCount = swapLeg.getDayCount();
         final boolean isEOM = swapLeg.isEom();
         final double rate = swapLeg.getRate();
+        final StubType stub = StubType.SHORT_START;  // TODO stub type should be stored security level
+        final int paymentLag = 0; // TODO Payment lag should be stored security level
         final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
-        return AnnuityCouponFixedDefinition.from(currency, effectiveDate, maturityDate, tenorFixed, calendar, dayCount,
-            businessDayConvention, isEOM, notional, rate, isPayer);
+        return AnnuityDefinitionBuilder.couponFixedWithNotional(currency, effectiveDate, maturityDate, tenorFixed, calendar,
+            dayCount, businessDayConvention, isEOM, notional, rate, isPayer, stub, paymentLag, isInitialNotionalExchange, isFinalNotionalExchange);
       }
 
       @Override
@@ -358,7 +360,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
 
       private AnnuityDefinition<? extends PaymentDefinition> getIborAnnuity(final FloatingInterestRateLeg swapLeg, final InterestRateNotional interestRateNotional,
           final Currency currency, final Calendar calendar) {
-        final Security sec = _securitySource.getSingle(swapLeg.getFloatingReferenceRateId().toBundle()); 
+        final Security sec = _securitySource.getSingle(swapLeg.getFloatingReferenceRateId().toBundle());
         if (sec == null) {
           throw new OpenGammaRuntimeException("Ibor index with id " + swapLeg.getFloatingReferenceRateId() + " was null");
         }
@@ -370,15 +372,16 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final DayCount dayCount = swapLeg.getDayCount();
         final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
         final double notional = interestRateNotional.getAmount();
+        final StubType stub = StubType.SHORT_START;  // TODO stub type should be stored security level
+        final int paymentLag = 0; // TODO Payment lag should be stored security level
         if (swapLeg instanceof FloatingSpreadIRLeg) {
           final FloatingSpreadIRLeg spread = (FloatingSpreadIRLeg) swapLeg;
           // TODO : stub and payment lag
-          return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, notional, spread.getSpread(), iborIndex, isPayer, calendar, StubType.SHORT_START, 0,
-              isInitialNotionalExchange,
-              isFinalNotionalExchange);
+          return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, notional, spread.getSpread(), iborIndex, isPayer, calendar, stub, paymentLag,
+              isInitialNotionalExchange, isFinalNotionalExchange);
         }
         // TODO : stub and payment lag
-        return AnnuityDefinitionBuilder.couponIborWithNotional(effectiveDate, maturityDate, notional, iborIndex, isPayer, calendar, StubType.SHORT_START, 0, isInitialNotionalExchange,
+        return AnnuityDefinitionBuilder.couponIborWithNotional(effectiveDate, maturityDate, notional, iborIndex, isPayer, calendar, stub, paymentLag, isInitialNotionalExchange,
             isFinalNotionalExchange);
       }
 
@@ -407,7 +410,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         // TODO: Create Swap index
         if (swapLeg instanceof FloatingSpreadIRLeg) {
           throw new OpenGammaRuntimeException("Cannot create an annuity for a CMS leg with a spread");
-        }        
+        }
         final String tenorString = getTenorString(swapLeg.getFrequency());
         final String iborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
         final VanillaIborLegConvention iborLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(currency, tenorString, IRS_IBOR_LEG)),
@@ -454,5 +457,5 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       }
     };
   }
-  
+
 }

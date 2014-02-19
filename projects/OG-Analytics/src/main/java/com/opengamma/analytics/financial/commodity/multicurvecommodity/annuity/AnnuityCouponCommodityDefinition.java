@@ -3,8 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.multicurvecommodity.definition;
+package com.opengamma.analytics.financial.commodity.multicurvecommodity.annuity;
 
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 
