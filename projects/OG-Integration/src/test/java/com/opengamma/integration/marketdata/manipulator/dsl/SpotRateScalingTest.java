@@ -26,11 +26,11 @@ public class SpotRateScalingTest {
   private static final double DELTA = 0.00000001;
 
   /* Scaling of 0.1 means +10%, i.e. multiply by 1.1 */
-  private static final SpotRateScaling UP_10 = new SpotRateScaling(0.1d, ImmutableSet.of(CurrencyPair.parse("EUR/USD"),
+  private static final SpotRateScaling UP_10 = new SpotRateScaling(1.1d, ImmutableSet.of(CurrencyPair.parse("EUR/USD"),
                                                                                          CurrencyPair.parse("CHF/JPY")));
 
   /* Scaling of -0.2 means -20%, i.e. multiply by 0.8 */
-  private static final SpotRateScaling DOWN_20 = new SpotRateScaling(-0.2, ImmutableSet.of(CurrencyPair.parse("EUR/USD"),
+  private static final SpotRateScaling DOWN_20 = new SpotRateScaling(0.8d, ImmutableSet.of(CurrencyPair.parse("EUR/USD"),
                                                                                            CurrencyPair.parse("CHF/JPY")));
 
   private static ValueSpecification valueSpec(String currencyPairStr) {

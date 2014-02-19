@@ -33,8 +33,12 @@ import com.opengamma.util.test.TestGroup;
 public class SpotRateShiftTest {
 
   private static final double DELTA = 0.00000001;
-  private static final SpotRateShift SHIFT = new SpotRateShift(1d, ImmutableSet.of(CurrencyPair.parse("EUR/USD"),
-                                                                                   CurrencyPair.parse("CHF/JPY")));
+  private static final SpotRateShift ABSOLUTE_SHIFT =
+      new SpotRateShift(ScenarioShiftType.ABSOLUTE, 1d, ImmutableSet.of(CurrencyPair.parse("EUR/USD"),
+                                                                        CurrencyPair.parse("CHF/JPY")));
+  private static final SpotRateShift RELATIVE_SHIFT =
+      new SpotRateShift(ScenarioShiftType.RELATIVE, 0.1, ImmutableSet.of(CurrencyPair.parse("EUR/USD"),
+                                                                        CurrencyPair.parse("CHF/JPY")));
 
   private static ValueSpecification valueSpec(String currencyPairStr) {
     ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "foo").get();
@@ -45,14 +49,18 @@ public class SpotRateShiftTest {
 
   @Test
   public void normalPair() {
-    assertEquals(3d, SHIFT.execute(2d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
-    assertEquals(5d, SHIFT.execute(4d, valueSpec("CHF/JPY"), new FunctionExecutionContext()), DELTA);
+    assertEquals(3d, ABSOLUTE_SHIFT.execute(2d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+    assertEquals(5d, ABSOLUTE_SHIFT.execute(4d, valueSpec("CHF/JPY"), new FunctionExecutionContext()), DELTA);
+    assertEquals(2.2d, RELATIVE_SHIFT.execute(2d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+    assertEquals(4.4d, RELATIVE_SHIFT.execute(4d, valueSpec("CHF/JPY"), new FunctionExecutionContext()), DELTA);
   }
 
   @Test
   public void inversePair() {
-    assertEquals(0.6666666666d, SHIFT.execute(2d, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
-    assertEquals(0.8d, SHIFT.execute(4d, valueSpec("JPY/CHF"), new FunctionExecutionContext()), DELTA);
+    assertEquals(0.6666666666, ABSOLUTE_SHIFT.execute(2d, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+    assertEquals(0.8d, ABSOLUTE_SHIFT.execute(4d, valueSpec("JPY/CHF"), new FunctionExecutionContext()), DELTA);
+    assertEquals(1.8181818181818181, RELATIVE_SHIFT.execute(2d, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+    assertEquals(3.6363636363636362, RELATIVE_SHIFT.execute(4d, valueSpec("JPY/CHF"), new FunctionExecutionContext()), DELTA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -61,12 +69,12 @@ public class SpotRateShiftTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.CURRENCY,
                                                                                    Currency.GBP.getUniqueId());
     ValueSpecification valueSpec = new ValueSpecification("SpotRate", targetSpec, properties);
-    SHIFT.execute(2d, valueSpec, new FunctionExecutionContext());
+    ABSOLUTE_SHIFT.execute(2d, valueSpec, new FunctionExecutionContext());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void unexpectedCurrencyPair() {
-    SHIFT.execute(2d, valueSpec("GBP/USD"), new FunctionExecutionContext());
+    ABSOLUTE_SHIFT.execute(2d, valueSpec("GBP/USD"), new FunctionExecutionContext());
   }
 
   @Test
@@ -83,7 +91,7 @@ public class SpotRateShiftTest {
     CompositeStructureManipulator eurUsdManipulator = (CompositeStructureManipulator) eurUsdValue;
     List eurUsdManipulators = eurUsdManipulator.getManipulators();
     assertEquals(1, eurUsdManipulators.size());
-    SpotRateShift eurUsdShift = new SpotRateShift(0.1, ImmutableSet.of(CurrencyPair.parse("EUR/USD")));
+    SpotRateShift eurUsdShift = new SpotRateShift(ScenarioShiftType.ABSOLUTE, 0.1, ImmutableSet.of(CurrencyPair.parse("EUR/USD")));
     assertEquals(eurUsdShift, eurUsdManipulators.get(0));
 
     FunctionParameters gbpAudParams = map.get(new SpotRateSelector(null, ImmutableSet.of(CurrencyPair.parse("GBP/AUD"))));
@@ -92,7 +100,7 @@ public class SpotRateShiftTest {
     CompositeStructureManipulator gbpAudManipulator = (CompositeStructureManipulator) gbpAudValue;
     List gbpAudManipulators = gbpAudManipulator.getManipulators();
     assertEquals(1, gbpAudManipulators.size());
-    SpotRateScaling gbpAudScaling = new SpotRateScaling(0.2, ImmutableSet.of(CurrencyPair.parse("GBP/AUD")));
+    SpotRateScaling gbpAudScaling = new SpotRateScaling(1.2, ImmutableSet.of(CurrencyPair.parse("GBP/AUD")));
     assertEquals(gbpAudScaling, gbpAudManipulators.get(0));
 
     FunctionParameters eurCadParams = map.get(new SpotRateSelector(null, ImmutableSet.of(CurrencyPair.parse("EUR/CAD"))));
@@ -108,8 +116,8 @@ public class SpotRateShiftTest {
   @Test
   public void javaApi() {
     Scenario scenario = new Scenario("Java API test");
-    scenario.spotRate().currencyPair("EURUSD").apply().shift(0.1);
-    scenario.spotRate().currencyPair("GBPAUD").apply().scaling(0.2);
+    scenario.spotRate().currencyPair("EURUSD").apply().shift(ScenarioShiftType.ABSOLUTE, 0.1);
+    scenario.spotRate().currencyPair("GBPAUD").apply().scaling(1.2);
     scenario.spotRate().currencyPair("EURCAD").apply().replace(1.5);
     ScenarioDefinition definition = scenario.createDefinition();
 
@@ -122,7 +130,7 @@ public class SpotRateShiftTest {
     CompositeStructureManipulator eurUsdManipulator = (CompositeStructureManipulator) eurUsdValue;
     List eurUsdManipulators = eurUsdManipulator.getManipulators();
     assertEquals(1, eurUsdManipulators.size());
-    SpotRateShift eurUsdShift = new SpotRateShift(0.1, ImmutableSet.of(CurrencyPair.parse("EUR/USD")));
+    SpotRateShift eurUsdShift = new SpotRateShift(ScenarioShiftType.ABSOLUTE, 0.1, ImmutableSet.of(CurrencyPair.parse("EUR/USD")));
     assertEquals(eurUsdShift, eurUsdManipulators.get(0));
 
     FunctionParameters gbpAudParams = map.get(new SpotRateSelector(null, ImmutableSet.of(CurrencyPair.parse("GBP/AUD"))));
@@ -131,7 +139,7 @@ public class SpotRateShiftTest {
     CompositeStructureManipulator gbpAudManipulator = (CompositeStructureManipulator) gbpAudValue;
     List gbpAudManipulators = gbpAudManipulator.getManipulators();
     assertEquals(1, gbpAudManipulators.size());
-    SpotRateScaling gbpAudScaling = new SpotRateScaling(0.2, ImmutableSet.of(CurrencyPair.parse("GBP/AUD")));
+    SpotRateScaling gbpAudScaling = new SpotRateScaling(1.2, ImmutableSet.of(CurrencyPair.parse("GBP/AUD")));
     assertEquals(gbpAudScaling, gbpAudManipulators.get(0));
 
     FunctionParameters eurCadParams = map.get(new SpotRateSelector(null, ImmutableSet.of(CurrencyPair.parse("EUR/CAD"))));

@@ -32,6 +32,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.test.TestGroup;
 
+import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
 @Test(groups = TestGroup.UNIT)
@@ -138,7 +139,7 @@ public class StandAloneScenarioScriptTest {
         "  marketData {\n" +
         "    id 'SCHEME', bar\n" +
         "    apply {\n" +
-        "      shift foo\n" +
+        "      shift Absolute, foo\n" +
         "    }\n" +
         "  }\n" +
         "}";
@@ -163,7 +164,7 @@ public class StandAloneScenarioScriptTest {
         "  marketData {\n" +
         "    id 'SCHEME', bar\n" +
         "    apply {\n" +
-        "      shift foo\n" +
+        "      shift Absolute, foo\n" +
         "    }\n" +
         "  }\n" +
         "}";
@@ -226,6 +227,9 @@ public class StandAloneScenarioScriptTest {
     config.setScriptBaseClass(StandAloneScenarioScript.class.getName());
     GroovyShell shell = new GroovyShell(config);
     StandAloneScenarioScript script = (StandAloneScenarioScript) shell.parse(scriptText);
+    Binding binding = new Binding();
+    SimulationUtils.registerAliases(binding);
+    script.setBinding(binding);
     script.run();
     return script;
   }

@@ -8,13 +8,13 @@ scenario 'spot rate test', {
   spotRate {
     currencyPair 'EURUSD'
     apply {
-      shift 0.1
+      shift Absolute, 0.1
     }
   }
   spotRate {
     currencyPair 'GBPAUD'
     apply {
-      scaling 20.pc
+      scaling 1.2
     }
   }
   spotRate {

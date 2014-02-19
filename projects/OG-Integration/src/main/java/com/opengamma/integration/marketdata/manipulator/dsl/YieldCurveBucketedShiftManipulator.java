@@ -66,17 +66,17 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
   }
 
   @Override
-  public YieldCurve execute(YieldCurve structure,
-                            ValueSpecification valueSpecification,
-                            FunctionExecutionContext executionContext) {
+  public YieldCurve execute(YieldCurve curve, ValueSpecification valueSpec, FunctionExecutionContext executionContext) {
     List<DoublesPair> buckets = new ArrayList<>();
     List<Double> shifts = new ArrayList<>();
     ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     ShiftType shiftType = _shiftType.toAnalyticsType();
+
     for (YieldCurveBucketedShift shift : _shifts) {
       double start = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getStart()));
       double end = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getEnd()));
       buckets.add(DoublesPair.of(start, end));
+
       if (shiftType == ShiftType.RELATIVE) {
         // add shifts to 1. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
         shifts.add(shift.getShift() + 1);
@@ -84,7 +84,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
         shifts.add(shift.getShift());
       }
     }
-    return YieldCurveUtils.withBucketedShifts(structure, buckets, shifts, shiftType);
+    return YieldCurveUtils.withBucketedShifts(curve, buckets, shifts, shiftType);
   }
 
   @Override
