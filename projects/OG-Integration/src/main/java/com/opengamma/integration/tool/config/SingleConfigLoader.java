@@ -33,6 +33,11 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMasterUtils;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -47,12 +52,14 @@ public class SingleConfigLoader {
   private MarketDataSnapshotMaster _marketDataSnapshotMaster;
   private boolean _doNotUpdateExisting;
   private ConfigSource _configSource;
+  private SecurityMaster _securityMaster;
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final String DEFAULT_HTS_RATING_NAME = "DEFAULT_TSS_CONFIG";
   private static final String DEFAULT_CURRENCY_MATRIX_NAME = "BloombergLiveData";
 
-  public SingleConfigLoader(ConfigMaster configMaster, ConfigSource configSource, ConventionMaster conventionMaster, MarketDataSnapshotMaster marketDataSnapshotMaster, boolean doNotUpdateExisting) {
+  public SingleConfigLoader(SecurityMaster securityMaster, ConfigMaster configMaster, ConfigSource configSource, ConventionMaster conventionMaster, MarketDataSnapshotMaster marketDataSnapshotMaster, boolean doNotUpdateExisting) {
+    _securityMaster = securityMaster;
     _configMaster = configMaster;
     _configSource = configSource;
     _conventionMaster = conventionMaster;
@@ -87,6 +94,16 @@ public class SingleConfigLoader {
       ConventionDocument doc = new ConventionDocument(convention);
       return _conventionMaster.add(doc).getConvention();
     }
+  }
+  
+  private ManageableSecurity addOrUpdateSecurity(ManageableSecurity security) {
+    SecuritySearchRequest searchReq = new SecuritySearchRequest(security.getExternalIdBundle());
+    SecuritySearchResult search = _securityMaster.search(searchReq);
+    if ((search.getDocuments().size() > 0) && _doNotUpdateExisting) {
+      s_logger.info("Found existing convention, skipping update");
+      return search.getFirstSecurity();
+    }
+    return SecurityMasterUtils.addOrUpdateSecurity(_securityMaster, security);
   }
   
   private ManageableMarketDataSnapshot addOrUpdateSnapshot(ManageableMarketDataSnapshot snapshot) {
@@ -125,6 +142,8 @@ public class SingleConfigLoader {
       addOrUpdateConvention((ManageableConvention) config);
     } else if (config instanceof ManageableMarketDataSnapshot) {
       addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
+    } else if (config instanceof ManageableSecurity) {
+      addOrUpdateSecurity((ManageableSecurity) config);
     } else if (config instanceof CurrencyPairs) {
       ConfigItem<?> item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
       if (_doNotUpdateExisting  && configExists(item)) {
@@ -164,6 +183,8 @@ public class SingleConfigLoader {
       addOrUpdateConvention((ManageableConvention) config);
     } else if (config instanceof ManageableMarketDataSnapshot) {
       addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
+    } else if (config instanceof ManageableSecurity) {
+      addOrUpdateSecurity((ManageableSecurity) config);
     } else if (config instanceof CurrencyPairs) {
       ConfigItem<?> item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
       if (_doNotUpdateExisting  && configExists(item)) {
