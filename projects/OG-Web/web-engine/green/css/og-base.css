@@ -145,6 +145,7 @@ img {
 .dat {
   color: #000;
   display: inline-block;
+  width: 100%;
 }
 
 
@@ -191,7 +192,7 @@ img {
 
 #ace-xml-editor {
   height: 500px;
-  width: 650px;
+  width: 100%;
 }
 
 /*
