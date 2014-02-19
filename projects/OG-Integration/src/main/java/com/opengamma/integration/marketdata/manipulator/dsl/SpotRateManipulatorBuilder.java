@@ -20,8 +20,8 @@ public class SpotRateManipulatorBuilder {
     _selector = ArgumentChecker.notNull(selector, "selector");
   }
 
-  public SpotRateManipulatorBuilder shift(Number shiftAmount) {
-    _scenario.add(_selector, new SpotRateShift(shiftAmount, _selector.getCurrencyPairs()));
+  public SpotRateManipulatorBuilder shift(ScenarioShiftType shiftType, Number shiftAmount) {
+    _scenario.add(_selector, new SpotRateShift(shiftType, shiftAmount, _selector.getCurrencyPairs()));
     return this;
   }
 

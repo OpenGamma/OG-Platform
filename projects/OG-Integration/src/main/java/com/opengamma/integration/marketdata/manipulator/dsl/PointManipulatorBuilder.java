@@ -39,8 +39,8 @@ public class PointManipulatorBuilder {
    * @param shift The shift amount
    * @return This builder
    */
-  public PointManipulatorBuilder shift(Number shift) {
-    _scenario.add(_selector, new MarketDataShift(shift.doubleValue()));
+  public PointManipulatorBuilder shift(ScenarioShiftType shiftType, Number shift) {
+    _scenario.add(_selector, new MarketDataShift(shiftType, shift.doubleValue()));
     return this;
   }
 

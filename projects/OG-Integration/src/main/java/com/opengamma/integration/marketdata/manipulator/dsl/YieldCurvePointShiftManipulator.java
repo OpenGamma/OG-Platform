@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -59,19 +60,24 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
   }
 
   @Override
-  public YieldCurve execute(YieldCurve structure,
-                            ValueSpecification valueSpecification,
-                            FunctionExecutionContext executionContext) {
+  public YieldCurve execute(YieldCurve curve, ValueSpecification valueSpec, FunctionExecutionContext executionContext) {
     final List<Double> points = new ArrayList<>();
     final List<Double> shifts = new ArrayList<>();
     ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
-    for (YieldCurvePointShift pointShift : _pointShifts) {
-      double years = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(pointShift.getTenor()));
+    ShiftType shiftType = _shiftType.toAnalyticsType();
+
+    for (YieldCurvePointShift shift : _pointShifts) {
+      double years = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getTenor()));
       points.add(years);
-      // add 1 to shifts. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
-      shifts.add(pointShift.getShift() + 1);
+
+      if (shiftType == ShiftType.RELATIVE) {
+        // add shifts to 1. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
+        shifts.add(shift.getShift() + 1);
+      } else {
+        shifts.add(shift.getShift());
+      }
     }
-    return YieldCurveUtils.withPointShifts(structure, points, shifts, _shiftType.toAnalyticsType());
+    return YieldCurveUtils.withPointShifts(curve, points, shifts, shiftType);
   }
 
   @Override
