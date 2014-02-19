@@ -17,7 +17,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.db.script.DbScript;
 
 /**
- * Upgrades database objects using the installation scripts.
+ * Upgrades or Creates database objects using the installation scripts.
  */
 public class DbUpgradeOrCreateOperation extends AbstractDbScriptOperation<DbToolContext> {
 
@@ -58,25 +58,35 @@ public class DbUpgradeOrCreateOperation extends AbstractDbScriptOperation<DbTool
     try {
       Set<String> schemaNames = getDbToolContext().getSchemaNames() != null ? getDbToolContext().getSchemaNames() : getAllSchemaNames();
       for (String schema : schemaNames) {
-        List<DbScript> scripts = getMigrationScripts(schema);
-        if (scripts == null) {
-          s_logger.info(schema + " does not support migration");
-          continue;
-        }
-        if (scripts.isEmpty()) {
-          s_logger.info(schema + " already at latest version");
-          continue;
-        }
-        upgradeRequired = true;
-        s_logger.info(schema + " is behind by " + scripts.size() + " versions");
-        for (int i = 0; i < scripts.size(); i++) {
-          DbScript script = scripts.get(i);
-          s_logger.debug("Using schema migration file: " + script);
-          writer.write(schema + " - " + (i + 1) + " of " + scripts.size(), script);
+        Integer currentVersion = getCurrentGroupVersion(schema);
+        if (currentVersion == null) {
+          //craete
+          s_logger.info("Processing schema " + schema);
+          DbScript script = getCreationScript(schema);
+          s_logger.debug("Using script: " + script);
+          writer.write(schema, script);
+        } else {
+          //update
+          List<DbScript> scripts = getMigrationScripts(schema);
+          if (scripts == null) {
+            s_logger.info(schema + " does not support migration");
+            continue;
+          }
+          if (scripts.isEmpty()) {
+            s_logger.info(schema + " already at latest version");
+            continue;
+          }
+          upgradeRequired = true;
+          s_logger.info(schema + " is behind by " + scripts.size() + " versions");
+          for (int i = 0; i < scripts.size(); i++) {
+            DbScript script = scripts.get(i);
+            s_logger.debug("Using schema migration file: " + script);
+            writer.write(schema + " - " + (i + 1) + " of " + scripts.size(), script);
+          }
         }
       }
     } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Error processing migration scripts", e);
+      throw new OpenGammaRuntimeException("Error processing creation/migration scripts", e);
     } finally {
       setUpgradeRequired(upgradeRequired);
       try {
