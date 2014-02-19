@@ -96,7 +96,7 @@ public class ScenarioResultsWriter {
         for (Object value : rowValues.values()) {
           ImmutableList.Builder<String> row = ImmutableList.builder();
           row.addAll(metadataColumns(scenarioResults, rowIndex));
-          row.add(colItr.next()).add(((ComputedValueResult) value).getValue().toString());
+          row.add(colItr.next()).add(getStringValue((ComputedValueResult) value));
           rows.add(row.build());
         }
       }
@@ -164,7 +164,7 @@ public class ScenarioResultsWriter {
         row.addAll(metadataColumns(scenarioResults, rowIndex));
 
         for (Object value : rowValues.values()) {
-          row.add(((ComputedValueResult) value).getValue().toString());
+          row.add(getStringValue((ComputedValueResult) value));
         }
         rows.add(row.build());
       }
@@ -173,6 +173,25 @@ public class ScenarioResultsWriter {
     for (List<String> row : rows.build()) {
       appendable.append(StringUtils.join(row, DELIMITER)).append("\n");
     }
+  }
+
+  /**
+   * Returns {@link ComputedValueResult#getValue() computedValueResult.getValue()} as a string or the empty string
+   * if {@code computedValueResult} or its value are null
+   * @param computedValueResult A computed value
+   * @return {@code computedValueResult.getValue().toString()} or the empty string if {@code computedValueResult}
+   * or its value are null
+   */
+  private static String getStringValue(ComputedValueResult computedValueResult) {
+    if (computedValueResult == null) {
+      return "";
+    }
+    Object value = computedValueResult.getValue();
+
+    if (value == null) {
+      return "";
+    }
+    return value.toString();
   }
 
   private static List<String> metadataHeader(int paramCount) {

@@ -6,6 +6,7 @@
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -51,25 +52,67 @@ public class StandAloneScenarioRunner {
    * @throws IllegalArgumentException If any data in the script is invalid or missing
    */
   public static List<ScenarioResultModel> runScenarioScript(String scriptFileName) throws IOException {
+    return runScenarioScript(new File(scriptFileName));
+  }
+
+  /**
+   * Runs a set of scenarios defined in a Groovy DSL script against a running server.
+   * @param scriptFile The file containing the scenario definitions
+   * @return The results of running the scenarios
+   * @throws IOException If the script file can't be found or read
+   * @throws IllegalArgumentException If any data in the script is invalid or missing
+   */
+  public static List<ScenarioResultModel> runScenarioScript(File scriptFile) throws IOException {
+    StandAloneScenarioScript script = runScript(scriptFile);
+
+    // pull the data out of the script and check it's valid and complete
+    ViewDelegate viewDelegate = script.getViewDelegate();
+    String viewName = viewDelegate.getName();
+    String serverUrl = viewDelegate.getServer();
+    List<MarketDataDelegate.MarketDataSpec> marketDataSpecs = viewDelegate.getMarketDataDelegate().getSpecifications();
+    validateScript(viewName, serverUrl, marketDataSpecs);
+
+    ScenarioListener listener;
+
+    // connect to the server and execute the scenarios
+    try (RemoteServer server = RemoteServer.create(serverUrl)) {
+      ViewDefinition viewDef = server.getConfigSource().getLatestByName(ViewDefinition.class, viewName);
+      if (viewDef == null) {
+        throw new IllegalArgumentException("No view definition found with name " + viewName);
+      }
+      List<MarketDataSpecification> dataSpecs = convertMarketData(marketDataSpecs, server.getMarketDataSnapshotMaster());
+      Simulation simulation = script.getSimulation();
+      listener = new ScenarioListener(simulation.getScenarioNames());
+      simulation.run(viewDef.getUniqueId(), dataSpecs, false, listener, server.getViewProcessor());
+    }
+    List<SimpleResultModel> results = listener.getResults();
+    List<ScenarioResultModel> scenarioResults = Lists.newArrayListWithCapacity(results.size());
+
+    for (SimpleResultModel result : results) {
+      scenarioResults.add(new ScenarioResultModel(result, script.getScenarioParameters(result.getCycleName())));
+    }
+    return scenarioResults;
+  }
+
+  private static StandAloneScenarioScript runScript(File scriptFile) throws IOException {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(StandAloneScenarioScript.class.getName());
     GroovyShell shell = new GroovyShell(config);
     StandAloneScenarioScript script;
 
-    try (Reader reader = new BufferedReader(new FileReader(scriptFileName))) {
-      script = (StandAloneScenarioScript) shell.parse(reader, scriptFileName);
+    try (Reader reader = new BufferedReader(new FileReader(scriptFile))) {
+      script = (StandAloneScenarioScript) shell.parse(reader, scriptFile.getAbsolutePath());
     }
     Binding binding = new Binding();
     SimulationUtils.registerAliases(binding);
     script.setBinding(binding);
     script.run();
+    return script;
+  }
 
-    // pull the data out of the script
-    ViewDelegate viewDelegate = script.getViewDelegate();
-    String viewName = viewDelegate.getName();
-    String serverUrl = viewDelegate.getServer();
-    List<MarketDataDelegate.MarketDataSpec> marketDataSpecs = viewDelegate.getMarketDataDelegate().getSpecifications();
-
+  private static void validateScript(String viewName,
+                                     String serverUrl,
+                                     List<MarketDataDelegate.MarketDataSpec> marketDataSpecs) {
     if (StringUtils.isEmpty(viewName)) {
       throw new IllegalArgumentException("A view name must be specified");
     }
@@ -79,25 +122,6 @@ public class StandAloneScenarioRunner {
     if (marketDataSpecs == null || marketDataSpecs.isEmpty()) {
       throw new IllegalArgumentException("Market data must be specified to run the view");
     }
-
-    ScenarioListener listener;
-    try (RemoteServer server = RemoteServer.create(serverUrl)) {
-      ViewDefinition viewDef = server.getConfigSource().getLatestByName(ViewDefinition.class, viewName);
-      if (viewDef == null) {
-        throw new IllegalArgumentException("No view definition found with name " + viewName);
-      }
-      List<MarketDataSpecification> dataSpecs = convertMarketData(marketDataSpecs,
-                                                                  server.getMarketDataSnapshotMaster());
-      Simulation simulation = script.getSimulation();
-      listener = new ScenarioListener(simulation.getScenarioNames());
-      simulation.run(viewDef.getUniqueId(), dataSpecs, false, listener, server.getViewProcessor());
-    }
-    List<SimpleResultModel> results = listener.getResults();
-    List<ScenarioResultModel> scenarioResults = Lists.newArrayListWithCapacity(results.size());
-    for (SimpleResultModel result : results) {
-      scenarioResults.add(new ScenarioResultModel(result, script.getScenarioParameters(result.getCycleName())));
-    }
-    return scenarioResults;
   }
 
   /**

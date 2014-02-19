@@ -14,6 +14,10 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
+/**
+ * @deprecated Use {@code MarketDataScaling} instead.
+ */
+@Deprecated
 public class MarketDataPointScalingManipulator implements StructureManipulator<Double> {
 
   private final Double _scalingFactor;
