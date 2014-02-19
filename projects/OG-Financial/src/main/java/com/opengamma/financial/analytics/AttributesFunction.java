@@ -27,6 +27,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurity.Meta;
 
 /**
  *
@@ -43,7 +45,16 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
     final String attributeName = properties.getSingleValue(PROPERTY_ATTRIBUTE_NAME);
     final Security security = target.getSecurity();
     final Map<String, String> attributes = security.getAttributes();
-    final String result = attributes.get(attributeName);
+    String result = attributes.get(attributeName);
+    if (result == null) {
+      if (security instanceof ManageableSecurity) {
+        ManageableSecurity ms = (ManageableSecurity) security;
+        Meta metaBean = ms.metaBean();
+        if (metaBean.metaPropertyExists(attributeName)) {
+          result = metaBean.metaProperty(attributeName).getString(ms);
+        }
+      }
+    }
     if (result == null) {
       throw new OpenGammaRuntimeException("Could not get value for attribute " + attributeName);
     }
