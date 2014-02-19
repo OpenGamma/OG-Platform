@@ -61,6 +61,24 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
     _calc = new TruncationCalculator(volatility, interestRate, dividend, stdDev);
   }
 
+  /**
+   * American vanilla option function with truncation and acceleration techniques in binomial model
+   * @param strike Strike price
+   * @param timeToExpiry Time to expiry
+   * @param steps Number of steps
+   * @param isCall True if call, false if put
+   * @param volatility Volatility
+   * @param interestRate Interest rate
+   * @param dividend Dividend
+   * @param stdDev Truncation parameter
+   * @param acc True if acceleration is used
+   */
+  public AmericanVanillaOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double volatility, final double interestRate,
+      final double dividend, final double stdDev, final boolean acc) {
+    super(strike, timeToExpiry, steps, isCall);
+    _calc = acc ? new AcceleratedTruncationCalculator(volatility, interestRate, dividend, stdDev) : new TruncationCalculator(volatility, interestRate, dividend, stdDev);
+  }
+
   @Override
   public double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
     return _calc.payoffsAtExpiry(assetPrice, downFactor, upOverDown);
@@ -159,8 +177,6 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
     public AccelerationCalculator(final double volatility, final double interestRate, final double dividend) {
       ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
       ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
-      ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
-      ArgumentChecker.isTrue(Doubles.isFinite(dividend), "dividend should be finite");
       _volatility = volatility;
       _interestRate = interestRate;
       _dividend = dividend;
@@ -210,8 +226,6 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
     public TruncationCalculator(final double volatility, final double interestRate, final double dividend, final double stdDiv) {
       ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
       ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
-      ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
-      ArgumentChecker.isTrue(Doubles.isFinite(dividend), "dividend should be finite");
       ArgumentChecker.isTrue(stdDiv > 0., "stdDiv should be positive");
       ArgumentChecker.isTrue(Doubles.isFinite(stdDiv), "stdDiv should be finite");
       _volatility = volatility;
@@ -275,6 +289,97 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
       tmpValue *= upOverDown;
       for (int j = jmin; j < jmax + 1; ++j) {
         res[j] = Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (tmpValue + sumCashDiv - strike));
+        tmpValue *= upOverDown;
+      }
+      if (jmax < steps) {
+        res[jmax + 1] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
+      }
+      tmpValue *= upOverDown;
+      if (jmax < steps - 1) {
+        res[jmax + 2] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
+      }
+      return res;
+    }
+  }
+
+  private class AcceleratedTruncationCalculator extends Calculator {
+    private final double _volatility;
+    private final double _interestRate;
+    private final double _dividend;
+    private final double _stdDiv;
+    private final double _dt;
+
+    public AcceleratedTruncationCalculator(final double volatility, final double interestRate, final double dividend, final double stdDiv) {
+      ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
+      ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
+      ArgumentChecker.isTrue(stdDiv > 0., "stdDiv should be positive");
+      ArgumentChecker.isTrue(Doubles.isFinite(stdDiv), "stdDiv should be finite");
+      _volatility = volatility;
+      _interestRate = interestRate;
+      _dividend = dividend;
+      _stdDiv = stdDiv;
+      _dt = getTimeToExpiry() / getNumberOfSteps();
+    }
+
+    @Override
+    public double[] payoffsAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
+      final int nSteps = getNumberOfSteps();
+      final int nStepsP = nSteps + 1;
+      final double strike = getStrike();
+      final double sign = getSign();
+
+      double assetPriceLowest = assetPrice * Math.pow(downFactor, nSteps);
+      final int ref = (int) (Math.log(strike / assetPriceLowest) / Math.log(upOverDown));
+      final double[] values = new double[nStepsP];
+
+      Arrays.fill(values, 0.);
+      double tmpValue = assetPriceLowest * Math.pow(upOverDown, ref - 3);
+      for (int i = 0; i < 6; ++i) {
+        values[ref - 3 + i] = Math.max(sign * (tmpValue - strike), 0.);
+        tmpValue *= upOverDown;
+      }
+      return values;
+    }
+
+    @Override
+    public double[] nextValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double sumCashDiv, final double baseAssetPrice,
+        final double downFactor, final double upOverDown, final int steps) {
+
+      final double strike = getStrike();
+      final double sign = getSign();
+      final int nStepsP = steps + 1;
+      final double assetPriceLowest = baseAssetPrice * Math.pow(downFactor, steps);
+      final double[] res = new double[nStepsP];
+      Arrays.fill(res, 0.);
+
+      final double time = getTimeToExpiry() - steps * getTimeToExpiry() / getNumberOfSteps();
+      final double part1 = Math.log(strike / assetPriceLowest) - (_interestRate - _dividend) * time;
+      final double part2 = _stdDiv * _volatility * Math.sqrt(time);
+      int jmax = (int) ((part1 + part2) / Math.log(upOverDown));
+      int jmin = (int) ((part1 - part2) / Math.log(upOverDown)) + 1;
+
+      jmax = jmax > steps ? steps : jmax;
+      jmin = jmin < 0 ? 0 : jmin;
+      final boolean isCall = sign == 1.;
+      double tmpValue = assetPriceLowest * Math.pow(upOverDown, jmin - 3);
+      if (jmin > 2) {
+        res[jmin - 3] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
+      }
+      tmpValue *= upOverDown;
+      if (jmin > 1) {
+        res[jmin - 2] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
+      }
+      tmpValue *= upOverDown;
+      if (jmin > 0) {
+        res[jmin - 1] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
+      }
+      tmpValue *= upOverDown;
+      for (int j = jmin; j < jmax + 1; ++j) {
+        if (getNumberOfSteps() - 1 == steps) {
+          res[j] = BlackScholesFormulaRepository.price(tmpValue, strike, _dt, _volatility, _interestRate, _interestRate - _dividend, isCall);
+        } else {
+          res[j] = Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (tmpValue + sumCashDiv - strike));
+        }
         tmpValue *= upOverDown;
       }
       if (jmax < steps) {

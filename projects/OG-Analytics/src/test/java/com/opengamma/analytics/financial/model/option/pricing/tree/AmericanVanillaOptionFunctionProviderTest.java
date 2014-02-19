@@ -58,6 +58,16 @@ public class AmericanVanillaOptionFunctionProviderTest {
               final double priceCall = _model.getPrice(lattice, functionCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
               final double priceSCall = _model.getPrice(lattice, functionSCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
               assertEquals(priceCall, priceSCall, 2. * Math.max(0.1, priceCall) / steps);
+
+              /*
+               * Both of acceralation and truncation applied
+               */
+              final OptionFunctionProvider1D functionTrAc = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4., true);
+              final OptionFunctionProvider1D functionTrAcCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4., true);
+              final double pricePTrAc = _model.getPrice(lattice, functionTrAc, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              assertEquals(pricePS, pricePTrAc, Math.max(0.1, pricePS) / steps);
+              final double priceTrAcCall = _model.getPrice(lattice, functionTrAcCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
+              assertEquals(priceSCall, priceTrAcCall, Math.max(0.1, priceSCall) / steps);
             }
           }
         }
@@ -84,7 +94,7 @@ public class AmericanVanillaOptionFunctionProviderTest {
             for (int i = 0; i < 15; ++i) {
               final int steps = 50 + 20 * i;
               final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false);
-              final OptionFunctionProvider1D functionTr = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4.);
+              final OptionFunctionProvider1D functionTr = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4., false);
               final OptionFunctionProvider1D functionCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true);
               final OptionFunctionProvider1D functionTrCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4.);
               final double priceP = _model.getPrice(lattice, function, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
@@ -617,8 +627,44 @@ public class AmericanVanillaOptionFunctionProviderTest {
    */
   @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void errorTest() {
+  public void errorVolTest1() {
     new AmericanVanillaOptionFunctionProvider(STRIKES[1], TIME, 10, false, -VOLS[1], INTERESTS[1], DIVIDENDS[1]);
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void errorVolTest2() {
+    new AmericanVanillaOptionFunctionProvider(STRIKES[1], TIME, 10, false, -VOLS[1], INTERESTS[1], DIVIDENDS[1], 4., true);
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void errorVolTest3() {
+    new AmericanVanillaOptionFunctionProvider(STRIKES[1], TIME, 10, false, -VOLS[1], INTERESTS[1], DIVIDENDS[1], 4., false);
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void errorDiv1Test() {
+    new AmericanVanillaOptionFunctionProvider(STRIKES[1], TIME, 10, false, VOLS[1], INTERESTS[1], DIVIDENDS[1], -4., true);
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void errorDiv2Test() {
+    new AmericanVanillaOptionFunctionProvider(STRIKES[1], TIME, 10, false, VOLS[1], INTERESTS[1], DIVIDENDS[1], -4., false);
   }
 
   /**
