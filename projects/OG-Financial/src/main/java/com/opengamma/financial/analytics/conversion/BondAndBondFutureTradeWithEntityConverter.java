@@ -230,7 +230,12 @@ public class BondAndBondFutureTradeWithEntityConverter {
       classifications.put(SECTOR_STRING, tradeAttributes.get(SECTOR_STRING));
     }
     final Sector sector = Sector.of(sectorName, classifications);
-    final Region region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
+    final Region region;
+    if (security.getIssuerDomicile().equals("SNAT")) { // Supranational
+      region = Region.of(security.getIssuerDomicile(), null, security.getCurrency());
+    } else {
+      region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
+    }
     final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
     return legalEntity;
   }
