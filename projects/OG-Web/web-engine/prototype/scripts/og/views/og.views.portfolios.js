@@ -23,11 +23,9 @@ $.register_module({
             details = common.details, history = common.util.history,
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
-            view, details_page, portfolio_name, dialog
+            view, details_page, portfolio_name,
             create_portolio = function () {
-                if(dialog) {
-                  dialog.dialog('close');
-                }
+                $(this).dialog('close');
                 api.rest.portfolios.put({
                     handler: function (result) {
                         var args = routes.current().args, rule = view.rules.load_item;
@@ -41,14 +39,14 @@ $.register_module({
             },
             toolbar_buttons = {
                 'new': function () {
-                    dialog = ui.dialog({
+                    ui.dialog({
                         width: 400, height: 190,
                         type: 'input',
                         title: 'Add New Portfolio',
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                         buttons: {
                             'OK': create_portolio,
-                            'Cancel': function () {$(this).dialog('close');}
+                            'Cancel': function () {$(this).dialog('close'); }
                         }
                     });
                 },
@@ -68,15 +66,15 @@ $.register_module({
                                         var args = routes.current().args, rule = view.rules.load;
                                         if (result.error) return view.error(result.message);
                                         routes.go(routes.hash(rule, args));
-                                        setTimeout(function () {view.search(args);});
+                                        setTimeout(function () {view.search(args); });
                                     }
                                 };
                                 $(this).dialog('close');
                                 api.rest.portfolios.del(rest_options);
                             },
-                            'Cancel': function () {$(this).dialog('close');}
+                            'Cancel': function () {$(this).dialog('close'); }
                         }
-                    })
+                    });
                 },
                 'versions': function () {
                     var rule = view.rules.load_item, args = routes.current().args;
