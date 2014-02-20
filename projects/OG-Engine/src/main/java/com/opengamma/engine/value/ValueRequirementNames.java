@@ -1670,6 +1670,17 @@ public final class ValueRequirementNames {
    * Delta Equivalent value of a position. Essentially equivalent to {@link ValueRequirementNames#VALUE_DELTA}
    */
   public static final String NET_MARKET_VALUE = "Net Market Value";
-
+  /**
+   * {@link ValueRequirementNames#NET_MARKET_VALUE} scaled by some Capital amount
+   */
+  public static final String NET_CAPITAL = "Net Capital";
+  /**
+   * {@link ValueRequirementNames#NET_MARKET_VALUE} filtered for Equity Security Types
+   */
+  public static final String EQUITY_NET_MARKET_VALUE = "Equity Net Market Value";
+  /**
+   * {@link ValueRequirementNames#NET_CAPITAL} filtered for Equity Security Types
+   */
+  public static final String EQUITY_NET_CAPITAL = "Equity Net Capital";
 
 }

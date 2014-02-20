@@ -32,7 +32,8 @@ public class SpreadCurveShiftDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.HAZARD_RATE_CURVE,
-    ValueRequirementNames.CREDIT_SPREAD_CURVE
+    ValueRequirementNames.CREDIT_SPREAD_CURVE,
+    ValueRequirementNames.NET_MARKET_VALUE
   };
   private final String _shiftType;
 

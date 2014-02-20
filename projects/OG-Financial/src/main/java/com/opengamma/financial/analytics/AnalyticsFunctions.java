@@ -287,6 +287,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.RR01);
     addSummingFunction(functions, ValueRequirementNames.IR01);
     addSummingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
+    addSummingFunction(functions, ValueRequirementNames.NET_MARKET_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.DV01);
     addUnitScalingFunction(functions, ValueRequirementNames.CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
@@ -297,6 +298,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
     addUnitScalingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addUnitScalingFunction(functions, ValueRequirementNames.HAZARD_RATE_CURVE);
+    addUnitScalingFunction(functions, ValueRequirementNames.NET_MARKET_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.CLEAN_PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.DIRTY_PRESENT_VALUE);

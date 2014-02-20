@@ -11,6 +11,7 @@ import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.equity.futures.EquityNetMarketValueFunction;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceDefaults;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceFunction;
 
@@ -172,6 +173,9 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_WEIGHTED_VEGA, ValueRequirementNames.WEIGHTED_VEGA));
     functions.add(functionConfiguration(WeightedVegaFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
+    functions.add(functionConfiguration(NetCapitalFunction.class));
+    functions.add(functionConfiguration(EquityNetCapitalFunction.class));
+    functions.add(functionConfiguration(EquityNetMarketValueFunction.class));
   }
 
 }
