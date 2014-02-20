@@ -77,7 +77,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
   /* Spot value of the equity index or name */
   private ValueRequirement getSpotRequirement(final ComputationTarget target) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
+    return (new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification()));
   }
 
   /* Funding curve of the equity's currency */
