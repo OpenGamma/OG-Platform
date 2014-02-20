@@ -232,11 +232,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
     final Sector sector = Sector.of(sectorName, classifications);
     final Region region;
     if (security.getIssuerDomicile().equals("SNAT")) { // Supranational
-      if (security.getCurrency().equals(Currency.EUR)) {
-        region = Region.of(security.getIssuerDomicile(), Country.of("EU"), security.getCurrency());
-      } else {
-        region = Region.of(security.getIssuerDomicile(), Country.of("SNAT"), security.getCurrency());
-      }
+      region = Region.of(security.getIssuerDomicile(), null, security.getCurrency());
     } else {
       region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
     }
@@ -297,8 +293,15 @@ public class BondAndBondFutureTradeWithEntityConverter {
         if (regionId == null) {
           throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());
         }
-        final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
         final Currency currency = bond.getCurrency();
+        final Calendar calendar;
+        // If the bond is Supranational, we use the calendar derived from the currency of the bond.
+        // this may need revisiting.
+        if (regionId.getValue().equals("SNAT")) { // Supranational
+          calendar = CalendarUtils.getCalendar(_holidaySource, currency);
+        } else {
+          calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+        }
         if (bond.getInterestAccrualDate() == null) {
           throw new OpenGammaRuntimeException("Bond first interest accrual date was null");
         }
