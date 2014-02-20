@@ -37,7 +37,8 @@ public class ISDAHazardRateCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.PAR_SPREAD,
-    ValueRequirementNames.HEDGE_NOTIONAL
+    ValueRequirementNames.HEDGE_NOTIONAL,
+    ValueRequirementNames.NET_MARKET_VALUE
   };
   private final PriorityClass _priority;
   //private final Map<String, String> _currencyToHazardRateCurveName;

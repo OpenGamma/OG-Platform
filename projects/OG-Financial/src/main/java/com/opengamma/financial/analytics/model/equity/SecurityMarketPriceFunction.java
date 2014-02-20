@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.equity;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;

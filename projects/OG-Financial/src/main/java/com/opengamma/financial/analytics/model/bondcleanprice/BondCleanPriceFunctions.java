@@ -34,5 +34,6 @@ public class BondCleanPriceFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondPresentValueFromCleanPriceFunction.class));
     functions.add(functionConfiguration(BondYieldFromCleanPriceFunction.class));
     functions.add(functionConfiguration(BondZSpreadFromCleanPriceFunction.class));
+    functions.add(functionConfiguration(BondNetMarketValueFromCleanPriceFunction.class));
   }
 }
