@@ -8,17 +8,24 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.EmptyAggregatedExecutionLog;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -26,8 +33,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -58,16 +69,16 @@ public class ScenarioResultsWriterTest {
     List<String> expectedList =
         ImmutableList.of(
             // header -----
-            row("ScenarioName", "ValuationTime", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", _res1Name, _res2Name),
+            row("ScenarioName", "ValuationTime", "Type", "Description", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", _res1Name, _res2Name),
             // scenario 1 trade 1 -----
-            row(_scenario1Name, _valuationTime1, _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, 1, 2),
+            row(_scenario1Name, _valuationTime1, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, 1, 2),
             // scenario 1 trade 2 -----
-            row(_scenario1Name, _valuationTime1, _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, 3, 4),
+            row(_scenario1Name, _valuationTime1, "FRA", "A FRA", _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, 3, 4),
             // scenario 2 trade 1 -----
-            row(_scenario2Name, _valuationTime2, _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, 5, 6),
+            row(_scenario2Name, _valuationTime2, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, 5, 6),
             // scenario 2 trade 2 -----
-            row(_scenario2Name, _valuationTime2, _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, 7, 8));
-    String expected = StringUtils.join(expectedList, "\n") + "\n";
+            row(_scenario2Name, _valuationTime2, "FRA", "A FRA", _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, 7, 8));
+        String expected = StringUtils.join(expectedList, "\n") + "\n";
 
     StringBuilder builder = new StringBuilder();
     ScenarioResultsWriter.writeShortFormat(scenarioResults(), builder);
@@ -79,23 +90,23 @@ public class ScenarioResultsWriterTest {
     List<String> expectedList =
         ImmutableList.of(
             // header -----
-            row("ScenarioName", "ValuationTime", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", "ResultName", "ResultValue"),
+            row("ScenarioName", "ValuationTime", "Type", "Description", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", "ResultName", "ResultValue"),
             // scenario 1 trade 1 result 1-----
-            row(_scenario1Name, _valuationTime1, _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, _res1Name, 1),
+            row(_scenario1Name, _valuationTime1, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, _res1Name, 1),
             // scenario 1 trade 1 result 2 -----
-            row(_scenario1Name, _valuationTime1, _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, _res2Name, 2),
+            row(_scenario1Name, _valuationTime1, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, _res2Name, 2),
             // scenario 1 trade 2 result 1 -----
-            row(_scenario1Name, _valuationTime1, _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, _res1Name, 3),
+            row(_scenario1Name, _valuationTime1, "FRA", "A FRA", _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, _res1Name, 3),
             // scenario 1 trade 2 result 2 -----
-            row(_scenario1Name, _valuationTime1, _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, _res2Name, 4),
+            row(_scenario1Name, _valuationTime1, "FRA", "A FRA", _id2, _param1Name, _param1Value1, _param2Name, _param2Value1, _res2Name, 4),
             // scenario 2 trade 1 result 1 -----
-            row(_scenario2Name, _valuationTime2, _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, _res1Name, 5),
+            row(_scenario2Name, _valuationTime2, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, _res1Name, 5),
             // scenario 2 trade 1 result 2-----
-            row(_scenario2Name, _valuationTime2, _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, _res2Name, 6),
+            row(_scenario2Name, _valuationTime2, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value2, _param2Name, _param2Value2, _res2Name, 6),
             // scenario 2 trade 2 result 1 -----
-            row(_scenario2Name, _valuationTime2, _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, _res1Name, 7),
+            row(_scenario2Name, _valuationTime2, "FRA", "A FRA", _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, _res1Name, 7),
             // scenario 2 trade 2 result 2 -----
-            row(_scenario2Name, _valuationTime2, _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, _res2Name, 8));
+            row(_scenario2Name, _valuationTime2, "FRA", "A FRA", _id2, _param1Name, _param1Value2, _param2Name, _param2Value2, _res2Name, 8));
     String expected = StringUtils.join(expectedList, "\n") + "\n";
 
     StringBuilder builder = new StringBuilder();
@@ -104,7 +115,7 @@ public class ScenarioResultsWriterTest {
   }
 
   private List<ScenarioResultModel> scenarioResults() {
-    List<UniqueIdentifiable> ids = ImmutableList.<UniqueIdentifiable>of(UniqueId.parse(_id1), UniqueId.parse(_id2));
+    List<UniqueIdentifiable> trades = ImmutableList.<UniqueIdentifiable>of(fxForward(), fra());
     List<String> columnNames = ImmutableList.of(_res1Name, _res2Name);
 
     Table<Integer, Integer, Object> table1 = TreeBasedTable.create();
@@ -117,7 +128,7 @@ public class ScenarioResultsWriterTest {
             .setValuationTime(Instant.parse(_valuationTime1))
             .setName(_scenario1Name)
             .create();
-    SimpleResultModel simpleResultModel1 = new SimpleResultModel(ids, columnNames, table1, executionOptions1);
+    SimpleResultModel simpleResultModel1 = new SimpleResultModel(trades, columnNames, table1, executionOptions1);
     Map<String, Object> scenarioParams1 = ImmutableMap.<String, Object>of(_param1Name, _param1Value1,
                                                                           _param2Name, _param2Value1);
     ScenarioResultModel scenarioResultModel1 = new ScenarioResultModel(simpleResultModel1, scenarioParams1);
@@ -132,7 +143,7 @@ public class ScenarioResultsWriterTest {
             .setValuationTime(Instant.parse(_valuationTime2))
             .setName(_scenario2Name)
             .create();
-    SimpleResultModel simpleResultModel2 = new SimpleResultModel(ids, columnNames, table2, executionOptions2);
+    SimpleResultModel simpleResultModel2 = new SimpleResultModel(trades, columnNames, table2, executionOptions2);
     Map<String, Object> scenarioParams2 = ImmutableMap.<String, Object>of(_param1Name, _param1Value2,
                                                                           _param2Name, _param2Value2);
     ScenarioResultModel scenarioResultModel2 = new ScenarioResultModel(simpleResultModel2, scenarioParams2);
@@ -142,6 +153,26 @@ public class ScenarioResultsWriterTest {
 
   private static Object compuatedValue(int value) {
     return new ComputedValueResult(VALUE_SPEC, value, EmptyAggregatedExecutionLog.INSTANCE);
+  }
+
+  private Trade fxForward() {
+    ExternalId externalId = ExternalId.parse("a~1");
+    FXForwardSecurity security = new FXForwardSecurity(Currency.EUR, 1, Currency.USD, 1, ZonedDateTime.now(), externalId);
+    security.setName("An FX Forward");
+    SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.parse("a~b"));
+    SimpleTrade trade = new SimpleTrade(security, BigDecimal.ONE, counterparty, LocalDate.now(), OffsetTime.now());
+    trade.setUniqueId(UniqueId.parse(_id1));
+    return trade;
+  }
+
+  private Trade fra() {
+    ZonedDateTime now = ZonedDateTime.now();
+    FRASecurity security = new FRASecurity(Currency.GBP, ExternalId.parse("b~2"), now, now, 1, 1, ExternalId.parse("c~3"), now);
+    security.setName("A FRA");
+    SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.parse("a~b"));
+    SimpleTrade trade = new SimpleTrade(security, BigDecimal.ONE, counterparty, LocalDate.now(), OffsetTime.now());
+    trade.setUniqueId(UniqueId.parse(_id2));
+    return trade;
   }
 
   private static String row(Object... values) {

@@ -19,8 +19,12 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Table;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.PositionOrTrade;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
 /**
  * Writes the results of running scenarios to a tab delimited text file.
@@ -31,6 +35,7 @@ import com.opengamma.id.UniqueIdentifiable;
  *   in the view there will be n rows per position / scenario. This is intended to be easy to use when creating
  *   pivot tables and using filtering in Excel.</li>
  * </ul>
+ * The long format is used by default.
  */
 public class ScenarioResultsWriter {
 
@@ -121,7 +126,6 @@ public class ScenarioResultsWriter {
     }
   }
 
-
   /**
    * Writes a set of scenario results in short tab delimited format.
    * All values calculated for a position / scenario are in the same row. There is a column for each result in
@@ -196,7 +200,7 @@ public class ScenarioResultsWriter {
 
   private static List<String> metadataHeader(int paramCount) {
     ImmutableList.Builder<String> builder = ImmutableList.builder();
-    builder.add("ScenarioName").add("ValuationTime").add("TargetId");
+    builder.add("ScenarioName").add("ValuationTime").add("Type").add("Description").add("TargetId");
     for (int i = 1; i <= paramCount; i++) {
       builder.add("ParamName" + i).add("ParamValue" + i);
     }
@@ -212,7 +216,12 @@ public class ScenarioResultsWriter {
     Instant valuationTime = simpleResults.getValuationTime();
     UniqueIdentifiable target = simpleResults.getTargets().get(rowIndex);
     ImmutableList.Builder<String> builder = ImmutableList.builder();
-    builder.add(scenarioName).add(valuationTime.toString()).add(target.getUniqueId().toString());
+    builder
+        .add(scenarioName)
+        .add(valuationTime.toString())
+        .add(getType(target))
+        .add(getDescription(target))
+        .add(target.getUniqueId().toString());
 
     for (Map.Entry<String, Object> entry : scenarioResults.getParameters().entrySet()) {
       String paramName = entry.getKey();
@@ -221,5 +230,43 @@ public class ScenarioResultsWriter {
       builder.add(paramName).add(paramValue.toString());
     }
     return builder.build();
+  }
+
+  private static String getType(UniqueIdentifiable target) {
+    if (target instanceof PortfolioNode || target instanceof ManageablePortfolioNode) {
+      return "PortfolioNode";
+    }
+    if (!(target instanceof PositionOrTrade)) {
+      return target.getClass().getSimpleName();
+    }
+    Security security = ((PositionOrTrade) target).getSecurityLink().getTarget();
+
+    if (security == null) {
+      return "";
+    }
+    String simpleName = security.getClass().getSimpleName();
+
+    if (simpleName.endsWith("Security")) {
+      return simpleName.substring(0, simpleName.length() - 8);
+    }
+    return simpleName;
+  }
+
+  private static String getDescription(UniqueIdentifiable target) {
+    if (target instanceof PortfolioNode) {
+      return ((PortfolioNode) target).getName();
+    }
+    if (target instanceof ManageablePortfolioNode) {
+      return ((ManageablePortfolioNode) target).getName();
+    }
+    if (!(target instanceof PositionOrTrade)) {
+      return target.toString();
+    }
+    Security security = ((PositionOrTrade) target).getSecurityLink().getTarget();
+
+    if (security == null) {
+      return "";
+    }
+    return security.getName();
   }
 }

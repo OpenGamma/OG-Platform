@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,17 +20,28 @@ import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.position.PositionOrTrade;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.security.ManageableSecurityLink;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -73,6 +85,7 @@ public class StandAloneScenarioRunner {
     validateScript(viewName, serverUrl, marketDataSpecs);
 
     ScenarioListener listener;
+    List<SimpleResultModel> results;
 
     // connect to the server and execute the scenarios
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
@@ -84,14 +97,44 @@ public class StandAloneScenarioRunner {
       Simulation simulation = script.getSimulation();
       listener = new ScenarioListener(simulation.getScenarioNames());
       simulation.run(viewDef.getUniqueId(), dataSpecs, false, listener, server.getViewProcessor());
+      results = listener.getResults();
+      populateSecurities(results, server.getSecuritySource());
     }
-    List<SimpleResultModel> results = listener.getResults();
     List<ScenarioResultModel> scenarioResults = Lists.newArrayListWithCapacity(results.size());
 
     for (SimpleResultModel result : results) {
       scenarioResults.add(new ScenarioResultModel(result, script.getScenarioParameters(result.getCycleName())));
     }
     return scenarioResults;
+  }
+
+  private static void populateSecurities(List<SimpleResultModel> results, SecuritySource securitySource) {
+    for (SimpleResultModel resultModel : results) {
+      for (UniqueIdentifiable uniqueIdentifiable : resultModel.getTargets()) {
+        if (uniqueIdentifiable instanceof PositionOrTrade) {
+          PositionOrTrade positionOrTrade = (PositionOrTrade) uniqueIdentifiable;
+          ExternalIdBundle securityId = positionOrTrade.getSecurityLink().getExternalId();
+          Collection<Security> securities = securitySource.get(securityId);
+
+          if (!securities.isEmpty()) {
+            Security security = securities.iterator().next();
+            setSecurityLink(positionOrTrade, security);
+          }
+        }
+      }
+    }
+  }
+
+  private static void setSecurityLink(PositionOrTrade positionOrTrade, Security security) {
+    if (positionOrTrade instanceof ManageablePosition) {
+      ((ManageablePosition) positionOrTrade).setSecurityLink(ManageableSecurityLink.of(security));
+    } else if (positionOrTrade instanceof ManageableTrade) {
+      ((ManageableTrade) positionOrTrade).setSecurityLink(ManageableSecurityLink.of(security));
+    } else if (positionOrTrade instanceof SimplePosition) {
+      ((SimplePosition) positionOrTrade).setSecurityLink(SimpleSecurityLink.of(security));
+    } else if (positionOrTrade instanceof SimpleTrade) {
+      ((SimpleTrade) positionOrTrade).setSecurityLink(SimpleSecurityLink.of(security));
+    }
   }
 
   private static StandAloneScenarioScript runScript(File scriptFile) throws IOException {
