@@ -20,6 +20,25 @@ public class SpotRateManipulatorBuilder {
     _selector = ArgumentChecker.notNull(selector, "selector");
   }
 
+  /**
+   * Shifts the rate by an absolute amount
+   * @param shiftAmount The amount of the shift
+   * @return This builder
+   * @deprecated Use {@link #shift(ScenarioShiftType, Number)}
+   */
+  @Deprecated
+  public SpotRateManipulatorBuilder shift(Number shiftAmount) {
+    _scenario.add(_selector, new SpotRateShift(ScenarioShiftType.ABSOLUTE, shiftAmount, _selector.getCurrencyPairs()));
+    return this;
+  }
+
+  /**
+   * Shifts the rate.
+   * @param shiftType Whether the shift should be absolute or relative. A relative shift is expressed as an amount
+   * to add or subtract, e.g. 10% shift = rate * 1.1, -20% shift = rate * 0.8
+   * @param shiftAmount The amount of the shift
+   * @return This builder
+   */
   public SpotRateManipulatorBuilder shift(ScenarioShiftType shiftType, Number shiftAmount) {
     _scenario.add(_selector, new SpotRateShift(shiftType, shiftAmount, _selector.getCurrencyPairs()));
     return this;
