@@ -140,6 +140,10 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Australian Government bonds.
    */
   public static final YieldConvention AUSTRALIA_EX_DIVIDEND = new SimpleYieldConvention("AUSTRALIA:EX-DIV");
+  /**
+   * Mexican Government bonds.
+   */
+  public static final YieldConvention MEXICAN_BONOS = new SimpleYieldConvention("fix bonos");
 
   /**
    * The convention name.

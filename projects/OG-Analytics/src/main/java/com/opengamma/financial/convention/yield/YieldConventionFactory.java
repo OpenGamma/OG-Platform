@@ -80,6 +80,7 @@ public final class YieldConventionFactory
     addInstance(SimpleYieldConvention.SPANISH_T_BILLS);
     addInstance(SimpleYieldConvention.PORTUGAL_DOMESTIC_SETTLE);
     addInstance(SimpleYieldConvention.ITALY_TREASURY_BILL);
+    addInstance(SimpleYieldConvention.MEXICAN_BONOS);
   }
 
   //-------------------------------------------------------------------------
