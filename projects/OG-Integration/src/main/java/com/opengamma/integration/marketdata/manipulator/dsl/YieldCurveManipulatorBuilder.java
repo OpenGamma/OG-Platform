@@ -41,15 +41,27 @@ public class YieldCurveManipulatorBuilder {
     return _scenario;
   }
 
-
+  /**
+   * Adds an action to perform a parallel shift to the scenario.
+   * @param shiftType Specifies how to apply the shift. A relative shift is expressed as an amount
+   * to add or subtract, e.g. 10% shift = rate * 1.1, -20% shift = rate * 0.8
+   * @param shift The size of the shift
+   * @return This builder
+   */
+  public YieldCurveManipulatorBuilder parallelShift(ScenarioShiftType shiftType, Number shift) {
+    _scenario.add(_selector, new YieldCurveParallelShift(shiftType, shift.doubleValue()));
+    return this;
+  }
 
   /**
    * Adds an action to perform a parallel shift to the scenario.
    * @param shift The size of the shift
    * @return This builder
+   * @deprecated Use {@link #parallelShift(ScenarioShiftType, Number)}
    */
+  @Deprecated
   public YieldCurveManipulatorBuilder parallelShift(Number shift) {
-    _scenario.add(_selector, new YieldCurveParallelShift(shift.doubleValue()));
+    _scenario.add(_selector, new YieldCurveParallelShift(ScenarioShiftType.ABSOLUTE, shift.doubleValue()));
     return this;
   }
 
