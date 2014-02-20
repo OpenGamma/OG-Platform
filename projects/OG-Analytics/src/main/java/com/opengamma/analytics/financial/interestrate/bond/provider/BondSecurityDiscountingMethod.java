@@ -134,7 +134,7 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond.
+   * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity).
    * The parallel shift is done in the curve convention.
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
@@ -146,8 +146,7 @@ public final class BondSecurityDiscountingMethod {
     return presentValue(bond, issuerShifted);
   }
 
-  /**
-   *
+  /** 
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param zSpread The z-spread.
@@ -580,6 +579,7 @@ public final class BondSecurityDiscountingMethod {
 
   /**
    * Computes a bond z-spread from the curves and a present value.
+   * The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity) to match the present value.
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param pv The target present value.
@@ -617,7 +617,8 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes a bond z-spread from the curves and a clean price.
+   * Computes a bond z-spread from the curves and a clean price. 
+   * The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity) to match the CleanPrice present value.
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param cleanPrice The target clean price.
@@ -628,7 +629,7 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes a bond z-spread from the curves and a yield.
+   * Computes a bond z-spread from the curves and a yield. 
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param yield The yield.
