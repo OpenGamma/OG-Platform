@@ -9,8 +9,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.plaf.metal.MetalComboBoxUI.MetalPropertyChangeListener;
+
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +82,15 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
     for (String attribute : attributes.keySet()) {
       properties.with(PROPERTY_ATTRIBUTE_NAME, attribute);
     }
+    Security security = target.getSecurity();
+    if (security instanceof Bean) {
+      Bean bean = (Bean) security;
+      MetaBean metaBean = bean.metaBean();
+      for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
+        properties.with(PROPERTY_ATTRIBUTE_NAME, property.name());
+      }
+    }
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties.get()));
-
   }
 
   @Override
