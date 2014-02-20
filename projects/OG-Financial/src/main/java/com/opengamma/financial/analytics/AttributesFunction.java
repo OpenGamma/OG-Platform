@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.MetaBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +49,9 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
     final Map<String, String> attributes = security.getAttributes();
     String result = attributes.get(attributeName);
     if (result == null) {
-      if (security instanceof ManageableSecurity) {
-        ManageableSecurity ms = (ManageableSecurity) security;
-        Meta metaBean = ms.metaBean();
+      if (security instanceof Bean) {
+        Bean ms = (Bean) security;
+        MetaBean metaBean = ms.metaBean();
         if (metaBean.metaPropertyExists(attributeName)) {
           result = metaBean.metaProperty(attributeName).getString(ms);
         }
