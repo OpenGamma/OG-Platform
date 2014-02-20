@@ -7,6 +7,9 @@ package com.opengamma.financial.security;
 
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.equity.SecurityMarketPriceFunction;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
@@ -104,6 +107,21 @@ public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdap
     return true;
   }
 
+  @Override
+  public Boolean visitCorporateBondSecurity(final CorporateBondSecurity security) {
+    return true;
+  }
+
+  @Override
+  public Boolean visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+    return true;
+  }
+
+  @Override
+  public Boolean visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+    return true;
+  }
+  
   @Override
   public Boolean visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
     return true;
