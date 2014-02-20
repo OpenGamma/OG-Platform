@@ -90,7 +90,7 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
       throw new OpenGammaRuntimeException("Could not find key for " + legalEntity);
     }
     final IssuerProvider curvesWithReplacement = issuerCurves.withIssuerCurve(keyOfCurveToReplace, curve);
-    final double zSpread = 10000 * CALCULATOR.zSpreadFromCurvesAndClean(bond.getBondTransaction(), curvesWithReplacement, cleanPrice);
+    final double zSpread = 10000 * CALCULATOR.zSpreadFromCurvesAndClean(bond.getBondStandard(), curvesWithReplacement, cleanPrice);
     return Collections.singleton(new ComputedValue(spec, zSpread));
   }
 
