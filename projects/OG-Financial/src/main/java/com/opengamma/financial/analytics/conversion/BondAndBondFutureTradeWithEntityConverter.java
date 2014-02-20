@@ -232,7 +232,11 @@ public class BondAndBondFutureTradeWithEntityConverter {
     final Sector sector = Sector.of(sectorName, classifications);
     final Region region;
     if (security.getIssuerDomicile().equals("SNAT")) { // Supranational
-      region = Region.of(security.getIssuerDomicile(), null, security.getCurrency());
+      if (security.getCurrency().equals(Currency.EUR)) {
+        region = Region.of(security.getIssuerDomicile(), Country.of("EU"), security.getCurrency());
+      } else {
+        region = Region.of(security.getIssuerDomicile(), Country.of("SNAT"), security.getCurrency());
+      }
     } else {
       region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
     }
