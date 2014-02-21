@@ -544,6 +544,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         Subscription subscription = getSubscription(fullyQualifiedSpec);
         if (subscription != null) {
           s_logger.info("Already subscribed to {}", fullyQualifiedSpec);
+          subscription.createDistributor(distributionSpec, persistent).setExpiry(distributionExpiryTime);
         } else {
           String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
           if (securityUniqueId == null) {
