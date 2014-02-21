@@ -20,7 +20,6 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.client.AbstractLiveDataClient;
 import com.opengamma.livedata.client.SubscriptionHandle;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 
 /**
  * A {@code LiveDataClient} that works completely in memory
@@ -40,16 +39,6 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
   @Override
   protected void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandles) {
     _subscriptionRequests.add(subHandles);
-    for (SubscriptionHandle subHandle : subHandles) {
-      LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(
-          subHandle.getRequestedSpecification(),
-          LiveDataSubscriptionResult.SUCCESS,
-          null,
-          subHandle.getRequestedSpecification(),
-          "test distribution spec",
-          null);        
-      subscriptionRequestSatisfied(subHandle, response);
-    }
   }
 
   public List<LiveDataSpecification> getCancelRequests() {
@@ -59,7 +48,7 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
   public List<Collection<SubscriptionHandle>> getSubscriptionRequests() {
     return _subscriptionRequests;
   }
-  
+
   public void marketDataReceived(LiveDataSpecification fullyQualifiedSpecification, FudgeMsg fields) {
     LiveDataValueUpdateBean bean = new LiveDataValueUpdateBean(_sequenceGenerator.incrementAndGet(), fullyQualifiedSpecification, fields);
     getValueDistributor().notifyListeners(bean);
@@ -78,6 +67,11 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
   @Override
   public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
     return true;
+  }
+  
+  @Override
+  public void subscriptionRequestSatisfied(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
+    super.subscriptionRequestSatisfied(subHandle, response);
   }
   
 }

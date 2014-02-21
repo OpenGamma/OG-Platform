@@ -26,21 +26,18 @@ public interface SubscriptionReporter {
   Map<String, SubscriptionInfo> queryByTicker(String ticker);
 
   /**
-   * Return the total number of market data value specifications for which
-   * subscriptions have been attempted.
+   * Gets the total number of unique market data subscriptions that have been requested.
    *
-   * @return the number of specifications
+   * @return the number of subscriptions requested
    */
-  int getSpecificationCount();
+  int getRequestedLiveDataSubscriptionCount();
 
   /**
-   * Return the total number of unique market data subscription requests
-   * which are being made. i.e. number of requests that have been sent to
-   * the market data server.
+   * Gets the total number of subscriptions on value specifications that are currently active.
    *
-   * @return the number of subscription requests
+   * @return the number of unique active subscriptions
    */
-  int getSubscriptionCount();
+  int getActiveValueSpecificationSubscriptionCount();
 
   /**
    * Return the user for these market data subscriptions.

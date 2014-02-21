@@ -89,7 +89,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
         for (final ValueSpecification value : values) {
           if (_underlyingSnapshot.query(value) != null) {
             unavailable.remove(value);
-          } else if (_liveMarketDataProvider.isFailed(value)) { //PLAT-1429
+          } else if (_liveMarketDataProvider.isActive(value)) { //PLAT-1429
             unavailable.remove(value);
           }
         }

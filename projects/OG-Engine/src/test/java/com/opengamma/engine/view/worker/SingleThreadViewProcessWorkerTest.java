@@ -496,7 +496,7 @@ public class SingleThreadViewProcessWorkerTest {
     }
 
     @Override
-    public boolean isFailed(ValueSpecification specification) {
+    public boolean isActive(ValueSpecification specification) {
       return false;
     }
 
