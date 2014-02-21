@@ -162,6 +162,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final IborIndex indexIbor = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
     final ExternalId regionIdIbor = fixedLeg.getRegionId();
     final Calendar calendarIbor = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionIdIbor);
+    final StubType stub = StubType.SHORT_START; // TODO: this should be pass trough the security [PLAT-5956]
+    final int paymentLag = 0; // TODO: this should be pass trough the security [PLAT-5956]
     final Currency currencyIbor = ((InterestRateNotional) iborLeg.getNotional()).getCurrency();
     final Frequency freqIborLeg = iborLeg.getFrequency();
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
@@ -173,7 +175,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         payments[0] = new CouponFixedDefinition(currencyIbor, effectiveDate, effectiveDate, effectiveDate, 1.0, signFixed * iborLegNotional, 1.0);
         loopnot++;
       }
-      payments[loopnot] = CouponIborCompoundingDefinition.from(-signFixed * iborLegNotional, effectiveDate, maturityDate, indexIbor, StubType.SHORT_START,
+      payments[loopnot] = CouponIborCompoundingDefinition.from(-signFixed * iborLegNotional, effectiveDate, maturityDate, indexIbor, stub,
           indexIbor.getBusinessDayConvention(), indexIbor.isEndOfMonth(), calendarIbor); // TODO: add spread and compounding type
       if (swapSecurity.isExchangeFinalNotional()) {
         payments[loopnot + 1] = new CouponFixedDefinition(currencyIbor, maturityDate, maturityDate, maturityDate, 1.0, -signFixed * iborLegNotional, 1.0);
@@ -182,10 +184,10 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     } else {
       if (swapSecurity.isExchangeInitialNotional() || swapSecurity.isExchangeFinalNotional() || hasSpread) {
         iborLegDefinition = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, iborLegNotional, spread, indexIbor,
-            !payFixed, calendarIbor, StubType.SHORT_START, 0, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
+            !payFixed, calendarIbor, stub, paymentLag, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
       } else {
         iborLegDefinition = AnnuityDefinitionBuilder.couponIbor(effectiveDate, maturityDate, indexIbor.getTenor(), iborLegNotional, indexIbor,
-            !payFixed, indexIbor.getDayCount(), indexIbor.getBusinessDayConvention(), indexIbor.isEndOfMonth(), calendarIbor, StubType.SHORT_START, 0);
+            !payFixed, indexIbor.getDayCount(), indexIbor.getBusinessDayConvention(), indexIbor.isEndOfMonth(), calendarIbor, stub, paymentLag);
       }
     }
     // Fixed Leg
@@ -210,8 +212,9 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       fixedLegDefinition = new AnnuityCouponFixedDefinition(notional, calendarFixed);
     } else {
       final Period tenorFixed = getTenor(freqFixed);
+      // Implementation note : when the stub and the payment lag will be pass trough the security, maybe there will not be the same for both legs
       fixedLegDefinition = AnnuityDefinitionBuilder.couponFixedWithNotional(currencyFixed, effectiveDate, maturityDate, tenorFixed, calendarFixed,
-          fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional, fixedLeg.getRate(), payFixed, StubType.SHORT_START, 0,
+          fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional, fixedLeg.getRate(), payFixed, stub, paymentLag,
           swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
     }
     if (swapSecurity.isExchangeInitialNotional() || swapSecurity.isExchangeFinalNotional() || hasSpread) {
@@ -236,8 +239,9 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final String currencyString = currency.getCode();
     final Integer publicationLag = indexConvention.getPublicationLag();
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
+    final int paymentLag = 0; // TODO: this should be pass trough the security [PLAT-5956]
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currencyString + "_OIS_Convention", index, paymentFrequency, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(),
-        fixedLeg.isEom(), 0, 1 - publicationLag, calendar); // TODO: The payment lag is not available at the security level!
+        fixedLeg.isEom(), paymentLag, 1 - publicationLag, calendar);
     final double notionalFixed = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double notionalOIS = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
     return SwapFixedONDefinition.from(effectiveDate, maturityDate, notionalFixed, notionalOIS, generator, fixedLeg.getRate(), payFixed);
@@ -288,8 +292,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final DayCount dayCount = swapLeg.getDayCount();
         final boolean isEOM = swapLeg.isEom();
         final double rate = swapLeg.getRate();
-        final StubType stub = StubType.SHORT_START;  // TODO stub type should be stored security level
-        final int paymentLag = 0; // TODO Payment lag should be stored security level
+        final StubType stub = StubType.SHORT_START;  // TODO stub type should be available at the security level
+        final int paymentLag = 0; // TODO Payment lag should be available at the security level
         final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
         return AnnuityDefinitionBuilder.couponFixedWithNotional(currency, effectiveDate, maturityDate, tenorFixed, calendar,
             dayCount, businessDayConvention, isEOM, notional, rate, isPayer, stub, paymentLag, isInitialNotionalExchange, isFinalNotionalExchange);
@@ -372,8 +376,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final DayCount dayCount = swapLeg.getDayCount();
         final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
         final double notional = interestRateNotional.getAmount();
-        final StubType stub = StubType.SHORT_START;  // TODO stub type should be stored security level
-        final int paymentLag = 0; // TODO Payment lag should be stored security level
+        final StubType stub = StubType.SHORT_START;  // TODO stub type should be available at the security level
+        final int paymentLag = 0; // TODO Payment lag should be available at the security levell
         if (swapLeg instanceof FloatingSpreadIRLeg) {
           final FloatingSpreadIRLeg spread = (FloatingSpreadIRLeg) swapLeg;
           // TODO : stub and payment lag

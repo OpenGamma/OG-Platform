@@ -141,13 +141,6 @@ public class DiscountingPV01Function extends DiscountingFunction {
         }
         return properties;
       }
-
-      /*@Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
-      }*/
-
     };
   }
 }
