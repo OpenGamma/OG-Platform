@@ -23,9 +23,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.EmptyAggregatedExecutionLog;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -115,35 +120,52 @@ public class ScenarioResultsWriterTest {
   }
 
   private List<ScenarioResultModel> scenarioResults() {
-    List<UniqueIdentifiable> trades = ImmutableList.<UniqueIdentifiable>of(fxForward(), fra());
+    Position fxFwdPos = createFxForwardPosition();
+    Position fraPos = createFraPosition();
+    Trade fxFwdTrade = fxFwdPos.getTrades().iterator().next();
+    Trade fraTrade = fraPos.getTrades().iterator().next();
+    PortfolioNode node = new SimplePortfolioNode(UniqueId.parse("node~1"), "node");
+    List<UniqueIdentifiable> targets = ImmutableList.of(node, fxFwdPos, fxFwdTrade, fraPos, fraTrade);
     List<String> columnNames = ImmutableList.of(_res1Name, _res2Name);
 
     Table<Integer, Integer, Object> table1 = TreeBasedTable.create();
-    table1.put(0, 0, compuatedValue(1));
-    table1.put(0, 1, compuatedValue(2));
-    table1.put(1, 0, compuatedValue(3));
-    table1.put(1, 1, compuatedValue(4));
+    table1.put(0, 0, compuatedValue(0));
+    table1.put(0, 1, compuatedValue(0));
+    table1.put(1, 0, compuatedValue(1));
+    table1.put(1, 1, compuatedValue(2));
+    table1.put(2, 0, compuatedValue(1));
+    table1.put(2, 1, compuatedValue(2));
+    table1.put(3, 0, compuatedValue(3));
+    table1.put(3, 1, compuatedValue(4));
+    table1.put(4, 0, compuatedValue(3));
+    table1.put(4, 1, compuatedValue(4));
     ViewCycleExecutionOptions executionOptions1 =
         ViewCycleExecutionOptions.builder()
             .setValuationTime(Instant.parse(_valuationTime1))
             .setName(_scenario1Name)
             .create();
-    SimpleResultModel simpleResultModel1 = new SimpleResultModel(trades, columnNames, table1, executionOptions1);
+    SimpleResultModel simpleResultModel1 = new SimpleResultModel(targets, columnNames, table1, executionOptions1);
     Map<String, Object> scenarioParams1 = ImmutableMap.<String, Object>of(_param1Name, _param1Value1,
                                                                           _param2Name, _param2Value1);
     ScenarioResultModel scenarioResultModel1 = new ScenarioResultModel(simpleResultModel1, scenarioParams1);
 
     Table<Integer, Integer, Object> table2 = TreeBasedTable.create();
-    table2.put(0, 0, compuatedValue(5));
-    table2.put(0, 1, compuatedValue(6));
-    table2.put(1, 0, compuatedValue(7));
-    table2.put(1, 1, compuatedValue(8));
+    table2.put(0, 0, compuatedValue(0));
+    table2.put(0, 1, compuatedValue(0));
+    table2.put(1, 0, compuatedValue(5));
+    table2.put(1, 1, compuatedValue(6));
+    table2.put(2, 0, compuatedValue(5));
+    table2.put(2, 1, compuatedValue(6));
+    table2.put(3, 0, compuatedValue(7));
+    table2.put(3, 1, compuatedValue(8));
+    table2.put(4, 0, compuatedValue(7));
+    table2.put(4, 1, compuatedValue(8));
     ViewCycleExecutionOptions executionOptions2 =
         ViewCycleExecutionOptions.builder()
             .setValuationTime(Instant.parse(_valuationTime2))
             .setName(_scenario2Name)
             .create();
-    SimpleResultModel simpleResultModel2 = new SimpleResultModel(trades, columnNames, table2, executionOptions2);
+    SimpleResultModel simpleResultModel2 = new SimpleResultModel(targets, columnNames, table2, executionOptions2);
     Map<String, Object> scenarioParams2 = ImmutableMap.<String, Object>of(_param1Name, _param1Value2,
                                                                           _param2Name, _param2Value2);
     ScenarioResultModel scenarioResultModel2 = new ScenarioResultModel(simpleResultModel2, scenarioParams2);
@@ -155,24 +177,34 @@ public class ScenarioResultsWriterTest {
     return new ComputedValueResult(VALUE_SPEC, value, EmptyAggregatedExecutionLog.INSTANCE);
   }
 
-  private Trade fxForward() {
+  private Position createFxForwardPosition() {
     ExternalId externalId = ExternalId.parse("a~1");
     FXForwardSecurity security = new FXForwardSecurity(Currency.EUR, 1, Currency.USD, 1, ZonedDateTime.now(), externalId);
     security.setName("An FX Forward");
+    SimplePosition position = new SimplePosition(BigDecimal.ONE, security.getExternalIdBundle());
+    position.setUniqueId(UniqueId.parse(_id1));
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.parse("a~b"));
     SimpleTrade trade = new SimpleTrade(security, BigDecimal.ONE, counterparty, LocalDate.now(), OffsetTime.now());
-    trade.setUniqueId(UniqueId.parse(_id1));
-    return trade;
+    SimpleSecurityLink securityLink = new SimpleSecurityLink();
+    securityLink.setTarget(security);
+    position.setSecurityLink(securityLink);
+    position.addTrade(trade);
+    return position;
   }
 
-  private Trade fra() {
+  private Position createFraPosition() {
     ZonedDateTime now = ZonedDateTime.now();
     FRASecurity security = new FRASecurity(Currency.GBP, ExternalId.parse("b~2"), now, now, 1, 1, ExternalId.parse("c~3"), now);
     security.setName("A FRA");
+    SimplePosition position = new SimplePosition(BigDecimal.ONE, security.getExternalIdBundle());
+    position.setUniqueId(UniqueId.parse(_id2));
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.parse("a~b"));
     SimpleTrade trade = new SimpleTrade(security, BigDecimal.ONE, counterparty, LocalDate.now(), OffsetTime.now());
-    trade.setUniqueId(UniqueId.parse(_id2));
-    return trade;
+    SimpleSecurityLink securityLink = new SimpleSecurityLink();
+    securityLink.setTarget(security);
+    position.setSecurityLink(securityLink);
+    position.addTrade(trade);
+    return position;
   }
 
   private static String row(Object... values) {

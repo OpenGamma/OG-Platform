@@ -20,11 +20,13 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Table;
 import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.position.ManageablePosition;
 
 /**
  * Writes the results of running scenarios to a tab delimited text file.
@@ -99,10 +101,17 @@ public class ScenarioResultsWriter {
 
         // loop over every column in the results and add a row
         for (Object value : rowValues.values()) {
-          ImmutableList.Builder<String> row = ImmutableList.builder();
-          row.addAll(metadataColumns(scenarioResults, rowIndex));
-          row.add(colItr.next()).add(getStringValue((ComputedValueResult) value));
-          rows.add(row.build());
+          UniqueIdentifiable target = simpleResults.getTargets().get(rowIndex);
+
+          // we're only interested in positions. nodes contain aggregate values and the whole point of this report
+          // is to allow arbitrary reaggregation. so any aggregate values would have to be filtered out to avoid
+          // confusing the results. and trade amounts are included in positions anyway
+          if (target instanceof Position || target instanceof ManageablePosition) {
+            ImmutableList.Builder<String> row = ImmutableList.builder();
+            row.addAll(metadataColumns(scenarioResults, target));
+            row.add(colItr.next()).add(getStringValue((ComputedValueResult) value));
+            rows.add(row.build());
+          }
         }
       }
     }
@@ -162,15 +171,22 @@ public class ScenarioResultsWriter {
       Table<Integer, Integer, Object> resultsTable = simpleResults.getResults();
 
       for (Map.Entry<Integer, Map<Integer, Object>> entry : resultsTable.rowMap().entrySet()) {
-        ImmutableList.Builder<String> row = ImmutableList.builder();
         int rowIndex = entry.getKey();
-        Map<Integer, Object> rowValues = entry.getValue();
-        row.addAll(metadataColumns(scenarioResults, rowIndex));
+        UniqueIdentifiable target = simpleResults.getTargets().get(rowIndex);
 
-        for (Object value : rowValues.values()) {
-          row.add(getStringValue((ComputedValueResult) value));
+        // we're only interested in positions. nodes contain aggregate values and the whole point of this report
+        // is to allow arbitrary reaggregation. so any aggregate values would have to be filtered out to avoid
+        // confusing the results. and trade amounts are included in positions anyway
+        if (target instanceof Position || target instanceof ManageablePosition) {
+          ImmutableList.Builder<String> row = ImmutableList.builder();
+          Map<Integer, Object> rowValues = entry.getValue();
+          row.addAll(metadataColumns(scenarioResults, target));
+
+          for (Object value : rowValues.values()) {
+            row.add(getStringValue((ComputedValueResult) value));
+          }
+          rows.add(row.build());
         }
-        rows.add(row.build());
       }
     }
     // TODO use a CSV writer?
@@ -210,11 +226,10 @@ public class ScenarioResultsWriter {
   /**
    * @return Formats the data in the specified row up to but not including the calculated results
    */
-  private static List<String> metadataColumns(ScenarioResultModel scenarioResults, int rowIndex) {
+  private static List<String> metadataColumns(ScenarioResultModel scenarioResults, UniqueIdentifiable target) {
     String scenarioName = scenarioResults.getScenarioName();
     SimpleResultModel simpleResults = scenarioResults.getResults();
     Instant valuationTime = simpleResults.getValuationTime();
-    UniqueIdentifiable target = simpleResults.getTargets().get(rowIndex);
     ImmutableList.Builder<String> builder = ImmutableList.builder();
     builder
         .add(scenarioName)
