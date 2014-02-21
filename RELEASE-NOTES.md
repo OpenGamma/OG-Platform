@@ -7,6 +7,81 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M11
+------------
+* Bug
+    * [PLAT-5252] - Value of optional constraints on view definitions are lost after saving
+    * [PLAT-5699] - Error pricing a bond with new curves in Bloomberg examples
+    * [PLAT-5718] - Market data scaling in the scenario DSL should be consistent with curve scaling
+    * [PLAT-5822] - Bloomberg installation with blank db will create a growing number of portfolios
+    * [PLAT-5849] - Leg details on xccy swaps return blank cell
+    * [PLAT-5850] - Cross currency swaps do not include notional payment for PV and bucketed PV01 calcs
+    * [PLAT-5851] - Currency conversion in PV01 xccy swap seems wrong
+    * [PLAT-5855] - Z-spreads are wrong with the new curve configuration
+    * [PLAT-5857] - Supranational bonds throw an exception when calculating Duration and Convexity
+    * [PLAT-5885] - Normalization of dirty price is wrong
+    * [PLAT-5889] - Bill Bloomberg Loader: Incorrect Issuer name
+    * [PLAT-5895] - Deadlock during view processor suspension
+    * [PLAT-5901] - CurveNodeWithIdentifierBuilder: incorrect visitBillNode
+    * [PLAT-5907] - FRASecurityConverter uses the number of whole months between start and end as the FRA tenor
+    * [PLAT-5915] - Enhance ServiceContext and fix test failues
+    * [PLAT-5917] - ToolContextUtils does not respect requested type
+    * [PLAT-5928] - Hitting Save on a new trade does not close the trade screen
+    * [PLAT-5944] - Region error for bond
+    * [PLAT-5947] - InMemoryLKVLiveMarketDataProvider drops live data subscriptions when fully qualified live data specs collide with requested live data specs
+    * [PLAT-5952] - Correct swap fixed rate display value
+    * [PLAT-5957] - Bond loader is broken
+    * [PLAT-5958] - StandardLiveDataServer only sends one response when subscription request contains multiple subscriptions which alias to the same fully-qualified specification
+* Improvement
+    * [PLAT-4539] - Upgrade ViewProcess MXBeans to have stats on successful calcs
+    * [PLAT-5678] - Syntax for shifting surfaces should be similar to curves
+    * [PLAT-5874] - Add OG-Language function for calculating an absolute date from a relative date and the conventions on an index
+    * [PLAT-5875] - Add OG-Language function to create a FRA using an index to populate the majority of fields
+    * [PLAT-5894] - Change xml editor to ace (http://ace.c9.io/) in green screens
+    * [PLAT-5900] - Add Fed Fund Futures to InterestRateInstrumentType
+    * [PLAT-5906] - Consistent semantics of shifts / scaling in scenarios
+    * [PLAT-5909] - OG-Web: Change 'Calendars' to 'Holidays' in menu
+    * [PLAT-5910] - Remove deprecated Guava makeComputingMap
+    * [PLAT-5921] - Add currency property to bond PV01 and gamma PV01 functions
+    * [PLAT-5922] - Catch case where bond / bill is not in security master when populating the curve market data snapshot
+    * [PLAT-5926] - Add discounted payment amounts to swap details
+    * [PLAT-5935] - Relative yield curve parallel shifts in scenarios
+    * [PLAT-5941] - Add security data to scenario output format
+    * [PLAT-5943] - Add the ability to specify whether the spot rate node or a market data ticker is used as the spot rate in FX forward curves.
+    * [PLAT-5953] - Add yield conventions for MX bonds
+    * [PLAT-5954] - Filter scenario report so it only includes positions
+* New Feature
+    * [PLAT-4579] - Adaptive mesh method
+    * [PLAT-4580] - Implied tree model
+    * [PLAT-5475] - Tool to load single config item either JodaXML or FudgeXML
+    * [PLAT-5562] - FX volatility swap database support
+    * [PLAT-5617] - Add support for new curves to the tool that creates time series
+    * [PLAT-5637] - Database support for AmericanDepositaryReceiptSecurity
+    * [PLAT-5638] - Database support for ExchangeTradedFundSecurity
+    * [PLAT-5639] - Database support for EquityWarrantSecurity
+    * [PLAT-5759] - Truncation of binomial tree
+    * [PLAT-5781] - Run scenarios from a stand-alone script
+    * [PLAT-5782] - Output view results an a text file for consumption by Excel
+    * [PLAT-5846] - Add build number to Jax/about
+    * [PLAT-5854] - Cross currency fixed for fixed swap loader
+    * [PLAT-5869] - Add a floating rate note security
+    * [PLAT-5870] - Add support for FRNs to visitors
+    * [PLAT-5871] - Add support for FRNs in the web interfaces
+    * [PLAT-5872] - Load FRNs as FloatingRateNoteSecurity rather than as a fixed-coupon bond in BondLoader
+    * [PLAT-5887] - Tool for running stand-alone scenario scripts
+    * [PLAT-5903] - Tool to export conventions in structured zip file
+    * [PLAT-5913] - Create a script that given a text file with a list of identifiers it will load them as securities
+    * [PLAT-5916] - Add ability to display FX volatility swaps in the web UIs
+    * [PLAT-5936] - Add capability to load indices and their families in the config import tool
+    * [PLAT-5940] - Ability to include Yield Convention and Coupon Type attributes for bonds
+* Task
+    * [PLAT-4729] - More tests for trinomial option pricing model
+    * [PLAT-5897] - Add fudge builder for ConventionType
+    * [PLAT-5898] - Create tool to allow export of all conventions in a ZIP file in JodaXML
+    * [PLAT-5908] - Upgrade to Paranamer 2.6
+    * [PLAT-5912] - Change Bloomberg Examples to new Bean Master
+
+
 To 2.2.0-M10
 ------------
 * Source compatibility
