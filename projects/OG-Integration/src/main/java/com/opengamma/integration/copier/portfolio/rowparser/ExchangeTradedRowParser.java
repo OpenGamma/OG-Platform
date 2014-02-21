@@ -38,6 +38,21 @@ import com.opengamma.util.money.Currency;
  */
 public class ExchangeTradedRowParser extends RowParser {
 
+  public enum DateFormat {
+
+    ISO(DateTimeFormatter.ISO_DATE, DateTimeFormatter.BASIC_ISO_DATE),
+    UK(DateTimeFormatter.ofPattern("dd/MM/yyyy"), DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+    US(DateTimeFormatter.ofPattern("MM/dd/yyyy"), DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+
+    private final DateTimeFormatter _primaryFormatter;
+    private final DateTimeFormatter _secondaryFormatter;
+
+    private DateFormat(DateTimeFormatter primaryFormatter, DateTimeFormatter secondaryFormatter) {
+      _primaryFormatter = primaryFormatter;
+      _secondaryFormatter = secondaryFormatter;
+    }
+  }
+
   private static final Logger s_logger = LoggerFactory.getLogger(ExchangeTradedRowParser.class);
   
   private static final String TICKER = "ticker";
@@ -51,6 +66,12 @@ public class ExchangeTradedRowParser extends RowParser {
   private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY };
   
   private SecurityProvider _securityProvider;
+
+  public ExchangeTradedRowParser(SecurityProvider securityProvider, DateFormat dateFormat) {
+    super(dateFormat._primaryFormatter, dateFormat._secondaryFormatter);
+    ArgumentChecker.notNull(securityProvider, "securityProvider");
+   _securityProvider = securityProvider;
+  }
 
   public ExchangeTradedRowParser(SecurityProvider securityProvider, DateTimeFormatter dateFormatter) {
     super(dateFormatter);
@@ -156,7 +177,7 @@ public class ExchangeTradedRowParser extends RowParser {
 
   @Override
   public Map<String, String> constructRow(ManageableTrade trade) {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
     addValueIfNotNull(map, QUANTITY, trade.getQuantity());
     addValueIfNotNull(map, TRADE_DATE, trade.getTradeDate());
     addValueIfNotNull(map, PREMIUM, trade.getPremium());
