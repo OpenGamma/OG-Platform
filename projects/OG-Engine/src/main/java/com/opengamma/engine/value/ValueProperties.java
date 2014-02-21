@@ -1501,8 +1501,9 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public void toFudgeMsg(final MutableFudgeMsg msg) {
       final MutableFudgeMsg subMsg = msg.addSubMessage(ValuePropertiesFudgeBuilder.WITHOUT_FIELD, null);
+      int ordinal = 0;
       for (String property : _properties) {
-        subMsg.add(null, null, FudgeWireType.STRING, property);
+        subMsg.add(null, ordinal++, FudgeWireType.STRING, property);
       }
     }
 
