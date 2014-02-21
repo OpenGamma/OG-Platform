@@ -176,6 +176,10 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     return results;
   }
   
+  /*package*/ InMemoryLKVMarketDataProvider getUnderlyingProvider() {
+    return _underlyingProvider;
+  }
+  
   private <K, V> Multimap<K, V> createReferenceCountingMultimap() {
     return Multimaps.newMultimap(new HashMap<K, Collection<V>>(), new Supplier<Multiset<V>>() {
 
@@ -253,14 +257,14 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
           if (fullyQualifiedSpec != null && _activeSubscriptionsByQualifiedSpec.containsKey(fullyQualifiedSpec)) {
             _activeSubscriptionsByQualifiedSpec.remove(fullyQualifiedSpec, valueSpecification);
             s_logger.debug("Unsubscribed from " + valueSpecification);
-            if (!_activeSubscriptionsByQualifiedSpec.containsKey(fullyQualifiedSpec)) {
-              // Last subscription removed
-              s_logger.debug("Now fully unsubscribed from " + valueSpecification);
-              
+            if (!_activeSubscriptionsByQualifiedSpec.get(fullyQualifiedSpec).contains(valueSpecification)) {
               // Remove the value from the underlying LKV to prevent the return of
               // stale data which can happen if subscription reference counting goes awry
               _underlyingProvider.removeValue(valueSpecification);
-              
+            }
+            if (!_activeSubscriptionsByQualifiedSpec.containsKey(fullyQualifiedSpec)) {
+              // Last subscription removed
+              s_logger.debug("Now fully unsubscribed from " + valueSpecification);              
               toFullyUnsubscribe.add(fullyQualifiedSpec);
             }
           } else {

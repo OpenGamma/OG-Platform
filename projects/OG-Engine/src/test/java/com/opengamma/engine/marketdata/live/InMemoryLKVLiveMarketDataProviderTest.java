@@ -7,8 +7,10 @@ package com.opengamma.engine.marketdata.live;
 
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -119,6 +121,11 @@ public class InMemoryLKVLiveMarketDataProviderTest {
       liveDataClient.marketDataReceived(test1test2FullyQualifiedSpecification, msg1);
       liveDataClient.marketDataReceived(test3FullyQualifiedSpecification, msg3a);
       liveDataClient.marketDataReceived(test3FullyQualifiedSpecification, msg3b);
+
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test1Specification));
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test2Specification));
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test3Specification));
+
       final MarketDataSnapshot snapshot = provider.snapshot(null);
       snapshot.init(Collections.<ValueSpecification>emptySet(), 0, TimeUnit.MILLISECONDS);
       final Double test1Value = (Double) snapshot.query(test1Specification);
@@ -131,6 +138,36 @@ public class InMemoryLKVLiveMarketDataProviderTest {
       assertNotNull(test3Value);
       assertEquals(52.17, test3Value, 0.000001);
       assertNull(snapshot.query(constructSpecification("invalidticker")));
+      
+      provider.unsubscribe(test1Specification);
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test1Specification));
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test2Specification));
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test3Specification));
+      assertEquals(0, liveDataClient.getCancelRequests().size());
+      
+      provider.unsubscribe(test2Specification);
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test1Specification));
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test2Specification));
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test3Specification));
+      assertEquals(1, liveDataClient.getCancelRequests().size());
+      
+      provider.unsubscribe(test3Specification);
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test1Specification));
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test2Specification));
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test3Specification));
+      assertEquals(1, liveDataClient.getCancelRequests().size());
+      
+      provider.unsubscribe(test3Specification);
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test1Specification));
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test2Specification));
+      assertTrue(provider.getUnderlyingProvider().getAllValueKeys().contains(test3Specification));
+      assertEquals(1, liveDataClient.getCancelRequests().size());
+      
+      provider.unsubscribe(test3Specification);
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test1Specification));
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test2Specification));
+      assertFalse(provider.getUnderlyingProvider().getAllValueKeys().contains(test3Specification));
+      assertEquals(2, liveDataClient.getCancelRequests().size());
     } finally {
       liveDataClient.close();
     }
