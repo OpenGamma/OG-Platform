@@ -544,7 +544,6 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         Subscription subscription = getSubscription(fullyQualifiedSpec);
         if (subscription != null) {
           s_logger.info("Already subscribed to {}", fullyQualifiedSpec);
-          responses.add(buildSubscriptionResponse(specFromClient, distributionSpec));
         } else {
           String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
           if (securityUniqueId == null) {
@@ -555,8 +554,16 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
           subscription = new Subscription(securityUniqueId, getMarketDataSenderFactory(), getLkvStoreProvider());
           securityUniqueId2NewSubscription.put(subscription.getSecurityUniqueId(), subscription);
           securityUniqueId2SpecFromClient.put(subscription.getSecurityUniqueId(), specFromClient);
+          MarketDataDistributor distributor = subscription.createDistributor(distributionSpec, persistent);
+          distributor.setExpiry(distributionExpiryTime);
+          
+          // PLAT-5958 - make a note of this here so that if another requested live data spec aliases to the same
+          // subscription then we reuse this new subscription rather than creating another  
+          _fullyQualifiedSpec2Distributor.put(distributor.getFullyQualifiedLiveDataSpecification(), distributor);
+          
+          s_logger.info("Created subscription for {}: {}", fullyQualifiedSpec, subscription);
         }
-        subscription.createDistributor(distributionSpec, persistent).setExpiry(distributionExpiryTime);
+        responses.add(buildSubscriptionResponse(specFromClient, distributionSpec));
       }
 
       //Allow checks here, before we do the snapshot or the subscribe
@@ -592,33 +599,16 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
       for (Map.Entry<String, Object> subscriptionHandle : subscriptionHandles.entrySet()) {
         String securityUniqueId = subscriptionHandle.getKey();
         Object handle = subscriptionHandle.getValue();
-        LiveDataSpecification specFromClient = securityUniqueId2SpecFromClient.get(securityUniqueId);
-
+        
         Subscription subscription = securityUniqueId2NewSubscription.get(securityUniqueId);
         subscription.setHandle(handle);
 
         _currentlyActiveSubscriptions.add(subscription);
 
-        if (subscription.getDistributionSpecifications().size() != 1) {
-          String errorMsg = "The subscription should only have 1 distribution specification at the moment: " + subscription;
-          responses.add(buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
-          continue;
-        }
-
-        for (MarketDataDistributor distributor : subscription.getDistributors()) {
-          _fullyQualifiedSpec2Distributor.put(distributor.getFullyQualifiedLiveDataSpecification(),
-              distributor);
-          responses.add(buildSubscriptionResponse(specFromClient, distributor.getDistributionSpec()));
-        }
-
-        s_logger.info("Created {}", subscription);
-
         notifySubscriptionListeners(subscription);
-
       }
 
     } catch (RuntimeException e) {
-
       s_logger.info("Unexpected exception thrown when subscribing. Cleaning up.", e);
 
       for (Subscription subscription : securityUniqueId2NewSubscription.values()) {
