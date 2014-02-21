@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.analytics.util.time.TimeCalculatorBUS252;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -47,6 +48,7 @@ import com.opengamma.util.money.Currency;
  * \delta_i is the accrued between t_i and t_{i+1} using the appropriate day-count, for example if we use business/252 as daycounter \delta_i=1/252.
  *
  *  This coupon is especially used for Brazilian swaps with the day count business/252.
+ * 
  */
 public class CouponONCompoundedDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
@@ -418,22 +420,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
       accruedNotional *= Math.pow(1 + fixedRate, _fixingPeriodAccrualFactors[fixedPeriod]);
       fixedPeriod++;
     }
-    // Implementation note : In the case of brazilian instruments, we need to use the daycount business/252, there may be a better way to implement it.
-    final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
-    final String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
-    DayCount daycount;
-    if (this.getCurrency() == Currency.BRL) {
-
-      daycount = DayCounts.BUSINESS_252;
-
-    } else if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
-      daycount = DayCountFactory.of(modelDayCount);
-      ;
-    } else {
-      daycount = DayCounts.ACT_ACT_ISDA;
-    }
-
-    final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate(), daycount, _calendar);
+    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(valZdt, getPaymentDate(), _calendar);
     if (fixedPeriod < _fixingPeriodDates.length - 1) { // Some OIS period left
       // Check to see if a fixing is available on current date
       final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDates[fixedPeriod].toLocalDate());
@@ -446,8 +433,8 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
         final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         for (int i = 0; i < _fixingPeriodDates.length - 1 - fixedPeriod; i++) {
-          fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod], daycount, _calendar);
-          fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod], daycount, _calendar);
+          fixingPeriodStartTimes[i] = TimeCalculatorBUS252.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod], _calendar);
+          fixingPeriodEndTimes[i] = TimeCalculatorBUS252.getTimeBetween(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod], _calendar);
         }
 
         for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {
