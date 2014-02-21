@@ -17,11 +17,11 @@ import com.opengamma.util.PublicSPI;
 public interface LiveMarketDataProvider extends MarketDataProvider {
 
   /**
-   * Indicates whether the live subscription corresponding to a specification has failed.
+   * Indicates whether there is an active subscription (in any state, possibly having failed) on a given specification.
    * 
    * @param specification  the specification, not null
-   * @return true if the subscription has failed, false otherwise
+   * @return true if there is an active subscription, false otherwise
    */
-  boolean isFailed(final ValueSpecification specification);
+  boolean isActive(final ValueSpecification specification);
   
 }
