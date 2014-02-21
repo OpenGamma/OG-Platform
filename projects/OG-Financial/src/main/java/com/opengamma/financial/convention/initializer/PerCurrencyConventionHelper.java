@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.initializer;
 
+import com.opengamma.core.convention.Convention;
+import com.opengamma.core.link.ConventionLink;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -142,4 +144,9 @@ public class PerCurrencyConventionHelper {
     return ExternalId.of(SCHEME_NAME, name);
   }
 
+  public static ConventionLink<Convention> getConventionLink(Currency ccy, String instrumentName) {
+    return ConventionLink.of(getId(ccy, instrumentName));
+  }
+  
+  
 }
