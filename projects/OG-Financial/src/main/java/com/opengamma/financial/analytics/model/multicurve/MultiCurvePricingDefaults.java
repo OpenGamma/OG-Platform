@@ -19,6 +19,8 @@ import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION
 import static com.opengamma.engine.value.ValueRequirementNames.NET_BASIS;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
+import static com.opengamma.engine.value.ValueRequirementNames.SWAP_PAY_LEG_DETAILS;
+import static com.opengamma.engine.value.ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.YTM;
@@ -57,6 +59,8 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
     NET_BASIS,
     PRESENT_VALUE,
     PV01,
+    SWAP_PAY_LEG_DETAILS,
+    SWAP_RECEIVE_LEG_DETAILS,
     VALUE_THETA,
     YIELD_CURVE_NODE_SENSITIVITIES,
     YTM,
