@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
@@ -54,6 +56,7 @@ import com.opengamma.util.money.Currency;
  * Function that returns a {@link FXMatrix} for a curve construction configuration.
  */
 public class FXMatrixFunction extends AbstractFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXMatrixFunction.class);
   /** The configuration name */
   private final String _configurationName;
   /** A curve construction configuration source */
@@ -101,6 +104,8 @@ public class FXMatrixFunction extends AbstractFunction {
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties);
       return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), spec, currencies);
     } catch (final Throwable e) {
+      s_logger.error("{}: problem in CurveConstructionConfiguration called {}", e.getMessage(), _configurationName);
+      s_logger.error("Full stack trace", e);
       throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveConstructionConfiguration called " + _configurationName);
     }
   }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.discounting;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.ALL_PV01S;
@@ -24,6 +25,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -34,6 +36,14 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -105,11 +115,38 @@ public class DiscountingPV01Function extends DiscountingFunction {
         return Collections.singleton(new ValueRequirement(ALL_PV01S, target.toSpecification(), properties));
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
+      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final ValueProperties.Builder properties = createValueProperties()
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+            .withAny(CURVE_EXPOSURES)
+            .withAny(CURVE);
+        final Security security = target.getTrade().getSecurity();
+        if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+          if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+            final SwapSecurity swapSecurity = (SwapSecurity) security;
+            if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
+              final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
+              properties.with(CURRENCY, currency);
+              return properties;
+            }
+          }
+          properties.withAny(CURRENCY);
+          return properties;
+        } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
+          properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
+        } else {
+          properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
+        }
+        return properties;
+      }
+
+      /*@Override
       protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
         return properties.withAny(CURVE);
-      }
+      }*/
 
     };
   }
