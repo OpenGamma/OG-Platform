@@ -44,6 +44,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -68,6 +71,7 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   private final InstrumentDerivativeVisitor<S, T> _calculator;
   /** The instrument exposures provider */
   private InstrumentExposuresProvider _instrumentExposuresProvider;
+
 
   /**
    * @param valueRequirementName The value requirement name, not null
@@ -105,12 +109,9 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return security instanceof BondSecurity ||
-        security instanceof BondFutureSecurity ||
-        security instanceof BillSecurity ||
-        security instanceof FloatingRateNoteSecurity;
+    return BondSupportUtils.isSupported(security);
   }
-
+  
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties(target).get();

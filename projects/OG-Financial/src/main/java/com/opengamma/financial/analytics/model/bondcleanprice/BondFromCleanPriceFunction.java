@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.analytics.model.bondcurves.BondSupportUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -75,7 +76,7 @@ public abstract class BondFromCleanPriceFunction<T> extends AbstractFunction.Non
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return security instanceof BondSecurity;
+    return security instanceof BondSecurity && BondSupportUtils.isSupported(security);
   }
 
   @Override

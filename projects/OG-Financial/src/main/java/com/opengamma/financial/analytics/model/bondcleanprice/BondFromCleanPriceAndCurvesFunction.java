@@ -42,6 +42,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.analytics.model.bondcurves.BondSupportUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -92,7 +93,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getTrade().getSecurity() instanceof BondSecurity;
+    return target.getTrade().getSecurity() instanceof BondSecurity && BondSupportUtils.isSupported(target.getTrade().getSecurity());
   }
 
   @Override
