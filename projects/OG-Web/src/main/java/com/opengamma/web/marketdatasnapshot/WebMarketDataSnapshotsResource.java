@@ -355,7 +355,7 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
   private MarketDataSnapshotDocument createSnapshot(String name, final String viewDefinitionName, final Instant valuationInstant, 
       final List<MarketDataSpecification> marketDataSpecs) throws InterruptedException {
     MarketDataSnapshotSaver saver = MarketDataSnapshotSaver.of(data().getComputationTargetResolver(), data().getHistoricalTimeSeriesSource(), 
-        data().getViewProcessor(), data().getConfigMaster(), data().getMarketDataSnapshotMaster(), data().getVolatilityCubeDefinitionSource(), Mode.STRUCTURED);
+        data().getViewProcessor(), data().getConfigMaster(), data().getMarketDataSnapshotMaster(), data().getVolatilityCubeDefinitionSource(), Mode.STRUCTURED, null);
     return saver.createSnapshot(name, viewDefinitionName, valuationInstant, marketDataSpecs);
   }
 

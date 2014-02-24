@@ -21,10 +21,11 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public class ExecutionOptions implements ViewExecutionOptions {
-
+  
   private final ViewCycleExecutionSequence _executionSequence;
   private final EnumSet<ViewExecutionFlags> _flags;
   private final Integer _maxSuccessiveDeltaCycles;
+  private final Long _marketDataTimeoutMillis;
   private final ViewCycleExecutionOptions _defaultExecutionOptions;
 
   //-------------------------------------------------------------------------
@@ -286,11 +287,24 @@ public class ExecutionOptions implements ViewExecutionOptions {
    */
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
       Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions) {
+    this(executionSequence, flags, maxSuccessiveDeltaCycles, null, defaultExecutionOptions);
+  }
+  
+  /**
+   * @param executionSequence the execution sequence, not null
+   * @param flags the execution flags, not null
+   * @param maxSuccessiveDeltaCycles the maximum cycles, may be null
+   * @param marketDataTimeoutMillis the maximum time to wait for market data to become available, may be null
+   * @param defaultExecutionOptions the default view cycle execution options, may be null
+   */
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
+      Integer maxSuccessiveDeltaCycles, Long marketDataTimeoutMillis, ViewCycleExecutionOptions defaultExecutionOptions) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
     ArgumentChecker.notNull(flags, "flags");
     _executionSequence = executionSequence;
     _flags = flags;
     _maxSuccessiveDeltaCycles = maxSuccessiveDeltaCycles;
+    _marketDataTimeoutMillis = marketDataTimeoutMillis;
     _defaultExecutionOptions = defaultExecutionOptions;
   }
 
@@ -302,6 +316,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
   @Override
   public Integer getMaxSuccessiveDeltaCycles() {
     return _maxSuccessiveDeltaCycles;
+  }
+  
+  @Override
+  public Long getMarketDataTimeoutMillis() {
+    return _marketDataTimeoutMillis;
   }
 
   @Override
@@ -346,6 +365,13 @@ public class ExecutionOptions implements ViewExecutionOptions {
     } else if (!_maxSuccessiveDeltaCycles.equals(other._maxSuccessiveDeltaCycles)) {
       return false;
     }
+    if (_marketDataTimeoutMillis == null) {
+      if (other._marketDataTimeoutMillis != null) {
+        return false;
+      }
+    } else if (!_marketDataTimeoutMillis.equals(other._marketDataTimeoutMillis)) {
+      return false;
+    }
     return true;
   }
 
@@ -353,17 +379,18 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _executionSequence.hashCode();
-    result = prime * result + _flags.hashCode();
     result = prime * result + ((_defaultExecutionOptions == null) ? 0 : _defaultExecutionOptions.hashCode());
+    result = prime * result + ((_executionSequence == null) ? 0 : _executionSequence.hashCode());
+    result = prime * result + ((_flags == null) ? 0 : _flags.hashCode());
+    result = prime * result + ((_marketDataTimeoutMillis == null) ? 0 : _marketDataTimeoutMillis.hashCode());
     result = prime * result + ((_maxSuccessiveDeltaCycles == null) ? 0 : _maxSuccessiveDeltaCycles.hashCode());
     return result;
   }
-
+  
   @Override
   public String toString() {
-    return "ExecutionOptions [executionSequence=" + _executionSequence + ", flags=" + _flags + ", maxSuccessiveDeltaCycles=" + _maxSuccessiveDeltaCycles + ", defaultExecutionOptions=" +
-        _defaultExecutionOptions + "]";
+    return "ExecutionOptions [executionSequence=" + _executionSequence + ", flags=" + _flags + ", maxSuccessiveDeltaCycles=" + _maxSuccessiveDeltaCycles + ", marketDataTimeoutMillis=" +
+        _marketDataTimeoutMillis + ", defaultExecutionOptions=" + _defaultExecutionOptions + "]";
   }
 
 }
