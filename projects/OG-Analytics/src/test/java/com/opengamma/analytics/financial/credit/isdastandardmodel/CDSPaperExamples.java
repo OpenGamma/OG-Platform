@@ -535,14 +535,14 @@ public class CDSPaperExamples extends ISDABaseTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void annuityTest() {
     final LocalDate mat = getNextIMMDate(TRADE_DATE).plus(Period.ofYears(10));
     final CDSAnalytic cds = CDS_FACTORY.makeIMMCDS(TRADE_DATE, Period.ofYears(10));
     final double expiry = ACT365F.getDayCountFraction(TRADE_DATE, mat);
     final double adj = 365. / 360.;
     final AnnuityForSpreadFunction isdaFunc = new AnnuityForSpreadISDAFunction(cds, YIELD_CURVE);
-    final AnnuityForSpreadFunction approxFunc = new AnnuityForSpreadApproxFunction(cds, YIELD_CURVE);
+    final AnnuityForSpreadFunction approxFunc = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);
 
     for (int i = 0; i < 100; i++) {
       final double s = (1 + 25 * i) * ONE_BP;

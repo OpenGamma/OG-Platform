@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getNextIMMDate;
+import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getNextIndexRollDate;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 
@@ -328,6 +329,46 @@ public class CDSAnalyticFactory {
   //************************************************************************************************************************
 
   /**
+   * Set up an on-the-run index represented as a single name CDS (i.e. by CDSAnalytic). The index roll dates (when new indices are issued) are 20 Mar & Sep,
+   *  and the index is defined to have a maturity that is its nominal tenor plus 3M on issuance, so a 5Y index on the 6-Feb-2014 will have a maturity of
+   *  20-Dec-2018 (5Y3M on the issue date of 20-Sep-2013). 
+   *  The accrual start date will be the previous IMM date (before the trade date), business-day adjusted.  <b>Note</b> it payment interval is changed from the
+   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.    
+   * will have a maturity of 
+   * @param tradeDate The trade date
+   * @param tenor The nominal length of the index 
+   * @return A CDS analytic description 
+   */
+  public CDSAnalytic makeCDX(final LocalDate tradeDate, final Period tenor) {
+    ArgumentChecker.notNull(tradeDate, "tradeDate");
+    ArgumentChecker.notNull(tenor, "tenor");
+    final LocalDate effectiveDate = _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate));
+    final LocalDate roll = getNextIndexRollDate(tradeDate);
+    final LocalDate maturity = roll.plus(tenor).minusMonths(3);
+    return makeCDS(tradeDate, effectiveDate, maturity);
+  }
+
+  /**
+   * Set up a strip of on-the-run indexes represented as a single name CDSs (i.e. by CDSAnalytic). The index roll dates (when new indices are issued) are 20 Mar & Sep,
+   *  and the index is defined to have a maturity that is its nominal tenor plus 3M on issuance, so a 5Y index on the 6-Feb-2014 will have a maturity of
+   *  20-Dec-2018 (5Y3M on the issue date of 20-Sep-2013). 
+   *  The accrual start date will be the previous IMM date (before the trade date), business-day adjusted.  <b>Note</b> it payment interval is changed from the
+   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.    
+   * will have a maturity of 
+   * @param tradeDate The trade date
+   * @param tenors The nominal lengths of the indexes
+   * @return An array of CDS analytic descriptions 
+   */
+  public CDSAnalytic[] makeCDX(final LocalDate tradeDate, final Period[] tenors) {
+    ArgumentChecker.notNull(tradeDate, "tradeDate");
+    ArgumentChecker.noNulls(tenors, "tenors");
+    final LocalDate effectiveDate = _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate));
+    final LocalDate mid = getNextIndexRollDate(tradeDate).minusMonths(3);
+    final LocalDate[] maturities = getIMMDateSet(mid, tenors);
+    return makeCDS(tradeDate, effectiveDate, maturities);
+  }
+
+  /**
    * Make a CDS with a maturity date the given period on from the next IMM date after the trade-date. The accrual start date will
    * be the previous IMM date (before the trade date), business-day adjusted.  <b>Note</b> it payment interval is changed from the
    * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.   
@@ -468,6 +509,58 @@ public class CDSAnalyticFactory {
           _businessdayAdjustmentConvention, _calendar, _accrualDayCount, _curveDayCount);
     }
     return cds;
+  }
+
+  //************************************************************************************************************************
+  //Make forward starting CDS 
+  //************************************************************************************************************************
+
+  /**
+   * A forward starting CDS starts on some date after today (the trade date). The stepin date and cash settlement date are taken from the forward start date
+   * (1 day and 3 working days by default)
+   * @param tradeDate The trade date (i.e. today)
+   * @param forwardStartDate The forward start date
+   * @param maturity The maturity of the CDS 
+   * @return A CDS analytic description for a forward starting CDS
+   */
+  public CDSAnalytic makeForwardStartingCDS(final LocalDate tradeDate, final LocalDate forwardStartDate, final LocalDate maturity) {
+    ArgumentChecker.isFalse(forwardStartDate.isBefore(tradeDate), "forwardStartDate of {} is before trade date of {}", forwardStartDate, tradeDate);
+    final LocalDate stepinDate = forwardStartDate.plusDays(_stepIn);
+    final LocalDate valueDate = addWorkDays(forwardStartDate, _cashSettle, _calendar);
+    final LocalDate accStartDate = _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(forwardStartDate));
+    return makeCDS(tradeDate, stepinDate, valueDate, accStartDate, maturity);
+  }
+
+  /** A forward starting CDS starts on some date after today (the trade date). The stepin date and cash settlement date are taken from the forward start date
+   * (1 day and 3 working days by default). The period is from the next IMM date after the forward-start-date, so for a trade-date of 13-Feb-2014, a forward-start-date
+   * of 25-Mar-2014 and a tenor of 1Y, the maturity will be 20-Jun-2015. 
+   * @param tradeDate The trade date (i.e. today)
+   * @param forwardStartDate The forward start date
+   * @param tenor The tenor (length) of the CDS at the forwardStartDate
+   * @return A CDS analytic description for a forward starting CDS
+   */
+  public CDSAnalytic makeForwardStartingIMMCDS(final LocalDate tradeDate, final LocalDate forwardStartDate, final Period tenor) {
+    final LocalDate nextIMM = getNextIMMDate(forwardStartDate);
+    final LocalDate maturity = nextIMM.plus(tenor);
+    return makeForwardStartingCDS(tradeDate, forwardStartDate, maturity);
+  }
+
+  /**
+   * /** A forward starting index starts on some date after today (the trade date). The stepin date and cash settlement date are taken from the forward start date
+   * (1 day and 3 working days by default). 
+   *The maturity (of the index) is taken from the forward-start-date. The index roll dates (when new indices are issued) are 20 Mar & Sep,
+   *  and the index is defined to have a maturity that is its nominal tenor plus 3M on issuance, so a 5Y index on the 6-Feb-2014 will have a maturity of
+   *  20-Dec-2018 (5Y3M on the issue date of 20-Sep-2013).  However for a trade-date of 6-Feb-2014, a forward-start-date
+   * of 25-Mar-2014 and a tenor of 5Y, the maturity will be 20-Jun-2019. 
+   * @param tradeDate The trade date (i.e. today)
+   * @param forwardStartDate   The forward start date
+   * @param tenor The tenor (nominal length) of the index at the forwardStartDate
+   * @return A CDS analytic description for a forward starting index
+   */
+  public CDSAnalytic makeForwardStartingCDX(final LocalDate tradeDate, final LocalDate forwardStartDate, final Period tenor) {
+    final LocalDate roll = getNextIndexRollDate(forwardStartDate);
+    final LocalDate maturity = roll.plus(tenor).minusMonths(3);
+    return makeForwardStartingCDS(tradeDate, forwardStartDate, maturity);
   }
 
   //************************************************************************************************************************

@@ -77,6 +77,41 @@ public abstract class DoublesScheduleGenerator {
     return res;
   }
 
+  /**
+   * Combines two sets of numbers (times) and return the unique sorted set. 
+   *  If two times are very close (defined as  less than half a day - 1/730 years different) only the smaller value is kept. 
+   * @param set1 The first set 
+   * @param set2 The second set 
+   * @return The unique sorted set, set1 U set2  
+   */
+  public static double[] combineSets(final double[] set1, final double[] set2) {
+    final int n1 = set1.length;
+    final int n2 = set2.length;
+    final int n = n1 + n2;
+    final double[] set = new double[n];
+    System.arraycopy(set1, 0, set, 0, n1);
+    System.arraycopy(set2, 0, set, n1, n2);
+    Arrays.sort(set);
+
+    final double[] temp = new double[n];
+    temp[0] = set[0];
+    int pos = 0;
+    for (int i = 1; i < n; i++) {
+      if (different(temp[pos], set[i])) {
+        temp[++pos] = set[i];
+      }
+    }
+
+    final int resLength = pos + 1;
+    if (resLength == n) {
+      return temp; // everything was unique
+    }
+
+    final double[] res = new double[resLength];
+    System.arraycopy(temp, 0, res, 0, resLength);
+    return res;
+  }
+
   private static boolean different(final double a, final double b) {
     return Math.abs(a - b) > TOL;
   }

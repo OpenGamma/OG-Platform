@@ -40,7 +40,7 @@ public class MatlabTest extends ISDABaseTest {
     System.out.println("effProtStart " + cds.getEffectiveProtectionStart());
     System.out.println("valuationTime " + cds.getCashSettleTime());
     System.out.println("protEnd " + cds.getProtectionEnd());
-    System.out.println("unitAccruedPremium " + cds.getAccruedPremiumPerUnitSpread());
+    System.out.println("unitAccruedPremium " + cds.getAccruedYearFraction());
     System.out.println("lgd " + cds.getLGD());
 
     final int n = cds.getNumPayments();

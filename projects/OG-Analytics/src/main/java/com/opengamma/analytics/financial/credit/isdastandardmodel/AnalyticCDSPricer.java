@@ -12,6 +12,7 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
 import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -82,7 +83,7 @@ public class AnalyticCDSPricer {
    * @return Value of a unit notional payer CDS at the specified valuation time
    */
   public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread, final PriceType cleanOrDirty,
-      double valuationTime) {
+      final double valuationTime) {
     ArgumentChecker.notNull(cds, "cds");
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
       return 0.0;
@@ -241,29 +242,17 @@ public class AnalyticCDSPricer {
   }
 
   /**
-   * The clean value of annuity (or RPV01 - the premium leg per unit of coupon) today (t=0).  This is calculated as the dirty annuity value minus the 
-   * value of the accrued premium; the accrued amount is simply the year fraction from the accrual start to the stepin date (protection start), this is 
-   * risk-free discounted to the effective protection start, then risky discounted to today.   
+   * This is the present value of the (clean) premium leg per unit coupon, seen at the cash-settlement date. It is equal to 10,000 times the RPV01
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. coupon in basis
+   * points divided by 10,000)<br>
+   * @see  dirtyAnnuity
    * @param cds analytic description of a CDS traded at a certain time
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
-   * @return The clean annuity valued today.
+   * @return 10,000 times the RPV01 (on a notional of 1)
    */
-  public double cleanAnnuity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
-    final double da = dirtyAnnuity(cds, yieldCurve, creditCurve);
-    if (cds.getCashSettleTime() < cds.getEffectiveProtectionStart()) {
-      throw new IllegalArgumentException("Cannot handle cash settlement before protection start");
-    }
-
-    //The CDS (and thus the premium leg) cancels if default happens before protection starts. The clean price is computed as if there is a rebate of accrued interest 
-    //at the cash settlement time. The cash settlement is still paid if there is a default between the protection start and the cash settlement, this we discount risk-free
-    //from cash settlement to protection start, then risky discount from protection start to 'now' (t=0);
-    double riskyDisAcc = cds.getAccruedPremiumPerUnitSpread() * yieldCurve.getDiscountFactor(cds.getCashSettleTime());
-    if (cds.getEffectiveProtectionStart() > 0) {
-      riskyDisAcc *= creditCurve.getSurvivalProbability(cds.getEffectiveProtectionStart());
-    }
-    return da - riskyDisAcc;
-
+  public double annuity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+    return annuity(cds, yieldCurve, creditCurve, PriceType.CLEAN, cds.getCashSettleTime());
   }
 
   /**
@@ -303,31 +292,19 @@ public class AnalyticCDSPricer {
   public double annuity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty, final double valuationTime) {
 
     double pv = dirtyAnnuity(cds, yieldCurve, creditCurve);
-    if (cleanOrDirty == PriceType.DIRTY) {
-      pv /= yieldCurve.getDiscountFactor(valuationTime);
-      return pv;
+    final double valDF = yieldCurve.getDiscountFactor(valuationTime);
+
+    if (cleanOrDirty == PriceType.CLEAN) {
+      final double csTime = cds.getCashSettleTime();
+      final double protStart = cds.getEffectiveProtectionStart();
+      final double csDF = valuationTime == csTime ? valDF : yieldCurve.getDiscountFactor(csTime);
+      final double q = protStart == 0 ? 1.0 : creditCurve.getSurvivalProbability(protStart);
+      final double acc = cds.getAccruedYearFraction();
+      pv -= acc * csDF * q; //subtract the accrued risky discounted to today
     }
 
-    final double csTime = cds.getCashSettleTime();
-    final double protStart = cds.getEffectiveProtectionStart();
-    final double csDF = yieldCurve.getDiscountFactor(csTime);
-    final double acc = cds.getAccruedPremiumPerUnitSpread();
-
-    if (protStart == 0) { //spot starting CDS
-      if (valuationTime == csTime) { //this is the standard CDS case
-        pv /= csDF;
-        pv -= acc;
-        return pv;
-      } else {
-        pv /= yieldCurve.getDiscountFactor(valuationTime);
-        pv -= acc * csDF;
-        return pv;
-      }
-    } else { //forward starting CDS
-      pv -= acc * yieldCurve.getDiscountFactor(csTime) * creditCurve.getSurvivalProbability(protStart);
-      pv /= yieldCurve.getDiscountFactor(valuationTime);
-      return pv;
-    }
+    pv /= valDF; //roll forward to valuation date
+    return pv;
   }
 
   private double calculateSinglePeriodAccrualOnDefault(final CDSCoupon coupon, final double effectiveStart, final double[] integrationPoints, final ISDACompliantYieldCurve yieldCurve,

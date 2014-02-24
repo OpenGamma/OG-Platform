@@ -108,6 +108,52 @@ public class IndexCDSTest extends ISDABaseTest {
     assertEquals("Credit DV01 (Trans)", mCreditDV01Transformed, cs01Trans, 1e-15 * NOTIONAL);
   }
 
+  /**
+   *  iTraxx Europe Series 20 Version 1 5Y
+   */
+  @Test
+  public void test2() {
+    final double coupon = 0.01;
+    final CDSAnalyticFactory factory = new CDSAnalyticFactory();
+    final LocalDate tradeDate = LocalDate.of(2014, 1, 15);
+    final LocalDate ycSpotDate = LocalDate.of(2014, 1, 17);
+    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "30Y" };
+    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    final double[] rates = new double[] {0.00208, 0.00247, 0.00282, 0.0039, 0.00482, 0.00557, 0.00522, 0.00705, 0.00942, 0.01182, 0.01405, 0.01607, 0.01788, 0.01948, 0.02088, 0.02315, 0.02537,
+      0.02686, 0.02724 };
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, ycSpotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
+
+    //TODO have explicit index methods in CDSAnalyticFactory [PLAT-5564]
+    final CDSAnalytic cds = factory.makeIMMCDS(tradeDate, Period.of(4, 9, 0)); //Index maturity is 20-Dec-2018
+
+    final int mAccDays = 27;
+    final double mAccAmount = 7.5e-4;
+    assertEquals(mAccDays, cds.getAccuredDays());
+    assertEquals(mAccAmount, cds.getAccruedPremium(coupon));
+
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
+
+    //these are Markit 'user' values (calculated from constant hazard rate) 
+    ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, 0.012, yieldCurve);
+    double marketValue = PRICER.pv(cds, yieldCurve, cc, coupon, PriceType.DIRTY, 0.0);
+    double cashSettlement = marketValue / df;
+    double mMarketValue = 0.008568684437956;
+    double mCashSettlement = 0.008568931959138;
+    assertEquals(mMarketValue, marketValue, 1e-15);
+    assertEquals(mCashSettlement, cashSettlement, 1e-15);
+
+    //now use clear price of 99.07% (note index quoted as 1-puf)
+    final double puf = 0.0093;
+    cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, coupon, yieldCurve, puf);
+    marketValue = PRICER.pv(cds, yieldCurve, cc, coupon, PriceType.DIRTY, 0.0);
+    cashSettlement = marketValue / df;
+    mMarketValue = 0.008549753025685;
+    mCashSettlement = 0.00855;
+    assertEquals(mMarketValue, marketValue, 1e-15);
+    assertEquals(mCashSettlement, cashSettlement, 1e-15);
+
+  }
+
   @Test(enabled = false)
   public void rollingTest() {
 

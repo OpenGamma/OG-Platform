@@ -41,6 +41,7 @@ public class ISDABaseTest {
   protected static final DayCount ACT360 = DayCounts.ACT_360;
   protected static final DayCount D30360 = DayCounts.THIRTY_U_360;
   protected static final DayCount ACT_ACT_ISDA = DayCounts.ACT_ACT_ISDA;
+  protected static final DayCount BUS_252 = DayCounts.BUSINESS_252;
 
   protected static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   protected static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;

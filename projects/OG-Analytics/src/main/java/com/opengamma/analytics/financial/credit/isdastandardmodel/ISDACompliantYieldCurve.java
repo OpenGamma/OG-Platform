@@ -65,7 +65,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
    * A curve in which the knots are measured (in fractions of a year) from a particular base-date but the curve is 'observed'
    * from a different base-date. As an example<br>
    * Today (the observation point) is 11-Jul-13, but the yield curve is snapped (bootstrapped from money market and swap rates)
-   * on 10-Jul-13 - seen from today there is an offset of -1/365 (assuming a day count of ACT/365) that must be applied to use
+   * on 10-Jul-13 - seen from the original base date (10-Jul-13) there is an offset of 1/365 (assuming a day count of ACT/365) that must be applied to use
    * the yield curve today.  <br>
    * In general, a discount curve observed at time $t_1$ can be written as $P(t_1,T)$. Observed from time $t_2$ this is
    * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$
@@ -129,7 +129,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
@@ -141,15 +141,15 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
   @Override
   public int hashCode() {
-    int hash = 7;
+    final int hash = 7;
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    final StringBuilder buf = new StringBuilder(32);
     buf.append("ISDACompliantYieldCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -159,7 +159,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
   }
 
@@ -176,8 +176,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap());
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

@@ -285,7 +285,7 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
       pv /= _valuationDF;
 
       if (cleanOrDirty == PriceType.CLEAN) {
-        pv -= _cds.getAccruedPremiumPerUnitSpread();
+        pv -= _cds.getAccruedYearFraction();
       }
       return pv;
     }

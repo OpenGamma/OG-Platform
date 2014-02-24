@@ -92,13 +92,10 @@ public class ISDACompliantCurve extends DoublesCurve {
 
     _t = new double[n];
     _rt = new double[n];
-
     System.arraycopy(t, 0, _t, 0, n);
-
     for (int i = 0; i < n; i++) {
       _rt[i] = r[i] * t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates) 
     }
-
   }
 
   protected ISDACompliantCurve(final double[][] tAndRt) {
@@ -135,33 +132,55 @@ public class ISDACompliantCurve extends DoublesCurve {
    * @param newBaseFromOriginalBase  if this curve is to be used from a new base-date, this is the offset from the original curve base
    */
   protected ISDACompliantCurve(final double[] timesFromBaseDate, final double[] r, final double newBaseFromOriginalBase) {
-    ArgumentChecker.notEmpty(timesFromBaseDate, "timesFromBaseDate");
-    ArgumentChecker.notEmpty(r, "r");
     final int n = timesFromBaseDate.length;
     ArgumentChecker.isTrue(n == r.length, "times and rates different lengths");
     ArgumentChecker.isTrue(timesFromBaseDate[0] >= 0.0, "timesFromBaseDate must be >= 0");
 
-    // TODO allow larger offsets
-    ArgumentChecker.isTrue(timesFromBaseDate[0] - newBaseFromOriginalBase > 0, "offsetFromNewBaseDate too negative");
     for (int i = 1; i < n; i++) {
       ArgumentChecker.isTrue(timesFromBaseDate[i] > timesFromBaseDate[i - 1], "Times must be ascending");
     }
 
-    _t = new double[n];
-    _rt = new double[n];
-    final double r0 = r[0];
-    if (newBaseFromOriginalBase == 0.0) {
+    if (newBaseFromOriginalBase == 0) { //no offset 
+      _t = new double[n];
+      _rt = new double[n];
       System.arraycopy(timesFromBaseDate, 0, _t, 0, n);
       for (int i = 0; i < n; i++) {
         _rt[i] = r[i] * _t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
       }
-    } else {
+    } else if (newBaseFromOriginalBase < timesFromBaseDate[0]) {
+      //offset less than t value of 1st knot, so no knots are not removed 
+      _t = new double[n];
+      _rt = new double[n];
+      final double eta = r[0] * newBaseFromOriginalBase;
       for (int i = 0; i < n; i++) {
         _t[i] = timesFromBaseDate[i] - newBaseFromOriginalBase;
-        _rt[i] = r[i] * timesFromBaseDate[i] - r0 * newBaseFromOriginalBase;
+        _rt[i] = r[i] * timesFromBaseDate[i] - eta;
+      }
+    } else if (newBaseFromOriginalBase >= timesFromBaseDate[n - 1]) {
+      //new base after last knot. The new 'curve' has a constant zero rate which we represent with a nominal knot at 1.0
+      _t = new double[1];
+      _rt = new double[1];
+      _t[0] = 1.0;
+      _rt[0] = (r[n - 1] * timesFromBaseDate[n - 1] - r[n - 2] * timesFromBaseDate[n - 2]) / (timesFromBaseDate[n - 1] - timesFromBaseDate[n - 2]);
+    } else {
+      //offset greater than (or equal to) t value of 1st knot, so at least one knot must be removed  
+      int index = Arrays.binarySearch(timesFromBaseDate, newBaseFromOriginalBase);
+      if (index < 0) {
+        index = -(index + 1);
+      } else {
+        index++;
+      }
+      final double eta = (r[index - 1] * timesFromBaseDate[index - 1] * (timesFromBaseDate[index] - newBaseFromOriginalBase) + r[index] * timesFromBaseDate[index] *
+          (newBaseFromOriginalBase - timesFromBaseDate[index - 1])) /
+          (timesFromBaseDate[index] - timesFromBaseDate[index - 1]);
+      final int m = n - index;
+      _t = new double[m];
+      _rt = new double[m];
+      for (int i = 0; i < m; i++) {
+        _t[i] = timesFromBaseDate[i + index] - newBaseFromOriginalBase;
+        _rt[i] = r[i + index] * timesFromBaseDate[i + index] - eta;
       }
     }
-
   }
 
   //-------------------------------------------------------------------------
@@ -499,12 +518,12 @@ public class ISDACompliantCurve extends DoublesCurve {
    * A curve in which the knots are measured (in fractions of a year) from a particular base-date but the curve is 'observed'
    * from a different base-date. As an example<br>
    * Today (the observation point) is 11-Jul-13, but the yield curve is snapped (bootstrapped from money market and swap rates)
-   * on 10-Jul-13 - seen from today there is an offset of -1/365 (assuming a day count of ACT/365) that must be applied to use
+   * on 10-Jul-13 - seen from the original base date (10-Jul-13) there is an offset of 1/365(assuming a day count of ACT/365) that must be applied to use
    * the yield curve today.  <br>
    * In general, a discount curve observed at time $t_1$ can be written as $P(t_1,T)$. Observed from time $t_2$ this is
    * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$
    * 
-   * @param newBaseFromOriginalBase  if this curve is to be used from a new base-date, what is the offset from the curve base
+   * @param newBaseFromOriginalBase  if this curve is to be used from a new base-date, what is the offset from the original curve base
    * @return a new curve with the offset
    */
   public ISDACompliantCurve withOffset(final double newBaseFromOriginalBase) {
@@ -660,7 +679,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the t.
    * @param t  the new value of the property
    */
-  private void setT(double[] t) {
+  private void setT(final double[] t) {
     this._t = t;
   }
 
@@ -677,7 +696,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the rt.
    * @param rt  the new value of the property
    */
-  private void setRt(double[] rt) {
+  private void setRt(final double[] rt) {
     this._rt = rt;
   }
 
@@ -697,9 +716,9 @@ public class ISDACompliantCurve extends DoublesCurve {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    final StringBuilder buf = new StringBuilder(96);
     buf.append("ISDACompliantCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -709,7 +728,7 @@ public class ISDACompliantCurve extends DoublesCurve {
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
     buf.append("t").append('=').append(JodaBeanUtils.toString(getT())).append(',').append(' ');
     buf.append("rt").append('=').append(JodaBeanUtils.toString(getRt())).append(',').append(' ');
@@ -728,20 +747,15 @@ public class ISDACompliantCurve extends DoublesCurve {
     /**
      * The meta-property for the {@code t} property.
      */
-    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadWrite(
-        this, "t", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadWrite(this, "t", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code rt} property.
      */
-    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadWrite(
-        this, "rt", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadWrite(this, "rt", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "t",
-        "rt");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "t", "rt");
 
     /**
      * Restricted constructor.
@@ -750,7 +764,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 116:  // t
           return _t;
@@ -794,7 +808,7 @@ public class ISDACompliantCurve extends DoublesCurve {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 116:  // t
           return ((ISDACompliantCurve) bean).getT();
@@ -805,7 +819,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     }
 
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 116:  // t
           ((ISDACompliantCurve) bean).setT((double[]) newValue);

@@ -251,7 +251,7 @@ public class CDSAnalytic {
    * accrued premium paid would be this times 0.05
    * @return the accrued premium per unit of (fractional) spread (and unit of notional)
    */
-  public double getAccruedPremiumPerUnitSpread() {
+  public double getAccruedYearFraction() {
     return _accrued;
   }
 

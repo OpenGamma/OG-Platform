@@ -30,7 +30,7 @@ public class MultiCDSAnalytic {
 
   private final double _accStart;
   private final double _effectiveProtectionStart;
-  private final double _valuationTime;
+  private final double _cashSettlementTime;
   private final double[] _protectionEnd;
 
   private final double[] _accrued;
@@ -49,7 +49,7 @@ public class MultiCDSAnalytic {
    * @param stepinDate (aka Protection Effective sate or assignment date). Date when party assumes ownership. This is usually T+1. This is when protection
    * (and risk) starts in terms of the model. Note, this is sometimes just called the Effective Date, however this can cause
    * confusion with the legal effective date which is T-60 or T-90.
-   * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
+   * @param cashSettlementDate The cash settlement date. The date that values are PVed to. Is is normally today + 3 business days. 
    * @param accStartDate  Accrual Start Date. This is when the CDS nominally starts in terms of premium payments.  i.e. the number 
    * of days in the first period (and thus the amount of the first premium payment) is counted from this date.
    * @param maturityReferanceDate A reference date that maturities are measured from. For standard CDSSs, this is the next IMM  date after
@@ -67,12 +67,12 @@ public class MultiCDSAnalytic {
    * @param accrualDayCount Day count used for accrual
    * @param curveDayCount Day count used on curve (NOTE ISDA uses ACT/365 and it is not recommended to change this)
    */
-  public MultiCDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate accStartDate, final LocalDate maturityReferanceDate,
+  public MultiCDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate cashSettlementDate, final LocalDate accStartDate, final LocalDate maturityReferanceDate,
       final int[] maturityIndexes, final boolean payAccOnDefault, final Tenor paymentInterval, final StubType stubType, final boolean protectStart, final double recoveryRate,
       final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar, final DayCount accrualDayCount, final DayCount curveDayCount) {
     ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notNull(stepinDate, "stepinDate");
-    ArgumentChecker.notNull(valueDate, "valueDate");
+    ArgumentChecker.notNull(cashSettlementDate, "cashSettlementDate");
     ArgumentChecker.notNull(accStartDate, "accStartDate");
     ArgumentChecker.notNull(maturityReferanceDate, "maturityReferanceDate");
     ArgumentChecker.notNull(paymentInterval, "tenor");
@@ -80,7 +80,7 @@ public class MultiCDSAnalytic {
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "businessdayAdjustmentConvention");
     ArgumentChecker.notNull(accrualDayCount, "accuralDayCount");
     ArgumentChecker.notNull(curveDayCount, "curveDayCount");
-    ArgumentChecker.isFalse(valueDate.isBefore(tradeDate), "Require valueDate >= today");
+    ArgumentChecker.isFalse(cashSettlementDate.isBefore(tradeDate), "Require valueDate >= today");
     ArgumentChecker.isFalse(stepinDate.isBefore(tradeDate), "Require stepin >= today");
     //  ArgumentChecker.isFalse(tradeDate.isAfter(maturityReferanceDate), "First CDS has expired");
     ArgumentChecker.notEmpty(maturityIndexes, "maturityIndexes");
@@ -96,7 +96,7 @@ public class MultiCDSAnalytic {
     final LocalDate temp = stepinDate.isAfter(accStartDate) ? stepinDate : accStartDate;
     final LocalDate effectiveStartDate = protectStart ? temp.minusDays(1) : temp;
 
-    _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
+    _cashSettlementTime = curveDayCount.getDayCountFraction(tradeDate, cashSettlementDate);
     _effectiveProtectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
     _lgd = 1 - recoveryRate;
 
@@ -141,6 +141,24 @@ public class MultiCDSAnalytic {
       _accruedDays[i] = secondJulianDate > firstJulianDate ? (int) (secondJulianDate - firstJulianDate) : 0;
       _accrued[i] = tDate2.isBefore(stepinDate) ? accrualDayCount.getDayCountFraction(tDate2, stepinDate) : 0.0;
     }
+  }
+
+  private MultiCDSAnalytic(final double lgd, final boolean payAccOnDefault, final CDSCoupon[] standardCoupons, final CDSCoupon[] terminalCoupons, final double accStart,
+      final double effectiveProtectionStart, final double valuationTime, final double[] protectionEnd, final double[] accrued, final int[] accruedDays, final int totalPayments, final int nMaturities,
+      final int[] matIndexToPayments) {
+    _lgd = lgd;
+    _payAccOnDefault = payAccOnDefault;
+    _standardCoupons = standardCoupons;
+    _terminalCoupons = terminalCoupons;
+    _accStart = accStart;
+    _effectiveProtectionStart = effectiveProtectionStart;
+    _cashSettlementTime = valuationTime;
+    _protectionEnd = protectionEnd;
+    _accrued = accrued;
+    _accruedDays = accruedDays;
+    _totalPayments = totalPayments;
+    _nMaturities = nMaturities;
+    _matIndexToPayments = matIndexToPayments;
   }
 
   public int getNumMaturities() {
@@ -190,12 +208,17 @@ public class MultiCDSAnalytic {
     return _lgd;
   }
 
+  public MultiCDSAnalytic withRecoveryRate(final double recovery) {
+    return new MultiCDSAnalytic(1 - recovery, _payAccOnDefault, _standardCoupons, _terminalCoupons, _accStart, _effectiveProtectionStart, _cashSettlementTime, _protectionEnd, _accrued, _accruedDays,
+        _totalPayments, _nMaturities, _matIndexToPayments);
+  }
+
   /**
    * Gets year fraction (according to curve DCC) between the trade date and the cash-settle date 
    * @return the CashSettleTime
    */
   public double getCashSettleTime() {
-    return _valuationTime;
+    return _cashSettlementTime;
   }
 
   /**
@@ -294,7 +317,7 @@ public class MultiCDSAnalytic {
     result = prime * result + Arrays.hashCode(_standardCoupons);
     result = prime * result + Arrays.hashCode(_terminalCoupons);
     result = prime * result + _totalPayments;
-    temp = Double.doubleToLongBits(_valuationTime);
+    temp = Double.doubleToLongBits(_cashSettlementTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -347,7 +370,7 @@ public class MultiCDSAnalytic {
     if (_totalPayments != other._totalPayments) {
       return false;
     }
-    if (Double.doubleToLongBits(_valuationTime) != Double.doubleToLongBits(other._valuationTime)) {
+    if (Double.doubleToLongBits(_cashSettlementTime) != Double.doubleToLongBits(other._cashSettlementTime)) {
       return false;
     }
     return true;
