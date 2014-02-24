@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.plaf.metal.MetalComboBoxUI.MetalPropertyChangeListener;
-
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
@@ -32,8 +30,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.ManageableSecurity.Meta;
 
 /**
  *
@@ -74,15 +70,18 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Map<String, String> attributes = target.getSecurity().getAttributes();
-    if (attributes.isEmpty()) {
+    final Security security = target.getSecurity();
+    final Map<String, String> attributes = security.getAttributes();
+    if (attributes.isEmpty() && !(security instanceof Bean)) {
+      // No explicit attributes, and can't query a non-Bean security
       return null;
     }
     final ValueProperties.Builder properties = createValueProperties();
-    for (String attribute : attributes.keySet()) {
-      properties.with(PROPERTY_ATTRIBUTE_NAME, attribute);
+    if (!attributes.isEmpty()) {
+      for (String attribute : attributes.keySet()) {
+        properties.with(PROPERTY_ATTRIBUTE_NAME, attribute);
+      }
     }
-    Security security = target.getSecurity();
     if (security instanceof Bean) {
       Bean bean = (Bean) security;
       MetaBean metaBean = bean.metaBean();
