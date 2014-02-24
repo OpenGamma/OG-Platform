@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +46,50 @@ public class MarketDataSelectionGraphManipulator {
   /**
    * The selectors which will be applied only to named graphs.
    */
-  private final Map<String, Set<MarketDataSelector>> _specificSelectors = new HashMap<>();
+  private final Map<String, Set<MarketDataSelector>> _specificSelectors;
+
+  /**
+   * Component to include when caching compiled dependency graphs.
+   */
+  private final Serializable _cacheHintKey;
+
+  private static final class CacheHintKey implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private final int _hashCode;
+    private final Serializable _marketDataSelector;
+    private final Serializable _specificSelectors;
+
+    public CacheHintKey(final Serializable marketDataSelector, final Serializable specificSelectors) {
+      _marketDataSelector = marketDataSelector;
+      _specificSelectors = specificSelectors;
+      _hashCode = marketDataSelector.hashCode() * 31 + specificSelectors.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof CacheHintKey)) {
+        return false;
+      }
+      final CacheHintKey other = (CacheHintKey) o;
+      return _marketDataSelector.equals(other._marketDataSelector) && _specificSelectors.equals(other._specificSelectors);
+    }
+
+    @Override
+    public int hashCode() {
+      return _hashCode;
+    }
+
+    @Override
+    public String toString() {
+      return _marketDataSelector + " & " + _specificSelectors;
+    }
+
+  }
 
   /**
    * Constructor for the class taking the general and specific market data selectors.
@@ -57,19 +101,19 @@ public class MarketDataSelectionGraphManipulator {
     ArgumentChecker.notNull(marketDataSelector, "marketDataSelector");
     ArgumentChecker.notNull(specificSelectors, "specificSelectors");
     _marketDataSelector = marketDataSelector;
+    final HashMap<String, Set<MarketDataSelector>> selectorsMap = new HashMap<String, Set<MarketDataSelector>>();
     for (Map.Entry<String, Map<DistinctMarketDataSelector, FunctionParameters>> entry : specificSelectors.entrySet()) {
-      // Workaround code for Java generics
-      Set<MarketDataSelector> selectors = new HashSet<>();
+      final Set<MarketDataSelector> selectors = new HashSet<>();
       for (MarketDataSelector selector : entry.getValue().keySet()) {
         selectors.add(selector);
       }
-      _specificSelectors.put(entry.getKey(), selectors);
+      selectorsMap.put(entry.getKey(), selectors);
     }
+    _specificSelectors = selectorsMap;
+    _cacheHintKey = new CacheHintKey(marketDataSelector, selectorsMap);
   }
 
-  private DependencyNode modifyDependencyNode(DependencyNode node,
-                                              ValueSpecification desiredOutput,
-                                              DependencyGraphStructureExtractor extractor) {
+  private DependencyNode modifyDependencyNode(DependencyNode node, ValueSpecification desiredOutput, DependencyGraphStructureExtractor extractor) {
     DependencyNode newNode = extractor.getProduction(desiredOutput);
     if (newNode != null) {
       return newNode;
@@ -171,8 +215,7 @@ public class MarketDataSelectionGraphManipulator {
     final int roots = graph.getRootCount();
     final Set<DependencyNode> newRoots = Sets.newHashSetWithExpectedSize(roots);
     final DefaultSelectorResolver selectorResolver = new DefaultSelectorResolver(resolver);
-    final DependencyGraphStructureExtractor extractor =
-        new DependencyGraphStructureExtractor(configurationName, combinedSelector, selectorResolver, selectorMapping);
+    final DependencyGraphStructureExtractor extractor = new DependencyGraphStructureExtractor(configurationName, combinedSelector, selectorResolver, selectorMapping);
     for (int i = 0; i < roots; i++) {
       final DependencyNode root = graph.getRootNode(i);
       newRoots.add(modifyDependencyNode(root, root.getOutputValue(0), extractor));
@@ -205,4 +248,9 @@ public class MarketDataSelectionGraphManipulator {
   public boolean hasManipulationsDefined() {
     return _marketDataSelector.hasSelectionsDefined() || !_specificSelectors.isEmpty();
   }
+
+  public Serializable getCacheHintKey() {
+    return _cacheHintKey;
+  }
+
 }

@@ -113,13 +113,13 @@ import com.opengamma.util.tuple.Pair;
  * The job which schedules and executes computation cycles for a view process. See {@link SingleThreadViewProcessWorkerFactory} for a more detailed description.
  */
 public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketDataChangeListener {
-  
+
   /**
-   * Default to waiting 5 minutes when {link {@link ViewExecutionFlags#AWAIT_MARKET_DATA} is in use to avoid
-   * unintentionally causing the view process to hang indefinitely. Market data should normally be available in seconds.
+   * Default to waiting 5 minutes when {link {@link ViewExecutionFlags#AWAIT_MARKET_DATA} is in use to avoid unintentionally causing the view process to hang indefinitely. Market data should normally
+   * be available in seconds.
    */
   private static final long DEFAULT_MARKET_DATA_TIMEOUT_MILLIS = 300000;
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
   private static final ExecutorService s_executor = NamedThreadPoolFactory.newCachedThreadPool("Worker");
@@ -475,7 +475,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
 
       try {
         snapshotManager = _marketDataManager.createSnapshotManagerForCycle(getViewDefinition().getMarketDataUser(), executionOptions.getMarketDataSpecifications());
-        _executionCacheKey = ViewExecutionCacheKey.of(getViewDefinition(), _marketDataManager.getAvailabilityProvider());
+        _executionCacheKey = ViewExecutionCacheKey.of(getViewDefinition(), _marketDataManager.getAvailabilityProvider(), _marketDataSelectionGraphManipulator);
       } catch (final Exception e) {
         s_logger.error("Error with market data provider", e);
         cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error with market data provider", e));
@@ -1674,7 +1674,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       // A change in view definition might mean a change in market data user which could invalidate the resolutions
       _marketDataManager.replaceMarketDataProviderIfRequired(newViewDefinition.getMarketDataUser());
 
-      _executionCacheKey = ViewExecutionCacheKey.of(newViewDefinition, _marketDataManager.getAvailabilityProvider());
+      _executionCacheKey = ViewExecutionCacheKey.of(newViewDefinition, _marketDataManager.getAvailabilityProvider(), _marketDataSelectionGraphManipulator);
     }
   }
 

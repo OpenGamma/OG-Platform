@@ -19,11 +19,12 @@ public final class NoOpMarketDataSelector implements MarketDataSelector {
 
   private static final NoOpMarketDataSelector INSTANCE = new NoOpMarketDataSelector();
 
-  private NoOpMarketDataSelector() {}
+  private NoOpMarketDataSelector() {
+  }
 
   /**
    * Return the singleton instance.
-   *
+   * 
    * @return the singleton instance
    */
   public static NoOpMarketDataSelector getInstance() {
@@ -31,9 +32,7 @@ public final class NoOpMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
-                                                         String calculationConfigurationName,
-                                                         SelectorResolver resolver) {
+  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification, String calculationConfigurationName, SelectorResolver resolver) {
     return null;
   }
 
@@ -49,4 +48,10 @@ public final class NoOpMarketDataSelector implements MarketDataSelector {
   public static NoOpMarketDataSelector fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     return INSTANCE;
   }
+
+  @Override
+  public String toString() {
+    return "No-op";
+  }
+
 }

@@ -40,8 +40,8 @@ public class ViewExecutionCacheLockTest {
   public void testBroadLock() {
     final ViewExecutionCacheLock locks1 = new ViewExecutionCacheLock();
     final ViewExecutionCacheLock locks2 = new ViewExecutionCacheLock();
-    final ViewExecutionCacheKey keyA = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("A"));
-    final ViewExecutionCacheKey keyB = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("B"));
+    final ViewExecutionCacheKey keyA = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("A"), null);
+    final ViewExecutionCacheKey keyB = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("B"), null);
     final Lock lockA1 = locks1.get(keyA);
     final Lock lockB1 = locks1.get(keyB);
     final Lock lockA2 = locks2.get(keyA);
@@ -56,21 +56,17 @@ public class ViewExecutionCacheLockTest {
 
   public void testFinerLock() {
     final ViewExecutionCacheLock locks = new ViewExecutionCacheLock();
-    final ViewExecutionCacheKey keyA = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("A"));
-    final ViewExecutionCacheKey keyB = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("B"));
+    final ViewExecutionCacheKey keyA = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("A"), null);
+    final ViewExecutionCacheKey keyB = ViewExecutionCacheKey.of(viewDefinition(), marketDataProvider("B"), null);
     final Instant valuationTimeA = Instant.now();
     final Instant valuationTimeB = valuationTimeA.plusSeconds(100);
     final VersionCorrection resolverVersionCorrectionA = VersionCorrection.of(valuationTimeA.minusSeconds(1), valuationTimeA.minusSeconds(2));
     final VersionCorrection resolverVersionCorrectionB = VersionCorrection.of(valuationTimeA.minusSeconds(3), valuationTimeA.minusSeconds(3));
     @SuppressWarnings("unchecked")
-    final Pair<Lock, Lock>[] ls = new Pair[] {locks.get(keyA, valuationTimeA, resolverVersionCorrectionA),
-        locks.get(keyA, valuationTimeA, resolverVersionCorrectionB),
-        locks.get(keyA, valuationTimeB, resolverVersionCorrectionA),
-        locks.get(keyA, valuationTimeB, resolverVersionCorrectionB),
-        locks.get(keyB, valuationTimeA, resolverVersionCorrectionA),
-        locks.get(keyB, valuationTimeA, resolverVersionCorrectionB),
-        locks.get(keyB, valuationTimeB, resolverVersionCorrectionA),
-        locks.get(keyB, valuationTimeB, resolverVersionCorrectionB) };
+    final Pair<Lock, Lock>[] ls = new Pair[] {locks.get(keyA, valuationTimeA, resolverVersionCorrectionA), locks.get(keyA, valuationTimeA, resolverVersionCorrectionB),
+        locks.get(keyA, valuationTimeB, resolverVersionCorrectionA), locks.get(keyA, valuationTimeB, resolverVersionCorrectionB),
+        locks.get(keyB, valuationTimeA, resolverVersionCorrectionA), locks.get(keyB, valuationTimeA, resolverVersionCorrectionB),
+        locks.get(keyB, valuationTimeB, resolverVersionCorrectionA), locks.get(keyB, valuationTimeB, resolverVersionCorrectionB) };
     for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 8; j++) {
         if ((i < 4) == (j < 4)) {

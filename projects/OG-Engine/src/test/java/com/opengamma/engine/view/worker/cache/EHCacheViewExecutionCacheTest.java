@@ -15,7 +15,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -141,7 +140,7 @@ public class EHCacheViewExecutionCacheTest {
   public void testCompiledViewDefinitionWithGraphs_caching() {
     final EHCacheViewExecutionCache cache = createCache();
     final CompiledViewDefinitionWithGraphs object = createCompiledViewDefinitionWithGraphs();
-    final ViewExecutionCacheKey key = new ViewExecutionCacheKey(UniqueId.of("Key", "1"), new Serializable[] {"Foo" });
+    final ViewExecutionCacheKey key = new ViewExecutionCacheKey(UniqueId.of("Key", "1"), "Foo", "No-op");
     // Miss
     assertNull(cache.getCompiledViewDefinitionWithGraphs(key));
     // Store
