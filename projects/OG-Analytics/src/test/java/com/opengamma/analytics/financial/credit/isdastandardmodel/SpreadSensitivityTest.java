@@ -86,6 +86,24 @@ public class SpreadSensitivityTest {
     final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
     // System.out.println(cdv01);
     assertEquals("", fromExcel, cdv01, 1e-13 * NOTIONAL);
+
+    /*
+     * Errors checked
+     */
+
+    try {
+      CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-12, BumpType.ADDITIVE);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      final double[] mktSpShort = Arrays.copyOf(mrkSpreads, NUM_MARKET_CDS - 2);
+      CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mktSpShort, 1e-4, BumpType.ADDITIVE);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
   }
 
   @Test(enabled = false)
@@ -357,6 +375,8 @@ public class SpreadSensitivityTest {
     /*
      * Errors checked
      */
+    final CDSAnalytic[] shortCDSs = Arrays.copyOf(pillarCDSs, nPillars - 1);
+    final double[] shortSpreads = Arrays.copyOf(pillarSpreads, pillarSpreads.length - 2);
     try {
       localCal.parallelCS01FromPillarQuotes(CDS, coupon, YIELD_CURVE, pillarCDSs, pillar_quotes, basisPt * 1.e-9);
       throw new RuntimeException();
@@ -364,8 +384,35 @@ public class SpreadSensitivityTest {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      final CDSAnalytic[] shortCDSs = Arrays.copyOf(pillarCDSs, nPillars - 1);
       localCal.parallelCS01FromPillarQuotes(CDS, coupon, YIELD_CURVE, shortCDSs, pillar_quotes, basisPt);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      localCal.parallelCS01FromCreditCurve(CDS, coupon, pillarCDSs, YIELD_CURVE, curve, basisPt * 1.e-9);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      final CDSAnalytic[] unsortedCDSs = Arrays.copyOf(pillarCDSs, nPillars);
+      final CDSAnalytic tmp = unsortedCDSs[2];
+      unsortedCDSs[2] = unsortedCDSs[1];
+      unsortedCDSs[1] = tmp;
+      localCal.parallelCS01FromCreditCurve(CDS, coupon, unsortedCDSs, YIELD_CURVE, curve, basisPt);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      localCal.bucketedCS01FromPillarQuotes(CDS, coupon, YIELD_CURVE, pillarCDSs, pillar_quotes, basisPt * 1.e-9);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      localCal.bucketedCS01FromPillarQuotes(CDS, coupon, YIELD_CURVE, shortCDSs, pillar_quotes, basisPt);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
@@ -391,8 +438,31 @@ public class SpreadSensitivityTest {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      final double[] shortSpreads = Arrays.copyOf(pillarSpreads, pillarSpreads.length - 2);
       localCal.bucketedCS01FromQuotedSpreads(new CDSAnalytic[] {CDS }, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, BumpType.ADDITIVE);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      localCal.bucketedCS01FromParSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, BumpType.ADDITIVE);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      localCal.bucketedCS01FromParSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, BumpType.ADDITIVE);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      localCal.bucketedCS01FromQuotedSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, BumpType.ADDITIVE);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      localCal.bucketedCS01FromQuotedSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, BumpType.ADDITIVE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
