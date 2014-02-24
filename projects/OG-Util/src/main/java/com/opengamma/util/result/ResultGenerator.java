@@ -10,7 +10,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.helpers.MessageFormatter;
+
 import com.google.common.collect.Lists;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Factory class for {@link Result} objects.
@@ -73,7 +76,35 @@ public class ResultGenerator {
    * @return a result object wrapping the failure details, not null
    */
   public static <T> Result<T> failure(FailureStatus status, String message, Object... messageArgs) {
-    return new FailureResult<>(status, message, messageArgs);
+    return new FailureResult<>(status, MessageFormatter.arrayFormat(message, messageArgs).getMessage());
+  }
+
+  /**
+   * Generate a result object indicating that a function did not complete
+   * successfully because of an exception.
+   *
+   * @param message a description of the problem
+   * @param cause the cause of the failure, not null
+   * @param <T> the type of the value which would have been returned if successful
+   * @return a result object wrapping the failure details, not null
+   */
+  public static <T> Result<T> failure(String message, Exception cause) {
+    return new FailureResult<>(FailureStatus.ERROR,
+                               ArgumentChecker.notEmpty(message, "message"),
+                               ArgumentChecker.notNull(cause, "cause"));
+  }
+
+  /**
+   * Generate a result object indicating that a function did not complete
+   * successfully because of an exception.
+   *
+   * @param cause The cause of the failure, not null
+   * @param <T> the type of the value which would have been returned if successful
+   * @return a result object wrapping the failure details, not null
+   */
+  public static <T> Result<T> failure(Exception cause) {
+    ArgumentChecker.notNull(cause, "cause");
+    return new FailureResult<>(FailureStatus.ERROR, cause.getMessage(), cause);
   }
 
   /**
@@ -84,15 +115,12 @@ public class ResultGenerator {
    * @param result  the failure to be propagated, not null
    * @return the new function result object, not null
    */
+  @SuppressWarnings("unchecked")
   public static <T> Result<T> propagateFailure(Result<?> result) {
-    // todo remove the casts
-    if (result instanceof FailureResult) {
-      FailureResult<?> failureResult = (FailureResult<?>) result;
-      return new FailureResult<>(failureResult.getStatus(), failureResult.getErrorMessage());
-    } else {
-      MultipleFailureResult<?> failureResult = (MultipleFailureResult<?>) result;
-      return new MultipleFailureResult<>(failureResult.getFailures());
+    if (result instanceof SuccessResult<?>) {
+      throw new IllegalArgumentException("propagateFailure can only be invoked with a failed result");
     }
+    return (Result<T>) result;
   }
 
   /**
@@ -104,6 +132,7 @@ public class ResultGenerator {
    * @param result  the result to be transformed, not null
    * @param mapper  the mapper object to transform the value with, not null
    * @return the new function result object, not null
+   * TODO should this be on Result?
    */
   public static <R, T> Result<T> map(Result<R> result, ResultMapper<R, T> mapper) {
     if (result.isValueAvailable()) {
@@ -141,10 +170,7 @@ public class ResultGenerator {
    * @throws IllegalArgumentException if there are no failures in the results set
    */
   // results can include successes which are ignored
-  public static <T> Result<T> propagateFailures(Result<?> result1,
-                                                        Result<?> result2,
-                                                        Result<?>... results) {
-
+  public static <T> Result<T> propagateFailures(Result<?> result1, Result<?> result2, Result<?>... results) {
     List<Result<?>> resultList = Lists.newArrayListWithCapacity(results.length + 2);
     resultList.add(result1);
     resultList.add(result2);
