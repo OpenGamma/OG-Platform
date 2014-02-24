@@ -8,7 +8,6 @@ package com.opengamma.financial.security;
 
 import com.google.common.base.Preconditions;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -25,6 +24,8 @@ import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -222,6 +223,12 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
     return CurrencyAmount.of(currency, 1.0);
   }
 
+  @Override
+  public CurrencyAmount visitEquityFutureSecurity(final EquityFutureSecurity security) {
+    final Currency currency = security.getCurrency();
+    return CurrencyAmount.of(currency, security.getUnitAmount());
+  }
+  
   @Override
   public CurrencyAmount visitBondFutureSecurity(final BondFutureSecurity security) {
     final Currency currency = security.getCurrency();
