@@ -7,6 +7,11 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M11p01
+--------------
+* [PLAT-5959] - MarketDataSnapshotTool should allow a timeout to be specified
+
+
 To 2.2.0-M11
 ------------
 * Bug
