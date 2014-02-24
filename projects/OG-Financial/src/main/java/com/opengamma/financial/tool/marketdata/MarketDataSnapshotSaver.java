@@ -47,6 +47,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
@@ -92,6 +93,11 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataSnapshotter _snapshotter;
+  /**
+   * The maximum time to wait, in milliseconds, for market data to populate the snapshot.
+   */
+  @PropertyDefinition
+  private final Long _marketDataTimeoutMillis;
 
   //-------------------------------------------------------------------------
   /**
@@ -104,17 +110,18 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
    * @param marketDataSnapshotMaster  the master, not null
    * @param volatilityCubeDefinitionSource  the source, not null
    * @param mode  the mode in which to capture the snapshot (STRUCTURED or FLATTENED), not null
+   * @param marketDataTimeoutMillis  the maximum time to wait, in milliseconds, for market data, null to use a default value
    * @return the saver, not null
    */
   public static MarketDataSnapshotSaver of(ComputationTargetResolver computationTargetResolver, HistoricalTimeSeriesSource historicalTimeSeriesSource, 
       ViewProcessor viewProcessor, ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster,
-      VolatilityCubeDefinitionSource volatilityCubeDefinitionSource, MarketDataSnapshotter.Mode mode) {
+      VolatilityCubeDefinitionSource volatilityCubeDefinitionSource, MarketDataSnapshotter.Mode mode, Long marketDataTimeoutMillis) {
     ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     ArgumentChecker.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     
     final MarketDataSnapshotterImpl snapshotter = new MarketDataSnapshotterImpl(computationTargetResolver, volatilityCubeDefinitionSource, historicalTimeSeriesSource, mode);
-    return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter);
+    return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter, marketDataTimeoutMillis);
   }
 
   /**
@@ -124,16 +131,20 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
    * @param viewProcessor  the view processor, not null
    * @param configMaster  the master, not null
    * @param marketDataSnapshotMaster  the master, not null
+   * @param marketDataTimeoutMillis  the maximum time to wait, in milliseconds, for market data, null to use a default value
    * @return the saver, not null
    */
-  public static MarketDataSnapshotSaver of(MarketDataSnapshotter snapshotter, ViewProcessor viewProcessor, ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster) {
-    return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter);
+  public static MarketDataSnapshotSaver of(MarketDataSnapshotter snapshotter, ViewProcessor viewProcessor,
+      ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster, Long marketDataTimeoutMillis) {
+    return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter, marketDataTimeoutMillis);
   }
 
   //-------------------------------------------------------------------------
   public MarketDataSnapshotDocument createSnapshot(String name, final String viewDefinitionName, final Instant valuationInstant, 
       final List<MarketDataSpecification> marketDataSpecs) throws InterruptedException {
-    final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationInstant, marketDataSpecs, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
+    ViewCycleExecutionOptions cycleExecutionOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationInstant).setMarketDataSpecifications(marketDataSpecs).create();
+    ArbitraryViewCycleExecutionSequence executionSequence = ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions);
+    final ViewExecutionOptions viewExecutionOptions = new ExecutionOptions(executionSequence, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA), null, getMarketDataTimeoutMillis(), null);
 
     Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
     ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
@@ -304,7 +315,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
       ViewProcessor viewProcessor,
       ConfigMaster configMaster,
       MarketDataSnapshotMaster marketDataSnapshotMaster,
-      MarketDataSnapshotter snapshotter) {
+      MarketDataSnapshotter snapshotter,
+      Long marketDataTimeoutMillis) {
     JodaBeanUtils.notNull(viewProcessor, "viewProcessor");
     JodaBeanUtils.notNull(configMaster, "configMaster");
     JodaBeanUtils.notNull(marketDataSnapshotMaster, "marketDataSnapshotMaster");
@@ -313,6 +325,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     this._configMaster = configMaster;
     this._marketDataSnapshotMaster = marketDataSnapshotMaster;
     this._snapshotter = snapshotter;
+    this._marketDataTimeoutMillis = marketDataTimeoutMillis;
   }
 
   @Override
@@ -368,6 +381,15 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the maximum time to wait, in milliseconds, for market data to populate the snapshot.
+   * @return the value of the property
+   */
+  public Long getMarketDataTimeoutMillis() {
+    return _marketDataTimeoutMillis;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -390,7 +412,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
       return JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
-          JodaBeanUtils.equal(getSnapshotter(), other.getSnapshotter());
+          JodaBeanUtils.equal(getSnapshotter(), other.getSnapshotter()) &&
+          JodaBeanUtils.equal(getMarketDataTimeoutMillis(), other.getMarketDataTimeoutMillis());
     }
     return false;
   }
@@ -402,17 +425,19 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotter());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataTimeoutMillis());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("MarketDataSnapshotSaver{");
     buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
     buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
-    buf.append("snapshotter").append('=').append(JodaBeanUtils.toString(getSnapshotter()));
+    buf.append("snapshotter").append('=').append(getSnapshotter()).append(',').append(' ');
+    buf.append("marketDataTimeoutMillis").append('=').append(JodaBeanUtils.toString(getMarketDataTimeoutMillis()));
     buf.append('}');
     return buf.toString();
   }
@@ -448,6 +473,11 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     private final MetaProperty<MarketDataSnapshotter> _snapshotter = DirectMetaProperty.ofImmutable(
         this, "snapshotter", MarketDataSnapshotSaver.class, MarketDataSnapshotter.class);
     /**
+     * The meta-property for the {@code marketDataTimeoutMillis} property.
+     */
+    private final MetaProperty<Long> _marketDataTimeoutMillis = DirectMetaProperty.ofImmutable(
+        this, "marketDataTimeoutMillis", MarketDataSnapshotSaver.class, Long.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -455,7 +485,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
         "viewProcessor",
         "configMaster",
         "marketDataSnapshotMaster",
-        "snapshotter");
+        "snapshotter",
+        "marketDataTimeoutMillis");
 
     /**
      * Restricted constructor.
@@ -474,6 +505,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
           return _marketDataSnapshotMaster;
         case -168565795:  // snapshotter
           return _snapshotter;
+        case -617269599:  // marketDataTimeoutMillis
+          return _marketDataTimeoutMillis;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -526,6 +559,14 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
       return _snapshotter;
     }
 
+    /**
+     * The meta-property for the {@code marketDataTimeoutMillis} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Long> marketDataTimeoutMillis() {
+      return _marketDataTimeoutMillis;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -538,6 +579,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
           return ((MarketDataSnapshotSaver) bean).getMarketDataSnapshotMaster();
         case -168565795:  // snapshotter
           return ((MarketDataSnapshotSaver) bean).getSnapshotter();
+        case -617269599:  // marketDataTimeoutMillis
+          return ((MarketDataSnapshotSaver) bean).getMarketDataTimeoutMillis();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -563,6 +606,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     private ConfigMaster _configMaster;
     private MarketDataSnapshotMaster _marketDataSnapshotMaster;
     private MarketDataSnapshotter _snapshotter;
+    private Long _marketDataTimeoutMillis;
 
     /**
      * Restricted constructor.
@@ -579,6 +623,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
       this._configMaster = beanToCopy.getConfigMaster();
       this._marketDataSnapshotMaster = beanToCopy.getMarketDataSnapshotMaster();
       this._snapshotter = beanToCopy.getSnapshotter();
+      this._marketDataTimeoutMillis = beanToCopy.getMarketDataTimeoutMillis();
     }
 
     //-----------------------------------------------------------------------
@@ -593,6 +638,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
           return _marketDataSnapshotMaster;
         case -168565795:  // snapshotter
           return _snapshotter;
+        case -617269599:  // marketDataTimeoutMillis
+          return _marketDataTimeoutMillis;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -612,6 +659,9 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
           break;
         case -168565795:  // snapshotter
           this._snapshotter = (MarketDataSnapshotter) newValue;
+          break;
+        case -617269599:  // marketDataTimeoutMillis
+          this._marketDataTimeoutMillis = (Long) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -649,7 +699,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
           _viewProcessor,
           _configMaster,
           _marketDataSnapshotMaster,
-          _snapshotter);
+          _snapshotter,
+          _marketDataTimeoutMillis);
     }
 
     //-----------------------------------------------------------------------
@@ -697,15 +748,26 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code marketDataTimeoutMillis} property in the builder.
+     * @param marketDataTimeoutMillis  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder marketDataTimeoutMillis(Long marketDataTimeoutMillis) {
+      this._marketDataTimeoutMillis = marketDataTimeoutMillis;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("MarketDataSnapshotSaver.Builder{");
       buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(_viewProcessor)).append(',').append(' ');
       buf.append("configMaster").append('=').append(JodaBeanUtils.toString(_configMaster)).append(',').append(' ');
       buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(_marketDataSnapshotMaster)).append(',').append(' ');
-      buf.append("snapshotter").append('=').append(JodaBeanUtils.toString(_snapshotter));
+      buf.append("snapshotter").append('=').append(JodaBeanUtils.toString(_snapshotter)).append(',').append(' ');
+      buf.append("marketDataTimeoutMillis").append('=').append(JodaBeanUtils.toString(_marketDataTimeoutMillis));
       buf.append('}');
       return buf.toString();
     }
