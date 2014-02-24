@@ -67,7 +67,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final double proLegS = PRICER.protectionLeg(cdsS, YIELD_CURVE, CREDIT_CURVE);
     final double proLegM = MULTI_PRICER_ISDA.protectionLeg(cdsM, YIELD_CURVE, CREDIT_CURVE)[0];
     //    System.out.println("pro leg: " + proLegS + "\t" + proLegM);
-    final double rpv01S = PRICER.pvPremiumLegPerUnitSpread(cdsS, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
+    final double rpv01S = PRICER.annuity(cdsS, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
     final double rpv01M = MULTI_PRICER_ISDA.pvPremiumLegPerUnitSpread(cdsM, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN)[0];
     //  System.out.println("rpv01: " + rpv01S + "\t" + rpv01M);
 
@@ -146,7 +146,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final MultiAnalyticCDSPricer mPricer = new MultiAnalyticCDSPricer(MARKIT_FIX);
     final double[] mRPV01 = mPricer.pvPremiumLegPerUnitSpread(multiCDS, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
     for (int i = 0; i < nValDates; i++) {
-      final double rpv01 = PRICER_MARKIT_FIX.pvPremiumLegPerUnitSpread(cds[i], YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
+      final double rpv01 = PRICER_MARKIT_FIX.annuity(cds[i], YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
       assertEquals(rpv01, mRPV01[i], 1e-15 * rpv01);
     }
   }
@@ -197,7 +197,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final double[] premLeg2 = MULTI_PRICER_MARKIT_FIX.pvPremiumLegPerUnitSpread(multiCDS, yieldCurve, creditCurve, PriceType.DIRTY);
     for (int i = 0; i < nVals; i++) {
       proLeg1[i] = PRICER_MARKIT_FIX.protectionLeg(cdsArray[i], yieldCurve, creditCurve);
-      premLeg1[i] = PRICER_MARKIT_FIX.pvPremiumLegPerUnitSpread(cdsArray[i], yieldCurve, creditCurve, PriceType.DIRTY);
+      premLeg1[i] = PRICER_MARKIT_FIX.annuity(cdsArray[i], yieldCurve, creditCurve, PriceType.DIRTY);
       //   System.out.println(proLeg1[i] + "\t" + proLeg2[i] + "\t" + premLeg1[i] + "\t" + premLeg2[i]);
       assertEquals(expectedProtLeg[i], proLeg1[i], 1e-15);
       assertEquals(expectedRPV01[i], premLeg1[i], 1e-14);

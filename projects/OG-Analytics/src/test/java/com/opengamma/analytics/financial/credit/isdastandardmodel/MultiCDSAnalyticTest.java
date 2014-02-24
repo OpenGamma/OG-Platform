@@ -29,7 +29,7 @@ public class MultiCDSAnalyticTest extends ISDABaseTest {
 
     for (int i = 0; i < 4; i++) {
       assertEquals(cds[i].getAccuredDays(), multiCDS.getAccuredDays(i));
-      assertEquals(cds[i].getAccruedPremiumPerUnitSpread(), multiCDS.getAccruedPremiumPerUnitSpread(i), 1e-16);
+      assertEquals(cds[i].getAccruedYearFraction(), multiCDS.getAccruedPremiumPerUnitSpread(i), 1e-16);
       assertEquals(cds[i].getEffectiveProtectionStart(), multiCDS.getEffectiveProtectionStart(), 1e-16);
       assertEquals(cds[i].getAccStart(), multiCDS.getAccStart(), 1e-16);
     }
@@ -38,7 +38,7 @@ public class MultiCDSAnalyticTest extends ISDABaseTest {
     cds = factory.makeIMMCDS(tradeDate, new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) });
     for (int i = 0; i < 6; i++) {
       assertEquals(cds[i].getAccuredDays(), multiCDS.getAccuredDays(i));
-      assertEquals(cds[i].getAccruedPremiumPerUnitSpread(), multiCDS.getAccruedPremiumPerUnitSpread(i), 1e-16);
+      assertEquals(cds[i].getAccruedYearFraction(), multiCDS.getAccruedPremiumPerUnitSpread(i), 1e-16);
       assertEquals(cds[i].getEffectiveProtectionStart(), multiCDS.getEffectiveProtectionStart(), 1e-16);
       assertEquals(cds[i].getAccStart(), multiCDS.getAccStart(), 1e-16);
     }
@@ -55,7 +55,7 @@ public class MultiCDSAnalyticTest extends ISDABaseTest {
 
     for (int i = 0; i < 4; i++) {
       assertEquals(cds[i].getAccuredDays(), multiCDS.getAccuredDays(i));
-      assertEquals(cds[i].getAccruedPremiumPerUnitSpread(), multiCDS.getAccruedPremiumPerUnitSpread(i), 1e-16);
+      assertEquals(cds[i].getAccruedYearFraction(), multiCDS.getAccruedPremiumPerUnitSpread(i), 1e-16);
       assertEquals(cds[i].getEffectiveProtectionStart(), multiCDS.getEffectiveProtectionStart(), 1e-16);
       assertEquals(cds[i].getAccStart(), multiCDS.getAccStart(), 1e-16);
     }

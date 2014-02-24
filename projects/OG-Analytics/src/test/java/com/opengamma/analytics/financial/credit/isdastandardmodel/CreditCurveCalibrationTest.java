@@ -8,17 +8,16 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.Arrays;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.util.test.TestGroup;
-
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT)
+//@Test(groups = TestGroup.UNIT)
 public class CreditCurveCalibrationTest extends ISDABaseTest {
 
   private static final CDSAnalytic[][] PILLAR_CDS;
@@ -38,7 +37,7 @@ public class CreditCurveCalibrationTest extends ISDABaseTest {
     final double[] rates = new double[] {0.00445, 0.009488, 0.012337, 0.017762, 0.01935, 0.020838, 0.01652, 0.02018, 0.023033, 0.02525, 0.02696, 0.02825, 0.02931, 0.03017, 0.03092, 0.0316, 0.03231,
       0.03367, 0.03419, 0.03411, 0.03412 };
 
-    final int nCases = 4;
+    final int nCases = 5;
     PILLAR_CDS = new CDSAnalytic[nCases][];
     SPREADS = new double[nCases][];
     YIELD_CURVES = new ISDACompliantYieldCurve[nCases];
@@ -97,9 +96,25 @@ public class CreditCurveCalibrationTest extends ISDABaseTest {
     SUR_PROB_MARKIT_FIX[3] = new double[] {0.992434753056402, 0.977475525071675, 0.955458402114146, 0.923257693140384, 0.86924227242564, 0.818402338488625, 0.752150342806546, 0.691215773405857,
       0.623608833084194, 0.562557270491733, 0.50153493334764, 0.447102836461508, 0.3985783104631, 0.355320200669978, 0.316756937570093 };
 
+    //case5 This is designed to trip the low rates/low spreads branch
+    tradeDate = LocalDate.of(2014, Month.JANUARY, 14);
+    spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    PILLAR_CDS[4] = factory.makeIMMCDS(tradeDate, tenors);
+    SPREADS[4] = new double[6];
+    Arrays.fill(SPREADS[4], ONE_BP);
+    final int n = rates.length;
+    final double[] lowRates = new double[n];
+    for (int i = 0; i < n; i++) {
+      lowRates[i] = rates[i] / 1000;
+    }
+    YIELD_CURVES[4] = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, lowRates, ACT360, D30360, Period.ofYears(1));
+    SUR_PROB_ISDA[4] = new double[] {0.999986111241871, 0.999958334304303, 0.999916670344636, 0.999831033196934, 0.999662094963152, 0.999493185285761, 0.999324304350342, 0.999155451994703,
+      0.998986628218491, 0.998817832978659, 0.998649066279251, 0.998480328100177, 0.998311618432194, 0.998142937270482, 0.997974284610226 };
+    SUR_PROB_MARKIT_FIX[4] = new double[] {0.999986111408132, 0.999958334803071, 0.999916671342131, 0.999831035053453, 0.999662097437689, 0.999493188187127, 0.999324307673036, 0.9991554557374,
+      0.998986632383511, 0.998817837566403, 0.998649071291, 0.998480333536109, 0.998311624292164, 0.998142943554348, 0.997974291317845 };
   }
 
-  public void testCalibrationAgainstISDA(final ISDACompliantCreditCurveBuilder builder, final double tol) {
+  protected void testCalibrationAgainstISDA(final ISDACompliantCreditCurveBuilder builder, final double tol) {
 
     final int n = YIELD_CURVES.length;
     final String text = builder.getAccOnDefaultFormula().toString();

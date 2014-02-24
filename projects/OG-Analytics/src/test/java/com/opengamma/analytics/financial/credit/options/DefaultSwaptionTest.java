@@ -52,7 +52,7 @@ public class DefaultSwaptionTest extends ISDABaseTest {
     final CreditCurveCalibrator calibrator = new CreditCurveCalibrator(pillarCDS, YIELD_CURVE);
     CREDIT_CURVE = calibrator.calibrate(spreads);
 
-    CDS = factory.makeCDS(tradeDate, expiry, LocalDate.of(2019, 3, 20));
+    CDS = factory.makeForwardStartingCDS(tradeDate, expiry, LocalDate.of(2019, 3, 20));
     T = ACT365F.getDayCountFraction(tradeDate, expiry);
   }
 
@@ -73,7 +73,7 @@ public class DefaultSwaptionTest extends ISDABaseTest {
         final boolean isPayer = k > fwdSpread;
         final double price = ds.price(CDS, YIELD_CURVE, CREDIT_CURVE, k, T, vol, isPayer, hasFEP);
         final double iv = ds.impliedVol(CDS, YIELD_CURVE, CREDIT_CURVE, k, T, price, isPayer, hasFEP);
-        //  System.out.println(k + " " + price + "\t" + iv);
+        //  System.out.println(k + " " + price + "\t" + vol + "\t" + iv);
         assertEquals(isPayer + " " + i + " " + j, vol, iv, 1e-9);
       }
     }

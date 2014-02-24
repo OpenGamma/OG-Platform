@@ -243,8 +243,8 @@ public class AnalyticCDSPricerTest extends ISDABaseTest {
 
     final ISDACompliantCreditCurve ccUp = creditCurve.withRate(h + eps, creditCurveNode);
     final ISDACompliantCreditCurve ccDown = creditCurve.withRate(h - eps, creditCurveNode);
-    final double up = pricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, ccUp, PriceType.DIRTY); // clean or dirty has no effect on sensitivity
-    final double down = pricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, ccDown, PriceType.DIRTY);
+    final double up = pricer.annuity(cds, yieldCurve, ccUp, PriceType.DIRTY); // clean or dirty has no effect on sensitivity
+    final double down = pricer.annuity(cds, yieldCurve, ccDown, PriceType.DIRTY);
     return (up - down) / 2 / eps;
   }
 
@@ -298,8 +298,8 @@ public class AnalyticCDSPricerTest extends ISDABaseTest {
 
     final ISDACompliantYieldCurve yUp = yieldCurve.withRate(r + eps, yieldCurveNode);
     final ISDACompliantYieldCurve yDown = yieldCurve.withRate(r - eps, yieldCurveNode);
-    final double up = pricer.pvPremiumLegPerUnitSpread(cds, yUp, creditCurve, PriceType.CLEAN);
-    final double down = pricer.pvPremiumLegPerUnitSpread(cds, yDown, creditCurve, PriceType.CLEAN);
+    final double up = pricer.annuity(cds, yUp, creditCurve, PriceType.CLEAN);
+    final double down = pricer.annuity(cds, yDown, creditCurve, PriceType.CLEAN);
     return (up - down) / 2 / eps;
   }
 

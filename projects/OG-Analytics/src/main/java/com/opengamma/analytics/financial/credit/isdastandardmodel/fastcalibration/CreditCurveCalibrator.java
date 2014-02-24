@@ -179,7 +179,7 @@ public class CreditCurveCalibrator {
     _unitAccured = new double[_nCDS];
     for (int i = 0; i < _nCDS; i++) {
       _lgd[i] = cds[i].getLGD();
-      _unitAccured[i] = cds[i].getAccruedPremiumPerUnitSpread();
+      _unitAccured[i] = cds[i].getAccruedYearFraction();
     }
 
     //This is the global set of knots - it will be truncated down for the various leg elements 

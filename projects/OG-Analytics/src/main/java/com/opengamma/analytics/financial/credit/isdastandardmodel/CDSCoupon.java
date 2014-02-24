@@ -117,7 +117,7 @@ public class CDSCoupon {
     final LocalDate accEnd = premDates[1];
     final LocalDate paymentDate = premDates[2];
     ArgumentChecker.isTrue(accEnd.isAfter(accStart), "require accEnd after accStart");
-    ArgumentChecker.isTrue(paymentDate.isAfter(accStart), "require paymentDate after accStart");
+    //  ArgumentChecker.isTrue(paymentDate.isAfter(accStart), "require paymentDate after accStart");
     ArgumentChecker.isFalse(tradeDate.isAfter(paymentDate), "coupon payment is in the past");
 
     final LocalDate effStart = protectionFromStartOfDay ? accStart.minusDays(1) : accStart;
