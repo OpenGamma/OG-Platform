@@ -10,8 +10,8 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 
 /**
- *  Class with the attributed required to generate a commodity (IR) instrument from the market quotes.
- * The attributes are composed of one or two tenors (the start period and the end period).
+ *  Class with the attributed required to generate a commodity instrument from the market quotes.
+ * The attribute is the settlement time.
  */
 public class GeneratorAttributeCommodity extends GeneratorAttribute {
 

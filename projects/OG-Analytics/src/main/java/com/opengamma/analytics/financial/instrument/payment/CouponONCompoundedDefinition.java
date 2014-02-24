@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
@@ -24,13 +23,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.analytics.util.time.TimeCalculatorBUS252;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -224,32 +219,17 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
   @Override
   public CouponONCompounded toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    // Implementation note : In the case of brazilian instruments, we need to use the daycount business/252, there may be a better way to implement it.
-    final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
-    final String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
-    DayCount daycount;
-    if (this.getCurrency() == Currency.BRL) {
-
-      daycount = DayCounts.BUSINESS_252;
-
-    } else if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
-      daycount = DayCountFactory.of(modelDayCount);
-      ;
-    } else {
-      daycount = DayCounts.ACT_ACT_ISDA;
-    }
-
     final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
         "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate(), daycount, _calendar);
+    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
     final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
     //    DayCount dayCount = _index.getDayCount();
     for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
-      fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i], daycount, _calendar);
-      fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i + 1], daycount, _calendar);
+      fixingPeriodStartTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i], _calendar);
+      fixingPeriodEndTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i + 1], _calendar);
     }
     final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
         fixingPeriodEndTimes, _fixingPeriodAccrualFactors, getNotional(), yieldCurveNames[1]);
@@ -259,30 +239,15 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
   @Override
   public CouponONCompounded toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
-    // Implementation note : In the case of brazilian instruments, we need to use the daycount business/252, there may be a better way to implement it.
-    final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
-    final String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
-    DayCount daycount;
-    if (this.getCurrency() == Currency.BRL) {
-
-      daycount = DayCounts.BUSINESS_252;
-
-    } else if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
-      daycount = DayCountFactory.of(modelDayCount);
-      ;
-    } else {
-      daycount = DayCounts.ACT_ACT_ISDA;
-    }
-
     final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
         "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate(), daycount, _calendar);
+    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
     final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
     for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
-      fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i], daycount, _calendar);
-      fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i + 1], daycount, _calendar);
+      fixingPeriodStartTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i], _calendar);
+      fixingPeriodEndTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i + 1], _calendar);
     }
 
     final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
@@ -340,22 +305,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
       fixedPeriod++;
     }
 
-    // Implementation note : In the case of brazilian instruments, we need to use the daycount business/252, there may be a better way to implement it.
-    final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
-    final String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
-    DayCount daycount;
-    if (this.getCurrency() == Currency.BRL) {
-
-      daycount = DayCounts.BUSINESS_252;
-
-    } else if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
-      daycount = DayCountFactory.of(modelDayCount);
-      ;
-    } else {
-      daycount = DayCounts.ACT_ACT_ISDA;
-    }
-
-    final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate(), daycount, _calendar);
+    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(valZdt, getPaymentDate(), _calendar);
     if (fixedPeriod < _fixingPeriodDates.length - 1) { // Some OIS period left
       // Check to see if a fixing is available on current date
       final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDates[fixedPeriod].toLocalDate());
@@ -368,8 +318,8 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
         final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         for (int i = 0; i < _fixingPeriodDates.length - 1 - fixedPeriod; i++) {
-          fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod], daycount, _calendar);
-          fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod], daycount, _calendar);
+          fixingPeriodStartTimes[i] = TimeCalculatorBUS252.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod], _calendar);
+          fixingPeriodEndTimes[i] = TimeCalculatorBUS252.getTimeBetween(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod], _calendar);
         }
 
         for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {

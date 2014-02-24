@@ -5,18 +5,12 @@
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
-import java.util.ResourceBundle;
-
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.analytics.util.time.TimeCalculatorBUS252;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -29,6 +23,8 @@ import com.opengamma.util.money.Currency;
  * \end{equation*}
  * $$
  * where $\delta$ is the accrual factor of the period and the $r$ the fixed rate for the same periods.
+ * 
+ * This coupon is especially used for Brazilian swaps with the day count business/252.
  */
 public class CouponFixedAccruedCompoundingDefinition extends CouponDefinition {
 
@@ -146,22 +142,7 @@ public class CouponFixedAccruedCompoundingDefinition extends CouponDefinition {
   public CouponFixedAccruedCompounding toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate()); // Required: reference date <= payment date
-    // Implementation note : In the case of brazilian instruments, we need to use the daycount business/252, there may be a better way to implement it.
-    final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
-    final String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
-    DayCount daycount;
-    if (this.getCurrency() == Currency.BRL) {
-
-      daycount = DayCounts.BUSINESS_252;
-
-    } else if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
-      daycount = DayCountFactory.of(modelDayCount);
-      ;
-    } else {
-      daycount = DayCounts.ACT_ACT_ISDA;
-    }
-
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate(), daycount, _calendar);
+    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
     return new CouponFixedAccruedCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 

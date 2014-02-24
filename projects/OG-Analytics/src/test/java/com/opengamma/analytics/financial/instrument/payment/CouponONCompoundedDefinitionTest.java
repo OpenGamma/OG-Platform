@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.analytics.util.time.TimeCalculatorBUS252;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -54,7 +55,7 @@ public class CouponONCompoundedDefinitionTest {
   private static final Currency EUR_CUR = Currency.EUR;
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("EUR");
   private static final int EUR_PUBLICATION_LAG = 0;
-  private static final DayCount EUR_DAY_COUNT = DayCounts.ACT_ACT_ISDA;
+  private static final DayCount EUR_DAY_COUNT = DayCounts.BUSINESS_252;
   private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG);
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
@@ -128,7 +129,7 @@ public class CouponONCompoundedDefinitionTest {
   public void toDerivativeNoFixingDeprecated() {
     final String[] curveNames = new String[] {"a", "b" };
     final CouponONCompounded cpnConverted = ON_COMPOUNDED_COUPON_DEFINITION.toDerivative(TRADE_DATE, curveNames);
-    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, EUR_PAYMENT_DATE);
+    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(TRADE_DATE, EUR_PAYMENT_DATE, EUR_CALENDAR);
     final double[] FIXING_PERIOD_START_TIMES = new double[ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates().length - 1];
     final double[] FIXING_PERIOD_END_TIMES = new double[ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates().length - 1];
     final double[] FIXING_PERIOD_ACCRUAL_FACTOR = new double[ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates().length - 1];
@@ -595,7 +596,7 @@ public class CouponONCompoundedDefinitionTest {
         curves);
     final MultipleCurrencyAmount pvExpected = com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod.getInstance().presentValue(cpnExpected, curves);
     assertEquals("CouponONCompounded definition: toDerivative", pvConverted, pvExpected);
-    assertEquals("CouponONCompounded definition: toDerivative", pvConverted, MultipleCurrencyAmount.of(EUR_CUR, 19084.647180855896));
+    assertEquals("CouponONCompounded definition: toDerivative", pvConverted, MultipleCurrencyAmount.of(EUR_CUR, 19744.6689499392));
 
   }
 
@@ -625,7 +626,7 @@ public class CouponONCompoundedDefinitionTest {
     final CurrencyAmount pvConverted = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) cpnConverted, curves);
     final CurrencyAmount pvExpected = CouponFixedDiscountingMethod.getInstance().presentValue(cpnExpected, curves);
     assertEquals("CouponONCompounded definition: toDerivative", pvConverted, pvExpected);
-    assertEquals("CouponONCompounded definition: toDerivative", pvConverted, CurrencyAmount.of(EUR_CUR, 19084.647180855896));
+    assertEquals("CouponONCompounded definition: toDerivative", pvConverted, CurrencyAmount.of(EUR_CUR, 19744.6689499392));
 
   }
 
