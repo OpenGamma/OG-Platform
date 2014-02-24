@@ -42,6 +42,7 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
   private static final String SKIP_CYCLE_ON_NO_MARKET_DATA_FIELD = "skipCycleOnNoMarketData";
   private static final String WAIT_FOR_INITIAL_TRIGGER_FIELD = "waitForInitialTrigger";
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
+  private static final String MARKET_DATA_TIMEOUT_MILLIS_FIELD = "marketDataTimeoutMillis";
   private static final String DEFAULT_EXECUTION_OPTIONS_FIELD = "defaultExecutionOptions";
   private static final String BATCH_FIELD = "batch";
 
@@ -68,6 +69,9 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
     if (object.getMaxSuccessiveDeltaCycles() != null) {
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
+    if (object.getMarketDataTimeoutMillis() != null) {
+      msg.add(MARKET_DATA_TIMEOUT_MILLIS_FIELD, object.getMarketDataTimeoutMillis());
+    }
     serializer.addToMessage(msg, DEFAULT_EXECUTION_OPTIONS_FIELD, null, object.getDefaultExecutionOptions());
     return msg;
   }
@@ -85,11 +89,15 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
     if (message.hasField(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD)) {
       maxSuccessiveDeltaCycles = message.getInt(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD);
     }
+    Long marketDataTimeoutMillis = null;
+    if (message.hasField(MARKET_DATA_TIMEOUT_MILLIS_FIELD)) {
+      marketDataTimeoutMillis = message.getLong(MARKET_DATA_TIMEOUT_MILLIS_FIELD);
+    }
     FudgeField defaultExecutionOptionsField = message.getByName(DEFAULT_EXECUTION_OPTIONS_FIELD);
     ViewCycleExecutionOptions defaultExecutionOptions = defaultExecutionOptionsField != null ?
         deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, defaultExecutionOptionsField) : null;
 
-    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions);
+    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, marketDataTimeoutMillis, defaultExecutionOptions);
   }
 
 }

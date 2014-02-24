@@ -32,6 +32,15 @@ public interface ViewExecutionOptions {
    * @return the maximum number of delta cycles following a full computation cycle, null for no limit
    */
   Integer getMaxSuccessiveDeltaCycles();
+  
+  /**
+   * Gets the maximum time to wait, in milliseconds, for market data to become available when
+   * {@link ViewExecutionFlags#AWAIT_MARKET_DATA} is in use.
+   * 
+   * @return the maximum time to wait for market data to become available, null to use a default timeout.
+   *         If less than or equal to zero, the effect is not to wait at all.
+   */
+  Long getMarketDataTimeoutMillis();
 
   /**
    * Gets the default execution options. If the cycles in the execution sequence omit values from their execution options they will typically inherit these defaults

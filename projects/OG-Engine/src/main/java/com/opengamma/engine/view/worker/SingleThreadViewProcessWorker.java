@@ -52,7 +52,6 @@ import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.depgraph.impl.DependencyNodeImpl;
 import com.opengamma.engine.depgraph.impl.RootDiscardingSubgrapher;
 import com.opengamma.engine.function.FunctionParameters;
@@ -114,7 +113,13 @@ import com.opengamma.util.tuple.Pair;
  * The job which schedules and executes computation cycles for a view process. See {@link SingleThreadViewProcessWorkerFactory} for a more detailed description.
  */
 public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketDataChangeListener {
-
+  
+  /**
+   * Default to waiting 5 minutes when {link {@link ViewExecutionFlags#AWAIT_MARKET_DATA} is in use to avoid
+   * unintentionally causing the view process to hang indefinitely. Market data should normally be available in seconds.
+   */
+  private static final long DEFAULT_MARKET_DATA_TIMEOUT_MILLIS = 300000;
+  
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
   private static final ExecutorService s_executor = NamedThreadPoolFactory.newCachedThreadPool("Worker");
@@ -548,7 +553,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         try {
           snapshotManager.addMarketDataRequirements(compiledViewDefinition.getMarketDataRequirements());
           if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
-            snapshotManager.initialiseSnapshotWithSubscriptionResults();
+            long timeoutMillis = getExecutionOptions().getMarketDataTimeoutMillis() != null ? getExecutionOptions().getMarketDataTimeoutMillis() : DEFAULT_MARKET_DATA_TIMEOUT_MILLIS;
+            snapshotManager.initialiseSnapshotWithSubscriptionResults(timeoutMillis);
           } else {
             snapshotManager.initialiseSnapshot();
           }

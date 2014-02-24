@@ -57,7 +57,7 @@ public interface MarketDataSnapshot extends UniqueIdentifiable {
    * or more required values will be missing.
    * 
    * @param values the values required in the snapshot, not null
-   * @param timeout the maximum time to wait for the required values
+   * @param timeout the maximum time to wait for the required values. If less than or equal to zero, the effect is not to wait at all.
    * @param unit the timeout unit, not null
    */
   void init(Set<ValueSpecification> values, long timeout, TimeUnit unit);
