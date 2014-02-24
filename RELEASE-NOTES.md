@@ -84,6 +84,31 @@ To 2.2.0-M11
 
 To 2.2.0-M10
 ------------
+API compatibility
+- [PLAT-5380] - Implement LegalEntities domain data model.
+  Domain object model com.opengamma.core.organization replaced by com.opengamma.core.legalentity
+  Organisation master from com.opengamma.master.orgs,com.opengamma.master.organisation,com.opengamma.masterdb.orgs replaced by
+  Legal entity master from com.opengamma.master.legalentity,com.opengamma.masterdb.legalentity
+
+
+Configuration compatibility
+- [PLAT-5380] - Implement LegalEntities domain data model.
+  In ini files replace:
+      Change the classifiers of dbConnector from ::org to ::len
+      DbOrganizationMasterComponentFactory with DbLegalEntityMasterComponentFactory
+      OrganizationSourceComponentFactory with LegalEntitySourceComponentFactory
+      EHCachingOrganizationMasterComponentFactory with EHCachingLegalEntityMasterComponentFactory
+      organizationSource with legalEntitySource
+      organizationMaster with legalEntityMaster
+  In spring files:
+    remove orgDbConnector and add lenDbConnector
+    remove orgJmsConnector and add lenJmsConnector
+    remove orgCacheManager and add lenCacheManager
+  In property configuration files:
+    replace 'org' with 'len' in value of db.schemaNames property
+
+
+
 * Source compatibility
   * [PLAT-5000] Remove Map as super-interface of Map2. Required for JDK 8 compatibility.
 
