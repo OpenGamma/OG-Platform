@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
@@ -20,17 +21,17 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Gets the accrual start and end dates for an annuity.
  */
-public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, Pair<LocalDate[], LocalDate[]>> {
+public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapter<ZonedDateTime, Pair<LocalDate[], LocalDate[]>> {
   /** The visitor for coupon types */
   private static final InstrumentDefinitionVisitor<Void, Pair<LocalDate, LocalDate>> COUPON_VISITOR = new CouponAccrualDatesVisitor();
   /** A singleton instance */
-  private static final InstrumentDefinitionVisitor<LocalDate, Pair<LocalDate[], LocalDate[]>> INSTANCE = new AnnuityAccrualDatesVisitor();
+  private static final InstrumentDefinitionVisitor<ZonedDateTime, Pair<LocalDate[], LocalDate[]>> INSTANCE = new AnnuityAccrualDatesVisitor();
 
   /**
    * Gets the single instance of this class.
    * @return The instance
    */
-  public static InstrumentDefinitionVisitor<LocalDate, Pair<LocalDate[], LocalDate[]>> getInstance() {
+  public static InstrumentDefinitionVisitor<ZonedDateTime, Pair<LocalDate[], LocalDate[]>> getInstance() {
     return INSTANCE;
   }
 
@@ -41,7 +42,7 @@ public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisito
   }
 
   @Override
-  public Pair<LocalDate[], LocalDate[]> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
+  public Pair<LocalDate[], LocalDate[]> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final ZonedDateTime date) {
     final int n = annuity.getNumberOfPayments();
     final List<LocalDate> startDates = new ArrayList<>();
     final List<LocalDate> endDates = new ArrayList<>();
@@ -49,7 +50,7 @@ public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisito
     for (int i = 0; i < n; i++) {
       final PaymentDefinition payment = annuity.getNthPayment(i);
       final Pair<LocalDate, LocalDate> dates = payment.accept(COUPON_VISITOR);
-      if (payment.getPaymentDate().toLocalDate().isAfter(date)) {
+      if (!date.isAfter(payment.getPaymentDate())) {
         startDates.add(dates.getFirst());
         endDates.add(dates.getSecond());
         count++;
