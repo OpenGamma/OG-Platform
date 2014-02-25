@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
@@ -19,17 +18,17 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 /**
  * Gets the fixing period start and end dates for annuity from a particular date.
  */
-public final class AnnuityPaymentDatesVisitor extends InstrumentDefinitionVisitorAdapter<ZonedDateTime, LocalDate[]> {
+public final class AnnuityPaymentDatesVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, LocalDate[]> {
   /** The visitor for coupon types */
   private static final InstrumentDefinitionVisitor<Void, LocalDate> COUPON_VISITOR = new CouponPaymentDateVisitor();
   /** A singleton instance */
-  private static final InstrumentDefinitionVisitor<ZonedDateTime, LocalDate[]> INSTANCE = new AnnuityPaymentDatesVisitor();
+  private static final InstrumentDefinitionVisitor<LocalDate, LocalDate[]> INSTANCE = new AnnuityPaymentDatesVisitor();
 
   /**
    * Gets the single instance of this class.
    * @return The instance
    */
-  public static InstrumentDefinitionVisitor<ZonedDateTime, LocalDate[]> getInstance() {
+  public static InstrumentDefinitionVisitor<LocalDate, LocalDate[]> getInstance() {
     return INSTANCE;
   }
 
@@ -40,13 +39,13 @@ public final class AnnuityPaymentDatesVisitor extends InstrumentDefinitionVisito
   }
 
   @Override
-  public LocalDate[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final ZonedDateTime date) {
+  public LocalDate[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
     final int n = annuity.getNumberOfPayments();
     final List<LocalDate> dates = new ArrayList<>();
     int count = 0;
     for (int i = 0; i < n; i++) {
       final PaymentDefinition payment = annuity.getNthPayment(i);
-      if (!date.isAfter(payment.getPaymentDate())) {
+      if (payment.getPaymentDate().toLocalDate().isAfter(date)) {
         final LocalDate paymentDate = annuity.getNthPayment(i).accept(COUPON_VISITOR);
         dates.add(paymentDate);
         count++;
