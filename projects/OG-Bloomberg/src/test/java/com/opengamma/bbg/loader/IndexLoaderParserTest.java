@@ -117,11 +117,9 @@ public class IndexLoaderParserTest {
   public void testOvernight() {
     assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR Overnight Index"));
     assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR OVERNIGHT INDEX"));
-    assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR ON INDEX"));
     assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR O/N INDEX"));
     assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR Overnight"));
     assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR OVERNIGHT"));
-    assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR ON"));
     assertEquals(Tenor.ON, IndexLoader.decodeTenor("EURIBOR O/N"));
   }
   
@@ -136,7 +134,6 @@ public class IndexLoaderParserTest {
     assertEquals(Tenor.TN, IndexLoader.decodeTenor("RANDOM INDEX Tomorrow/Next"));
     assertEquals(Tenor.TN, IndexLoader.decodeTenor("RANDOM INDEX TOM/NEXT"));
     assertEquals(Tenor.TN, IndexLoader.decodeTenor("RANDOM INDEX T/N TRAILING"));
-    assertEquals(Tenor.TN, IndexLoader.decodeTenor("RANDOM INDEX TN"));
   }
   
   @Test
