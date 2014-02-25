@@ -28,6 +28,8 @@ import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.Index;
 import com.opengamma.financial.security.index.IndexFamily;
 import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.financial.security.index.PriceIndex;
+import com.opengamma.financial.security.index.SwapIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
@@ -250,6 +252,10 @@ public class DefaultSecurityLoader extends AbstractSecurityLoader {
         tenor = Tenor.ON;
       } else if (index instanceof IborIndex) {
         tenor = ((IborIndex) index).getTenor();
+      } else if (index instanceof SwapIndex) {
+        tenor = ((SwapIndex) index).getTenor();
+      } else if (index instanceof PriceIndex) {
+        break; // skip to next index as won't have family.
       } else {
         break; // skip to next index as won't have family.
       }

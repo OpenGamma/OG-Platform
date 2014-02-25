@@ -402,6 +402,7 @@
         <@rowout label="Strike">${security.strike}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
+      <#case "SWAP_INDX">
       <#case "IBOR_INDEX">
         <@rowout label="Convention Identifier">${security.conventionId.scheme.name} - ${security.conventionId.value}</@rowout>
         <#if security.indexFamilyId?has_content>
@@ -411,6 +412,7 @@
         </#if>
         <@rowout label="Tenor">${security.tenor.toFormattedString()}</@rowout>
         <#break>        
+      <#case "PRICE_INDEX">
       <#case "OVERNIGHT_INDEX">
         <@rowout label="Convention Identifier">${security.conventionId.scheme.name} - ${security.conventionId.value}</@rowout>
         <#if security.indexFamilyId?has_content>

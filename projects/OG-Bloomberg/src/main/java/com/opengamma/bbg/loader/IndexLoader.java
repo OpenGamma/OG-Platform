@@ -9,6 +9,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INDX_SOURCE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
@@ -29,6 +30,8 @@ import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.Index;
 import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.financial.security.index.PriceIndex;
+import com.opengamma.financial.security.index.SwapIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.security.ManageableSecurity;
@@ -52,14 +55,15 @@ public class IndexLoader extends SecurityLoader {
   private static final Set<String> BLOOMBERG_INDEX_FIELDS = Collections.unmodifiableSet(Sets.newHashSet(
       FIELD_SECURITY_DES,
       FIELD_PARSEKYABLE_DES,
+      FIELD_INDX_SOURCE,
       FIELD_ID_BBG_UNIQUE,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
       FIELD_ID_SEDOL1));
   
-  private static final Pattern s_tenorFromDes = Pattern.compile("(.*?)(Overnight.*?|O\\/N.*?|ON.*?|OVERNIGHT.*?|Tomorrow[\\s\\/]Next.*?|T[\\s\\/]N.*?|TN.*?|TOM[\\s\\/]NEXT.*?|\\d+\\s*.*?)");
-  private static final Pattern s_overnight = Pattern.compile(".*?(Overnight|O\\/N|ON|OVERNIGHT).*?");
-  private static final Pattern s_tomNext = Pattern.compile(".*?(Tomorrow[\\s\\/]Next|T[\\s\\/]N|TN|TOM[\\s\\/]NEXT).*?");
+  private static final Pattern s_tenorFromDes = Pattern.compile("(.*?)(Overnight.*?|O\\/N.*?|OVERNIGHT.*?|Tomorrow[\\s\\/]Next.*?|T[\\s\\/]N.*?|TOM[\\s\\/]NEXT.*?|\\d+\\s*.*?)");
+  private static final Pattern s_overnight = Pattern.compile(".*?(Overnight|O\\/N|OVERNIGHT).*?");
+  private static final Pattern s_tomNext = Pattern.compile(".*?(Tomorrow[\\s\\/]Next|T[\\s\\/]N|TOM[\\s\\/]NEXT).*?");
   private static final Pattern s_numberFromTimeUnit = Pattern.compile("(\\d+)\\s*(.*?)");
   private static final String BLOOMBERG_CONVENTION_NAME = "BLOOMBERG_CONVENTION_NAME";
   private static final String BLOOMBERG_INDEX_FAMILY = "BLOOMBERG_INDEX_FAMILY";
@@ -83,6 +87,7 @@ public class IndexLoader extends SecurityLoader {
     String securityDes = fieldData.getString(FIELD_SECURITY_DES);
     String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_SECURITY_DES), " ");
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
+    String indexSource = fieldData.getString(FIELD_INDX_SOURCE);
 
     if (!isValidField(bbgUnique)) {
       s_logger.warn("bbgUnique is null, cannot construct index");
@@ -92,12 +97,26 @@ public class IndexLoader extends SecurityLoader {
       s_logger.warn("security description is null, cannot construct index");
       return null;
     }
-    try {
-      Tenor tenor = decodeTenor(securityDes);
-      ExternalId conventionId = createConventionId(securityDes);
-      ExternalId familyId = ExternalId.of(ExternalScheme.of(BLOOMBERG_INDEX_FAMILY), conventionId.getValue());
-      
-      Index index;
+    if (!isValidField(indexSource)) {
+      s_logger.warn("index source is null, cannot construct index");
+      return null;
+    }
+ 
+    Index index;
+    Tenor tenor = decodeTenor(securityDes);
+    ExternalId conventionId = createConventionId(securityDes);
+    ExternalId familyId = ExternalId.of(ExternalScheme.of(BLOOMBERG_INDEX_FAMILY), conventionId.getValue());
+    
+    if (indexSource.toUpperCase().contains("STAT")) {
+      // guess it's a price index as source is STATistics agency.  Crude, but hopefully effective.
+      index = new PriceIndex(name, conventionId);
+      index.setIndexFamilyId(null);
+    } else if (indexSource.toUpperCase().contains("ISDAFIX") && tenor != null) {
+      // guess it's a swap index
+      index = new SwapIndex(name, tenor, conventionId);
+      index.setIndexFamilyId(familyId);
+    } else if (tenor != null) { 
+      // Ibor or overnight
       if (tenor.equals(Tenor.ON)) {
         index = new OvernightIndex(name, conventionId);
         index.setIndexFamilyId(familyId);
@@ -105,28 +124,26 @@ public class IndexLoader extends SecurityLoader {
         index = new IborIndex(name, tenor, conventionId);
         index.setIndexFamilyId(familyId);
       }
-       
       index.setName(name);
-      // set identifiers
-      parseIdentifiers(fieldData, index);
-      return index;
-    } catch (OpenGammaRuntimeException ogre) {
-      s_logger.error("Error loading index", ogre);
+    } else {
+      s_logger.error("Could not load index {}, source={}, tenor={}, securityDes={}", name, indexSource, tenor, securityDes);
       return null;
     }
+
+    // set identifiers
+    parseIdentifiers(fieldData, index);
+    return index;
   }
   
   // public visible for tests
   public static ExternalId createConventionId(String securityDes) {
-    if (BLOOMBERG_SECURITY_DES_OVERNIGHT_EXCEPTIONS.contains(securityDes)) {
-      return ExternalId.of(ExternalScheme.of(BLOOMBERG_CONVENTION_NAME), securityDes.trim());
-    }
     Matcher matcher = s_tenorFromDes.matcher(securityDes);
     if (matcher.matches()) {
       String descriptionPart = matcher.group(1); // remember, groups are 1 indexed!
       return ExternalId.of(ExternalScheme.of(BLOOMBERG_CONVENTION_NAME), descriptionPart.trim());
+    } else {
+      return ExternalId.of(ExternalScheme.of(BLOOMBERG_CONVENTION_NAME), securityDes.trim());
     }
-    throw new OpenGammaRuntimeException("Could not decode convention name from description " + securityDes);
   }
 
   // public visible for tests
@@ -164,7 +181,7 @@ public class IndexLoader extends SecurityLoader {
         }
       }
     }
-    throw new OpenGammaRuntimeException("Could not decode tenor from description " + securityDes);
+    return null;
   }
 
   @Override

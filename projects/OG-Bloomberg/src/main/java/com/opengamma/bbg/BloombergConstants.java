@@ -167,6 +167,7 @@ public final class BloombergConstants {
   public static final String FIELD_FLT_SPREAD = "FLT_SPREAD";
   public static final String FIELD_FLT_BENCH_MULTIPLIER = "FLT_BENCH_MULTIPLIER";
   public static final String FIELD_RESET_IDX = "RESET_IDX";
+  public static final String FIELD_INDX_SOURCE = "INDX_SOURCE";
 
   public static final String BLOOMBERG_FIELDS_REQUEST = "fields";
   public static final String BLOOMBERG_SECURITIES_REQUEST = "securities";
