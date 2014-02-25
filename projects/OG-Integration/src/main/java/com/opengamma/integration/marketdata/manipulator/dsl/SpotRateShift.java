@@ -13,7 +13,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -23,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
@@ -42,17 +42,43 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   @PropertyDefinition(validate = "notNull")
   private final ScenarioShiftType _shiftType;
 
+  @PropertyDefinition
+  private final double _shiftAmount;
+
   @PropertyDefinition(validate = "notNull")
-  private final Double _shiftAmount;
+  private final double _minRate;
+
+  @PropertyDefinition(validate = "notNull")
+  private final double _maxRate;
 
   @PropertyDefinition(validate = "notNull")
   private final Set<CurrencyPair> _currencyPairs;
 
-  @ImmutableConstructor
   /* package */ SpotRateShift(ScenarioShiftType shiftType, Number shiftAmount, Set<CurrencyPair> currencyPairs) {
-    _currencyPairs = ArgumentChecker.notEmpty(currencyPairs, "currencyPairs");
-    _shiftAmount = ArgumentChecker.notNull(shiftAmount, "shiftAmount").doubleValue();
     _shiftType = ArgumentChecker.notNull(shiftType, "shiftType");
+    _shiftAmount = ArgumentChecker.notNull(shiftAmount, "shiftAmount").doubleValue();
+    _minRate = 0;
+    _maxRate = Double.MAX_VALUE;
+    _currencyPairs = ImmutableSet.copyOf(ArgumentChecker.notEmpty(currencyPairs, "currencyPairs"));
+  }
+
+  /* package */ SpotRateShift(ScenarioShiftType shiftType,
+                              Number shiftAmount,
+                              Number minRate,
+                              Number maxRate,
+                              CurrencyPair currencyPair) {
+    _currencyPairs = ImmutableSet.of(ArgumentChecker.notNull(currencyPair, "currencyPair"));
+    _shiftAmount = ArgumentChecker.notNull(shiftAmount, "shiftAmount").doubleValue();
+    _minRate = ArgumentChecker.notNull(minRate, "minRate").doubleValue();
+    _maxRate = ArgumentChecker.notNull(maxRate, "minRate").doubleValue();
+    _shiftType = ArgumentChecker.notNull(shiftType, "shiftType");
+
+    if (_minRate > _maxRate) {
+      throw new IllegalArgumentException("Minimum rate must be less than or equal to maximum rate");
+    }
+    if (_minRate < 0 || _maxRate < 0) {
+      throw new IllegalArgumentException("Minimum and maximum rate must be greater than zero");
+    }
   }
 
   @Override
@@ -72,13 +98,24 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   }
 
   private double applyShift(double rate) {
+    double shiftedRate;
+
     switch (_shiftType) {
       case ABSOLUTE:
-        return rate + _shiftAmount;
+        shiftedRate = rate + _shiftAmount;
+        break;
       case RELATIVE:
-        return rate * (1 + _shiftAmount);
+        shiftedRate = rate * (1 + _shiftAmount);
+        break;
       default:
         throw new IllegalArgumentException("Unexpected shift type " + _shiftType);
+    }
+    if (shiftedRate < _minRate) {
+      return _minRate;
+    } else if (shiftedRate > _maxRate) {
+      return _maxRate;
+    } else {
+      return shiftedRate;
     }
   }
 
@@ -109,6 +146,23 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     return new SpotRateShift.Builder();
   }
 
+  private SpotRateShift(
+      ScenarioShiftType shiftType,
+      double shiftAmount,
+      double minRate,
+      double maxRate,
+      Set<CurrencyPair> currencyPairs) {
+    JodaBeanUtils.notNull(shiftType, "shiftType");
+    JodaBeanUtils.notNull(minRate, "minRate");
+    JodaBeanUtils.notNull(maxRate, "maxRate");
+    JodaBeanUtils.notNull(currencyPairs, "currencyPairs");
+    this._shiftType = shiftType;
+    this._shiftAmount = shiftAmount;
+    this._minRate = minRate;
+    this._maxRate = maxRate;
+    this._currencyPairs = ImmutableSet.copyOf(currencyPairs);
+  }
+
   @Override
   public SpotRateShift.Meta metaBean() {
     return SpotRateShift.Meta.INSTANCE;
@@ -136,10 +190,28 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   //-----------------------------------------------------------------------
   /**
    * Gets the shiftAmount.
+   * @return the value of the property
+   */
+  public double getShiftAmount() {
+    return _shiftAmount;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the minRate.
    * @return the value of the property, not null
    */
-  public Double getShiftAmount() {
-    return _shiftAmount;
+  public double getMinRate() {
+    return _minRate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maxRate.
+   * @return the value of the property, not null
+   */
+  public double getMaxRate() {
+    return _maxRate;
   }
 
   //-----------------------------------------------------------------------
@@ -174,6 +246,8 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
       SpotRateShift other = (SpotRateShift) obj;
       return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
           JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount()) &&
+          JodaBeanUtils.equal(getMinRate(), other.getMinRate()) &&
+          JodaBeanUtils.equal(getMaxRate(), other.getMaxRate()) &&
           JodaBeanUtils.equal(getCurrencyPairs(), other.getCurrencyPairs());
     }
     return false;
@@ -184,16 +258,20 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPairs());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("SpotRateShift{");
     buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
     buf.append("shiftAmount").append('=').append(getShiftAmount()).append(',').append(' ');
+    buf.append("minRate").append('=').append(getMinRate()).append(',').append(' ');
+    buf.append("maxRate").append('=').append(getMaxRate()).append(',').append(' ');
     buf.append("currencyPairs").append('=').append(JodaBeanUtils.toString(getCurrencyPairs()));
     buf.append('}');
     return buf.toString();
@@ -218,7 +296,17 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
      * The meta-property for the {@code shiftAmount} property.
      */
     private final MetaProperty<Double> _shiftAmount = DirectMetaProperty.ofImmutable(
-        this, "shiftAmount", SpotRateShift.class, Double.class);
+        this, "shiftAmount", SpotRateShift.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code minRate} property.
+     */
+    private final MetaProperty<Double> _minRate = DirectMetaProperty.ofImmutable(
+        this, "minRate", SpotRateShift.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code maxRate} property.
+     */
+    private final MetaProperty<Double> _maxRate = DirectMetaProperty.ofImmutable(
+        this, "maxRate", SpotRateShift.class, Double.TYPE);
     /**
      * The meta-property for the {@code currencyPairs} property.
      */
@@ -232,6 +320,8 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
         this, null,
         "shiftType",
         "shiftAmount",
+        "minRate",
+        "maxRate",
         "currencyPairs");
 
     /**
@@ -247,6 +337,10 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
           return _shiftType;
         case -1043480710:  // shiftAmount
           return _shiftAmount;
+        case 1063841362:  // minRate
+          return _minRate;
+        case 844043364:  // maxRate
+          return _maxRate;
         case 1094810440:  // currencyPairs
           return _currencyPairs;
       }
@@ -286,6 +380,22 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     }
 
     /**
+     * The meta-property for the {@code minRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> minRate() {
+      return _minRate;
+    }
+
+    /**
+     * The meta-property for the {@code maxRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> maxRate() {
+      return _maxRate;
+    }
+
+    /**
      * The meta-property for the {@code currencyPairs} property.
      * @return the meta-property, not null
      */
@@ -301,6 +411,10 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
           return ((SpotRateShift) bean).getShiftType();
         case -1043480710:  // shiftAmount
           return ((SpotRateShift) bean).getShiftAmount();
+        case 1063841362:  // minRate
+          return ((SpotRateShift) bean).getMinRate();
+        case 844043364:  // maxRate
+          return ((SpotRateShift) bean).getMaxRate();
         case 1094810440:  // currencyPairs
           return ((SpotRateShift) bean).getCurrencyPairs();
       }
@@ -325,7 +439,9 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   public static final class Builder extends DirectFieldsBeanBuilder<SpotRateShift> {
 
     private ScenarioShiftType _shiftType;
-    private Double _shiftAmount;
+    private double _shiftAmount;
+    private double _minRate;
+    private double _maxRate;
     private Set<CurrencyPair> _currencyPairs = new HashSet<CurrencyPair>();
 
     /**
@@ -341,6 +457,8 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     private Builder(SpotRateShift beanToCopy) {
       this._shiftType = beanToCopy.getShiftType();
       this._shiftAmount = beanToCopy.getShiftAmount();
+      this._minRate = beanToCopy.getMinRate();
+      this._maxRate = beanToCopy.getMaxRate();
       this._currencyPairs = new HashSet<CurrencyPair>(beanToCopy.getCurrencyPairs());
     }
 
@@ -352,6 +470,10 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
           return _shiftType;
         case -1043480710:  // shiftAmount
           return _shiftAmount;
+        case 1063841362:  // minRate
+          return _minRate;
+        case 844043364:  // maxRate
+          return _maxRate;
         case 1094810440:  // currencyPairs
           return _currencyPairs;
         default:
@@ -368,6 +490,12 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
           break;
         case -1043480710:  // shiftAmount
           this._shiftAmount = (Double) newValue;
+          break;
+        case 1063841362:  // minRate
+          this._minRate = (Double) newValue;
+          break;
+        case 844043364:  // maxRate
+          this._maxRate = (Double) newValue;
           break;
         case 1094810440:  // currencyPairs
           this._currencyPairs = (Set<CurrencyPair>) newValue;
@@ -407,6 +535,8 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
       return new SpotRateShift(
           _shiftType,
           _shiftAmount,
+          _minRate,
+          _maxRate,
           _currencyPairs);
     }
 
@@ -424,12 +554,33 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
 
     /**
      * Sets the {@code shiftAmount} property in the builder.
-     * @param shiftAmount  the new value, not null
+     * @param shiftAmount  the new value
      * @return this, for chaining, not null
      */
-    public Builder shiftAmount(Double shiftAmount) {
-      JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
+    public Builder shiftAmount(double shiftAmount) {
       this._shiftAmount = shiftAmount;
+      return this;
+    }
+
+    /**
+     * Sets the {@code minRate} property in the builder.
+     * @param minRate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder minRate(double minRate) {
+      JodaBeanUtils.notNull(minRate, "minRate");
+      this._minRate = minRate;
+      return this;
+    }
+
+    /**
+     * Sets the {@code maxRate} property in the builder.
+     * @param maxRate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder maxRate(double maxRate) {
+      JodaBeanUtils.notNull(maxRate, "maxRate");
+      this._maxRate = maxRate;
       return this;
     }
 
@@ -447,10 +598,12 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("SpotRateShift.Builder{");
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType)).append(',').append(' ');
       buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(_shiftAmount)).append(',').append(' ');
+      buf.append("minRate").append('=').append(JodaBeanUtils.toString(_minRate)).append(',').append(' ');
+      buf.append("maxRate").append('=').append(JodaBeanUtils.toString(_maxRate)).append(',').append(' ');
       buf.append("currencyPairs").append('=').append(JodaBeanUtils.toString(_currencyPairs));
       buf.append('}');
       return buf.toString();

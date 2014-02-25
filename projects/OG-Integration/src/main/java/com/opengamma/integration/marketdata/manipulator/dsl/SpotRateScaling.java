@@ -6,28 +6,28 @@
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.ArgumentChecker;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Scales a spot rate.
@@ -38,26 +38,63 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
   @PropertyDefinition(validate = "notNull")
   private final Double _scalingFactor;
 
+  @PropertyDefinition
+  private final double _minRate;
+
+  @PropertyDefinition
+  private final double _maxRate;
+
   @PropertyDefinition(validate = "notNull")
   private final Set<CurrencyPair> _currencyPairs;
 
-  @ImmutableConstructor
+  /* package */ SpotRateScaling(Number scalingFactor,
+                                Number minRate,
+                                Number maxRate,
+                                CurrencyPair currencyPair) {
+    _currencyPairs = ImmutableSet.of(ArgumentChecker.notNull(currencyPair, "currencyPair"));
+    _scalingFactor = ArgumentChecker.notNull(scalingFactor, "scalingFactor").doubleValue();
+    _minRate = ArgumentChecker.notNull(minRate, "minRate").doubleValue();
+    _maxRate = ArgumentChecker.notNull(maxRate, "minRate").doubleValue();
+
+    if (_minRate > _maxRate) {
+      throw new IllegalArgumentException("Minimum rate must be less than or equal to maximum rate");
+    }
+    if (_minRate < 0 || _maxRate < 0) {
+      throw new IllegalArgumentException("Minimum and maximum rate must be greater than zero");
+    }
+  }
+
   /* package */ SpotRateScaling(Number scalingFactor, Set<CurrencyPair> currencyPairs) {
     _currencyPairs = ArgumentChecker.notEmpty(currencyPairs, "currencyPairs");
     _scalingFactor = ArgumentChecker.notNull(scalingFactor, "scalingFactor").doubleValue();
+    _minRate = 0;
+    _maxRate = Double.MAX_VALUE;
   }
 
   @Override
   public Double execute(Double spotRate, ValueSpecification valueSpecification, FunctionExecutionContext executionContext) {
     CurrencyPair currencyPair = SimulationUtils.getCurrencyPair(valueSpecification);
+
     if (_currencyPairs.contains(currencyPair)) {
-      return spotRate * _scalingFactor;
+      return applyScaling(spotRate);
     } else if (_currencyPairs.contains(currencyPair.inverse())) {
       double inverseRate = 1 / spotRate;
-      double scaledRate = inverseRate * _scalingFactor;
+      double scaledRate = applyScaling(inverseRate);
       return 1 / scaledRate;
     } else {
       throw new IllegalArgumentException("Currency pair " + currencyPair + " shouldn't match " + _currencyPairs);
+    }
+  }
+
+  private double applyScaling(double rate) {
+    double scaledRate = rate * _scalingFactor;
+
+    if (scaledRate < _minRate) {
+      return _minRate;
+    } else if (scaledRate > _maxRate) {
+      return _maxRate;
+    } else {
+      return scaledRate;
     }
   }
 
@@ -88,6 +125,19 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     return new SpotRateScaling.Builder();
   }
 
+  private SpotRateScaling(
+      Double scalingFactor,
+      double minRate,
+      double maxRate,
+      Set<CurrencyPair> currencyPairs) {
+    JodaBeanUtils.notNull(scalingFactor, "scalingFactor");
+    JodaBeanUtils.notNull(currencyPairs, "currencyPairs");
+    this._scalingFactor = scalingFactor;
+    this._minRate = minRate;
+    this._maxRate = maxRate;
+    this._currencyPairs = ImmutableSet.copyOf(currencyPairs);
+  }
+
   @Override
   public SpotRateScaling.Meta metaBean() {
     return SpotRateScaling.Meta.INSTANCE;
@@ -110,6 +160,24 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
    */
   public Double getScalingFactor() {
     return _scalingFactor;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the minRate.
+   * @return the value of the property
+   */
+  public double getMinRate() {
+    return _minRate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maxRate.
+   * @return the value of the property
+   */
+  public double getMaxRate() {
+    return _maxRate;
   }
 
   //-----------------------------------------------------------------------
@@ -143,6 +211,8 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     if (obj != null && obj.getClass() == this.getClass()) {
       SpotRateScaling other = (SpotRateScaling) obj;
       return JodaBeanUtils.equal(getScalingFactor(), other.getScalingFactor()) &&
+          JodaBeanUtils.equal(getMinRate(), other.getMinRate()) &&
+          JodaBeanUtils.equal(getMaxRate(), other.getMaxRate()) &&
           JodaBeanUtils.equal(getCurrencyPairs(), other.getCurrencyPairs());
     }
     return false;
@@ -152,15 +222,19 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPairs());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SpotRateScaling{");
     buf.append("scalingFactor").append('=').append(getScalingFactor()).append(',').append(' ');
+    buf.append("minRate").append('=').append(getMinRate()).append(',').append(' ');
+    buf.append("maxRate").append('=').append(getMaxRate()).append(',').append(' ');
     buf.append("currencyPairs").append('=').append(JodaBeanUtils.toString(getCurrencyPairs()));
     buf.append('}');
     return buf.toString();
@@ -182,6 +256,16 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     private final MetaProperty<Double> _scalingFactor = DirectMetaProperty.ofImmutable(
         this, "scalingFactor", SpotRateScaling.class, Double.class);
     /**
+     * The meta-property for the {@code minRate} property.
+     */
+    private final MetaProperty<Double> _minRate = DirectMetaProperty.ofImmutable(
+        this, "minRate", SpotRateScaling.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code maxRate} property.
+     */
+    private final MetaProperty<Double> _maxRate = DirectMetaProperty.ofImmutable(
+        this, "maxRate", SpotRateScaling.class, Double.TYPE);
+    /**
      * The meta-property for the {@code currencyPairs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -193,6 +277,8 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "scalingFactor",
+        "minRate",
+        "maxRate",
         "currencyPairs");
 
     /**
@@ -206,6 +292,10 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
       switch (propertyName.hashCode()) {
         case -794828874:  // scalingFactor
           return _scalingFactor;
+        case 1063841362:  // minRate
+          return _minRate;
+        case 844043364:  // maxRate
+          return _maxRate;
         case 1094810440:  // currencyPairs
           return _currencyPairs;
       }
@@ -237,6 +327,22 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     }
 
     /**
+     * The meta-property for the {@code minRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> minRate() {
+      return _minRate;
+    }
+
+    /**
+     * The meta-property for the {@code maxRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> maxRate() {
+      return _maxRate;
+    }
+
+    /**
      * The meta-property for the {@code currencyPairs} property.
      * @return the meta-property, not null
      */
@@ -250,6 +356,10 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
       switch (propertyName.hashCode()) {
         case -794828874:  // scalingFactor
           return ((SpotRateScaling) bean).getScalingFactor();
+        case 1063841362:  // minRate
+          return ((SpotRateScaling) bean).getMinRate();
+        case 844043364:  // maxRate
+          return ((SpotRateScaling) bean).getMaxRate();
         case 1094810440:  // currencyPairs
           return ((SpotRateScaling) bean).getCurrencyPairs();
       }
@@ -274,6 +384,8 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
   public static final class Builder extends DirectFieldsBeanBuilder<SpotRateScaling> {
 
     private Double _scalingFactor;
+    private double _minRate;
+    private double _maxRate;
     private Set<CurrencyPair> _currencyPairs = new HashSet<CurrencyPair>();
 
     /**
@@ -288,6 +400,8 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
      */
     private Builder(SpotRateScaling beanToCopy) {
       this._scalingFactor = beanToCopy.getScalingFactor();
+      this._minRate = beanToCopy.getMinRate();
+      this._maxRate = beanToCopy.getMaxRate();
       this._currencyPairs = new HashSet<CurrencyPair>(beanToCopy.getCurrencyPairs());
     }
 
@@ -297,6 +411,10 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
       switch (propertyName.hashCode()) {
         case -794828874:  // scalingFactor
           return _scalingFactor;
+        case 1063841362:  // minRate
+          return _minRate;
+        case 844043364:  // maxRate
+          return _maxRate;
         case 1094810440:  // currencyPairs
           return _currencyPairs;
         default:
@@ -310,6 +428,12 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
       switch (propertyName.hashCode()) {
         case -794828874:  // scalingFactor
           this._scalingFactor = (Double) newValue;
+          break;
+        case 1063841362:  // minRate
+          this._minRate = (Double) newValue;
+          break;
+        case 844043364:  // maxRate
+          this._maxRate = (Double) newValue;
           break;
         case 1094810440:  // currencyPairs
           this._currencyPairs = (Set<CurrencyPair>) newValue;
@@ -348,6 +472,8 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     public SpotRateScaling build() {
       return new SpotRateScaling(
           _scalingFactor,
+          _minRate,
+          _maxRate,
           _currencyPairs);
     }
 
@@ -360,6 +486,26 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     public Builder scalingFactor(Double scalingFactor) {
       JodaBeanUtils.notNull(scalingFactor, "scalingFactor");
       this._scalingFactor = scalingFactor;
+      return this;
+    }
+
+    /**
+     * Sets the {@code minRate} property in the builder.
+     * @param minRate  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder minRate(double minRate) {
+      this._minRate = minRate;
+      return this;
+    }
+
+    /**
+     * Sets the {@code maxRate} property in the builder.
+     * @param maxRate  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder maxRate(double maxRate) {
+      this._maxRate = maxRate;
       return this;
     }
 
@@ -377,9 +523,11 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("SpotRateScaling.Builder{");
       buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(_scalingFactor)).append(',').append(' ');
+      buf.append("minRate").append('=').append(JodaBeanUtils.toString(_minRate)).append(',').append(' ');
+      buf.append("maxRate").append('=').append(JodaBeanUtils.toString(_maxRate)).append(',').append(' ');
       buf.append("currencyPairs").append('=').append(JodaBeanUtils.toString(_currencyPairs));
       buf.append('}');
       return buf.toString();

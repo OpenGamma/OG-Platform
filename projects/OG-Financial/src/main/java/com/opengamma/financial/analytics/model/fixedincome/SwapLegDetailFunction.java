@@ -138,10 +138,9 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
       legDefinition = payFirstLeg ? definition.getSecondLeg() : definition.getFirstLeg();
       legDerivative = payFirstLeg ? derivative.getSecondLeg() : derivative.getFirstLeg();
     }
-    final LocalDate localDate = now.toLocalDate();
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
-    final CurrencyAmount[] notionals = legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), localDate);
-    final Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance(), localDate);
+    final CurrencyAmount[] notionals = legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), now);
+    final Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance(), now);
     final double[] paymentTimes = legDerivative.accept(AnnuityPaymentTimesVisitor.getInstance());
     final double[] paymentFractions = legDerivative.accept(AnnuityPaymentFractionsVisitor.getInstance());
     final CurrencyAmount[] paymentAmounts = legDerivative.accept(AnnuityPaymentAmountsVisitor.getInstance());
@@ -152,14 +151,14 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
           notionals, fixedRates);
       return Collections.singleton(new ComputedValue(spec, details));
     }
-    final Pair<LocalDate[], LocalDate[]> fixingDates = legDefinition.accept(AnnuityFixingDatesVisitor.getInstance(), localDate);
-    final double[] fixingYearFractions = legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), localDate);
+    final Pair<LocalDate[], LocalDate[]> fixingDates = legDefinition.accept(AnnuityFixingDatesVisitor.getInstance(), now);
+    final double[] fixingYearFractions = legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), now);
     final Double[] forwardRates = legDerivative.accept(AnnuityForwardRatesVisitor.getInstance(), bundle);
-    final LocalDate[] paymentDates = legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), localDate);
+    final LocalDate[] paymentDates = legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), now);
     final CurrencyAmount[] projectedAmounts = legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle);
-    final double[] spreads = legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), localDate);
-    final double[] gearings = legDefinition.accept(AnnuityGearingsVisitor.getInstance(), localDate);
-    final Tenor[] indexTenors = legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), localDate);
+    final double[] spreads = legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), now);
+    final double[] gearings = legDefinition.accept(AnnuityGearingsVisitor.getInstance(), now);
+    final Tenor[] indexTenors = legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), now);
     final FloatingSwapLegDetails details = new FloatingSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), paymentFractions, fixingDates.getFirst(), fixingDates.getSecond(),
         fixingYearFractions, forwardRates, fixedRates, paymentDates, paymentTimes, discountFactors, paymentAmounts, projectedAmounts, notionals, spreads, gearings, indexTenors);
     return Collections.singleton(new ComputedValue(spec, details));
