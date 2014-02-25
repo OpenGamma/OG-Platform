@@ -11,53 +11,30 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 
 /**
  *  Class with the attributed required to generate a commodity instrument from the market quotes.
- * The attribute is the settlement time.
+ * The attribute is composed of one period.
  */
 public class GeneratorAttributeCommodity extends GeneratorAttribute {
 
   /**
-   * The start period. 
+   * The  period. 
    */
-  private final Period _startPeriod;
-  /**
-   * The end period. 
-   */
-  private final Period _endPeriod;
+  private final Period _period;
 
   /**
    * Constructor.
-   * @param startPeriod The start period.
-   * @param endPeriod The end period.
+   * @param period The start period.
    */
-  public GeneratorAttributeCommodity(final Period startPeriod, final Period endPeriod) {
+  public GeneratorAttributeCommodity(final Period period) {
     super();
-    _startPeriod = startPeriod;
-    _endPeriod = endPeriod;
+    _period = period;
   }
 
   /**
-   * Constructor. By default the start period is set to ZERO.
-   * @param endPeriod The end period.
+   * Gets the period field.
+   * @return the period
    */
-  public GeneratorAttributeCommodity(final Period endPeriod) {
-    _startPeriod = Period.ZERO;
-    _endPeriod = endPeriod;
-  }
-
-  /**
-   * Gets the startPeriod field.
-   * @return the startPeriod
-   */
-  public Period getStartPeriod() {
-    return _startPeriod;
-  }
-
-  /**
-   * Gets the endPeriod field.
-   * @return the endPeriod
-   */
-  public Period getEndPeriod() {
-    return _endPeriod;
+  public Period getPeriod() {
+    return _period;
   }
 
 }
