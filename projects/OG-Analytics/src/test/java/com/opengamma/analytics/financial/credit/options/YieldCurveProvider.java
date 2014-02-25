@@ -49,10 +49,15 @@ public class YieldCurveProvider extends ISDABaseTest {
   final static DayCount JPY_SWAP_DCC = ACT365F;
   final static Period JPY_SWAP_INTERVAL = Period.ofMonths(6);
 
+  public static ISDACompliantYieldCurve ISDA_USD_20140205;
   public static ISDACompliantYieldCurve ISDA_USD_20140213;
   public static ISDACompliantYieldCurve ISDA_EUR_20140206;
 
   static {
+
+    final double[] rates_USD_20140205 = new double[] {0.001575, 0.002, 0.002365, 0.003333, 0.005617, 0.004425, 0.00783, 0.01191, 0.015775, 0.01915, 0.021935, 0.024205, 0.026055, 0.02764, 0.030115,
+      0.032515, 0.03456, 0.035465, 0.03592 };
+    ISDA_USD_20140205 = makeUSDCurve(LocalDate.of(2014, 2, 5), rates_USD_20140205);
 
     final double[] rates_USD_20140213 = new double[] {0.001575, 0.002, 0.002365, 0.003333, 0.005617, 0.004425, 0.00783, 0.01191, 0.015775, 0.01915, 0.021935, 0.024205, 0.026055, 0.02764, 0.030115,
       0.032515, 0.03456, 0.035465, 0.03592 };

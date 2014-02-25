@@ -6,12 +6,13 @@
 package com.opengamma.analytics.financial.credit.options;
 
 import static com.opengamma.analytics.financial.credit.options.YieldCurveProvider.ISDA_EUR_20140206;
-import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.opengamma.analytics.financial.credit.index.CDSIndexCalculator;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AnnuityForSpreadApproxFunction;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AnnuityForSpreadFunction;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
@@ -30,7 +31,6 @@ public class ItraxxXoverTest extends ISDABaseTest {
   private static final double NOTIONAL = 1e8;
   private static final LocalDate ACC_START = LocalDate.of(2013, 12, 20);
   private static final LocalDate TRADE_DATE = LocalDate.of(2014, 2, 6);
-  private static final LocalDate CASH_SETTLEMENT_DATE = LocalDate.of(2014, 2, 11);
   private static final LocalDate EXPIRY = LocalDate.of(2014, 3, 19);
   private static final LocalDate EXERCISE_SETTLE = LocalDate.of(2014, 3, 24);
   private static final LocalDate MATURITY = LocalDate.of(2018, 12, 20);
@@ -68,9 +68,10 @@ public class ItraxxXoverTest extends ISDABaseTest {
   private static final double[] EXERCISE_PRICE = new double[] {-0.230069242448716, -0.102175748837439, -0.0929437651628761, -0.0838490019206849, -0.074889348064225, -0.0719559839373113,
     -0.0696699930090803, -0.0660627259570898, -0.0573670897726163, -0.0488004260940694, -0.0403607527142736, -0.0320461182354909, -0.02385460196939, 0, 0.104559170409921, 0.61656821972402 };
 
-  static {
-    final LocalDate spotDate = addWorkDays(TRADE_DATE.minusDays(1), 3, DEFAULT_CALENDAR);
+  private static CDSIndexCalculator INDEX_CAL = new CDSIndexCalculator();
+  private static boolean PRINT = false;
 
+  static {
     final double[] spreads = new double[] {204.87, 204.87, 204.87, 204.87, 261.56, 318.25, 377.98, 401.39 };
     final int n = spreads.length;
     PILLAR_PAR_SPREADS = new double[n];
@@ -78,6 +79,10 @@ public class ItraxxXoverTest extends ISDABaseTest {
     for (int i = 0; i < n; i++) {
       PILLAR_PAR_SPREADS[i] = spreads[i] * ONE_BP;
       PILLAR_QUOTED_SPREADS[i] = new QuotedSpread(COUPON, PILLAR_PAR_SPREADS[i]);
+    }
+
+    if (PRINT) {
+      System.out.println("ItraxxXoverTest - set PRINT to false before push");
     }
   }
 
@@ -112,90 +117,88 @@ public class ItraxxXoverTest extends ISDABaseTest {
     }
   }
 
+  /**
+   * Regression test for forward values 
+   */
   @Test
   public void forwardValueTest() {
+    final double expFwdIndexVal = -7201983.340857886;
+    final double expFwdSpread = 331.649277309528 * ONE_BP;
+    final double expATMFwdSpread = 327.38630192687924 * ONE_BP;
+
     final double tE = ACT365F.getDayCountFraction(TRADE_DATE, EXPIRY);
-    final double tES = ACT365F.getDayCountFraction(TRADE_DATE, EXERCISE_SETTLE);
-    final double tM = ACT365F.getDayCountFraction(TRADE_DATE, MATURITY);
-    //build credit curve assuming par spreads
-    //   final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_PAR_SPREADS, YIELD_CURVE);
+
+    //build credit curve by first converting the quoted spreads to PUF  
     final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_QUOTED_SPREADS, YIELD_CURVE);
-    // final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(SPOT_CDX, TRADE_SPREAD, YIELD_CURVE);
 
-    final double q = cc.getSurvivalProbability(tE);
-    final double df = YIELD_CURVE.getDiscountFactor(tES);
-
-    final double spotProt = PRICER.protectionLeg(SPOT_CDX, YIELD_CURVE, cc, 0);
-    final double fwdProt = PRICER.protectionLeg(FWD_START_CDX, YIELD_CURVE, cc, 0) + df * (1 - RECOVERY_RATE) * (1 - q);
-    final double fwdAnn = PRICER.annuity(FWD_START_CDX, YIELD_CURVE, cc, PriceType.CLEAN, 0);
-    final double fwdSpread = fwdProt / fwdAnn;
-    System.out.println("Fwd Spread: " + fwdSpread * TEN_THOUSAND);
-
-    final double fwdIndexVal = ((fwdProt - COUPON * fwdAnn) / df);
-    System.out.println("Fwd Index val: " + NOTIONAL * fwdIndexVal);
-
+    final double fwdIndexVal = INDEX_CAL.defaultAdjustedForwardIndexValue(FWD_START_CDX, tE, YIELD_CURVE, COUPON, cc);
+    final double fwdSpread = INDEX_CAL.forwardSpread(FWD_START_CDX, tE, YIELD_CURVE, cc);
     final ISDACompliantYieldCurve fwdYC = YIELD_CURVE.withOffset(tE);
-    final double fwdSpread2 = CONVERTER.pufToQuotedSpread(FWD_CDX, COUPON, fwdYC, fwdIndexVal);
-    System.out.println("ATM Forward: " + fwdSpread2 * TEN_THOUSAND);
+    final double atmFwdSpread = CONVERTER.pufToQuotedSpread(FWD_CDX, COUPON, fwdYC, fwdIndexVal);
 
-    //test
-    final double lambda = TRUE_ATM_FWD / (1 - RECOVERY_RATE);
-    final double r = YIELD_CURVE.getZeroRate(tM);
-    final double val = bbgIndexVal(lambda, r, tE, tM);
-
-    final double val2 = CONVERTER.quotedSpreadToPUF(FWD_CDX, COUPON, fwdYC, TRUE_ATM_FWD);
-    final ISDACompliantCreditCurve ccB = new ISDACompliantCreditCurve(1.0, lambda);
-    final ISDACompliantYieldCurve ycB = new ISDACompliantYieldCurve(1.0, r);
-    final double val3 = PRICER.pv(FWD_CDX, ycB, ccB, COUPON);
-
-    System.out.println(val * NOTIONAL + "\t" + val2 * NOTIONAL + "\t" + val3 * NOTIONAL);
+    if (PRINT) {
+      System.out.println("Fwd Index val:\t" + NOTIONAL * fwdIndexVal);
+      System.out.println("Fwd Spread:\t" + fwdSpread * TEN_THOUSAND);
+      System.out.println("ATM Forward:\t" + atmFwdSpread * TEN_THOUSAND);
+    }
+    assertEquals("FwdIndexVal", expFwdIndexVal, NOTIONAL * fwdIndexVal, NOTIONAL * 1e-16);
+    assertEquals("fwdSpread", expFwdSpread, fwdSpread, 1e-16);
+    assertEquals("ATMFwdSpread", expATMFwdSpread, atmFwdSpread, 1e-16);
   }
 
   @Test
   public void optionPrices() {
+    final double expX0a = 327.91390602255956 * ONE_BP;
+    final double expX0b = 327.7699441941618 * ONE_BP;
+
+    final double[] expOTMprices = new double[] {6.132973792158627E-231, 5647.7333910783245, 38557.49213982678, 158657.82017158883, 443972.3292873599, 583273.0296738589, 479516.9975947235,
+      343564.1912267558, 135716.5713893605, 45671.910118624655, 13236.711960342996, 3349.027609451418, 750.3415020462705, 4.650337443540369, 7.929922685394342E-14 };
+
     final double tE = ACT365F.getDayCountFraction(TRADE_DATE, EXPIRY);
     final double tES = ACT365F.getDayCountFraction(TRADE_DATE, EXERCISE_SETTLE);
     final double df = YIELD_CURVE.getDiscountFactor(tES);
     final double vol = 0.3;
     //  final BloombergIndexOptionPricer pricer = new BloombergIndexOptionPricer(TRADE_DATE, EXPIRY, EXPIRY.plusDays(1), EXERCISE_SETTLE, ACC_START, MATURITY, YIELD_CURVE, RECOVERY_RATE);
-    final IndexOptionPricer oPricer = new IndexOptionPricer(FWD_CDX, tE, YIELD_CURVE, COUPON, false);
-    final double x0 = oPricer.calibrateX0(DEFAULT_ADJ_INDEX / NOTIONAL, vol);
-    System.out.println("X0: " + x0 * TEN_THOUSAND);
-
-    //    final double fwdPrice = pricer.getFwdPriceForX0(x0, COUPON, vol);
-    //    System.out.println("fwd price : " + fwdPrice * NOTIONAL);
+    final IndexOptionPricer oPricer = new IndexOptionPricer(FWD_CDX, tE, YIELD_CURVE, COUPON);
 
     final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_QUOTED_SPREADS, YIELD_CURVE);
-    final double q = cc.getSurvivalProbability(tE);
-    final double fwdProt = PRICER.protectionLeg(FWD_START_CDX, YIELD_CURVE, cc, 0) + df * (1 - RECOVERY_RATE) * (1 - q);
-    final double fwdAnn = PRICER.annuity(FWD_START_CDX, YIELD_CURVE, cc, PriceType.CLEAN, 0);
-    final double fwdIndexVal = ((fwdProt - COUPON * fwdAnn) / df);
-    final ISDACompliantYieldCurve fwdYC = YIELD_CURVE.withOffset(tE);
+    final double fwdIndexVal = INDEX_CAL.defaultAdjustedForwardIndexValue(FWD_START_CDX, tE, YIELD_CURVE, COUPON, cc);
 
-    final int n = STRIKES.length;
+    final double x0a = oPricer.calibrateX0(DEFAULT_ADJ_INDEX / NOTIONAL, vol);
+    final double x0b = oPricer.calibrateX0(fwdIndexVal, vol);
+    if (PRINT) {
+      System.out.println("BBG fwd index val:\t" + DEFAULT_ADJ_INDEX);
+      System.out.println("Cal fwd index val:\t" + fwdIndexVal * NOTIONAL);
+      System.out.println("BBG X0:\t" + x0a * TEN_THOUSAND);
+      System.out.println("Cal X0:\t" + x0b * TEN_THOUSAND);
+    }
+
+    assertEquals(expX0a, x0a, expX0a * 1e-15);
+    assertEquals(expX0a, x0a, expX0b * 1e-15);
+
+    final int n = STRIKES.length - 1;
     for (int i = 0; i < n; i++) {
       final double payer = NOTIONAL * oPricer.getOptionPriceForPriceQuotedIndex(DEFAULT_ADJ_INDEX / NOTIONAL, vol, EXERCISE_PRICE[i], true);
-      final double receiver = payer - df * (DEFAULT_ADJ_INDEX - NOTIONAL * EXERCISE_PRICE[i]);
+      final double receiver = NOTIONAL * oPricer.getOptionPriceForPriceQuotedIndex(DEFAULT_ADJ_INDEX / NOTIONAL, vol, EXERCISE_PRICE[i], false);
+      final double payer2 = NOTIONAL * oPricer.getOptionPriceForSpreadQuotedIndex(fwdIndexVal, vol, STRIKES[i] * ONE_BP, true);
+      final double receiver2 = NOTIONAL * oPricer.getOptionPriceForSpreadQuotedIndex(fwdIndexVal, vol, STRIKES[i] * ONE_BP, false);
 
-      final double gK = CONVERTER.quotedSpreadToPUF(FWD_CDX, COUPON, fwdYC, STRIKES[i] * ONE_BP);
-      final double payer2 = NOTIONAL * oPricer.getOptionPriceForPriceQuotedIndex(fwdIndexVal, vol, gK, true);
-      final double receiver2 = payer2 - df * NOTIONAL * (fwdIndexVal - gK);
+      double impVol = 0;
 
-      double vol1 = 0;
-      double vol2 = 0;
       if (DEFAULT_ADJ_INDEX / NOTIONAL < EXERCISE_PRICE[i]) {
+        assertEquals(expOTMprices[i], payer, 1e-15 * expOTMprices[i]);
         if (CALLPRICE[i] > 0) {
-          vol1 = oPricer.impliedVol(DEFAULT_ADJ_INDEX / NOTIONAL, EXERCISE_PRICE[i], CALLPRICE[i] / NOTIONAL, true);
-          vol2 = oPricer.impliedVol(fwdIndexVal, gK, CALLPRICE[i] / NOTIONAL, true);
+          impVol = oPricer.impliedVol(DEFAULT_ADJ_INDEX / NOTIONAL, EXERCISE_PRICE[i], CALLPRICE[i] / NOTIONAL, true);
         }
       } else {
+        assertEquals(expOTMprices[i], receiver, 1e-15 * expOTMprices[i]);
         if (PUTPRICE[i] > 0) {
-          vol1 = oPricer.impliedVol(DEFAULT_ADJ_INDEX / NOTIONAL, EXERCISE_PRICE[i], PUTPRICE[i] / NOTIONAL, false);
-          vol2 = oPricer.impliedVol(fwdIndexVal, gK, PUTPRICE[i] / NOTIONAL, false);
+          impVol = oPricer.impliedVol(DEFAULT_ADJ_INDEX / NOTIONAL, EXERCISE_PRICE[i], PUTPRICE[i] / NOTIONAL, false);
         }
       }
-
-      System.out.println(STRIKES[i] + "\t" + payer + "\t" + receiver + "\t" + payer2 + "\t" + receiver2 + "\t" + vol1 + "\t" + vol2);
+      if (PRINT) {
+        System.out.println(STRIKES[i] + "\t" + payer + "\t" + receiver + "\t" + payer2 + "\t" + receiver2 + "\t" + impVol);
+      }
     }
     //  
   }

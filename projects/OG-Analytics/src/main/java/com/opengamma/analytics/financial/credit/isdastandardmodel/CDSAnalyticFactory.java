@@ -531,6 +531,22 @@ public class CDSAnalyticFactory {
     return makeCDS(tradeDate, stepinDate, valueDate, accStartDate, maturity);
   }
 
+  /**
+  * A forward starting CDS starts on some date after today (the trade date). The accrual start must be specified (would normally use this for T+1 accrual atart).
+  *  The stepin date and cash settlement date are taken from the forward start date  (1 day and 3 working days by default)
+   * @param tradeDate The trade date (i.e. today)
+   * @param forwardStartDate The forward start date
+   * @param accStartDate The accrual start date 
+   * @param maturity The maturity of the CDS 
+   * @return  A CDS analytic description for a forward starting CDS
+   */
+  public CDSAnalytic makeForwardStartingCDS(final LocalDate tradeDate, final LocalDate forwardStartDate, final LocalDate accStartDate, final LocalDate maturity) {
+    ArgumentChecker.isFalse(forwardStartDate.isBefore(tradeDate), "forwardStartDate of {} is before trade date of {}", forwardStartDate, tradeDate);
+    final LocalDate stepinDate = forwardStartDate.plusDays(_stepIn);
+    final LocalDate valueDate = addWorkDays(forwardStartDate, _cashSettle, _calendar);
+    return makeCDS(tradeDate, stepinDate, valueDate, accStartDate, maturity);
+  }
+
   /** A forward starting CDS starts on some date after today (the trade date). The stepin date and cash settlement date are taken from the forward start date
    * (1 day and 3 working days by default). The period is from the next IMM date after the forward-start-date, so for a trade-date of 13-Feb-2014, a forward-start-date
    * of 25-Mar-2014 and a tenor of 1Y, the maturity will be 20-Jun-2015. 

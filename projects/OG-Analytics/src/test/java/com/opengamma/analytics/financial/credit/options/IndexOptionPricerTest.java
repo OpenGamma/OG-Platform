@@ -125,7 +125,7 @@ public class IndexOptionPricerTest extends ISDABaseTest {
     final CDSAnalytic fwdStartingCDS = FACTORY.makeForwardStartingIMMCDS(TRADE_DATE, optionExpiry, Period.ofYears(5));
 
     final double expiry = ACT365F.getDayCountFraction(TRADE_DATE, optionExpiry);
-    final double atmFwd = INDEX_CAL.defaultAdjustedForwardIndexValue(fwdStartingCDS, expiry, f, YIELD_CURVE, INDEX_COUPON, creditCurve, 0);
+    final double atmFwd = INDEX_CAL.defaultAdjustedForwardIndexValue(fwdStartingCDS, expiry, YIELD_CURVE, INDEX_COUPON, creditCurve);
 
     final IndexOptionPricer pricer = new IndexOptionPricer(fwdStartingCDS, expiry, YIELD_CURVE, INDEX_COUPON);
     final double vol = 1;
