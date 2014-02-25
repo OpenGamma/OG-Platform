@@ -189,6 +189,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
           .get();
       final ComputationTargetSpecification fxSpotReturnSeriesSpec = ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
       requirements.add(new ValueRequirement(ValueRequirementNames.RETURN_SERIES, fxSpotReturnSeriesSpec, fxSpotConstraints));
+      requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(baseCurrency, nonBaseCurrency))));
       return requirements;
     }
 
@@ -264,15 +265,18 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
         return Collections.singleton(new ComputedValue(spec, pnlSeries));
       }
       final Currency resultCurrency = Currency.of(Iterables.getOnlyElement(resultCurrencies));
-      final LocalDateDoubleTimeSeries conversionTS = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES);
+      final LocalDateDoubleTimeSeries conversionTS = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES); // Exchange rate series base/non base
       if (conversionTS == null) {
         throw new OpenGammaRuntimeException("Asked for result in " + resultCurrency + " but could not get " + baseCurrency + "/" + resultCurrency + " conversion series");
       }
       if (resultCurrency.equals(baseCurrency)) {
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES);
-        final LocalDateDoubleTimeSeries pnlSeries = fxSpotReturnSeries.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
+        final double currentFxRate = (double) inputs.getValue(ValueRequirementNames.SPOT_RATE);
+        final LocalDateDoubleTimeSeries pnlSeries = conversionTS.multiply(fxSpotReturnSeries.multiply(position.getQuantity().doubleValue() * exposure / currentFxRate));
+        // Implementation note: represent the exposure multiplied by the relative change of rate applied to current exchange rate
         return Collections.singleton(new ComputedValue(spec, pnlSeries));
       }
+      // TODO: review this part
       final LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES);
       final LocalDateDoubleTimeSeries convertedSeries = conversionTS.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
       final LocalDateDoubleTimeSeries pnlSeries = convertedSeries.multiply(fxSpotReturnSeries);
