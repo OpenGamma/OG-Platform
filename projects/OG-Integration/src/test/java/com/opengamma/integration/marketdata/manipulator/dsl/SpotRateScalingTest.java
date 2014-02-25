@@ -56,6 +56,28 @@ public class SpotRateScalingTest {
     assertEquals(0.25, DOWN_20.execute(0.2, valueSpec("JPY/CHF"), new FunctionExecutionContext()), DELTA);
   }
 
+  @Test
+  public void boundedRate() {
+    SpotRateScaling up = new SpotRateScaling(2d, 0, 6d, CurrencyPair.parse("EUR/USD"));
+    assertEquals(4d, up.execute(2d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+    assertEquals(6d, up.execute(5d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+
+    SpotRateScaling down = new SpotRateScaling(0.5, 0.3, 6d, CurrencyPair.parse("EUR/USD"));
+    assertEquals(1d, down.execute(2d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+    assertEquals(0.3, down.execute(0.5, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+  }
+
+  @Test
+  public void boundedInverseRate() {
+    SpotRateScaling up = new SpotRateScaling(2d, 0, 6d, CurrencyPair.parse("EUR/USD"));
+    assertEquals(1d, up.execute(2d, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+    assertEquals(0.166666666, up.execute(0.2, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+
+    SpotRateScaling down = new SpotRateScaling(0.5, 0.2, 6d, CurrencyPair.parse("EUR/USD"));
+    assertEquals(0.5, down.execute(0.25, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+    assertEquals(5, down.execute(4d, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void unexpectedTargetType() {
     ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "foo").get();
