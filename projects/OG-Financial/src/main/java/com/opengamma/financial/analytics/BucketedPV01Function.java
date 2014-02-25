@@ -45,11 +45,12 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
             output(BUCKETED_PV01)
                 .targetSpec(originalTarget())
                 .properties(copyFrom(YIELD_CURVE_NODE_SENSITIVITIES)
+                    .withOptional(ValuePropertyNames.SCALING_FACTOR)
                     .withReplacement(ValuePropertyNames.FUNCTION, getUniqueId()))
         )
         .inputs(
             input(YIELD_CURVE_NODE_SENSITIVITIES)
-                .properties(copyFrom(BUCKETED_PV01))
+                .properties(copyFrom(BUCKETED_PV01).withOptional(ValuePropertyNames.SCALING_FACTOR))
                 .targetSpec(originalTarget())
         );
   }
@@ -65,8 +66,8 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
     ValueRequirement desiredValue = functional(desiredValues).first();
 
     final double rescaleFactor;
-    if (desiredValue.getConstraint("SCALING_FACTOR") != null) {
-      double scalingFactor = Double.parseDouble(desiredValue.getConstraint("SCALING_FACTOR"));
+    if (desiredValue.getConstraint(ValuePropertyNames.SCALING_FACTOR) != null) {
+      double scalingFactor = Double.parseDouble(desiredValue.getConstraint(ValuePropertyNames.SCALING_FACTOR));
       rescaleFactor = RESCALE_FACTOR / scalingFactor;
     } else {
       rescaleFactor = RESCALE_FACTOR;
@@ -81,6 +82,7 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
     ValueSpecification valueSpecification = ValueSpecification.of(desiredValue.getValueName(),
         target.toSpecification(),
         desiredValue.getConstraints());
+
     return newHashSet(new ComputedValue(valueSpecification, matrixDividedBy10k));
   }
 
