@@ -149,6 +149,10 @@ To 2.1.21
 ---------
 	[PLAT-5679] MultiYieldCurveParRateMethodSeriesFunction does not infer the YCHTS correctly
 
+To 2.1.22
+---------
+	[TMPL-46] Change the behaviour of Forex P/L times series: use today FX rate and not scenario rate
+
 OpenGamma Platform 2.1
 ---------------------------------
 
