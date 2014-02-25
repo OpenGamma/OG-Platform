@@ -185,13 +185,14 @@ public class ItraxxXoverTest extends ISDABaseTest {
 
       double impVol = 0;
 
+      final double tol = i == 0 ? 1e-12 * expOTMprices[i] : 1e-15 * expOTMprices[i];
       if (DEFAULT_ADJ_INDEX / NOTIONAL < EXERCISE_PRICE[i]) {
-        assertEquals(expOTMprices[i], payer, 1e-15 * expOTMprices[i]);
+        assertEquals(expOTMprices[i], payer, tol);
         if (CALLPRICE[i] > 0) {
           impVol = oPricer.impliedVol(DEFAULT_ADJ_INDEX / NOTIONAL, EXERCISE_PRICE[i], CALLPRICE[i] / NOTIONAL, true);
         }
       } else {
-        assertEquals(expOTMprices[i], receiver, 1e-15 * expOTMprices[i]);
+        assertEquals(expOTMprices[i], receiver, tol);
         if (PUTPRICE[i] > 0) {
           impVol = oPricer.impliedVol(DEFAULT_ADJ_INDEX / NOTIONAL, EXERCISE_PRICE[i], PUTPRICE[i] / NOTIONAL, false);
         }
