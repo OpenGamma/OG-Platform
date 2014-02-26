@@ -152,6 +152,9 @@ public class DbSecurityMaster
     Timer.Context context = _metaDataTimer.time();
     try {
       SecurityMetaDataResult result = new SecurityMetaDataResult();
+      if (!matchesUniqueIdScheme(request)) {
+        return result;
+      }
       if (request.isSecurityTypes()) {
         final String sql = getElSqlBundle().getSql("SelectTypes");
         List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
@@ -164,6 +167,10 @@ public class DbSecurityMaster
     } finally {
       context.stop();
     }
+  }
+
+  private boolean matchesUniqueIdScheme(SecurityMetaDataRequest request) {
+    return request.getUniqueIdScheme() == null || getUniqueIdScheme().equals(request.getUniqueIdScheme());
   }
 
   //-------------------------------------------------------------------------
