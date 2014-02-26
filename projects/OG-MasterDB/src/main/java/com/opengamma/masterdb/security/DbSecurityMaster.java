@@ -178,8 +178,13 @@ public class DbSecurityMaster
     if (vc.containsLatest()) {
       vc = vc.withLatestFixed(now());
     }
+    
     final SecuritySearchResult result = new SecuritySearchResult(vc);
-
+    
+    if (!matchesUniqueIdScheme(request)) {
+      return result;
+    }
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final Map<String, String> attributes = request.getAttributes();
     final List<ObjectId> objectIds = request.getObjectIds();
@@ -239,7 +244,12 @@ public class DbSecurityMaster
     if (request.isFullDetail()) {
       loadDetail(detailProvider, result.getDocuments());
     }
+
     return result;
+  }
+
+  private boolean matchesUniqueIdScheme(final SecuritySearchRequest request) {
+    return request.getUniqueIdScheme() == null || getUniqueIdScheme().equals(request.getUniqueIdScheme());
   }
 
   /**
