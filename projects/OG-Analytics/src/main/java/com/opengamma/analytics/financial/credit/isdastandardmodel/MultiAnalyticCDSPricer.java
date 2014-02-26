@@ -9,7 +9,6 @@ import static com.opengamma.analytics.financial.credit.isdastandardmodel.Doubles
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.DoublesScheduleGenerator.truncateSetInclusive;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
-import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
 import java.util.Arrays;
 
@@ -343,97 +342,97 @@ public class MultiAnalyticCDSPricer {
     return coupon.getYFRatio() * pv;
   }
 
-  private double calculateSinglePeriodAccrualOnDefaultSensitivity(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
-      final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
-
-    final double start = Math.max(accStart, stepin);
-    if (start >= accEnd) {
-      return 0.0;
-    }
-    final double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
-
-    double t = knots[0];
-    double ht0 = creditCurve.getRT(t);
-    double rt0 = yieldCurve.getRT(t);
-    double p0 = Math.exp(-rt0);
-    double q0 = Math.exp(-ht0);
-    double b0 = p0 * q0; // this is the risky discount factor
-    double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
-
-    double t0 = t - accStart + _omega;
-    double pvSense = 0.0;
-    final int nItems = knots.length;
-    for (int j = 1; j < nItems; ++j) {
-      t = knots[j];
-      final double ht1 = creditCurve.getRT(t);
-      final double rt1 = yieldCurve.getRT(t);
-      final double p1 = Math.exp(-rt1);
-      final double q1 = Math.exp(-ht1);
-      final double b1 = p1 * q1;
-      final double dqdr1 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
-
-      final double dt = knots[j] - knots[j - 1];
-
-      final double dht = ht1 - ht0;
-      final double drt = rt1 - rt0;
-      final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
-
-      double tPvSense;
-      // TODO once the maths is written up in a white paper, check these formula again, since tests again finite difference
-      // could miss some subtle error
-
-      if (_formula == AccrualOnDefaultFormulae.MarkitFix) {
-        if (Math.abs(dhrt) < 1e-5) {
-          final double eP = epsilonP(-dhrt);
-          final double ePP = epsilonPP(-dhrt);
-          final double dPVdq0 = p0 * dt * ((1 + dht) * eP - dht * ePP);
-          final double dPVdq1 = b0 * dt / q1 * (-eP + dht * ePP);
-          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
-        } else {
-          final double w5 = (b0 - b1) / dhrt;
-          final double w1 = w5 - b1;
-          final double w2 = dht / dhrt;
-          final double w3 = dt / dhrt;
-          final double w4 = (1 - w2) * w1;
-          final double dPVdq0 = w3 / q0 * (w4 + w2 * (b0 - w5));
-          final double dPVdq1 = w3 / q1 * (w4 + w2 * (b1 * (1 + dhrt) - w5));
-          tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
-        }
-      } else {
-        final double t1 = t - accStart + _omega;
-        if (Math.abs(dhrt) < 1e-5) {
-          final double e = epsilon(-dhrt);
-          final double eP = epsilonP(-dhrt);
-          final double ePP = epsilonPP(-dhrt);
-          final double w1 = t0 * e + dt * eP;
-          final double w2 = t0 * eP + dt * ePP;
-          final double dPVdq0 = p0 * ((1 + dhrt) * w1 - dht * w2);
-          final double dPVdq1 = b0 / q1 * (-w1 + dht * w2);
-          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
-
-        } else {
-          final double w1 = dt / dhrt;
-          final double w2 = dht / dhrt;
-          final double w3 = (t0 + w1) * b0 - (t1 + w1) * b1;
-          final double w4 = (1 - w2) / dhrt;
-          final double w5 = w1 / dhrt * (b0 - b1);
-          final double dPVdq0 = w4 * w3 / q0 + w2 * ((t0 + w1) * p0 - w5 / q0);
-          final double dPVdq1 = w4 * w3 / q1 + w2 * ((t1 + w1) * p1 - w5 / q1);
-          tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
-        }
-        t0 = t1;
-      }
-
-      pvSense += tPvSense;
-      ht0 = ht1;
-      rt0 = rt1;
-      p0 = p1;
-      q0 = q1;
-      b0 = b1;
-      dqdr0 = dqdr1;
-    }
-    return accRate * pvSense;
-  }
+  //  private double calculateSinglePeriodAccrualOnDefaultSensitivity(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
+  //      final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+  //
+  //    final double start = Math.max(accStart, stepin);
+  //    if (start >= accEnd) {
+  //      return 0.0;
+  //    }
+  //    final double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
+  //
+  //    double t = knots[0];
+  //    double ht0 = creditCurve.getRT(t);
+  //    double rt0 = yieldCurve.getRT(t);
+  //    double p0 = Math.exp(-rt0);
+  //    double q0 = Math.exp(-ht0);
+  //    double b0 = p0 * q0; // this is the risky discount factor
+  //    double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
+  //
+  //    double t0 = t - accStart + _omega;
+  //    double pvSense = 0.0;
+  //    final int nItems = knots.length;
+  //    for (int j = 1; j < nItems; ++j) {
+  //      t = knots[j];
+  //      final double ht1 = creditCurve.getRT(t);
+  //      final double rt1 = yieldCurve.getRT(t);
+  //      final double p1 = Math.exp(-rt1);
+  //      final double q1 = Math.exp(-ht1);
+  //      final double b1 = p1 * q1;
+  //      final double dqdr1 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
+  //
+  //      final double dt = knots[j] - knots[j - 1];
+  //
+  //      final double dht = ht1 - ht0;
+  //      final double drt = rt1 - rt0;
+  //      final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
+  //
+  //      double tPvSense;
+  //      // TODO once the maths is written up in a white paper, check these formula again, since tests again finite difference
+  //      // could miss some subtle error
+  //
+  //      if (_formula == AccrualOnDefaultFormulae.MarkitFix) {
+  //        if (Math.abs(dhrt) < 1e-5) {
+  //          final double eP = epsilonP(-dhrt);
+  //          final double ePP = epsilonPP(-dhrt);
+  //          final double dPVdq0 = p0 * dt * ((1 + dht) * eP - dht * ePP);
+  //          final double dPVdq1 = b0 * dt / q1 * (-eP + dht * ePP);
+  //          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+  //        } else {
+  //          final double w5 = (b0 - b1) / dhrt;
+  //          final double w1 = w5 - b1;
+  //          final double w2 = dht / dhrt;
+  //          final double w3 = dt / dhrt;
+  //          final double w4 = (1 - w2) * w1;
+  //          final double dPVdq0 = w3 / q0 * (w4 + w2 * (b0 - w5));
+  //          final double dPVdq1 = w3 / q1 * (w4 + w2 * (b1 * (1 + dhrt) - w5));
+  //          tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
+  //        }
+  //      } else {
+  //        final double t1 = t - accStart + _omega;
+  //        if (Math.abs(dhrt) < 1e-5) {
+  //          final double e = epsilon(-dhrt);
+  //          final double eP = epsilonP(-dhrt);
+  //          final double ePP = epsilonPP(-dhrt);
+  //          final double w1 = t0 * e + dt * eP;
+  //          final double w2 = t0 * eP + dt * ePP;
+  //          final double dPVdq0 = p0 * ((1 + dhrt) * w1 - dht * w2);
+  //          final double dPVdq1 = b0 / q1 * (-w1 + dht * w2);
+  //          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+  //
+  //        } else {
+  //          final double w1 = dt / dhrt;
+  //          final double w2 = dht / dhrt;
+  //          final double w3 = (t0 + w1) * b0 - (t1 + w1) * b1;
+  //          final double w4 = (1 - w2) / dhrt;
+  //          final double w5 = w1 / dhrt * (b0 - b1);
+  //          final double dPVdq0 = w4 * w3 / q0 + w2 * ((t0 + w1) * p0 - w5 / q0);
+  //          final double dPVdq1 = w4 * w3 / q1 + w2 * ((t1 + w1) * p1 - w5 / q1);
+  //          tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
+  //        }
+  //        t0 = t1;
+  //      }
+  //
+  //      pvSense += tPvSense;
+  //      ht0 = ht1;
+  //      rt0 = rt1;
+  //      p0 = p1;
+  //      q0 = q1;
+  //      b0 = b1;
+  //      dqdr0 = dqdr1;
+  //    }
+  //    return accRate * pvSense;
+  //  }
 
   /**
    * Compute the present value of the protection leg with a notional of 1, which is given by the integral
