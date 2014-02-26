@@ -122,6 +122,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.VolatilitySwapDefinition;
 
 /**
  * Adapter that returns the same value regardless of the type of the instrument definition.
@@ -1170,6 +1171,16 @@ public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilitySwapDefinition(final VolatilitySwapDefinition varianceSwap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilitySwapDefinition(final VolatilitySwapDefinition varianceSwap, final DATA_TYPE data) {
     return _value;
   }
 
