@@ -37,9 +37,9 @@ import com.opengamma.util.paging.PagingRequest;
 @PublicSPI
 @BeanDefinition
 public abstract class AbstractSearchRequest extends DirectBean implements PagedRequest {
-  
+
   /**
-   * The uniqueIdScheme of the underlying master to search. Wildcards are not allowed.
+   * The scheme of the unique identifier of the underlying master to search. Wildcards are not allowed.
    */
   @PropertyDefinition
   private String _uniqueIdScheme;
@@ -117,7 +117,7 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the uniqueIdScheme of the underlying master to search. Wildcards are not allowed.
+   * Gets the scheme of the unique identifier of the underlying master to search. Wildcards are not allowed.
    * @return the value of the property
    */
   public String getUniqueIdScheme() {
@@ -125,7 +125,7 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
   }
 
   /**
-   * Sets the uniqueIdScheme of the underlying master to search. Wildcards are not allowed.
+   * Sets the scheme of the unique identifier of the underlying master to search. Wildcards are not allowed.
    * @param uniqueIdScheme  the new value of the property
    */
   public void setUniqueIdScheme(String uniqueIdScheme) {
