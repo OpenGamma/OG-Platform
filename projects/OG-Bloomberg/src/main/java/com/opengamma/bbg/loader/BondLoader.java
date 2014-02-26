@@ -10,6 +10,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ANNOUNCE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_BB_COMPOSITE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_BULLET;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CALC_TYP_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_CALLABLE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CNTRY_ISSUE_ISO;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CPN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CPN_FREQ;
@@ -40,7 +41,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MATURITY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_INCREMENT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_PIECE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_MTY_TYPE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PAR_AMT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_REDEMP_VAL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_RESET_IDX;
@@ -52,7 +53,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
@@ -130,7 +130,7 @@ public class BondLoader extends SecurityLoader {
       FIELD_REDEMP_VAL,
       FIELD_FLOATER,
       FIELD_INFLATION_LINKED_INDICATOR,
-      FIELD_MTY_TYPE,
+      FIELD_CALLABLE,
       FIELD_IS_PERPETUAL,
       FIELD_BULLET,
       FIELD_RTG_FITCH,
@@ -261,8 +261,8 @@ public class BondLoader extends SecurityLoader {
       final boolean isBullet = (isBulletStr != null && isBulletStr.trim().toUpperCase().contains("Y"));
       final String isFloaterStr = validateAndGetNullableStringField(fieldData, FIELD_FLOATER);
       final boolean isFloater = (isFloaterStr != null && isFloaterStr.trim().toUpperCase().contains("Y"));
-      final String maturityType = validateAndGetNullableStringField(fieldData, FIELD_MTY_TYPE);
-      final boolean isCallable = (maturityType != null && maturityType.trim().toUpperCase().contains("CALL"));
+      final String callable = validateAndGetNullableStringField(fieldData, FIELD_CALLABLE);
+      final boolean isCallable = (callable != null && callable.trim().toUpperCase().contains("Y"));
       final String issuerDomicile = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
       final String market = validateAndGetStringField(fieldData, FIELD_SECURITY_TYP);
       final String currencyStr = validateAndGetStringField(fieldData, FIELD_CRNCY);

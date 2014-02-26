@@ -136,7 +136,8 @@ public final class BloombergConstants {
   public static final String FIELD_SECURITY_TYP = "SECURITY_TYP";
   public static final String FIELD_CALC_TYP_DES = "CALC_TYP_DES";
   public static final String FIELD_INFLATION_LINKED_INDICATOR = "INFLATION_LINKED_INDICATOR";
-  public static final String FIELD_MTY_TYPE = "MTY_TYPE";
+  public static final String FIELD_MTY_TYP = "MTY_TYP";
+  public static final String FIELD_CALLABLE = "CALLABLE";
   public static final String FIELD_IS_PERPETUAL = "IS_PERPETUAL";
   public static final String FIELD_BULLET = "BULLET";
 
