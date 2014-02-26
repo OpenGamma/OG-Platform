@@ -5,7 +5,10 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import static com.opengamma.lambdava.streams.Lambdava.functional;
+
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -16,10 +19,13 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
+import com.opengamma.engine.target.resolver.PrimitiveResolver;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -72,55 +78,84 @@ public class PointSelector implements DistinctMarketDataSelector {
   @Override
   public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
                                                          String calcConfigName,
-                                                         SelectorResolver resolver) {
+                                                         final SelectorResolver resolver) {
     if (_calcConfigNames != null && !_calcConfigNames.contains(calcConfigName)) {
       return null;
     }
     if (!MarketDataRequirementNames.MARKET_VALUE.equals(valueSpecification.getValueName())) {
       return null;
     }
-    ExternalId id = createId(valueSpecification);
-    if (_ids != null && !_ids.contains(id)) {
-      return null;
-    }
-    if (_idMatchScheme != null && _idMatchPattern != null) {
-      if (!_idMatchScheme.equals(id.getScheme())) {
+    ExternalIdBundle specificationIdBundle = createIds(valueSpecification);
+    Set<ExternalId> specificationIds = new HashSet<>(specificationIdBundle.getExternalIds());
+    if (_ids != null) {
+      specificationIds.retainAll(_ids);
+      if (specificationIds.isEmpty()) {
         return null;
       }
-      if (!_idMatchPattern.getPattern().matcher(id.getValue()).matches()) {
+    }
+    
+    if (_idMatchScheme != null && _idMatchPattern != null) {
+      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+        @Override
+        public Boolean execute(ExternalId externalId) {
+          return !_idMatchScheme.equals(externalId.getScheme());
+        }
+      })) {
+        return null;
+      }
+      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+        @Override
+        public Boolean execute(ExternalId externalId) {
+          return !_idMatchPattern.getPattern().matcher(externalId.getValue()).matches();
+        }
+      })) {
         return null;
       }
     }
     if (_idLikeScheme != null && _idLikePattern != null) {
-      if (!_idLikeScheme.equals(id.getScheme())) {
+      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+        @Override
+        public Boolean execute(ExternalId externalId) {
+          return !_idLikeScheme.equals(externalId.getScheme());
+        }
+      })) {
         return null;
       }
-      if (!_idLikePattern.getPattern().matcher(id.getValue()).matches()) {
+      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+        @Override
+        public Boolean execute(ExternalId externalId) {
+          return !_idLikePattern.getPattern().matcher(externalId.getValue()).matches();
+        }
+      })) {
         return null;
       }
     }
     if (_securityTypes != null) {
-      Security security = resolver.resolveSecurity(id);
-      if (!_securityTypes.contains(security.getSecurityType().toLowerCase())) {
+      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+        @Override
+        public Boolean execute(ExternalId externalId) {
+          Security security = resolver.resolveSecurity(externalId);
+          return !_securityTypes.contains(security.getSecurityType().toLowerCase());
+        }
+      })) {
         return null;
       }
     }
     return this;
   }
 
-  private static ExternalId createId(ValueSpecification valueSpecification) {
+  private static ExternalIdBundle createIds(ValueSpecification valueSpecification) {
     if (valueSpecification.getProperty("Id") != null) {
-      return ExternalId.parse(valueSpecification.getProperty("Id"));
+      return ExternalIdBundle.of(ExternalId.parse(valueSpecification.getProperty("Id")));
     } else {
       // Id may not always be present - maybe with snapshots? (get External from UniqueId)
       UniqueId uniqueId = valueSpecification.getTargetSpecification().getUniqueId();
       String scheme = uniqueId.getScheme();
       if (scheme.startsWith("ExternalId-")) {
-        scheme = scheme.substring(11);
+        return PrimitiveResolver.resolveExternalIds(uniqueId, "ExternalId-");
+      } else {
+        return ExternalIdBundle.of(scheme, uniqueId.getValue());
       }
-      // REVIEW 2013-10-11 Andrew -- The above logic is only correct if the requirement was for a single identifier and not a bundle,
-      // for example data might have been asked for with tickers from a number of alternative data providers
-      return ExternalId.of(scheme, uniqueId.getValue());
     }
   }
 

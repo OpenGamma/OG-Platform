@@ -17,6 +17,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.resolver.PrimitiveResolver;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -26,6 +28,8 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
@@ -58,8 +62,8 @@ public class PointSelectorTest {
     PointSelector selector = builder().getSelector(); // will match any ExternalId
     assertNotNull(selector.findMatchingSelector(_valueSpec, "default", _noOpResolver));
     ValueSpecification valueSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE,
-                                                          ComputationTargetSpecification.NULL,
-                                                          ValueProperties.with(ValuePropertyNames.FUNCTION, "foo").get());
+        ComputationTargetSpecification.NULL,
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "foo").get());
     assertNull(selector.findMatchingSelector(valueSpec, "default", _noOpResolver));
   }
 
@@ -69,6 +73,62 @@ public class PointSelectorTest {
     assertNotNull(selector.findMatchingSelector(valueSpec("scheme", "value1"), "calcConfig", _noOpResolver));
     assertNotNull(selector.findMatchingSelector(valueSpec("scheme", "value2"), "calcConfig", _noOpResolver));
     assertNull(selector.findMatchingSelector(valueSpec("scheme", "value3"), "calcConfig", _noOpResolver));
+  }
+
+  @Test
+  public void idMatchesOnExternalIdBundle() {
+    UniqueId uid = PrimitiveResolver.resolveExternalId(ExternalIdBundle.of(ExternalId.of("scheme-A", "value-1"), ExternalId.of("scheme-B", "value-2")));
+
+    ValueSpecification valueSpec = new ValueSpecification(MarketDataRequirementNames.MARKET_VALUE,
+        new ComputationTargetSpecification(ComputationTargetType.ANYTHING, uid), ValueProperties.with(ValuePropertyNames.FUNCTION, "foo").get());
+    assertNotNull(builder().idMatches("scheme-A", "value-\\d").getSelector().findMatchingSelector(valueSpec,
+        "default",
+        _noOpResolver));
+    assertNotNull(builder().idMatches("scheme-B", "value-\\d").getSelector().findMatchingSelector(valueSpec,
+        "default",
+        _noOpResolver));
+    assertNotNull(builder().idMatches("scheme-A", "[a-z\\-]+\\d").getSelector().findMatchingSelector(valueSpec,
+                                                                                                  "default",
+                                                                                                  _noOpResolver));
+    assertNotNull(builder().idMatches("scheme-B", "[a-z\\-]+\\d").getSelector().findMatchingSelector(valueSpec,
+                                                                                                  "default",
+                                                                                                  _noOpResolver));
+    assertNull(builder().idMatches("Scheme-A", "value-\\d").getSelector().findMatchingSelector(valueSpec,
+        "default",
+        _noOpResolver));
+
+    assertNull(builder().idMatches("scheme-C", "value-\\d").getSelector().findMatchingSelector(valueSpec,
+                                                                                               "default",
+                                                                                               _noOpResolver));
+
+    assertNull(builder().idMatches("scheme-A", "nn-\\d").getSelector().findMatchingSelector(valueSpec,
+                                                                                               "default",
+                                                                                               _noOpResolver));
+  }
+
+  @Test
+  public void idMatchesExactlyOnExternalIdBundle() {
+    UniqueId uid = PrimitiveResolver.resolveExternalId(ExternalIdBundle.of(ExternalId.of("scheme-A", "value-1"), ExternalId.of("scheme-B", "value-2")));
+
+    ValueSpecification valueSpec = new ValueSpecification(MarketDataRequirementNames.MARKET_VALUE,
+                                                          new ComputationTargetSpecification(ComputationTargetType.ANYTHING, uid), ValueProperties.with(ValuePropertyNames.FUNCTION, "foo").get());
+    assertNotNull(builder().id("scheme-A", "value-1").getSelector().findMatchingSelector(valueSpec,
+                                                                                                  "default",
+                                                                                                  _noOpResolver));
+    assertNotNull(builder().id("scheme-B", "value-2").getSelector().findMatchingSelector(valueSpec,
+                                                                                                  "default",
+                                                                                                  _noOpResolver));
+    assertNull(builder().id("Scheme-A", "value-1").getSelector().findMatchingSelector(valueSpec,
+                                                                                               "default",
+                                                                                               _noOpResolver));
+
+    assertNull(builder().id("scheme-C", "value-0").getSelector().findMatchingSelector(valueSpec,
+                                                                                               "default",
+                                                                                               _noOpResolver));
+
+    assertNull(builder().id("scheme-A", "nn-2").getSelector().findMatchingSelector(valueSpec,
+                                                                                            "default",
+                                                                                            _noOpResolver));
   }
 
   @Test
@@ -115,7 +175,7 @@ public class PointSelectorTest {
     ZonedDateTime now = ZonedDateTime.now();
     FXForwardSecurity fxForward = new FXForwardSecurity(Currency.AUD, 123, Currency.CAD, 321, now, region);
     FXOptionSecurity fxOption = new FXOptionSecurity(Currency.AUD, Currency.CAD, 123, 321, new Expiry(now),
-                                                     now, true, new AmericanExerciseType());
+        now, true, new AmericanExerciseType());
     SelectorResolver resolver = mock(SelectorResolver.class);
     when(resolver.resolveSecurity(equityId)).thenReturn(equity);
     when(resolver.resolveSecurity(forwardId)).thenReturn(fxForward);
