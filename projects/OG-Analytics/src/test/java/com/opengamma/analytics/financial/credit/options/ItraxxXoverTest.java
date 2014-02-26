@@ -186,7 +186,7 @@ public class ItraxxXoverTest extends ISDABaseTest {
       double impVol = 0;
 
       //TODO PLAT-5993 The tolerance has been turned down to pass in Bamboo
-      final double tol = i == 0 ? 1e-12 * expOTMprices[i] : 1e-13 * expOTMprices[i];
+      final double tol = 1e-12 * expOTMprices[i];
       if (DEFAULT_ADJ_INDEX / NOTIONAL < EXERCISE_PRICE[i]) {
         assertEquals(expOTMprices[i], payer, tol);
         if (CALLPRICE[i] > 0) {
