@@ -624,7 +624,16 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
     return res;
   }
 
-  private CDSQuoteConvention bumpQuote(final CDSAnalytic cds, final CDSQuoteConvention quote, final ISDACompliantYieldCurve yieldCurve, final double eps) {
+  /**
+   * Bump a market quote by a specified amount, eps. If the quote is a spread type (ParSpread or QuotedSpread) the amount is simply bumped by given amount;
+   * however if the quote is PointsUpFront this is first converted to a QuotedSpread, bumped by eps, then converted back to PointsUpFront 
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param quote The market quote 
+   * @param yieldCurve The yield curve
+   * @param eps Bump amount (as a fraction, so a 1bps bumps is 1e-4)
+   * @return The bumped quote 
+   */
+  public CDSQuoteConvention bumpQuote(final CDSAnalytic cds, final CDSQuoteConvention quote, final ISDACompliantYieldCurve yieldCurve, final double eps) {
     if (quote instanceof ParSpread) {
       return new ParSpread(quote.getCoupon() + eps);
     } else if (quote instanceof QuotedSpread) {
@@ -639,7 +648,17 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
     }
   }
 
-  private CDSQuoteConvention[] bumpQuotes(final CDSAnalytic[] cds, final CDSQuoteConvention[] quotes, final ISDACompliantYieldCurve yieldCurve, final double eps) {
+  /**
+   * Bump a set of market quotes by a specified amount, eps. If an individual quote is a spread type (ParSpread or QuotedSpread) the amount is simply bumped 
+   * by given amount; however if the quote is PointsUpFront this is first converted to a QuotedSpread, bumped by eps, then converted back to PointsUpFront. The 
+   * set of quotes may be of mixed type.  
+   * @param cds Set of analytic descriptions of  CDSs traded at a certain times
+   * @param quotes The market quotes 
+   * @param yieldCurve he yield curve
+   * @param eps Bump amount (as a fraction, so a 1bps bumps is 1e-4)
+   * @return The bumped quotes
+   */
+  public CDSQuoteConvention[] bumpQuotes(final CDSAnalytic[] cds, final CDSQuoteConvention[] quotes, final ISDACompliantYieldCurve yieldCurve, final double eps) {
     final int n = cds.length;
     final CDSQuoteConvention[] res = new CDSQuoteConvention[n];
     for (int i = 0; i < n; i++) {

@@ -61,7 +61,7 @@ public class CDXNAHYTest extends ISDABaseTest {
   private static final MarketQuoteConverter CONVERTER = new MarketQuoteConverter();
   private static final CDSAnalyticFactory FACTORY = new CDSAnalyticFactory(INDEX_RECOVERY);
   private static final CDSAnalytic SPOT_CDX = FACTORY.makeCDX(TRADE_DATE, TENOR);
-  private static final CDSAnalytic FWD_START_CDX = FACTORY.makeCDS(TRADE_DATE, EXPIRY.plusDays(1), EXERCISE_SETTLE, ACC_START, MATURITY);
+  private static final CDSAnalytic FWD_START_CDX = FACTORY.makeForwardStartingCDS(TRADE_DATE, EXPIRY, MATURITY);
   private static final CDSAnalytic FWD_CDX = FACTORY.makeCDX(EXPIRY, TENOR);
   private static final CDSAnalytic[] PILLAR_CDX = FACTORY.makeCDX(TRADE_DATE, INDEX_TENORS);
 
@@ -72,7 +72,7 @@ public class CDXNAHYTest extends ISDABaseTest {
   private static final PortfolioSwapAdjustment PSA = new PortfolioSwapAdjustment();
   private static final CDSIndexCalculator INDEX_CAL = new CDSIndexCalculator();
 
-  private static final boolean PRINT = false;
+  private static final boolean PRINT = true;
 
   static {
     final int n = PRICES.length;
@@ -146,6 +146,23 @@ public class CDXNAHYTest extends ISDABaseTest {
     assertEquals("Regression test for index curve ATM Fwd spread", expFwdSpread1, fwdSpread2, 1e-15);
     assertEquals("Regression test for intrinic ATM Fwd spread", expFwdSpread2, fwdSpreadUnAdj, 1e-15);
     assertEquals("Regression test for adjusted intrinic ATM Fwd spread", expFwdSpread3, fwdSpreadAdj, 1e-15);
+  }
+
+  @Test
+  void forwardValueWithAccrualTest() {
+    final LocalDate expiry = LocalDate.of(2014, 3, 18);
+    final CDSAnalytic fwdStartCDS = FACTORY.makeForwardStartingCDS(TRADE_DATE, expiry, MATURITY);
+    //  assertEquals(89, fwdStartCDS.getAccuredDays());
+
+    final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_PUF, YIELD_CURVE);
+    final double tE = ACT365F.getDayCountFraction(TRADE_DATE, expiry);
+    final double tES = ACT365F.getDayCountFraction(TRADE_DATE, EXERCISE_SETTLE.minusDays(1));
+    final double fwdIndexVal = INDEX_CAL.defaultAdjustedForwardIndexValue(fwdStartCDS, tE, YIELD_CURVE, INDEX_COUPON, cc);
+    System.out.println(fwdIndexVal * NOTIONAL);
+
+    final double defSet = INDEX_CAL.expectedDefaultSettlementValue(tE, cc, fwdStartCDS.getLGD());
+    final double fwdIndexVal2 = defSet + PRICER.pv(fwdStartCDS, YIELD_CURVE, cc, INDEX_COUPON);
+    System.out.println(fwdIndexVal2 * NOTIONAL);
   }
 
   @Test

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.options;
 
+import com.opengamma.analytics.financial.credit.index.CDSIndexCalculator;
 import com.opengamma.analytics.financial.credit.index.PortfolioSwapAdjustment;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AnnuityForSpreadApproxFunction;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AnnuityForSpreadFunction;
@@ -20,6 +21,7 @@ import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -72,6 +74,26 @@ public class IndexOptionPricer {
     _expiry = timeToExpiry;
     _coupon = coupon;
     _df = yieldCurve.getDiscountFactor(timeToExpiry);
+  }
+
+  /**
+   * Calculate the option premium (price per unit of notional) 
+   * @see CDSIndexCalculator
+   * @param defaultAdjIndexValue The default adjusted forward index value (or ATM Forward value). Use CDSIndexCalculator to compute this. 
+   * @param vol The log-normal volatility of the pseudo spread 
+   * @param strike The option strike. This can be either given as the exercise price directly (ExerciseAmount) or as a spread (SpreadBasedStrike)
+   * @param isPayer true for payer and false for receiver option 
+   * @return The option premium 
+   */
+  public double getOptionPremium(final double defaultAdjIndexValue, final double vol, final IndexOptionStrike strike, final boolean isPayer) {
+    ArgumentChecker.notNull(strike, "strike");
+    if (strike instanceof SpreadBasedStrike) {
+      return getOptionPriceForSpreadQuotedIndex(defaultAdjIndexValue, vol, strike.amount(), isPayer);
+    } else if (strike instanceof ExerciseAmount) {
+      return getOptionPriceForPriceQuotedIndex(defaultAdjIndexValue, vol, strike.amount(), isPayer);
+    } else {
+      throw new IllegalArgumentException("unknow  strike type " + strike.getClass());
+    }
   }
 
   public double getOptionPriceForSpreadQuotedIndex(final double defaultAdjIndexValue, final double vol, final double strike, final boolean isPayer) {
