@@ -35,6 +35,8 @@ import com.opengamma.util.async.AsynchronousExecution;
  */
 public class BucketedPV01Function extends BaseNonCompiledInvoker {
 
+  private static final double RESCALE_FACTOR = 10000.0;
+
   @Override
   protected FunctionSignature functionSignature() {
 
@@ -43,32 +45,44 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
             output(BUCKETED_PV01)
                 .targetSpec(originalTarget())
                 .properties(copyFrom(YIELD_CURVE_NODE_SENSITIVITIES)
-                                .withReplacement(ValuePropertyNames.FUNCTION, getUniqueId()))
+                    .withOptional(ValuePropertyNames.SCALING_FACTOR)
+                    .withReplacement(ValuePropertyNames.FUNCTION, getUniqueId()))
         )
         .inputs(
             input(YIELD_CURVE_NODE_SENSITIVITIES)
-                .properties(copyFrom(BUCKETED_PV01))
-                .targetSpec(originalTarget()));
+                .properties(copyFrom(BUCKETED_PV01).withoutAny(ValuePropertyNames.SCALING_FACTOR))
+                .targetSpec(originalTarget())
+        );
   }
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
-                                    final FunctionInputs inputs,
-                                    ComputationTarget target,
-                                    Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+      final FunctionInputs inputs,
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
     DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) inputs.getComputedValue(YIELD_CURVE_NODE_SENSITIVITIES).getValue();
+
+    ValueRequirement desiredValue = functional(desiredValues).first();
+
+    final double rescaleFactor;
+    if (desiredValue.getConstraints().getSingleValue(ValuePropertyNames.SCALING_FACTOR) != null) {
+      double scalingFactor = Double.parseDouble(desiredValue.getConstraint(ValuePropertyNames.SCALING_FACTOR));
+      rescaleFactor = RESCALE_FACTOR / scalingFactor;
+    } else {
+      rescaleFactor = RESCALE_FACTOR;
+    }
     LabelledMatrix1D<Double, Double> matrixDividedBy10k = matrix.mapValues(new Function3<Double, Double, Object, Double>() {
       @Override
-      public Double execute(Double _, Double value, Object __) {
-        return value / 10000.0;
+      public Double execute(Double notUsed, Double value, Object notUsed2) {
+        return value / rescaleFactor;
       }
     });
 
-    ValueRequirement desiredValue = functional(desiredValues).first();
     ValueSpecification valueSpecification = ValueSpecification.of(desiredValue.getValueName(),
-                                                                  target.toSpecification(),
-                                                                  desiredValue.getConstraints());
+        target.toSpecification(),
+        desiredValue.getConstraints());
+
     return newHashSet(new ComputedValue(valueSpecification, matrixDividedBy10k));
   }
 
@@ -76,5 +90,5 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
   public String getUniqueId() {
     return "Bucketed PV01 Function";
   }
-  
+
 }
