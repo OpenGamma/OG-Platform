@@ -38,13 +38,13 @@ public class DaysFromEndOfMonthExpiryAdjuster implements ExchangeTradedInstrumen
     ArgumentChecker.notNull(holidayCalendar, "holidayCalendar");
     // is today after the adjusted date for this month
     LocalDate date = today.with(TemporalAdjusters.lastDayOfMonth());
-    while (!holidayCalendar.isWorkingDay(date)) {
+    while (!WEEKEND.isWorkingDay(date)) {
       date = date.minusDays(1);
     }
     int i = 0;
     while (i < _nWorkingDays) {
       date = date.minusDays(1);
-      if (holidayCalendar.isWorkingDay(date)) {
+      if (WEEKEND.isWorkingDay(date)) {
         i++;
       }
     }
@@ -52,13 +52,13 @@ public class DaysFromEndOfMonthExpiryAdjuster implements ExchangeTradedInstrumen
       return getExpiryDate(n, today.plusMonths(1).with(TemporalAdjusters.firstDayOfMonth()), WEEKEND);
     }
     date = today.plusMonths(n - 1).with(TemporalAdjusters.lastDayOfMonth());
-    while (!holidayCalendar.isWorkingDay(date)) {
+    while (!WEEKEND.isWorkingDay(date)) {
       date = date.minusDays(1);
     }
     i = 0;
     while (i < _nWorkingDays) {
       date = date.minusDays(1);
-      if (holidayCalendar.isWorkingDay(date)) {
+      if (WEEKEND.isWorkingDay(date)) {
         i++;
       }
     }
