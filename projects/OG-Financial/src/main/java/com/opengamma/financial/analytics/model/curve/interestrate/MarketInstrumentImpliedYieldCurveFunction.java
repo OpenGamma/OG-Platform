@@ -173,7 +173,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     if (timeSeriesResolver == null) {
       throw new UnsupportedOperationException("A historical time series resolver is required");
     }
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
   }
 
   @Override

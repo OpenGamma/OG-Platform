@@ -22,6 +22,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -72,10 +73,11 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
   public final void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
     _curveConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 

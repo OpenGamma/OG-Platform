@@ -257,18 +257,18 @@ public class CurveNodeToDefinitionConverterTest {
 
   private static final String SWAP_QIMM_6MLIBOR3M_CONVENTION_NAME = "USD Swap-QIMM-6M-LIBOR3M";
   private static final ExternalId SWAP_QIMM_6MLIBOR3M_CONVENTION_ID = ExternalId.of(SCHEME, SWAP_QIMM_6MLIBOR3M_CONVENTION_NAME);
-  private static final RollDateSwapConvention SWAP_6MIMMLIBOR3MIMM_CONVENTION = new RollDateSwapConvention(SWAP_QIMM_6MLIBOR3M_CONVENTION_NAME, ExternalIdBundle.of(SWAP_QIMM_6MLIBOR3M_CONVENTION_ID),
-      FIXED_LEG_ROLL_ID, LIBOR_3M_LEG_ROLL_ID, QUARTERLY_IMM_DATES);
+  private static final RollDateSwapConvention SWAP_6MIMMLIBOR3MIMM_CONVENTION = new RollDateSwapConvention(SWAP_QIMM_6MLIBOR3M_CONVENTION_NAME, 
+      ExternalIdBundle.of(SWAP_QIMM_6MLIBOR3M_CONVENTION_ID), FIXED_LEG_ROLL_ID, LIBOR_3M_LEG_ROLL_ID, QUARTERLY_IMM_DATES);
 
   private static final String SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_NAME = "USD Swap-QIMM-LIBOR6M-LIBOR3M";
   private static final ExternalId SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_ID = ExternalId.of(SCHEME, SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_NAME);
   private static final RollDateSwapConvention SWAP_LIBOR6MIMMLIBOR3MIMM_CONVENTION = new RollDateSwapConvention(SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_NAME,
-      ExternalIdBundle.of(SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_ID), LIBOR_6M_LEG_ROLL_ID, LIBOR_3M_LEG_ROLL_ID, QUARTERLY_IMM_DATES);
+      ExternalIdBundle.of(SWAP_QIMM_LIBOR6MLIBOR3M_CONVENTION_ID), LIBOR_3M_LEG_ROLL_ID, LIBOR_6M_LEG_ROLL_ID, QUARTERLY_IMM_DATES);
 
   private static final String SWAP_QIMM_LIBOR3MFF3M_CONVENTION_NAME = "USD Swap-QIMM-LIBOR3M-FF3M";
   private static final ExternalId SWAP_QIMM_LIBOR3MFF3M_CONVENTION_ID = ExternalId.of(SCHEME, SWAP_QIMM_LIBOR3MFF3M_CONVENTION_NAME);
   private static final RollDateSwapConvention SWAP_QIMM_LIBOR3MFF3M_CONVENTION = new RollDateSwapConvention(SWAP_QIMM_LIBOR3MFF3M_CONVENTION_NAME,
-      ExternalIdBundle.of(SWAP_QIMM_LIBOR3MFF3M_CONVENTION_ID), LIBOR_3M_LEG_ROLL_ID, ON_3M_LEG_ROLL_ID, QUARTERLY_IMM_DATES);
+      ExternalIdBundle.of(SWAP_QIMM_LIBOR3MFF3M_CONVENTION_ID), ON_3M_LEG_ROLL_ID, LIBOR_3M_LEG_ROLL_ID, QUARTERLY_IMM_DATES);
 
   // EUR conventions
   private static final String EURIBOR_CONVENTION_NAME = "EUR Euribor";
@@ -914,14 +914,14 @@ public class CurveNodeToDefinitionConverterTest {
     final SwapDefinition swap = (SwapDefinition) definition;
     final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(CALENDAR, now.plus(startPeriod));
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.of(RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
-    final IborIndex index6M = ConverterUtils.indexIbor(USDLIBOR6M_NAME, USDLIBOR_ACT_360, ((VanillaIborLegRollDateConvention) CONVENTIONS.get(SWAP_LIBOR6MIMMLIBOR3MIMM_CONVENTION.getPayLegConvention())).getResetTenor());
-    final AnnuityDefinition<CouponIborDefinition> ibor6MLeg = AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, adjuster, index6M, 1,
-        true, ACT_360, CALENDAR, StubType.SHORT_START);
-    assertEquals("IborIborIMMSwap", swap.getFirstLeg(), ibor6MLeg);
-    final IborIndex index3M = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, ((VanillaIborLegRollDateConvention) CONVENTIONS.get(SWAP_6MIMMLIBOR3MIMM_CONVENTION.getReceiveLegConvention())).getResetTenor());
-    final AnnuityDefinition<CouponIborSpreadDefinition> ibor3MLeg = AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, adjuster, 1, index3M, spread,
-        false, ACT_360, CALENDAR, StubType.SHORT_START);
-    assertEquals("IborIborIMMSwap", swap.getSecondLeg(), ibor3MLeg);
+    final IborIndex index3M = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
+    final AnnuityDefinition<CouponIborSpreadDefinition> ibor3MLeg = AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, 
+        adjuster, index3M, 1, spread, true, ACT_360, CALENDAR, StubType.SHORT_START);
+    assertEquals("IborIborIMMSwap", swap.getFirstLeg(), ibor3MLeg);
+    final IborIndex index6M = ConverterUtils.indexIbor(USDLIBOR6M_NAME, USDLIBOR_ACT_360, Tenor.SIX_MONTHS);
+    final AnnuityDefinition<CouponIborDefinition> ibor6MLeg = AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, 
+        adjuster, index6M, 1, false, ACT_360, CALENDAR, StubType.SHORT_START);
+    assertEquals("IborIborIMMSwap", swap.getSecondLeg(), ibor6MLeg);
   }
 
   /**
@@ -944,15 +944,15 @@ public class CurveNodeToDefinitionConverterTest {
     final SwapDefinition swap = (SwapDefinition) definition;
     final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(CALENDAR, now.plus(startPeriod));
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.of(RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
-    final IborIndex index6M = ConverterUtils.indexIbor(USDLIBOR6M_NAME, USDLIBOR_ACT_360, Tenor.SIX_MONTHS);
-    final AnnuityDefinition<CouponIborDefinition> ibor6MLeg = AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, adjuster, index6M, 1,
-        true, ACT_360, CALENDAR, StubType.SHORT_START);
-    assertEquals("IborIborIMMSwap", swap.getFirstLeg().getNumberOfPayments(), 1);
-    assertEquals("IborIborIMMSwap", swap.getFirstLeg(), ibor6MLeg);
     final IborIndex index3M = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, ((VanillaIborLegRollDateConvention) CONVENTIONS.get(SWAP_6MIMMLIBOR3MIMM_CONVENTION.getReceiveLegConvention())).getResetTenor());
-    final AnnuityDefinition<CouponIborSpreadDefinition> ibor3MLeg = AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, adjuster, 1, index3M, spread,
-        false, ACT_360, CALENDAR, StubType.SHORT_START);
-    assertEquals("IborIborIMMSwap", swap.getSecondLeg(), ibor3MLeg);
+    final AnnuityDefinition<CouponIborSpreadDefinition> ibor3MLeg = AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, 
+        adjuster, index3M, 1, spread, true, ACT_360, CALENDAR, StubType.SHORT_START);
+    assertEquals("IborIborIMMSwap", swap.getFirstLeg(), ibor3MLeg);
+    final IborIndex index6M = ConverterUtils.indexIbor(USDLIBOR6M_NAME, USDLIBOR_ACT_360, Tenor.SIX_MONTHS);
+    final AnnuityDefinition<CouponIborDefinition> ibor6MLeg = AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, adjuster, 
+        index6M, 1, false, ACT_360, CALENDAR, StubType.SHORT_START);
+    assertEquals("IborIborIMMSwap", swap.getSecondLeg().getNumberOfPayments(), 1);
+    assertEquals("IborIborIMMSwap", swap.getSecondLeg(), ibor6MLeg);
   }
 
   @Test
@@ -972,14 +972,14 @@ public class CurveNodeToDefinitionConverterTest {
     final SwapDefinition swap = (SwapDefinition) definition;
     final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(CALENDAR, now.plus(startPeriod));
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.of(RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
-    final IborIndex index3m = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
-    final AnnuityDefinition<CouponIborDefinition> ibor3MLeg = AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, adjuster, index3m, 1,
-        true, ACT_360, CALENDAR, StubType.SHORT_START);
-    assertEquals("IborONIMMSwap", swap.getFirstLeg(), ibor3MLeg);
     final IndexON indexON = ConverterUtils.indexON(USD_OVERNIGHT.getName(), USD_OVERNIGHT_CONVENTION);
     final AnnuityDefinition<CouponONSpreadSimplifiedDefinition> onLeg = AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplifiedRollDate(adjustedStartDate, startNumber, endNumber,
-        adjuster, ON_3M_LEG_ROLL.getPaymentTenor().getPeriod(), 1.0d, spread, indexON, false, CALENDAR, ON_3M_LEG_ROLL.getStubType(), ON_3M_LEG_ROLL.getPaymentLag());
-    assertEquals("IborONIMMSwap", swap.getSecondLeg(), onLeg);
+        adjuster, ON_3M_LEG_ROLL.getPaymentTenor().getPeriod(), 1.0d, spread, indexON, true, CALENDAR, ON_3M_LEG_ROLL.getStubType(), ON_3M_LEG_ROLL.getPaymentLag());
+    assertEquals("IborONIMMSwap", swap.getFirstLeg(), onLeg); // First leg is quote leg
+    final IborIndex index3m = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
+    final AnnuityDefinition<CouponIborDefinition> ibor3MLeg = AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, startNumber, endNumber, adjuster, index3m, 1,
+        false, ACT_360, CALENDAR, StubType.SHORT_START);
+    assertEquals("IborONIMMSwap", swap.getSecondLeg(), ibor3MLeg); // Second leg is non-quote leg.
   }
 
   @Test
@@ -1117,20 +1117,22 @@ public class CurveNodeToDefinitionConverterTest {
     assertTrue(definition instanceof SwapDefinition);
     final IborIndex index3m = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
     final IborIndex index6m = ConverterUtils.indexIbor(USDLIBOR6M_NAME, USDLIBOR_ACT_360, Tenor.SIX_MONTHS);
-    AnnuityCouponIborDefinition payLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 1.0d, index3m, true,
-        index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
-    final AnnuityDefinition<CouponIborSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.couponIborSpread(settlementDate, maturityDate, LEG_USDLIBOR6M.getResetTenor().getPeriod(),
-        1.0d, spread, index6m, false, index6m.getDayCount(), index6m.getBusinessDayConvention(), index6m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR6M.getStubType(), LEG_USDLIBOR6M.getPaymentLag());
+    AnnuityDefinition<CouponIborSpreadDefinition> payLeg = AnnuityDefinitionBuilder.couponIborSpread(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 
+        1.0d, spread, index3m, true, index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), 
+        LEG_USDLIBOR3M.getPaymentLag());
+    final AnnuityCouponIborDefinition receiveLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR6M.getResetTenor().getPeriod(),
+        1.0d, index6m, false, index6m.getDayCount(), index6m.getBusinessDayConvention(), index6m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR6M.getStubType(), 
+        LEG_USDLIBOR6M.getPaymentLag());
     assertEquals(new SwapDefinition(payLeg, receiveLeg), definition);
     settlementDate = DateUtils.getUTCDate(2014, 3, 5);
     maturityDate = settlementDate.plus(swapTenor);
     swapNode = new SwapNode(Tenor.ONE_YEAR, Tenor.of(swapTenor), LEG_USDLIBOR3M_ID, LEG_USDLIBOR6M_ID, "Mapper");
     definition = swapNode.accept(converter);
     assertTrue(definition instanceof SwapDefinition);
-    payLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 1.0d, index3m, true,
-        index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
-    final AnnuityDefinition<CouponIborSpreadDefinition> spreadLeg = AnnuityDefinitionBuilder.couponIborSpread(settlementDate, maturityDate, LEG_USDLIBOR6M.getResetTenor().getPeriod(),
-        1.0d, spread, index6m, false, index6m.getDayCount(), index6m.getBusinessDayConvention(), index6m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR6M.getStubType(), LEG_USDLIBOR6M.getPaymentLag());
+    payLeg = AnnuityDefinitionBuilder.couponIborSpread(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 
+        1.0d, spread, index3m, true, index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
+    final AnnuityCouponIborDefinition spreadLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR6M.getResetTenor().getPeriod(),
+        1.0d, index6m, false, index6m.getDayCount(), index6m.getBusinessDayConvention(), index6m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR6M.getStubType(), LEG_USDLIBOR6M.getPaymentLag());
     assertEquals(new SwapDefinition(payLeg, spreadLeg), definition);
   }
 
@@ -1151,22 +1153,23 @@ public class CurveNodeToDefinitionConverterTest {
     assertTrue(definition instanceof SwapDefinition);
     final IborIndex usdLibor3M = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
     final IborIndex euribor3M = ConverterUtils.indexIbor(EURIBOR3M_NAME, EURIBOR_CONVENTION, Tenor.THREE_MONTHS);
-    AnnuityDefinition<CouponDefinition> payLeg = AnnuityDefinitionBuilder.couponIborWithNotional(settlementDate, maturityDate, 1.0,
+    AnnuityDefinition<CouponDefinition> quoteLeg = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate, 1.0, spread,
         usdLibor3M, true, CALENDAR, LEG_USDLIBOR3M.getStubType(), 2, true, true);
     final double notional = FX_MATRIX.getFxRate(Currency.USD, Currency.EUR);
-    AnnuityDefinition<CouponDefinition> receiveLeg = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate, notional,
-        spread, euribor3M, false, CALENDAR, LEG_EURIBOR3M.getStubType(), 0, true, true);
-    assertEquals(new SwapDefinition(payLeg, receiveLeg), definition);
+    AnnuityDefinition<CouponDefinition> nonQuoteLeg = AnnuityDefinitionBuilder.couponIborWithNotional(settlementDate, maturityDate, notional,
+        euribor3M, false, CALENDAR, LEG_EURIBOR3M.getStubType(), 0, true, true);
+    assertEquals(new SwapDefinition(quoteLeg, nonQuoteLeg), definition);
     // Second test
     settlementDate = DateUtils.getUTCDate(2014, 3, 5);
     maturityDate = settlementDate.plus(swapTenor);
     swapNode = new SwapNode(Tenor.ONE_YEAR, Tenor.of(swapTenor), LEG_USDLIBOR3M_ID, LEG_EURIBOR3M_ID, "Mapper");
     definition = swapNode.accept(converter);
     assertTrue(definition instanceof SwapDefinition);
-    payLeg = AnnuityDefinitionBuilder.couponIborWithNotional(settlementDate, maturityDate, 1.0, usdLibor3M, true, CALENDAR, LEG_USDLIBOR3M.getStubType(), 2, true, true);
-    receiveLeg = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate, notional, spread, euribor3M, false, CALENDAR,
-        LEG_EURIBOR3M.getStubType(), 0, true, true);
-    assertEquals(new SwapDefinition(payLeg, receiveLeg), definition);
+    quoteLeg = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate, 1.0, spread, 
+        usdLibor3M, true, CALENDAR, LEG_USDLIBOR3M.getStubType(), 2, true, true);
+    nonQuoteLeg = AnnuityDefinitionBuilder.couponIborWithNotional(settlementDate, maturityDate, notional, 
+        euribor3M, false, CALENDAR, LEG_EURIBOR3M.getStubType(), 0, true, true);
+    assertEquals(new SwapDefinition(quoteLeg, nonQuoteLeg), definition);
   }
 
   @Test
@@ -1179,22 +1182,22 @@ public class CurveNodeToDefinitionConverterTest {
     final ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 3, 5);
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new SwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now, FX_MATRIX);
     final Tenor tenor = Tenor.FIVE_YEARS;
-    final SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), tenor, LEG_USDLIBOR3M_ID, ON_AA_ID, "Mapper");
+    final SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), tenor,ON_AA_ID, LEG_USDLIBOR3M_ID, "Mapper");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
     assertTrue(definition instanceof SwapDefinition);
     final SwapDefinition swap = (SwapDefinition) definition;
     final ZonedDateTime maturity = settlementDate.plus(tenor.getPeriod());
-    final IborIndex index3m = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
-    final AnnuityDefinition<CouponIborDefinition> payLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturity, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 1.0d, index3m, true,
-        ACT_360, USDLIBOR_ACT_360.getBusinessDayConvention(), USDLIBOR_ACT_360.isIsEOM(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
-    for(int loopcpn=0; loopcpn<payLeg.getNumberOfPayments(); loopcpn++) {
-      assertEquals("IborONAASwap: first leg - cpn " + loopcpn, payLeg.getNthPayment(loopcpn), (swap.getFirstLeg().getNthPayment(loopcpn)));
-    }
     final IndexON indexON = ConverterUtils.indexON(USD_OVERNIGHT.getName(), USD_OVERNIGHT_CONVENTION);
-    final AnnuityDefinition<CouponONArithmeticAverageSpreadSimplifiedDefinition> recLeg = AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(settlementDate, maturity,
-        ON_AA.getPaymentTenor().getPeriod(), 1.0, spread, indexON, false, ON_AA.getBusinessDayConvention(), ON_AA.isIsEOM(), CALENDAR, ON_AA.getStubType());
-    for(int loopcpn=0; loopcpn<recLeg.getNumberOfPayments(); loopcpn++) {
-      assertEquals("IborONAASwap: second leg - cpn " + loopcpn, recLeg.getNthPayment(loopcpn), (swap.getSecondLeg().getNthPayment(loopcpn)));
+    final AnnuityDefinition<CouponONArithmeticAverageSpreadSimplifiedDefinition> quoteLeg = AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(settlementDate, maturity,
+        ON_AA.getPaymentTenor().getPeriod(), 1.0, spread, indexON, true, ON_AA.getBusinessDayConvention(), ON_AA.isIsEOM(), CALENDAR, ON_AA.getStubType());
+    for(int loopcpn=0; loopcpn<quoteLeg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("IborONAASwap: second leg - cpn " + loopcpn, quoteLeg.getNthPayment(loopcpn), (swap.getFirstLeg().getNthPayment(loopcpn)));
+    }
+    final IborIndex index3m = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
+    final AnnuityDefinition<CouponIborDefinition> nonQuoteLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturity, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 
+        1.0d, index3m, false, ACT_360, USDLIBOR_ACT_360.getBusinessDayConvention(), USDLIBOR_ACT_360.isIsEOM(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
+    for(int loopcpn=0; loopcpn<nonQuoteLeg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("IborONAASwap: first leg - cpn " + loopcpn, nonQuoteLeg.getNthPayment(loopcpn), (swap.getSecondLeg().getNthPayment(loopcpn)));
     }
   }
 
@@ -1209,21 +1212,21 @@ public class CurveNodeToDefinitionConverterTest {
     final Tenor legTenor = Tenor.TWO_YEARS;
     final ZonedDateTime maturityDate = settlementDate.plus(legTenor.getPeriod());
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new SwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now, FX_MATRIX);
-    final SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), legTenor, LEG_USDLIBOR3M_ID, LIBOR_1M_CMP_3M_ID, "Mapper");
+    final SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), legTenor, LIBOR_1M_CMP_3M_ID, LEG_USDLIBOR3M_ID, "Mapper");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
     assertTrue(definition instanceof SwapDefinition);
     final Period paymentPeriod = Period.ofMonths(3);
     final IborIndex index3m = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
     final IborIndex index1m = ConverterUtils.indexIbor(USDLIBOR1M_NAME, USDLIBOR_ACT_360, Tenor.ONE_MONTH);
-    final AnnuityCouponIborDefinition payLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 1.0d, index3m, true,
-        index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
-    final AnnuityDefinition<CouponIborCompoundingSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.couponIborCompoundingSpread(settlementDate, settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread,
-        index1m, StubType.SHORT_START, false, MODIFIED_FOLLOWING, true, CALENDAR, StubType.SHORT_START);
-    assertEquals("IborIborCompoundingSwap: first leg", payLeg, ((SwapDefinition)definition).getFirstLeg());
-    for(int loopcpn=0; loopcpn<receiveLeg.getNumberOfPayments(); loopcpn++) {
-      assertEquals("IborIborCompoundingSwap: first leg - cpn " + loopcpn, receiveLeg.getNthPayment(loopcpn), ((SwapDefinition)definition).getSecondLeg().getNthPayment(loopcpn));
+    final AnnuityDefinition<CouponIborCompoundingSpreadDefinition> quoteLeg = AnnuityDefinitionBuilder.couponIborCompoundingSpread(settlementDate, settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread,
+        index1m, StubType.SHORT_START, true, MODIFIED_FOLLOWING, true, CALENDAR, StubType.SHORT_START);
+    for(int loopcpn=0; loopcpn<quoteLeg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("IborIborCompoundingSwap: quote leg - cpn " + loopcpn, quoteLeg.getNthPayment(loopcpn), ((SwapDefinition)definition).getFirstLeg().getNthPayment(loopcpn));
     }
-    assertEquals("IborIborCompoundingSwap: first leg", receiveLeg, ((SwapDefinition)definition).getSecondLeg());
+    assertEquals("IborIborCompoundingSwap: quote leg", quoteLeg, ((SwapDefinition)definition).getFirstLeg());
+    final AnnuityCouponIborDefinition nonQuoteLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 1.0d, 
+        index3m, false, index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
+    assertEquals("IborIborCompoundingSwap: non-quote leg", nonQuoteLeg, ((SwapDefinition)definition).getSecondLeg());
   }
 
   @Test
@@ -1237,21 +1240,21 @@ public class CurveNodeToDefinitionConverterTest {
     final Tenor legTenor = Tenor.TWO_YEARS;
     final ZonedDateTime maturityDate = settlementDate.plus(legTenor.getPeriod());
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new SwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now, FX_MATRIX);
-    final SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), legTenor, LEG_USDLIBOR3M_ID, LIBOR_1M_CMP_FLAT_3M_ID, "Mapper");
+    final SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), legTenor, LIBOR_1M_CMP_FLAT_3M_ID, LEG_USDLIBOR3M_ID, "Mapper");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
     assertTrue(definition instanceof SwapDefinition);
     final Period paymentPeriod = Period.ofMonths(3);
     final IborIndex index3m = ConverterUtils.indexIbor(USDLIBOR3M_NAME, USDLIBOR_ACT_360, Tenor.THREE_MONTHS);
     final IborIndex index1m = ConverterUtils.indexIbor(USDLIBOR1M_NAME, USDLIBOR_ACT_360, Tenor.ONE_MONTH);
-    final AnnuityCouponIborDefinition payLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 1.0d, index3m, true,
-        index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
-    final AnnuityDefinition<CouponIborCompoundingFlatSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(settlementDate,
-        settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread, index1m, StubType.SHORT_START, false, MODIFIED_FOLLOWING, true, CALENDAR, StubType.SHORT_START);
-    assertEquals("IborIborCompoundingSwap: first leg", payLeg, ((SwapDefinition)definition).getFirstLeg());
-    for(int loopcpn=0; loopcpn<receiveLeg.getNumberOfPayments(); loopcpn++) {
-      assertEquals("IborIborCompoundingSwap: first leg - cpn " + loopcpn, receiveLeg.getNthPayment(loopcpn), ((SwapDefinition)definition).getSecondLeg().getNthPayment(loopcpn));
+    final AnnuityDefinition<CouponIborCompoundingFlatSpreadDefinition> quoteLeg = AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(settlementDate,
+        settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread, index1m, StubType.SHORT_START, true, MODIFIED_FOLLOWING, true, CALENDAR, StubType.SHORT_START);
+    final AnnuityCouponIborDefinition nonQuoteLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturityDate, LEG_USDLIBOR3M.getResetTenor().getPeriod(), 1.0d, 
+        index3m, false, index3m.getDayCount(), index3m.getBusinessDayConvention(), index3m.isEndOfMonth(), CALENDAR, LEG_USDLIBOR3M.getStubType(), LEG_USDLIBOR3M.getPaymentLag());
+    assertEquals("IborIborCompoundingSwap: first leg", nonQuoteLeg, ((SwapDefinition)definition).getSecondLeg());
+    for(int loopcpn=0; loopcpn<quoteLeg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("IborIborCompoundingSwap: first leg - cpn " + loopcpn, quoteLeg.getNthPayment(loopcpn), ((SwapDefinition)definition).getFirstLeg().getNthPayment(loopcpn));
     }
-    assertEquals("IborIborCompoundingSwap: first leg", receiveLeg, ((SwapDefinition)definition).getSecondLeg());
+    assertEquals("IborIborCompoundingSwap: first leg", quoteLeg, ((SwapDefinition)definition).getFirstLeg());
   }
 
   @Test

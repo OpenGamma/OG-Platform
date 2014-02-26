@@ -94,8 +94,8 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   private static InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource,
         context.getComputationTargetResolver().getVersionCorrection()));
   }
@@ -117,9 +117,10 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
     _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 

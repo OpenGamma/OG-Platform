@@ -676,13 +676,13 @@ public class AnnuityDefinitionBuilder {
    * @param startNumberRollDate The number of roll dates to the effective date of the swap.
    * @param endNumberRollDate The number of roll dates to the maturity of the swap.
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
-   * @param notional The swap notional.
    * @param index The Ibor index. There is no check that the index is coherent with the adjuster.
    * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed.
    * The ratio is computed with the long division (i.e. with rounding toward 0) and minimum at 1. The payment and accrual dates are the adjuster n-th dates.
    * The start and end dates of the fixing period are given by the start and end accrual dates of the coupon that are given by the adjuster, they may differ from the theoretical index dates.
    * Examples: If the index tenor is P6M and the period in the adjuster is P3M, n is 2. If the index tenor is P3M and the period in the adjuster is P3M, n is 1.
    * If the index tenor is P1M and the period in the adjuster is P3M, n is 1.
+   * @param notional The swap notional.
    * @param spread The spread.
    * @param isPayer The payer flag.
    * @param dayCount The coupons day count. Can be different from the one of the index.
@@ -691,7 +691,7 @@ public class AnnuityDefinitionBuilder {
    * @return The Ibor annuity.
    */
   public static AnnuityDefinition<CouponIborSpreadDefinition> couponIborSpreadRollDateIndexAdjusted(final ZonedDateTime startDate, final int startNumberRollDate, final int endNumberRollDate,
-      final RollDateAdjuster adjuster, final double notional, final IborIndex index, final double spread, final boolean isPayer, final DayCount dayCount, final Calendar calendar,
+      final RollDateAdjuster adjuster, final IborIndex index, final double notional, final double spread, final boolean isPayer, final DayCount dayCount, final Calendar calendar,
       final StubType stub) {
     ArgumentChecker.isTrue(startNumberRollDate > 0, "number of start roll dates negative");
     ArgumentChecker.isTrue(endNumberRollDate > 0, "number of end roll dates negative");

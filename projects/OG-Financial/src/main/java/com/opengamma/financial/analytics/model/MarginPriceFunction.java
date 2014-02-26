@@ -65,13 +65,13 @@ public class MarginPriceFunction extends AbstractFunction {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final InterestRateFutureOptionSecurityConverter irFutureOptionConverter = new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
     final InterestRateFutureOptionTradeConverter optionTradeToTxnDefnConverter = new InterestRateFutureOptionTradeConverter(irFutureOptionConverter);
     final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
-    final FixedIncomeConverterDataProvider definitionConverter = new FixedIncomeConverterDataProvider(conventionBundleSource, timeSeriesResolver);
+    final FixedIncomeConverterDataProvider definitionConverter = new FixedIncomeConverterDataProvider(conventionBundleSource, securitySource, timeSeriesResolver);
 
     return new AbstractInvokingCompiledFunction() {
 

@@ -249,7 +249,7 @@ public class NodeConverterUtils {
         final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
         final StubType stub = convention.getStubType();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
-        if (!isPayer && isMarketDataSpread) {
+        if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
@@ -275,7 +275,6 @@ public class NodeConverterUtils {
         final IborIndex index = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final boolean eomLeg = convention.isIsEOM();
-//        final Period indexTenor = convention.getCompositionTenor().getPeriod();
         final Period paymentTenor = convention.getPaymentTenor().getPeriod();
         final int spotLagLeg = convention.getSettlementDays();
         final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
@@ -285,7 +284,7 @@ public class NodeConverterUtils {
         final CompoundingType compound = convention.getCompoundingType();
         final boolean eom = convention.isIsEOM();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
-        if (!isPayer && isMarketDataSpread) {
+        if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
@@ -335,7 +334,7 @@ public class NodeConverterUtils {
         final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
         final StubType stub = convention.getStubType();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
-        if (!isPayer && isMarketDataSpread) {
+        if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
@@ -391,7 +390,7 @@ public class NodeConverterUtils {
         final StubType stub = convention.getStubType();
         final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
-        if (!isPayer && isMarketDataSpread) {
+        if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
@@ -470,12 +469,12 @@ public class NodeConverterUtils {
         final IborIndex indexIbor = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
         final StubType stub = convention.getStubType();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
-        if (!isPayer && isMarketDataSpread) { // The spread is on the receiver leg.
+        if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, 1, indexIbor, spread,
+          return AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, indexIbor, 1, spread,
               isPayer, indexIbor.getDayCount(), calendar, stub);
         }
         return AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, indexIbor, 1,
@@ -497,7 +496,7 @@ public class NodeConverterUtils {
         final StubType stub = convention.getStubType();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
         final int paymentLag = convention.getPaymentLag();
-        if (!isPayer && isMarketDataSpread) { // The spread is on the receiver leg.
+        if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
@@ -537,7 +536,7 @@ public class NodeConverterUtils {
         final ZonedDateTime maturityDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendarStartEndDate,
             calendarDateEndNumber - calendarDateStartNumber).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
         final StubType stub = convention.getStubType();
-        if (!isPayer && isMarketDataSpread) {
+        if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);

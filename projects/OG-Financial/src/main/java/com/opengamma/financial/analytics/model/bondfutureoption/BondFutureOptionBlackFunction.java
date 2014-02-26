@@ -83,11 +83,11 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new BondFutureOptionTradeConverter(new BondFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
     _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 

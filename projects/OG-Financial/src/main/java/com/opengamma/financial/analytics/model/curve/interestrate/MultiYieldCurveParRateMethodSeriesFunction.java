@@ -136,9 +136,10 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
   @Override
   public void init(final FunctionCompilationContext context) {
     super.init(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
   }
 
   @Override

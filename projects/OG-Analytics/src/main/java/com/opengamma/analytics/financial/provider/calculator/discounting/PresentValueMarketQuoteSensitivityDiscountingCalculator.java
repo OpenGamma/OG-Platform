@@ -12,7 +12,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -74,6 +76,11 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
   }
 
   @Override
+  public Double visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified coupon, final MulticurveProviderInterface multicurve) {
+    return visitCoupon(coupon, multicurve);
+  }
+
+  @Override
   public Double visitCouponIbor(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
@@ -85,6 +92,12 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
 
   @Override
   public Double visitCouponIborCompounding(final CouponIborCompounding coupon, final MulticurveProviderInterface multicurve) {
+    return visitCoupon(coupon, multicurve);
+  }
+
+  @Override
+  public Double visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
+    // TODO: [PLAT-5978] Change to exact sensitivity.
     return visitCoupon(coupon, multicurve);
   }
 

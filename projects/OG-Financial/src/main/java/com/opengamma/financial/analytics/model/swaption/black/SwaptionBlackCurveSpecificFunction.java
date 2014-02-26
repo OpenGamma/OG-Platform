@@ -89,14 +89,14 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
     _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 

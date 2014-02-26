@@ -95,8 +95,8 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
@@ -106,7 +106,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).bondFutureSecurityVisitor(bondFutureConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
     _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 

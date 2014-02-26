@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -73,7 +74,8 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
@@ -84,7 +86,7 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
     final ForexSecurityConverter fxConverter = new ForexSecurityConverter(baseQuotePairs);
     return new Compiled(FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).fxForwardVisitor(fxConverter)
-        .nonDeliverableFxForwardVisitor(fxConverter).create(), new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver));
+        .nonDeliverableFxForwardVisitor(fxConverter).create(), new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver));
   }
 
   /**

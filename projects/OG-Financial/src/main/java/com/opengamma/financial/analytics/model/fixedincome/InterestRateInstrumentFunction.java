@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -95,7 +96,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final CashFlowSecurityConverter cashFlowConverter = new CashFlowSecurityConverter();
@@ -108,7 +110,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         .fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter)
         .interestRateFutureSecurityVisitor(irFutureConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
     _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
