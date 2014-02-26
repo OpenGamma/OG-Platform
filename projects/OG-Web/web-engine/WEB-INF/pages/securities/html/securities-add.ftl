@@ -38,16 +38,6 @@
     <#if err_idschemeMissing??>
       <div class="err">The scheme type must be entered</div>
     </#if>
-    <#if uniqueIdSchemes?exists>
-    <@rowin label="UniqueId Scheme">
-      <select name="uniqueIdScheme">
-        <option value="" <#if scheme = ''>selected</#if>></option>
-        <#list uniqueIdSchemes as uniqueIdScheme>
-        <option value="${uniqueIdScheme}" <#if scheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
-        </#list>
-      </select>
-    </@rowin>
-    </#if>  
     <@rowin label="Scheme type">
       <select name="idscheme">
         <option value="BLOOMBERG_TICKER">Bloomberg Ticker</option>

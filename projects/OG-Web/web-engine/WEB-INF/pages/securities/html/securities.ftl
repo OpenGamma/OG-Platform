@@ -73,17 +73,7 @@
 <#-- SECTION Load and Add security -->
 <@section title="Load securities by ID">
   <@form method="POST" action="${uris.securities()}">
-  <p>
-    <#if uniqueIdSchemes?exists>
-    <@rowin label="UniqueId Scheme">
-      <select name="uniqueIdScheme">
-        <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
-        <#list uniqueIdSchemes as uniqueIdScheme>
-        <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
-        </#list>
-      </select>
-    </@rowin>
-    </#if>  
+  <p> 
     <@rowin label="Scheme type">
       <select name="idscheme">
         <option value="BLOOMBERG_TICKER">Bloomberg Ticker</option>
