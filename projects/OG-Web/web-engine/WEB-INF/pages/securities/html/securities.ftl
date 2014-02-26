@@ -6,11 +6,21 @@
 <@section title="Security search" if=searchRequest??>
   <@form method="GET" action="${uris.securities()}">
   <p>
+    <#if uniqueIdSchemes?exists>
+      <@rowin label="UniqueId Scheme">
+        <select name="uniqueIdScheme">
+          <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
+          <#list uniqueIdSchemes as uniqueIdScheme>
+            <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+          </#list>
+        </select>
+      </@rowin>
+    </#if>  
     <@rowin label="Type">
       <select name="type">
         <option value="" <#if searchRequest.securityType = ''>selected</#if>></option>
-        <#list securityTypes as key>
-          <option value="${key}" <#if searchRequest.securityType = '${key}'>selected</#if>>${key}</option>
+        <#list securityTypes as secType>
+        <option value="${secType}" <#if searchRequest.securityType = '${secType}'>selected</#if>>${secType}</option>
         </#list>
       </select>
     </@rowin>
@@ -38,6 +48,16 @@
 <@section title="Add security by XML">
   <@form method="POST" action="${uris.securities()}" id="addSecurityForm">
   <p>
+    <#if uniqueIdSchemes?exists>
+    <@rowin label="UniqueId Scheme">
+      <select name="uniqueIdScheme">
+        <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
+        <#list uniqueIdSchemes as uniqueIdScheme>
+        <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+        </#list>
+      </select>
+    </@rowin>
+    </#if>  
     <@rowin>
       <div id="ace-xml-editor"></div>
     </@rowin>
@@ -54,6 +74,16 @@
 <@section title="Load securities by ID">
   <@form method="POST" action="${uris.securities()}">
   <p>
+    <#if uniqueIdSchemes?exists>
+    <@rowin label="UniqueId Scheme">
+      <select name="uniqueIdScheme">
+        <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
+        <#list uniqueIdSchemes as uniqueIdScheme>
+        <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+        </#list>
+      </select>
+    </@rowin>
+    </#if>  
     <@rowin label="Scheme type">
       <select name="idscheme">
         <option value="BLOOMBERG_TICKER">Bloomberg Ticker</option>
