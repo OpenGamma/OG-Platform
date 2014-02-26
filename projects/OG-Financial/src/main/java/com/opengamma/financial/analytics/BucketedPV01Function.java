@@ -50,7 +50,7 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
         )
         .inputs(
             input(YIELD_CURVE_NODE_SENSITIVITIES)
-                .properties(copyFrom(BUCKETED_PV01).withOptional(ValuePropertyNames.SCALING_FACTOR))
+                .properties(copyFrom(BUCKETED_PV01).withoutAny(ValuePropertyNames.SCALING_FACTOR))
                 .targetSpec(originalTarget())
         );
   }
@@ -66,7 +66,7 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
     ValueRequirement desiredValue = functional(desiredValues).first();
 
     final double rescaleFactor;
-    if (desiredValue.getConstraint(ValuePropertyNames.SCALING_FACTOR) != null) {
+    if (desiredValue.getConstraints().getSingleValue(ValuePropertyNames.SCALING_FACTOR) != null) {
       double scalingFactor = Double.parseDouble(desiredValue.getConstraint(ValuePropertyNames.SCALING_FACTOR));
       rescaleFactor = RESCALE_FACTOR / scalingFactor;
     } else {
