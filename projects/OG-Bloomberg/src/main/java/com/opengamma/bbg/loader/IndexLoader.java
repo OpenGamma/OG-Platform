@@ -111,7 +111,7 @@ public class IndexLoader extends SecurityLoader {
       // guess it's a price index as source is STATistics agency.  Crude, but hopefully effective.
       index = new PriceIndex(name, conventionId);
       index.setIndexFamilyId(null);
-    } else if (indexSource.toUpperCase().contains("ISDAFIX") && tenor != null) {
+    } else if (securityDes.toUpperCase().contains("ISDAFIX") && tenor != null) {
       // guess it's a swap index
       index = new SwapIndex(name, tenor, conventionId);
       index.setIndexFamilyId(familyId);
