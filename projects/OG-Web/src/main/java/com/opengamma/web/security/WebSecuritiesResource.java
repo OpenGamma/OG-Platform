@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.ws.rs.Consumes;
@@ -48,12 +50,15 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.master.security.SecurityLoaderRequest;
+import com.opengamma.master.security.SecurityLoaderResult;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMetaDataRequest;
 import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.master.security.impl.DelegatingSecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.paging.PagingRequest;
@@ -95,11 +100,12 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
+      @QueryParam("uniqueIdScheme") String uniqueIdScheme,
       @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
-    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
+    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, uniqueIdScheme, securityIdStrs, uriInfo);
     return getFreemarker().build(HTML_DIR + "securities.ftl", out);
   }
 
@@ -118,12 +124,12 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
-    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
+    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, null, securityIdStrs, uriInfo);
     return getFreemarker().build(JSON_DIR + "securities.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, SecuritySearchSortOrder so, String name, String identifier,
-      String type, List<String> securityIdStrs, UriInfo uriInfo) {
+      String type, String uniqueIdScheme, List<String> securityIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
@@ -132,6 +138,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));
+    searchRequest.setUniqueIdScheme(StringUtils.trimToNull(uniqueIdScheme));
     for (String securityIdStr : securityIdStrs) {
       searchRequest.addObjectId(ObjectId.parse(securityIdStr));
     }
@@ -158,8 +165,10 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @FormParam("type") String type,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue,
-      @FormParam(SECURITY_XML) String securityXml) {
+      @FormParam(SECURITY_XML) String securityXml,
+      @FormParam("uniqueIdScheme") String uniqueIdScheme) {
     
+    uniqueIdScheme = StringUtils.trimToNull(uniqueIdScheme);
     type = StringUtils.defaultString(StringUtils.trimToNull(type));
     FlexiBean out = createRootData();
     URI responseURI = null;
@@ -168,15 +177,15 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       case "xml":
         try {
           securityXml = StringUtils.trimToNull(securityXml);
-          
           ArgumentChecker.notNull(securityXml, "securityXml");
-          ManageableSecurity security = addSecurity(securityXml);
+          ManageableSecurity security = addSecurity(securityXml, uniqueIdScheme);
           WebSecuritiesUris webSecuritiesUris = new WebSecuritiesUris(data());
           responseURI =  webSecuritiesUris.security(security);
         } catch (Exception ex) {
           out.put("err_securityXml", true);
           out.put("err_securityXmlMsg", ex.getMessage());
           out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(securityXml)));
+          out.put("scheme", StringUtils.defaultString(uniqueIdScheme));
           String html = getFreemarker().build(HTML_DIR + "securities-add.ftl", out);
           return Response.ok(html).build();
         }
@@ -200,9 +209,8 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
         
         ExternalScheme scheme = ExternalScheme.of(idScheme);
         Collection<ExternalIdBundle> bundles = buildSecurityRequest(scheme, idValue);
-        SecurityLoader securityLoader = data().getSecurityLoader();
-        Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(bundles);
-        
+        SecurityLoaderResult loaderResult = data().getSecurityLoader().loadSecurities(SecurityLoaderRequest.create(bundles));
+        Map<ExternalIdBundle, UniqueId> loadedSecurities = loaderResult.getResultMap();
         if (bundles.size() == 1 && loadedSecurities.size() == 1) {
           ExternalIdBundle identifierBundle = bundles.iterator().next();
           responseURI = data().getUriInfo().getAbsolutePathBuilder().path(loadedSecurities.get(identifierBundle).toLatest().toString()).build();
@@ -216,15 +224,6 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     return Response.seeOther(responseURI).build();
   }
 
-  private ManageableSecurity addSecurity(String securityXml) {
-    Bean securityBean = JodaBeanSerialization.deserializer().xmlReader().read(securityXml);
-    SecurityMaster securityMaster = data().getSecurityMaster();
-    ManageableSecurity manageableSecurity = (ManageableSecurity) securityBean;
-    manageableSecurity.setUniqueId(null);
-    SecurityDocument addedSecDoc = securityMaster.add(new SecurityDocument(manageableSecurity));
-    return addedSecDoc.getSecurity();
-  }
-
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -232,23 +231,25 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @FormParam("type") String type,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue,
-      @FormParam(SECURITY_XML) String securityXml) {
+      @FormParam(SECURITY_XML) String securityXml,
+      @FormParam("uniqueIdScheme") String uniqueIdScheme) {
     
+    uniqueIdScheme = StringUtils.trimToNull(uniqueIdScheme);
     FlexiBean out = createRootData();
     ExternalScheme scheme = ExternalScheme.of(idScheme);
     out.put("requestScheme", scheme);
     
-    type = StringUtils.defaultString(StringUtils.trimToNull(type), "");
+    type = StringUtils.defaultString(StringUtils.trimToNull(type));
     switch (type) {
       case "xml":
         securityXml = StringUtils.trimToNull(securityXml);
         if (securityXml == null) {
           return Response.status(Status.BAD_REQUEST).build();
         }
-        ManageableSecurity security = addSecurity(securityXml);
+        ManageableSecurity security = addSecurity(securityXml, uniqueIdScheme);
         out.put("addedSecurities", getAddedSecurityId(security));
         break;
-      case "": // create security by ID if type is missing
+      case StringUtils.EMPTY: // create security by ID if type is missing
       case "id":
         idScheme = StringUtils.trimToNull(idScheme);
         idValue = StringUtils.trimToNull(idValue);
@@ -256,13 +257,22 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
           return Response.status(Status.BAD_REQUEST).build();
         }
         Collection<ExternalIdBundle> requestBundles = buildSecurityRequest(scheme, idValue);
-        SecurityLoader securityLoader = data().getSecurityLoader();
-        out.put("addedSecurities", getLoadedSecuritiesId(securityLoader.loadSecurities(requestBundles), requestBundles, scheme));
+        SecurityLoaderResult loaderResult = data().getSecurityLoader().loadSecurities(SecurityLoaderRequest.create(requestBundles));
+        out.put("addedSecurities", getLoadedSecuritiesId(loaderResult.getResultMap(), requestBundles, scheme));
         break;
       default:
         throw new IllegalArgumentException("Can only add security by XML or ID");
     }    
     return Response.ok(getFreemarker().build(JSON_DIR + "securities-added.ftl", out)).build();
+  }
+  
+  private ManageableSecurity addSecurity(String securityXml, String uniqueIdScheme) {
+    Bean securityBean = JodaBeanSerialization.deserializer().xmlReader().read(securityXml);
+    SecurityMaster securityMaster = data().getSecurityMaster();
+    ManageableSecurity manageableSecurity = (ManageableSecurity) securityBean;
+    manageableSecurity.setUniqueId(UniqueId.of(uniqueIdScheme, uniqueIdScheme));
+    SecurityDocument addedSecDoc = securityMaster.add(new SecurityDocument(manageableSecurity));
+    return addedSecDoc.getSecurity();
   }
 
   private Map<String, String> getAddedSecurityId(ManageableSecurity security) {
@@ -270,7 +280,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
     UniqueId uniqueId = security.getUniqueId();
     String objectIdentifier = uniqueId.getObjectId().toString();
-    String externalIdValue = "";
+    String externalIdValue = StringUtils.EMPTY;
     if (!externalIdBundle.isEmpty()) {
       ExternalId externalId = externalIdBundle.iterator().next();
       externalIdValue = externalId.getValue();
@@ -352,9 +362,27 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     out.put("searchRequest", searchRequest);
     final SecurityMetaDataRequest request = new SecurityMetaDataRequest();
     request.setSchemaVersion(true);
-    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
-    out.put("securityTypes", new TreeSet<String>(metaData.getSecurityTypes()));
-    out.put("schemaVersion", metaData.getSchemaVersion());
+    
+    Set<String> secTypes = new TreeSet<>();
+    if (data().getSecurityMaster() instanceof DelegatingSecurityMaster) {
+      Map<String, String> schemaVersionByScheme = new HashMap<>();
+      
+      DelegatingSecurityMaster delegatingSecMaster = (DelegatingSecurityMaster) data().getSecurityMaster();
+      Map<String, SecurityMaster> delegates = delegatingSecMaster.getDelegates();
+      for (Entry<String, SecurityMaster> entry : delegates.entrySet()) {
+        SecurityMaster securityMaster = entry.getValue();
+        SecurityMetaDataResult metaData = securityMaster.metaData(request);
+        secTypes.addAll(metaData.getSecurityTypes());
+        schemaVersionByScheme.put(entry.getKey(), metaData.getSchemaVersion());
+      }
+      out.put("schemaVersionByScheme", schemaVersionByScheme);
+      out.put("uniqueIdSchemes", schemaVersionByScheme.keySet());
+    } else {
+      SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
+      secTypes.addAll(metaData.getSecurityTypes());
+      out.put("schemaVersion", metaData.getSchemaVersion());
+    }
+    out.put("securityTypes", secTypes);
     return out;
   }
 
