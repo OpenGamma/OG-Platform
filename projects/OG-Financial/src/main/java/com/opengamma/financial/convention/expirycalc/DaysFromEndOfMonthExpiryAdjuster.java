@@ -9,12 +9,15 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class DaysFromEndOfMonthExpiryAdjuster implements ExchangeTradedInstrumentExpiryCalculator {
+  /** A weekend calendar */
+  private static final Calendar WEEKEND = new MondayToFridayCalendar("Weekend");
   /** The name of this adjuster */
   private static final String NAME = "DaysFromEndOfMonthExpiryAdjuster";
   /** The number of working days from last working day of the month */
@@ -46,7 +49,7 @@ public class DaysFromEndOfMonthExpiryAdjuster implements ExchangeTradedInstrumen
       }
     }
     if (today.isAfter(date)) {
-      return getExpiryDate(n, today.plusMonths(1).with(TemporalAdjusters.firstDayOfMonth()), holidayCalendar);
+      return getExpiryDate(n, today.plusMonths(1).with(TemporalAdjusters.firstDayOfMonth()), WEEKEND);
     }
     date = today.plusMonths(n - 1).with(TemporalAdjusters.lastDayOfMonth());
     while (!holidayCalendar.isWorkingDay(date)) {

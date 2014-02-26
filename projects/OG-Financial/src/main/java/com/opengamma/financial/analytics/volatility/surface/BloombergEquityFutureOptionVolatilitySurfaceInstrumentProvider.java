@@ -13,10 +13,10 @@ import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.expirycalc.DaysFromEndOfMonthExpiryAdjuster;
 import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
@@ -32,8 +32,8 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
   private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("MM/dd/yy");
   /** The expiry rules */
   private static final HashMap<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
-  /** A weekend calendar */
-  private static final Calendar WEEKEND = new MondayToFridayCalendar("Weekend");
+  /** An empty holiday calendar */
+  private static final Calendar NO_HOLIDAYS = new NoHolidayCalendar();
   static {
     EXPIRY_RULES = new HashMap<>();
     EXPIRY_RULES.put("NKY", FutureOptionExpiries.of(new NextExpiryAdjuster(2, DayOfWeek.FRIDAY)));
@@ -98,7 +98,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
     ticker.append(prefix);
     ticker.append(" ");
     final ExchangeTradedInstrumentExpiryCalculator expiryRule = getExpiryRuleCalculator();
-    final LocalDate expiry = expiryRule.getExpiryDate(futureOptionNumber.intValue(), surfaceDate, WEEKEND);
+    final LocalDate expiry = expiryRule.getExpiryDate(futureOptionNumber.intValue(), surfaceDate, NO_HOLIDAYS);
     ticker.append(FORMAT.format(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
