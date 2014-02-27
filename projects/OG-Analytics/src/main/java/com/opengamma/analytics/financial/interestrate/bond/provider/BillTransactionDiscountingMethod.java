@@ -65,6 +65,22 @@ public final class BillTransactionDiscountingMethod {
   }
 
   /**
+   * Computes the bill transaction present value from the quoted yield to maturity.
+   * @param bill The bill.
+   * @param issuer The issuer and multi-curves provider.
+   * @param yield The yield.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueFromYield(final BillTransaction bill, final double yield, final IssuerProviderInterface issuer) {
+    ArgumentChecker.notNull(bill, "Bill");
+    ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
+    final Currency ccy = bill.getCurrency();
+    final MultipleCurrencyAmount pvSecurity = METHOD_SECURITY.presentValueFromYield(bill.getBillStandard(), yield, issuer);
+    final double pvSettle = bill.getSettlementAmount() * issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
+    return pvSecurity.plus(MultipleCurrencyAmount.of(bill.getCurrency(), pvSettle));
+  }
+
+  /**
    * Computes the bill present value curve sensitivity.
    * @param bill The bill.
    * @param issuer The issuer and multi-curves provider.
