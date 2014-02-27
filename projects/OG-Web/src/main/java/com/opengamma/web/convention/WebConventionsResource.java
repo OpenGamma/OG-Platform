@@ -73,12 +73,13 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       @QueryParam("pgSze") Integer pgSze,
       @QueryParam("sort") String sort,
       @QueryParam("name") String name,
+      @QueryParam("identifier") String id,
       @QueryParam("type") String type,
       @QueryParam("conventionId") List<String> conventionIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConventionSearchSortOrder so = buildSortOrder(sort, ConventionSearchSortOrder.NAME_ASC);
-    FlexiBean out = search(pr, so, name, type, conventionIdStrs, uriInfo);
+    FlexiBean out = search(pr, so, name, id, type, conventionIdStrs, uriInfo);
     return getFreemarker().build(HTML_DIR + "conventions.ftl", out);
   }
 
@@ -91,20 +92,22 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       @QueryParam("pgSze") Integer pgSze,
       @QueryParam("sort") String sort,
       @QueryParam("name") String name,
+      @QueryParam("identifier") String id,
       @QueryParam("type") String type,
       @QueryParam("conventionId") List<String> conventionIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConventionSearchSortOrder so = buildSortOrder(sort, ConventionSearchSortOrder.NAME_ASC);
-    FlexiBean out = search(pr, so, name, type, conventionIdStrs, uriInfo);
+    FlexiBean out = search(pr, so, name, id, type, conventionIdStrs, uriInfo);
     return getFreemarker().build(JSON_DIR + "conventions.ftl", out);
   }
 
-  private FlexiBean search(PagingRequest request, ConventionSearchSortOrder so, String name,
+  private FlexiBean search(PagingRequest request, ConventionSearchSortOrder so, String name, String id,
       String typeName, List<String> conventionIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
 
     ConventionSearchRequest searchRequest = new ConventionSearchRequest();
+    searchRequest.setExternalIdValue(StringUtils.trimToNull(id));
     typeName = StringUtils.trimToNull(typeName);
     if (typeName != null) {
       searchRequest.setConventionType(ConventionType.of(typeName));

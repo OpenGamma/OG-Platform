@@ -12,6 +12,7 @@
       </select>
     </@rowin>
     <@rowin label="Name"><input type="text" size="30" name="name" value="${searchRequest.name}" /></@rowin>
+    <@rowin label="Identifier"><input type="text" size="50" name="identifier" value="${searchRequest.externalIdValue}" /></@rowin>
     <@rowin><input type="submit" value="Search" /></@rowin>
   </p>
   </@form>
