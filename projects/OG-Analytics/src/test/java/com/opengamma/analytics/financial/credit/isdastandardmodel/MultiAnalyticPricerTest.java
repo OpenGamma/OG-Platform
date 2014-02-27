@@ -243,11 +243,13 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final LocalDate maturity1 = temp;
     final Tenor paymentInt = Tenor.of(PAYMENT_INTERVAL);
 
-    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, new int[] {matIndex0, matIndex1 }, PAY_ACC_ON_DEFAULT, paymentInt, STUB,
+    final boolean accOnDefault = false;
+
+    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, new int[] {matIndex0, matIndex1 }, accOnDefault, paymentInt, STUB,
         PROCTECTION_START, RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
-    final CDSAnalytic cds0 = new CDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, maturity0, PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB,
+    final CDSAnalytic cds0 = new CDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, maturity0, accOnDefault, PAYMENT_INTERVAL, STUB,
         PROCTECTION_START, RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
-    final CDSAnalytic cds1 = new CDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, maturity1, PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB,
+    final CDSAnalytic cds1 = new CDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, maturity1, accOnDefault, PAYMENT_INTERVAL, STUB,
         PROCTECTION_START, RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
 
     final double[] prices = mPricer.pv(cdsM, YIELD_CURVE, CREDIT_CURVE, premium, PriceType.CLEAN);
