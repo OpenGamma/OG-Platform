@@ -59,6 +59,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -93,7 +94,7 @@ public class CurveNodeCurrencyVisitorTest {
   private static final ExternalId CMS_SWAP_ID = ExternalId.of(SCHEME, "USD CMS");
   private static final ExternalId COMPOUNDING_IBOR_ID = ExternalId.of(SCHEME, "USD Compounding Libor");
   private static final ExternalId IMM_3M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
-  private static final ExternalId PRICE_INDEX_ID = ExternalId.of(SCHEME, "USD CPI");
+  private static final ExternalId PRICE_INDEX_US_CONVENTION_ID = ExternalId.of(SCHEME, "USD CPI");
   private static final ExternalId ZERO_COUPON_INFLATION_ID = ExternalId.of(SCHEME, "ZCI");
   private static final ExternalId IMM_SWAP_ID = ExternalId.of(SCHEME, "USD IMM Swap");
   private static final ExternalId IMM_FRA_ID = ExternalId.of(SCHEME, "USD IMM FRA");
@@ -154,10 +155,13 @@ public class CurveNodeCurrencyVisitorTest {
       SWAP_3M_IBOR_ID);
   private static final CompoundingIborLegConvention COMPOUNDING_IBOR = new CompoundingIborLegConvention("USD Compounding Libor", ExternalId.of(SCHEME, "USD Compounding Libor").toBundle(),
       USDLIBOR3M_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING, Tenor.ONE_MONTH, StubType.SHORT_START, 2, false, StubType.LONG_START, true, 1);
-  private static final PriceIndexConvention PRICE_INDEX = new PriceIndexConvention("USD CPI", ExternalId.of(SCHEME, "USD CPI").toBundle(), Currency.USD, US,
+  private static final PriceIndexConvention PRICE_INDEX_CONVENTION = new PriceIndexConvention("USD CPI", ExternalId.of(SCHEME, "USD CPI").toBundle(), Currency.USD, US,
       ExternalId.of("TS", "CPI"));
+  private static final String PRICE_INDEX_US_NAME = "US CPI Urban Consumers NSA";
+  private static final ExternalId PRICE_INDEX_US_ID = ExternalId.of(BBG_TICKER, "CPURNSA Index");
+  private static final PriceIndex PRICE_INDEX_US = new PriceIndex(PRICE_INDEX_US_NAME, "US CPI Urban Consumers NSA - Nice Description", PRICE_INDEX_US_CONVENTION_ID);
   private static final InflationLegConvention INFLATION_LEG = new InflationLegConvention("ZCI", ExternalId.of(SCHEME, "ZCI").toBundle(), MODIFIED_FOLLOWING, ACT_360, false,
-      3, 2, PRICE_INDEX_ID);
+      3, 2, PRICE_INDEX_US_ID);
   private static final CMSLegConvention CMS = new CMSLegConvention("USD CMS", ExternalId.of(SCHEME, "USD CMS").toBundle(), SWAP_INDEX_ID, Tenor.SIX_MONTHS, false);
   private static final RollDateSwapConvention IMM_SWAP = new RollDateSwapConvention("USD IMM Swap", ExternalId.of(SCHEME, "USD IMM Swap").toBundle(), FIXED_LEG_ID, SWAP_3M_IBOR_ID, IMM_3M_EXPIRY_CONVENTION);
   private static final RollDateFRAConvention IMM_FRA = new RollDateFRAConvention("USD IMM FRA", ExternalId.of(SCHEME, "USD IMM FRA").toBundle(), USDLIBOR3M_ID, IMM_3M_EXPIRY_CONVENTION);
@@ -184,7 +188,7 @@ public class CurveNodeCurrencyVisitorTest {
     CONVENTIONS.put(CMS_SWAP_ID, CMS);
     CONVENTIONS.put(SWAP_6M_EURIBOR_ID, SWAP_6M_EURIBOR);
     CONVENTIONS.put(COMPOUNDING_IBOR_ID, COMPOUNDING_IBOR);
-    CONVENTIONS.put(PRICE_INDEX_ID, PRICE_INDEX);
+    CONVENTIONS.put(PRICE_INDEX_US_CONVENTION_ID, PRICE_INDEX_CONVENTION);
     CONVENTIONS.put(ZERO_COUPON_INFLATION_ID, INFLATION_LEG);
     CONVENTIONS.put(IMM_SWAP_ID, IMM_SWAP);
     CONVENTIONS.put(IMM_FRA_ID, IMM_FRA);
@@ -199,7 +203,7 @@ public class CurveNodeCurrencyVisitorTest {
     SECURITY_MAP.put(EURIBOR1M_ID.toBundle(), EURIBOR1M);
     SECURITY_MAP.put(EURIBOR3M_ID.toBundle(), EURIBOR3M);
     SECURITY_MAP.put(EURIBOR6M_ID.toBundle(), EURIBOR6M);
-
+    SECURITY_MAP.put(PRICE_INDEX_US_ID.toBundle(), PRICE_INDEX_US);
     SECURITY_SOURCE = new MySecuritySource(SECURITY_MAP);
     VISITOR = new CurveNodeCurrencyVisitor(CONVENTION_SOURCE, SECURITY_SOURCE);
   }
@@ -503,15 +507,11 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test
   public void testZeroCouponInflationNode() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_YEARS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
     final Set<Currency> currencies = node.accept(VISITOR);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
   }
-  
-  
-
-
 
   /**
    * A simplified local version of a HolidaySource for tests.

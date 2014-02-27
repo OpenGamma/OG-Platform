@@ -139,28 +139,28 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
 
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_USD_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_USD_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITHOUT_TODAY };
 
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_USD3M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_USD3M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0035 });
 
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0060, 0.0061 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0060, 0.0061 });
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0060 });
 
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_JPY3M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0060, 0.0061 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0060, 0.0061 });
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_JPY3M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0060 });
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_JPY6M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0060, 0.0061 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0060, 0.0061 });
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_JPY6M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0060 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITH_TODAY };
@@ -643,8 +643,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
     @SuppressWarnings("unused")
     final MultipleCurrencyParameterSensitivity mqs = MQSC.fromInstrument(swap, multicurves7, blocks7);
-    //    int t = 0;
-    //    t++;
+    @SuppressWarnings("unused")
+    int t = 0;
   }
 
   @Test(enabled = false)
@@ -690,7 +690,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
         final double[] rates = new double[nInstruments];
-        for(int k = 0; k < nInstruments; k++) {
+        for (int k = 0; k < nInstruments; k++) {
           derivatives[k] = convert(definitions[i][j][k], withToday);
           rates[k] = initialGuess(definitions[i][j][k]);
         }
