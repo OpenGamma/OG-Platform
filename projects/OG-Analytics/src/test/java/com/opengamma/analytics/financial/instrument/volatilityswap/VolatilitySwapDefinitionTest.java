@@ -72,7 +72,7 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(OBSERVATION_FREQUENCY, DEFINITION.getObservationFrequency());
     assertEquals(T_PLUS_2D, DEFINITION.getObservationStartDate());
     assertEquals(T_PLUS_2D, DEFINITION.getEffectiveDate());
-    assertEquals(T_PLUS_5Y, DEFINITION.getSettlementDate());
+    assertEquals(T_PLUS_5Y, DEFINITION.getMaturityDate());
     assertEquals(VOL_NOTIONAL, DEFINITION.getVolatilityNotional());
     assertEquals(VOL_STRIKE, DEFINITION.getVolatilityStrike());
   }

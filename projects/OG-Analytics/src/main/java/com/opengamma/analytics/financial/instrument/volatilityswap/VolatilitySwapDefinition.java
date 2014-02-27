@@ -35,8 +35,8 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
   private final ZonedDateTime _observationEndDate;
   /** The effective date */
   private final ZonedDateTime _effectiveDate;
-  /** The settlement date */
-  private final ZonedDateTime _settlementDate;
+  /** The maturity date */
+  private final ZonedDateTime _maturityDate;
   /** The observation frequency */
   private final PeriodFrequency _observationFrequency;
   /** The number of observations expected given the observatin dates andthe holiday calendar */
@@ -53,20 +53,20 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
    * @param observationStartDate The observation start date, not null
    * @param observationEndDate The observation end date, not null
    * @param effectiveDate The effective date, not null
-   * @param settlementDate The settlement date, not null
+   * @param maturityDate The maturity date, not null
    * @param observationFrequency The observation frequency, not null
    * @param annualizationFactor The annualization factor, greater than zero
    * @param calendar The holiday calendar, not null
    */
   public VolatilitySwapDefinition(final Currency currency, final double volStrike, final double volNotional, final ZonedDateTime observationStartDate,
-      final ZonedDateTime observationEndDate, final ZonedDateTime effectiveDate, final ZonedDateTime settlementDate,
+      final ZonedDateTime observationEndDate, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
       final PeriodFrequency observationFrequency, final double annualizationFactor, final Calendar calendar) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNegative(volStrike, "volStrike");
     ArgumentChecker.notNull(observationStartDate, "observationStartDate");
     ArgumentChecker.notNull(observationEndDate, "observationEndDate");
-    ArgumentChecker.notNull(effectiveDate, "settlementDate");
-    ArgumentChecker.notNull(settlementDate, "settlementDate");
+    ArgumentChecker.notNull(effectiveDate, "maturityDate");
+    ArgumentChecker.notNull(maturityDate, "maturityDate");
     ArgumentChecker.notNull(observationFrequency, "observationFrequency");
     ArgumentChecker.notNegativeOrZero(annualizationFactor, "annualizationFactor");
     ArgumentChecker.notNull(calendar, "calendar");
@@ -76,7 +76,7 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
     _volStrike = volStrike;
     _volNotional = volNotional;
     _effectiveDate = effectiveDate;
-    _settlementDate = settlementDate;
+    _maturityDate = maturityDate;
     _observationStartDate = observationStartDate;
     _observationEndDate = observationEndDate;
     _observationFrequency = observationFrequency;
@@ -134,11 +134,11 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
   }
 
   /**
-   * Gets the settlement date.
-   * @return the settlement date
+   * Gets the maturity date.
+   * @return the maturity date
    */
-  public ZonedDateTime getSettlementDate() {
-    return _settlementDate;
+  public ZonedDateTime getMaturityDate() {
+    return _maturityDate;
   }
 
   /**
@@ -200,8 +200,8 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
     ArgumentChecker.notNull(date, "date");
     final double timeToObservationStart = TimeCalculator.getTimeBetween(date, _observationStartDate);
     final double timeToObservationEnd = TimeCalculator.getTimeBetween(date, _observationEndDate);
-    final double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
-    return new VolatilitySwap(timeToObservationStart, timeToObservationEnd, _observationFrequency, timeToSettlement, _volStrike, _volNotional,
+    final double timeTomaturity = TimeCalculator.getTimeBetween(date, _maturityDate);
+    return new VolatilitySwap(timeToObservationStart, timeToObservationEnd, _observationFrequency, timeTomaturity, _volStrike, _volNotional,
         _currency, _annualizationFactor);
   }
 
@@ -219,7 +219,7 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
     result = prime * result + _observationFrequency.hashCode();
     result = prime * result + _observationStartDate.hashCode();
     result = prime * result + _effectiveDate.hashCode();
-    result = prime * result + _settlementDate.hashCode();
+    result = prime * result + _maturityDate.hashCode();
     temp = Double.doubleToLongBits(_volNotional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_volStrike);
@@ -254,7 +254,7 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
     if (!ObjectUtils.equals(_effectiveDate, other._effectiveDate)) {
       return false;
     }
-    if (!ObjectUtils.equals(_settlementDate, other._settlementDate)) {
+    if (!ObjectUtils.equals(_maturityDate, other._maturityDate)) {
       return false;
     }
     if (!ObjectUtils.equals(_observationStartDate, other._observationStartDate)) {
