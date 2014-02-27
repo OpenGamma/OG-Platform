@@ -59,7 +59,6 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.master.security.impl.DelegatingSecurityMaster;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
@@ -172,22 +171,32 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     type = StringUtils.defaultString(StringUtils.trimToNull(type));
     FlexiBean out = createRootData();
     URI responseURI = null;
-    
     switch (type) {
       case "xml":
+        boolean isValidInput = true;
         try {
           securityXml = StringUtils.trimToNull(securityXml);
-          ArgumentChecker.notNull(securityXml, "securityXml");
+          if (securityXml == null) {
+            out.put("err_securityXmlMissing", true);
+            isValidInput = false;
+          }
+          if (uniqueIdScheme == null) {
+            out.put("err_unqiueIdSchemeMissing", true);
+            isValidInput = false;
+          }
+          if (!isValidInput) {
+            out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(securityXml)));
+            out.put("selectedUniqueIdScheme", StringUtils.defaultString(uniqueIdScheme));
+            return Response.ok(buildResponseHtml(out, "securities-add.ftl")).build();
+          }
           ManageableSecurity security = addSecurity(securityXml, uniqueIdScheme);
           WebSecuritiesUris webSecuritiesUris = new WebSecuritiesUris(data());
           responseURI =  webSecuritiesUris.security(security);
         } catch (Exception ex) {
-          out.put("err_securityXml", true);
           out.put("err_securityXmlMsg", ex.getMessage());
           out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(securityXml)));
-          out.put("scheme", StringUtils.defaultString(uniqueIdScheme));
-          String html = getFreemarker().build(HTML_DIR + "securities-add.ftl", out);
-          return Response.ok(html).build();
+          out.put("selectedUniqueIdScheme", StringUtils.defaultString(uniqueIdScheme));
+          return Response.ok(buildResponseHtml(out, "securities-add.ftl")).build();
         }
         break;
       case "id":
@@ -203,8 +212,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
           }
           out.put("idscheme", idScheme);
           out.put("idvalue", idValue);
-          String html = getFreemarker().build(HTML_DIR + "securities-add.ftl", out);
-          return Response.ok(html).build();
+          return Response.ok(buildResponseHtml(out, "securities-add.ftl")).build();
         }
         
         ExternalScheme scheme = ExternalScheme.of(idScheme);
@@ -222,6 +230,10 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
         throw new IllegalArgumentException("Can only add security by XML or ID");
     }    
     return Response.seeOther(responseURI).build();
+  }
+
+  private String buildResponseHtml(FlexiBean out, String templateName) {
+    return getFreemarker().build(HTML_DIR + "securities-add.ftl", out);
   }
 
   @POST
@@ -265,7 +277,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     }    
     return Response.ok(getFreemarker().build(JSON_DIR + "securities-added.ftl", out)).build();
   }
-  
+    
   private ManageableSecurity addSecurity(String securityXml, String uniqueIdScheme) {
     Bean securityBean = JodaBeanSerialization.deserializer().xmlReader().read(securityXml);
     SecurityMaster securityMaster = data().getSecurityMaster();

@@ -5,19 +5,26 @@
 <@section title="Add security by XML">
   <@form method="POST" action="${uris.securities()}" id="addSecurityForm">
   <p>
-    <#if err_securityXml??>
+    <#if err_securityXmlMsg?has_content>
       <div class="err">${err_securityXmlMsg}</div>
     </#if>
+ 
     <#if uniqueIdSchemes?exists>
+    <#if err_unqiueIdSchemeMissing??>
+      <div class="err">The scheme of unique identifier must be entered</div>
+    </#if>
     <@rowin label="UniqueId Scheme">
       <select name="uniqueIdScheme">
-        <option value="" <#if scheme = ''>selected</#if>></option>
+        <option value="" <#if selectedUniqueIdScheme = ''>selected</#if>></option>
         <#list uniqueIdSchemes as uniqueIdScheme>
-        <option value="${uniqueIdScheme}" <#if scheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+        <option value="${uniqueIdScheme}" <#if selectedUniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
         </#list>
       </select>
     </@rowin>
     </#if>  
+    <#if err_securityXmlMissing??>
+      <div class="err">The security XML must be entered</div>
+    </#if>
     <@rowin>
       <div id="ace-xml-editor"></div>
     </@rowin>
@@ -35,9 +42,6 @@
 <@section title="Load securities by ID">
   <@form method="POST" action="${uris.securities()}">
   <p>
-    <#if err_idschemeMissing??>
-      <div class="err">The scheme type must be entered</div>
-    </#if>
     <@rowin label="Scheme type">
       <select name="idscheme">
         <option value="BLOOMBERG_TICKER">Bloomberg Ticker</option>
