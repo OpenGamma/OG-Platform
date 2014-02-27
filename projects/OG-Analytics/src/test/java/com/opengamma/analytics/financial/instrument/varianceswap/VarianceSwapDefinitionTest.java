@@ -3,13 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity.variance;
+package com.opengamma.analytics.financial.instrument.varianceswap;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
