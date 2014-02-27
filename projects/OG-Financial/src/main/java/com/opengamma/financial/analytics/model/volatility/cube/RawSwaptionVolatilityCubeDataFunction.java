@@ -34,32 +34,36 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.SwaptionVolatilityCubeSpecificationSource;
-import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeSpecificationSource;
+import com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeSpecification;
-import com.opengamma.financial.analytics.volatility.cube.SyntheticSwaptionVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecificationSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * Constructs a swaption volatility cube from a definition and specification.
+ * The market data is not manipulated (i.e. quotes are produced for each ticker,
+ * but it is up to down-stream functions to put it in the form that the analytics
+ * are expecting).
  */
 public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(RawSwaptionVolatilityCubeDataFunction.class);
-
-  private SyntheticSwaptionVolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
-  private ConfigDBSwaptionVolatilityCubeSpecificationSource _volatilityCubeSpecificationSource;
+  /** The volatility cube definition source */
+  private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
+  private VolatilityCubeSpecificationSource _volatilityCubeSpecificationSource;
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _volatilityCubeDefinitionSource = SyntheticSwaptionVolatilityCubeDefinitionSource.init(context, this);
-    _volatilityCubeSpecificationSource = ConfigDBSwaptionVolatilityCubeSpecificationSource.init(context, this);
+    _volatilityCubeDefinitionSource = ConfigDBVolatilityCubeDefinitionSource.init(context, this);
+    //    _volatilityCubeSpecificationSource = ConfigDBVolatilityCubeSpecificationSource.init(context, this);
   }
 
   public static Set<ValueRequirement> buildDataRequirements(final SwaptionVolatilityCubeSpecificationSource specificationSource, final VolatilityCubeDefinitionSource definitionSource,
@@ -71,8 +75,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get swaption volatility cube specification named " + fullSpecificationName);
     }
-    final VolatilityCubeDefinition<Tenor, Tenor, Double> definition = (VolatilityCubeDefinition<Tenor, Tenor, Double>) definitionSource.getDefinition(fullDefinitionName,
-        InstrumentTypeProperties.SWAPTION_ATM);
+    final VolatilityCubeDefinition<Tenor, Tenor, Double> definition = (VolatilityCubeDefinition<Tenor, Tenor, Double>) definitionSource.getDefinition(fullDefinitionName);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition named " + fullDefinitionName);
     }
@@ -105,25 +108,25 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         final String fullSpecificationName = specificationName + "_" + currency.getCode();
         final String fullDefinitionName = definitionName + "_" + currency.getCode();
-        final SwaptionVolatilityCubeSpecification specification = _volatilityCubeSpecificationSource.getSpecification(fullSpecificationName);
+        final VolatilityCubeSpecification specification = _volatilityCubeSpecificationSource.getSpecification(fullSpecificationName);
         if (specification == null) {
           throw new OpenGammaRuntimeException("Could not get swaption volatility cube specification named " + fullSpecificationName);
         }
-        final VolatilityCubeDefinition<Tenor, Tenor, Double> definition = _volatilityCubeDefinitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.SWAPTION_ATM);
+        final VolatilityCubeDefinition<?, ?, ?> definition = _volatilityCubeDefinitionSource.getDefinition(fullDefinitionName);
         if (definition == null) {
           throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition named " + fullDefinitionName);
         }
-        final CubeInstrumentProvider<Tenor, Tenor, Double> provider = (CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
+        final CubeInstrumentProvider<Tenor, Tenor, Double> provider = null; //(CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
         final Map<Triple<Tenor, Tenor, Double>, Double> data = new HashMap<>();
-        for (final Tenor x : definition.getXs()) {
-          for (final Tenor y : definition.getYs()) {
-            for (final Double z : definition.getZs()) {
-              final ExternalId id = provider.getInstrument(x, y, z);
+        for (final Object x : definition.getXs()) {
+          for (final Object y : definition.getYs()) {
+            for (final Object z : definition.getZs()) {
+              final ExternalId id = null; //provider.getInstrument(x, y, z);
               final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, id);
               final Object volatilityObject = inputs.getValue(requirement);
               if (volatilityObject != null) {
                 final Double volatility = (Double) volatilityObject;
-                final Triple<Tenor, Tenor, Double> coordinate = Triple.of(x, y, z);
+                final Triple<Tenor, Tenor, Double> coordinate = null; //Triple.of(x, y, z);
                 data.put(coordinate, volatility);
               }
             }

@@ -88,7 +88,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
   }
 
   @Override
-  public <R> Property<R> property(final String propertyName) {
+  public <R> Property<R> property(String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -99,7 +99,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the specification name
+   * Gets the specification name.
    * @return the value of the property, not null
    */
   public String getName() {
@@ -107,10 +107,10 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
   }
 
   /**
-   * Sets the specification name
+   * Sets the specification name.
    * @param name  the new value of the property, not null
    */
-  public void setName(final String name) {
+  public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
@@ -125,7 +125,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the cube quote type
+   * Gets the cube quote type.
    * @return the value of the property, not null
    */
   public String getCubeQuoteType() {
@@ -133,10 +133,10 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
   }
 
   /**
-   * Sets the cube quote type
+   * Sets the cube quote type.
    * @param cubeQuoteType  the new value of the property, not null
    */
-  public void setCubeQuoteType(final String cubeQuoteType) {
+  public void setCubeQuoteType(String cubeQuoteType) {
     JodaBeanUtils.notNull(cubeQuoteType, "cubeQuoteType");
     this._cubeQuoteType = cubeQuoteType;
   }
@@ -162,7 +162,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
    * Sets the volatility quote type.
    * @param volatilityQuoteType  the new value of the property, not null
    */
-  public void setVolatilityQuoteType(final String volatilityQuoteType) {
+  public void setVolatilityQuoteType(String volatilityQuoteType) {
     JodaBeanUtils.notNull(volatilityQuoteType, "volatilityQuoteType");
     this._volatilityQuoteType = volatilityQuoteType;
   }
@@ -178,8 +178,8 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
   //-----------------------------------------------------------------------
   @Override
   public VolatilityCubeSpecification clone() {
-    final BeanBuilder<? extends VolatilityCubeSpecification> builder = metaBean().builder();
-    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    BeanBuilder<? extends VolatilityCubeSpecification> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -192,12 +192,12 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final VolatilityCubeSpecification other = (VolatilityCubeSpecification) obj;
+      VolatilityCubeSpecification other = (VolatilityCubeSpecification) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getCubeQuoteType(), other.getCubeQuoteType()) &&
           JodaBeanUtils.equal(getVolatilityQuoteType(), other.getVolatilityQuoteType());
@@ -216,9 +216,9 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("VolatilityCubeSpecification{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -227,7 +227,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
     return buf.toString();
   }
 
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("cubeQuoteType").append('=').append(JodaBeanUtils.toString(getCubeQuoteType())).append(',').append(' ');
     buf.append("volatilityQuoteType").append('=').append(JodaBeanUtils.toString(getVolatilityQuoteType())).append(',').append(' ');
@@ -274,7 +274,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return _name;
@@ -328,7 +328,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((VolatilityCubeSpecification) bean).getName();
@@ -341,7 +341,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           ((VolatilityCubeSpecification) bean).setName((String) newValue);
@@ -357,7 +357,7 @@ public class VolatilityCubeSpecification implements Bean, Serializable {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((VolatilityCubeSpecification) bean)._name, "name");
       JodaBeanUtils.notNull(((VolatilityCubeSpecification) bean)._cubeQuoteType, "cubeQuoteType");
       JodaBeanUtils.notNull(((VolatilityCubeSpecification) bean)._volatilityQuoteType, "volatilityQuoteType");

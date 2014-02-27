@@ -27,7 +27,7 @@ import java.util.Comparator;
 public final class FirstThenSecondThenThirdTripleComparator<A extends Comparable<A>, B extends Comparable<B>, C extends Comparable<C>> implements Comparator<Triple<A, B, C>> {
 
   /**
-   * Singleton instance that relies on both elements in the triple being {@link Comparable}.
+   * Singleton instance that relies on all elements in the triple being {@link Comparable}.
    */
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static final Comparator<Triple<?, ?, ?>> INSTANCE = new FirstThenSecondThenThirdTripleComparator();
@@ -35,10 +35,10 @@ public final class FirstThenSecondThenThirdTripleComparator<A extends Comparable
   /**
    * Singleton instance that is based on doubles.
    */
-  public static final FirstThenSecondThenThirdTripleComparator<Double, Double, Double> INSTANCE_DOUBLES = new FirstThenSecondThenThirdTripleComparator<Double, Double, Double>();
+  public static final FirstThenSecondThenThirdTripleComparator<Double, Double, Double> INSTANCE_DOUBLES = new FirstThenSecondThenThirdTripleComparator<>();
 
   @Override
-  public int compare(Triple<A, B, C> p1, Triple<A, B, C> p2) {
+  public int compare(final Triple<A, B, C> p1, final Triple<A, B, C> p2) {
     if (p1.getFirst().equals(p2.getFirst())) {
       if (p1.getSecond().equals(p2.getSecond())) {
         return p1.getThird().compareTo(p2.getThird());

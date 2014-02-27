@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.lang.reflect.Array;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,7 +22,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -31,7 +29,6 @@ import com.opengamma.util.tuple.Triple;
  */
 @FudgeBuilderFor(VolatilityCubeData.class)
 public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCubeData<?, ?, ?>> {
-  private static final String TARGET_FIELD = "target";
   private static final String DEFINITION_FIELD = "definitionName";
   private static final String SPECIFICATION_FIELD = "specificationName";
   private static final String XS_FIELD = "xs";
@@ -52,26 +49,23 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilityCubeData<?, ?, ?> object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    // the following forces it not to use a secondary type if one is available.
-    message.add(TARGET_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
-    serializer.addToMessage(message, TARGET_FIELD, null, object.getTarget());
     message.add(DEFINITION_FIELD, object.getDefinitionName());
     message.add(SPECIFICATION_FIELD, object.getSpecificationName());
-    MutableFudgeMsg xsSubMsg = message.addSubMessage(XS_SUBMESSAGE_FIELD, null);
+    final MutableFudgeMsg xsSubMsg = message.addSubMessage(XS_SUBMESSAGE_FIELD, null);
     FudgeSerializer.addClassHeader(xsSubMsg, object.getXs().getClass().getComponentType());
     for (final Object x : object.getXs()) {
       if (x != null) {
         xsSubMsg.add(XS_FIELD, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(x), x.getClass()));
       }
     }
-    MutableFudgeMsg ysSubMsg = message.addSubMessage(YS_SUBMESSAGE_FIELD, null);
+    final MutableFudgeMsg ysSubMsg = message.addSubMessage(YS_SUBMESSAGE_FIELD, null);
     FudgeSerializer.addClassHeader(ysSubMsg, object.getYs().getClass().getComponentType());
     for (final Object y : object.getYs()) {
       if (y != null) {
         ysSubMsg.add(YS_FIELD, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(y), y.getClass()));
       }
     }
-    MutableFudgeMsg zsSubMsg = message.addSubMessage(ZS_SUBMESSAGE_FIELD, null);
+    final MutableFudgeMsg zsSubMsg = message.addSubMessage(ZS_SUBMESSAGE_FIELD, null);
     FudgeSerializer.addClassHeader(zsSubMsg, object.getZs().getClass().getComponentType());
     for (final Object z : object.getZs()) {
       if (z != null) {
@@ -79,13 +73,12 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
       }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
-      @SuppressWarnings("unchecked")
       final Triple<Object, Object, Object> triple = (Triple<Object, Object, Object>) entry.getKey();
       final MutableFudgeMsg subMessage = serializer.newMessage();
       if (triple.getFirst() != null && triple.getSecond() != null) {
         subMessage.add(X_FIELD, null, serializer.objectToFudgeMsg(triple.getFirst()));
         subMessage.add(Y_FIELD, null, serializer.objectToFudgeMsg(triple.getSecond()));
-        subMessage.add(Y_FIELD, null, serializer.objectToFudgeMsg(triple.getThird()));
+        subMessage.add(Z_FIELD, null, serializer.objectToFudgeMsg(triple.getThird()));
         subMessage.add(VALUE_FIELD, null, entry.getValue());
         message.add(VALUES_FIELD, null, subMessage);
       }
@@ -98,8 +91,6 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
 
   @Override
   public VolatilityCubeData<?, ?, ?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    UniqueIdentifiable target;
-    target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName(TARGET_FIELD));
     final String definitionName = message.getString(DEFINITION_FIELD);
     final String specificationName = message.getString(SPECIFICATION_FIELD);
     Object[] xsArray;
@@ -107,9 +98,9 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
     Object[] zsArray;
     if (message.hasField(XS_SUBMESSAGE_FIELD)) {
       try {
-        FudgeMsg xsSubMsg = message.getMessage(XS_SUBMESSAGE_FIELD);
-        String xClassName = xsSubMsg.getString(0);
-        Class<?> xClass = xClassName != null ? Class.forName(xClassName) : Object.class;
+        final FudgeMsg xsSubMsg = message.getMessage(XS_SUBMESSAGE_FIELD);
+        final String xClassName = xsSubMsg.getString(0);
+        final Class<?> xClass = xClassName != null ? Class.forName(xClassName) : Object.class;
         final List<FudgeField> xsFields = xsSubMsg.getAllByName(XS_FIELD);
         xsArray = (Object[]) Array.newInstance(xClass, xsFields.size());
         int i = 0;
@@ -118,9 +109,9 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
           xsArray[i] = x;
           i++;
         }
-        FudgeMsg ysSubMsg = message.getMessage(YS_SUBMESSAGE_FIELD);
-        String yClassName = ysSubMsg.getString(0);
-        Class<?> yClass = yClassName != null ? Class.forName(yClassName) : Object.class;
+        final FudgeMsg ysSubMsg = message.getMessage(YS_SUBMESSAGE_FIELD);
+        final String yClassName = ysSubMsg.getString(0);
+        final Class<?> yClass = yClassName != null ? Class.forName(yClassName) : Object.class;
         final List<FudgeField> ysFields = ysSubMsg.getAllByName(YS_FIELD);
         ysArray = (Object[]) Array.newInstance(yClass, ysFields.size());
 
@@ -131,9 +122,9 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
           j++;
         }
 
-        FudgeMsg zsSubMsg = message.getMessage(ZS_SUBMESSAGE_FIELD);
-        String zClassName = zsSubMsg.getString(0);
-        Class<?> zClass = zClassName != null ? Class.forName(zClassName) : Object.class;
+        final FudgeMsg zsSubMsg = message.getMessage(ZS_SUBMESSAGE_FIELD);
+        final String zClassName = zsSubMsg.getString(0);
+        final Class<?> zClass = zClassName != null ? Class.forName(zClassName) : Object.class;
         final List<FudgeField> zsFields = zsSubMsg.getAllByName(ZS_FIELD);
         zsArray = (Object[]) Array.newInstance(zClass, zsFields.size());
 
@@ -143,7 +134,7 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
           zsArray[k] = z;
           k++;
         }
-      } catch (ClassNotFoundException ex) {
+      } catch (final ClassNotFoundException ex) {
         throw new OpenGammaRuntimeException("Cannot find class, probably refactoring", ex);
       }
     } else { // old format, should still support
@@ -209,7 +200,7 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
       final Class<?> xClazz = xsArray[0].getClass();
       final Class<?> yClazz = ysArray[0].getClass();
       final Class<?> zClazz = zsArray[0].getClass();
-      final Map<Triple<Object, Object, Object>, Double> values = newHashMap();
+      final Map<Triple<Object, Object, Object>, Double> values = new HashMap<>();
       final List<FudgeField> valuesFields = message.getAllByName(VALUES_FIELD);
       for (final FudgeField valueField : valuesFields) {
         final FudgeMsg subMessage = (FudgeMsg) valueField.getValue();
@@ -219,9 +210,9 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
         final Double value = subMessage.getDouble(VALUE_FIELD);
         values.put(Triple.of(x, y, z), value);
       }
-      return new VolatilityCubeData<>(definitionName, specificationName, target, xLabel, yLabel, zLabel, values);
+      return new VolatilityCubeData<>(definitionName, specificationName, xLabel, yLabel, zLabel, values);
     }
-    return new VolatilityCubeData<>(definitionName, specificationName, target, xLabel, yLabel, zLabel, Collections.<Triple<Object, Object, Object>, Double>emptyMap());
+    return new VolatilityCubeData<>(definitionName, specificationName, xLabel, yLabel, zLabel, Collections.<Triple<Object, Object, Object>, Double>emptyMap());
   }
 
 }
