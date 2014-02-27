@@ -52,6 +52,9 @@ public class VarianceSwapDefinitionTest extends AnalyticsTestBase {
   private static final VarianceSwapDefinition DEFINITION = new VarianceSwapDefinition(T_PLUS_2, PLUS_5Y, PLUS_5Y, OBSERVATION_FREQUENCY, CCY,
       WEEKENDCAL, OBS_PER_YEAR, VOL_STRIKE, VOL_NOTIONAL);
 
+  /**
+   * @throws Exception If a variance swap definition cannot be created from the inputs
+   */
   private VarianceSwapDefinitionTest() throws Exception {
     super(VarianceSwapDefinition.class,
         new Object[] {T_PLUS_2, PLUS_5Y, PLUS_5Y, OBSERVATION_FREQUENCY, CCY, WEEKENDCAL, OBS_PER_YEAR, VOL_STRIKE, VOL_NOTIONAL },

@@ -183,26 +183,26 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
   /**
    * {@inheritDoc}
    * The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
+   * In particular,  it resolves calendars. The variance swap needs an array of observations, as well as its *expected* length.
    * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
    * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
    */
   @Override
-  public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
-    ArgumentChecker.notNull(valueDate, "date");
-    ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
-    final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
-    final double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
-    final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
+  public VarianceSwap toDerivative(final ZonedDateTime date, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(underlyingTimeSeries, "underlyingTimeSeries");
+    final double timeToObsStart = TimeCalculator.getTimeBetween(date, _obsStartDate);
+    final double timeToObsEnd = TimeCalculator.getTimeBetween(date, _obsEndDate);
+    final double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
     DoubleTimeSeries<LocalDate> realizedTS;
     if (timeToObsStart > 0) {
       realizedTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
-      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
+      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, date.toLocalDate(), false);
     }
     final double[] observations = realizedTS.valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = InstrumentDefinitionUtils.countExpectedGoodDays(_obsStartDate.toLocalDate(), valueDate.toLocalDate(), _calendar, _obsFreq);
+    final int nGoodBusinessDays = InstrumentDefinitionUtils.countExpectedGoodDays(_obsStartDate.toLocalDate(), date.toLocalDate(), _calendar, _obsFreq);
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
     return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, _varStrike, _varNotional, _currency, _annualizationFactor, _nObsExpected, nObsDisrupted,

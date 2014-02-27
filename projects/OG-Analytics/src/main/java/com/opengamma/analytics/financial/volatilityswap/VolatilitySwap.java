@@ -5,74 +5,58 @@
  */
 package com.opengamma.analytics.financial.volatilityswap;
 
-import java.util.Arrays;
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * A Variance Swap is a forward contract on the realised variance of a generic underlying. This could be a single equity price, the value of an equity index,
+ * A volatility swap is a forward contract on the realised volatility of a generic underlying. This could be a single equity price, the value of an equity index,
  * an FX rate or <b>any</b> other financial metric on which a variance swap contract is based.<p>
- * The floating leg of a Variance Swap is the realized variance and is calculate using the second moment of log returns of the underlying asset
- * 
- * Because variance is additive in time, the value of a VarianceSwap can be decomposed at any point in time between realized and implied variance as
- * _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2 + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ]
  */
 public class VolatilitySwap implements InstrumentDerivative {
-  private final double _timeToObsStart;
-  private final double _timeToObsEnd;
+  /** Time to the start of volatility observations */
+  private final double _timeToObservationStart;
+  /** Time to the end of volatility observations */
+  private final double _timeToObservationEnd;
+  /** The observation frequency */
+  private final PeriodFrequency _observationFrequency;
+  /** Time to settlement */
   private final double _timeToSettlement;
-
-  private final double _varStrike; // volStrike^2
-  private final double _varNotional; // := 0.5 * _volNotional / _volStrike
+  /** The volatility strike */
+  private final double _volStrike;
+  /** The volatility notional */
+  private final double _volNotional;
+  /** The currency */
   private final Currency _currency;
-  private final double _annualizationFactor; // typically 252 with daily observations
-
-  private final int _nObsExpected;
-  private final int _nObsDisrupted;
-  private final double[] _observations;
-  private final double[] _observationWeights;
+  /** The annualization factor */
+  private final double _annualizationFactor;
 
   /**
-   * @param timeToObsStart Time of first observation. Negative if observations have begun.
-   * @param timeToObsEnd Time of final observation. Negative if observations have finished.
+   * @param timeToObservationStart Time to first observation. Negative if observations have begun.
+   * @param timeToObservationEnd Time to final observation. Negative if observations have finished.
+   * @param observationFrequency The observation frequency, not null
    * @param timeToSettlement Time of cash settlement. If negative, the swap has expired.
-   * @param varStrike Fair value of Variance struck at trade date
-   * @param varNotional Trade pays the difference between realized and strike variance multiplied by this
+   * @param volStrike Fair value of Variance struck at trade date
+   * @param volNotional Trade pays the difference between realized and strike variance multiplied by this
    * @param currency Currency of cash settlement
    * @param annualizationFactor Number of business days per year
-   * @param nObsExpected Number of observations expected as of trade inception
-   * @param nObsDisrupted Number of expected observations that did not occur because of a market disruption
-   * @param observations Array of observations of the underlying spot
-   * @param observationWeights Array of weights to give observation returns. If null, all weights are 1. Else, length must be: observations.length-1
    */
-  public VolatilitySwap(final double timeToObsStart, final double timeToObsEnd, final double timeToSettlement,
-      final double varStrike, final double varNotional, final Currency currency, final double annualizationFactor,
-      final int nObsExpected, final int nObsDisrupted, final double[] observations, final double[] observationWeights) {
-
-    _timeToObsStart = timeToObsStart;
-    _timeToObsEnd = timeToObsEnd;
+  public VolatilitySwap(final double timeToObservationStart, final double timeToObservationEnd, final PeriodFrequency observationFrequency,
+      final double timeToSettlement, final double volStrike, final double volNotional, final Currency currency, final double annualizationFactor) {
+    ArgumentChecker.notNull(observationFrequency, "observationFrequency");
+    ArgumentChecker.notNull(currency, "currency");
+    _timeToObservationStart = timeToObservationStart;
+    _timeToObservationEnd = timeToObservationEnd;
+    _observationFrequency = observationFrequency;
     _timeToSettlement = timeToSettlement;
-    _varStrike = varStrike;
-    _varNotional = varNotional;
+    _volStrike = volStrike;
+    _volNotional = volNotional;
     _currency = currency;
     _annualizationFactor = annualizationFactor;
-    _nObsExpected = nObsExpected;
-    _nObsDisrupted = nObsDisrupted;
-    _observations = observations;
-    _observationWeights = observationWeights;
-    if (_observationWeights.length > 1) {
-      final int nWeights = _observationWeights.length;
-      final int nObs = _observations.length;
-      ArgumentChecker.isTrue(nWeights + 1 == nObs,
-          "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
-              + " Found {} weights and {} observations.", nWeights, nObs);
-    }
-
-    ArgumentChecker.isTrue(_nObsExpected > 0, "Encountered a VarianceSwap with 0 nObsExpected! "
-        + "If it is impractical to count, contact Quant to default this value in VarianceSwap constructor.");
   }
 
   /**
@@ -80,58 +64,47 @@ public class VolatilitySwap implements InstrumentDerivative {
    * @param other VarianceSwap to copy from
    */
   public VolatilitySwap(final VolatilitySwap other) {
-    ArgumentChecker.notNull(other, "variance swap to copy");
-    _timeToObsStart = other._timeToObsStart;
-    _timeToObsEnd = other._timeToObsEnd;
+    ArgumentChecker.notNull(other, "other");
+    _timeToObservationStart = other._timeToObservationStart;
+    _timeToObservationEnd = other._timeToObservationEnd;
+    _observationFrequency = other._observationFrequency;
     _timeToSettlement = other._timeToSettlement;
-    _varStrike = other._varStrike;
-    _varNotional = other._varNotional;
+    _volStrike = other._volStrike;
+    _volNotional = other._volNotional;
     _currency = other._currency;
     _annualizationFactor = other._annualizationFactor;
-    _nObsExpected = other._nObsExpected;
-    _nObsDisrupted = other._nObsDisrupted;
-    _observations = Arrays.copyOf(other._observations, other._observations.length);
-    _observationWeights = Arrays.copyOf(other._observationWeights, other._observationWeights.length);
   }
 
   /**
-   * Gets the timeToObsStart.
-   * @return the timeToObsStart
+   * Gets the time to the start of volatility observation.
+   * @return The time to the start of volatility observation
    */
-  public double getTimeToObsStart() {
-    return _timeToObsStart;
+  public double getTimeToObservationStart() {
+    return _timeToObservationStart;
   }
 
   /**
-   * Gets the timeToObsEnd.
-   * @return the timeToObsEnd
+   * Gets the time to the end of volatility observation.
+   * @return The time to the end of volatility observation
    */
-  public double getTimeToObsEnd() {
-    return _timeToObsEnd;
+  public double getTimeToObservationEnd() {
+    return _timeToObservationEnd;
   }
 
   /**
-   * Gets the timeToSettlement.
-   * @return the timeToSettlement
+   * Gets the observation frequency.
+   * @return The observation frequency
+   */
+  public PeriodFrequency getObservationFrequency() {
+    return _observationFrequency;
+  }
+
+  /**
+   * Gets the time to settlement.
+   * @return The time to settlement
    */
   public double getTimeToSettlement() {
     return _timeToSettlement;
-  }
-
-  /**
-   * Gets the nObsExpected.
-   * @return the nObsExpected
-   */
-  public int getObsExpected() {
-    return _nObsExpected;
-  }
-
-  /**
-   * Gets the nObsDisrupted.
-   * @return the nObsDisrupted
-   */
-  public int getObsDisrupted() {
-    return _nObsDisrupted;
   }
 
   /**
@@ -143,59 +116,27 @@ public class VolatilitySwap implements InstrumentDerivative {
   }
 
   /**
-   * Gets the varStrike.
-   * @return the varStrike
+   * Gets the volatility strike.
+   * @return The volatility strike
    */
-  public double getVarStrike() {
-    return _varStrike;
+  public double getVolatilityStrike() {
+    return _volStrike;
   }
 
   /**
-   * Gets the varNotional.
-   * @return the varNotional
+   * Gets the volatility notional.
+   * @return The volatility notional
    */
-  public double getVarNotional() {
-    return _varNotional;
+  public double getVolatilityNotional() {
+    return _volNotional;
   }
 
   /**
-   * Gets the volStrike.
-   * @return the volStrike
-   */
-  public double getVolStrike() {
-    return Math.sqrt(_varStrike);
-  }
-
-  /**
-   * Gets the volNotional.
-   * @return the volNotional
-   */
-  public double getVolNotional() {
-    return _varNotional * 2 * Math.sqrt(_varStrike);
-  }
-
-  /**
-   * Gets the annualizationFactor.
-   * @return the annualizationFactor
+   * Gets the annualization factor.
+   * @return The annualization factor
    */
   public double getAnnualizationFactor() {
     return _annualizationFactor;
-  }
-
-  /**
-   * Gets the observations.
-   * @return the observations
-   */
-  public double[] getObservations() {
-    return _observations;
-  }
-
-  /**
-   * Gets the observationWeights.
-   * @return the observationWeights
-   */
-  public final double[] getObservationWeights() {
-    return _observationWeights;
   }
 
   @Override
@@ -219,20 +160,17 @@ public class VolatilitySwap implements InstrumentDerivative {
     long temp;
     temp = Double.doubleToLongBits(_annualizationFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_currency == null) ? 0 : _currency.hashCode());
-    result = prime * result + _nObsDisrupted;
-    result = prime * result + _nObsExpected;
-    result = prime * result + ((_observations == null) ? 0 : Arrays.hashCode(_observations));
-    result = prime * result + ((_observationWeights == null) ? 0 : Arrays.hashCode(_observations));
-    temp = Double.doubleToLongBits(_timeToObsEnd);
+    result = prime * result + _currency.hashCode();
+    temp = Double.doubleToLongBits(_timeToObservationEnd);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_timeToObsStart);
+    temp = Double.doubleToLongBits(_timeToObservationStart);
+    result = prime * result + _observationFrequency.hashCode();
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_timeToSettlement);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_varNotional);
+    temp = Double.doubleToLongBits(_volNotional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_varStrike);
+    temp = Double.doubleToLongBits(_volStrike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -256,31 +194,22 @@ public class VolatilitySwap implements InstrumentDerivative {
     } else if (!_currency.equals(other._currency)) {
       return false;
     }
-    if (_nObsDisrupted != other._nObsDisrupted) {
+    if (Double.doubleToLongBits(_timeToObservationEnd) != Double.doubleToLongBits(other._timeToObservationEnd)) {
       return false;
     }
-    if (_nObsExpected != other._nObsExpected) {
-      return false;
-    }
-    if (!Arrays.equals(_observationWeights, other._observationWeights)) {
-      return false;
-    }
-    if (!Arrays.equals(_observations, other._observations)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_timeToObsEnd) != Double.doubleToLongBits(other._timeToObsEnd)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_timeToObsStart) != Double.doubleToLongBits(other._timeToObsStart)) {
+    if (Double.doubleToLongBits(_timeToObservationStart) != Double.doubleToLongBits(other._timeToObservationStart)) {
       return false;
     }
     if (Double.doubleToLongBits(_timeToSettlement) != Double.doubleToLongBits(other._timeToSettlement)) {
       return false;
     }
-    if (Double.doubleToLongBits(_varNotional) != Double.doubleToLongBits(other._varNotional)) {
+    if (Double.doubleToLongBits(_volNotional) != Double.doubleToLongBits(other._volNotional)) {
       return false;
     }
-    if (Double.doubleToLongBits(_varStrike) != Double.doubleToLongBits(other._varStrike)) {
+    if (Double.doubleToLongBits(_volStrike) != Double.doubleToLongBits(other._volStrike)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_observationFrequency, other._observationFrequency)) {
       return false;
     }
     return true;

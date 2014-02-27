@@ -11,20 +11,28 @@ import static org.testng.AssertJUnit.fail;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.testng.annotations.Test;
-
 /**
  * 
  */
-@Test
 public abstract class AnalyticsTestBase {
 
+  /**
+   * @param clazz The class to test
+   * @param variables The variables
+   * @param variableClasses The variable classes
+   * @param notNull Indicates which variables can be null
+   * @throws Exception If the object cannot be constructed successfully
+   */
   public AnalyticsTestBase(final Class<?> clazz, final Object[] variables, final Class<?>[] variableClasses, final boolean[] notNull) throws Exception {
     testNullInputs(clazz, variables, variableClasses, notNull);
   }
 
   /**
-   * Tests attempted construction with non-null parameters fails.
+   * Tests attempted construction with null values for non-nullable parameters fails.
+   * @param clazz The class to test
+   * @param variables The variables
+   * @param variableClasses The variable classes
+   * @param notNull Indicates whether a variable can be nullable
    * @throws NoSuchMethodException 
    * @throws IllegalAccessException 
    * @throws InstantiationException 

@@ -6,24 +6,23 @@
 package com.opengamma.analytics.financial.instrument.volatilityswap;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionUtils;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * A volatility swap is a forward contract on the realized volatility of an underlying security.
  */
-public class VolatilitySwapDefinition implements InstrumentDefinitionWithData<VolatilitySwap, DoubleTimeSeries<LocalDate>> {
+public class VolatilitySwapDefinition implements InstrumentDefinition<VolatilitySwap> {
   /** The currency */
   private final Currency _currency;
   /** The volatility strike */
@@ -186,24 +185,24 @@ public class VolatilitySwapDefinition implements InstrumentDefinitionWithData<Vo
     return visitor.visitVolatilitySwapDefinition(this);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Yield curve names are no longer stored in {@link InstrumentDerivative}
+   */
+  @Deprecated
   @Override
   public VolatilitySwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+    return toDerivative(date);
   }
 
   @Override
   public VolatilitySwap toDerivative(final ZonedDateTime date) {
-    return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
-  }
-
-  @Override
-  public VolatilitySwap toDerivative(final ZonedDateTime date, final DoubleTimeSeries<LocalDate> data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
-  @Override
-  public VolatilitySwap toDerivative(final ZonedDateTime date, final DoubleTimeSeries<LocalDate> data) {
-    return null;
+    ArgumentChecker.notNull(date, "date");
+    final double timeToObservationStart = TimeCalculator.getTimeBetween(date, _observationStartDate);
+    final double timeToObservationEnd = TimeCalculator.getTimeBetween(date, _observationEndDate);
+    final double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
+    return new VolatilitySwap(timeToObservationStart, timeToObservationEnd, _observationFrequency, timeToSettlement, _volStrike, _volNotional,
+        _currency, _annualizationFactor);
   }
 
   @Override
