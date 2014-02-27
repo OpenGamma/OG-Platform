@@ -206,7 +206,7 @@ public class ResultGenerator {
     /**
      * Transforms the input.
      * 
-     * @param result  the result to be transformed
+     * @param result the result to be transformed
      * @return the result
      */
     Result<T> map(R result);
