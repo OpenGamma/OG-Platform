@@ -21,12 +21,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Table;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.PositionOrTrade;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 
 /**
  * Writes the results of running scenarios to a tab delimited text file.
@@ -40,6 +42,8 @@ import com.opengamma.master.position.ManageablePosition;
  * The long format is used by default.
  */
 public class ScenarioResultsWriter {
+
+  // TODO refactor to give access to List<List<String>> of the results
 
   // TODO make this configurable? use a CSV writing library?
   /* package */ static final String DELIMITER = "\t";
@@ -251,13 +255,10 @@ public class ScenarioResultsWriter {
     if (target instanceof PortfolioNode || target instanceof ManageablePortfolioNode) {
       return "PortfolioNode";
     }
-    if (!(target instanceof PositionOrTrade)) {
-      return target.getClass().getSimpleName();
-    }
-    Security security = ((PositionOrTrade) target).getSecurityLink().getTarget();
+    Security security = getSecurity(target);
 
     if (security == null) {
-      return "";
+      return target.getClass().getSimpleName();
     }
     String simpleName = security.getClass().getSimpleName();
 
@@ -274,14 +275,28 @@ public class ScenarioResultsWriter {
     if (target instanceof ManageablePortfolioNode) {
       return ((ManageablePortfolioNode) target).getName();
     }
-    if (!(target instanceof PositionOrTrade)) {
-      return target.toString();
-    }
-    Security security = ((PositionOrTrade) target).getSecurityLink().getTarget();
+    Security security = getSecurity(target);
 
-    if (security == null) {
-      return "";
+    if (security != null && !StringUtils.isEmpty(security.getName())) {
+      return security.getName();
     }
-    return security.getName();
+    if (target instanceof ManageablePosition) {
+      return ((ManageablePosition) target).getName();
+    }
+    return "";
+  }
+
+  private static Security getSecurity(Object positionOrTrade) {
+    if (positionOrTrade instanceof ManageablePosition) {
+      return ((ManageablePosition) positionOrTrade).getSecurity();
+    } else if (positionOrTrade instanceof SimplePosition) {
+      return ((SimplePosition) positionOrTrade).getSecurity();
+    } else if (positionOrTrade instanceof ManageableTrade) {
+      return ((ManageableTrade) positionOrTrade).getSecurity();
+    } else if (positionOrTrade instanceof SimpleTrade) {
+      return ((SimpleTrade) positionOrTrade).getSecurity();
+    } else {
+      return null;
+    }
   }
 }

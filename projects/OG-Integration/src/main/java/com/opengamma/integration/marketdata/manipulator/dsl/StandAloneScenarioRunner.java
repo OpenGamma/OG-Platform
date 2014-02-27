@@ -20,10 +20,10 @@ import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
@@ -32,9 +32,9 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
@@ -111,21 +111,50 @@ public class StandAloneScenarioRunner {
   private static void populateSecurities(List<SimpleResultModel> results, SecuritySource securitySource) {
     for (SimpleResultModel resultModel : results) {
       for (UniqueIdentifiable uniqueIdentifiable : resultModel.getTargets()) {
-        if (uniqueIdentifiable instanceof PositionOrTrade) {
-          PositionOrTrade positionOrTrade = (PositionOrTrade) uniqueIdentifiable;
-          ExternalIdBundle securityId = positionOrTrade.getSecurityLink().getExternalId();
-          Collection<Security> securities = securitySource.get(securityId);
+        SecurityLink securityLink = getSecurityLink(uniqueIdentifiable);
 
-          if (!securities.isEmpty()) {
-            Security security = securities.iterator().next();
-            setSecurityLink(positionOrTrade, security);
+        if (securityLink != null) {
+          Security security = loadSecurity(securityLink, securitySource);
+
+          if (security != null) {
+            setSecurityLink(uniqueIdentifiable, security);
           }
         }
       }
     }
   }
 
-  private static void setSecurityLink(PositionOrTrade positionOrTrade, Security security) {
+  private static Security loadSecurity(SecurityLink securityLink, SecuritySource securitySource) {
+    Collection<Security> securities;
+
+    if (!securityLink.getExternalId().isEmpty()) {
+      securities = securitySource.get(securityLink.getExternalId());
+
+      if (!securities.isEmpty()) {
+        return securities.iterator().next();
+      }
+    }
+    if (securityLink.getObjectId() != null) {
+      return securitySource.get(securityLink.getObjectId(), VersionCorrection.LATEST);
+    }
+    return null;
+  }
+
+  private static SecurityLink getSecurityLink(Object target) {
+    if (target instanceof ManageablePosition) {
+      return ((ManageablePosition) target).getSecurityLink();
+    } else if (target instanceof SimplePosition) {
+      return ((SimplePosition) target).getSecurityLink();
+    } else if (target instanceof ManageableTrade) {
+      return ((ManageableTrade) target).getSecurityLink();
+    } else if (target instanceof SimpleTrade) {
+      return ((SimpleTrade) target).getSecurityLink();
+    } else {
+      return null;
+    }
+  }
+
+  private static void setSecurityLink(Object positionOrTrade, Security security) {
     if (positionOrTrade instanceof ManageablePosition) {
       ((ManageablePosition) positionOrTrade).setSecurityLink(ManageableSecurityLink.of(security));
     } else if (positionOrTrade instanceof ManageableTrade) {
