@@ -7,8 +7,10 @@ package com.opengamma.financial.analytics.curve;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.Currency;
@@ -48,6 +50,17 @@ public class ConverterUtils {
     final int spotLag = indexConvention.getSettlementDays();
     final IborIndex iborIndex = new IborIndex(currency, indexTenor.getPeriod(), spotLag, dayCount, businessDayConvention, eomIndex, name);
     return iborIndex;
+  }
+  
+  /**
+   * Create a IndexPrice object from the name and the convention.
+   * @param name The name of the index.
+   * @param indexConvention The index convention.
+   * @return The IndexPrice object.
+   */
+  public static IndexPrice indexPrice(final String name, final PriceIndexConvention indexConvention) {
+    final IndexPrice priceIndex = new IndexPrice(name, indexConvention.getCurrency());
+    return priceIndex;
   }
 
 }

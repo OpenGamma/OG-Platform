@@ -64,6 +64,7 @@ import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
 import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -339,8 +340,19 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitInflationLegConvention(final InflationLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getPriceIndexConvention(), FinancialConvention.class);
-    return underlyingConvention.accept(this);
+    final Security sec = _securitySource.getSingle(convention.getPriceIndexConvention().toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + convention.getPriceIndexConvention() + " was null");
+    }
+    if (!(sec instanceof PriceIndex)) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + convention.getPriceIndexConvention() + " not of type PriceIndex");
+    }
+    final PriceIndex indexSecurity = (PriceIndex) sec;
+    final PriceIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), PriceIndexConvention.class);
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
+    }
+    return indexConvention.accept(this);
   }
 
   @Override

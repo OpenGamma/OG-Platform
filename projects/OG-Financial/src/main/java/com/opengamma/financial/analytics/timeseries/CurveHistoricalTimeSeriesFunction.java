@@ -14,10 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -38,7 +39,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.convention.InflationLegConvention;
-import com.opengamma.financial.convention.PriceIndexConvention;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -100,19 +101,27 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
         final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
         final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+        final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
         InflationLegConvention inflationLegConvention = conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
-        PriceIndexConvention priceIndexConvention = conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
+        final Security sec = securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+        }
+        if (!(sec instanceof PriceIndex)) {
+          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " not of type PriceIndex");
+        }
+        final PriceIndex indexSecurity = (PriceIndex) sec;
         final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
-        final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
-        final HistoricalTimeSeries priceIndexSeries = timeSeriesSource.getHistoricalTimeSeries(priceIndexField, priceIndexId, resolutionKey, startDate, includeStart, endDate, true);
+        final HistoricalTimeSeries priceIndexSeries = timeSeriesSource.getHistoricalTimeSeries(priceIndexField, indexSecurity.getExternalIdBundle(), 
+            resolutionKey, startDate, includeStart, endDate, true);
         if (priceIndexSeries != null) {
           if (priceIndexSeries.getTimeSeries().isEmpty()) {
-            s_logger.info("Time series for {} is empty", priceIndexId);
+            s_logger.info("Time series for {} is empty", indexSecurity.getExternalIdBundle());
           } else {
-            bundle.add(dataField, priceIndexId, priceIndexSeries);
+            bundle.add(dataField, indexSecurity.getExternalIdBundle(), priceIndexSeries);
           }
         } else {
-          s_logger.info("Couldn't get time series for {}", priceIndexId);
+          s_logger.info("Couldn't get time series for {}", indexSecurity.getExternalIdBundle());
         }
       }
     }

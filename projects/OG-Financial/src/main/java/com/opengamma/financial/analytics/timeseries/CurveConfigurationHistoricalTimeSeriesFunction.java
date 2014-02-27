@@ -15,11 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -43,7 +46,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.convention.InflationLegConvention;
-import com.opengamma.financial.convention.PriceIndexConvention;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -63,8 +66,9 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, 
+      final Set<ValueRequirement> desiredValues)
+    throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
     final CurveConstructionConfiguration constructionConfig = (CurveConstructionConfiguration) inputs.getValue(ValueRequirementNames.CURVE_CONSTRUCTION_CONFIG);
@@ -103,9 +107,19 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
           if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
             final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
             final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+            final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
             InflationLegConvention inflationLegConvention = conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
-            PriceIndexConvention priceIndexConvention = conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
-            ids = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
+            final Security sec = securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
+            if (sec == null) {
+              throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention()
+                  + " was null");
+            }
+            if (!(sec instanceof PriceIndex)) {
+              throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention()
+                  + " not of type PriceIndex");
+            }
+            final PriceIndex indexSecurity = (PriceIndex) sec;
+            ids = indexSecurity.getExternalIdBundle();
             final HistoricalTimeSeries priceIndexSeries = bundleForCurve.get(dataField, ids);
             if (priceIndexSeries != null) {
               if (priceIndexSeries.getTimeSeries().isEmpty()) {
