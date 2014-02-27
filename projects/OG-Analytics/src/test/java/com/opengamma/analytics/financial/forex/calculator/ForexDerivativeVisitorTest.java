@@ -133,6 +133,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -171,8 +172,6 @@ public class ForexDerivativeVisitorTest {
     assertEquals(NDF.accept(VISITOR, o), "ForexNonDeliverableForward2");
     assertEquals(NDO.accept(VISITOR), "ForexNonDeliverableOption1");
     assertEquals(NDO.accept(VISITOR, o), "ForexNonDeliverableOption2");
-    assertEquals(FX_OPTION_DIGITAL.accept(VISITOR), "ForexOptionDigital1");
-    assertEquals(FX_OPTION_DIGITAL.accept(VISITOR, o), "ForexOptionDigital2");
   }
 
   @Test
@@ -736,14 +735,14 @@ public class ForexDerivativeVisitorTest {
     public String visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
       return null;
     }
-    
+
     @Override
-    public String visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, T data) {
+    public String visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, final T data) {
       return null;
     }
-    
+
     @Override
-    public String visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment) {
+    public String visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment) {
       return null;
     }
 
@@ -924,6 +923,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitVolatilitySwap(final VolatilitySwap volatilitySwap) {
+      return null;
+    }
+
+    @Override
+    public String visitVolatilitySwap(final VolatilitySwap volatilitySwap, final T data) {
       return null;
     }
 
@@ -1398,22 +1407,22 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures, T data) {
+    public String visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures, final T data) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures) {
+    public String visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures, T data) {
+    public String visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures, final T data) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures) {
+    public String visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures) {
       return null;
     }
 

@@ -142,15 +142,13 @@ public class VolatilitySwap implements InstrumentDerivative {
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return null;
-    //    return visitor.visitVolatilitySwap(this, data);
+    return visitor.visitVolatilitySwap(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return null;
-    //    return visitor.visitVolatilitySwap(this);
+    return visitor.visitVolatilitySwap(this);
   }
 
   @Override

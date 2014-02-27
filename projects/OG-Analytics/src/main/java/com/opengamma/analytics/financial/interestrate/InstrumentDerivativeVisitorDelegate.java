@@ -125,6 +125,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -464,7 +465,7 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   public RESULT_TYPE visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment) {
     return _delegate.visitCouponFixedAccruedCompounding(payment);
   }
-  
+
   @Override
   public RESULT_TYPE visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, final DATA_TYPE data) {
     return _delegate.visitInterpolatedStubCoupon(payment, data);
@@ -1173,6 +1174,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final DATA_TYPE data) {
     return _delegate.visitEquityVarianceSwap(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilitySwap(final VolatilitySwap volatilitySwap) {
+    return _delegate.visitVolatilitySwap(volatilitySwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilitySwap(final VolatilitySwap volatilitySwap, final DATA_TYPE data) {
+    return _delegate.visitVolatilitySwap(volatilitySwap, data);
   }
 
   @Override

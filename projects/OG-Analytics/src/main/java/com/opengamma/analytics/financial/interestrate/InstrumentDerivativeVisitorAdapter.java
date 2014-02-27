@@ -125,6 +125,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 
 /**
  *
@@ -395,7 +396,7 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   public RESULT_TYPE visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment) {
     return getException(payment);
   }
-  
+
   @Override
   public RESULT_TYPE visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, final DATA_TYPE data) {
     return getException(payment, data);
@@ -405,7 +406,7 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   public RESULT_TYPE visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment) {
     return getException(payment);
   }
-  
+
   @Override
   public RESULT_TYPE visitCouponIbor(final CouponIbor payment, final DATA_TYPE data) {
     return getException(payment, data);
@@ -1290,7 +1291,7 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(option);
   }
 
-  //  -----     VarianceSwap     -----
+  //  -----     Variance and volatility swaps     -----
 
   @Override
   public RESULT_TYPE visitVarianceSwap(final VarianceSwap varianceSwap, final DATA_TYPE data) {
@@ -1310,6 +1311,16 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   @Override
   public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap) {
     return getException(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilitySwap(final VolatilitySwap volatilitySwap, final DATA_TYPE data) {
+    return getException(volatilitySwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitVolatilitySwap(final VolatilitySwap volatilitySwap) {
+    return getException(volatilitySwap);
   }
 
   //  -----     Deprecated     -----

@@ -134,6 +134,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -552,14 +553,14 @@ public class InstrumentDerivativeVisitorTest {
     public String visitCouponFixed(final CouponFixed payment) {
       return getValue(payment, false);
     }
-    
+
     @Override
-    public String visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, T data) {
+    public String visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, final T data) {
       return getValue(payment, true);
     }
-    
+
     @Override
-    public String visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment) {
+    public String visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment) {
       return getValue(payment, false);
     }
 
@@ -1034,6 +1035,16 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
+    public String visitVolatilitySwap(final VolatilitySwap volatilitySwap) {
+      return getValue(volatilitySwap, false);
+    }
+
+    @Override
+    public String visitVolatilitySwap(final VolatilitySwap volatilitySwap, final T data) {
+      return getValue(volatilitySwap, true);
+    }
+
+    @Override
     public String visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment) {
       return null;
     }
@@ -1474,22 +1485,22 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures, T data) {
+    public String visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures, final T data) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures) {
+    public String visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures, T data) {
+    public String visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures, final T data) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures) {
+    public String visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures) {
       return null;
     }
   }
