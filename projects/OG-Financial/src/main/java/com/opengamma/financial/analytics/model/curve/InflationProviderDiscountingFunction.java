@@ -38,7 +38,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundi
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -57,6 +57,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -69,6 +70,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
+import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -88,9 +90,9 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.PriceIndexConvention;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -160,6 +162,7 @@ public class InflationProviderDiscountingFunction extends
     @Override
     protected Pair<InflationProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder,
         final InflationProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
@@ -217,15 +220,21 @@ public class InflationProviderDiscountingFunction extends
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
             if (type instanceof InflationCurveTypeConfiguration) {
               final InflationCurveTypeConfiguration inflationConfiguration = (InflationCurveTypeConfiguration) type;
-              final String reference = inflationConfiguration.getReference();
-              final PriceIndexConvention priceIndexConvention = conventionSource.getSingle(inflationConfiguration.getPriceIndex(), PriceIndexConvention.class);
-              try {
-                final Currency currency = Currency.of(reference);
-                //should this map check that the curve name has not already been entered?
-                inflation.add(new IndexPrice(priceIndexConvention.getName(), currency));
-              } catch (final IllegalArgumentException e) {
-                throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for inflation curves");
+              final Security sec = securitySource.getSingle(inflationConfiguration.getPriceIndex().toBundle());
+              if (sec == null) {
+                throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationConfiguration.getPriceIndex()
+                    + " was null");
               }
+              if (!(sec instanceof PriceIndex)) {
+                throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationConfiguration.getPriceIndex()
+                    + " not of type PriceIndex");
+              }
+              final PriceIndex indexSecurity = (PriceIndex) sec;
+              final PriceIndexConvention priceIndexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), PriceIndexConvention.class);
+              if (priceIndexConvention == null) {
+                throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
+              }
+              inflation.add(ConverterUtils.indexPrice(indexSecurity.getName(), priceIndexConvention));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -298,7 +307,7 @@ public class InflationProviderDiscountingFunction extends
           .immSwapNode(new RollDateSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, fx))
-          .zeroCouponInflationNode(new ZeroCouponInflationNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, historicalData))
+          .zeroCouponInflationNode(new ZeroCouponInflationNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, historicalData))
           .create();
     }
 
@@ -314,7 +323,7 @@ public class InflationProviderDiscountingFunction extends
             .withoutAny(CURVE)
             .with(CURVE, curveName)
             .get();
-        final YieldAndDiscountCurve curve = provider.getMulticurveProvider().getCurve(curveName);
+        final PriceIndexCurve curve = provider.getCurve(curveName);
         if (curve == null) {
           s_logger.error("Could not get curve called {} from configuration {}", curveName, getCurveConstructionConfigurationName());
         } else {
@@ -325,4 +334,5 @@ public class InflationProviderDiscountingFunction extends
       return result;
     }
   }
+  
 }
