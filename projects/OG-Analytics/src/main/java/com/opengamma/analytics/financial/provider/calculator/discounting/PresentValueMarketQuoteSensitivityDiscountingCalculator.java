@@ -100,7 +100,6 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
 
   @Override
   public Double visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
-    // TODO: [PLAT-5978] Change to exact sensitivity.
     return METHOD_IBOR_CMP_FLAT.presentValueSpreadSensitivity(coupon, multicurve);
   }
 

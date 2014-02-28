@@ -80,7 +80,8 @@ public class CouponIborCompoundingFlatSpreadDiscountingMethodTest {
 
   @Test
   public void presentValueBeforeFirstFixing() {
-    final MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, MULTICURVES);
+    final MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_BEFORE,
+        MULTICURVES);
     final int nbSub = CPN_BEFORE.getFixingTimes().length;
     double[] forward = new double[nbSub];
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {

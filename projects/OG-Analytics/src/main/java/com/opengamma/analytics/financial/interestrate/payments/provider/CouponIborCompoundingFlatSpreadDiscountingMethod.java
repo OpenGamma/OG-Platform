@@ -145,7 +145,7 @@ public final class CouponIborCompoundingFlatSpreadDiscountingMethod {
     cpaAccumulated[0] = coupon.getCompoundingPeriodAmountAccumulated();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       forward[loopsub] = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub],
-          coupon.getFixingPeriodEndTimes()[loopsub]);
+          coupon.getFixingPeriodAccrualFactors()[loopsub]);
       cpa[loopsub + 1] += coupon.getNotional() * (forward[loopsub] + coupon.getSpread()) * coupon.getSubperiodsAccrualFactors()[loopsub]; // Basic Compounding Period Amount
       cpa[loopsub + 1] += cpaAccumulated[loopsub] * forward[loopsub] * coupon.getSubperiodsAccrualFactors()[loopsub]; // Additional Compounding Period Amount
       cpaAccumulated[loopsub + 1] = cpaAccumulated[loopsub] + cpa[loopsub + 1];
