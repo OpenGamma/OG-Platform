@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingFlatSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -51,6 +52,8 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
    */
   private PresentValueMarketQuoteSensitivityDiscountingCalculator() {
   }
+
+  private static final CouponIborCompoundingFlatSpreadDiscountingMethod METHOD_IBOR_CMP_FLAT = CouponIborCompoundingFlatSpreadDiscountingMethod.getInstance();
 
   // -----     Payment/Coupon     ------
 
@@ -98,7 +101,7 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
   @Override
   public Double visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
     // TODO: [PLAT-5978] Change to exact sensitivity.
-    return visitCoupon(coupon, multicurve);
+    return METHOD_IBOR_CMP_FLAT.presentValueSpreadSensitivity(coupon, multicurve);
   }
 
   // -----     Annuity     ------
