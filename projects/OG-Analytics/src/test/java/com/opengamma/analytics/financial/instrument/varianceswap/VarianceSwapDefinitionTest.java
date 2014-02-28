@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.AnalyticsTestBase;
@@ -31,7 +32,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class VarianceSwapDefinitionTest extends AnalyticsTestBase {
   /** The current date */
-  private static final ZonedDateTime NOW = ZonedDateTime.now();
+  private static final ZonedDateTime NOW = ZonedDateTime.of(2014,02,27,12,0,0,0,ZoneId.of("UTC"));//ZonedDateTime.now();
   /** The settlement date */
   private static final ZonedDateTime T_PLUS_2 = NOW.plusDays(2);
   /** The maturity date */
