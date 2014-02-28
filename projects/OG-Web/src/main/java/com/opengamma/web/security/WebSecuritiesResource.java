@@ -119,11 +119,12 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
+      @QueryParam("uniqueIdScheme") String uniqueIdScheme,
       @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
-    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, null, securityIdStrs, uriInfo);
+    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, uniqueIdScheme, securityIdStrs, uriInfo);
     return getFreemarker().build(JSON_DIR + "securities.ftl", out);
   }
 
@@ -338,9 +339,29 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @GET
   @Path("metaData")
   @Produces(MediaType.APPLICATION_JSON)
-  public String getMetaDataJSON() {
-    FlexiBean out = createRootData();
+  public String getMetaDataJSON(@QueryParam("uniqueIdScheme") String uniqueIdScheme) {
+    uniqueIdScheme = StringUtils.trimToNull(uniqueIdScheme);
+    final SecurityMetaDataRequest request = new SecurityMetaDataRequest();
+    request.setUniqueIdScheme(uniqueIdScheme);
+    request.setSchemaVersion(true);
+    FlexiBean out = createRootData(request);
     return getFreemarker().build(JSON_DIR + "metadata.ftl", out);
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @param request the meta data request, not null
+   * @return the output root data, not null
+   */
+  protected FlexiBean createRootData(SecurityMetaDataRequest request) {
+    FlexiBean out = super.createRootData();
+    Set<String> secTypes = new TreeSet<>();
+    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
+    secTypes.addAll(metaData.getSecurityTypes());
+    out.put("schemaVersion", metaData.getSchemaVersion());
+    out.put("securityTypes", secTypes);
+    return out;
   }
 
   //-------------------------------------------------------------------------
@@ -397,6 +418,9 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     out.put("securityTypes", secTypes);
     return out;
   }
+  
+  
+  
 
   //-------------------------------------------------------------------------
   /**
