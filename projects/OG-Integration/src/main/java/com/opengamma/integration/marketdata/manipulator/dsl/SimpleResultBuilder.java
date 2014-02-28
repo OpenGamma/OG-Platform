@@ -106,13 +106,32 @@ public class SimpleResultBuilder {
     _columnNames = Collections.unmodifiableList(columnNames);
   }
 
-    /**
-     * @param resultModel The results calculated by the engine in a single calculation cycle
-     * @return A simple result model built from the results
-     */
+  /**
+   * Builds a {@link ScenarioResultModel} from the data calculated in a single cycle.
+   * @param resultModel The results calculated by the engine in a single calculation cycle
+   * @return A simple result model built from the results
+   */
   public SimpleResultModel build(ViewResultModel resultModel) {
+    return build(resultModel, _columnNames);
+  }
+
+  /**
+   * Builds a {@link ScenarioResultModel} from the data calculated in a single cycle.
+   * @param resultModel the results calculated by the engine in a single calculation cycle
+   * @param columnNames column name overrides
+   * @return A simple result model built from the results
+   * @throws IllegalArgumentException if the number of column names doesn't match the number of columns
+   */
+  public SimpleResultModel build(ViewResultModel resultModel, List<String> columnNames) {
+    ArgumentChecker.notNull(columnNames, "columnNames");
+    ArgumentChecker.notNull(resultModel, "resultModel");
+
+    if (columnNames.size() != _columnNames.size()) {
+      throw new IllegalArgumentException("Wrong number of column names. expected: " + _columnNames.size() +
+                                             ", actual: " + columnNames.size());
+    }
     int rowCount = _idToIndex.size();
-    int colCount = _columnNames.size();
+    int colCount = columnNames.size();
     ContiguousSet<Integer> rowIndices = ContiguousSet.create(Range.closedOpen(0, rowCount), DiscreteDomain.integers());
     ContiguousSet<Integer> colIndices = ContiguousSet.create(Range.closedOpen(0, colCount), DiscreteDomain.integers());
     Table<Integer, Integer, Object> table = ArrayTable.create(rowIndices, colIndices);
@@ -136,7 +155,7 @@ public class SimpleResultBuilder {
         // TODO handle specific outputs
       }
     }
-    return new SimpleResultModel(_targets, _columnNames, table, resultModel.getViewCycleExecutionOptions());
+    return new SimpleResultModel(_targets, columnNames, table, resultModel.getViewCycleExecutionOptions());
   }
 
   private static final class ColumnSpec {

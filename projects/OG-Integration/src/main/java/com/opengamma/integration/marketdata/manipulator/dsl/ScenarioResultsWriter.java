@@ -220,7 +220,7 @@ public class ScenarioResultsWriter {
 
   private static List<String> metadataHeader(int paramCount) {
     ImmutableList.Builder<String> builder = ImmutableList.builder();
-    builder.add("ScenarioName").add("ValuationTime").add("Type").add("Description").add("TargetId");
+    builder.add("ScenarioName").add("ValuationTime").add("Type").add("Description").add("PositionId");
     for (int i = 1; i <= paramCount; i++) {
       builder.add("ParamName" + i).add("ParamValue" + i);
     }
