@@ -105,7 +105,7 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
       if (filter == null) {
         continue;
       }
-      LiveDataClient client = createLiveDataClient(metaDataProvider, getJmsConnector());
+      LiveDataClient client = createLiveDataClient(metaDataProvider);
       if (client == null) {
         continue;
       }
@@ -139,6 +139,16 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     }
 
     return liveMarketDataProviderFactory;
+  }
+  
+  /**
+   * Creates a live data client based on the information in the remote metadata.
+   * 
+   * @param provider the metadata provider, null returns null
+   * @return the client
+   */
+  protected LiveDataClient createLiveDataClient(LiveDataMetaDataProvider provider) {
+    return createLiveDataClient(provider, getJmsConnector());
   }
   
   /**
