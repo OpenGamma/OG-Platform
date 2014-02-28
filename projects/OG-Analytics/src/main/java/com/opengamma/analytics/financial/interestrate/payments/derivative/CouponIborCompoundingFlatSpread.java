@@ -106,6 +106,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIn
    * Returns the Ibor index underlying the coupon.
    * @return The index.
    */
+  @Override
   public IborIndex getIndex() {
     return _index;
   }
@@ -122,6 +123,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIn
    * Returns the fixing times for the different remaining periods.
    * @return The times.
    */
+  @Override
   public double[] getFixingTimes() {
     return _fixingTimes;
   }
@@ -132,6 +134,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIn
    * 
    * @deprecated use {@link #getFixingPeriodStartTimes()}.
    */
+  @Deprecated
   public double[] getFixingSubperiodsStartTimes() {
     return _fixingSubperiodsStartTimes;
   }
@@ -151,6 +154,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIn
    * 
    * @deprecated use {@link #getFixingPeriodEndTimes()}.
    */
+  @Deprecated
   public double[] getFixingSubperiodsEndTimes() {
     return _fixingSubperiodsEndTimes;
   }
@@ -169,6 +173,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIn
    * @return The factors.
    * @deprecated use {@link #getFixingPeriodAccrualFactors()}.
    */
+  @Deprecated
   public double[] getFixingSubperiodsAccrualFactors() {
     return _fixingSubperiodsAccrualFactors;
   }
@@ -179,8 +184,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIn
    */
   @Override
   public double[] getFixingPeriodAccrualFactors() {
-    // TODO Auto-generated method stub
-    return null;
+    return _fixingSubperiodsAccrualFactors;
   }
 
   /**
