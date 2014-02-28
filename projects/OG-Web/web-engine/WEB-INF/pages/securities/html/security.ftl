@@ -26,6 +26,10 @@
         <@rowout label="Rate">${security.rate}</@rowout>
         <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
       <#break>
+      <#case "CASH_BALANCE">
+        <@rowout label="Amount">${security.amount}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <#break>
       <#case "CASH">
         <@rowout label="Amount">${security.amount}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>

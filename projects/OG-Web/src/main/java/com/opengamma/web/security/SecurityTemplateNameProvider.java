@@ -13,6 +13,7 @@ import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
@@ -341,6 +342,11 @@ public class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameVa
   @Override
   public String visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return "fx-volatility-swap.ftl";
+  }
+
+  @Override
+  public String visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return "cash-balance.ftl";
   }
 
   /**
