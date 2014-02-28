@@ -52,6 +52,7 @@ import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
@@ -146,27 +147,38 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
    * @param provider the metadata provider, null returns null
    * @return the client
    */
+  protected LiveDataClient createLiveDataClient(LiveDataMetaDataProvider provider) {
+    return createLiveDataClient(provider, getJmsConnector());
+  }
+  
+  /**
+   * Creates a live data client based on the information in the remote metadata.
+   * 
+   * @param provider the metadata provider, null returns null
+   * @param jmsConnector the JMS connector, not null
+   * @return the client
+   */
   @SuppressWarnings("deprecation")
-  protected LiveDataClient createLiveDataClient(final LiveDataMetaDataProvider provider) {
+  public static LiveDataClient createLiveDataClient(LiveDataMetaDataProvider provider, JmsConnector jmsConnector) {
+    ArgumentChecker.notNull(jmsConnector, "jmsConnector");
     LiveDataMetaData metaData = provider.metaData();
     URI jmsUri = metaData.getJmsBrokerUri();
     if (metaData.getServerType() != LiveDataServerTypes.STANDARD || jmsUri == null) {
       s_logger.warn("Unsupported live data server type " + metaData.getServerType() + " for " + metaData.getDescription() + " live data provider. This provider will not be available.");
       return null;
     }
-    JmsConnector jmsConnector = getJmsConnector();
     if (!jmsConnector.getClientBrokerUri().equals(jmsUri)) {
       JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean(jmsConnector);
       jmsFactory.setClientBrokerUri(jmsUri);
       jmsConnector = jmsFactory.getObjectCreating();
     }
     
-    JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
+    JmsTemplate jmsTemplate = jmsConnector.getJmsTemplateTopic();
     
     JmsByteArrayRequestSender jmsSubscriptionRequestSender;
 
     if (metaData.getJmsSubscriptionQueue() != null) {
-      JmsTemplate subscriptionRequestTemplate = getJmsConnector().getJmsTemplateQueue();
+      JmsTemplate subscriptionRequestTemplate = jmsConnector.getJmsTemplateQueue();
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionQueue(), subscriptionRequestTemplate);
     } else {
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionTopic(), jmsTemplate);
@@ -177,7 +189,7 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     ByteArrayFudgeRequestSender fudgeEntitlementRequestSender = new ByteArrayFudgeRequestSender(jmsEntitlementRequestSender);
     
     final JmsLiveDataClient liveDataClient = new JmsLiveDataClient(fudgeSubscriptionRequestSender,
-        fudgeEntitlementRequestSender, getJmsConnector(), OpenGammaFudgeContext.getInstance(), JmsLiveDataClient.DEFAULT_NUM_SESSIONS);
+        fudgeEntitlementRequestSender, jmsConnector, OpenGammaFudgeContext.getInstance(), JmsLiveDataClient.DEFAULT_NUM_SESSIONS);
     liveDataClient.setFudgeContext(OpenGammaFudgeContext.getInstance());
     if (metaData.getJmsHeartbeatTopic() != null) {
       JmsByteArrayMessageSender jmsHeartbeatSender = new JmsByteArrayMessageSender(metaData.getJmsHeartbeatTopic(), jmsTemplate);
