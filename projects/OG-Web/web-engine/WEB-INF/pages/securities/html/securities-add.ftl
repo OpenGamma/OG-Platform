@@ -15,9 +15,10 @@
     </#if>
     <@rowin label="UniqueId Scheme">
       <select name="uniqueIdScheme">
-        <option value="" <#if selectedUniqueIdScheme = ''>selected</#if>></option>
+        <#assign selectedScheme = "${selectedUniqueIdScheme!''}">
+        <option value="" <#if selectedScheme = ''>selected</#if>></option>
         <#list uniqueIdSchemes as uniqueIdScheme>
-        <option value="${uniqueIdScheme}" <#if selectedUniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+        <option value="${uniqueIdScheme}" <#if  uniqueIdScheme == selectedScheme>selected</#if>>${uniqueIdScheme}</option>
         </#list>
       </select>
     </@rowin>
@@ -32,7 +33,7 @@
     <input type="hidden" name="type" value="xml"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
     
-    <#noescape><@xmlEditorScript formId="addSecurityForm" inputId="security-xml" xmlValue="${securityXml}"></@xmlEditorScript></#noescape>
+    <#noescape><@xmlEditorScript formId="addSecurityForm" inputId="security-xml" xmlValue="${securityXml!''}"></@xmlEditorScript></#noescape>
     
   </p>
   </@form>
