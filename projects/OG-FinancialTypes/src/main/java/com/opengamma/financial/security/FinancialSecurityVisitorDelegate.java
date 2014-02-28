@@ -13,6 +13,7 @@ import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -130,6 +131,11 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
   @Override
   public T visitCapFloorSecurity(final CapFloorSecurity security) {
     return _delegate.visitCapFloorSecurity(security);
+  }
+
+  @Override
+  public T visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return _delegate.visitCashBalanceSecurity(security);
   }
 
   @Override

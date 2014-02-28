@@ -18,6 +18,7 @@ import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -105,7 +106,7 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
       if (SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE.equals(security.getSecurityType())) {
         final FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
         final SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class,
-                                                                                                     msg.getMessage());
+            msg.getMessage());
         return securityEntryData.getCurrency();
       }
     }
@@ -134,6 +135,11 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
 
   @Override
   public Currency visitCorporateBondSecurity(final CorporateBondSecurity security) {
+    return security.getCurrency();
+  }
+
+  @Override
+  public Currency visitCashBalanceSecurity(final CashBalanceSecurity security) {
     return security.getCurrency();
   }
 

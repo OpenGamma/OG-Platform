@@ -24,6 +24,7 @@ import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -135,6 +136,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String EQUITY_WARRANTS = "Equity Warrants";
   /* package */static final String BILLS = "Bills";
   /* package */static final String FLOATING_RATE_NOTES = "Floating Rate Notes";
+  /* package */static final String CASH_BALANCE = "Cash Balance";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -201,6 +203,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitInflationBondSecurity(final InflationBondSecurity security) {
           return BONDS;
+        }
+
+        @Override
+        public String visitCashBalanceSecurity(final CashBalanceSecurity security) {
+          return CASH_BALANCE;
         }
 
         @Override

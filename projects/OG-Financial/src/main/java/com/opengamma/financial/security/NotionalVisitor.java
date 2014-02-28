@@ -15,6 +15,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
@@ -191,8 +192,8 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
     final Security underlying = _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
     Preconditions.checkState(underlying instanceof SwapSecurity,
-                             "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.",
-                             underlying);
+        "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.",
+        underlying);
     final CurrencyAmount notional = ((SwapSecurity) underlying).accept(this);
     if (security.isLong()) {
       return notional;
@@ -206,20 +207,20 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
     final double notional = security.getPointValue();
     return CurrencyAmount.of(currency, notional);
   }
-  
+
   @Override
   public CurrencyAmount visitEquityOptionSecurity(final EquityOptionSecurity security) {
     final Currency currency = security.getCurrency();
     final double notional = security.getPointValue();
     return CurrencyAmount.of(currency, notional);
   }
-  
+
   @Override
   public CurrencyAmount visitEquitySecurity(final EquitySecurity security) {
     final Currency currency = security.getCurrency();
     return CurrencyAmount.of(currency, 1.0);
   }
-  
+
   @Override
   public CurrencyAmount visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     final Currency currency = security.getCurrency();
@@ -231,9 +232,9 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   public CurrencyAmount visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     final Security underlying = _securitySource.getSingle(security.getUnderlyingId().toBundle());
     Preconditions.checkState(underlying instanceof InterestRateFutureSecurity,
-                             "Failed to resolve underlying InterestRateFutureSecurity. " +
-                                 "DB record potentially corrupted. '%s' returned.",
-                             underlying);
+        "Failed to resolve underlying InterestRateFutureSecurity. " +
+            "DB record potentially corrupted. '%s' returned.",
+        underlying);
     return ((InterestRateFutureSecurity) underlying).accept(this);
   }
 
@@ -262,7 +263,12 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   public CurrencyAmount visitCashFlowSecurity(final CashFlowSecurity security) {
     return CurrencyAmount.of(security.getCurrency(), security.getAmount());
   }
-  
+
+  @Override
+  public CurrencyAmount visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
+  }
+
   @Override
   public CurrencyAmount visitCashSecurity(final CashSecurity security) {
     return CurrencyAmount.of(security.getCurrency(), security.getAmount());
