@@ -9,7 +9,17 @@ Upgrading from 2.1.0
 
 To 2.2.0-M11
 ------------
+
+- [PLAT-5744] Server needs a restart to pick up new timeseries
+    The fix requires to configure viewProcessorManager in spring config file. It is required to add new item into the masters property.
+    The item should be:
+         <bean class=" com.opengamma.financial.timeseries.HistoricalTimeSeriesSourceChangeProvider">
+           <constructor-arg ref="[HISTORICAL_TIME_SERIES_SOURCE]" />
+         </bean>
+    where [HISTORICAL_TIME_SERIES_SOURCE] should be appropriate historical time series source.
+
 * Bug
+    * [PLAT-5744] Server needs a restart to pick up new timeseries
     * [PLAT-5252] - Value of optional constraints on view definitions are lost after saving
     * [PLAT-5699] - Error pricing a bond with new curves in Bloomberg examples
     * [PLAT-5718] - Market data scaling in the scenario DSL should be consistent with curve scaling
