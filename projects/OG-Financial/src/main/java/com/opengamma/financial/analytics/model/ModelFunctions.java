@@ -62,6 +62,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(MarginPriceFunction.class));
+    functions.add(functionConfiguration(PVCashBalanceFunction.class));
   }
 
   /**
