@@ -74,7 +74,7 @@ public class ScenarioResultsWriterTest {
     List<String> expectedList =
         ImmutableList.of(
             // header -----
-            row("ScenarioName", "ValuationTime", "Type", "Description", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", _res1Name, _res2Name),
+            row("ScenarioName", "ValuationTime", "Type", "Description", "PositionId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", _res1Name, _res2Name),
             // scenario 1 trade 1 -----
             row(_scenario1Name, _valuationTime1, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, 1, 2),
             // scenario 1 trade 2 -----
@@ -95,7 +95,7 @@ public class ScenarioResultsWriterTest {
     List<String> expectedList =
         ImmutableList.of(
             // header -----
-            row("ScenarioName", "ValuationTime", "Type", "Description", "TargetId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", "ResultName", "ResultValue"),
+            row("ScenarioName", "ValuationTime", "Type", "Description", "PositionId", "ParamName1", "ParamValue1", "ParamName2", "ParamValue2", "ResultName", "ResultValue"),
             // scenario 1 trade 1 result 1-----
             row(_scenario1Name, _valuationTime1, "FXForward", "An FX Forward", _id1, _param1Name, _param1Value1, _param2Name, _param2Value1, _res1Name, 1),
             // scenario 1 trade 1 result 2 -----
