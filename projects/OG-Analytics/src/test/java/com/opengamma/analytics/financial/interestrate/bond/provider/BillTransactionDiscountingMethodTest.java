@@ -113,7 +113,7 @@ public class BillTransactionDiscountingMethodTest {
     final double pvSettle = ISSUER_MULTICURVE.getMulticurveProvider().getDiscountFactor(BILL_TRA.getCurrency(), BILL_TRA.getBillPurchased().getSettlementTime())
         * BILL_TRA.getSettlementAmount();
     final MultipleCurrencyAmount pvTransactionExpected = pvSecurity.plus(MultipleCurrencyAmount.of(BILL_TRA.getCurrency(), pvSettle));
-    assertEquals("Bill Security: discounting method - present value from yield", pvTransactionExpected.getAmount(EUR), pvTransactionComputed.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("Bill Security: discounting method - present value from yield", pvTransactionExpected.getAmount(EUR), pvTransactionComputed.getAmount(EUR), TOLERANCE_PV_DELTA);
   }
 
   @Test
