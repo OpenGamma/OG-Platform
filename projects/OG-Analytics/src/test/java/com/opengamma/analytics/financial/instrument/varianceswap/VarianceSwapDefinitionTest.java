@@ -32,7 +32,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class VarianceSwapDefinitionTest extends AnalyticsTestBase {
   /** The current date */
-  private static final ZonedDateTime NOW = ZonedDateTime.of(2014,02,27,12,0,0,0,ZoneId.of("UTC"));//ZonedDateTime.now();
+  private static final ZonedDateTime NOW = ZonedDateTime.of(2014, 02, 27, 12, 0, 0, 0, ZoneId.of("UTC"));
   /** The settlement date */
   private static final ZonedDateTime T_PLUS_2 = NOW.plusDays(2);
   /** The maturity date */

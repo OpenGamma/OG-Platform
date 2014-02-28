@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
@@ -24,6 +25,18 @@ public class TradeConverter {
   private final FederalFundsFutureTradeConverter _federalFundsFutureTradeConverter;
   /** Converter for all other securities */
   private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityConverter;
+
+  /**
+   * Note that this constructor explicitly sets the future trade converter and Federal funds future
+   * converter to null
+   * @param securityConverter The security converter, not null
+   */
+  public TradeConverter(final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter) {
+    ArgumentChecker.notNull(securityConverter, "securityConverter");
+    _securityConverter = securityConverter;
+    _futureTradeConverter = null;
+    _federalFundsFutureTradeConverter = null;
+  }
 
   /**
    * Note that this constructor explicitly sets the Federal funds future converter to null.
@@ -64,9 +77,15 @@ public class TradeConverter {
     final Security security = trade.getSecurity();
     ArgumentChecker.isTrue(security instanceof FinancialSecurity, "Security must be a FinancialSecurity");
     if (security instanceof FederalFundsFutureSecurity) {
+      if (_federalFundsFutureTradeConverter == null) {
+        throw new OpenGammaRuntimeException("Federal funds future converter was null");
+      }
       return _federalFundsFutureTradeConverter.convert(trade);
     }
     if (security instanceof FutureSecurity) {
+      if (_futureTradeConverter == null) {
+        throw new OpenGammaRuntimeException("Future trade converter was null");
+      }
       return _futureTradeConverter.convert(trade);
     }
     return ((FinancialSecurity) security).accept(_securityConverter);

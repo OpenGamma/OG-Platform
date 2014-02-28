@@ -75,7 +75,13 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
     super(valueRequirements);
   }
 
+  /**
+   * Gets the currency pairs configuration called {@link CurrencyPairs#DEFAULT_CURRENCY_PAIRS} from a {@link CurrencyPairsSource}.
+   * @param context The compilation context
+   * @return The currency pairs
+   */
   protected CurrencyPairs getCurrencyPairs(final FunctionCompilationContext context) {
+    @SuppressWarnings("deprecation")
     final CurrencyPairsSource currencyPairsSource = OpenGammaCompilationContext.getCurrencyPairsSource(context);
     return currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
   }
@@ -118,6 +124,7 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
       return security instanceof FXOptionSecurity;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()
@@ -159,7 +166,7 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
       final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
       final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
       final ValueProperties surfaceProperties = ValueProperties.builder()
-          .with(ValuePropertyNames.SURFACE, surface)
+          .with(SURFACE, surface)
           .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, FOREX)
           .with(X_INTERPOLATOR_NAME, interpolatorName)
           .with(LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)

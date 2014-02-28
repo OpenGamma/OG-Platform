@@ -56,6 +56,7 @@ import com.opengamma.util.money.Currency;
  * Function that returns a {@link FXMatrix} for a curve construction configuration.
  */
 public class FXMatrixFunction extends AbstractFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FXMatrixFunction.class);
   /** The configuration name */
   private final String _configurationName;

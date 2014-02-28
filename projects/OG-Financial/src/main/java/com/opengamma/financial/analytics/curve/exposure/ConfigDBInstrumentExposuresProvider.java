@@ -22,7 +22,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Gets the name(s) of the curve construction configurations to be used in pricing a security.
+ * Gets the name(s) of the curve construction configurations to be used in pricing a security
+ * from a {@link ConfigSource}.
  */
 public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresProvider {
   /** The configuration source */
@@ -100,7 +101,7 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
       }
     }
     throw new OpenGammaRuntimeException("Could not find a matching list of ids for " + security + " from "
-      + instrumentExposureConfigurationName);
+        + instrumentExposureConfigurationName);
   }
 
 }
