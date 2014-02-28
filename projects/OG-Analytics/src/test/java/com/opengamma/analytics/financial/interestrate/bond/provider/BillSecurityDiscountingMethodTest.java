@@ -31,7 +31,6 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -63,7 +62,7 @@ public class BillSecurityDiscountingMethodTest {
   private final static ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   // ISIN: BE0312677462
   private final static BillSecurityDefinition BILL_BEL_IAM_SEC_DEFINITION = new BillSecurityDefinition(EUR, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_IAM, ACT360, ISSUER_NAMES[1]);
-  private static final String BEL_NAME = ISSUER_NAMES[1];
+  //  private static final String BEL_NAME = ISSUER_NAMES[1];
   private final static BillSecurityDefinition BILL_US_DSC_SEC_DEFINITION = new BillSecurityDefinition(USD, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_DSC, ACT360, ISSUER_NAMES[0]);
   private final static BillSecurity BILL_BEL_IAM_SEC = BILL_BEL_IAM_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
   private final static BillSecurity BILL_US_DSC_SEC = BILL_US_DSC_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
@@ -75,7 +74,7 @@ public class BillSecurityDiscountingMethodTest {
   private final static YieldFromCleanPriceCalculator YFPC = YieldFromCleanPriceCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
-  private static final ParameterSensitivityIssuerCalculator PS_PVI_C = new ParameterSensitivityIssuerCalculator(PVCSIC);
+  private static final ParameterSensitivityIssuerCalculator<IssuerProviderDiscount> PS_PVI_C = new ParameterSensitivityIssuerCalculator(PVCSIC);
   private static final ParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_PVI_FDC = new ParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -169,17 +168,17 @@ public class BillSecurityDiscountingMethodTest {
 
   @Test
   public void presentValueFromPrice() {
-    final CurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromPrice(BILL_BEL_IAM_SEC, PRICE, ISSUER_MULTICURVE);
+    final MultipleCurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromPrice(BILL_BEL_IAM_SEC, PRICE, ISSUER_MULTICURVE);
     final double pvExpected = NOTIONAL * PRICE * ISSUER_MULTICURVE.getMulticurveProvider().getDiscountFactor(EUR, BILL_BEL_IAM_SEC.getSettlementTime());
-    assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
+    assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(BILL_BEL_IAM_SEC.getCurrency()), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueFromYield() {
-    final CurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromYield(BILL_BEL_IAM_SEC, YIELD, ISSUER_MULTICURVE);
+    final MultipleCurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromYield(BILL_BEL_IAM_SEC, YIELD, ISSUER_MULTICURVE);
     final double price = METHOD_SECURITY.priceFromYield(BILL_BEL_IAM_SEC, YIELD);
     final double pvExpected = NOTIONAL * price * ISSUER_MULTICURVE.getMulticurveProvider().getDiscountFactor(EUR, BILL_BEL_IAM_SEC.getSettlementTime());
-    assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
+    assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(BILL_BEL_IAM_SEC.getCurrency()), TOLERANCE_PV);
   }
 
   @Test

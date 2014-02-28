@@ -4,12 +4,64 @@ OpenGamma Platform 2.2 milestones
 These release notes cover changes from v2.1 to v2.2.
 
 
+
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M12
+------------
+- [PLAT-5744] Server needs a restart to pick up new timeseries
+    The fix requires to configure viewProcessorManager in spring config file. It is required to add new item into the masters property.
+    The item should be:
+         <bean class=" com.opengamma.financial.timeseries.HistoricalTimeSeriesSourceChangeProvider">
+           <constructor-arg ref="[HISTORICAL_TIME_SERIES_SOURCE]" />
+         </bean>
+    where [HISTORICAL_TIME_SERIES_SOURCE] should be appropriate historical time series source.
+
+* Bug
+    * [PLAT-5744] - Server needs a restart to pick up new timeseries
+    * [PLAT-5959] - MarketDataSnapshotTool should allow a timeout to be specified
+    * [PLAT-5961] - InMemoryLKVLiveMarketDataProvider only removes the value specification from the underlying cache which causes a full unsubscription
+    * [PLAT-5977] - Fix valuation time handling in swap detail visitors
+    * [PLAT-5990] - Views change behavior by adding columns
+    * [PLAT-6004] - getResults in InflationProviderDiscountingFunction is not calling the curve properly
+    * [PLAT-6005] - CurveNodeCurrencyVisitor.visitCashNode should throw an exception clearly stating which security is missing from the security source
+    * [PLAT-6007] - OG-Language Loader for security functions replaces the config source with a remote implementation that uses the security source URI, uses multiple function providers unnecessarily and adds some functions twice
+    * [PLAT-6018] - Position name is not included in scenario output
+    * [PLAT-6023] - VarianceSwapDefinitionTest depends on current date/time
+* Improvement
+    * [PLAT-5809] - FailureResult doesn't have anywhere to store exceptions
+    * [PLAT-5960] - add a new timeCalculator using bus/252 and use it in the "brazilian" instruments
+    * [PLAT-6020] - 'Conventions' green screen lacks a search by id field
+    * [PLAT-6024] - Allow aliasing of column names in SimpleResultBuilder
+* New Feature
+    * [PLAT-2717] - Create FX Volatility Swap Security
+    * [PLAT-5662] - Add min/max functionality to dsl
+    * [PLAT-5752] - Support for bills 
+    * [PLAT-5753] - New curve node:bill
+    * [PLAT-5802] - Test bill node converter
+    * [PLAT-5804] - Test bill security converter
+    * [PLAT-5967] - Create swap index
+    * [PLAT-5985] - Support for SwapIndex
+    * [PLAT-5986] - Add support for PriceIndex
+    * [PLAT-5998] - Add an expiry calculator that adjusts to a certain number of working days before the end of the month
+    * [PLAT-5999] - Volatility swap definition and derivative in OG-Analytics
+* Epic
+    * [PLAT-1671] - Review database schemas and access methods
+* Task
+    * [PLAT-5930] - More tests for FiniteDifferenceSpreadSensitivityCalculator
+    * [PLAT-5972] - More tests for MultiAnalyticCDSPricer
+* Sub-task
+    * [PLAT-5769] - If client owns JVM start token, don't issue restart on first failure
+    * [PLAT-5969] - Add uniqueIdScheme  search property to SearchRequest
+    * [PLAT-5991] - Create DelegatingSecurityMaster and its component factory
+    * [PLAT-5992] - Add uniqueIdScheme request property to AbstractMetaDataRequest
+    * [PLAT-5994] - Modify Web security resources to work with delegate security master
+
+
 To 2.2.0-M11
 ------------
-* Bug
+** Bug
     * [PLAT-5252] - Value of optional constraints on view definitions are lost after saving
     * [PLAT-5699] - Error pricing a bond with new curves in Bloomberg examples
     * [PLAT-5718] - Market data scaling in the scenario DSL should be consistent with curve scaling

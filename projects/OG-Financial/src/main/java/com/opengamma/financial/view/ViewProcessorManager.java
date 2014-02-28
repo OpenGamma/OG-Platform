@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -28,6 +28,7 @@ import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.impl.ViewProcessorInternal;
+import com.opengamma.financial.timeseries.HistoricalTimeSeriesSourceChangeProvider;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
@@ -166,7 +167,7 @@ public class ViewProcessorManager implements Lifecycle {
           _watchSet.addAll(watch);
           addAlternateWatchSet(watch);
         }
-        _watchSet.add(FunctionConfigurationSource.OBJECT_ID);
+        reinitializeWatchSet();
         s_logger.debug("WatchSet = {}", _watchSet);
         s_logger.info("Starting view processors");
         for (ViewProcessorInternal viewProcessor : _viewProcessors) {
@@ -266,7 +267,7 @@ public class ViewProcessorManager implements Lifecycle {
           s_logger.error("Error reinitializing functions", t);
         }
       }
-      _watchSet.add(FunctionConfigurationSource.OBJECT_ID);
+      reinitializeWatchSet();
       s_logger.trace("WatchSet = {}", _watchSet);
       s_logger.debug("Resuming view processors");
       for (Runnable resume : resumes) {
@@ -276,6 +277,11 @@ public class ViewProcessorManager implements Lifecycle {
     } finally {
       _lifecycleLock.unlock();
     }
+  }
+
+  private void reinitializeWatchSet() {
+    _watchSet.add(FunctionConfigurationSource.OBJECT_ID);
+    _watchSet.add(HistoricalTimeSeriesSourceChangeProvider.ALL_HISTORICAL_TIME_SERIES);
   }
 
   private void addAlternateWatchSet(final Set<ObjectId> watchSet) {

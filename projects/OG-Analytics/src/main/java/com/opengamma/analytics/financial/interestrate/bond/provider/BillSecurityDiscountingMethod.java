@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -125,7 +124,7 @@ public final class BillSecurityDiscountingMethod {
    * @param issuer The issuer and multi-curves provider.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromYield(final BillSecurity bill, final double yield, final IssuerProviderInterface issuer) {
+  public MultipleCurrencyAmount presentValueFromYield(final BillSecurity bill, final double yield, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
     final double price = priceFromYield(bill, yield);
@@ -139,11 +138,11 @@ public final class BillSecurityDiscountingMethod {
    * @param issuer The issuer and multi-curves provider.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromPrice(final BillSecurity bill, final double price, final IssuerProviderInterface issuer) {
+  public MultipleCurrencyAmount presentValueFromPrice(final BillSecurity bill, final double price, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
     final double pvBill = bill.getNotional() * price * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime());
-    return CurrencyAmount.of(bill.getCurrency(), pvBill);
+    return MultipleCurrencyAmount.of(bill.getCurrency(), pvBill);
   }
 
   /**

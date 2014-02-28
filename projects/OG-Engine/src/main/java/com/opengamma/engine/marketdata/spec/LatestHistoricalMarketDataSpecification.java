@@ -5,32 +5,30 @@
  */
 package com.opengamma.engine.marketdata.spec;
 
-import org.joda.beans.BeanDefinition;
-
 import java.util.Map;
+import java.util.NoSuchElementException;
 
-import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * 
  */
-@BeanDefinition
+@BeanDefinition(hierarchy = "immutable")
 public class LatestHistoricalMarketDataSpecification extends HistoricalMarketDataSpecification implements MarketDataSpecification {
   
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructor for builders
+   * Creates an instance, using the default time series resolver key
    */
   public LatestHistoricalMarketDataSpecification() {
   }
   
   /**
-   * Creates an instance
+   * Creates an instance, specifying the time series resolver key
    * 
    * @param timeSeriesResolverKey the time series resolver key, not null
    */
@@ -52,6 +50,22 @@ public class LatestHistoricalMarketDataSpecification extends HistoricalMarketDat
     JodaBeanUtils.registerMetaBean(LatestHistoricalMarketDataSpecification.Meta.INSTANCE);
   }
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static LatestHistoricalMarketDataSpecification.Builder builder() {
+    return new LatestHistoricalMarketDataSpecification.Builder();
+  }
+
+  /**
+   * Restricted constructor.
+   * @param builder  the builder to copy from, not null
+   */
+  protected LatestHistoricalMarketDataSpecification(LatestHistoricalMarketDataSpecification.Builder builder) {
+    super(builder);
+  }
+
   @Override
   public LatestHistoricalMarketDataSpecification.Meta metaBean() {
     return LatestHistoricalMarketDataSpecification.Meta.INSTANCE;
@@ -60,7 +74,7 @@ public class LatestHistoricalMarketDataSpecification extends HistoricalMarketDat
   //-----------------------------------------------------------------------
   @Override
   public LatestHistoricalMarketDataSpecification clone() {
-    return (LatestHistoricalMarketDataSpecification) super.clone();
+    return this;
   }
 
   @Override
@@ -121,8 +135,8 @@ public class LatestHistoricalMarketDataSpecification extends HistoricalMarketDat
     }
 
     @Override
-    public BeanBuilder<? extends LatestHistoricalMarketDataSpecification> builder() {
-      return new DirectBeanBuilder<LatestHistoricalMarketDataSpecification>(new LatestHistoricalMarketDataSpecification());
+    public LatestHistoricalMarketDataSpecification.Builder builder() {
+      return new LatestHistoricalMarketDataSpecification.Builder();
     }
 
     @Override
@@ -136,6 +150,79 @@ public class LatestHistoricalMarketDataSpecification extends HistoricalMarketDat
     }
 
     //-----------------------------------------------------------------------
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code LatestHistoricalMarketDataSpecification}.
+   */
+  public static class Builder extends HistoricalMarketDataSpecification.Builder {
+
+    /**
+     * Restricted constructor.
+     */
+    protected Builder() {
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      throw new NoSuchElementException("Unknown property: " + propertyName);
+    }
+
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      throw new NoSuchElementException("Unknown property: " + propertyName);
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public LatestHistoricalMarketDataSpecification build() {
+      return new LatestHistoricalMarketDataSpecification(this);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(32);
+      buf.append("LatestHistoricalMarketDataSpecification.Builder{");
+      int len = buf.length();
+      toString(buf);
+      if (buf.length() > len) {
+        buf.setLength(buf.length() - 2);
+      }
+      buf.append('}');
+      return buf.toString();
+    }
+
+    @Override
+    protected void toString(StringBuilder buf) {
+      super.toString(buf);
+    }
+
   }
 
   ///CLOVER:ON
