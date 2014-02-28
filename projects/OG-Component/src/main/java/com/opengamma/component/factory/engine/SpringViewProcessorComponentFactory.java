@@ -28,8 +28,6 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.calcnode.CalcNodeSocketConfiguration;
 import com.opengamma.engine.calcnode.stats.TotallingNodeStatisticsGatherer;
@@ -141,21 +139,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     ViewDefinitionCompiler.registerMetricsStatic(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "ViewDefinitionCompiler");
   }
 
-  private static final class ClearViewExecutionCache implements ChangeListener {
-
-    private final ViewProcessor _viewProcessor;
-
-    public ClearViewExecutionCache(final ViewProcessor viewProcessor) {
-      _viewProcessor = viewProcessor;
-    }
-
-    @Override
-    public void entityChanged(ChangeEvent event) {
-      _viewProcessor.clearViewExecutionCache();
-    }
-
-  }
-
   /**
    * Registers the view processor.
    * 
@@ -164,12 +147,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   protected void initViewProcessor(final ComponentRepository repo, final GenericApplicationContext appContext) {
     final ViewProcessor viewProcessor = appContext.getBean(ViewProcessor.class);
-    final ChangeListener clearCache = new ClearViewExecutionCache(viewProcessor);
-    viewProcessor.getConfigSource().changeManager().addChangeListener(clearCache);
-    if (getHistoricalTimeSeriesSource() != null) {
-      getHistoricalTimeSeriesSource().changeManager().addChangeListener(clearCache);
-    }
-    // TODO: The listener needs to be removed when the view processor is shutdown
     final ComponentInfo info = new ComponentInfo(ViewProcessor.class, getClassifier());
     if (getJmsBrokerUri() != null) {
       info.addAttribute(ComponentInfoAttributes.JMS_BROKER_URI, getJmsBrokerUri());
