@@ -93,16 +93,16 @@ public class FixedIncomeConverterDataProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(FixedIncomeConverterDataProvider.class);
   /** The security source */
   private final SecuritySource _securitySource;
-  
-  /** The convention source **/ 
+
+  /** The convention source **/
   // TODO: [PLAT-5966] Remove this convention source
   private final ConventionBundleSource _conventionSource;
 
   private final HistoricalTimeSeriesResolver _timeSeriesResolver;
-  
+
   /** The first fixing date of a swap is not stored at the security level. 
    * One needs to estimate how far before the effective date the fixing time-series is required. **/
-  private static final int DAYS_BEFORE_EFFECTIVE = 60;
+  private static final int DAYS_BEFORE_EFFECTIVE = 180;
 
   public FixedIncomeConverterDataProvider(final ConventionBundleSource conventionSource, final SecuritySource securitySource, final HistoricalTimeSeriesResolver timeSeriesResolver) {
     ArgumentChecker.notNull(conventionSource, "conventionSource");
@@ -116,8 +116,8 @@ public class FixedIncomeConverterDataProvider {
   public HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver() {
     return _timeSeriesResolver;
   }
-  
- //TODO: [PLAT-5966] Add java doc
+
+  //TODO: [PLAT-5966] Add java doc
   public ConventionBundleSource getConventionBundleSource() {
     return _conventionSource;
   }
@@ -425,7 +425,7 @@ public class FixedIncomeConverterDataProvider {
     @SuppressWarnings("synthetic-access")
     @Override
     public InstrumentDerivative convert(final ForwardRateAgreementSecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now, final String[] curveNames,
-                                        final HistoricalTimeSeriesBundle timeSeries) {
+        final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
       if (ts == null) {
@@ -442,7 +442,7 @@ public class FixedIncomeConverterDataProvider {
     @SuppressWarnings("synthetic-access")
     @Override
     public InstrumentDerivative convert(final ForwardRateAgreementSecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
-                                        final HistoricalTimeSeriesBundle timeSeries) {
+        final HistoricalTimeSeriesBundle timeSeries) {
       ExternalIdBundle indexIdBundle;
       final ExternalId indexId = security.getUnderlyingId();
       final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
@@ -643,97 +643,97 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<FederalFundsFutureSecurity, FederalFundsFutureSecurityDefinition> _fedFundsFutureSecurity =
       new Converter<FederalFundsFutureSecurity, FederalFundsFutureSecurityDefinition>() {
 
-      @Override
-      public Set<ValueRequirement> getTimeSeriesRequirements(final FederalFundsFutureSecurity security) {
-        final HistoricalTimeSeriesResolutionResult futureTS = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-        if (futureTS == null) {
-          return null;
+        @Override
+        public Set<ValueRequirement> getTimeSeriesRequirements(final FederalFundsFutureSecurity security) {
+          final HistoricalTimeSeriesResolutionResult futureTS = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+          if (futureTS == null) {
+            return null;
+          }
+          final HistoricalTimeSeriesResolutionResult underlyingTS = getTimeSeriesResolver().resolve(security.getUnderlyingId().toBundle(), null, null, null,
+              MarketDataRequirementNames.MARKET_VALUE, null);
+          if (underlyingTS == null) {
+            return null;
+          }
+          final Set<ValueRequirement> requirements = new HashSet<>();
+          requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(futureTS, MarketDataRequirementNames.MARKET_VALUE,
+              DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(underlyingTS, MarketDataRequirementNames.MARKET_VALUE,
+              DateConstraint.VALUATION_TIME.minus(Period.ofMonths(4)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          return requirements;
         }
-        final HistoricalTimeSeriesResolutionResult underlyingTS = getTimeSeriesResolver().resolve(security.getUnderlyingId().toBundle(), null, null, null,
-            MarketDataRequirementNames.MARKET_VALUE, null);
-        if (underlyingTS == null) {
-          return null;
-        }
-        final Set<ValueRequirement> requirements = new HashSet<>();
-        requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(futureTS, MarketDataRequirementNames.MARKET_VALUE,
-            DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
-        requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(underlyingTS, MarketDataRequirementNames.MARKET_VALUE,
-            DateConstraint.VALUATION_TIME.minus(Period.ofMonths(4)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
-        return requirements;
-      }
 
-      @Override
-      public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureSecurityDefinition definition, final ZonedDateTime now, final String[] curveNames,
-          final HistoricalTimeSeriesBundle timeSeries) {
-        return convert(security, definition, now, timeSeries);
-      }
-
-      @Override
-      public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureSecurityDefinition definition, final ZonedDateTime now,
-          final HistoricalTimeSeriesBundle timeSeries) {
-        final HistoricalTimeSeries underlyingTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId().toBundle());
-        if (underlyingTS == null) {
-          throw new OpenGammaRuntimeException("Could not get underlying time series for " + security.getUnderlyingId());
+        @Override
+        public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureSecurityDefinition definition, final ZonedDateTime now, final String[] curveNames,
+            final HistoricalTimeSeriesBundle timeSeries) {
+          return convert(security, definition, now, timeSeries);
         }
-        if (underlyingTS.getTimeSeries().size() == 0) {
-          throw new OpenGammaRuntimeException("Time series for " + security.getUnderlyingId().toBundle() + " was empty");
-        }
-        return definition.toDerivative(now, convertTimeSeries(ZoneId.of("UTC"), underlyingTS.getTimeSeries()));
-      }
 
-    };
+        @Override
+        public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureSecurityDefinition definition, final ZonedDateTime now,
+            final HistoricalTimeSeriesBundle timeSeries) {
+          final HistoricalTimeSeries underlyingTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId().toBundle());
+          if (underlyingTS == null) {
+            throw new OpenGammaRuntimeException("Could not get underlying time series for " + security.getUnderlyingId());
+          }
+          if (underlyingTS.getTimeSeries().size() == 0) {
+            throw new OpenGammaRuntimeException("Time series for " + security.getUnderlyingId().toBundle() + " was empty");
+          }
+          return definition.toDerivative(now, convertTimeSeries(ZoneId.of("UTC"), underlyingTS.getTimeSeries()));
+        }
+
+      };
 
   private final Converter<FederalFundsFutureSecurity, FederalFundsFutureTransactionDefinition> _fedFundsFutureTrade =
       new Converter<FederalFundsFutureSecurity, FederalFundsFutureTransactionDefinition>() {
 
-      @Override
-      public Set<ValueRequirement> getTimeSeriesRequirements(final FederalFundsFutureSecurity security) {
-        final HistoricalTimeSeriesResolutionResult futureTS = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-        if (futureTS == null) {
-          return null;
+        @Override
+        public Set<ValueRequirement> getTimeSeriesRequirements(final FederalFundsFutureSecurity security) {
+          final HistoricalTimeSeriesResolutionResult futureTS = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+          if (futureTS == null) {
+            return null;
+          }
+          final HistoricalTimeSeriesResolutionResult underlyingTS = getTimeSeriesResolver().resolve(security.getUnderlyingId().toBundle(), null, null, null,
+              MarketDataRequirementNames.MARKET_VALUE, null);
+          if (underlyingTS == null) {
+            return null;
+          }
+          final Set<ValueRequirement> requirements = new HashSet<>();
+          requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(futureTS, MarketDataRequirementNames.MARKET_VALUE,
+              DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(underlyingTS, MarketDataRequirementNames.MARKET_VALUE,
+              DateConstraint.VALUATION_TIME.minus(Period.ofMonths(4)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          return requirements;
         }
-        final HistoricalTimeSeriesResolutionResult underlyingTS = getTimeSeriesResolver().resolve(security.getUnderlyingId().toBundle(), null, null, null,
-            MarketDataRequirementNames.MARKET_VALUE, null);
-        if (underlyingTS == null) {
-          return null;
-        }
-        final Set<ValueRequirement> requirements = new HashSet<>();
-        requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(futureTS, MarketDataRequirementNames.MARKET_VALUE,
-            DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
-        requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(underlyingTS, MarketDataRequirementNames.MARKET_VALUE,
-            DateConstraint.VALUATION_TIME.minus(Period.ofMonths(4)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
-        return requirements;
-      }
 
-      @Override
-      public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureTransactionDefinition definition, final ZonedDateTime now, final String[] curveNames,
-          final HistoricalTimeSeriesBundle timeSeries) {
-        return convert(security, definition, now, timeSeries);
-      }
+        @Override
+        public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureTransactionDefinition definition, final ZonedDateTime now, final String[] curveNames,
+            final HistoricalTimeSeriesBundle timeSeries) {
+          return convert(security, definition, now, timeSeries);
+        }
 
-      @SuppressWarnings("unchecked")
-      @Override
-      public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureTransactionDefinition definition, final ZonedDateTime now,
-          final HistoricalTimeSeriesBundle timeSeries) {
-        final HistoricalTimeSeries futureTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-        if (futureTS == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-        }
-        if (futureTS.getTimeSeries().size() == 0) {
-          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-        }
-        final HistoricalTimeSeries underlyingTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId().toBundle());
-        if (underlyingTS == null) {
-          throw new OpenGammaRuntimeException("Could not get underlying time series for " + security.getUnderlyingId());
-        }
-        if (underlyingTS.getTimeSeries().size() == 0) {
-          throw new OpenGammaRuntimeException("Time series for " + security.getUnderlyingId().toBundle() + " was empty");
-        }
-        return definition.toDerivative(now, new DoubleTimeSeries[] {
+        @SuppressWarnings("unchecked")
+        @Override
+        public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureTransactionDefinition definition, final ZonedDateTime now,
+            final HistoricalTimeSeriesBundle timeSeries) {
+          final HistoricalTimeSeries futureTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
+          if (futureTS == null) {
+            throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+          }
+          if (futureTS.getTimeSeries().size() == 0) {
+            throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
+          }
+          final HistoricalTimeSeries underlyingTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId().toBundle());
+          if (underlyingTS == null) {
+            throw new OpenGammaRuntimeException("Could not get underlying time series for " + security.getUnderlyingId());
+          }
+          if (underlyingTS.getTimeSeries().size() == 0) {
+            throw new OpenGammaRuntimeException("Time series for " + security.getUnderlyingId().toBundle() + " was empty");
+          }
+          return definition.toDerivative(now, new DoubleTimeSeries[] {
             convertTimeSeries(ZoneId.of("UTC"), underlyingTS.getTimeSeries()),
             convertTimeSeries(ZoneId.of("UTC"), futureTS.getTimeSeries()) });
-      }
-    };
+        }
+      };
 
   private final Converter<IRFutureOptionSecurity, InterestRateFutureOptionMarginTransactionDefinition> _irFutureOptionSecurity = new Converter<IRFutureOptionSecurity, InterestRateFutureOptionMarginTransactionDefinition>() { // CSIGNORE
 
@@ -971,186 +971,212 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<ZeroCouponInflationSwapSecurity, SwapFixedInflationZeroCouponDefinition> _zeroCouponInflationSwapSecurity =
       new Converter<ZeroCouponInflationSwapSecurity, SwapFixedInflationZeroCouponDefinition>() {
 
-      @Override
-      public Set<ValueRequirement> getTimeSeriesRequirements(final ZeroCouponInflationSwapSecurity security) {
-        Validate.notNull(security, "security");
-        final SwapLeg payLeg = security.getPayLeg();
-        final SwapLeg receiveLeg = security.getReceiveLeg();
-        final ZonedDateTime swapStartDate = security.getEffectiveDate();
-        final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-        final ValueRequirement payLegTS = getIndexTimeSeriesRequirement(payLeg, swapStartLocalDate);
-        final ValueRequirement receiveLegTS = getIndexTimeSeriesRequirement(receiveLeg, swapStartLocalDate);
-        final Set<ValueRequirement> requirements = new HashSet<>();
-        if (payLegTS != null) {
-          requirements.add(payLegTS);
-        }
-        if (receiveLegTS != null) {
-          requirements.add(receiveLegTS);
-        }
-        return requirements;
-      }
-
-      @Override
-      public InstrumentDerivative convert(final ZeroCouponInflationSwapSecurity security, final SwapFixedInflationZeroCouponDefinition definition, final ZonedDateTime now, final String[] curveNames,
-          final HistoricalTimeSeriesBundle timeSeries) {
-        Validate.notNull(security, "security");
-        if (timeSeries == null) {
-          return definition.toDerivative(now, curveNames);
-        }
-        final SwapLeg payLeg = security.getPayLeg();
-        final SwapLeg receiveLeg = security.getReceiveLeg();
-        final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
-        final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-        final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        if (payLegTS != null) {
+        @Override
+        public Set<ValueRequirement> getTimeSeriesRequirements(final ZeroCouponInflationSwapSecurity security) {
+          Validate.notNull(security, "security");
+          final SwapLeg payLeg = security.getPayLeg();
+          final SwapLeg receiveLeg = security.getReceiveLeg();
+          final ZonedDateTime swapStartDate = security.getEffectiveDate();
+          final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+          final ValueRequirement payLegTS = getIndexTimeSeriesRequirement(payLeg, swapStartLocalDate);
+          final ValueRequirement receiveLegTS = getIndexTimeSeriesRequirement(receiveLeg, swapStartLocalDate);
+          final Set<ValueRequirement> requirements = new HashSet<>();
+          if (payLegTS != null) {
+            requirements.add(payLegTS);
+          }
           if (receiveLegTS != null) {
+            requirements.add(receiveLegTS);
+          }
+          return requirements;
+        }
+
+        @Override
+        public InstrumentDerivative convert(final ZeroCouponInflationSwapSecurity security, final SwapFixedInflationZeroCouponDefinition definition, final ZonedDateTime now,
+            final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
+          Validate.notNull(security, "security");
+          if (timeSeries == null) {
+            return definition.toDerivative(now, curveNames);
+          }
+          final SwapLeg payLeg = security.getPayLeg();
+          final SwapLeg receiveLeg = security.getReceiveLeg();
+          final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
+          final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+          final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          if (payLegTS != null) {
+            if (receiveLegTS != null) {
+              try {
+                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+              } catch (final OpenGammaRuntimeException e) {
+                final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
+                throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+              }
+            }
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS }, curveNames);
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
             }
           }
-        }
-        if (receiveLegTS != null) {
-          try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
-          } catch (final OpenGammaRuntimeException e) {
-            final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
-            throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
-          }
-        }
-        throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
-      }
-
-      @Override
-      public InstrumentDerivative convert(final ZeroCouponInflationSwapSecurity security, final SwapFixedInflationZeroCouponDefinition definition, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries) {
-        Validate.notNull(security, "security");
-        if (timeSeries == null) {
-          return definition.toDerivative(now);
-        }
-        final SwapLeg payLeg = security.getPayLeg();
-        final SwapLeg receiveLeg = security.getReceiveLeg();
-        final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
-        final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-        final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        if (payLegTS != null) {
           if (receiveLegTS != null) {
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
+            } catch (final OpenGammaRuntimeException e) {
+              final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
+              throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+            }
+          }
+          throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
+        }
+
+        @Override
+        public InstrumentDerivative convert(final ZeroCouponInflationSwapSecurity security, final SwapFixedInflationZeroCouponDefinition definition, final ZonedDateTime now,
+            final HistoricalTimeSeriesBundle timeSeries) {
+          Validate.notNull(security, "security");
+          if (timeSeries == null) {
+            return definition.toDerivative(now);
+          }
+          final SwapLeg payLeg = security.getPayLeg();
+          final SwapLeg receiveLeg = security.getReceiveLeg();
+          final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
+          final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+          final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          if (payLegTS != null) {
+            if (receiveLegTS != null) {
+              try {
+                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
+              } catch (final OpenGammaRuntimeException e) {
+                final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
+                throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+              }
+            }
+
+            try {
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
             }
           }
-        }
-        if (receiveLegTS != null) {
-          try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
-          } catch (final OpenGammaRuntimeException e) {
-            final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
-            throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+          if (receiveLegTS != null) {
+            try {
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
+            } catch (final OpenGammaRuntimeException e) {
+              final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
+              throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+            }
           }
+          throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
         }
-        throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
-      }
 
-    };
+      };
 
   private final Converter<YearOnYearInflationSwapSecurity, SwapFixedInflationYearOnYearDefinition> _yearOnYearInflationSwapSecurity =
       new Converter<YearOnYearInflationSwapSecurity, SwapFixedInflationYearOnYearDefinition>() {
 
-      @Override
-      public Set<ValueRequirement> getTimeSeriesRequirements(final YearOnYearInflationSwapSecurity security) {
-        Validate.notNull(security, "security");
-        final SwapLeg payLeg = security.getPayLeg();
-        final SwapLeg receiveLeg = security.getReceiveLeg();
-        final ZonedDateTime swapStartDate = security.getEffectiveDate();
-        final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-        final ValueRequirement payLegTS = getIndexTimeSeriesRequirement(payLeg, swapStartLocalDate);
-        final ValueRequirement receiveLegTS = getIndexTimeSeriesRequirement(receiveLeg, swapStartLocalDate);
-        final Set<ValueRequirement> requirements = new HashSet<>();
-        if (payLegTS != null) {
-          requirements.add(payLegTS);
-        }
-        if (receiveLegTS != null) {
-          requirements.add(receiveLegTS);
-        }
-        return requirements;
-      }
-
-      @Override
-      public InstrumentDerivative convert(final YearOnYearInflationSwapSecurity security, final SwapFixedInflationYearOnYearDefinition definition, final ZonedDateTime now, final String[] curveNames,
-          final HistoricalTimeSeriesBundle timeSeries) {
-        Validate.notNull(security, "security");
-        if (timeSeries == null) {
-          return definition.toDerivative(now, curveNames);
-        }
-        final SwapLeg payLeg = security.getPayLeg();
-        final SwapLeg receiveLeg = security.getReceiveLeg();
-        final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
-        final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-        final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        if (payLegTS != null) {
+        @Override
+        public Set<ValueRequirement> getTimeSeriesRequirements(final YearOnYearInflationSwapSecurity security) {
+          Validate.notNull(security, "security");
+          final SwapLeg payLeg = security.getPayLeg();
+          final SwapLeg receiveLeg = security.getReceiveLeg();
+          final ZonedDateTime swapStartDate = security.getEffectiveDate();
+          final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+          final ValueRequirement payLegTS = getIndexTimeSeriesRequirement(payLeg, swapStartLocalDate);
+          final ValueRequirement receiveLegTS = getIndexTimeSeriesRequirement(receiveLeg, swapStartLocalDate);
+          final Set<ValueRequirement> requirements = new HashSet<>();
+          if (payLegTS != null) {
+            requirements.add(payLegTS);
+          }
           if (receiveLegTS != null) {
+            requirements.add(receiveLegTS);
+          }
+          return requirements;
+        }
+
+        @Override
+        public InstrumentDerivative convert(final YearOnYearInflationSwapSecurity security, final SwapFixedInflationYearOnYearDefinition definition, final ZonedDateTime now,
+            final String[] curveNames,
+            final HistoricalTimeSeriesBundle timeSeries) {
+          Validate.notNull(security, "security");
+          if (timeSeries == null) {
+            return definition.toDerivative(now, curveNames);
+          }
+          final SwapLeg payLeg = security.getPayLeg();
+          final SwapLeg receiveLeg = security.getReceiveLeg();
+          final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
+          final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+          final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          if (payLegTS != null) {
+            if (receiveLegTS != null) {
+              try {
+                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+              } catch (final OpenGammaRuntimeException e) {
+                final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
+                throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+              }
+            }
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS }, curveNames);
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
             }
           }
-        }
-        if (receiveLegTS != null) {
-          try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
-          } catch (final OpenGammaRuntimeException e) {
-            final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
-            throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
-          }
-        }
-        throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
-      }
-
-      @Override
-      public InstrumentDerivative convert(final YearOnYearInflationSwapSecurity security, final SwapFixedInflationYearOnYearDefinition definition, 
-          final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries) {
-        Validate.notNull(security, "security");
-        if (timeSeries == null) {
-          return definition.toDerivative(now);
-        }
-        final SwapLeg payLeg = security.getPayLeg();
-        final SwapLeg receiveLeg = security.getReceiveLeg();
-        final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
-        final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-        final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
-        if (payLegTS != null) {
           if (receiveLegTS != null) {
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
+            } catch (final OpenGammaRuntimeException e) {
+              final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
+              throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+            }
+          }
+          throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
+        }
+
+        @Override
+        public InstrumentDerivative convert(final YearOnYearInflationSwapSecurity security, final SwapFixedInflationYearOnYearDefinition definition,
+            final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries) {
+          Validate.notNull(security, "security");
+          if (timeSeries == null) {
+            return definition.toDerivative(now);
+          }
+          final SwapLeg payLeg = security.getPayLeg();
+          final SwapLeg receiveLeg = security.getReceiveLeg();
+          final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
+          final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+          final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
+          if (payLegTS != null) {
+            if (receiveLegTS != null) {
+              try {
+                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
+              } catch (final OpenGammaRuntimeException e) {
+                final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
+                throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+              }
+            }
+            try {
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
             }
           }
-        }
-        if (receiveLegTS != null) {
-          try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
-          } catch (final OpenGammaRuntimeException e) {
-            final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
-            throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+          if (receiveLegTS != null) {
+            try {
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
+            } catch (final OpenGammaRuntimeException e) {
+              final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
+              throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+            }
           }
+          throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
         }
-        throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
-      }
 
-    };
-
+      };
 
   private final Converter<Security, InstrumentDefinition<?>> _default = new Converter<Security, InstrumentDefinition<?>>() {
 
@@ -1211,7 +1237,7 @@ public class FixedIncomeConverterDataProvider {
         return null;
       }
       return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(ts, MarketDataRequirementNames.MARKET_VALUE,
-                                                                    DateConstraint.of(startDate), true, DateConstraint.VALUATION_TIME, true);
+          DateConstraint.of(startDate), true, DateConstraint.VALUATION_TIME, true);
     }
     return null;
   }
@@ -1266,7 +1292,7 @@ public class FixedIncomeConverterDataProvider {
   }
 
   private ZonedDateTimeDoubleTimeSeries getIndexTimeSeries(final InterestRateSwapLeg leg, final ZonedDateTime swapEffectiveDate, final ZonedDateTime now,
-                                                           final HistoricalTimeSeriesBundle timeSeries) {
+      final HistoricalTimeSeriesBundle timeSeries) {
     if (leg instanceof FloatingInterestRateSwapLeg) {
       final FloatingInterestRateSwapLeg floatingLeg = (FloatingInterestRateSwapLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
@@ -1316,7 +1342,7 @@ public class FixedIncomeConverterDataProvider {
 
     @Override
     @SuppressWarnings({"synthetic-access" })
-    public InstrumentDerivative convert(final InterestRateSwapSecurity security, final SwapDefinition definition, final ZonedDateTime now, 
+    public InstrumentDerivative convert(final InterestRateSwapSecurity security, final SwapDefinition definition, final ZonedDateTime now,
         final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
       Validate.notNull(security, "security");
       if (timeSeries == null) {
@@ -1454,7 +1480,7 @@ public class FixedIncomeConverterDataProvider {
    * @return The bundle.
    */
   private ExternalIdBundle getIndexIborIdBundle(final ExternalId indexId) {
-    final Security sec = _securitySource.getSingle(indexId.toBundle()); 
+    final Security sec = _securitySource.getSingle(indexId.toBundle());
     if (sec == null) {
       throw new OpenGammaRuntimeException("Ibor index with id " + indexId.toBundle() + " is null");
     }
