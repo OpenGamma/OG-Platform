@@ -32,8 +32,8 @@ cd "${BASEDIR}" || exit 1
 load_default_config
 
 # Component specific default configs
-CONFIG=classpath:marketdata/marketdata.properties
-LOGBACK_CONFIG=marketdata/marketdata-logback.xml
+CONFIG=${CONFIG:-classpath:marketdata/marketdata.properties}
+LOGBACK_CONFIG=${LOGBACK_CONFIG:-marketdata/marketdata-logback.xml}
 
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}
