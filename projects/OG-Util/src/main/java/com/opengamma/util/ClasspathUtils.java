@@ -203,12 +203,12 @@ public class ClasspathUtils {
       _url = uri.toURL();
       
       FilterBuilder filter = new FilterBuilder().include(".*pom[.]properties");
-      Reflections ref = new Reflections(new ResourcesScanner(), _url, DependencyInfo.class.getClassLoader(), filter);
-      Set<String> resources = ref.getResources(new FilterBuilder().include("pom[.]properties"));
+      Reflections ref = new Reflections(new ResourcesScanner(), _url, filter);
+      Set<String> resources = ref.getResources(filter);
       Properties properties = new Properties();
       if (resources.size() == 1) {
         String relativePath = resources.iterator().next();
-        try (URLClassLoader cl = new URLClassLoader(new URL[] {_url})) {
+        try (URLClassLoader cl = new URLClassLoader(new URL[] {_url}, null)) {
           URL resource = cl.getResource(relativePath);
           if (resource != null) {
             try (InputStream in = resource.openStream()) {
