@@ -53,6 +53,7 @@ import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FederalFundsFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.InflationSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
@@ -143,6 +144,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
+    final InflationSwapSecurityConverter inflationSwapConverter = new InflationSwapSecurityConverter(conventionSource, regionSource, holidaySource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter)
         .cashFlowSecurityVisitor(cashFlowSecurityConverter)
@@ -150,7 +152,9 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         .fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter)
         .fxForwardVisitor(fxForwardSecurityConverter)
-        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).create();
+        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter)
+        .zeroCouponInflationSwapSecurityVisitor(inflationSwapConverter)
+        .create();
     final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
     return new TradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, securityConverter);
   }

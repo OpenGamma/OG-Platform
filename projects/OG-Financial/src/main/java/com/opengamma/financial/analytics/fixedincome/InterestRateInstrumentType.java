@@ -61,7 +61,9 @@ public enum InterestRateInstrumentType {
   /** Coupon bond */
   COUPON_BOND,
   /** Bond future */
-  BOND_FUTURE;
+  BOND_FUTURE,
+  /** Zero coupon inflation swap */
+  ZERO_COUPON_INFLATION_SWAP;
 
   @SuppressWarnings("synthetic-access")
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
@@ -142,7 +144,7 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
       return InterestRateSwapSecurityUtils.getSwapType(security);
     }
-    
+
     @Override
     public InterestRateInstrumentType visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
       return FED_FUND_FUTURE;
