@@ -104,7 +104,7 @@ import com.opengamma.util.money.CurrencyAmount;
       values[i][2] = value.getAccrualYearFractions()[i];
       values[i][3] = value.getFixingStart()[i].toString();
       values[i][4] = value.getFixingEnd()[i].toString();
-      values[i][5] = value.getFixingYearFractions()[i];
+      values[i][5] = value.getFixingYearFractions()[i] == null ? "-" : value.getFixingYearFractions()[i];
       values[i][6] = value.getForwardRates()[i] == null ? "-" : _rateFormatter.formatCell(value.getForwardRates()[i], valueSpec, null);
       values[i][7] = value.getFixedRates()[i] == null ? "-" : _rateFormatter.formatCell(value.getFixedRates()[i], valueSpec, null);
       values[i][8] = value.getPaymentDates()[i];

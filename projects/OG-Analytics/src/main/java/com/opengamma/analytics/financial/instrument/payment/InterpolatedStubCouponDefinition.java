@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.IborIn
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Definition for interpolated stub coupon.
@@ -109,14 +110,14 @@ public final class InterpolatedStubCouponDefinition extends CouponDefinition imp
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return _fullCoupon.accept(visitor, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return _fullCoupon.accept(visitor);
   }
   
   private static final class InterpolatedStubParameterObject {

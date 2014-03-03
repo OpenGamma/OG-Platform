@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.cashflow;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
@@ -53,4 +54,8 @@ public final class CouponFixingYearFractionVisitor extends InstrumentDefinitionV
     return payment.getFixingPeriodAccrualFactor();
   }
 
+  @Override
+  public Double visitCouponFixedDefinition(CouponFixedDefinition payment) {
+    return null;
+  }
 }

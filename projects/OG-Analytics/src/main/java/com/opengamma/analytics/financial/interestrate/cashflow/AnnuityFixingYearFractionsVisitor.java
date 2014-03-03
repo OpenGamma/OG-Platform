@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.cashflow;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import java.util.ArrayList;
 
 import org.threeten.bp.LocalDate;
 
@@ -17,15 +17,15 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 /**
  * Gets the fixing year fractions for the coupons in an annuity.
  */
-public final class AnnuityFixingYearFractionsVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, double[]> {
+public final class AnnuityFixingYearFractionsVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, Double[]> {
   /** A singleton instance */
-  private static final InstrumentDefinitionVisitor<LocalDate, double[]> INSTANCE = new AnnuityFixingYearFractionsVisitor();
+  private static final InstrumentDefinitionVisitor<LocalDate, Double[]> INSTANCE = new AnnuityFixingYearFractionsVisitor();
 
   /**
    * Gets the singleton instance.
    * @return The instance
    */
-  public static InstrumentDefinitionVisitor<LocalDate, double[]> getInstance() {
+  public static InstrumentDefinitionVisitor<LocalDate, Double[]> getInstance() {
     return INSTANCE;
   }
 
@@ -36,16 +36,20 @@ public final class AnnuityFixingYearFractionsVisitor extends InstrumentDefinitio
   }
 
   @Override
-  public double[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
-    final int n = annuity.getNumberOfPayments();
-    final DoubleArrayList fractions = new DoubleArrayList();
+  public Double[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
+    int n = annuity.getNumberOfPayments();
+    final ArrayList<Double> fractions = new ArrayList<>();
     for (int i = 0; i < n; i++) {
       final PaymentDefinition payment = annuity.getNthPayment(i);
       if (payment.getPaymentDate().toLocalDate().isAfter(date)) {
-        fractions.add(payment.accept(CouponFixingYearFractionVisitor.getInstance()));
+        try {
+          fractions.add(payment.accept(CouponFixingYearFractionVisitor.getInstance()));
+        } catch (UnsupportedOperationException ex) {
+          fractions.add(null);
+        }
       }
     }
-    return fractions.toDoubleArray();
+    return fractions.toArray(new Double[fractions.size()]);
   }
 
 }
