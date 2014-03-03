@@ -32,9 +32,9 @@ cd "${BASEDIR}" || exit 1
 load_default_config
 
 # Component specific default configs
-CONFIG=classpath:fullstack/fullstack.properties
-LOGBACK_CONFIG=fullstack/fullstack-logback.xml
-LOGFILE=logs/fullstack-console.log
+CONFIG=${CONFIG:-classpath:fullstack/fullstack.properties}
+LOGBACK_CONFIG=${LOGBACK_CONFIG:-fullstack/fullstack-logback.xml}
+LOGFILE=${LOGFILE:-logs/fullstack-console.log}
 
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}
