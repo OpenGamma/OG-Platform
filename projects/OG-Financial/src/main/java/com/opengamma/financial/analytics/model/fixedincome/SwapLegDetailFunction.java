@@ -152,7 +152,7 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
       return Collections.singleton(new ComputedValue(spec, details));
     }
     final Pair<LocalDate[], LocalDate[]> fixingDates = legDefinition.accept(AnnuityFixingDatesVisitor.getInstance(), now);
-    final double[] fixingYearFractions = legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), now);
+    final Double[] fixingYearFractions = legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), now);
     final Double[] forwardRates = legDerivative.accept(AnnuityForwardRatesVisitor.getInstance(), bundle);
     final LocalDate[] paymentDates = legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), now);
     final CurrencyAmount[] projectedAmounts = legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle);

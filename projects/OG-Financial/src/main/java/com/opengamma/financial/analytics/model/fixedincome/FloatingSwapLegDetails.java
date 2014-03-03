@@ -138,10 +138,10 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
   private LocalDate[] _fixingEnd;
 
   /**
-   * An array of fixing year fractions.
+   * An array of fixing year fractions. May contain null values if there have been fixings as of the valuation date.
    */
   @PropertyDefinition(validate = "notNull")
-  private double[] _fixingYearFractions;
+  private Double[] _fixingYearFractions;
 
   /**
    * An array of forward rates.
@@ -244,7 +244,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * @param indexTenors The index tenors, not null
    */
   public FloatingSwapLegDetails(final LocalDate[] accrualStartDates, final LocalDate[] accrualEndDates, final double[] accrualYearFractions,
-      final LocalDate[] fixingStart, final LocalDate[] fixingEnd, final double[] fixingYearFractions, final Double[] forwardRates,
+      final LocalDate[] fixingStart, final LocalDate[] fixingEnd, final Double[] fixingYearFractions, final Double[] forwardRates,
       final Double[] fixedRates, final LocalDate[] paymentDates, final double[] paymentTimes, final double[] paymentDiscountFactors,
       final CurrencyAmount[] paymentAmounts, final CurrencyAmount[] projectedAmounts, final CurrencyAmount[] notionals, final double[] spreads,
       final double[] gearings, final Tenor[] indexTenors) {
@@ -497,18 +497,18 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets an array of fixing year fractions.
+   * Gets an array of fixing year fractions. May contain null values if there have been fixings as of the valuation date.
    * @return the value of the property, not null
    */
-  public double[] getFixingYearFractions() {
-    return (_fixingYearFractions != null ? _fixingYearFractions.clone() : null);
+  public Double[] getFixingYearFractions() {
+    return _fixingYearFractions;
   }
 
   /**
-   * Sets an array of fixing year fractions.
+   * Sets an array of fixing year fractions. May contain null values if there have been fixings as of the valuation date.
    * @param fixingYearFractions  the new value of the property, not null
    */
-  public void setFixingYearFractions(double[] fixingYearFractions) {
+  public void setFixingYearFractions(Double[] fixingYearFractions) {
     JodaBeanUtils.notNull(fixingYearFractions, "fixingYearFractions");
     this._fixingYearFractions = fixingYearFractions;
   }
@@ -517,7 +517,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * Gets the the {@code fixingYearFractions} property.
    * @return the property, not null
    */
-  public final Property<double[]> fixingYearFractions() {
+  public final Property<Double[]> fixingYearFractions() {
     return metaBean().fixingYearFractions().createProperty(this);
   }
 
@@ -1005,8 +1005,8 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     /**
      * The meta-property for the {@code fixingYearFractions} property.
      */
-    private final MetaProperty<double[]> _fixingYearFractions = DirectMetaProperty.ofReadWrite(
-        this, "fixingYearFractions", FloatingSwapLegDetails.class, double[].class);
+    private final MetaProperty<Double[]> _fixingYearFractions = DirectMetaProperty.ofReadWrite(
+        this, "fixingYearFractions", FloatingSwapLegDetails.class, Double[].class);
     /**
      * The meta-property for the {@code forwardRates} property.
      */
@@ -1232,7 +1232,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
      * The meta-property for the {@code fixingYearFractions} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<double[]> fixingYearFractions() {
+    public final MetaProperty<Double[]> fixingYearFractions() {
       return _fixingYearFractions;
     }
 
@@ -1435,7 +1435,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
           ((FloatingSwapLegDetails) bean).setFixingEnd((LocalDate[]) newValue);
           return;
         case 309118023:  // fixingYearFractions
-          ((FloatingSwapLegDetails) bean).setFixingYearFractions((double[]) newValue);
+          ((FloatingSwapLegDetails) bean).setFixingYearFractions((Double[]) newValue);
           return;
         case -291258418:  // forwardRates
           ((FloatingSwapLegDetails) bean).setForwardRates((Double[]) newValue);

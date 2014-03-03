@@ -142,7 +142,7 @@ public class DiscountingSwapLegDetailFunction extends DiscountingFunction {
           return Collections.singleton(new ComputedValue(spec, details));
         }
         final Pair<LocalDate[], LocalDate[]> fixingDates = legDefinition.accept(AnnuityFixingDatesVisitor.getInstance(), localDate);
-        final double[] fixingYearFractions = legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), localDate);
+        final Double[] fixingYearFractions = legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), localDate);
         final Double[] forwardRates = legDerivative.accept(AnnuityForwardRatesVisitor.getInstance(), data);
         final LocalDate[] paymentDates = legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), localDate);
         final CurrencyAmount[] projectedAmounts = legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), data);
