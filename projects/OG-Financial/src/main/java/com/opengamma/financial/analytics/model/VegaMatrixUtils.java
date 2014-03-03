@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,13 +17,17 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityQuoteSensitivityDataBundle;
+import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Contains utility methods that vega output from the analytics libraries into objects that
@@ -187,6 +192,49 @@ public class VegaMatrixUtils {
     return new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, values);
   }
 
+  /**
+   * Returns a bucketed swaption atm vega matrix with swaption expiry / swap maturity axes.
+   * @param vegas a map from swaption expiry, maturity to vega, not null
+   * @return A labelled vega matrix
+   */
+  public static DoubleLabelledMatrix2D getVegaSwaptionMatrix(final PresentValueBlackSwaptionSensitivity vegas) {
+    ArgumentChecker.notNull(vegas, "vegas");
+    final HashMap<DoublesPair, Double> vegaMap = vegas.getSensitivity().getMap();
+    final List<Double> xKeysList = new ArrayList<>();
+    final List<Double> xLabelsList = new ArrayList<>();
+    final List<Double> yKeysList = new ArrayList<>();
+    final List<Double> yLabelsList = new ArrayList<>();
+    for (final Entry<DoublesPair, Double> entry : vegaMap.entrySet()) {
+      final double swapMaturity = entry.getKey().getFirst();
+      if (!xKeysList.contains(swapMaturity)) {
+        xKeysList.add(swapMaturity);
+        xLabelsList.add(swapMaturity);
+      }
+      final double swaptionExpiry = entry.getKey().getSecond();
+      if (!yKeysList.contains(swaptionExpiry)) {
+        yKeysList.add(swaptionExpiry);
+        yLabelsList.add(swaptionExpiry);
+      }
+    }
+    final Double[] xKeys = xKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
+    final Double[] xLabels = xLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
+    final int nMaturities = xLabels.length;
+    final Double[] yKeys = yKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
+    final Double[] yLabels = yLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
+    final int nExpiries = yLabels.length;
+    final double[][] values = new double[nMaturities][nExpiries];
+    
+    for (int i = 0; i < nMaturities; i++) {
+      for (int j = 0; j < nExpiries; j++) {
+        DoublesPair key = DoublesPair.of(xKeys[i].doubleValue(), yKeys[j].doubleValue());
+        Double value = vegaMap.get(key);
+        values[i][j] = value == null ? 0.0 : value;
+      }
+    }
+    
+    return new DoubleLabelledMatrix2D(xKeys, xLabels, yKeys, yLabels, values);
+  }
+  
   public static String getFXVolatilityFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));
@@ -208,4 +256,7 @@ public class VegaMatrixUtils {
     final double months = period.toTotalMonths();
     return months / 12.;
   }
+  
+
+  
 }
