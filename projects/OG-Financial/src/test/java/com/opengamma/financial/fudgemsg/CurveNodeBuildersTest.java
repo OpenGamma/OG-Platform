@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
@@ -34,10 +35,18 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Test.
+ * Tests builders for curve nodes.
  */
 @Test(groups = TestGroup.UNIT)
 public class CurveNodeBuildersTest extends AnalyticsTestBase {
+
+  @Test
+  public void testBillNodeBuilder() {
+    BillNode node = new BillNode(Tenor.ONE_YEAR, "TEST");
+    assertEquals(node, cycleObject(BillNode.class, node));
+    node = new BillNode(Tenor.TWO_YEARS, "TEST", "name");
+    assertEquals(node, cycleObject(BillNode.class, node));
+  }
 
   @Test
   public void testBondNodeBuilder() {

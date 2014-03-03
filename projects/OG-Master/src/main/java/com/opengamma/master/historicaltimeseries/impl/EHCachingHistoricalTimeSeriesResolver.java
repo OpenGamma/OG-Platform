@@ -22,11 +22,14 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolverWithBasicChangeManager;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -35,7 +38,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  * A <code>HistoricalTimeSeriesResolver</code> that tries to find the distribution spec in a cache. If it doesn't find it, it will delegate to an underlying <code>HistoricalTimeSeriesResolver</code>.
  */
-public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeriesResolver {
+public class EHCachingHistoricalTimeSeriesResolver extends HistoricalTimeSeriesResolverWithBasicChangeManager {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalTimeSeriesResolver.class);
 
@@ -188,6 +191,12 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
     String combinedCacheName = MessageFormat.format(HISTORICAL_TIME_SERIES_RESOLUTION_CACHE_FORMAT, cacheName);
     EHCacheUtils.addCache(cacheManager, combinedCacheName);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, combinedCacheName);
+    underlying.changeManager().addChangeListener(new ChangeListener() {
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        _cache.removeAll();
+      }
+    });
   }
 
   public CacheManager getCacheManager() {

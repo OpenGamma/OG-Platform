@@ -382,8 +382,8 @@ public final class ArrayValueProperty extends AbstractValueProperty {
     if (isOptional()) {
       subMsg.add(ValuePropertiesFudgeBuilder.OPTIONAL_FIELD, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
     }
-    for (String value : _values) {
-      subMsg.add(null, null, FudgeWireType.STRING, value);
+    for (int i = 0; i < _values.length; i++) {
+      subMsg.add(null, i, FudgeWireType.STRING, _values[i]);
     }
   }
 

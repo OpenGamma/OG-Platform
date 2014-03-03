@@ -38,6 +38,10 @@ public final class DayCounts {
    */
   public static final DayCount ACT_ACT_ISDA = DayCountFactory.of("Actual/Actual ISDA");
   /**
+   * The 'Actual/Actual ISDA' day count.
+   */
+  public static final DayCount ACT_36525 = DayCountFactory.of("Actual/365.25");
+  /**
    * The '30U/360' day count.
    */
   public static final DayCount THIRTY_U_360 = DayCountFactory.of("30U/360");

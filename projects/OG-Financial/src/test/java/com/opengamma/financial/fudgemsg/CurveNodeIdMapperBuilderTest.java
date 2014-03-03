@@ -33,6 +33,9 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
   @Test
   public void test() {
     final String name = "Mapper";
+    final Map<Tenor, CurveInstrumentProvider> billIds = new HashMap<>();
+    billIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.cusipSecurityId("SDV")));
+    billIds.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.cusipSecurityId("THE")));
     final Map<Tenor, CurveInstrumentProvider> bondIds = new HashMap<>();
     bondIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.cusipSecurityId("ABCD")));
     bondIds.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.cusipSecurityId("ABCD")));
@@ -101,6 +104,7 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
     threeLegBasisSwapIds.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("EUR1")));
     threeLegBasisSwapIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("EUR2")));
     final CurveNodeIdMapper mapper = CurveNodeIdMapper.builder().name(name)
+        .billNodeIds(billIds)
         .bondNodeIds(bondIds)
         .cashNodeIds(cashIds)
         .continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateIds)

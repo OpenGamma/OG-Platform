@@ -103,7 +103,15 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
     ArgumentChecker.notNull(timeseries, "timeseries");
     
     String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
-    updateTimeSeries(redisKey, timeseries);
+    updateTimeSeries(redisKey, timeseries, false);
+  }
+  
+  public void replaceTimeSeries(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDateDoubleTimeSeries timeSeries) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(timeSeries, "timeSeries");
+    
+    String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
+    updateTimeSeries(redisKey, timeSeries, true);
   }
   
   public void clearExecutionDate(LocalDate simulationExecutionDate) {

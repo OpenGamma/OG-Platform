@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,7 +12,6 @@ import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
@@ -387,7 +386,8 @@ public class ExampleDatabaseCreatorGui {
                                                           toolContext.getHolidayMaster(),
                                                           toolContext.getExchangeMaster(),
                                                           toolContext.getMarketDataSnapshotMaster(),
-                                                          toolContext.getOrganizationMaster());
+                                                          toolContext.getLegalEntityMaster(),
+                                                          toolContext.getConventionMaster());
     databaseRestore.restoreDatabase();
   }
 

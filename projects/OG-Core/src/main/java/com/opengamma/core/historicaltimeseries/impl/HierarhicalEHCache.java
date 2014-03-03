@@ -8,15 +8,15 @@ package com.opengamma.core.historicaltimeseries.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.lambdava.functions.Function0;
 import com.opengamma.util.ehcache.EHCacheUtils;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 /**
  * Abstract cache.

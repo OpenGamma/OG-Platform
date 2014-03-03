@@ -329,6 +329,18 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return _currency;
+        case 3373707:  // name
+          return _name;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency

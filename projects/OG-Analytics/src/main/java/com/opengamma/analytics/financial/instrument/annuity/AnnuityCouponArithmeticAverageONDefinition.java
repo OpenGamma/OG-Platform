@@ -112,11 +112,13 @@ public class AnnuityCouponArithmeticAverageONDefinition extends AnnuityCouponDef
    * @param businessDayConvention The business day convention, not null
    * @param isEOM True if the date schedule is EOM.
    * @param indexCalendar The calendar for the overnight index, not null
+   * @param rateCutOff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
    * @return The annuity.
    */
   public static AnnuityCouponArithmeticAverageONDefinition withRateCutOff(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final boolean isPayer,
-      final Period paymentPeriod, final IndexON indexON, final int paymentLag, final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar indexCalendar) {
-    return withRateCutOff(settlementDate, endFixingPeriodDate, notional, isPayer, paymentPeriod, indexON, paymentLag, businessDayConvention, isEOM, indexCalendar, StubType.SHORT_START);
+      final Period paymentPeriod, final IndexON indexON, final int paymentLag, final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar indexCalendar,
+      final int rateCutOff) {
+    return withRateCutOff(settlementDate, endFixingPeriodDate, notional, isPayer, paymentPeriod, indexON, paymentLag, businessDayConvention, isEOM, indexCalendar, StubType.SHORT_START, rateCutOff);
   }
 
   /**
@@ -133,11 +135,12 @@ public class AnnuityCouponArithmeticAverageONDefinition extends AnnuityCouponDef
    * @param isEOM True if the date schedule is EOM.
    * @param indexCalendar The calendar for the overnight index, not null
    * @param stub The stub type.
+   * @param rateCutOff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
    * @return The annuity.
    */
   public static AnnuityCouponArithmeticAverageONDefinition withRateCutOff(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final boolean isPayer,
       final Period paymentPeriod, final IndexON indexON, final int paymentLag, final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar indexCalendar,
-      final StubType stub) {
+      final StubType stub, final int rateCutOff) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(endFixingPeriodDate, "End fixing period date");
     ArgumentChecker.notNull(indexON, "overnight index");
@@ -151,10 +154,10 @@ public class AnnuityCouponArithmeticAverageONDefinition extends AnnuityCouponDef
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     final CouponONArithmeticAverageDefinition[] coupons = new CouponONArithmeticAverageDefinition[endFixingPeriodDates.length];
-    coupons[0] = CouponONArithmeticAverageDefinition.withRateCutOff(indexON, settlementDate, endFixingPeriodDates[0], notionalSigned, paymentLag, indexCalendar);
+    coupons[0] = CouponONArithmeticAverageDefinition.withRateCutOff(indexON, settlementDate, endFixingPeriodDates[0], notionalSigned, paymentLag, indexCalendar, rateCutOff);
     for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
       coupons[loopcpn] = CouponONArithmeticAverageDefinition.withRateCutOff(indexON, endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], notionalSigned, paymentLag,
-          indexCalendar);
+          indexCalendar, rateCutOff);
     }
     return new AnnuityCouponArithmeticAverageONDefinition(coupons, indexCalendar);
   }

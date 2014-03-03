@@ -277,6 +277,16 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -907685685:  // script
+          return _script;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -907685685:  // script

@@ -77,8 +77,8 @@ public class CouponONCompoundedDiscountingMethodTest {
     double ratio = 1.0;
     for (int i = 0; i < CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors().length; i++) {
       ratio *= Math.pow(
-          1 + MULTICURVES.getForwardRate(CPN_ON_COMPOUNDED.getIndex(), CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i], CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i],
-              CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactorsActAct()[i]),
+          1 + MULTICURVES.getAnnuallyCompoundForwardRate(CPN_ON_COMPOUNDED.getIndex(), CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i], CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i],
+              CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]),
           CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = MULTICURVES.getDiscountFactor(CPN_ON_COMPOUNDED.getCurrency(), CPN_ON_COMPOUNDED.getPaymentTime());
@@ -99,8 +99,8 @@ public class CouponONCompoundedDiscountingMethodTest {
     double ratio = 1.0;
     for (int i = 0; i < cpnONCompoundedStarted.getFixingPeriodAccrualFactors().length; i++) {
       ratio *= Math.pow(
-          1 + MULTICURVES.getForwardRate(cpnONCompoundedStarted.getIndex(), cpnONCompoundedStarted.getFixingPeriodStartTimes()[i], cpnONCompoundedStarted.getFixingPeriodEndTimes()[i],
-              cpnONCompoundedStarted.getFixingPeriodAccrualFactorsActAct()[i]), cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]);
+          1 + MULTICURVES.getAnnuallyCompoundForwardRate(cpnONCompoundedStarted.getIndex(), cpnONCompoundedStarted.getFixingPeriodStartTimes()[i], cpnONCompoundedStarted.getFixingPeriodEndTimes()[i],
+              cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]), cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = MULTICURVES.getDiscountFactor(cpnONCompoundedStarted.getCurrency(), cpnONCompoundedStarted.getPaymentTime());
     final double pvExpected = cpnONCompoundedStarted.getNotionalAccrued() * ratio * df;

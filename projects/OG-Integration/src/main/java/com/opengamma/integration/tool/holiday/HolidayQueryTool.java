@@ -26,10 +26,11 @@ public class HolidayQueryTool extends AbstractTool<ToolContext> {
 
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new HolidayQueryTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new HolidayQueryTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

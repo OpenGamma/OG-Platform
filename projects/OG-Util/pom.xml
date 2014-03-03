@@ -247,6 +247,7 @@
       <artifactId>testng</artifactId>
       <scope>provided</scope>
     </dependency>
+
   </dependencies>
 
   <properties>

@@ -535,6 +535,31 @@ public class CDSPaperExamples extends ISDABaseTest {
     }
   }
 
+  @Test(enabled = false)
+  public void annuityTest() {
+    final LocalDate mat = getNextIMMDate(TRADE_DATE).plus(Period.ofYears(10));
+    final CDSAnalytic cds = CDS_FACTORY.makeIMMCDS(TRADE_DATE, Period.ofYears(10));
+    final double expiry = ACT365F.getDayCountFraction(TRADE_DATE, mat);
+    final double adj = 365. / 360.;
+    final AnnuityForSpreadFunction isdaFunc = new AnnuityForSpreadISDAFunction(cds, YIELD_CURVE);
+    final AnnuityForSpreadFunction approxFunc = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);
+
+    for (int i = 0; i < 100; i++) {
+      final double s = (1 + 25 * i) * ONE_BP;
+      final double a = isdaFunc.evaluate(s);
+      final double a2 = approxFunc.evaluate(s);
+
+      final double lambda = adj * s / (1 - RECOVERY_RATE);
+      final double a3 = adj * annuity(0.01, lambda, expiry);
+      System.out.println(s * TEN_THOUSAND + "\t" + a + "\t" + a2);
+    }
+
+  }
+
+  private double annuity(final double r, final double hazardRate, final double expiry) {
+    return (1 - Math.exp(-expiry * (r + hazardRate))) / (r + hazardRate);
+  }
+
   private String dumpLatexTable(final String heading1, final String heading2, final String[] columnHeadings, final String[] rowHeadings, final double[][] data, final int dp) {
 
     ArgumentChecker.noNulls(columnHeadings, "columnHeadings");

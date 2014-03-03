@@ -11,6 +11,7 @@ import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
@@ -51,6 +52,8 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   private static final String VIEW_NAME_OPTION = "v";
   /** Existing view process unique identifier option. */
   private static final String VIEW_PROCESS_ID_OPTION = "p";
+  /** Snapshotter timeout option when awaiting market data. */
+  private static final String TIMEOUT_OPTION = "o";
   /** Valuation time command line option. */
   private static final String VALUATION_TIME_OPTION = "t";
   /** Take data from historical timeseries */
@@ -66,15 +69,15 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new MarketDataSnapshotTool().initAndRun(args, ToolContext.class);
-    System.exit(success ? 0 : 1);
+    new MarketDataSnapshotTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     s_context = getToolContext();
@@ -95,7 +98,9 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
     } else {
       marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter(Mode.STRUCTURED);
     }
-    final MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster);
+    Long marketDataTimeoutSeconds = getCommandLine().hasOption(TIMEOUT_OPTION) ? Long.parseLong(getCommandLine().getOptionValue(TIMEOUT_OPTION)) : null;
+    long marketDataTimeoutMillis = TimeUnit.SECONDS.toMillis(marketDataTimeoutSeconds);
+    final MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster, marketDataTimeoutMillis);
 
     if (getCommandLine().hasOption(VIEW_PROCESS_ID_OPTION)) {
       final UniqueId viewProcessId = UniqueId.parse(getCommandLine().getOptionValue(VIEW_PROCESS_ID_OPTION));
@@ -149,6 +154,7 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
     options.addOptionGroup(createViewOptionGroup());
     options.addOption(createSnapshotNameOption());
     options.addOption(createValuationTimeOption());
+    options.addOption(createTimeoutOption());
     options.addOption(createHistoricalOption());
     options.addOption(createUnstructuredSnapshot());
     return options;
@@ -183,6 +189,12 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   private static Option createValuationTimeOption() {
     final Option option = new Option(VALUATION_TIME_OPTION, "valuationTime", true, "the valuation time, HH:mm[:ss] (defaults to now)");
     option.setArgName("valuation time");
+    return option;
+  }
+  
+  private static Option createTimeoutOption() {
+    final Option option = new Option(TIMEOUT_OPTION, "timeout", true, "the timeout, in seconds, for market data to populate the snapshot (defaults to the engine default)");
+    option.setArgName("seconds");
     return option;
   }
 

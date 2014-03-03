@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -32,6 +32,9 @@ import com.opengamma.master.config.ConfigSearchResult;
   public static final String ID_MAPPINGS = "Regression test ID mappings";
   /** Name of the ID mappings Fudge XML file. */
   public static final String ID_MAPPINGS_IDENTIFIER = "idMappings";
+  /** Name of the ref data accesses Fudge XML file */
+  public static final String REF_DATA_ACCESSES_IDENTIFIER = "refDataAccesses";
+  
   /** Name of the ID mappings Fudge XML file. */
   public static final String ID_MAPPINGS_FILE = ID_MAPPINGS_IDENTIFIER + FudgeXMLFormat.FILE_EXTENSION;
 
@@ -53,6 +56,8 @@ import com.opengamma.master.config.ConfigSearchResult;
   public static final String MARKET_DATA_SNAPSHOT_MASTER_DATA = "snapshots";
   /** Type identifier for OrganizationMaster data. */
   public static final String ORGANIZATION_MASTER_DATA = "organizations";
+  /** Type identifier for ConventionMaster data. */
+  public static final String CONVENTION_MASTER_DATA = "conventions";
 
   private RegressionUtils() {
   }
@@ -94,7 +99,8 @@ import com.opengamma.master.config.ConfigSearchResult;
     // it needs to be restarted before the tests to pick up function repo changes from the database
     try (ServerProcess ignored = ServerProcess.start(workingDir, classpath, serverConfigFile, dbProps, logbackConfig); RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseRestore databaseRestore = new DatabaseRestore(databaseDumpDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
-          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster());
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getLegalEntityMaster(),
+          server.getConventionMaster());
       databaseRestore.restoreDatabase();
     }
   }

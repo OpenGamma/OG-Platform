@@ -233,8 +233,9 @@ public final class SetValueProperty extends AbstractValueProperty {
     if (isOptional()) {
       subMsg.add(ValuePropertiesFudgeBuilder.OPTIONAL_FIELD, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
     }
+    int ordinal = 0;
     for (String value : _values) {
-      subMsg.add(null, null, FudgeWireType.STRING, value);
+      subMsg.add(null, ordinal++, FudgeWireType.STRING, value);
     }
   }
 

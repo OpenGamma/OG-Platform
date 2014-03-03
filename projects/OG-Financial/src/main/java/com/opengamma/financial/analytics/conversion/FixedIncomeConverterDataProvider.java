@@ -41,6 +41,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDe
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
@@ -52,9 +53,13 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.financial.security.index.PriceIndex;
+import com.opengamma.financial.security.index.SwapIndex;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
@@ -86,22 +91,35 @@ import com.opengamma.util.money.Currency;
 public class FixedIncomeConverterDataProvider {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FixedIncomeConverterDataProvider.class);
+  /** The security source */
+  private final SecuritySource _securitySource;
+  
+  /** The convention source **/ 
+  // TODO: [PLAT-5966] Remove this convention source
   private final ConventionBundleSource _conventionSource;
-  private final HistoricalTimeSeriesResolver _timeSeriesResolver;
 
-  public FixedIncomeConverterDataProvider(final ConventionBundleSource conventionSource, final HistoricalTimeSeriesResolver timeSeriesResolver) {
+  private final HistoricalTimeSeriesResolver _timeSeriesResolver;
+  
+  /** The first fixing date of a swap is not stored at the security level. 
+   * One needs to estimate how far before the effective date the fixing time-series is required. **/
+  private static final int DAYS_BEFORE_EFFECTIVE = 60;
+
+  public FixedIncomeConverterDataProvider(final ConventionBundleSource conventionSource, final SecuritySource securitySource, final HistoricalTimeSeriesResolver timeSeriesResolver) {
     ArgumentChecker.notNull(conventionSource, "conventionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
     _conventionSource = conventionSource;
+    _securitySource = securitySource;
     _timeSeriesResolver = timeSeriesResolver;
-  }
-
-  public ConventionBundleSource getConventionBundleSource() {
-    return _conventionSource;
   }
 
   public HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver() {
     return _timeSeriesResolver;
+  }
+  
+ //TODO: [PLAT-5966] Add java doc
+  public ConventionBundleSource getConventionBundleSource() {
+    return _conventionSource;
   }
 
   /**
@@ -153,6 +171,9 @@ public class FixedIncomeConverterDataProvider {
     }
     if (security instanceof FRASecurity) {
       return _fraSecurity;
+    }
+    if (security instanceof ForwardRateAgreementSecurity) {
+      return _forwardRateAgreementSecurity;
     }
     if (security instanceof CapFloorSecurity) {
       if (((CapFloorSecurity) security).isIbor()) {
@@ -234,10 +255,6 @@ public class FixedIncomeConverterDataProvider {
     return getConverter(security, definition).convert(security, definition, now, timeSeries);
   }
 
-  protected ConventionBundleSource getConventionSource() {
-    return _conventionSource;
-  }
-
   protected HistoricalTimeSeriesResolver getTimeSeriesResolver() {
     return _timeSeriesResolver;
   }
@@ -249,7 +266,7 @@ public class FixedIncomeConverterDataProvider {
       if (security.getCurrency().equals(Currency.BRL)) {
         final ConventionBundle brlSwapConvention = _conventionSource.getConventionBundle(simpleNameSecurityId("BRL_DI_SWAP"));
         final ExternalId indexId = brlSwapConvention.getSwapFloatingLegInitialRate();
-        final ConventionBundle indexConvention = getConventionSource().getConventionBundle(indexId);
+        final ConventionBundle indexConvention = getConventionBundleSource().getConventionBundle(indexId);
         if (indexConvention == null) {
           throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
         }
@@ -272,7 +289,7 @@ public class FixedIncomeConverterDataProvider {
         final InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries> brlDefinition = (InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries>) definition;
         final ConventionBundle brlSwapConvention = _conventionSource.getConventionBundle(simpleNameSecurityId("BRL_DI_SWAP"));
         final ExternalId indexId = brlSwapConvention.getSwapFloatingLegInitialRate();
-        final ConventionBundle indexConvention = getConventionSource().getConventionBundle(indexId);
+        final ConventionBundle indexConvention = getConventionBundleSource().getConventionBundle(indexId);
         if (indexConvention == null) {
           throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
         }
@@ -298,7 +315,7 @@ public class FixedIncomeConverterDataProvider {
         final InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries> brlDefinition = (InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries>) definition;
         final ConventionBundle brlSwapConvention = _conventionSource.getConventionBundle(simpleNameSecurityId("BRL_DI_SWAP"));
         final ExternalId indexId = brlSwapConvention.getSwapFloatingLegInitialRate();
-        final ConventionBundle indexConvention = getConventionSource().getConventionBundle(indexId);
+        final ConventionBundle indexConvention = getConventionBundleSource().getConventionBundle(indexId);
         if (indexConvention == null) {
           throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
         }
@@ -329,20 +346,16 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final BondFutureSecurity security, final BondFutureDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
-      // TODO - CASE - Future refactor - See notes in convert(InterestRateFutureSecurity)
-      // Get the time-dependent reference data required to price the Analytics Derivative
+      // TODO [PLAT-5402] Change to security/transaction object. 
       final Double referencePrice = 0.0;
-      // Construct the derivative as seen from now
       return definition.toDerivative(now, referencePrice, curveNames);
     }
 
     @Override
     public InstrumentDerivative convert(final BondFutureSecurity security, final BondFutureDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      // TODO - CASE - Future refactor - See notes in convert(InterestRateFutureSecurity)
-      // Get the time-dependent reference data required to price the Analytics Derivative
+      // TODO [PLAT-5402] Change to security/transaction object. 
       final Double referencePrice = 0.0;
-      // Construct the derivative as seen from now
       return definition.toDerivative(now, referencePrice);
     }
 
@@ -352,12 +365,7 @@ public class FixedIncomeConverterDataProvider {
 
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final FRASecurity security) {
-      final ExternalId indexId = security.getUnderlyingId();
-      final ConventionBundle indexConvention = getConventionSource().getConventionBundle(indexId);
-      if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
-      }
-      final ExternalIdBundle indexIdBundle = indexConvention.getIdentifiers();
+      final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
       final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(indexIdBundle, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         return null;
@@ -370,12 +378,7 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final ExternalId indexId = security.getUnderlyingId();
-      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
-      if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
-      }
-      final ExternalIdBundle indexIdBundle = indexConvention.getIdentifiers();
+      final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
@@ -392,12 +395,55 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final ExternalId indexId = security.getUnderlyingId();
-      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
-      if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
+      final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
+      if (ts == null) {
+        throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
       }
-      final ExternalIdBundle indexIdBundle = indexConvention.getIdentifiers();
+      LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
+      //TODO this normalization should not be done here
+      localDateTS = localDateTS.divide(100);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS);
+      // TODO: remove the zone
+      return definition.toDerivative(now, indexTS);
+    }
+  };
+
+  private final Converter<ForwardRateAgreementSecurity, ForwardRateAgreementDefinition> _forwardRateAgreementSecurity = new Converter<ForwardRateAgreementSecurity, ForwardRateAgreementDefinition>() {
+
+    @Override
+    public Set<ValueRequirement> getTimeSeriesRequirements(final ForwardRateAgreementSecurity security) {
+      final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
+      final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(indexIdBundle, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+      if (timeSeries == null) {
+        return null;
+      }
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+          DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public InstrumentDerivative convert(final ForwardRateAgreementSecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now, final String[] curveNames,
+                                        final HistoricalTimeSeriesBundle timeSeries) {
+      final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
+      if (ts == null) {
+        throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
+      }
+      LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
+      //TODO this normalization should not be done here
+      localDateTS = localDateTS.divide(100);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(now.getZone(), localDateTS);
+      // TODO: remove the zone
+      return definition.toDerivative(now, indexTS, curveNames);
+    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public InstrumentDerivative convert(final ForwardRateAgreementSecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
+                                        final HistoricalTimeSeriesBundle timeSeries) {
+      final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
@@ -464,7 +510,7 @@ public class FixedIncomeConverterDataProvider {
       final ExternalId id = security.getUnderlyingId();
       final ZonedDateTime capStartDate = security.getStartDate();
       final LocalDate startDate = capStartDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
-      final ValueRequirement requirement = getIndexTimeSeriesRequirement(getIndexIdBundle(id), startDate);
+      final ValueRequirement requirement = getIndexTimeSeriesRequirement(getIndexIborIdBundle(id), startDate);
       if (requirement == null) {
         return null;
       }
@@ -476,7 +522,7 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
-      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexIdBundle(id), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexIborIdBundle(id), now.getZone(), timeSeries);
       return definition.toDerivative(now, indexTS, curveNames);
     }
 
@@ -485,7 +531,7 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
-      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexIdBundle(id), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexIborIdBundle(id), now.getZone(), timeSeries);
       return definition.toDerivative(now, indexTS);
     }
   };
@@ -876,11 +922,11 @@ public class FixedIncomeConverterDataProvider {
       final ExternalId shortId = security.getShortId();
       final ZonedDateTime capStartDate = security.getStartDate();
       final LocalDate startDate = capStartDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
-      final ValueRequirement indexLongTS = getIndexTimeSeriesRequirement(getIndexIdBundle(longId), startDate);
+      final ValueRequirement indexLongTS = getIndexTimeSeriesRequirement(getIndexSwapIdBundle(longId), startDate);
       if (indexLongTS == null) {
         return null;
       }
-      final ValueRequirement indexShortTS = getIndexTimeSeriesRequirement(getIndexIdBundle(shortId), startDate);
+      final ValueRequirement indexShortTS = getIndexTimeSeriesRequirement(getIndexSwapIdBundle(shortId), startDate);
       if (indexShortTS == null) {
         return null;
       }
@@ -893,8 +939,8 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId longId = security.getLongId();
       final ExternalId shortId = security.getShortId();
-      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexIdBundle(longId), now.getZone(), timeSeries);
-      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexIdBundle(shortId), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexSwapIdBundle(longId), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexSwapIdBundle(shortId), now.getZone(), timeSeries);
       final ZonedDateTimeDoubleTimeSeries indexSpreadTS = indexLongTS.subtract(indexShortTS);
       return definition.toDerivative(now, indexSpreadTS, curveNames);
     }
@@ -905,8 +951,8 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId longId = security.getLongId();
       final ExternalId shortId = security.getShortId();
-      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexIdBundle(longId), now.getZone(), timeSeries);
-      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexIdBundle(shortId), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexSwapIdBundle(longId), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexSwapIdBundle(shortId), now.getZone(), timeSeries);
       final ZonedDateTimeDoubleTimeSeries indexSpreadTS = indexLongTS.subtract(indexShortTS);
       return definition.toDerivative(now, indexSpreadTS);
     }
@@ -1060,7 +1106,8 @@ public class FixedIncomeConverterDataProvider {
       }
 
       @Override
-      public InstrumentDerivative convert(final YearOnYearInflationSwapSecurity security, final SwapFixedInflationYearOnYearDefinition definition, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries) {
+      public InstrumentDerivative convert(final YearOnYearInflationSwapSecurity security, final SwapFixedInflationYearOnYearDefinition definition, 
+          final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries) {
         Validate.notNull(security, "security");
         if (timeSeries == null) {
           return definition.toDerivative(now);
@@ -1123,8 +1170,7 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(360);
-      // Implementation note: To catch first fixing. SwapSecurity does not have this date.
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(DAYS_BEFORE_EFFECTIVE);
       final HistoricalTimeSeriesResolutionResult ts = getTimeSeriesResolver().resolve(id, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (ts == null) {
         return null;
@@ -1133,9 +1179,8 @@ public class FixedIncomeConverterDataProvider {
           DateConstraint.of(startDate), true, DateConstraint.VALUATION_TIME, true);
     } else if (leg instanceof InflationIndexSwapLeg) {
       final InflationIndexSwapLeg inflationIndexLeg = (InflationIndexSwapLeg) leg;
-      final ExternalIdBundle id = getIndexIdForInflationSwap(inflationIndexLeg);
-      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(360);
-      // Implementation note: To catch first fixing. SwapSecurity does not have this date.
+      final ExternalIdBundle id = getIndexPriceIdBundle(inflationIndexLeg.getIndexId());
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(DAYS_BEFORE_EFFECTIVE);
       final HistoricalTimeSeriesResolutionResult ts = getTimeSeriesResolver().resolve(id, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (ts == null) {
         return null;
@@ -1150,8 +1195,7 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateSwapLeg) {
       final FloatingInterestRateSwapLeg floatingLeg = (FloatingInterestRateSwapLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(360);
-      // Implementation note: To catch first fixing. SwapSecurity does not have this date.
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(DAYS_BEFORE_EFFECTIVE);
       final HistoricalTimeSeriesResolutionResult ts = getTimeSeriesResolver().resolve(id, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (ts == null) {
         return null;
@@ -1187,7 +1231,7 @@ public class FixedIncomeConverterDataProvider {
       return convertTimeSeries(now.getZone(), localDateTS);
     } else if (leg instanceof InflationIndexSwapLeg) {
       final InflationIndexSwapLeg indexLeg = (InflationIndexSwapLeg) leg;
-      final ExternalIdBundle id = getIndexIdForInflationSwap(indexLeg);
+      final ExternalIdBundle id = getIndexPriceIdBundle(indexLeg.getIndexId());
       // Implementation note: To catch first fixing. SwapSecurity does not have this date.
       if (now.isBefore(swapEffectiveDate)) { // TODO: review if this is the correct condition
         return ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(now.getZone());
@@ -1262,7 +1306,8 @@ public class FixedIncomeConverterDataProvider {
 
     @Override
     @SuppressWarnings({"synthetic-access" })
-    public InstrumentDerivative convert(final InterestRateSwapSecurity security, final SwapDefinition definition, final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
+    public InstrumentDerivative convert(final InterestRateSwapSecurity security, final SwapDefinition definition, final ZonedDateTime now, 
+        final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
       Validate.notNull(security, "security");
       if (timeSeries == null) {
         return definition.toDerivative(now, curveNames);
@@ -1288,7 +1333,7 @@ public class FixedIncomeConverterDataProvider {
           return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
@@ -1305,7 +1350,7 @@ public class FixedIncomeConverterDataProvider {
           }
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) receiveLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
@@ -1376,32 +1421,89 @@ public class FixedIncomeConverterDataProvider {
   };
 
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
-    if (floatingLeg.getFloatingRateType().isIbor() || floatingLeg.getFloatingRateType().equals(FloatingRateType.OIS) || floatingLeg.getFloatingRateType().equals(FloatingRateType.CMS)) {
-      return getIndexIdBundle(floatingLeg.getFloatingReferenceRateId());
+    if (floatingLeg.getFloatingRateType().isIbor()) {
+      return getIndexIborIdBundle(floatingLeg.getFloatingReferenceRateId());
     }
-    return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
+    if (floatingLeg.getFloatingRateType().equals(FloatingRateType.OIS) || floatingLeg.getFloatingRateType().equals(FloatingRateType.OVERNIGHT_ARITHMETIC_AVERAGE)) {
+      return getIndexOvernightIdBundle(floatingLeg.getFloatingReferenceRateId());
+    }
+    if (floatingLeg.getFloatingRateType().equals(FloatingRateType.CMS)) {
+      return getIndexSwapIdBundle(floatingLeg.getFloatingReferenceRateId());
+    }
+    throw new OpenGammaRuntimeException("Unsupported floating leg type.");
   }
 
+  // TODO: [PLAT-5976] Change the external bundle method to support any reference.
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateSwapLeg floatingLeg) {
     return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
   }
 
-  private ExternalIdBundle getIndexIdForInflationSwap(final InflationIndexSwapLeg inflationIndexLeg) {
-    return getIndexIdBundle(inflationIndexLeg.getIndexId());
-  }
-
   /**
-   * Returns the ExternalIDBundle associated to an ExternalId as stored in the convention source.
-   *
+   * Returns the ExternalIDBundle associated to an ExternalId of an IborIndex as stored in the security source.
    * @param indexId The external id.
    * @return The bundle.
    */
-  private ExternalIdBundle getIndexIdBundle(final ExternalId indexId) {
-    final ConventionBundle indexConvention = getConventionSource().getConventionBundle(indexId);
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
+  private ExternalIdBundle getIndexIborIdBundle(final ExternalId indexId) {
+    final Security sec = _securitySource.getSingle(indexId.toBundle()); 
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Ibor index with id " + indexId.toBundle() + " is null");
     }
-    return indexConvention.getIdentifiers();
+    if (!(sec instanceof com.opengamma.financial.security.index.IborIndex)) {
+      throw new OpenGammaRuntimeException("Security with id " + indexId.toBundle() + " is not an IborIndex");
+    }
+    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+    return indexSecurity.getExternalIdBundle();
+  }
+
+  /**
+   * Returns the ExternalIDBundle associated to an ExternalId of an OvernightIndex as stored in the security source.
+   * @param indexId The external id.
+   * @return The bundle.
+   */
+  private ExternalIdBundle getIndexOvernightIdBundle(final ExternalId indexId) {
+    final Security sec = _securitySource.getSingle(indexId.toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Index with id " + indexId.toBundle() + " is null");
+    }
+    if (!(sec instanceof OvernightIndex)) {
+      throw new OpenGammaRuntimeException("Security with id " + indexId.toBundle() + " is not an OvernightIndex");
+    }
+    final OvernightIndex indexSecurity = (OvernightIndex) sec;
+    return indexSecurity.getExternalIdBundle();
+  }
+
+  /**
+   * Returns the ExternalIDBundle associated to an ExternalId of an SwapIndex as stored in the security source.
+   * @param indexId The external id.
+   * @return The bundle.
+   */
+  private ExternalIdBundle getIndexSwapIdBundle(final ExternalId indexId) {
+    final Security sec = _securitySource.getSingle(indexId.toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Index with id " + indexId.toBundle() + " is null");
+    }
+    if (!(sec instanceof SwapIndex)) {
+      throw new OpenGammaRuntimeException("Security with id " + indexId.toBundle() + " is not a SwapIndex");
+    }
+    final SwapIndex indexSecurity = (SwapIndex) sec;
+    return indexSecurity.getExternalIdBundle();
+  }
+
+  /**
+   * Returns the ExternalIDBundle associated to an ExternalId of an PriceIndex as stored in the security source.
+   * @param indexId The external id.
+   * @return The bundle.
+   */
+  private ExternalIdBundle getIndexPriceIdBundle(final ExternalId indexId) {
+    final Security sec = _securitySource.getSingle(indexId.toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Index with id " + indexId.toBundle() + " is null");
+    }
+    if (!(sec instanceof PriceIndex)) {
+      throw new OpenGammaRuntimeException("Security with id " + indexId.toBundle() + " is not a PriceIndex");
+    }
+    final PriceIndex indexSecurity = (PriceIndex) sec;
+    return indexSecurity.getExternalIdBundle();
   }
 
   private ValueRequirement getIndexTimeSeriesRequirement(final ExternalIdBundle id, final LocalDate startDate) {
@@ -1435,7 +1537,6 @@ public class FixedIncomeConverterDataProvider {
   }
 
   private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
-    // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
     final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
     for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext();) {
       final LocalDate date = it.nextTime();

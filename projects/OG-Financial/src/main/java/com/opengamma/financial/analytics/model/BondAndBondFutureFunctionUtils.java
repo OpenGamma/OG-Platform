@@ -19,8 +19,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -37,6 +39,7 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
@@ -69,7 +72,7 @@ public class BondAndBondFutureFunctionUtils {
           MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         s_logger.error("Could not resolve time series for {}", externalIdBundle);
-        return null;
+        return Collections.emptySet();
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
           DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
@@ -92,10 +95,13 @@ public class BondAndBondFutureFunctionUtils {
     ArgumentChecker.isTrue(target.getType() == ComputationTargetType.TRADE, "Computation target must be a trade");
     final Trade trade = target.getTrade();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final ConventionBundleSource conventionBundleSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
-    final BondAndBondFutureTradeWithEntityConverter converter = new BondAndBondFutureTradeWithEntityConverter(holidaySource, conventionSource, regionSource, securitySource);
+    final LegalEntitySource legalEntitySource = OpenGammaExecutionContext.getLegalEntitySource(context);
+    final BondAndBondFutureTradeWithEntityConverter converter = new BondAndBondFutureTradeWithEntityConverter(holidaySource, conventionBundleSource,
+        conventionSource, regionSource, securitySource, legalEntitySource);
     return converter.convert(trade);
   }
 
@@ -117,6 +123,9 @@ public class BondAndBondFutureFunctionUtils {
     if (security instanceof BondSecurity) {
       return getBondDerivative(context, target, date);
     }
+    if (security instanceof BillSecurity) {
+      return getBillDerivative(context, target, date);
+    }
     if (security instanceof BondFutureSecurity) {
       ArgumentChecker.notNull(inputs, "inputs");
       final HistoricalTimeSeries futurePriceSeries = (HistoricalTimeSeries) inputs.getValue(HISTORICAL_TIME_SERIES);
@@ -134,6 +143,19 @@ public class BondAndBondFutureFunctionUtils {
    * @return The derivative form of a bond security
    */
   private static InstrumentDerivative getBondDerivative(final FunctionExecutionContext context, final ComputationTarget target, final ZonedDateTime date) {
+    final InstrumentDefinition<?> definition = getDefinition(context, target, date);
+    return definition.toDerivative(date);
+  }
+
+  /**
+   * Converts a bill trade into the {@link InstrumentDerivative} form that is used in pricing
+   * functions in the the analytics library.
+   * @param context The execution context, not null
+   * @param target The computation target, not null
+   * @param date The valuation date / time, not null
+   * @return The derivative form of a bill security
+   */
+  private static InstrumentDerivative getBillDerivative(final FunctionExecutionContext context, final ComputationTarget target, final ZonedDateTime date) {
     final InstrumentDefinition<?> definition = getDefinition(context, target, date);
     return definition.toDerivative(date);
   }

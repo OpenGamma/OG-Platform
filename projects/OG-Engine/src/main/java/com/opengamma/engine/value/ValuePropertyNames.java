@@ -257,6 +257,11 @@ public final class ValuePropertyNames {
    */
   public static final String SHIFT = "Shift";
 
+  /**
+   * The amount to shift DV01 by in basis points
+   */
+  public static final String SCALING_FACTOR = "ScalingFactor";
+
   // REVIEW 2012-08-29 andrew -- The Javadoc for SHIFT above is bad; it's a common name that will be used for things other than DV01.
   // REVIEW 2012-10-13 casey -- One doesn't even shift DV01. The shift in DV01 is in its name - Delta Value of One Basis Point..
   // REVIEW 2013-01-02 emcleod -- In the case of DV01, "Shift" refers to the scale factor applied (1 or -1). It was added to allow comparisons of results

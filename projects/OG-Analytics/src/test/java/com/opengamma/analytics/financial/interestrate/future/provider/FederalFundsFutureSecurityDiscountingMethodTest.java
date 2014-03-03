@@ -48,7 +48,7 @@ public class FederalFundsFutureSecurityDiscountingMethodTest {
     double interest = 0.0;
     final double[] ratePeriod = new double[FUTURE_SECURITY_DEFINITION.getFixingPeriodAccrualFactor().length];
     for (int loopfix = 0; loopfix < FUTURE_SECURITY_DEFINITION.getFixingPeriodAccrualFactor().length; loopfix++) {
-      ratePeriod[loopfix] = MULTICURVES.getForwardRate(INDEX_FEDFUND, FUTURE_SECURITY.getFixingPeriodTime()[loopfix], FUTURE_SECURITY.getFixingPeriodTime()[loopfix + 1],
+      ratePeriod[loopfix] = MULTICURVES.getSimplyCompoundForwardRate(INDEX_FEDFUND, FUTURE_SECURITY.getFixingPeriodTime()[loopfix], FUTURE_SECURITY.getFixingPeriodTime()[loopfix + 1],
           FUTURE_SECURITY.getFixingPeriodAccrualFactor()[loopfix]);
       interest += ratePeriod[loopfix] * FUTURE_SECURITY.getFixingPeriodAccrualFactor()[loopfix];
     }
@@ -69,7 +69,7 @@ public class FederalFundsFutureSecurityDiscountingMethodTest {
     double interest = futureSecurity.getAccruedInterest();
     final double[] ratePeriod = new double[futureSecurity.getFixingPeriodAccrualFactor().length];
     for (int loopfix = 0; loopfix < futureSecurity.getFixingPeriodAccrualFactor().length; loopfix++) {
-      ratePeriod[loopfix] = MULTICURVES.getForwardRate(INDEX_FEDFUND, futureSecurity.getFixingPeriodTime()[loopfix], futureSecurity.getFixingPeriodTime()[loopfix + 1],
+      ratePeriod[loopfix] = MULTICURVES.getSimplyCompoundForwardRate(INDEX_FEDFUND, futureSecurity.getFixingPeriodTime()[loopfix], futureSecurity.getFixingPeriodTime()[loopfix + 1],
           futureSecurity.getFixingPeriodAccrualFactor()[loopfix]);
       interest += ratePeriod[loopfix] * futureSecurity.getFixingPeriodAccrualFactor()[loopfix];
     }

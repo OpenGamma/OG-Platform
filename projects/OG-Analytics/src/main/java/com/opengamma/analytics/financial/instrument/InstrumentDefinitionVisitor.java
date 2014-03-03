@@ -122,6 +122,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.VolatilitySwapDefinition;
 
 /**
  *
@@ -291,14 +292,18 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param bondFuture A bond future
    * @param data The data
    * @return The result
+   * @deprecated {@link BondFutureDefinition} is deprecated
    */
+  @Deprecated
   RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bondFuture, DATA_TYPE data);
 
   /**
    * Bond future method.
    * @param bondFuture A bond future
    * @return The result
+   * @deprecated {@link BondFutureDefinition} is deprecated
    */
+  @Deprecated
   RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bondFuture);
 
   /**
@@ -1864,7 +1869,7 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitEquityIndexFutureOptionDefinition(EquityIndexFutureOptionDefinition option);
 
-  // -----     Equity    -----
+  // -----     Variance and volatility swap      -----
 
   /**
    * Variance swap method.
@@ -1895,5 +1900,20 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitEquityVarianceSwapDefinition(EquityVarianceSwapDefinition varianceSwap, DATA_TYPE data);
+
+  /**
+   * Volatility swap method.
+   * @param volatilitySwap A volatility swap
+   * @return The result
+   */
+  RESULT_TYPE visitVolatilitySwapDefinition(VolatilitySwapDefinition volatilitySwap);
+
+  /**
+   * Volatility swap method that takes data.
+   * @param volatilitySwap A volatility swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitVolatilitySwapDefinition(VolatilitySwapDefinition volatilitySwap, DATA_TYPE data);
 
 }

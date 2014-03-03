@@ -383,6 +383,22 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1770633379:  // underlying
+          return _underlying;
+        case 1864687532:  // updateProbability
+          return _updateProbability;
+        case -1539131282:  // maxPercentageChange
+          return _maxPercentageChange;
+        case 497321134:  // averageCycleInterval
+          return _averageCycleInterval;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1770633379:  // underlying

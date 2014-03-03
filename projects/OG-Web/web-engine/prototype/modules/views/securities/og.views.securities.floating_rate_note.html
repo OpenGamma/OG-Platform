@@ -1,0 +1,39 @@
+<article>
+  ${header}
+  <section>
+    <div class="OG-details-content OG-js-details-panel">
+      <section class="og-js-identifiers"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>${securityType}</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Issuer</span></td><td>${legalEntityId}</td></tr>
+            <tr><td><span>Currency</span></td><td>${currency}</td></tr>
+            <tr><td><span>Region</span></td><td>${regionId}</td></tr>
+            <tr class="og-divider"><td></td><td></td></tr>
+            <tr><td><span>Issue Date</span></td><td>${issueDate}</td></tr>
+            <tr><td><span>Maturity Date</span></td><td>${maturityDate}</td></tr>
+            <tr class="og-divider"><td></td><td></td></tr>
+            <tr><td><span>Coupon Frequency</span></td><td>${couponFrequency}</td></tr>           
+            <tr><td><span>Benchmark Rate</span></td><td>${benchmarkRateId}</td></tr>
+            <tr><td><span>Spread</span></td><td>${spread}</td></tr>
+            <tr><td><span>Leverage Factor</span></td><td>${leverageFactor}</td></tr>
+            <tr class="og-divider"><td></td><td></td></tr>
+            <tr><td><span>Day Count</span></td><td>${dayCount}</td></tr>
+            <tr><td><span>Minimum Increment</span></td><td>${minimumIncrement}</td></tr>
+            <tr><td><span>Days To Settle</span></td><td>${daysToSettle}</td></tr>
+            <tr><td><span>Reset Days</span></td><td>${resetDays}</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="OG-timeseries-container"></section>
+      ${attributes}
+    </div>
+  </section>
+</article>

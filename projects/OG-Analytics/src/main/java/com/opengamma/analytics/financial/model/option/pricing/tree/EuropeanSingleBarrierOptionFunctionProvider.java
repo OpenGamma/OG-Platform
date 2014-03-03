@@ -10,6 +10,8 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
  */
 public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFunctionProvider {
 
+  private final Calculator _calc;
+
   /**
    * @param strike Strike price
    * @param timeToExpiry Time to expiry
@@ -20,16 +22,18 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
    */
   public EuropeanSingleBarrierOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
     super(strike, timeToExpiry, steps, isCall, barrier, typeName);
+    _calc = new NormalCalculator();
   }
 
   @Override
-  public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
+  public double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
     final double strike = getStrike();
-    final int nStepsP = getNumberOfSteps() + 1;
+    final int nSteps = getNumberOfSteps();
+    final int nStepsP = nSteps + 1;
     final double sign = getSign();
 
     final double[] values = new double[nStepsP];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nStepsP; ++i) {
       values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= upOverDown;
@@ -52,32 +56,66 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
   }
 
   @Override
-  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double middleOverDown) {
-    final double strike = getStrike();
-    final int nNodes = 2 * getNumberOfSteps() + 1;
-    final double sign = getSign();
-
-    final double[] values = new double[nNodes];
-    double priceTmp = assetPrice;
-    for (int i = 0; i < nNodes; ++i) {
-      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
-      priceTmp *= middleOverDown;
-    }
-    return values;
+  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double downFactor, final double middleOverDown) {
+    return _calc.payoffAtExpiryTrinomial(assetPrice, downFactor, middleOverDown);
   }
 
   @Override
   public double[] getNextOptionValues(final double discount, final double upProbability, final double middleProbability, final double downProbability, final double[] values,
       final double baseAssetPrice, final double sumCashDiv, final double downFactor, final double middleOverDown, final int steps) {
-    final int nNodes = 2 * steps + 1;
+    return _calc.nextOptionValues(discount, upProbability, middleProbability, downProbability, values, baseAssetPrice, sumCashDiv, downFactor, middleOverDown, steps);
+  }
 
-    final double[] res = new double[nNodes];
-    double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
-    for (int j = 0; j < nNodes; ++j) {
-      res[j] = getChecker().checkOut(assetPrice + sumCashDiv) ? 0. : discount * (upProbability * values[j + 2] + middleProbability * values[j + 1] + downProbability * values[j]);
-      assetPrice *= middleOverDown;
+  /*
+   * 
+   * 
+   * 
+   * 
+   * Private class defines calculation method
+   * 
+   * 
+   * 
+   * 
+   */
+  private abstract class Calculator {
+    abstract double[] payoffAtExpiryTrinomial(final double assetPrice, final double downFactor, final double middleOverDown);
+
+    abstract double[] nextOptionValues(final double discount, final double upProbability, final double middleProbability, final double downProbability, final double[] values,
+        final double baseAssetPrice, final double sumCashDiv, final double downFactor, final double middleOverDown, final int steps);
+  }
+
+  private class NormalCalculator extends Calculator {
+
+    @Override
+    public double[] payoffAtExpiryTrinomial(final double assetPrice, final double downFactor, final double middleOverDown) {
+      final double strike = getStrike();
+      final int nSteps = getNumberOfSteps();
+      final int nNodes = 2 * getNumberOfSteps() + 1;
+      final double sign = getSign();
+
+      final double[] values = new double[nNodes];
+      double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
+      for (int i = 0; i < nNodes; ++i) {
+        values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
+        priceTmp *= middleOverDown;
+      }
+      return values;
     }
-    return res;
+
+    @Override
+    public double[] nextOptionValues(final double discount, final double upProbability, final double middleProbability, final double downProbability, final double[] values,
+        final double baseAssetPrice, final double sumCashDiv, final double downFactor, final double middleOverDown, final int steps) {
+      final int nNodes = 2 * steps + 1;
+
+      final double[] res = new double[nNodes];
+      double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
+      for (int j = 0; j < nNodes; ++j) {
+        res[j] = getChecker().checkOut(assetPrice + sumCashDiv) ? 0. : discount * (upProbability * values[j + 2] + middleProbability * values[j + 1] + downProbability * values[j]);
+        assetPrice *= middleOverDown;
+      }
+      return res;
+    }
+
   }
 
   @Override

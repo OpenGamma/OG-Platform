@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.legalentity;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+import com.opengamma.util.types.ParameterizedTypeImpl;
 
 /**
  * Gets the credit ratings of an {@link LegalEntity}.
@@ -75,8 +77,7 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
    * @param useRatingDescription True if the rating description is to be used as a filter
    * @param ratingDescriptions A set of agencies to be used to filter by rating description, not null. Can be empty
    */
-  public LegalEntityCreditRatings(final boolean useRating, final Set<String> ratings, final boolean useRatingDescription,
-      final Set<String> ratingDescriptions) {
+  public LegalEntityCreditRatings(final boolean useRating, final Set<String> ratings, final boolean useRatingDescription, final Set<String> ratingDescriptions) {
     setUseRating(useRating);
     setPerAgencyRatings(ratings);
     setUseRatingDescription(useRatingDescription);
@@ -131,9 +132,17 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
     return selections;
   }
 
+  @Override
+  public Type getFilteredDataType() {
+    if (!(_useRating || _useRatingDescription)) {
+      return LegalEntity.meta().creditRatings().propertyGenericType();
+    }
+    return ParameterizedTypeImpl.of(Set.class, ParameterizedTypeImpl.of(Pair.class, String.class, String.class));
+  }
+
   /**
-   * Sets the agencies with which to filter ratings. This also sets
-   * the {@link LegalEntityCreditRatings#_useRating} field to true.
+   * Sets the agencies with which to filter ratings. This also sets the {@link LegalEntityCreditRatings#_useRating} field to true.
+   * 
    * @param perAgencyRatings The new value of the property, not null
    */
   public void setPerAgencyRatings(final Set<String> perAgencyRatings) {
@@ -145,8 +154,8 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
   }
 
   /**
-   * Sets the agencies with which to filter rating descriptions. This also sets
-   * the {@link LegalEntityCreditRatings#_useRatingDescription} field to true.
+   * Sets the agencies with which to filter rating descriptions. This also sets the {@link LegalEntityCreditRatings#_useRatingDescription} field to true.
+   * 
    * @param perAgencyRatingDescriptions The new value of the property, not null
    */
   public void setPerAgencyRatingDescriptions(final Set<String> perAgencyRatingDescriptions) {

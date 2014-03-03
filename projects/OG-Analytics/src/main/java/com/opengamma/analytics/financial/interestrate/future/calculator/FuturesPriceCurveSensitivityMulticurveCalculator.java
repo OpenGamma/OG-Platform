@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -52,7 +53,7 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
     final int nbFixing = futures.getFixingPeriodAccrualFactor().length;
     final double[] rates = new double[nbFixing];
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
-      rates[loopfix] = multicurve.getMulticurveProvider().getForwardRate(index, futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1],
+      rates[loopfix] = multicurve.getMulticurveProvider().getSimplyCompoundForwardRate(index, futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1],
           futures.getFixingPeriodAccrualFactor()[loopfix]);
     }
     // Backward sweep
@@ -65,7 +66,7 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
     final Map<String, List<ForwardSensitivity>> resultMap = new HashMap<>();
     final List<ForwardSensitivity> listON = new ArrayList<>();
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
-      listON.add(new ForwardSensitivity(futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1], futures.getFixingPeriodAccrualFactor()[loopfix],
+      listON.add(new SimplyCompoundedForwardSensitivity(futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1], futures.getFixingPeriodAccrualFactor()[loopfix],
           ratesBar[loopfix]));
     }
     resultMap.put(multicurve.getMulticurveProvider().getName(index), listON);

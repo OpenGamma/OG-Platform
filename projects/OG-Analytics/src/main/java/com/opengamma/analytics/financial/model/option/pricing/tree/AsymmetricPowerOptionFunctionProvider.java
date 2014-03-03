@@ -30,13 +30,14 @@ public class AsymmetricPowerOptionFunctionProvider extends OptionFunctionProvide
   }
 
   @Override
-  public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
+  public double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
     final double strike = getStrike();
-    final int nStepsP = getNumberOfSteps() + 1;
+    final int nSteps = getNumberOfSteps();
+    final int nStepsP = nSteps + 1;
     final double sign = getSign();
 
     final double[] values = new double[nStepsP];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nStepsP; ++i) {
       values[i] = Math.max(sign * (Math.pow(priceTmp, _power) - strike), 0.);
       priceTmp *= upOverDown;
@@ -45,13 +46,14 @@ public class AsymmetricPowerOptionFunctionProvider extends OptionFunctionProvide
   }
 
   @Override
-  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double middleOverDown) {
+  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double downFactor, final double middleOverDown) {
     final double strike = getStrike();
+    final int nSteps = getNumberOfSteps();
     final int nNodes = 2 * getNumberOfSteps() + 1;
     final double sign = getSign();
 
     final double[] values = new double[nNodes];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nNodes; ++i) {
       values[i] = Math.max(sign * (Math.pow(priceTmp, _power) - strike), 0.);
       priceTmp *= middleOverDown;

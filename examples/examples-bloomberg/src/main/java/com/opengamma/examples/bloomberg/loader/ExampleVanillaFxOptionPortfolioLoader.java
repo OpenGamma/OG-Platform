@@ -46,6 +46,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.DateUtils;
@@ -61,7 +62,8 @@ import com.opengamma.util.time.Tenor;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleVanillaFxOptionPortfolioLoader extends AbstractTool<IntegrationToolContext> {
-  /** The logger */
+
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleFxForwardPortfolioLoader.class);
   /** The number of securities in this portfolio */
   private static final int SIZE = 200;
@@ -76,17 +78,25 @@ public class ExampleVanillaFxOptionPortfolioLoader extends AbstractTool<Integrat
   /** Formats the rates in the security name */
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
 
-
+  //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   * @param args The arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
-    new ExampleVanillaFxOptionPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    try {
+      boolean success =
+        new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class) &&
+        new ExampleVanillaFxOptionPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
+      ShutdownUtils.exit(success ? 0 : -1);
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     final Collection<FXOptionSecurity> fxOptions = createRandomFXOptions();

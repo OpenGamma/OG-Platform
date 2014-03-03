@@ -78,11 +78,17 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
   private static final ExternalId USDLIBOR3M = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
   private static final LocalDate TODAY = LocalDate.now();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(String[] args) { //CSIGNORE
-    new ExampleMultiAssetPortfolioLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleMultiAssetPortfolioLoader().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   private void persistToPortfolio() {
     PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(PORTFOLIO_NAME);

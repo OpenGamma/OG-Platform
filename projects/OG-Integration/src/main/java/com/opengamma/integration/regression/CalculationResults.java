@@ -565,6 +565,24 @@ public final class CalculationResults implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -823812830:  // values
+          return _values;
+        case -10926973:  // viewDefinitionName
+          return _viewDefinitionName;
+        case -931708305:  // snapshotName
+          return _snapshotName;
+        case 113591406:  // valuationTime
+          return _valuationTime;
+        case 351608024:  // version
+          return _version;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

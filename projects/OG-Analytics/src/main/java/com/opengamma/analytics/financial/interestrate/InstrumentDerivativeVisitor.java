@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
@@ -110,6 +111,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.DepositIndexCoupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.InterpolatedStubCoupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -122,6 +125,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 
 /**
  *
@@ -189,20 +193,68 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitGenericAnnuity(Annuity<? extends Payment> genericAnnuity, DATA_TYPE data);
 
+  /**
+   * Fixed-coupon annuity method that takes data.
+   * @param fixedCouponAnnuity A fixed-coupon annuity
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity, DATA_TYPE data);
 
+  /**
+   * Ratcheting ibor coupon method that takes data.
+   * @param annuity A annuity
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity, DATA_TYPE data);
 
+  /**
+   * Fixed-coupon swap method that takes data.
+   * @param swap A fixed-coupon swap
+   * @param data The data 
+   * @return The result
+   */
   RESULT_TYPE visitFixedCouponSwap(SwapFixedCoupon<?> swap, DATA_TYPE data);
 
+  /**
+   * Fixed-compounding swap method that takes data.
+   * @param swap A fixed-compounding swap
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitFixedCompoundingCouponSwap(SwapFixedCompoundingCoupon<?> swap, DATA_TYPE data);
 
+  /**
+   * Cash-settled swaption method that takes data.
+   * @param swaption A cash-settled swaption
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, DATA_TYPE data);
 
+  /**
+   * Physically-settled swaption method that takes data.
+   * @param swaption A physically-settled swaption
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, DATA_TYPE data);
 
+  /**
+   * Bermudan swaption method that takes data.
+   * @param swaption A Bermudan swaption
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption, DATA_TYPE data);
 
+  /**
+   * A BRL-type swaption method that takes data.
+   * @param swaption A swaption
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitSwaptionCashFixedCompoundedONCompounded(SwaptionCashFixedCompoundedONCompounded swaption, DATA_TYPE data);
 
   RESULT_TYPE visitSwaptionPhysicalFixedCompoundedONCompounded(SwaptionPhysicalFixedCompoundedONCompounded swaption, DATA_TYPE data);
@@ -306,6 +358,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitCouponFixedAccruedCompounding(CouponFixedAccruedCompounding payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponFixedAccruedCompounding(CouponFixedAccruedCompounding payment);
+
+  RESULT_TYPE visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, DATA_TYPE data);
+
+  RESULT_TYPE visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment);
 
   RESULT_TYPE visitCouponIbor(CouponIbor payment, DATA_TYPE data);
 
@@ -651,7 +707,7 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitEquityIndexFutureOption(EquityIndexFutureOption option);
 
-  //  -----     Variance swaps     -----
+  //  -----     Variance and volatility swaps     -----
 
   /**
    * Variance swap method.
@@ -683,6 +739,19 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitEquityVarianceSwap(EquityVarianceSwap varianceSwap, DATA_TYPE data);
 
-  //  -----     Deprecated     -----
+  /**
+   * Volatility swap method.
+   * @param volatilitySwap A volatility swap
+   * @return The result
+   */
+  RESULT_TYPE visitVolatilitySwap(VolatilitySwap volatilitySwap);
+
+  /**
+   * Volatility swap method that takes data.
+   * @param volatilitySwap A volatility swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitVolatilitySwap(VolatilitySwap volatilitySwap, DATA_TYPE data);
 
 }

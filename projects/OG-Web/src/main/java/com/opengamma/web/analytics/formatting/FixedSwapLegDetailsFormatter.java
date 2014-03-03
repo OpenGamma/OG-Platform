@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.DISCOUNTED_PAYMENT_AMOUNT;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.DISCOUNT_FACTOR;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.END_ACCRUAL_DATES;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.FIXED_RATE;
@@ -27,11 +28,11 @@ import com.opengamma.util.money.CurrencyAmount;
  * Formatter for the details of the fixed leg of a swap.
  */
 /* package */ class FixedSwapLegDetailsFormatter extends AbstractFormatter<FixedSwapLegDetails> {
-  /** Number of columns */
-  private static final int COLUMN_COUNT = 8;
   /** Column labels */
   private static final String[] COLUMN_LABELS = new String[] {START_ACCRUAL_DATES, END_ACCRUAL_DATES, DISCOUNT_FACTOR,
-    PAYMENT_TIME, PAYMENT_YEAR_FRACTION, PAYMENT_AMOUNT, NOTIONAL, FIXED_RATE};
+    PAYMENT_TIME, PAYMENT_YEAR_FRACTION, PAYMENT_AMOUNT, NOTIONAL, FIXED_RATE, DISCOUNTED_PAYMENT_AMOUNT};
+  /** Number of columns */
+  private static final int COLUMN_COUNT = COLUMN_LABELS.length;
   /** x labels field */
   private static final String X_LABELS = "xLabels";
   /** y labels field */
@@ -45,6 +46,7 @@ import com.opengamma.util.money.CurrencyAmount;
 
   /**
    * @param caFormatter The currency amount formatter, not null
+   * @param rateFormatter The rate formatter, not null
    */
   /* package */ FixedSwapLegDetailsFormatter(final AbstractFormatter<CurrencyAmount> caFormatter, final AbstractFormatter<Double> rateFormatter) {
     super(FixedSwapLegDetails.class);
@@ -69,7 +71,6 @@ import com.opengamma.util.money.CurrencyAmount;
    * Expands the details into a matrix.
    * @param value The fixed swap leg details
    * @param valueSpec The value specification
-   * @param caFormatter The currency amount formatter
    * @return The expanded format.
    */
   /* package */ Map<String, Object> formatExpanded(FixedSwapLegDetails value, ValueSpecification valueSpec) {
@@ -89,6 +90,7 @@ import com.opengamma.util.money.CurrencyAmount;
       values[i][5] = _caFormatter.formatCell(value.getPaymentAmounts()[i], valueSpec, null);
       values[i][6] = _caFormatter.formatCell(value.getNotionals()[i], valueSpec, null);
       values[i][7] = _rateFormatter.formatCell(value.getFixedRates()[i], valueSpec, null); 
+      values[i][8] = _caFormatter.formatCell(value.getDiscountedPaymentAmounts()[i], valueSpec, null);
     }
     results.put(MATRIX, values);
     return results;

@@ -269,7 +269,6 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
-    super.curveFunctions();
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "Discounting"));
   }
 
@@ -280,4 +279,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     defaults.setPayCurveName("Discounting");
     defaults.setReceiveCurveName("Discounting");
   }
+  
+  @Override
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions(), multicurvePricingFunctions());
+  }
+  
 }

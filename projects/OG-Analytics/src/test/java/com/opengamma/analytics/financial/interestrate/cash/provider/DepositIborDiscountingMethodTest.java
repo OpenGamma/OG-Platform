@@ -79,7 +79,7 @@ public class DepositIborDiscountingMethodTest {
     final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_MULTICURVES);
     final double dfEnd = PROVIDER_MULTICURVES.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    final double forward = PROVIDER_MULTICURVES.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+    final double forward = PROVIDER_MULTICURVES.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
     final double pvExpected = deposit.getAccrualFactor() * (deposit.getRate() - forward) * dfEnd;
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }

@@ -51,11 +51,10 @@ public class PortfolioDeleteTool extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioDeleteTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new PortfolioDeleteTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

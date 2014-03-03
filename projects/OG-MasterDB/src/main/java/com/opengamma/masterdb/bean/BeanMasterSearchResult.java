@@ -5,16 +5,17 @@
  */
 package com.opengamma.masterdb.bean;
 
-import org.joda.beans.BeanDefinition;
-
-import com.opengamma.master.AbstractDocument;
-import com.opengamma.master.AbstractSearchResult;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.master.AbstractDocument;
+import com.opengamma.master.AbstractSearchResult;
 
 /**
  * Provides access to the results of searching in a {@code DbBeanMaster}.

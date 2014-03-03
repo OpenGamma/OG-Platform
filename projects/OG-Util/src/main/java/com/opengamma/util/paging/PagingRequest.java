@@ -394,6 +394,18 @@ public final class PagingRequest implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 132704739:  // firstItem
+          return _firstItem;
+        case 1302250925:  // pagingSize
+          return _pagingSize;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 132704739:  // firstItem

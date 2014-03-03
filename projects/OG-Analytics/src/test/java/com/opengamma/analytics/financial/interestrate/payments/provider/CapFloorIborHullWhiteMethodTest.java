@@ -91,7 +91,7 @@ public class CapFloorIborHullWhiteMethodTest {
     final double alpha0 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t0);
     final double alpha1 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t1);
     final double ptp = MULTICURVES.getDiscountFactor(EUR, tp);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
     double kappa = Math.log((1.0 + deltaF * STRIKE) / (1.0 + deltaF * forward));
     kappa += -(alpha1 * alpha1 - alpha0 * alpha0) / 2.0;
     kappa /= alpha1 - alpha0;

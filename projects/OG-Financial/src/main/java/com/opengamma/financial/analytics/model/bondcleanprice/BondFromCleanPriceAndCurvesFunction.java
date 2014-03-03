@@ -42,6 +42,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.analytics.model.bondcurves.BondSupportUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -55,7 +56,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
   private static final Logger s_logger = LoggerFactory.getLogger(BondFromCleanPriceAndCurvesFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
-
+  /** The instrument exposures provider */
   private InstrumentExposuresProvider _instrumentExposuresProvider;
 
   /**
@@ -72,8 +73,8 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -92,7 +93,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getTrade().getSecurity() instanceof BondSecurity;
+    return target.getTrade().getSecurity() instanceof BondSecurity && BondSupportUtils.isSupported(target.getTrade().getSecurity());
   }
 
   @Override
@@ -117,18 +118,20 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
+    final String curveExposureConfig = Iterables.getOnlyElement(curveExposureConfigs);
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(new ValueRequirement(MARKET_VALUE, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
     try {
-      for (final String curveExposureConfig : curveExposureConfigs) {
-        final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
-        for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
-          final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
-              .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
-              .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE))
-              .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)).with(PROPERTY_CURVE_TYPE, curveTypes).get();
-          requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
-        }
+      final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+      for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
+        final ValueProperties properties = ValueProperties.builder()
+            .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
+            .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
+            .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE))
+            .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS))
+            .with(PROPERTY_CURVE_TYPE, curveTypes)
+            .get();
+        requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
       return requirements;
     } catch (final Exception e) {
@@ -139,18 +142,21 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
 
   /**
    * Gets the value properties of the result
-   * 
+   *
    * @param target The computation target
    * @return The properties
    */
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    return createValueProperties().with(CALCULATION_METHOD, CLEAN_PRICE_METHOD).withAny(CURVE_EXPOSURES).withAny(PROPERTY_CURVE_TYPE).withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+    return createValueProperties().with(CALCULATION_METHOD, CLEAN_PRICE_METHOD)
+        .withAny(CURVE_EXPOSURES).withAny(PROPERTY_CURVE_TYPE)
+        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
   }
 
   /**
    * Calculates the result.
-   * 
+   *
    * @param inputs The function inputs
    * @param bond The bond transaction
    * @param issuerCurves The issuer and discounting curves

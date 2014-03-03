@@ -44,8 +44,13 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
@@ -53,7 +58,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Base class for bond and bond future analytic calculations from yield curves.
- * 
+ *
  * @param <S> The type of the curves required by the calculator
  * @param <T> The type of the result
  */
@@ -64,8 +69,9 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   private final String _valueRequirementName;
   /** The calculator */
   private final InstrumentDerivativeVisitor<S, T> _calculator;
-
+  /** The instrument exposures provider */
   private InstrumentExposuresProvider _instrumentExposuresProvider;
+
 
   /**
    * @param valueRequirementName The value requirement name, not null
@@ -83,8 +89,8 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -103,9 +109,9 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return security instanceof BondSecurity || security instanceof BondFutureSecurity;
+    return BondSupportUtils.isSupported(security);
   }
-
+  
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties(target).get();
@@ -132,6 +138,10 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
     try {
       for (final String curveExposureConfig : curveExposureConfigs) {
         final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+        if (curveConstructionConfigurationNames == null) {
+          s_logger.error("Could not get curve construction configuration names for curve exposure configuration called {}", curveExposureConfig);
+          return null;
+        }
         for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
           final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
               .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
@@ -145,14 +155,14 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
       requirements.addAll(BondAndBondFutureFunctionUtils.getConversionRequirements(security, timeSeriesResolver));
       return requirements;
     } catch (final Exception e) {
-      s_logger.error(e.getMessage(), e);
+      s_logger.error(e.getMessage());
       return null;
     }
   }
 
   /**
    * Gets the value properties of the result
-   * 
+   *
    * @param target The computation target
    * @return The properties
    */

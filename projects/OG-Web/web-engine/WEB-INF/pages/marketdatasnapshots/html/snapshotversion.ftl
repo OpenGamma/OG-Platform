@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="MarketDataSnapshot - ${snapshotDoc.name}">
+<@page title="MarketDataSnapshot - ${snapshotDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This MarketDataSnapshot has been deleted</p>
@@ -16,8 +16,10 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-    <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="120" name="snapshotxml" id="xmltextarea">${snapshotXml}</textarea></div>
+    <div id="ace-xml-editor"></div>
 </@subsection>
+
+<#noescape><@xmlEditorScript  xmlValue="${snapshotXml}" readOnly=true></@xmlEditorScript></#noescape>
 </@section>
 
 

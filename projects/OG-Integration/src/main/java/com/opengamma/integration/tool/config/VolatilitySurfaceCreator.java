@@ -98,7 +98,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 @Scriptable
 public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContext> {
 
-  /** the logger */
+  /** Logger. */
   private static Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceCreator.class);
 
   /** bbg surface prefix */
@@ -120,14 +120,14 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
   /** vol specifications we have created */
   private final Set<String> _volSpecificationNames = new HashSet<String>();
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   *
-   * @param args  command line arguments
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new VolatilitySurfaceCreator().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new VolatilitySurfaceCreator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

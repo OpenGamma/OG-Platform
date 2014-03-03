@@ -24,14 +24,17 @@ public class BloombergSecurityTypeDefinitionTool extends AbstractTool<ToolContex
   
   private static final String CONFIG_NAME_OPT = "n";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new BloombergSecurityTypeDefinitionTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new BloombergSecurityTypeDefinitionTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     ToolContext toolContext = getToolContext();

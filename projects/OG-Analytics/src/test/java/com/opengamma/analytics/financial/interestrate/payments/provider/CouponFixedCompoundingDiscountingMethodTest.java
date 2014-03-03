@@ -65,7 +65,7 @@ public class CouponFixedCompoundingDiscountingMethodTest {
     double notionalAccrued = COUPON.getNotional();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
 
-      notionalAccrued *= 1 + COUPON.getPaymentAccrualFactors()[loopsub] * COUPON.getRate();
+      notionalAccrued *= 1 + COUPON.getPaymentAccrualFactors()[loopsub] * COUPON.getFixedRate();
     }
 
     final double df = MULTICURVES.getDiscountFactor(COUPON.getCurrency(), COUPON.getPaymentTime());

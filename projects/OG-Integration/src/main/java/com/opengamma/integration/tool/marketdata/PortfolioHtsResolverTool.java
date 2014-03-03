@@ -41,11 +41,10 @@ public class PortfolioHtsResolverTool extends AbstractTool<IntegrationToolContex
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioHtsResolverTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new PortfolioHtsResolverTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

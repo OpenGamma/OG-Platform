@@ -28,11 +28,16 @@ import com.opengamma.util.i18n.Country;
 @Scriptable
 public class ExampleExchangeLoader extends AbstractTool<ToolContext> {
 
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleExchangeLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleExchangeLoader().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates two exchange objects directly and stores them into the master.
    * <p>

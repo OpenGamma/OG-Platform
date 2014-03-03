@@ -11,7 +11,6 @@ import java.util.Set;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.tuple.DoublesPair;
 
-
 /**
  * Interface for parameter provider with multi-curves provider.
  */

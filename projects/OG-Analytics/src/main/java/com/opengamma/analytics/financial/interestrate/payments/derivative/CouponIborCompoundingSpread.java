@@ -29,7 +29,7 @@ import com.opengamma.util.money.Currency;
  * dates used to compute the coupon accrual factors.
  * <p> Reference: Mengle, D. (2009). Alternative compounding methods for over-the-counter derivative transactions. ISDA.
  */
-public class CouponIborCompoundingSpread extends Coupon {
+public class CouponIborCompoundingSpread extends Coupon implements DepositIndexCompoundingCoupon<IborIndex> {
 
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.

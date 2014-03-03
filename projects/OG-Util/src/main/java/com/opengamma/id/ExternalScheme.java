@@ -6,13 +6,13 @@
 package com.opengamma.id;
 
 import java.io.Serializable;
-import java.util.concurrent.ConcurrentMap;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -35,14 +35,13 @@ public final class ExternalScheme implements Serializable, Comparable<ExternalSc
   /**
    * Computing cache for the schemes.
    */
-  @SuppressWarnings("deprecation")
-  private static final ConcurrentMap<String, ExternalScheme> s_cache =
-      new MapMaker().initialCapacity(256).concurrencyLevel(4).makeComputingMap(new Function<String, ExternalScheme>() {
-        @Override
-        public ExternalScheme apply(String key) {
-          return new ExternalScheme(key);
-        }
-      });
+  private static final LoadingCache<String, ExternalScheme> s_cache =
+      CacheBuilder.newBuilder().initialCapacity(256).concurrencyLevel(4).build(
+          new CacheLoader<String, ExternalScheme>() {
+            public ExternalScheme load(String key) {
+              return new ExternalScheme(key);
+            }
+          });
 
   /**
    * The scheme name.
@@ -58,7 +57,7 @@ public final class ExternalScheme implements Serializable, Comparable<ExternalSc
   @FromString
   public static ExternalScheme of(final String name) {
     ArgumentChecker.notEmpty(name, "name");
-    return s_cache.get(name);
+    return s_cache.getUnchecked(name);
   }
 
   /**

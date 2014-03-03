@@ -80,6 +80,7 @@ public final class YieldConventionFactory
     addInstance(SimpleYieldConvention.SPANISH_T_BILLS);
     addInstance(SimpleYieldConvention.PORTUGAL_DOMESTIC_SETTLE);
     addInstance(SimpleYieldConvention.ITALY_TREASURY_BILL);
+    addInstance(SimpleYieldConvention.MEXICAN_BONOS);
   }
 
   //-------------------------------------------------------------------------
@@ -97,7 +98,7 @@ public final class YieldConventionFactory
       return instance(name);
     } catch (final IllegalArgumentException ex) {
       ArgumentChecker.notNull(name, "name");
-      final YieldConvention yc = new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH));
+      final YieldConvention yc = new SimpleYieldConvention(name.toUpperCase(Locale.ENGLISH));
       return addInstance(yc);
     }
   }

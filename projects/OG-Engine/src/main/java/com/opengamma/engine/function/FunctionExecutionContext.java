@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,7 +8,7 @@ package com.opengamma.engine.function;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.util.PublicAPI;
@@ -46,7 +46,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   /**
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
-  public static final String ORGANIZATION_SOURCE_NAME = "organizationSource";
+  public static final String ORGANIZATION_SOURCE_NAME = "legalEntitySource";
   /**
    * The name under which function parameters (such as # of Monte Carlo iterations) should be bound.
    */
@@ -138,17 +138,17 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    *
    * @return the source of organizations, null if not in the context
    */
-  public OrganizationSource getOrganizationSource() {
-    return (OrganizationSource) get(ORGANIZATION_SOURCE_NAME);
+  public LegalEntitySource getLegalEntitySource() {
+    return (LegalEntitySource) get(ORGANIZATION_SOURCE_NAME);
   }
 
   /**
    * Sets the source of organizations.
    *
-   * @param organizationSource  the source of organizations to bind
+   * @param legalEntitySource  the source of organizations to bind
    */
-  public void setOrganizationSource(final OrganizationSource organizationSource) {
-    put(ORGANIZATION_SOURCE_NAME, organizationSource);
+  public void setLegalEntitySource(final LegalEntitySource legalEntitySource) {
+    put(ORGANIZATION_SOURCE_NAME, legalEntitySource);
   }
 
   /**

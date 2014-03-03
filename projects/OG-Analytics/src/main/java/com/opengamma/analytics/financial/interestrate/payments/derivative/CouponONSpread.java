@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
  * Class describing a overnight indexed floating coupon with spread. The description is simplified by not creating the full set of fixing times.
  * Only the start and the end of the fixing period times are described. The description is enough to construct curves from OIS and price OIS coupons (even if some fixing already took place).
  */
-public class CouponONSpread extends Coupon {
+public class CouponONSpread extends Coupon implements DepositIndexCoupon<IndexON> {
 
   /**
    * The OIS-like index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.

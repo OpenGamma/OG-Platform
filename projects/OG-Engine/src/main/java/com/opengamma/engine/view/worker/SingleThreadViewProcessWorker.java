@@ -114,6 +114,12 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketDataChangeListener {
 
+  /**
+   * Default to waiting 5 minutes when {link {@link ViewExecutionFlags#AWAIT_MARKET_DATA} is in use to avoid unintentionally causing the view process to hang indefinitely. Market data should normally
+   * be available in seconds.
+   */
+  private static final long DEFAULT_MARKET_DATA_TIMEOUT_MILLIS = 300000;
+
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
   private static final ExecutorService s_executor = NamedThreadPoolFactory.newCachedThreadPool("Worker");
@@ -469,7 +475,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
 
       try {
         snapshotManager = _marketDataManager.createSnapshotManagerForCycle(getViewDefinition().getMarketDataUser(), executionOptions.getMarketDataSpecifications());
-        _executionCacheKey = ViewExecutionCacheKey.of(getViewDefinition(), _marketDataManager.getAvailabilityProvider());
+        _executionCacheKey = ViewExecutionCacheKey.of(getViewDefinition(), _marketDataManager.getAvailabilityProvider(), _marketDataSelectionGraphManipulator);
       } catch (final Exception e) {
         s_logger.error("Error with market data provider", e);
         cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error with market data provider", e));
@@ -547,7 +553,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         try {
           snapshotManager.addMarketDataRequirements(compiledViewDefinition.getMarketDataRequirements());
           if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
-            snapshotManager.initialiseSnapshotWithSubscriptionResults();
+            long timeoutMillis = getExecutionOptions().getMarketDataTimeoutMillis() != null ? getExecutionOptions().getMarketDataTimeoutMillis() : DEFAULT_MARKET_DATA_TIMEOUT_MILLIS;
+            snapshotManager.initialiseSnapshotWithSubscriptionResults(timeoutMillis);
           } else {
             snapshotManager.initialiseSnapshot();
           }
@@ -1540,12 +1547,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         // REVIEW Chris 2014-01-14 - selectorMapping is stored in DependencyGraphStructureExtractor, mutated
         // by MarketDataSelectionGraphManipulator and used here. that's too obscure
         final Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = new HashMap<>();
-        // TODO is graph mutated in modifyDependencyGraph? if not then should probably use a new variable to make that explicit
-        graph = _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph, resolver, selectorMapping);
+        DependencyGraph modifiedGraph = _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph, resolver, selectorMapping);
         if (!selectorMapping.isEmpty()) {
-          newGraphsByConfig.put(graph.getCalculationConfigurationName(), graph);
-          selectionsByConfig.put(graph.getCalculationConfigurationName(), selectorMapping);
-          final Map<DistinctMarketDataSelector, FunctionParameters> params = _specificMarketDataSelectors.get(graph.getCalculationConfigurationName());
+          newGraphsByConfig.put(modifiedGraph.getCalculationConfigurationName(), modifiedGraph);
+          selectionsByConfig.put(modifiedGraph.getCalculationConfigurationName(), selectorMapping);
+          final Map<DistinctMarketDataSelector, FunctionParameters> params = _specificMarketDataSelectors.get(modifiedGraph.getCalculationConfigurationName());
           // _specificMarketDataSelectors has an entry for each graph, so no null check required
           if (!params.isEmpty()) {
             // Filter the function params so that we only have entries for active selectors
@@ -1555,7 +1561,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                 return selectorMapping.containsKey(selector);
               }
             });
-            functionParamsByConfig.put(graph.getCalculationConfigurationName(), filteredParams);
+            functionParamsByConfig.put(modifiedGraph.getCalculationConfigurationName(), filteredParams);
           }
         }
       }
@@ -1668,7 +1674,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       // A change in view definition might mean a change in market data user which could invalidate the resolutions
       _marketDataManager.replaceMarketDataProviderIfRequired(newViewDefinition.getMarketDataUser());
 
-      _executionCacheKey = ViewExecutionCacheKey.of(newViewDefinition, _marketDataManager.getAvailabilityProvider());
+      _executionCacheKey = ViewExecutionCacheKey.of(newViewDefinition, _marketDataManager.getAvailabilityProvider(), _marketDataSelectionGraphManipulator);
     }
   }
 

@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
@@ -98,9 +101,13 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
 
   // ------------------------------------------------------------------------------------
 
+  T visitBillSecurity(BillSecurity security);
+
   T visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security);
 
   T visitCapFloorSecurity(CapFloorSecurity security);
+
+  T visitCashBalanceSecurity(CashBalanceSecurity security);
 
   T visitCashSecurity(CashSecurity security);
 
@@ -129,6 +136,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitEquitySecurity(EquitySecurity security);
 
   T visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security);
+
+  T visitFloatingRateNoteSecurity(FloatingRateNoteSecurity security);
 
   T visitFRASecurity(FRASecurity security);
 
@@ -180,4 +189,3 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
 
   T visitEquityWarrantSecurity(EquityWarrantSecurity security);
 }
-

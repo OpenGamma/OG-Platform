@@ -506,6 +506,18 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 688535201:  // versionAsOf
+          return _versionAsOf;
+        case 1465896676:  // correctedTo
+          return _correctedTo;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 688535201:  // versionAsOf

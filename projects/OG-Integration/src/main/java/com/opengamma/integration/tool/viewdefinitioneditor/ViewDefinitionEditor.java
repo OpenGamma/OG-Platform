@@ -45,7 +45,8 @@ import com.opengamma.scripts.Scriptable;
  */
 @Scriptable
 public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinitionEditor.class);
 
   private JFrame _frame;
@@ -54,15 +55,17 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
 
   private ViewListModel _viewListModel;
 
+  //-------------------------------------------------------------------------
   /**
-   * Launch the application.
-   * @param args  the main method arguments
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {
-    //new EngineDebugger().initialize();
-    new ViewDefinitionEditor().initAndRun(args, IntegrationToolContext.class);
+    new ViewDefinitionEditor().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Initialize the contents of the frame.
    * @wbp.parser.entryPoint

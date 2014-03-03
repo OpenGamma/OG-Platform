@@ -8,12 +8,9 @@ package com.opengamma.examples.simulated.loader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.examples.simulated.curve.ExampleFXForwardCurveConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleATMSwaptionVolatilitySurfaceConfigPopulator;
-import com.opengamma.examples.simulated.volatility.surface.ExampleEquityOptionSurfaceConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleFXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
-import com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator;
-import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.scripts.Scriptable;
@@ -24,6 +21,16 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolContext> {
 
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(final String[] args) {  // CSIGNORE
+    new ExampleCurveAndSurfaceDefinitionLoader().invokeAndTerminate(args);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
@@ -32,17 +39,6 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
     ExampleATMSwaptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_SURFACES);
     ExampleFXForwardCurveConfigPopulator.populateCurveConfigMaster(configMaster, ExampleViewsPopulator.CURRENCY_PAIRS);
     new VolatilityCubeConfigPopulator(configMaster);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Main method to run the tool.
-   *
-   * @param args  the arguments, unused
-   */
-  public static void main(final String[] args) {  // CSIGNORE
-    new ExampleCurveAndSurfaceDefinitionLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
   }
 
 }

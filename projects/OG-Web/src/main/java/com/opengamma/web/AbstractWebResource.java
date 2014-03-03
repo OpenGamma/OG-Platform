@@ -28,10 +28,10 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.joda.beans.Bean;
-import org.joda.beans.ser.JodaBeanSer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.json.FudgeMsgJSONReader;
@@ -126,7 +126,7 @@ public abstract class AbstractWebResource {
     if (xml.contains("<fudgeEnvelope")) {
       return (T) parseXML(xml);
     } else {
-      return JodaBeanSer.PRETTY.xmlReader().read(xml, type);
+      return JodaBeanSerialization.deserializer().xmlReader().read(xml, type);
     }
   }
   
@@ -147,7 +147,7 @@ public abstract class AbstractWebResource {
     if (obj instanceof Bean) {
       try {
         // NOTE jim 8-Jan-2014 -- changed last param from false to true so bean type is set.  Not necessary for UI, but enables easier parsing if cut and pasted elsewhere.
-        return JodaBeanSer.PRETTY.xmlWriter().write((Bean) obj, true);
+        return JodaBeanSerialization.serializer(true).xmlWriter().write((Bean) obj, true);
       } catch (RuntimeException ex) {
         s_logger.warn("Error serialising bean to XML with JodaBean serializer", ex);
         return createXML(obj);

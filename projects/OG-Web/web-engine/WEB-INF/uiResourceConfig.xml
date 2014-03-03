@@ -363,6 +363,7 @@
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.calibrate_columns.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
+    <fragment>/scripts/og/common/details/og.common.details.legalentity_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.favorites.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.calendar_ui_changes.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search.get_quantities.js</fragment>

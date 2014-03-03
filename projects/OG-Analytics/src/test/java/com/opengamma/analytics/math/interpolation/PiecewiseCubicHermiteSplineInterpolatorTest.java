@@ -256,18 +256,19 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
       assertEquals(result.getKnots().getData()[j], xValues[j]);
     }
   }
-  
-  @Test //(enabled=false)
+
+  @Test
+  //(enabled=false)
   public void monotonicTest() {
     final boolean print = false; //turn to false before pushing 
     if (print) {
       System.out.println(" PiecewiseCubicHermiteSplineInterpolatorTest");
     }
 
-   PiecewiseCubicHermiteSplineInterpolator interpolator = new PiecewiseCubicHermiteSplineInterpolator();
+    PiecewiseCubicHermiteSplineInterpolator interpolator = new PiecewiseCubicHermiteSplineInterpolator();
 
-    final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9};
-    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3};
+    final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9 };
+    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3 };
     final int nPts = 300;
     double old = yValues[0] * xValues[0];
     for (int i = 0; i < nPts; ++i) {
@@ -280,7 +281,6 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
       old = value;
     }
   }
-
 
   /**
    * 

@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Convention - ${conventionDoc.name}">
+<@page title="Convention - ${conventionDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This convention has been deleted</p>
@@ -17,8 +17,12 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-    <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="conventionxml" id="xmltextarea" readonly>${conventionXml}</textarea></div>
+    <@rowin>
+      <div id="ace-xml-editor"></div>
+    </@rowin>
 </@subsection>
+
+<#noescape><@xmlEditorScript  xmlValue="${conventionXml}" readOnly=true></@xmlEditorScript></#noescape>
 </@section>
 
 

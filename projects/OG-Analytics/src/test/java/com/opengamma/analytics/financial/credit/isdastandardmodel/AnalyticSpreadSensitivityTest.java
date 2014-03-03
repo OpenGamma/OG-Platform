@@ -36,7 +36,7 @@ public class AnalyticSpreadSensitivityTest extends ISDABaseTest {
 
   // market CDSs
   private static final LocalDate[] PAR_SPD_DATES = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20),
-    LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20) };
+      LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20) };
   private static final double[] PAR_SPREADS = new double[] {50, 70, 80, 95, 100, 95, 80 };
   private static final int NUM_MARKET_CDS = PAR_SPD_DATES.length;
   private static final CDSAnalytic[] MARKET_CDS = new CDSAnalytic[NUM_MARKET_CDS];
@@ -77,6 +77,63 @@ public class AnalyticSpreadSensitivityTest extends ISDABaseTest {
     final int n = fd_CS01.length;
     for (int i = 0; i < n; i++) {
       assertEquals(fd_CS01[i], an_CS01[i], 1e-6); // the fd is only forward difference - so accuracy is not great
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void ParallelCS01FiniteDifferenceComparisonTest() {
+    final AccrualOnDefaultFormulae form = AccrualOnDefaultFormulae.Correct;
+    final AnalyticSpreadSensitivityCalculator aCal = new AnalyticSpreadSensitivityCalculator(form);
+    final FiniteDifferenceSpreadSensitivityCalculator fCal = new FiniteDifferenceSpreadSensitivityCalculator(form);
+    final double eps = 1.e-6;
+
+    final double coupon = 100. * 1.e-4;
+    final double quotedSpread = 104. * 1.e-4;
+    final CDSQuoteConvention qSp = new QuotedSpread(coupon, quotedSpread);
+    final double puf = 0.3;
+
+    final double pCS01 = aCal.parallelCS01(CDS, qSp, YIELD_CURVE);
+    final double pCS01Fin = fCal.parallelCS01(CDS, qSp, YIELD_CURVE, eps);
+    assertEquals(pCS01Fin, pCS01, Math.abs(pCS01Fin) * eps * 10.);
+
+    final double pCS01FromPuf = aCal.parallelCS01FromPUF(CDS, coupon, YIELD_CURVE, puf);
+    final double pCS01FromPufFin = fCal.parallelCS01FromPUF(CDS, coupon, YIELD_CURVE, puf, eps);
+    assertEquals(pCS01FromPufFin, pCS01FromPuf, Math.abs(pCS01FromPufFin) * eps * 10.);
+
+    final double pCS01FromSpread = aCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, quotedSpread);
+    final double pCS01FromSpreadFin = fCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, quotedSpread, eps, BumpType.ADDITIVE);
+    assertEquals(pCS01FromSpreadFin, pCS01FromSpread, Math.abs(pCS01FromSpreadFin) * eps * 10.);
+
+    final double pCS01FromEqSpread = aCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, coupon);
+    final double pCS01FromEqSpreadFin = fCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, coupon, eps, BumpType.ADDITIVE);
+    assertEquals(pCS01FromEqSpreadFin, pCS01FromEqSpread, Math.abs(pCS01FromEqSpreadFin) * eps * 10.);
+  }
+
+  /**
+   * 
+   */
+  @Test(enabled = false)
+  public void BucketedCS01FiniteDifferenceComparisonTest() {
+    //TODO Tests should be added (PLAT-5931) once PLAT-5971 is fixed
+    final AccrualOnDefaultFormulae form = AccrualOnDefaultFormulae.Correct;
+    final AnalyticSpreadSensitivityCalculator aCal = new AnalyticSpreadSensitivityCalculator(form);
+    final FiniteDifferenceSpreadSensitivityCalculator fCal = new FiniteDifferenceSpreadSensitivityCalculator(form);
+    final ISDACompliantCreditCurveBuilder builder = new FastCreditCurveBuilder(form);
+    final double eps = 1.e-6;
+
+    final double coupon = 100. * 1.e-4;
+    final double quotedSpread = 104. * 1.e-4;
+    final CDSQuoteConvention qSp = new QuotedSpread(coupon, quotedSpread);
+    final double puf = 0.3;
+
+    final double[] bCS01FromSpread = aCal.bucketedCS01FromSpread(CDS, coupon, YIELD_CURVE, quotedSpread, MARKET_CDS);
+    final ISDACompliantCreditCurve curve = builder.calibrateCreditCurve(CDS, quotedSpread, YIELD_CURVE);
+    final double[] bCS01FromSpreadFin = fCal.bucketedCS01FromCreditCurve(CDS, coupon, MARKET_CDS, YIELD_CURVE, curve, eps);
+    for (int i = 0; i < NUM_MARKET_CDS; ++i) {
+      assertEquals(bCS01FromSpreadFin[i], bCS01FromSpread[i], Math.abs(bCS01FromSpreadFin[i]) * eps * 10.);
     }
   }
 }

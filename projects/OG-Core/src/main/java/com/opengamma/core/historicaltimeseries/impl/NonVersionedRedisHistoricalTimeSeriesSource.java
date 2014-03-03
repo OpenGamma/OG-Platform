@@ -19,7 +19,6 @@ import org.threeten.bp.LocalDate;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.Pipeline;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
@@ -122,10 +121,29 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeseries, "timeseries");
     
-    updateTimeSeries(toRedisKey(uniqueId), timeseries);
+    updateTimeSeries(toRedisKey(uniqueId), timeseries, false);
   }
   
-  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries) {    
+  /**
+   * Remove all current entries for the given ID, and store the given time series.
+   * 
+   * If the timeseries does not exist, it is created.
+   * 
+   * @param uniqueId the uniqueId of the timeseries, not null.
+   * @param timeSeries the timeseries to store
+   */
+  public void replaceTimeSeries(UniqueId uniqueId, LocalDateDoubleTimeSeries timeSeries) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(timeSeries, "timeSeries");
+    
+    updateTimeSeries(toRedisKey(uniqueId), timeSeries, true, 5);
+  }
+
+  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries, boolean clear) {
+    updateTimeSeries(redisKey, timeseries, clear, 5);
+  }
+
+  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries, boolean clear, int attempts) {
     try (Timer.Context context = _updateSeriesTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       try {
@@ -136,27 +154,26 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
           htsMap.put(dateAsIntText, Double.toString(entry.getValue()));
           dates.put(Double.valueOf(dateAsIntText), dateAsIntText);
         }
-        
-        Pipeline pipeline = jedis.pipelined();
-        pipeline.multi();
+
         String redisHtsDatapointKey = toRedisHtsDatapointKey(redisKey);
-        pipeline.hmset(redisHtsDatapointKey, htsMap);
+        jedis.hmset(redisHtsDatapointKey, htsMap);
         
         String redisHtsDaysKey = toRedisHtsDaysKey(redisKey);
-        for (String dateAsIntText : dates.inverse().keySet()) {
-          pipeline.zrem(redisHtsDaysKey, dateAsIntText);
+        if (clear) {
+          jedis.del(redisHtsDaysKey);
+        } else {
+          jedis.zrem(redisHtsDaysKey, dates.inverse().keySet().toArray(new String[dates.size()]));
         }
         
-        for (Entry<Double, String> entry : dates.entrySet()) {
-          pipeline.zadd(redisHtsDaysKey, entry.getKey(), entry.getValue());
-        }
-             
-        pipeline.exec();
-        pipeline.sync();
+        jedis.zadd(redisHtsDaysKey, dates);
+        
         getJedisPool().returnResource(jedis);
-      } catch (Exception e) {
-        s_logger.error("Unable to put timeseries with id: " + redisKey, e);
+      } catch (Throwable e) {
         getJedisPool().returnBrokenResource(jedis);
+        if (attempts > 0) {
+          s_logger.warn("Unable to put timeseries with id, will retry: " + redisKey, e);
+          updateTimeSeries(redisKey, timeseries, clear, attempts - 1);
+        }
         throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + redisKey, e);
       }
     }
@@ -189,7 +206,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   protected void updateTimeSeriesPoint(String redisKey, LocalDate valueDate, double value) {
     LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
     builder.put(valueDate, value);
-    updateTimeSeries(redisKey, builder.build());
+    updateTimeSeries(redisKey, builder.build(), false);
   }
     
   /**

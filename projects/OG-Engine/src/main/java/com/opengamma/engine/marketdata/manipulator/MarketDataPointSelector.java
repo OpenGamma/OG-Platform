@@ -27,8 +27,8 @@ public final class MarketDataPointSelector implements DistinctMarketDataSelector
 
   /**
    * Construct a selector for the supplied external id.
-   *
-   * @param dataPointId  the external id of the market data point to be selected, not null
+   * 
+   * @param dataPointId the external id of the market data point to be selected, not null
    * @return a new MarketDataSelector for the market data point, not null
    */
   public static DistinctMarketDataSelector of(ExternalId dataPointId) {
@@ -39,7 +39,7 @@ public final class MarketDataPointSelector implements DistinctMarketDataSelector
   /**
    * Creates an instance.
    * 
-   * @param externalId  the data point id, not null
+   * @param externalId the data point id, not null
    */
   private MarketDataPointSelector(ExternalId externalId) {
     _externalId = ArgumentChecker.notNull(externalId, EXTERNAL_ID);
@@ -51,9 +51,7 @@ public final class MarketDataPointSelector implements DistinctMarketDataSelector
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
-                                                         String calculationConfigurationName,
-                                                         SelectorResolver resolver) {
+  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification, String calculationConfigurationName, SelectorResolver resolver) {
     if (_externalId.equals(createId(valueSpecification))) {
       return this;
     } else {
@@ -104,4 +102,10 @@ public final class MarketDataPointSelector implements DistinctMarketDataSelector
       return ExternalId.of(scheme, uniqueId.getValue());
     }
   }
+
+  @Override
+  public String toString() {
+    return _externalId.toString();
+  }
+
 }

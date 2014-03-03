@@ -115,22 +115,14 @@ public class DataComponentServerResource extends AbstractDataResource {
 
   @GET
   public Response getComponentInfos() {
-    ComponentServer server = new ComponentServer(URI.create("components"));
-    server.getComponentInfos().addAll(_remoteComponents);
-    for (RestComponent component : _localComponents) {
-      server.getComponentInfos().add(component.getInfo());
-    }
+    ComponentServer server = createServerInfo();
     return responseOkFudge(server);
   }
 
   @GET
   @Produces(value = MediaType.TEXT_HTML)
   public String getComponentInfosHtml(@Context ServletContext servletContext, @Context UriInfo uriInfo) {
-    ComponentServer server = new ComponentServer(URI.create("components"));
-    server.getComponentInfos().addAll(_remoteComponents);
-    for (RestComponent component : _localComponents) {
-      server.getComponentInfos().add(component.getInfo());
-    }
+    ComponentServer server = createServerInfo();
     server.setUri(uriInfo.getBaseUri());
     Multimap<Class<?>, ComponentInfo> byType = TreeMultimap.create(ORDER_CLASS, ORDER_CLASSIFIER);
     for (ComponentInfo info : server.getComponentInfos()) {
@@ -142,6 +134,15 @@ public class DataComponentServerResource extends AbstractDataResource {
     out.put("infosByType", byType);
     out.put("uris", new WebHomeUris(uriInfo));
     return freemarker.build("data/componentserver.ftl", out);
+  }
+
+  private ComponentServer createServerInfo() {
+    ComponentServer server = new ComponentServer(URI.create("components"));
+    server.getComponentInfos().addAll(_remoteComponents);
+    for (RestComponent component : _localComponents) {
+      server.getComponentInfos().add(component.getInfo());
+    }
+    return server;
   }
 
   @Path("{type}/{classifier}")

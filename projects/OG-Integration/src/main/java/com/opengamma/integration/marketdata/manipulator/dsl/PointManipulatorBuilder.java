@@ -14,6 +14,7 @@ public class PointManipulatorBuilder {
 
   /** Selects the points to which the manipulations are applied. */
   private final PointSelector _selector;
+
   /** The scenario to which the manipulators are added */
   private final Scenario _scenario;
 
@@ -38,9 +39,23 @@ public class PointManipulatorBuilder {
    * Adds an action to the scenario to apply an absolute shift to a value.
    * @param shift The shift amount
    * @return This builder
+   * @deprecated Use {@link #shift(ScenarioShiftType, Number)}
    */
+  @Deprecated
   public PointManipulatorBuilder shift(Number shift) {
-    _scenario.add(_selector, new MarketDataShift(shift.doubleValue()));
+    _scenario.add(_selector, new MarketDataShift(ScenarioShiftType.ABSOLUTE, shift.doubleValue()));
+    return this;
+  }
+
+  /**
+   * Shifts the value.
+   * @param shiftType Whether the shift should be absolute or relative. A relative shift is expressed as an amount
+   * to add or subtract, e.g. 10% shift = value * 1.1, -20% shift = value * 0.8
+   * @param shift The amount of the shift
+   * @return This builder
+   */
+  public PointManipulatorBuilder shift(ScenarioShiftType shiftType, Number shift) {
+    _scenario.add(_selector, new MarketDataShift(shiftType, shift.doubleValue()));
     return this;
   }
 

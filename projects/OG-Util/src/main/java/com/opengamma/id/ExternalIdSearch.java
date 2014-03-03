@@ -563,6 +563,18 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1153096979:  // externalIds
+          return _externalIds;
+        case -710454014:  // searchType
+          return _searchType;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

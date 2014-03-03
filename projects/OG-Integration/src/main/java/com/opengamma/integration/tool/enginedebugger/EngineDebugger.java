@@ -76,6 +76,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EngineDebugger.class);
   
   private static final String DEFAULT_VALUE_REQUIREMENT = "Present Value";
@@ -87,15 +88,17 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   private List<LiveDataMetaDataProvider> _liveDataMetaDataProviders;
   private List<MarketDataSpecification> _marketDataSpecifications;
 
+  //-------------------------------------------------------------------------
   /**
-   * Launch the application.
-   * @param args  the main method arguments
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {
-    //new EngineDebugger().initialize();
-    new EngineDebugger().initAndRun(args, IntegrationToolContext.class);
+    new EngineDebugger().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Initialize the contents of the frame.
    * @wbp.parser.entryPoint

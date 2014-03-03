@@ -135,7 +135,10 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * The currency 'SGD' - Singapore Dollar
    */
   public static final Currency SGD = of("SGD");
-
+  /**
+   * The currency 'MXN' - Mexican Peso
+   */
+  public static final Currency MXN = of("MXN");
 
   /**
    * The currency code, not null.

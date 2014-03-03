@@ -105,7 +105,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
           final CDSAnalytic cds = new CDSAnalytic(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectionStart, RECOVERY_RATE);
           final AnalyticCDSPricer analPricer = new AnalyticCDSPricer();
           protectionLeg_new = NOTIONAL * analPricer.protectionLeg(cds, yieldCurve, res.creditCurve);
-          final double rpv01_clean_new = NOTIONAL * analPricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, res.creditCurve, PriceType.CLEAN);
+          final double rpv01_clean_new = NOTIONAL * analPricer.annuity(cds, yieldCurve, res.creditCurve, PriceType.CLEAN);
           premLeg_clean_new = res.fracSpread * rpv01_clean_new;
         } catch (final Exception e) {
         }

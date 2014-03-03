@@ -29,7 +29,21 @@ import com.opengamma.util.paging.PagingRequest;
  */
 @Scriptable
 public class SecurityFieldMappingTemplateGenerator extends AbstractTool<ToolContext> {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityFieldMappingTemplateGenerator.class);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(String[] args) {  // CSIGNORE
+    new SecurityFieldMappingTemplateGenerator().invokeAndTerminate(args);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     CSVWriter csvWriter = new CSVWriter(new FileWriter(getCommandLine().getArgs()[0]));
@@ -71,12 +85,5 @@ public class SecurityFieldMappingTemplateGenerator extends AbstractTool<ToolCont
     }
     csvWriter.writeNext(new String[] {});
   }
-  
-  /**
-   * Main method to run the tool.
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    new SecurityFieldMappingTemplateGenerator().initAndRun(args, ToolContext.class);
-    System.exit(0);
-  }
+
 }

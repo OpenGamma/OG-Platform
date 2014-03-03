@@ -19,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Class representing an overnight interest rate index.
@@ -33,13 +32,7 @@ public class OvernightIndex extends Index {
   /**
    * The index type.
    */
-  public static final String INDEX_TYPE = "OVERNIGHT";
-
-  /**
-   * A bundle of external ids for the tickers.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private ExternalIdBundle _tickerIds;
+  public static final String INDEX_TYPE = "OVERNIGHT_INDEX";
 
   /**
    * The external id of the convention.
@@ -56,24 +49,20 @@ public class OvernightIndex extends Index {
 
   /**
    * @param name The index name, not null
-   * @param tickerIds The bundle of ticker ids, not null
    * @param conventionId The convention id, not null
    */
-  public OvernightIndex(final String name, final ExternalIdBundle tickerIds, final ExternalId conventionId) {
+  public OvernightIndex(final String name, final ExternalId conventionId) {
     super(INDEX_TYPE, name);
-    setTickerIds(tickerIds);
     setConventionId(conventionId);
   }
 
   /**
    * @param name The index name, not null
    * @param description The description name, not null
-   * @param tickerIds The bundle of ticker ids, not null
    * @param conventionId The convention id, not null
    */
-  public OvernightIndex(final String name, final String description, final ExternalIdBundle tickerIds, final ExternalId conventionId) {
+  public OvernightIndex(final String name, final String description, final ExternalId conventionId) {
     super(INDEX_TYPE, name, description);
-    setTickerIds(tickerIds);
     setConventionId(conventionId);
   }
 
@@ -94,32 +83,6 @@ public class OvernightIndex extends Index {
   @Override
   public OvernightIndex.Meta metaBean() {
     return OvernightIndex.Meta.INSTANCE;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets a bundle of external ids for the tickers.
-   * @return the value of the property, not null
-   */
-  public ExternalIdBundle getTickerIds() {
-    return _tickerIds;
-  }
-
-  /**
-   * Sets a bundle of external ids for the tickers.
-   * @param tickerIds  the new value of the property, not null
-   */
-  public void setTickerIds(ExternalIdBundle tickerIds) {
-    JodaBeanUtils.notNull(tickerIds, "tickerIds");
-    this._tickerIds = tickerIds;
-  }
-
-  /**
-   * Gets the the {@code tickerIds} property.
-   * @return the property, not null
-   */
-  public final Property<ExternalIdBundle> tickerIds() {
-    return metaBean().tickerIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -161,8 +124,7 @@ public class OvernightIndex extends Index {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       OvernightIndex other = (OvernightIndex) obj;
-      return JodaBeanUtils.equal(getTickerIds(), other.getTickerIds()) &&
-          JodaBeanUtils.equal(getConventionId(), other.getConventionId()) &&
+      return JodaBeanUtils.equal(getConventionId(), other.getConventionId()) &&
           super.equals(obj);
     }
     return false;
@@ -171,14 +133,13 @@ public class OvernightIndex extends Index {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTickerIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionId());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("OvernightIndex{");
     int len = buf.length();
     toString(buf);
@@ -192,7 +153,6 @@ public class OvernightIndex extends Index {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("tickerIds").append('=').append(JodaBeanUtils.toString(getTickerIds())).append(',').append(' ');
     buf.append("conventionId").append('=').append(JodaBeanUtils.toString(getConventionId())).append(',').append(' ');
   }
 
@@ -207,11 +167,6 @@ public class OvernightIndex extends Index {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tickerIds} property.
-     */
-    private final MetaProperty<ExternalIdBundle> _tickerIds = DirectMetaProperty.ofReadWrite(
-        this, "tickerIds", OvernightIndex.class, ExternalIdBundle.class);
-    /**
      * The meta-property for the {@code conventionId} property.
      */
     private final MetaProperty<ExternalId> _conventionId = DirectMetaProperty.ofReadWrite(
@@ -221,7 +176,6 @@ public class OvernightIndex extends Index {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "tickerIds",
         "conventionId");
 
     /**
@@ -233,8 +187,6 @@ public class OvernightIndex extends Index {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -71213234:  // tickerIds
-          return _tickerIds;
         case 1520979052:  // conventionId
           return _conventionId;
       }
@@ -258,14 +210,6 @@ public class OvernightIndex extends Index {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tickerIds} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ExternalIdBundle> tickerIds() {
-      return _tickerIds;
-    }
-
-    /**
      * The meta-property for the {@code conventionId} property.
      * @return the meta-property, not null
      */
@@ -277,8 +221,6 @@ public class OvernightIndex extends Index {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -71213234:  // tickerIds
-          return ((OvernightIndex) bean).getTickerIds();
         case 1520979052:  // conventionId
           return ((OvernightIndex) bean).getConventionId();
       }
@@ -288,9 +230,6 @@ public class OvernightIndex extends Index {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -71213234:  // tickerIds
-          ((OvernightIndex) bean).setTickerIds((ExternalIdBundle) newValue);
-          return;
         case 1520979052:  // conventionId
           ((OvernightIndex) bean).setConventionId((ExternalId) newValue);
           return;
@@ -300,7 +239,6 @@ public class OvernightIndex extends Index {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((OvernightIndex) bean)._tickerIds, "tickerIds");
       JodaBeanUtils.notNull(((OvernightIndex) bean)._conventionId, "conventionId");
       super.validate(bean);
     }

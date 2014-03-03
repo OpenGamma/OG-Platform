@@ -27,6 +27,7 @@ import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolverWithBasicChangeManager;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
@@ -81,7 +82,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
 
   //-------------------------------------------------------------------------
   private HistoricalTimeSeriesResolver createUnderlying(final AtomicInteger hits) {
-    return new HistoricalTimeSeriesResolver() {
+    return new HistoricalTimeSeriesResolverWithBasicChangeManager() {
 
       @Override
       public HistoricalTimeSeriesResolutionResult resolve(final ExternalIdBundle identifierBundle, final LocalDate identifierValidityDate, final String dataSource, final String dataProvider,

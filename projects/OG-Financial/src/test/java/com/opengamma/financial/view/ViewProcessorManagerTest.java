@@ -168,11 +168,6 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public void clearViewExecutionCache() {
-      // do nothing
-    }
-
-    @Override
     public InMemoryNamedMarketDataSpecificationRepository getNamedMarketDataSpecificationRepository() {
       return null;
     }

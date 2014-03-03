@@ -10,6 +10,7 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.PropertyDefinition;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -32,16 +33,18 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class SpotRateReplace implements StructureManipulator<Double>, ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
-  private final Number _value;
+  private final Double _value;
 
   @ImmutableConstructor
   /* package */ SpotRateReplace(Number value) {
-    _value = ArgumentChecker.notNull(value, "value");
+    _value = ArgumentChecker.notNull(value, "value").doubleValue();
   }
 
   @Override
-  public Double execute(Double spotRate, ValueSpecification valueSpecification) {
-    return _value.doubleValue();
+  public Double execute(Double spotRate,
+                        ValueSpecification valueSpecification,
+                        FunctionExecutionContext executionContext) {
+    return _value;
   }
 
   @Override
@@ -91,7 +94,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
    * Gets the value.
    * @return the value of the property, not null
    */
-  public Number getValue() {
+  public Double getValue() {
     return _value;
   }
 
@@ -150,8 +153,8 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
     /**
      * The meta-property for the {@code value} property.
      */
-    private final MetaProperty<Number> _value = DirectMetaProperty.ofImmutable(
-        this, "value", SpotRateReplace.class, Number.class);
+    private final MetaProperty<Double> _value = DirectMetaProperty.ofImmutable(
+        this, "value", SpotRateReplace.class, Double.class);
     /**
      * The meta-properties.
      */
@@ -194,7 +197,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
      * The meta-property for the {@code value} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Number> value() {
+    public MetaProperty<Double> value() {
       return _value;
     }
 
@@ -225,7 +228,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SpotRateReplace> {
 
-    private Number _value;
+    private Double _value;
 
     /**
      * Restricted constructor.
@@ -243,10 +246,20 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 111972721:  // value
+          return _value;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 111972721:  // value
-          this._value = (Number) newValue;
+          this._value = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -290,7 +303,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
      * @param value  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder value(Number value) {
+    public Builder value(Double value) {
       JodaBeanUtils.notNull(value, "value");
       this._value = value;
       return this;

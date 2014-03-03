@@ -10,6 +10,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -57,7 +58,9 @@ public class MarketDataPointRandomizingManipulator implements StructureManipulat
   }
 
   @Override
-  public Double execute(Double structure, ValueSpecification valueSpecification) {
+  public Double execute(Double structure,
+                        ValueSpecification valueSpecification,
+                        FunctionExecutionContext executionContext) {
     return structure * randomFactor();
   }
 

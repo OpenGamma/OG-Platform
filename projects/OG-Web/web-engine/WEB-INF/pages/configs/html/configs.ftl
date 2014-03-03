@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Configurations">
+<@page title="Configurations" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Config search -->
@@ -32,7 +32,7 @@
 
 <#-- SECTION Add config -->
 <@section title="Add config">
-  <@form method="POST" action="${uris.configs()}">
+  <@form method="POST" action="${uris.configs()}" id="addConfigForm">
   <p>
     <@rowin label="Name"><input type="text" size="30" name="name" value="" /></@rowin>
     <@rowin label="Type">
@@ -41,10 +41,14 @@
         <#list configDescriptionMap?keys as key><option value="${key}">${configDescriptionMap[key]}</option></#list>
       </select>
     </@rowin>
+    
     <@rowin label="Configuration (XML)">
-      <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="configxml" id="xmltextarea"></textarea></div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
+    <@rowin><input type="hidden" name="configXML" id="config-xml"/></@rowin>
     <@rowin><input type="submit" value="Add" /></@rowin>
+    
+    <#noescape><@xmlEditorScript formId="addConfigForm" inputId="config-xml"></@xmlEditorScript></#noescape>  
   </p>
   </@form>
 </@section>

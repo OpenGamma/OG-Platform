@@ -338,6 +338,20 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1265009317:  // fieldName
+          return _fieldName;
+        case 567970967:  // fieldValue
+          return _fieldValue;
+        case -938102371:  // rating
+          return _rating;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1265009317:  // fieldName

@@ -12,8 +12,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
@@ -30,17 +28,19 @@ import com.opengamma.scripts.Scriptable;
  */
 @Scriptable
 public class ConfigValidationTool extends AbstractTool<ToolContext> {
-  private static final Logger s_logger = LoggerFactory.getLogger(ConfigValidationTool.class);
+  
   private static final String ERRORS_PARTIAL_GRAPH_OPTION = "errors-partial-graph";
   private static final String ERRORS_FULL_GRAPH_OPTION = "errors-full-graph";
   private static final String VERBOSE_OPTION = "verbose";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
-    new ConfigValidationTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ConfigValidationTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -59,7 +59,12 @@ public class ConfigValidationTool extends AbstractTool<ToolContext> {
     if (verbose) {
       System.out.println("Starting validation...");
     }
-    List<ValidationNode> validateNewCurveSetup = curveValidator.validateNewCurveSetup();
+    curveValidator.validateNewCurveSetup();
+    if (verbose) {
+      System.out.println("CurveConstructionConfiguration and linked objects");
+      System.out.println("-------------------------------------------------");
+    }
+    List<ValidationNode> validateNewCurveSetup = curveValidator.getCurveConstructionConfigResults();
     for (ValidationNode node : validateNewCurveSetup) {
       if (verbose) {
         if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
@@ -82,7 +87,36 @@ public class ConfigValidationTool extends AbstractTool<ToolContext> {
         System.out.println(ValidationTextFormatter.formatTree(node));
       }     
     }
-    System.out.println("Finished validation");
+    if (verbose) {
+      System.out.println("ExposureFunctions");
+      System.out.println("-----------------");
+    }
+    List<ValidationNode> validateExposureConfigs = curveValidator.getExposureFunctionsConfigResults();
+    for (ValidationNode node : validateExposureConfigs) {
+      if (verbose) {
+        if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
+          System.out.println("Exposure functions configuration " + node.getName() + " has errors and/or warnings");
+        } else {
+          System.out.println("Exposure functions configuration " + node.getName() + " is good");
+        }
+      }
+      if (commandLine.hasOption(ERRORS_PARTIAL_GRAPH_OPTION)) {
+        if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
+          ValidationTreeUtils.propagateErrorsAndWarningsUp(node);
+          ValidationTreeUtils.discardNonErrors(node);
+          System.out.println(ValidationTextFormatter.formatTree(node));
+        }
+      } else if (commandLine.hasOption(ERRORS_FULL_GRAPH_OPTION)) {
+        if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
+          System.out.println(ValidationTextFormatter.formatTree(node));
+        }        
+      } else {
+        System.out.println(ValidationTextFormatter.formatTree(node));
+      }     
+    }    
+    if (verbose) {
+      System.out.println("Finished validation");
+    }
   }
   
   @Override

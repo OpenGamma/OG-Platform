@@ -7,8 +7,6 @@ package com.opengamma.integration.tool.portfolio;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
@@ -22,19 +20,19 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class PortfolioInfoTool extends AbstractTool<IntegrationToolContext> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioInfoTool.class);
-
   private static final String PORTFOLIO_NAME = "n";
 
+  //-------------------------------------------------------------------------
   /**
-   * Runs the tool.
-   *
-   * @param args  empty arguments
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new PortfolioInfoTool().initAndRun(args, IntegrationToolContext.class);
+    new PortfolioInfoTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     PortfolioReader portfolioReader = new MasterPortfolioReader(getCommandLine().getOptionValue(PORTFOLIO_NAME),

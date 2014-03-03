@@ -10,6 +10,7 @@
     <table>
       <tr><td>OpenGamma version</td><td>${about.openGammaVersion}</td></tr>
       <tr><td>OpenGamma build</td><td>${about.openGammaBuild}</td></tr>
+      <tr><td>OpenGamma build ID</td><td>${about.openGammaBuildId}</td></tr>
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
       <tr><td>Time</td><td>${now.toInstant()} (UTC)</td></tr>
       <tr><td>Zoned time</td><td>${now}</td></tr>
@@ -78,10 +79,8 @@
 <#-- SECTION Links -->
 <@section title="Links">
   <p>
-<#if uris.about()??>
     <a href="${uris.home()}">Return home</a><br />
-</#if>
-<#if uris.components()??>
+<#if uris.components()?has_content>
     <a href="${uris.components()}">View the components</a><br />
 </#if>
   </p>

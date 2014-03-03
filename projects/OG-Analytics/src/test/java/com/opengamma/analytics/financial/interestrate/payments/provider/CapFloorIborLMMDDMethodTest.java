@@ -120,7 +120,7 @@ public class CapFloorIborLMMDDMethodTest {
     final double timeDependentFactor = Math.sqrt((Math.exp(2 * PARAMETERS_LMM.getMeanReversion() * CAP_LAST.getFixingTime()) - 1.0) / (2.0 * PARAMETERS_LMM.getMeanReversion()));
     volatility *= timeDependentFactor;
     final double displacement = PARAMETERS_LMM.getDisplacement()[index];
-    final double forward = MULTICURVES.getForwardRate(CAP_LAST.getIndex(), CAP_LAST.getFixingPeriodStartTime(), CAP_LAST.getFixingPeriodEndTime(), CAP_LAST.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(CAP_LAST.getIndex(), CAP_LAST.getFixingPeriodStartTime(), CAP_LAST.getFixingPeriodEndTime(), CAP_LAST.getFixingAccrualFactor());
     final double beta = (1.0 + CAP_LAST.getFixingAccrualFactor() * forward) * MULTICURVES.getDiscountFactor(EUR, CAP_LAST.getFixingPeriodEndTime())
         / MULTICURVES.getDiscountFactor(EUR, CAP_LAST.getFixingPeriodStartTime());
     final double strikeAdjusted = (STRIKE - (beta - 1) / CAP_LAST.getFixingAccrualFactor()) / beta;

@@ -15,6 +15,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.id.ExternalId;
@@ -30,6 +31,8 @@ import com.opengamma.util.ArgumentChecker;
  * The swap notional for each leg is 1.
  */
 public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
+  /** The security source */
+  private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -44,6 +47,7 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
   private final ZonedDateTime _valuationTime;
 
   /**
+   * @param securitySource The security source, not null
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
@@ -51,14 +55,16 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
    */
-  public ThreeLegBasisSwapNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+  public ThreeLegBasisSwapNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
+    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -75,11 +81,11 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
     final Period startTenor = threeLegBasisSwapNode.getStartTenor().getPeriod();
     final Period maturityTenor = threeLegBasisSwapNode.getMaturityTenor().getPeriod();
     final AnnuityDefinition<?>[] legs = new AnnuityDefinition[3];
-    legs[0] = NodeConverterUtils.getSwapLeg(spreadLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
+    legs[0] = NodeConverterUtils.getSwapLeg(spreadLegConvention, startTenor, maturityTenor, _securitySource, _regionSource, _holidaySource, _conventionSource, 
         _marketData, _dataId, _valuationTime, true, false, false, 1.0); // Spread leg
-    legs[1] = NodeConverterUtils.getSwapLeg(payLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
+    legs[1] = NodeConverterUtils.getSwapLeg(payLegConvention, startTenor, maturityTenor, _securitySource, _regionSource, _holidaySource, _conventionSource, 
         _marketData, _dataId, _valuationTime, true, false, false, 1.0); // Leg associated to the spread (same pay/receive)
-    legs[2] = NodeConverterUtils.getSwapLeg(receiveLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
+    legs[2] = NodeConverterUtils.getSwapLeg(receiveLegConvention, startTenor, maturityTenor, _securitySource, _regionSource, _holidaySource, _conventionSource, 
         _marketData, _dataId, _valuationTime, false, false, false, 1.0); // Other leg
     return new SwapMultilegDefinition(legs);
   }

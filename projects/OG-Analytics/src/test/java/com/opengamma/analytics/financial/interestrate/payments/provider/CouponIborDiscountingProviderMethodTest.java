@@ -59,7 +59,7 @@ public class CouponIborDiscountingProviderMethodTest {
   @Test
   public void presentValueMarketDiscount() {
     final MultipleCurrencyAmount pvComputed = METHOD_CPN_IBOR.presentValue(CPN_IBOR, MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CPN_IBOR.getFixingPeriodStartTime(), CPN_IBOR.getFixingPeriodEndTime(), CPN_IBOR.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CPN_IBOR.getFixingPeriodStartTime(), CPN_IBOR.getFixingPeriodEndTime(), CPN_IBOR.getFixingAccrualFactor());
     final double df = MULTICURVES.getDiscountFactor(EURIBOR3M.getCurrency(), CPN_IBOR.getPaymentTime());
     final double pvExpected = NOTIONAL * ACCRUAL_FACTOR * forward * df;
     assertEquals("CouponIborDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EURIBOR3M.getCurrency()), TOLERANCE_PV);

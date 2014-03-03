@@ -28,11 +28,16 @@ import com.opengamma.util.money.Currency;
 @Scriptable
 public class ExampleHolidayLoader extends AbstractTool<ToolContext> {
 
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleHolidayLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleHolidayLoader().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a simple holiday calendar directly and stores it into the master.
    * <p>

@@ -64,7 +64,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for curve-specific risks of swaptions priced with the Black method.
- * 
+ *
  * @deprecated Use descendants of {@link BlackDiscountingSwaptionFunction}
  */
 @Deprecated
@@ -89,14 +89,14 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
     _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
@@ -131,7 +131,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     }
     final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {
-      fullCurveNames[i] = curveNames[i] + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
     }
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final InstrumentDerivative swaption = _definitionConverter.convert(security, definition, now, fullCurveNames, timeSeries);
@@ -207,7 +207,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   /**
    * Calculates the desired results.
-   * 
+   *
    * @param swaption The swaption
    * @param data The yield curve and surface data
    * @param spec The result specification
@@ -223,7 +223,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   /**
    * Gets the security converter.
-   * 
+   *
    * @return The security converter
    */
   protected SwaptionSecurityConverterDeprecated getSecurityConverter() {
@@ -232,20 +232,24 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   /**
    * Gets the definition converter.
-   * 
+   *
    * @return The definition converter
    */
   protected FixedIncomeConverterDataProvider getDefinitionConverter() {
     return _definitionConverter;
   }
 
+  /**
+   * Gets the curve calculation configuration source.
+   * @return The curve calculation configuration source
+   */
   protected ConfigDBCurveCalculationConfigSource getCurveCalculationConfigSource() {
     return _curveCalculationConfigSource;
   }
 
   /**
    * Gets the result properties.
-   * 
+   *
    * @param currency The currency
    * @return The result properties
    */
@@ -256,7 +260,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   /**
    * Gets the result properties.
-   * 
+   *
    * @param currency The currency
    * @param curveCalculationConfigName The curve calculation configuration name
    * @param surfaceName The surface name
@@ -271,7 +275,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   /**
    * Gets the volatility surface requirement.
-   * 
+   *
    * @param surface The surface name
    * @param currency The currency of the surface requirement target
    * @return The volatility surface requirement

@@ -29,9 +29,11 @@ import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * {@link Result} indicating a failure with multiple underlying causes.
- * An example of this might be a function calling several other functions when there is no market data available,
- * causing them all to fail. If all underlying results have the same status this result will use that status.
+ * A result indicating a failure with multiple underlying causes.
+ * <p>
+ * An example of this might be a function calling several other functions when
+ * there is no market data available, causing them all to fail.
+ * If all underlying results have the same status this result will use that status.
  * If they have different statues the status of this result will be {@link FailureStatus#MULTIPLE}.
  *
  * @param <T> the type of the underlying result for a successful invocation
@@ -39,15 +41,27 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
 
+  /**
+   * The failures.
+   */
   @PropertyDefinition(validate = "notNull")
   private final List<Result<?>> _failures;
-
+  /**
+   * The failed messages.
+   */
   @PropertyDefinition(validate = "notNull")
   private final String _failureMessage;
-
+  /**
+   * The status.
+   */
   @PropertyDefinition(validate = "notNull")
   private final FailureStatus _status;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param failures  the failures, not null
+   */
   /* package */ MultipleFailureResult(List<Result<?>> failures) {
     _failures = ImmutableList.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
     List<String> messages = Lists.newArrayListWithCapacity(failures.size());
@@ -65,6 +79,7 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     _failureMessage = StringUtils.join(messages, "\n");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public T getValue() {
     throw new IllegalStateException("Unable to get a value from a failure result");
@@ -150,7 +165,7 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the failureMessage.
+   * Gets the failed messages.
    * @return the value of the property, not null
    */
   public String getFailureMessage() {
@@ -370,6 +385,20 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 675938345:  // failures
+          return _failures;
+        case -1704954083:  // failureMessage
+          return _failureMessage;
+        case -892481550:  // status
+          return _status;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder<T> set(String propertyName, Object newValue) {

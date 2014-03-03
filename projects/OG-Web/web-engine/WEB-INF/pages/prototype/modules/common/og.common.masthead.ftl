@@ -29,7 +29,7 @@
                     <td>
                         <header>Static Data</header>
                         <ul>
-                            <li><a href="admin.ftl#/holidays">Calendars</a></li>
+                            <li><a href="admin.ftl#/holidays">Holidays</a></li>
                             <li><a href="admin.ftl#/regions/">Regions</a></li>
                         </ul>
                         <header>Other</header>

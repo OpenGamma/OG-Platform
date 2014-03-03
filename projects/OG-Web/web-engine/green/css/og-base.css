@@ -145,6 +145,7 @@ img {
 .dat {
   color: #000;
   display: inline-block;
+  width: 100%;
 }
 
 
@@ -189,7 +190,10 @@ img {
   text-decoration: none;
 }
 
-
+#ace-xml-editor {
+  height: 500px;
+  width: 100%;
+}
 
 /*
  * Common errors 

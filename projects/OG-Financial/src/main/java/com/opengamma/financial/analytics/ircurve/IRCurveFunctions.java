@@ -18,7 +18,6 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.VersionedFunctionConfigurationBean;
 import com.opengamma.financial.analytics.BucketedPV01Function;
-import com.opengamma.financial.analytics.ISINFunction;
 import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
@@ -30,6 +29,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveSeriesFunction;
 import com.opengamma.financial.config.ConfigMasterChangeProvider;
+import com.opengamma.financial.security.function.ISINFunction;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -97,7 +97,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
     protected void addYieldCurveFunctions(final List<FunctionConfiguration> functions, final String currency, final String curveName) {
       functions.add(functionConfiguration(YieldCurveMarketDataFunction.class, currency, curveName));
       functions.add(functionConfiguration(YieldCurveInterpolatingFunction.class, currency, curveName));
-      functions.add(functionConfiguration(YieldCurveSpecificationFunction.class, currency, curveName));
+      functions.add(functionConfiguration(YieldCurveDataFunction.class, currency, curveName));
     }
 
     protected void addCurveFunctions(final List<FunctionConfiguration> functions, final String curveName) {

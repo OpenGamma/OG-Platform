@@ -102,14 +102,7 @@ public class PortfolioLoaderResource {
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.TEXT_PLAIN)
   @SuppressWarnings("resource")
-  public Response uploadPortfolio(FormDataMultiPart formData
-                                  // TODO not sure why these don't work
-                                  //@FormDataParam("file") FormDataBodyPart fileBodyPart,
-                                  //@FormDataParam("file") InputStream fileStream,
-                                  //@FormDataParam("portfolioName") String portfolioName,
-                                  //@FormDataParam("dataField") String dataField
-                                  //@FormDataParam("dataProvider") String dataProvider
-  ) throws IOException {
+  public Response uploadPortfolio(FormDataMultiPart formData) throws IOException {
     FormDataBodyPart fileBodyPart = getBodyPart(formData, "file");
     FormDataBodyPart filexmlBodyPart = getBodyPart(formData, "filexml");
 
@@ -128,14 +121,14 @@ public class PortfolioLoaderResource {
       String dataField = getString(formData, "dataField");
       String dataProvider = getString(formData, "dataProvider");
       String portfolioName = getString(formData, "portfolioName");
-      String dateFormatter = getString(formData, "dateFormat");
+      String dateFormatName = getString(formData, "dateFormat");
       // fields can be separated by whitespace or a comma with whitespace
       String[] dataFields = dataField.split("(\\s*,\\s*|\\s+)");
 
       s_logger.info("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, dataProvider: {}",
-                    new Object[]{fileName, portfolioName, dataField, dataProvider});
+                    fileName, portfolioName, dataField, dataProvider);
 
-      if (!(fileEntity instanceof BodyPartEntity)) {
+      if (fileEntity == null) {
         throw new WebApplicationException(Response.Status.BAD_REQUEST);
       }
       final ResolvingPortfolioCopier copier = new ResolvingPortfolioCopier(_historicalTimeSeriesMaster,
@@ -146,14 +139,8 @@ public class PortfolioLoaderResource {
       final PortfolioWriter portfolioWriter =
           new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster, _securityMaster, false, false, true);
       SheetFormat format = getFormatForFileName(fileName);
-      DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-      try {
-        builder.appendPattern(dateFormatter);
-      } catch (IllegalArgumentException iae) {
-        throw new WebApplicationException(Response.Status.BAD_REQUEST);
-      }
-      DateTimeFormatter dateTimeFormatter = builder.toFormatter();
-      RowParser rowParser = new ExchangeTradedRowParser(_securityProvider, dateTimeFormatter);
+      ExchangeTradedRowParser.DateFormat dateFormat = Enum.valueOf(ExchangeTradedRowParser.DateFormat.class, dateFormatName);
+      RowParser rowParser = new ExchangeTradedRowParser(_securityProvider, dateFormat);
       final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
       StreamingOutput streamingOutput = new StreamingOutput() {
         @Override

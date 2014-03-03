@@ -24,7 +24,9 @@ public class CalendarECBSettlements extends ExceptionCalendar {
    */
   private static final LocalDate SETTLE[] = new LocalDate[] {LocalDate.of(2013, 5, 8), LocalDate.of(2013, 10, 9), LocalDate.of(2013, 11, 13), LocalDate.of(2013, 12, 11),
     LocalDate.of(2014, 1, 15), LocalDate.of(2014, 2, 12), LocalDate.of(2014, 3, 12), LocalDate.of(2014, 4, 9), LocalDate.of(2014, 5, 14), LocalDate.of(2014, 6, 11),
-    LocalDate.of(2014, 7, 9), LocalDate.of(2014, 8, 13), LocalDate.of(2014, 9, 10), LocalDate.of(2014, 10, 8), LocalDate.of(2014, 11, 12), LocalDate.of(2014, 12, 10) };
+    LocalDate.of(2014, 7, 9), LocalDate.of(2014, 8, 13), LocalDate.of(2014, 9, 10), LocalDate.of(2014, 10, 8), LocalDate.of(2014, 11, 12), LocalDate.of(2014, 12, 10),
+    LocalDate.of(2015, 1, 14), LocalDate.of(2015, 2, 11), LocalDate.of(2015, 3, 11), LocalDate.of(2015, 4, 8), LocalDate.of(2015, 5, 13), LocalDate.of(2015, 6, 9),
+    LocalDate.of(2015, 7, 8), LocalDate.of(2015, 8, 12), LocalDate.of(2015, 9, 9), LocalDate.of(2015, 10, 14), LocalDate.of(2015 , 11, 11), LocalDate.of(2015, 12, 9) };
 
   private static final String NAME = "ECB decision settlement dates";
 

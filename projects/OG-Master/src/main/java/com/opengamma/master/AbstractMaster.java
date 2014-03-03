@@ -190,7 +190,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * Replaces a single version of the document in the data store.
    * <p>
    * This applies a correction that replaces a single version in the data store
-   * with the specified list.
+   * with the specified document.
    * This is equivalent to calling {@link #replaceVersion(UniqueId, List)} with a single
    * element list of the specified document.
    * <p>

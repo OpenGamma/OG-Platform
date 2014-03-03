@@ -11,12 +11,15 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.digest.SecurityTypeTargetDigests;
 import com.opengamma.engine.target.digest.TargetDigests;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -326,6 +329,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
     return _capFloorSecurity.get(security.getCurrency());
   }
 
+  private final Digests _cashBalanceSecurity = new Digests("Security");
+
+  @Override
+  public Object visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return _cashBalanceSecurity.get(security.getCurrency());
+  }
+
   private final Digests _cashSecurity = new Digests("Security");
 
   @Override
@@ -473,6 +483,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
     return _forwardSwapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
   }
 
+  private final Digests _billSecurity = new Digests("Security");
+
+  @Override
+  public Object visitBillSecurity(final BillSecurity security) {
+    return _billSecurity.get(security.getCurrency());
+  }
+
   private final Digests _governmentBondSecurity = new Digests("Security");
 
   @Override
@@ -560,6 +577,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return _fxVolatilitySwapSecurity.get(security.getCurrency());
+  }
+
+  private final Digests _floatingRateNoteSecurity = new Digests("Security");
+
+  @Override
+  public Object visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return _floatingRateNoteSecurity.get(security.getCurrency());
   }
 
   // NotionalVisitor

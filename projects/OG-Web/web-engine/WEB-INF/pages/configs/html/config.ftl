@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Configuration - ${configDoc.name}">
+<@page title="Configuration - ${configDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This configuration has been deleted</p>
@@ -24,26 +24,16 @@
 
 <#-- SECTION Update config -->
 <@section title="Update configuration" if=!deleted>
-  <@form method="PUT" action="${uris.config()}">
+  <@form method="PUT" action="${uris.config()}" id="updateConfigForm">
   <p>
-    <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${configDoc.name}" /></@rowin>
+    <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${configDoc.name}"/></@rowin>
     <@rowin label="Configuration (XML)">
-      <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="configxml" id="xmltextarea">${configXml}</textarea></div>
+      <div id="ace-xml-editor"></div>
     </@rowin>
+    <input type="hidden" name="configXML" id="config-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
-<script type="text/javascript" src="/js/lib/codemirror/codemirror.js"></script>
-<script type="text/javascript">
-var editor = CodeMirror.fromTextArea("xmltextarea", {
-  parserfile: ["parsexml.js"],
-  path: "/js/lib/codemirror/",
-  stylesheet: "/css/lib/codemirror/xmlcolors.css",
-  width: "650px",
-  height: "dynamic",
-  minHeight: "300",
-  reindentOnLoad: true,
-  iframeClass: "xmleditor"
-});
-</script>
+    
+    <#noescape><@xmlEditorScript formId="updateConfigForm" inputId="config-xml" xmlValue="${configXML}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>

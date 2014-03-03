@@ -75,13 +75,11 @@
       <groupId>org.jdesktop</groupId>
       <artifactId>appframework</artifactId>
       <version>1.0.3</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.swinglabs.swingx</groupId>
       <artifactId>swingx-core</artifactId>
       <version>1.6.5</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.derby</groupId>
@@ -132,6 +130,7 @@
                 <licenseMerge>New BSD License|BSD 3-clause</licenseMerge>
               </licenseMerges>
               <useMissingFile>true</useMissingFile>
+              <useRepositoryMissingFiles>false</useRepositoryMissingFiles>
             </configuration>
           </reportSet>
         </reportSets>

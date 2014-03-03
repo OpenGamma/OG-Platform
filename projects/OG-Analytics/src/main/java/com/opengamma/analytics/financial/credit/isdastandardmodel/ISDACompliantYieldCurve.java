@@ -65,7 +65,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
    * A curve in which the knots are measured (in fractions of a year) from a particular base-date but the curve is 'observed'
    * from a different base-date. As an example<br>
    * Today (the observation point) is 11-Jul-13, but the yield curve is snapped (bootstrapped from money market and swap rates)
-   * on 10-Jul-13 - seen from today there is an offset of -1/365 (assuming a day count of ACT/365) that must be applied to use
+   * on 10-Jul-13 - seen from the original base date (10-Jul-13) there is an offset of 1/365 (assuming a day count of ACT/365) that must be applied to use
    * the yield curve today.  <br>
    * In general, a discount curve observed at time $t_1$ can be written as $P(t_1,T)$. Observed from time $t_2$ this is
    * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$

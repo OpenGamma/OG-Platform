@@ -31,6 +31,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolverWithBasicChangeManager;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
@@ -44,7 +45,7 @@ import com.sun.jersey.api.client.UniformInterface;
 @Test(groups = TestGroup.UNIT)
 public class RemoteHistoricalTimeSeriesResolverTest {
 
-  private static class MockResolver implements HistoricalTimeSeriesResolver {
+  private static class MockResolver extends HistoricalTimeSeriesResolverWithBasicChangeManager {
 
     private ExternalIdBundle _identifierBundle;
     private LocalDate _identifierValidityDate;

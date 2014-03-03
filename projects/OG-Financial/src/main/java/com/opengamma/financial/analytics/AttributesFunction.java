@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +46,16 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
     final String attributeName = properties.getSingleValue(PROPERTY_ATTRIBUTE_NAME);
     final Security security = target.getSecurity();
     final Map<String, String> attributes = security.getAttributes();
-    final String result = attributes.get(attributeName);
+    String result = attributes.get(attributeName);
+    if (result == null) {
+      if (security instanceof Bean) {
+        Bean ms = (Bean) security;
+        MetaBean metaBean = ms.metaBean();
+        if (metaBean.metaPropertyExists(attributeName)) {
+          result = metaBean.metaProperty(attributeName).getString(ms);
+        }
+      }
+    }
     if (result == null) {
       throw new OpenGammaRuntimeException("Could not get value for attribute " + attributeName);
     }
@@ -58,16 +70,26 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Map<String, String> attributes = target.getSecurity().getAttributes();
-    if (attributes.isEmpty()) {
+    final Security security = target.getSecurity();
+    final Map<String, String> attributes = security.getAttributes();
+    if (attributes.isEmpty() && !(security instanceof Bean)) {
+      // No explicit attributes, and can't query a non-Bean security
       return null;
     }
     final ValueProperties.Builder properties = createValueProperties();
-    for (String attribute : attributes.keySet()) {
-      properties.with(PROPERTY_ATTRIBUTE_NAME, attribute);
+    if (!attributes.isEmpty()) {
+      for (String attribute : attributes.keySet()) {
+        properties.with(PROPERTY_ATTRIBUTE_NAME, attribute);
+      }
+    }
+    if (security instanceof Bean) {
+      Bean bean = (Bean) security;
+      MetaBean metaBean = bean.metaBean();
+      for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
+        properties.with(PROPERTY_ATTRIBUTE_NAME, property.name());
+      }
     }
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties.get()));
-
   }
 
   @Override

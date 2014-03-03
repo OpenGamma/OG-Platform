@@ -6,6 +6,7 @@
 package com.opengamma.examples.simulated.generator;
 
 import com.opengamma.lambdava.functions.Function2;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -41,30 +42,25 @@ public class SyntheticPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
   }
 
   public static void main(final String[] args) { // CSIGNORE
-    (new AbstractTool<ToolContext>() {
-
+    AbstractTool<ToolContext> tool = new AbstractTool<ToolContext>() {
       private final SyntheticPortfolioGeneratorTool _instance = new SyntheticPortfolioGeneratorTool();
-
       @Override
       protected Options createOptions(boolean mandatoryConfigArg) {
         final Options options = super.createOptions(mandatoryConfigArg);
         _instance.createOptions(options);
         return options;
       }
-
       @Override
       protected void doRun() throws Exception {
         final CommandLine commandLine = getCommandLine();
         _instance.run(getToolContext(), commandLine);
       }
-
       @Override
       protected Class<?> getEntryPointClass() {
         return SyntheticPortfolioGeneratorTool.class;
       }
-
-    }).initAndRun(args, ToolContext.class);
-    System.exit(0);
+    };
+    tool.invokeAndTerminate(args);
   }
 
 }

@@ -27,6 +27,8 @@ import com.opengamma.util.time.Tenor;
 public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper> {
   /** The name field */
   public static final String NAME_FIELD = "name";
+  /** The bill ids field */
+  public static final String BILL_NODE_FIELD = "billIds";
   /** The bond ids field */
   public static final String BOND_NODE_FIELD = "bondIds";
   /** The cash ids field */
@@ -61,6 +63,9 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final MutableFudgeMsg message = serializer.newMessage();
     message.add(null, 0, object.getClass().getName());
     message.add(NAME_FIELD, object.getName());
+    if (object.getBillNodeIds() != null) {
+      message.add(BILL_NODE_FIELD, getMessageForField(serializer, object.getBillNodeIds()));
+    }
     if (object.getBondNodeIds() != null) {
       message.add(BOND_NODE_FIELD, getMessageForField(serializer, object.getBondNodeIds()));
     }
@@ -109,11 +114,12 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   @Override
   public CurveNodeIdMapper buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String name;
-    if (message.hasField(NAME_FIELD)) {
+  if (message.hasField(NAME_FIELD)) {
       name = message.getString(NAME_FIELD);
     } else {
       name = null;
     }
+    final Map<Tenor, CurveInstrumentProvider> billNodeIds = getMapForField(BILL_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> bondNodeIds = getMapForField(BOND_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> cashNodeIds = getMapForField(CASH_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds = getMapForField(CONTINUOUSLY_COMPOUNDED_NODE_FIELD, deserializer, message);
@@ -129,6 +135,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds = getMapForField(THREE_LEG_BASIS_SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = getMapForField(ZERO_COUPON_INFLATION_NODE_FIELD, deserializer, message);
     final CurveNodeIdMapper idMapper = CurveNodeIdMapper.builder().
+        billNodeIds(billNodeIds).
         bondNodeIds(bondNodeIds).
         cashNodeIds(cashNodeIds).
         continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateNodeIds).

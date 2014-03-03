@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.OpenGammaRuntimeException;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -59,6 +60,9 @@ public class IntegrationToolContext extends ToolContext implements BloombergTool
   private DependencyGraphTraceProvider _dependencyGraphTraceProvider;
   
   public List<LiveDataMetaDataProvider> getLiveDataMetaDataProviders() {
+    if (_componentServer == null) {
+      throw new OpenGammaRuntimeException("ComponentServer null, tool must be run against a running server, e.g '-c http://localhost:8080'");
+    }
     List<ComponentInfo> componentInfos = _componentServer.getComponentInfos(LiveDataMetaDataProvider.class);
     List<LiveDataMetaDataProvider> results = new ArrayList<>();
     for (ComponentInfo info : componentInfos) {

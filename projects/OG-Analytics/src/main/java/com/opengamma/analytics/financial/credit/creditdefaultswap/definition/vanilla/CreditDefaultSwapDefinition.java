@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -64,9 +65,9 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
   private final BuySellProtection _buySellProtection;
 
   // The (three) counterparties in the trade
-  private final Obligor _protectionBuyer;
-  private final Obligor _protectionSeller;
-  private final Obligor _referenceEntity;
+  private final LegalEntity _protectionBuyer;
+  private final LegalEntity _protectionSeller;
+  private final LegalEntity _referenceEntity;
 
   // The currency the trade is executed in e.g. USD
   private final Currency _currency;
@@ -158,7 +159,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
    * @param includeAccruedPremium If true accrued premium must be paid in the event of default
    * @param protectionStart if true the protection is from the start of day 
    */
-  public CreditDefaultSwapDefinition(final BuySellProtection buySellProtection, final Obligor protectionBuyer, final Obligor protectionSeller, final Obligor referenceEntity, final Currency currency,
+  public CreditDefaultSwapDefinition(final BuySellProtection buySellProtection, final LegalEntity protectionBuyer, final LegalEntity protectionSeller, final LegalEntity referenceEntity, final Currency currency,
       final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final Calendar calendar, final ZonedDateTime startDate, final ZonedDateTime effectiveDate,
       final ZonedDateTime maturityDate, final StubType stubType, final PeriodFrequency couponFrequency, final DayCount daycountFractionConvention,
       final BusinessDayConvention businessdayAdjustmentConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate, final boolean adjustMaturityDate, final double notional,
@@ -241,7 +242,7 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
     _protectionStart = protectionStart;
 
     // REVIEW 29/8/2012 think about using UniqueId instead of _creditKey
-    _creditKey = _referenceEntity.getObligorTicker() + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
+    _creditKey = _referenceEntity.getTicker() + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
@@ -266,15 +267,15 @@ public abstract class CreditDefaultSwapDefinition implements CreditInstrumentDef
     return _buySellProtection;
   }
 
-  public Obligor getProtectionBuyer() {
+  public LegalEntity getProtectionBuyer() {
     return _protectionBuyer;
   }
 
-  public Obligor getProtectionSeller() {
+  public LegalEntity getProtectionSeller() {
     return _protectionSeller;
   }
 
-  public Obligor getReferenceEntity() {
+  public LegalEntity getReferenceEntity() {
     return _referenceEntity;
   }
 

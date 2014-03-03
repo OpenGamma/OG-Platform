@@ -39,7 +39,7 @@ public abstract class HorizonCalculator<U extends InstrumentDefinition<?>, V ext
    * @param date The calculation date, not null
    * @param data The initial yield curve data, not null
    * @param daysForward The number of days to roll, must be +/-1
-   * @param calendar The holiday calendar, not null
+   * @param calendar The holiday calendar, may be null
    * @param additionalData Any additional data that are needed for pricing (e.g. fixing series for swaps).
    * @return The theta
    */

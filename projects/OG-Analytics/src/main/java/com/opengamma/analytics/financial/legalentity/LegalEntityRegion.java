@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.legalentity;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,6 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.types.ParameterizedTypeImpl;
+import com.opengamma.util.types.VariantType;
 
 /**
  * Gets the region or sub-fields of the region of an {@link LegalEntity}.
@@ -83,8 +86,7 @@ public class LegalEntityRegion implements LegalEntityFilter<LegalEntity>, Bean {
    * @param useCurrencies True if the countries are to be used as a filter
    * @param currencies A set of currencies to be used as a filter, not null. Can be empty
    */
-  public LegalEntityRegion(final boolean useName, final boolean useCountries, final Set<Country> countries,
-      final boolean useCurrencies, final Set<Currency> currencies) {
+  public LegalEntityRegion(final boolean useName, final boolean useCountries, final Set<Country> countries, final boolean useCurrencies, final Set<Currency> currencies) {
     setUseName(useName);
     setUseCountry(useCountries);
     setCountries(countries);
@@ -125,9 +127,30 @@ public class LegalEntityRegion implements LegalEntityFilter<LegalEntity>, Bean {
     return selections;
   }
 
+  @Override
+  public Type getFilteredDataType() {
+    if (!(_useName || _useCountry || _useCurrency)) {
+      return Region.class;
+    }
+    Type setMember = null;
+    if (_useName) {
+      // Set gets a string
+      setMember = VariantType.either(setMember, String.class);
+    }
+    if (_useCountry) {
+      // Set might contain Country instances
+      setMember = VariantType.either(setMember, Country.class);
+    }
+    if (_useCurrency) {
+      // Set might contain Currency instances
+      setMember = VariantType.either(setMember, Currency.class);
+    }
+    return ParameterizedTypeImpl.of(Set.class, setMember);
+  }
+
   /**
-   * Sets the countries to be used as a filter. This also sets
-   * the {@link LegalEntityRegion#_useCountry} field to true.
+   * Sets the countries to be used as a filter. This also sets the {@link LegalEntityRegion#_useCountry} field to true.
+   * 
    * @param countries The new value of the property, not null
    */
   public void setCountries(final Set<Country> countries) {
@@ -139,8 +162,8 @@ public class LegalEntityRegion implements LegalEntityFilter<LegalEntity>, Bean {
   }
 
   /**
-   * Sets the currencies to be used as a filter. This also sets
-   * the {@link LegalEntityRegion#_useCountry} field to true.
+   * Sets the currencies to be used as a filter. This also sets the {@link LegalEntityRegion#_useCountry} field to true.
+   * 
    * @param currencies The new value of the property, not null
    */
   public void setCurrencies(final Set<Currency> currencies) {

@@ -77,6 +77,7 @@ import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -108,9 +109,11 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra();
   /** The business day convention used for FX forward dates computation **/
   private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
-
+  /** The curve calculation configuration source */
   private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
+  /** The FX forward curve specification source */
   private ConfigDBFXForwardCurveSpecificationSource _fxForwardCurveSpecificationSource;
+  /** The FX forward curve definition source */
   private ConfigDBFXForwardCurveDefinitionSource _fxForwardCurveDefinitionSource;
 
   @Override
@@ -185,7 +188,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + domesticCurveName + " for target " + currencyPair);
     }
     final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
-    final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
+    final ValueRequirement spotRequirement = getSpotRequirement(provider, currencyPair);
     if (inputs.getValue(spotRequirement) == null) {
       throw new OpenGammaRuntimeException("Could not get value for spot; requirement was " + spotRequirement);
     }
@@ -409,7 +412,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final ComputationTargetSpecification currencyTarget = ComputationTargetSpecification.of(foreignCurrency);
     requirements.add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair),
         fxForwardCurveProperties));
-    requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument()));
+    requirements.add(getSpotRequirement(provider, currencyPair));
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currencyTarget, foreignCurveProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencyTarget, foreignJacobianProperties));
     return requirements;
@@ -522,7 +525,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
    * @param forwardFX The forward FX rate
    * @param curveName1 The domestic curve name
    * @param curveName2 The foreign curve name
-   * @return
+   * @return The FX forward instrument
    */
   //TODO determine domestic and notional from dominance data
   private static ForexForward getFXForward(final Currency ccy1, final Currency ccy2, final double paymentTime, final double spotFX, final double forwardFX, final String curveName1,
@@ -531,4 +534,18 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final PaymentFixed paymentCurrency2 = new PaymentFixed(ccy2, paymentTime, -1. / forwardFX, curveName2);
     return new ForexForward(paymentCurrency1, paymentCurrency2, spotFX);
   }
+
+  /**
+   * Gets the FX spot rate requirement.
+   * @param provider The FX forward curve instrument provider
+   * @param currencies The currency pair
+   * @return The spot requirement
+   */
+  private static ValueRequirement getSpotRequirement(final FXForwardCurveInstrumentProvider provider, final UnorderedCurrencyPair currencies) {
+    if (provider.useSpotRateFromGraph()) {
+      return ConventionBasedFXRateFunction.getSpotRateRequirement(currencies);
+    }
+    return new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
+  }
+
 }

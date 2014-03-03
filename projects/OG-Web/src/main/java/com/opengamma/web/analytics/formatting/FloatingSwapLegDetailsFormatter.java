@@ -6,6 +6,8 @@
 package com.opengamma.web.analytics.formatting;
 
 import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.ACCRUAL_YEAR_FRACTION;
+import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.DISCOUNTED_PAYMENT_AMOUNT;
+import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.DISCOUNTED_PROJECTED_PAYMENT;
 import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.END_ACCRUAL_DATES;
 import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.END_FIXING_DATES;
 import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.FIXED_RATE;
@@ -35,13 +37,13 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Formatter for the details of the fixed leg of a swap.
  */
-/* package */ class FloatingSwapLegDetailsFormatter extends AbstractFormatter<FloatingSwapLegDetails> {
-  /** Number of columns */
-  private static final int COLUMN_COUNT = 17;
+/* package */class FloatingSwapLegDetailsFormatter extends AbstractFormatter<FloatingSwapLegDetails> {
   /** Column labels */
   private static final String[] COLUMN_LABELS = new String[] {START_ACCRUAL_DATES, END_ACCRUAL_DATES, ACCRUAL_YEAR_FRACTION,
     START_FIXING_DATES, END_FIXING_DATES, FIXING_FRACTIONS, FORWARD_RATE, FIXED_RATE, PAYMENT_DATE, PAYMENT_TIME, PAYMENT_DISCOUNT_FACTOR,
-    PAYMENT_AMOUNT, PROJECTED_AMOUNT, NOTIONAL, SPREAD, GEARING, INDEX_TERM};
+    PAYMENT_AMOUNT, PROJECTED_AMOUNT, NOTIONAL, SPREAD, GEARING, INDEX_TERM, DISCOUNTED_PAYMENT_AMOUNT, DISCOUNTED_PROJECTED_PAYMENT };
+  /** Number of columns */
+  private static final int COLUMN_COUNT = COLUMN_LABELS.length;
   /** x labels field */
   private static final String X_LABELS = "xLabels";
   /** y labels field */
@@ -60,7 +62,7 @@ import com.opengamma.util.money.CurrencyAmount;
    * @param rateFormatter The rate formatter, not null
    * @param basisPointFormatter The basis point formatter, not null
    */
-  /* package */ FloatingSwapLegDetailsFormatter(final AbstractFormatter<CurrencyAmount> caFormatter, final AbstractFormatter<Double> rateFormatter,
+  /* package */FloatingSwapLegDetailsFormatter(final AbstractFormatter<CurrencyAmount> caFormatter, final AbstractFormatter<Double> rateFormatter,
       final AbstractFormatter<Double> basisPointFormatter) {
     super(FloatingSwapLegDetails.class);
     ArgumentChecker.notNull(caFormatter, "currency amount formatter");
@@ -71,14 +73,14 @@ import com.opengamma.util.money.CurrencyAmount;
     _basisPointFormatter = basisPointFormatter;
     addFormatter(new Formatter<FloatingSwapLegDetails>(Format.EXPANDED) {
       @Override
-      Map<String, Object> format(FloatingSwapLegDetails value, ValueSpecification valueSpec, Object inlineKey) {
+      Map<String, Object> format(final FloatingSwapLegDetails value, final ValueSpecification valueSpec, final Object inlineKey) {
         return formatExpanded(value, valueSpec);
       }
     });
   }
 
   @Override
-  public String formatCell(FloatingSwapLegDetails value, ValueSpecification valueSpec, Object inlineKey) {
+  public String formatCell(final FloatingSwapLegDetails value, final ValueSpecification valueSpec, final Object inlineKey) {
     return "Floating Swap Leg Details (" + value.getNumberOfCashFlows() + ")";
   }
 
@@ -86,21 +88,20 @@ import com.opengamma.util.money.CurrencyAmount;
    * Expands the details into a matrix.
    * @param value The fixed swap leg details
    * @param valueSpec The value specification
-   * @param caFormatter The currency amount formatter
    * @return The expanded format.
    */
-  /* package */ Map<String, Object> formatExpanded(FloatingSwapLegDetails value, ValueSpecification valueSpec) {
-    int rowCount = value.getNumberOfCashFlows();
-    String[] yLabels = new String[rowCount];
+  /* package */Map<String, Object> formatExpanded(final FloatingSwapLegDetails value, final ValueSpecification valueSpec) {
+    final int rowCount = value.getNumberOfCashFlows();
+    final String[] yLabels = new String[rowCount];
     Arrays.fill(yLabels, "");
-    Map<String, Object> results = new HashMap<>();
+    final Map<String, Object> results = new HashMap<>();
     results.put(X_LABELS, COLUMN_LABELS);
     results.put(Y_LABELS, yLabels);
-    Object[][] values = new Object[rowCount][COLUMN_COUNT];
+    final Object[][] values = new Object[rowCount][COLUMN_COUNT];
     for (int i = 0; i < rowCount; i++) {
       values[i][0] = value.getAccrualStart()[i].toString();
       values[i][1] = value.getAccrualEnd()[i].toString();
-      values[i][2] = value.getAccrualYearFractions();
+      values[i][2] = value.getAccrualYearFractions()[i];
       values[i][3] = value.getFixingStart()[i].toString();
       values[i][4] = value.getFixingEnd()[i].toString();
       values[i][5] = value.getFixingYearFractions()[i];
@@ -115,6 +116,8 @@ import com.opengamma.util.money.CurrencyAmount;
       values[i][14] = _basisPointFormatter.formatCell(value.getSpreads()[i], valueSpec, null);
       values[i][15] = value.getGearings()[i];
       values[i][16] = value.getIndexTenors()[i].toFormattedString();
+      values[i][17] = value.getDiscountedPaymentAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedPaymentAmounts()[i], valueSpec, null);
+      values[i][18] = value.getDiscountedProjectedtAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedProjectedtAmounts()[i], valueSpec, null);
     }
     results.put(MATRIX, values);
     return results;

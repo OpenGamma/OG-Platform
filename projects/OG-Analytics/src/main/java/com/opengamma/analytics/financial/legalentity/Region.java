@@ -335,6 +335,20 @@ public final class Region implements ImmutableBean, Serializable {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return _name;
+        case 1352637108:  // countries
+          return _countries;
+        case -1089470353:  // currencies
+          return _currencies;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

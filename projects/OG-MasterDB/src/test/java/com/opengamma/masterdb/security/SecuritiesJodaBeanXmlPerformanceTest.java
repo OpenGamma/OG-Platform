@@ -36,42 +36,83 @@ public class SecuritiesJodaBeanXmlPerformanceTest extends SecurityTestCase {
   @Override
   protected <T extends ManageableSecurity> void assertSecurity(Class<T> securityClass, T security) {
 //    count = 0;
+//    long start;
+//    long end;
+//    Object obj;
 //    
-//    // Joda write
-//    String jodaXml = null;
-////    byte[] packedJoda2 = null;
+////    //============
+////    // Joda xml write
+////    String jodaXml = null;
+//////    byte[] packedJoda2 = null;
+////    for (int i = 0; i < 1000; i++) {
+////      jodaXml = JodaBeanSer.PRETTY.xmlWriter().write(security);
+//////      packedJoda2 = ZipUtils.deflateString(jodaXml);
+////    }
+////    count = 0;
+////    start = System.nanoTime();
+////    for (int i = 0; i < 1000; i++) {
+////      jodaXml = JodaBeanSer.COMPACT.xmlWriter().write(security);
+//////      packedJoda2 = ZipUtils.deflateString(jodaXml);
+////      if (jodaXml.length() > 0) {
+////        count++;
+////      }
+////    }
+////    end = System.nanoTime();
+////    long diffJodaWrite = (end - start) / 1_000_000;
+////    assert count == 1000;
+////    
+////    // Joda xml read
+////    count = 0;
+////    obj = null;
+////    start = System.nanoTime();
+////    for (int i = 0; i < 1000; i++) {
+//////      String unpacked = ZipUtils.inflateString(packedJoda2);
+////      String unpacked = jodaXml;
+////      obj = JodaBeanSer.COMPACT.xmlReader().read(unpacked);
+////      if (obj instanceof ManageableSecurity) {
+////        count++;
+////      }
+////    }
+////    end = System.nanoTime();
+////    long diffJodaRead = (end - start) / 1_000_000;
+////    total += diffJodaRead;
+////    number++;
+////    assert count == 1000;
+////    
+//    //============
+//    // Joda bin write
+//    count = 0;
+//    byte[] jodaBin = null;
+//    start = System.nanoTime();
 //    for (int i = 0; i < 1000; i++) {
-//      jodaXml = JodaBeanSer.PRETTY.xmlWriter().write(security);
-////      packedJoda2 = ZipUtils.deflateString(jodaXml);
-//    }
-//    long start = System.nanoTime();
-//    for (int i = 0; i < 1000; i++) {
-//      jodaXml = JodaBeanSer.COMPACT.xmlWriter().write(security);
-////      packedJoda2 = ZipUtils.deflateString(jodaXml);
-//      if (jodaXml.length() > 0) {
+//      jodaBin = JodaBeanSer.PRETTY.binWriter().write(security, false);
+//      if (jodaBin.length > 0) {
 //        count++;
 //      }
 //    }
-//    long end = System.nanoTime();
-//    long diffJodaWrite = (end - start) / 1_000_000;
+//    end = System.nanoTime();
+//    long diffJodaBinWrite = (end - start) / 1_000_000;
+//    assert count == 1000;
 //    
-//    // Joda read
-//    Object obj = null;
+//    // Joda xml read
+//    count = 0;
+//    obj = null;
 //    start = System.nanoTime();
 //    for (int i = 0; i < 1000; i++) {
-////      String unpacked = ZipUtils.inflateString(packedJoda2);
-//      String unpacked = jodaXml;
-//      obj = JodaBeanSer.COMPACT.xmlReader().read(unpacked);
+//      obj = JodaBeanSer.COMPACT.binReader().read(jodaBin, securityClass);
 //      if (obj instanceof ManageableSecurity) {
 //        count++;
 //      }
 //    }
 //    end = System.nanoTime();
-//    long diffJodaRead = (end - start) / 1_000_000;
-//    total += diffJodaRead;
+//    long diffJodaBinRead = (end - start) / 1_000_000;
+//    total += diffJodaBinRead;
 //    number++;
+//    assert count == 1000;
 //    
+//    //============
 //    // Fudge write
+//    count = 0;
 //    byte[] fudgeBytes = null;
 //    start = System.nanoTime();
 //    for (int i = 0; i < 1000; i++) {
@@ -95,8 +136,10 @@ public class SecuritiesJodaBeanXmlPerformanceTest extends SecurityTestCase {
 //    }
 //    end = System.nanoTime();
 //    long diffFudgeWrite = (end - start) / 1_000_000;
+//    assert count == 1000;
 //    
 //    // Fudge read
+//    count = 0;
 //    obj = null;
 //    start = System.nanoTime();
 //    for (int i = 0; i < 1000; i++) {
@@ -110,14 +153,16 @@ public class SecuritiesJodaBeanXmlPerformanceTest extends SecurityTestCase {
 //        throw new RuntimeException(ex);
 //      }
 //      FudgeDeserializer deserializer = new FudgeDeserializer(fc);
-//      obj = deserializer.fudgeMsgToObject(msg);
+//      obj = deserializer.fudgeMsgToObject(securityClass, msg);
 //      if (obj instanceof ManageableSecurity) {
 //        count++;
 //      }
 //    }
 //    end = System.nanoTime();
 //    long diffFudgeRead = (end - start) / 1_000_000;
+//    assert count == 1000;
 //    
+//    //============
 ////    // Fudge XML write
 ////    FudgeContext fc = OpenGammaFudgeContext.getInstance();
 ////    FudgeSerializer serializer = new FudgeSerializer(fc);
@@ -130,10 +175,12 @@ public class SecuritiesJodaBeanXmlPerformanceTest extends SecurityTestCase {
 ////    String fudgeXml = strWr.toString();
 //    
 //    // output
-//    System.out.println(securityClass.getSimpleName() + " JodaWrite:" + diffJodaWrite + " JodaRead:" + diffJodaRead +
-//        " FudgeWrite:" + diffFudgeWrite + " FudgeRead:" + diffFudgeRead);
+////    System.out.println(securityClass.getSimpleName() + " JodaWrite:" + diffJodaWrite + " JodaRead:" + diffJodaRead +
+////        " FudgeWrite:" + diffFudgeWrite + " FudgeRead:" + diffFudgeRead);
 ////    System.out.println(securityClass.getSimpleName() + " JodaXML:" + jodaXml.length() + " JodaXMLZlib:" +
 ////        packedJoda2.length + " Fudge:" + fudgeBytes.length + " FudgeXML:" + fudgeXml.length() + (count > 0 ? "" : " no count"));
+//    System.out.println(securityClass.getSimpleName() + " JodaWrite:" + diffJodaBinWrite + " JodaRead:" + diffJodaBinRead +
+//        " FudgeWrite:" + diffFudgeWrite + " FudgeRead:" + diffFudgeRead);
   }
 
 }

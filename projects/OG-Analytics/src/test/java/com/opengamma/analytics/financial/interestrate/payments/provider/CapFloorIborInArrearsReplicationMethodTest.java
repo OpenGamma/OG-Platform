@@ -99,7 +99,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     final CapFloorIbor capStandard = new CapFloorIbor(EUR, CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(), EURIBOR6M,
         CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor(), STRIKE, IS_CAP);
     final MultipleCurrencyAmount priceStandard = capStandard.accept(PVSCC, SABR_MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(CAP_LONG.getIndex(), CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(CAP_LONG.getIndex(), CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double beta = (1.0 + CAP_LONG.getFixingAccrualFactor() * forward) * MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getFixingPeriodEndTime())
         / MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getFixingPeriodStartTime());
     final double strikePart = (1.0 + CAP_LONG.getFixingAccrualFactor() * STRIKE) * priceStandard.getAmount(EUR);
@@ -124,7 +124,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
    * Compare the present value by replication to a value without adjustment.
    */
   public void presentValueSABRNoAdjustment() {
-    final double forward = MULTICURVES.getForwardRate(EURIBOR6M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR6M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final MultipleCurrencyAmount priceIbor = METHOD_SABREXTRA_COUPON_IA.presentValue(COUPON_IBOR, SABR_MULTICURVES);
     assertTrue("Coupon IA - SABR pricing: coupon = cap with strike eps",
         priceIbor.getAmount(EUR) > forward * NOTIONAL * CAP_LONG.getPaymentYearFraction() * MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getPaymentTime()));

@@ -1,9 +1,11 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.integration.regression;
+
+import java.io.File;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -20,15 +22,22 @@ public class DatabaseDumpTool extends AbstractTool<ToolContext> {
 
   private static final String DATA_DIRECTORY = "d";
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) { // CSIGNORE
-    new DatabaseDumpTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new DatabaseDumpTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     String dataDir = getCommandLine().getOptionValue(DATA_DIRECTORY);
-    DatabaseDump databaseDump = new DatabaseDump(dataDir,
+    SubdirsRegressionIO io = new SubdirsRegressionIO(new File(dataDir), new FudgeXMLFormat(), true);
+    DatabaseDump databaseDump = new DatabaseDump(io,
                                                  getToolContext().getSecurityMaster(),
                                                  getToolContext().getPositionMaster(),
                                                  getToolContext().getPortfolioMaster(),
@@ -37,8 +46,15 @@ public class DatabaseDumpTool extends AbstractTool<ToolContext> {
                                                  getToolContext().getHolidayMaster(),
                                                  getToolContext().getExchangeMaster(),
                                                  getToolContext().getMarketDataSnapshotMaster(),
-                                                 getToolContext().getOrganizationMaster());
-    databaseDump.dumpDatabase();
+                                                 getToolContext().getLegalEntityMaster(),
+                                                 getToolContext().getConventionMaster(),
+                                                 MasterQueryManager.queryAll());
+    io.beginWrite();
+    try {
+      databaseDump.dumpDatabase();
+    } finally {
+      io.endWrite();
+    }
   }
 
   @Override

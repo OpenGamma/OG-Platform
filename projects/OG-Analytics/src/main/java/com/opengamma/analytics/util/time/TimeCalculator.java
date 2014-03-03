@@ -11,6 +11,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -25,13 +26,13 @@ public final class TimeCalculator {
    * The day count used to convert to time.
    */
   private static final DayCount MODEL_DAYCOUNT;
-  
+
   static {
     /*
      * Initialise MODEL_DAYCOUNT to what is set in TimeCalculator.properties, otherwise default to Actual/Actual ISDA
      */
-    ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
-    String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
+    final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
+    final String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
     if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
       MODEL_DAYCOUNT = DayCountFactory.of(modelDayCount);
     } else {
@@ -40,6 +41,30 @@ public final class TimeCalculator {
   }
 
   private TimeCalculator() {
+  }
+
+  /**
+   * Computes the time between two dates using a user-supplied day count convention. Dates can be in any order.
+   * If date1 is after date2, the result will be negative.
+   * @param date1 The first date.
+   * @param date2 The second date.
+   * @param dayCount The day count
+   * @param calendar the calendar
+   * @return The time.
+   */
+  public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2, final DayCount dayCount, final Calendar calendar) {
+    ArgumentChecker.notNull(date1, "date1");
+    ArgumentChecker.notNull(date1, "date2");
+    ArgumentChecker.notNull(dayCount, "day count");
+    // Implementation note: here we convert date2 to the same zone as date1 so we don't accidentally gain or lose a day.
+    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+
+    final boolean timeIsNegative = date1.isAfter(rebasedDate2); // date1 >= date2
+
+    if (!timeIsNegative) {
+      return dayCount.getDayCountFraction(date1, rebasedDate2, calendar);
+    }
+    return -1.0 * dayCount.getDayCountFraction(rebasedDate2, date1, calendar);
   }
 
   /**

@@ -93,8 +93,4 @@ public interface ViewProcessor {
    */
   EngineResourceManager<? extends ViewCycle> getViewCycleManager();
 
-  /**
-   * Clears view execution cache
-   */
-  void clearViewExecutionCache();
 }

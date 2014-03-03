@@ -15,10 +15,15 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
+import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -27,6 +32,7 @@ import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -186,8 +192,8 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
     final Security underlying = _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
     Preconditions.checkState(underlying instanceof SwapSecurity,
-                             "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.",
-                             underlying);
+        "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.",
+        underlying);
     final CurrencyAmount notional = ((SwapSecurity) underlying).accept(this);
     if (security.isLong()) {
       return notional;
@@ -203,6 +209,19 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   }
 
   @Override
+  public CurrencyAmount visitEquityOptionSecurity(final EquityOptionSecurity security) {
+    final Currency currency = security.getCurrency();
+    final double notional = security.getPointValue();
+    return CurrencyAmount.of(currency, notional);
+  }
+
+  @Override
+  public CurrencyAmount visitEquitySecurity(final EquitySecurity security) {
+    final Currency currency = security.getCurrency();
+    return CurrencyAmount.of(currency, 1.0);
+  }
+
+  @Override
   public CurrencyAmount visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     final Currency currency = security.getCurrency();
     final double notional = security.getUnitAmount();
@@ -213,9 +232,9 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   public CurrencyAmount visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     final Security underlying = _securitySource.getSingle(security.getUnderlyingId().toBundle());
     Preconditions.checkState(underlying instanceof InterestRateFutureSecurity,
-                             "Failed to resolve underlying InterestRateFutureSecurity. " +
-                                 "DB record potentially corrupted. '%s' returned.",
-                             underlying);
+        "Failed to resolve underlying InterestRateFutureSecurity. " +
+            "DB record potentially corrupted. '%s' returned.",
+        underlying);
     return ((InterestRateFutureSecurity) underlying).accept(this);
   }
 
@@ -246,7 +265,27 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   }
 
   @Override
+  public CurrencyAmount visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitCashSecurity(final CashSecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
+  }
+
+  @Override
   public CurrencyAmount visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return CurrencyAmount.of(security.getCurrency(), security.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitFRASecurity(final FRASecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
   }
 }

@@ -256,7 +256,7 @@ import com.opengamma.util.time.Tenor;
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       serializer.addToMessage(message, ORDER_FIELD, null, object.getOrder());
-      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : object.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : object.getTypesForCurves().entrySet()) {
         final MutableFudgeMsg subMessage = serializer.newMessage();
         message.add(CURVE_FIELD, entry.getKey());
         for (final CurveTypeConfiguration type : entry.getValue()) {
@@ -276,7 +276,7 @@ import com.opengamma.util.time.Tenor;
       if (typesForCurveFields.size() != n) {
         throw new OpenGammaRuntimeException("Did not have types for each curve name");
       }
-      final Map<String, List<CurveTypeConfiguration>> curveTypes = new HashMap<>();
+      final Map<String, List<? extends CurveTypeConfiguration>> curveTypes = new HashMap<>();
       for (int i = 0; i < n; i++) {
         final FudgeField nameField = curveFields.get(i);
         final String name = deserializer.fieldValueToObject(String.class, nameField);
@@ -328,13 +328,9 @@ import com.opengamma.util.time.Tenor;
       for (final FudgeField field : curveTypeFields) {
         curveTypes.add(deserializer.fieldValueToObject(CurveGroupConfiguration.class, field));
       }
-      List<String> exogenousConfigurations = null;
-      final List<FudgeField> exogenousConfigFields = message.getAllByName(EXOGENOUS_CONFIGURATION_FIELD);
-      if (!exogenousConfigFields.isEmpty()) {
-        exogenousConfigurations = new ArrayList<>();
-        for (final FudgeField field : exogenousConfigFields) {
-          exogenousConfigurations.add((String) field.getValue());
-        }
+      List<String> exogenousConfigurations = new ArrayList<>();
+      for (final FudgeField field : message.getAllByName(EXOGENOUS_CONFIGURATION_FIELD)) {
+        exogenousConfigurations.add((String) field.getValue());
       }
       final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(name, curveTypes, exogenousConfigurations);
       setUniqueId(deserializer, message, configuration);

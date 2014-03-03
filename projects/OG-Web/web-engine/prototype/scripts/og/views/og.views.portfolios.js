@@ -46,15 +46,7 @@ $.register_module({
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                         buttons: {
                             'OK': create_portolio,
-                            'Cancel': function () {$(this).dialog('close');}
-                        },
-                        open: function (event, ui) {
-                            $(this).keydown(function (event) {
-                                if (event.which === $.ui.keyCode.ENTER) {
-                                    $(this).dialog('close');
-                                    create_portolio();
-                                }
-                            });
+                            'Cancel': function () {$(this).dialog('close'); }
                         }
                     });
                 },
@@ -74,15 +66,15 @@ $.register_module({
                                         var args = routes.current().args, rule = view.rules.load;
                                         if (result.error) return view.error(result.message);
                                         routes.go(routes.hash(rule, args));
-                                        setTimeout(function () {view.search(args);});
+                                        setTimeout(function () {view.search(args); });
                                     }
                                 };
                                 $(this).dialog('close');
                                 api.rest.portfolios.del(rest_options);
                             },
-                            'Cancel': function () {$(this).dialog('close');}
+                            'Cancel': function () {$(this).dialog('close'); }
                         }
-                    })
+                    });
                 },
                 'versions': function () {
                     var rule = view.rules.load_item, args = routes.current().args;

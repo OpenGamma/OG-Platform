@@ -97,7 +97,7 @@ public class CapFloorIborBlackSmileMethodTest {
   public void presentValue() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_BLACK.presentValue(CAP_LONG, BLACK_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double volatility = BLACK_SURF.getZValue(CAP_LONG.getFixingTime(), STRIKE);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, CAP_LONG.getFixingTime(), IS_CAP);

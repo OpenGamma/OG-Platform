@@ -77,6 +77,8 @@ public class EUConventions extends ConventionMasterInitializer {
   public static final String OIS_USD_EUR_ON_LEG = "EUR Overnight USD/EUR XCcy Leg";
   /** The Euribor string **/
   public static final String EURIBOR = "Euribor";
+  /** The Euribor string **/
+  public static final String EURIBOR_CONV = "EURIBOR Convention";
   /** The IRS Euribor leg string **/
   public static final String EURIBOR_LEG = EURIBOR + " Leg";
 
@@ -176,7 +178,7 @@ public class EUConventions extends ConventionMasterInitializer {
         irsEuribor1MLegConventionName, getIds(Currency.EUR, TENOR_STR_1M, EURIBOR_LEG),
         euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.ONE_MONTH, 2, true, StubType.SHORT_START, false, 0);
     
-    // Note: Temporally used to retrieve underlying index convention.
+    // TODO: Remove -  Note: Temporally used to retrieve underlying index convention.
     final String irsibor12MLegConventionName = getConventionName(Currency.EUR, TENOR_STR_12M, IRS_IBOR_LEG);
     final VanillaIborLegConvention irsIbor12MLegConvention = new VanillaIborLegConvention(
         irsibor12MLegConventionName, getIds(Currency.EUR, TENOR_STR_12M, IRS_IBOR_LEG),
@@ -196,6 +198,12 @@ public class EUConventions extends ConventionMasterInitializer {
     final VanillaIborLegConvention irsIbor1MLegConvention = new VanillaIborLegConvention(
         irsibor1MLegConventionName, getIds(Currency.EUR, TENOR_STR_1M, IRS_IBOR_LEG),
         euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.ONE_MONTH, 2, true, StubType.SHORT_START, false, 0);
+    
+    // TODO: Remove -  Note: Temporally used to retrieve underlying leg convention.
+//    final String fixedLegConverterConventionName = getConventionName(Currency.EUR, TENOR_STR_1Y, FIXED_LEG);
+//    final SwapFixedLegConvention irsFixedLegConvention = new SwapFixedLegConvention(
+//        irsFixedLegConventionName, getIds(Currency.EUR, TENOR_STR_1Y, FIXED_LEG),
+//        Tenor.ONE_YEAR, THIRTY_U_360, MODIFIED_FOLLOWING, Currency.EUR, EU, 2, true, StubType.SHORT_START, false, 0);
     
     // Ibor legs - IMM
     final String legIbor1MIMMQConventionName = getConventionName(Currency.EUR, TENOR_STR_1M, IBOR_LEG + " " + IMM + " " + QUARTERLY);

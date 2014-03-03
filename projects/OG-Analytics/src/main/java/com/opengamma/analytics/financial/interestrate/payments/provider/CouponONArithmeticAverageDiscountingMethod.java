@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -62,7 +63,7 @@ public final class CouponONArithmeticAverageDiscountingMethod {
     final double[] forwardON = new double[nbFwd];
     double rateAccrued = coupon.getRateAccrued();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
-      forwardON[loopfwd] = multicurve.getForwardRate(coupon.getIndex(), startTimes[loopfwd], endTimes[loopfwd], delta[loopfwd]);
+      forwardON[loopfwd] = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), startTimes[loopfwd], endTimes[loopfwd], delta[loopfwd]);
       rateAccrued += forwardON[loopfwd] * delta[loopfwd];
     }
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -88,7 +89,7 @@ public final class CouponONArithmeticAverageDiscountingMethod {
     final double[] forwardON = new double[nbFwd];
     double rateAccrued = coupon.getRateAccrued();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
-      forwardON[loopfwd] = multicurve.getForwardRate(coupon.getIndex(), startTimes[loopfwd], endTimes[loopfwd], delta[loopfwd]);
+      forwardON[loopfwd] = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), startTimes[loopfwd], endTimes[loopfwd], delta[loopfwd]);
       rateAccrued += forwardON[loopfwd] * delta[loopfwd];
     }
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -107,7 +108,7 @@ public final class CouponONArithmeticAverageDiscountingMethod {
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
-      listForward.add(new ForwardSensitivity(startTimes[loopfwd], endTimes[loopfwd], delta[loopfwd], forwardONBar[loopfwd]));
+      listForward.add(new SimplyCompoundedForwardSensitivity(startTimes[loopfwd], endTimes[loopfwd], delta[loopfwd], forwardONBar[loopfwd]));
     }
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));

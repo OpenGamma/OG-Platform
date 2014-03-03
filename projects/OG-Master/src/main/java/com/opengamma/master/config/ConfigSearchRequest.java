@@ -36,7 +36,7 @@ import com.opengamma.util.RegexUtils;
  * as at a specific version and correction instant.
  * See {@link ConfigHistoryRequest} for more details on how history works.
  * 
- * @param <T>  the configuration element type
+ * @param <T> the configuration element type
  */
 @PublicSPI
 @BeanDefinition
@@ -56,8 +56,8 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   /**
    * The class of the configuration.
    */
-  @PropertyDefinition
-  private Class<?> _type;
+  @PropertyDefinition(validate = "notNull")
+  private Class<?> _type = Object.class;
   /**
    * The sort order to use.
    */
@@ -69,7 +69,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    */
   public ConfigSearchRequest() {
   }
-  
+
   /**
    * Creates an instance with a configuration type.
    * 
@@ -84,7 +84,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   /**
    * Adds a single configuration object identifier to the set.
    * 
-   * @param configId  the configuration object identifier to add, not null
+   * @param configId the configuration object identifier to add, not null
    */
   public void addConfigId(ObjectIdentifiable configId) {
     ArgumentChecker.notNull(configId, "configId");
@@ -95,10 +95,9 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the set of configuration object identifiers, null to not limit by configuration object identifiers.
-   * Note that an empty set will return no configurations.
+   * Sets the set of configuration object identifiers, null to not limit by configuration object identifiers. Note that an empty set will return no configurations.
    * 
-   * @param configIds  the new configuration identifiers, null clears the configuration id search
+   * @param configIds the new configuration identifiers, null clears the configuration id search
    */
   public void setConfigIds(Iterable<? extends ObjectIdentifiable> configIds) {
     if (configIds == null) {
@@ -206,7 +205,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   /**
    * Gets the class of the configuration.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Class<?> getType() {
     return _type;
@@ -214,9 +213,10 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
   /**
    * Sets the class of the configuration.
-   * @param type  the new value of the property
+   * @param type  the new value of the property, not null
    */
   public void setType(Class<?> type) {
+    JodaBeanUtils.notNull(type, "type");
     this._type = type;
   }
 
@@ -460,6 +460,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConfigSearchRequest<?>) bean)._type, "type");
       JodaBeanUtils.notNull(((ConfigSearchRequest<?>) bean)._sortOrder, "sortOrder");
       super.validate(bean);
     }

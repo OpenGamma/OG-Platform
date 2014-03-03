@@ -296,8 +296,15 @@ public class Simulation {
     return _resolverVersionCorrection;
   }
 
+  /**
+   * @return The scenarios keyed by name. The map's iterator returns the scenarios in the order they were created.
+   */
   /* package */ Map<String, Scenario> getScenarios() {
     return Collections.unmodifiableMap(_scenarios);
+  }
+
+  /* package */ List<String> getScenarioNames() {
+    return Lists.newArrayList(_scenarios.keySet());
   }
 
   @Override

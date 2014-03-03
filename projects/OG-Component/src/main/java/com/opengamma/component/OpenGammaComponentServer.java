@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.StartupUtils;
 
 /**
@@ -97,7 +98,7 @@ public class OpenGammaComponentServer {
    */
   public static void main(String[] args) { // CSIGNORE
     if (!new OpenGammaComponentServer().run(args)) {
-      System.exit(0);
+      ShutdownUtils.exit(-1);
     }
   }
 

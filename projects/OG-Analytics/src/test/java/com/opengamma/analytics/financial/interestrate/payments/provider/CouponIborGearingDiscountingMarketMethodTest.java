@@ -70,7 +70,7 @@ public class CouponIborGearingDiscountingMarketMethodTest {
   public void presentValue() {
     final MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, PROVIDER);
     final double df = PROVIDER.getDiscountFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
-    final double forward = PROVIDER.getForwardRate(EURIBOR3M, COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime(), COUPON.getFixingAccrualFactor());
+    final double forward = PROVIDER.getSimplyCompoundForwardRate(EURIBOR3M, COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime(), COUPON.getFixingAccrualFactor());
     final double pvExpected = (forward * FACTOR + SPREAD) * COUPON.getPaymentYearFraction() * COUPON.getNotional() * df;
     assertEquals("Coupon Ibor Gearing: Present value by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }

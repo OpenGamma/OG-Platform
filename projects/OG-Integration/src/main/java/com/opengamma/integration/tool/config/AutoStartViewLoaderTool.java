@@ -51,6 +51,17 @@ public class AutoStartViewLoaderTool extends AbstractTool<ToolContext> {
    */
   private static final String MARKET_DATA_SPECIFICATIONS = "m";
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(String[] args) { //CSIGNORE
+    new AutoStartViewLoaderTool().invokeAndTerminate(args);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
 
@@ -133,13 +144,4 @@ public class AutoStartViewLoaderTool extends AbstractTool<ToolContext> {
     return options;
   }
 
-  /**
-   * Main method to run the tool.
-   *
-   * @param args  the arguments, not null
-   */
-  public static void main(String[] args) { //CSIGNORE
-    new AutoStartViewLoaderTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
-  }
 }

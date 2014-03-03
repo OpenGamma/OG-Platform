@@ -26,25 +26,34 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Component Factory for a singleton FudgeContext.
- *
+ * Component Factory for {@code FudgeContext}.
+ * <p>
+ * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
 public class FudgeContextComponentFactory extends AbstractComponentFactory {
 
+  /**
+   * The classifier that the factory should publish under.
+   */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-
+    final FudgeContext component = createFudgeContext(repo);
     final ComponentInfo info = new ComponentInfo(FudgeContext.class, getClassifier());
-    final FudgeContext component = initFudgeContext();
     repo.registerComponent(info, component);
-
   }
 
-  protected final FudgeContext initFudgeContext() {
+  /**
+   * Creates the Fudge context without registering it.
+   * 
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @return the Fudge context, not null
+   */
+  protected FudgeContext createFudgeContext(final ComponentRepository repo) {
     return OpenGammaFudgeContext.getInstance();
   }
 
@@ -69,7 +78,7 @@ public class FudgeContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the classifier.
+   * Gets the classifier that the factory should publish under.
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -77,7 +86,7 @@ public class FudgeContextComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the classifier.
+   * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {

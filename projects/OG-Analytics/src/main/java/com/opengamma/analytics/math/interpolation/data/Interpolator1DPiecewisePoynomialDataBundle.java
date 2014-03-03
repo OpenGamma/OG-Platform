@@ -161,4 +161,33 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
     throw new NotImplementedException();
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _poly.hashCode();
+    result = prime * result + _underlyingData.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof Interpolator1DPiecewisePoynomialDataBundle)) {
+      return false;
+    }
+    Interpolator1DPiecewisePoynomialDataBundle other = (Interpolator1DPiecewisePoynomialDataBundle) obj;
+    if (!_underlyingData.equals(other._underlyingData)) {
+      return false;
+    }
+    if (!_poly.equals(other._poly)) {
+      return false;
+    }
+    return true;
+  }
 }

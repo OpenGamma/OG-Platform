@@ -63,6 +63,7 @@ docs.sqlite3
 *.pyc
 .settings/
 /target/
+/examples/target/
 
 # IntelliJ config files
 *.iws

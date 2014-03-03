@@ -41,7 +41,7 @@ public class TYOCalendar extends ExceptionCalendar {
   /**
    * @param name Name
    */
-  protected TYOCalendar(final String name) {
+  public TYOCalendar(final String name) {
     super(name);
   }
 

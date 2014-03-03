@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.HullW
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
@@ -78,7 +79,7 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     final double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
     final double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
     final double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
-    final double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
+    final double forward = multicurves.getSimplyCompoundForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
     final double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
     if (security.isCall()) {
       final double normalKappa = NORMAL.getCDF(-kappa);
@@ -113,7 +114,7 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     // forward sweep
     final double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
     final double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
-    final double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
+    final double forward = multicurves.getSimplyCompoundForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
     final double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
     // Bakcward sweep
     final double priceBar = 1.0;
@@ -127,7 +128,7 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     }
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(t1, t2, delta, forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(t1, t2, delta, forwardBar));
     mapFwd.put(hwMulticurves.getMulticurveProvider().getName(security.getUnderlyingFuture().getIborIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);
   }

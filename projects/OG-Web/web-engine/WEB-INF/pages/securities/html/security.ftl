@@ -1,6 +1,6 @@
 <#escape x as x?html>
 <#setting number_format="0.#####">
-<@page title="Security - ${security.name}">
+<@page title="Security - ${security.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This security has been deleted</p>
@@ -26,6 +26,10 @@
         <@rowout label="Rate">${security.rate}</@rowout>
         <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
       <#break>
+      <#case "CASH_BALANCE">
+        <@rowout label="Amount">${security.amount}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <#break>
       <#case "CASH">
         <@rowout label="Amount">${security.amount}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
@@ -52,6 +56,32 @@
           </@rowout>
         </#if>
         <#break>
+      <#case "BILL">
+        <@rowout label="Issuer">${security.legalEntityId}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Region">${security.regionId}</@rowout>
+        <@rowout label="Issue date">${security.issueDate.toLocalDate()}</@rowout>
+        <@rowout label="Maturity date">${security.maturityDate.expiry.toLocalDate()}</@rowout>
+        <@rowout label="Yield convention">${security.yieldConvention.conventionName}</@rowout>
+        <@rowout label="Day count convention">${security.dayCount.conventionName}</@rowout>
+        <@rowout label="Minimum increment">${security.minimumIncrement}</@rowout>
+        <@rowout label="Days to settle">${security.daysToSettle}</@rowout>
+        <#break> 
+      <#case "FLOATING_RATE_NOTE">
+        <@rowout label="Issuer">${security.legalEntityId}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Region">${security.regionId}</@rowout>
+        <@rowout label="Issue date">${security.issueDate.toLocalDate()}</@rowout>
+        <@rowout label="Maturity date">${security.maturityDate.expiry.toLocalDate()}</@rowout>
+        <@rowout label="Day count convention">${security.dayCount.conventionName}</@rowout>
+        <@rowout label="Minimum increment">${security.minimumIncrement}</@rowout>
+        <@rowout label="Days to settle">${security.daysToSettle}</@rowout>
+        <@rowout label="Reset days">${security.resetDays}</@rowout>
+        <@rowout label="Benchmark rate">${security.benchmarkRateId}</@rowout>
+        <@rowout label="Spread">${security.spread}</@rowout>
+        <@rowout label="Leverage factor">${security.leverageFactor}</@rowout>
+        <@rowout label="Coupon frequency">${security.couponFrequency.conventionName}</@rowout>       
+        <#break> 
       <#case "BOND">
         <@rowout label="Issuer name">${security.issuerName}</@rowout>
         <@rowout label="Issuer type">${security.issuerType}</@rowout>
@@ -278,6 +308,20 @@
         <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <@rowout label="Delivery Currency">${security.deliveryCurrency}</@rowout>
         <#break>
+      <#case "FX_VOLATILITY_SWAP">
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Base Currency">${security.baseCurrency}</@rowout>
+        <@rowout label="Counter Currency">${security.counterCurrency}</@rowout>
+        <@rowout label="Strike">${security.strike}</@rowout>
+        <@rowout label="Notional">${security.notional}</@rowout>
+        <@rowout label="Settlement Date">${security.settlementDate}</@rowout>
+        <@rowout label="Maturity Date">${security.maturityDate}</@rowout>
+        <@rowout label="Volatility Swap Type">${security.volatilitySwapType}</@rowout>
+        <@rowout label="Annualization Factor">${security.annualizationFactor}</@rowout>
+        <@rowout label="First Observation Date">${security.firstObservationDate}</@rowout>
+        <@rowout label="Last Observation Date">${security.lastObservationDate}</@rowout>
+        <@rowout label="Observation Frequency">${security.observationFrequency}</@rowout>
+        <#break>
       <#case "EQUITY_INDEX_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
@@ -362,6 +406,36 @@
         <@rowout label="Strike">${security.strike}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
+      <#case "SWAP_INDX">
+      <#case "IBOR_INDEX">
+        <@rowout label="Convention Identifier">${security.conventionId.scheme.name} - ${security.conventionId.value}</@rowout>
+        <#if security.indexFamilyId?has_content>
+          <@rowout label="Index Family Identifier">${security.indexFamilyId.scheme.name} - ${security.indexFamilyId.value}</@rowout>
+        <#else>
+          <@rowout label="Index Family Identifier">(empty)</@rowout>
+        </#if>
+        <@rowout label="Tenor">${security.tenor.toFormattedString()}</@rowout>
+        <#break>        
+      <#case "PRICE_INDEX">
+      <#case "OVERNIGHT_INDEX">
+        <@rowout label="Convention Identifier">${security.conventionId.scheme.name} - ${security.conventionId.value}</@rowout>
+        <#if security.indexFamilyId?has_content>
+          <@rowout label="Index Family Identifier">${security.indexFamilyId.scheme.name} - ${security.indexFamilyId.value}</@rowout>
+        <#else>
+          <@rowout label="Index Family Identifier">(empty)</@rowout>
+        </#if>
+        <#break>  
+      <#case "INDEX_FAMILY">
+        <@subsection title="Family Member Entries">
+          <#if members?has_content>
+            <#list members?keys as key>
+              <@rowout label="${key}">${members[key].scheme.name} - ${members[key].value}</@rowout>
+            </#list>
+          <#else>
+            No Members
+          </#if>
+        </@subsection>
+        <#break> 
     </#switch>
 <@space />
 <#list security.externalIdBundle.externalIds as item>
@@ -373,13 +447,29 @@
 
 <#-- SECTION Update security -->
 <@section title="Update security" if=!deleted>
-  <@form method="PUT" action="${uris.security()}">
+  <@form method="PUT" action="${uris.security()}" id="updateSecurityForm">
   <p>
+    <@rowin>
+      <div id="ace-xml-editor"></div>
+    </@rowin>
+    <@rowin><input type="hidden" name="securityXml" id="security-xml"/></@rowin>
+    <input type="hidden" name="type" value="xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
+
+<#noescape><@xmlEditorScript formId="updateSecurityForm" inputId="security-xml" xmlValue="${securityXml}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>
 
+<#-- SECTION Reload security -->
+<@section title="Reload security" if=!deleted>
+  <@form method="PUT" action="${uris.security()}">
+  <p>
+    <input type="hidden" name="type" value="id"/>
+    <@rowin><input type="submit" value="Reload" /></@rowin>
+  </p>
+  </@form>
+</@section>
 
 <#-- SECTION Delete security -->
 <@section title="Delete security" if=!deleted>

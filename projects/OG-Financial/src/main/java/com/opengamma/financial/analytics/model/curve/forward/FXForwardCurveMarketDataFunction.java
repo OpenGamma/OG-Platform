@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification.QuoteType;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -50,8 +51,9 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveMarketDataFunction.class);
   /** Name of the calculation method */
   public static final String FX_FORWARD_QUOTES = "FXForwardQuotes";
-
+  /** The FX forward curve specification source */
   private ConfigDBFXForwardCurveSpecificationSource _fxForwardCurveSpecificationSource;
+  /** The FX forward curve definition source */
   private ConfigDBFXForwardCurveDefinitionSource _fxForwardCurveDefinitionSource;
 
   @Override
@@ -110,7 +112,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
           final ExternalId identifier = provider.getInstrument(atZDT.toLocalDate(), tenor);
           requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
         }
-        requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument()));
+        requirements.add(getSpotRequirement(provider, currencyPair));
         return requirements;
       }
 
@@ -131,7 +133,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + curveName + " for target " + target);
         }
         final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
-        final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
+        final ValueRequirement spotRequirement = getSpotRequirement(provider, currencyPair);
         if (inputs.getValue(spotRequirement) == null) {
           throw new OpenGammaRuntimeException("Could not get value for spot; requirement was " + spotRequirement);
         }
@@ -165,6 +167,13 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, curveName).get();
         return new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties);
+      }
+
+      private ValueRequirement getSpotRequirement(final FXForwardCurveInstrumentProvider provider, final UnorderedCurrencyPair currencies) {
+        if (provider.useSpotRateFromGraph()) {
+          return ConventionBasedFXRateFunction.getSpotRateRequirement(currencies);
+        }
+        return new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
       }
 
       @Override

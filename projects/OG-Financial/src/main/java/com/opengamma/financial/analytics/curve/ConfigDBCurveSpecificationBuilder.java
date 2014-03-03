@@ -30,9 +30,6 @@ import com.opengamma.util.ArgumentChecker;
  * Builds a curve specification from a curve definition and curve node id mapper
  * stored in a configuration source.
  */
-/**
- *
- */
 public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuilder {
 
   /** The curve node id mapper */
@@ -57,7 +54,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     this(new ConfigSourceQuery<>(configSource, CurveNodeIdMapper.class, versionCorrection), new ConfigDBCurveDefinitionSource(configSource, versionCorrection));
   }
 
-  private ConfigDBCurveSpecificationBuilder(final ConfigSourceQuery<CurveNodeIdMapper> queryCurveNodeIdMapper, CurveDefinitionSource definitionSource) {
+  private ConfigDBCurveSpecificationBuilder(final ConfigSourceQuery<CurveNodeIdMapper> queryCurveNodeIdMapper, final CurveDefinitionSource definitionSource) {
     _queryCurveNodeIdMapper = queryCurveNodeIdMapper;
     _definitionSource = definitionSource;
   }
@@ -96,7 +93,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link CurveSpecification}.
-   * 
+   *
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
@@ -120,7 +117,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link InterpolatedCurveSpecification}.
-   * 
+   *
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
@@ -134,7 +131,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       final String curveSpecificationName = node.getCurveNodeIdMapperName();
       final CurveNodeIdMapper builderConfig = getCurveNodeIdMapper(valuationTime, cache, curveSpecificationName);
       if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
+        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName + " for node " + node);
       }
       final CurveNodeWithIdentifierBuilder identifierBuilder = new CurveNodeWithIdentifierBuilder(curveDate, builderConfig);
       identifiers.add(node.accept(identifierBuilder));
@@ -147,7 +144,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link ConstantCurveSpecification}.
-   * 
+   *
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
@@ -160,13 +157,19 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link SpreadCurveSpecification}
-   * 
+   *
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
    * @return The curve specification
    */
   private AbstractCurveSpecification getSpreadCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final SpreadCurveDefinition curveDefinition) {
+    if (curveDefinition.isNumericalSpread()) {
+      final AbstractCurveDefinition definition = _definitionSource.getDefinition(curveDefinition.getFirstCurve());
+      final AbstractCurveSpecification specification = buildSpecification(valuationTime, curveDate, definition);
+      return new SpreadCurveSpecification(curveDate, curveDefinition.getName(), specification, curveDefinition.getSpread(),
+          curveDefinition.getUnits(), curveDefinition.getOperationName());
+    }
     final AbstractCurveDefinition firstDefinition = _definitionSource.getDefinition(curveDefinition.getFirstCurve());
     final AbstractCurveDefinition secondDefinition = _definitionSource.getDefinition(curveDefinition.getSecondCurve());
     final AbstractCurveSpecification firstSpecification = buildSpecification(valuationTime, curveDate, firstDefinition);
@@ -176,7 +179,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Gets a {@link CurveNodeIdMapper} from the config source.
-   * 
+   *
    * @param valuationTime The valuation time
    * @param cache A cache of names to curve node id mappers
    * @param curveSpecificationName The curve specification name

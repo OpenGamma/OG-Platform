@@ -118,6 +118,7 @@ import com.opengamma.util.tuple.Pairs;
  */
 @Scriptable
 public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
+
   /** Name of the default calculation configurations */
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
@@ -125,8 +126,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   /** A list of currencies */
   private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
   /** A list of curve configuration names */
-  private static final String[] s_curveConfigNames = new String[] {"DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig", "DefaultTwoCurveJPYConfig",
-      "DefaultTwoCurveCHFConfig" };
+  private static final String[] s_curveConfigNames = new String[] {
+    "DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig", "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
   /** A list of currency pairs */
   public static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), UnorderedCurrencyPair.of(Currency.USD, Currency.CHF),
       UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
@@ -151,13 +152,12 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleViewsPopulator().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleViewsPopulator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

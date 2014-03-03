@@ -35,14 +35,18 @@ import com.opengamma.scripts.Scriptable;
  */
 @Scriptable
 public class ConfigImportExportTool extends AbstractTool<ToolContext> {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ConfigImportExportTool.class);
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { // CSIGNORE
-    new ConfigImportExportTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ConfigImportExportTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

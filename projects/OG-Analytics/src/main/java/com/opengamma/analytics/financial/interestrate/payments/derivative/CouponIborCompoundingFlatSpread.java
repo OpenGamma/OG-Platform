@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
  * dates used to compute the coupon accrual factors.
  * <p> Reference: Mengle, D. (2009). Alternative compounding methods for over-the-counter derivative transactions. ISDA.
  */
-public class CouponIborCompoundingFlatSpread extends Coupon {
+public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIndexCompoundingCoupon<IborIndex> {
 
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
@@ -106,6 +106,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
    * Returns the Ibor index underlying the coupon.
    * @return The index.
    */
+  @Override
   public IborIndex getIndex() {
     return _index;
   }
@@ -122,6 +123,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
    * Returns the fixing times for the different remaining periods.
    * @return The times.
    */
+  @Override
   public double[] getFixingTimes() {
     return _fixingTimes;
   }
@@ -129,24 +131,59 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
   /**
    * Gets the fixing period start times (in years).
    * @return The times.
+   * 
+   * @deprecated use {@link #getFixingPeriodStartTimes()}.
    */
+  @Deprecated
   public double[] getFixingSubperiodsStartTimes() {
+    return _fixingSubperiodsStartTimes;
+  }
+
+  /**
+   * Gets the fixing period start times (in years).
+   * @return The times.
+   */
+  @Override
+  public double[] getFixingPeriodStartTimes() {
     return _fixingSubperiodsStartTimes;
   }
 
   /**
    * Gets the fixing period end times (in years).
    * @return The times.
+   * 
+   * @deprecated use {@link #getFixingPeriodEndTimes()}.
    */
+  @Deprecated
   public double[] getFixingSubperiodsEndTimes() {
+    return _fixingSubperiodsEndTimes;
+  }
+
+  /**
+   * Gets the fixing period start times (in years).
+   * @return The times.
+   */
+  @Override
+  public double[] getFixingPeriodEndTimes() {
     return _fixingSubperiodsEndTimes;
   }
 
   /**
    * Returns the fixing period accrual factors for each sub-period.
    * @return The factors.
+   * @deprecated use {@link #getFixingPeriodAccrualFactors()}.
    */
+  @Deprecated
   public double[] getFixingSubperiodsAccrualFactors() {
+    return _fixingSubperiodsAccrualFactors;
+  }
+
+  /**
+   * Returns the fixing period accrual factors for each sub-period.
+   * @return The factors.
+   */
+  @Override
+  public double[] getFixingPeriodAccrualFactors() {
     return _fixingSubperiodsAccrualFactors;
   }
 

@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -98,6 +101,11 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
   }
 
   @Override
+  public T visitBillSecurity(final BillSecurity security) {
+    return _value.visit(security);
+  }
+
+  @Override
   public T visitCorporateBondSecurity(final CorporateBondSecurity security) {
     return _value.visit(security);
   }
@@ -124,6 +132,11 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
 
   @Override
   public T visitCapFloorSecurity(final CapFloorSecurity security) {
+    return _value.visit(security);
+  }
+
+  @Override
+  public T visitCashBalanceSecurity(final CashBalanceSecurity security) {
     return _value.visit(security);
   }
 
@@ -419,6 +432,11 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
 
   @Override
   public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+    return _value.visit(security);
+  }
+
+  @Override
+  public T visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
     return _value.visit(security);
   }
 }

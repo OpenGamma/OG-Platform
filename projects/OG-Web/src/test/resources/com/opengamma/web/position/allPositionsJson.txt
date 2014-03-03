@@ -7,8 +7,8 @@
       "dataFields": ["id", "name", "quantity", "trades"]
     },
   "data": [
-     "MemPos~5|70 x AAPL US Equity|70|1",
      "MemPos~1|50 x AAPL US Equity|50|1",
-     "MemPos~3|60 x AAPL US Equity|60|1"
+     "MemPos~3|60 x AAPL US Equity|60|1",
+     "MemPos~5|70 x AAPL US Equity|70|1"
     ]
 }

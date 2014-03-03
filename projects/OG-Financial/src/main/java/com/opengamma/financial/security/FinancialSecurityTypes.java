@@ -12,6 +12,7 @@ import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -38,6 +39,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
@@ -105,10 +107,14 @@ public class FinancialSecurityTypes {
   public static final ObjectComputationTargetType<CapFloorSecurity> CAP_FLOOR_SECURITY = ObjectComputationTargetType.of(CapFloorSecurity.class);
 
   /**
+   * The cash balance security type.
+   */
+  public static final ObjectComputationTargetType<CashBalanceSecurity> CASH_BALANCE_SECURITY = ObjectComputationTargetType.of(CashBalanceSecurity.class);
+
+  /**
    * The cash-flow security type.
    */
   public static final ObjectComputationTargetType<CashFlowSecurity> CASH_FLOW_SECURITY = ObjectComputationTargetType.of(CashFlowSecurity.class);
-
 
   /**
    * The Cash security type.
@@ -331,5 +337,10 @@ public class FinancialSecurityTypes {
    * The Swaption security type.
    */
   public static final ObjectComputationTargetType<SwaptionSecurity> SWAPTION_SECURITY = ObjectComputationTargetType.of(SwaptionSecurity.class);
+
+  /**
+   * The FX Volatility Swap security type.
+   */
+  public static final ObjectComputationTargetType<FXVolatilitySwapSecurity> FX_VOLATILITY_SWAP_SECURITY = ObjectComputationTargetType.of(FXVolatilitySwapSecurity.class);
 
 }

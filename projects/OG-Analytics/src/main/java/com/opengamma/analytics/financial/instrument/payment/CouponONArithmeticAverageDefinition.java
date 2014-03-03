@@ -140,32 +140,37 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param fixingPeriodStartDate The start date of the fixing period.
    * @param fixingPeriodEndDate The end date of the fixing period.
    * @param calendar The holiday calendar for the overnight leg.
+   * @param  rateCutoff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
    * @return The OIS coupon.
    */
   public static CouponONArithmeticAverageDefinition withRateCutOff(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
-      final Calendar calendar) {
+      final Calendar calendar, final int rateCutoff) {
     ArgumentChecker.notNull(index, "CouponArithmeticAverageONDefinition: index");
     ArgumentChecker.notNull(fixingPeriodStartDate, "CouponArithmeticAverageONDefinition: fixingPeriodStartDate");
     ArgumentChecker.notNull(fixingPeriodEndDate, "CouponArithmeticAverageONDefinition: fixingPeriodEndDate");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
+    ArgumentChecker.isTrue(rateCutoff >= 2, "");
     final List<ZonedDateTime> fixingStartDateList = new ArrayList<>();
     final List<ZonedDateTime> fixingEndDateList = new ArrayList<>();
     final List<Double> fixingAccrualFactorList = new ArrayList<>();
     ZonedDateTime currentDate = fixingPeriodStartDate;
     fixingStartDateList.add(currentDate);
     ZonedDateTime nextDate;
-    final ZonedDateTime fixingPeriodEndDateMinusOneDay = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1, calendar);
-    while (currentDate.isBefore(fixingPeriodEndDateMinusOneDay)) {
+    final ZonedDateTime fixingPeriodEndDateMinusRateCutOff = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -rateCutoff + 1, calendar);
+    ArgumentChecker.isTrue(fixingPeriodEndDateMinusRateCutOff.isAfter(fixingPeriodStartDate), "");
+    while (currentDate.isBefore(fixingPeriodEndDateMinusRateCutOff)) {
       nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, calendar);
       fixingStartDateList.add(nextDate);
       fixingEndDateList.add(nextDate);
       fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate, calendar));
       currentDate = nextDate;
     }
-    fixingStartDateList.remove(fixingPeriodEndDateMinusOneDay);
-    fixingStartDateList.add(ScheduleCalculator.getAdjustedDate(currentDate, -1, calendar));
-    fixingEndDateList.add(currentDate);
+    fixingStartDateList.remove(fixingPeriodEndDateMinusRateCutOff);
+    for (int i = 0; i < rateCutoff - 1; i++) {
+      fixingStartDateList.add(ScheduleCalculator.getAdjustedDate(currentDate, -1, calendar));
+      fixingEndDateList.add(currentDate);
+    }
     final ZonedDateTime[] fixingPeriodStartDates = fixingStartDateList.toArray(new ZonedDateTime[fixingStartDateList.size()]);
     final ZonedDateTime[] fixingPeriodEndDates = fixingEndDateList.toArray(new ZonedDateTime[fixingEndDateList.size()]);
     final double[] fixingPeriodAccrualFactors = ArrayUtils.toPrimitive(fixingAccrualFactorList.toArray(new Double[fixingAccrualFactorList.size()]));
@@ -224,13 +229,14 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @param calendar The holiday calendar for the overnight index.
+   * @param  rateCutOff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
    * @return The OIS coupon.
    */
   public static CouponONArithmeticAverageDefinition withRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional, final int paymentLag,
-      final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar calendar) {
+      final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar calendar, final int rateCutOff) {
     ArgumentChecker.notNull(index, "Index");
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, tenor, businessDayConvention, calendar, isEOM);
-    return withRateCutOff(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, calendar);
+    return withRateCutOff(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, calendar, rateCutOff);
   }
 
   /**
@@ -242,15 +248,16 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param notional The notional.
    * @param paymentLag The number of days between last fixing and the payment (also called payment delay).
    * @param calendar The holiday calendar for the overnight index.
+   * @param rateCutOff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
    * @return The OIS coupon.
    */
   public static CouponONArithmeticAverageDefinition withRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
-      final int paymentLag, final Calendar calendar) {
+      final int paymentLag, final Calendar calendar, final int rateCutOff) {
     ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing Period End Date");
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, calendar);
     final double paymentAccrualFactor = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate, calendar);
     return withRateCutOff(index.getCurrency(), paymentDate, fixingPeriodStartDate, fixingPeriodEndDate, paymentAccrualFactor,
-        notional, index, fixingPeriodStartDate, fixingPeriodEndDate, calendar);
+        notional, index, fixingPeriodStartDate, fixingPeriodEndDate, calendar, rateCutOff);
   }
 
   /**

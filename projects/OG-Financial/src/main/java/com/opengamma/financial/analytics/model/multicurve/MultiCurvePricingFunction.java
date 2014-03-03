@@ -137,12 +137,12 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final CashFlowSecurityConverter cashFlowSecurityConverter = new CashFlowSecurityConverter();
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, conventionBundleSource, regionSource);
+    final FRASecurityConverter fraConverter = new FRASecurityConverter(securitySource, holidaySource, regionSource, conventionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
-    final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(holidaySource, conventionSource, regionSource);
+    final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter)
         .cashFlowSecurityVisitor(cashFlowSecurityConverter)
@@ -162,9 +162,10 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
    * @return The converter
    */
   protected FixedIncomeConverterDataProvider getDefinitionToDerivativeConverter(final FunctionCompilationContext context) {
-    final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    return new FixedIncomeConverterDataProvider(conventionBundleSource, timeSeriesResolver);
+    return new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
   }
 
   /**
@@ -202,9 +203,11 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       final Currency initialCurrency = iter.next();
       while (iter.hasNext()) {
         final Currency otherCurrency = iter.next();
-        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair
+        final Double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair
             .of(otherCurrency, initialCurrency))));
-        fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+        if (spotRate != null) {
+          fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+        }
       }
       return getValues(executionContext, inputs, target, desiredValues, derivative, fxMatrix);
     }
@@ -223,7 +226,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
           security instanceof SwapSecurity ||
           security instanceof FXForwardSecurity ||
           security instanceof NonDeliverableFXForwardSecurity ||
-          security instanceof InterestRateFutureSecurity;
+          security instanceof InterestRateFutureSecurity ||
+          security instanceof FederalFundsFutureSecurity;
     }
 
     @SuppressWarnings("synthetic-access")

@@ -52,6 +52,8 @@ import com.opengamma.util.tuple.ObjectsPair;
  */
 @Scriptable
 public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContext> {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioZipFormatExamplesGenerator.class);
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -255,11 +257,14 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
     return options;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new PortfolioZipFormatExamplesGenerator().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new PortfolioZipFormatExamplesGenerator().invokeAndTerminate(args);
   }
+
 }

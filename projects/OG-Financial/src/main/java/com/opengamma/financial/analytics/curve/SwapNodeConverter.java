@@ -14,6 +14,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.id.ExternalId;
@@ -30,6 +31,8 @@ import com.opengamma.util.ArgumentChecker;
  * If both legs are floating (VanillaIborLegConvention or OISLegConvention), the receive leg has a spread equal to the market quote.
  */
 public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
+  /** The security source */
+  private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -46,6 +49,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   private final FXMatrix _fx;
 
   /**
+   * @param securitySource The security source, not null
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
@@ -54,14 +58,16 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
    * @param valuationTime The valuation time, not null
    * @param fx The FXMatrix with the exchange rates. Not null.
    */
-  public SwapNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+  public SwapNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final FXMatrix fx) {
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
+    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -77,7 +83,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final FinancialConvention receiveLegConvention =  _conventionSource.getSingle(swapNode.getReceiveLegConvention(), FinancialConvention.class);
     final Period startTenor = swapNode.getStartTenor().getPeriod();
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
-    return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _regionSource,
+    return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _securitySource, _regionSource,
         _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime, _fx);
   }
   

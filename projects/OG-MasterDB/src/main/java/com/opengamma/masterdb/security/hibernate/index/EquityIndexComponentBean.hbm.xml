@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.index">
+  <class name="EquityIndexComponentBean" table="sec_equityindexcomponent">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
+    </id>
+    <many-to-one name="equityIndex" column="equityindex_id" class="EquityIndexBean" not-null="true" /> 
+    <set name="identifiers" table="sec_equityindexcomponentidentifier">
+      <key column="bundle_id" />
+      <composite-element class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+        <property name="scheme" type="string" not-null="true" />
+        <property name="identifier" type="string" not-null="true" />
+      </composite-element>
+    </set>
+    <property name="weight" type="big_decimal" not-null="true" />
+    <property name="position" type="long" not-null="true" />
+  </class>
+  
+  <query name="EquityIndexComponentBean.many.byEquityIndex">
+    <![CDATA[
+    from 
+      EquityIndexComponentBean as s
+    where
+      s.equityIndex = :equityIndex
+    order by
+      s.position
+    ]]>
+  </query>
+
+  <query name="EquityIndexComponentBean.all">
+    from EquityIndexComponentBean
+  </query>
+</hibernate-mapping>

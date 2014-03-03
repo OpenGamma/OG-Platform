@@ -277,6 +277,9 @@ import com.opengamma.util.tuple.Pairs;
         }
       }
       for (MergedOutput mergedOutput : _mergedOutputs) {
+        if (nodeData == null) {
+          nodeData = _nodeData.get(parentNode.getUniqueId());
+        }
         final ValueProperties constraints = ValueProperties.with(ValuePropertyNames.NAME, mergedOutput.getMergedOutputName()).get();
         if (_outputAggregates) {
           nodeData.addRequirements(ImmutableSet.of(Pairs.of(ValueRequirementNames.MERGED_OUTPUT, constraints)));

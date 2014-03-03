@@ -58,25 +58,21 @@ public class ExampleConfigDatabasePopulator extends AbstractTool<IntegrationTool
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleConfigDatabasePopulator.class);
 
-  //-------------------------------------------------------------------------
-  /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args  the arguments, unused
-   */
-  public static void main(final String[] args) { // CSIGNORE
-    s_logger.info("Populating example database");
-    try {
-      new ExampleConfigDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
-    } catch (final Exception ex) {
-      s_logger.error("Caught exception", ex);
-      ex.printStackTrace();
-    }
-  }
-
   private final Set<ExternalIdBundle> _futuresToLoad = new HashSet<>();
   private final Set<ExternalId> _historicalDataToLoad = new HashSet<>();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(final String[] args) { // CSIGNORE
+    s_logger.info("Populating example database");
+    new ExampleConfigDatabasePopulator().invokeAndTerminate(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     loadConventions();

@@ -47,16 +47,15 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
   private static final String INCLUDE_TRADES_OPT = "t";
 
   private static ToolContext s_context;
-  
+
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioSaverTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new PortfolioSaverTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

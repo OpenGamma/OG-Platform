@@ -116,16 +116,18 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   /**
    * Creates an instance
    *
-   * @param currency the currency, not null.
-   * @param underlyingId the id of the underlying index (assumed Ibor), not null
-   * @param startDate the start date, not null
-   * @param endDate the end date, not null
-   * @param rate the rate
-   * @param amount the amount (-ve if payer)
-   * @param fixingDate the fixing date, not null
-   * @param dayCount the day count convention, not null
-   * @param fixingBusinessDayConvention the business dya convention, not null
-   * @param calendars the calendars to be used, not null
+   * @param currency  the currency, not null.
+   * @param underlyingId  the id of the underlying index (assumed Ibor), not null
+   * @param indexFrequency  the index frequency, not null
+   * @param startDate  the start date, not null
+   * @param endDate  the end date, not null
+   * @param rate  the rate
+   * @param amount  the amount (-ve if payer)
+   * @param fixingDate  the fixing date, not null
+   * @param dayCount  the day count convention, not null
+   * @param fixingBusinessDayConvention  the business dya convention, not null
+   * @param calendars  the calendars to be used, not null
+   * @param fixingLag  the fixing lag
    */
   public ForwardRateAgreementSecurity(Currency currency,
                                       ExternalId underlyingId,

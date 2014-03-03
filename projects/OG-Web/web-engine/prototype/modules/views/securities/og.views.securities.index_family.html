@@ -1,0 +1,45 @@
+<article>
+  ${header}
+  <section>
+    <div class="OG-details-content OG-js-details-panel">
+      <section class="og-js-identifiers"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>${securityType}</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><em>Tenor</em></th>
+              <th><em>ExternalId</em></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{if members}}
+              {{each(tenor, externalId) members}}
+              <tr><td><span>${tenor}</span></td><td>${externalId}</td></tr>
+              {{/each}}
+            {{else}}
+              <tr><td colspan="2"><span>(no values)</span></td></tr>
+            {{/if}}
+          </tbody>
+        </table>
+     
+      </section>
+      <section class="OG-timeseries-container"></section>
+      ${attributes}
+    </div>
+  </section>
+</article>

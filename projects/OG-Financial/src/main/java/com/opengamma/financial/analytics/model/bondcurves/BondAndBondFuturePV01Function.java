@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.bondcurves;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
@@ -35,6 +36,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -89,6 +92,11 @@ public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFu
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
+  }
+
+  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<String> curveNames = desiredValue.getConstraints().getValues(CURVE);
     if (curveNames == null || curveNames.size() != 1) {
@@ -99,7 +107,9 @@ public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFu
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     return super.getResultProperties(target)
+        .with(CURRENCY, currency)
         .withAny(CURVE);
   }
 

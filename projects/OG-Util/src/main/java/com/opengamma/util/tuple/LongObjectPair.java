@@ -16,7 +16,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -263,7 +263,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
    * The bean-builder for {@code LongObjectPair}.
    */
   @SuppressWarnings({"rawtypes" })
-  private static final class Builder extends BasicImmutableBeanBuilder<LongObjectPair> {
+  private static final class Builder extends DirectFieldsBeanBuilder<LongObjectPair> {
 
     /** The first element. */
     private long _first;
@@ -274,7 +274,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
      * Restricted constructor.
      */
     private Builder() {
-      super(LongObjectPair.Meta.INSTANCE);
+      super();
     }
 
     //-----------------------------------------------------------------------
@@ -290,6 +290,12 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
       return this;
     }
 

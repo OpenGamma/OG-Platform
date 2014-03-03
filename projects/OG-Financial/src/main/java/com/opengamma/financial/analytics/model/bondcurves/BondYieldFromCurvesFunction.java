@@ -13,6 +13,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
@@ -31,7 +32,7 @@ public class BondYieldFromCurvesFunction extends BondAndBondFutureFromCurvesFunc
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return security instanceof BondSecurity;
+    return security instanceof BondSecurity || security instanceof BillSecurity;
   }
 
 }

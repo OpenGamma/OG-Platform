@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
@@ -24,7 +23,6 @@ import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.InflationLegConvention;
-import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
@@ -67,14 +65,20 @@ public class CurveNodeConverter {
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
-
         ExternalId priceIndexId;
         final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(
             ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention(), InflationLegConvention.class);
         final ExternalId priceIndexConventionId = inflationLegConvention.getPriceIndexConvention();
-        final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(priceIndexConventionId, PriceIndexConvention.class);
-        priceIndexId = priceIndexConvention.getPriceIndexId();
-
+//        final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(priceIndexConventionId, PriceIndexConvention.class);
+//        final Security sec = _securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
+//        if (sec == null) {
+//          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+//        }
+//        if (!(sec instanceof PriceIndex)) {
+//          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " not of type PriceIndex");
+//        }
+//        final PriceIndex indexSecurity = (PriceIndex) sec;
+        priceIndexId = priceIndexConventionId;
         final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
         if (historicalTimeSeries == null) {
           throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);

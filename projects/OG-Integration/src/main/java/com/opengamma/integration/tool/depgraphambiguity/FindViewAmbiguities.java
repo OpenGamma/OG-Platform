@@ -64,6 +64,7 @@ import com.opengamma.util.ClassUtils;
 @Scriptable
 public class FindViewAmbiguities extends AbstractTool<ToolContext> {
 
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FindViewAmbiguities.class);
 
   private static final String VIEW_NAME_OPTION = "v";
@@ -82,11 +83,17 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
   private final AtomicInteger _resolutions = new AtomicInteger();
   private final AtomicInteger _ambiguities = new AtomicInteger();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(String[] args) { // CSIGNORE
-    new FindViewAmbiguities().initAndRun(args, ToolContext.class);
-    Runtime.getRuntime().halt(1);
+    new FindViewAmbiguities().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   private final class ViewDefinitionAmbiguityTestImpl extends ViewDefinitionAmbiguityTest {
 
     private final PrintStream _out;

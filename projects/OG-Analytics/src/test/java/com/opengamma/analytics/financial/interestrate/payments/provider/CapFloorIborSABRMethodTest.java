@@ -99,7 +99,7 @@ public class CapFloorIborSABRMethodTest {
   public void presentValue() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_SABR.presentValue(CAP_LONG, SABR_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double maturity = CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
     final double volatility = SABR_PARAMETER.getVolatility(CAP_LONG.getFixingTime(), maturity, STRIKE, forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);

@@ -24,6 +24,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -32,7 +33,10 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
@@ -48,16 +52,12 @@ public final class SimulationUtils {
   static {
     //new enums to register with aliases can be added here:
     registerEnumAliases(BucketedShiftType.class);
-    registerEnumAliases(CurveShiftType.class);
+    registerEnumAliases(ScenarioShiftType.class);
   }
 
   private static <T extends Enum<T> & GroovyAliasable> void registerEnumAliases(Class<? extends T> enumClazz) {  // CSIGNORE (CS doesn't support funky syntax here)
     T[] aliases = enumClazz.getEnumConstants();
-
-    for (GroovyAliasable alias : aliases) {
-      s_aliases.add(alias);
-    }
-
+    Collections.addAll(s_aliases, aliases);
   }
 
   private SimulationUtils() {
@@ -162,9 +162,11 @@ public final class SimulationUtils {
   }
 
   /**
-   * @param binding 
+   * Registers aliases in a script's bindings to allow Java enum values to be referred to without being imported
+   * and qualified with the type name.
+   * @param binding The script binding in which to register the aliases
    */
-  private static void registerAliases(Binding binding) {
+  /* package */ static void registerAliases(Binding binding) {
 
     for (GroovyAliasable aliasable : s_aliases) {
 
@@ -209,5 +211,37 @@ public final class SimulationUtils {
       builder.append(Pattern.quote(tokenBuilder.toString()));
     }
     return Pattern.compile(builder.toString());
+  }
+
+  public static YieldCurveBucketedShift bucketedShift(Period start, Period end, double shift) {
+    return new YieldCurveBucketedShift(start, end, shift);
+  }
+
+  public static YieldCurvePointShift pointShift(Period tenor, double shift) {
+    return new YieldCurvePointShift(tenor, shift);
+  }
+
+  /**
+   * Helper method for creating {@link VolatilitySurfaceShift} instances in the Java API with less code
+   * @param x The x location of the point to shift
+   * @param y The y location of the point to shift
+   * @param shift The shift amount
+   * @return A {@link VolatilitySurfaceShift} instance built from the arguments
+   */
+  public static VolatilitySurfaceShift volShift(Object x, Object y, Number shift) {
+    return new VolatilitySurfaceShift(x, y, shift);
+  }
+
+  /* package */ static CurrencyPair getCurrencyPair(ValueSpecification valueSpec) {
+    ComputationTargetType targetType = valueSpec.getTargetSpecification().getType();
+    String idValue = valueSpec.getTargetSpecification().getUniqueId().getValue();
+    if (targetType.equals(CurrencyPair.TYPE)) {
+      return CurrencyPair.parse(idValue);
+    /*} else if (targetType.equals(ComputationTargetType.UNORDERED_CURRENCY_PAIR)) {
+      String quotedPair = valueSpec.getProperties().getStrictValue(ConventionBasedFXRateFunction.QUOTING_CONVENTION_PROPERTY);
+      return CurrencyPair.parse(quotedPair);*/
+    } else {
+      throw new IllegalArgumentException("Only currency pair target types supported. type=" + targetType);
+    }
   }
 }

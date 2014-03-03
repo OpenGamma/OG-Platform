@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Conventions">
+<@page title="Conventions" jquery=true aceXmlEditor=true>
 
 <#-- SECTION Convention search -->
 <@section title="Convention search" if=searchRequest??>
@@ -12,6 +12,7 @@
       </select>
     </@rowin>
     <@rowin label="Name"><input type="text" size="30" name="name" value="${searchRequest.name}" /></@rowin>
+    <@rowin label="Identifier"><input type="text" size="50" name="identifier" value="${searchRequest.externalIdValue}" /></@rowin>
     <@rowin><input type="submit" value="Search" /></@rowin>
   </p>
   </@form>
@@ -31,7 +32,7 @@
 
 <#-- SECTION Add convention -->
 <@section title="Add convention">
-  <@form method="POST" action="${uris.conventions()}">
+  <@form method="POST" action="${uris.conventions()}" id="addForm">
   <p>
     <@rowin label="Name"><input type="text" size="30" name="name" value="" /></@rowin>
     <@rowin label="Type">
@@ -40,10 +41,13 @@
         <#list conventionDescriptionMap?keys as key><option value="${key}">${conventionDescriptionMap[key]}</option></#list>
       </select>
     </@rowin>
-    <@rowin label="Convention (XML)">
-      <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="conventionxml" id="xmltextarea"></textarea></div>
+    <@rowin>
+      <div id="ace-xml-editor"></div>
     </@rowin>
+    <input type="hidden" name="conventionxml" id="convention-xml"/>
     <@rowin><input type="submit" value="Add" /></@rowin>
+    
+    <#noescape><@xmlEditorScript formId="addForm" inputId="convention-xml"></@xmlEditorScript></#noescape>  
   </p>
   </@form>
 </@section>

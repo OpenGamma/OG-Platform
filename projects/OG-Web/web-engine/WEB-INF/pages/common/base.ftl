@@ -1,10 +1,27 @@
 <#-- Macro to produce a standard page with html/head/body -->
-<#macro page title="OpenGamma">
+<#macro page title="OpenGamma" aceXmlEditor=false jquery=false jqueryDate=false>
 <html>
   <head>
     <title>${title} - OpenGamma</title>
     <link type="text/css" rel="stylesheet" href="/green/css/og-base.css" />
+<#if jqueryDate>
     <link rel="stylesheet" href="/css/jquery/smoothness/jquery-ui-1.8.5.custom.css" />
+</#if>
+
+<#if jquery>
+    <script src="/prototype/scripts/lib/jquery/jquery-1.8.0.js"></script>
+</#if>
+ 
+<#if jqueryDate>    
+    <script src="/prototype/scripts/lib/jquery/ui/jquery-ui-1.8.11.custom.min.js"></script>
+    <script src="/prototype/scripts/lib/jquery/ui/jquery.ui.datepicker.js"></script>
+</#if>  
+  
+<#if aceXmlEditor>
+    <script src="/prototype/scripts/lib/ace/ace.js"></script>
+    <script src="/prototype/scripts/lib/ace/theme-textmate.js"></script>
+    <script src="/prototype/scripts/lib/ace/mode-xml.js"></script>
+</#if>
   </head>
   <body>
     <div id="header">
@@ -99,8 +116,8 @@
 </#macro>
 
 <#-- Macro to produce a standard form handling RESTful tunneling -->
-<#macro form action method="GET">
-  <form method="<#if method == "GET">GET<#else>POST</#if>" action="${action}"><#rt>
+<#macro form action method="GET" id="">
+  <form <#if id?has_content>id="${id}"</#if> method="<#if method == "GET">GET<#else>POST</#if>" action="${action}"><#rt>
 <#if method == "PUT" || method == "DELETE"><input type="hidden" name="method" value="${method}" /></#if>
 <#nested>
   </form>
@@ -123,4 +140,25 @@
 <#-- Macro to produce a space between data -->
 <#macro space>
 <hr style="border: none; border-top: 1px solid #ccc;" />
+</#macro>
+
+<#-- Macro to produce script tag for ace xml editor -->
+<#macro xmlEditorScript formId="" inputId="" xmlValue="" readOnly=false>
+<script type="text/javascript">
+var editor = ace.edit("ace-xml-editor")
+editor.getSession().setMode('ace/mode/xml')
+editor.getSession().setValue("${xmlValue}")
+<#if readOnly>
+editor.setReadOnly(true)
+</#if>
+
+<#if formId?has_content>
+$("#${formId}").submit( function(eventObj) {
+  <#if inputId?has_content>
+  $("#${inputId}").val(editor.getSession().getValue())
+  </#if>
+  return true
+})
+</#if>
+</script>
 </#macro>

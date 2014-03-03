@@ -7,6 +7,7 @@ package com.opengamma.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.helpers.MessageFormatter;
@@ -309,6 +310,29 @@ public final class ArgumentChecker {
     for (Object obj : parameter) {
       if (obj == null) {
         throw new IllegalArgumentException("Input parameter iterable '" + name + "' must not contain null");
+      }
+    }
+    return parameter;
+  }
+
+  /**
+   * Checks that the specified parameter map is non-null and contains no nulls.
+   * 
+   * @param <K>  the type of the input map key reflected in the result
+   * @param <V>  the type of the input map value reflected in the result
+   * @param parameter  the parameter to check, may be null
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is null or contains nulls
+   * @return the input {@code parameter}, not null
+   */
+  public static <K, V> Map<K, V> noNulls(Map<K, V> parameter, String name) {
+    notNull(parameter, name);
+    for (Entry<K, V> entry : parameter.entrySet()) {
+      if (entry.getKey() == null) {
+        throw new IllegalArgumentException("Input parameter map '" + name + "' must not contain a null key");
+      }
+      if (entry.getValue() == null) {
+        throw new IllegalArgumentException("Input parameter map '" + name + "' must not contain a null value");
       }
     }
     return parameter;

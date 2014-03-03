@@ -668,7 +668,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
     private String toString(final boolean strict) {
       final StringBuilder sb = new StringBuilder();
-      Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\]");
+      Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\ ]");
       boolean first = true;
       if (strict) {
         sb.append('{');
@@ -1501,8 +1501,9 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public void toFudgeMsg(final MutableFudgeMsg msg) {
       final MutableFudgeMsg subMsg = msg.addSubMessage(ValuePropertiesFudgeBuilder.WITHOUT_FIELD, null);
+      int ordinal = 0;
       for (String property : _properties) {
-        subMsg.add(null, null, FudgeWireType.STRING, property);
+        subMsg.add(null, ordinal++, FudgeWireType.STRING, property);
       }
     }
 
@@ -1824,7 +1825,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * <li>Curly braces may be omitted
    * <li>Square brackets around single values may be omitted
    * <li>'name1=[]' is same as 'name1'
-   * <li>Spaces are trimmed
+   * <li>Spaces are trimmed unless they are in the middle of a name/value
    * </ul>
    * Escape sequences may be used for the following special characters: ',', '=', '[', ']', '?', '\' and ' '. An escape sequence begins with '\'.
    * <p>
@@ -1865,15 +1866,21 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     Set<String> values = new HashSet<String>();
     boolean bracketedValue = false;
     boolean inValue = false;
+    int space = -1;
     while (pos <= s.length()) {
       char next = pos < s.length() ? s.charAt(pos) : 0;
       if (next == '\\') { // Begin escape sequence
         pos++;
         if (pos < s.length()) {
+          if (space > 0) {
+            for (int i = 0; i < space; i++) {
+              substring.append(' ');
+            }
+          }
+          space = 0;
           char escapedCharacter = s.charAt(pos);
-          if (escapedCharacter == '\\' || escapedCharacter == ',' || escapedCharacter == '='
-              || escapedCharacter == '[' || escapedCharacter == ']' || escapedCharacter == '?'
-              || escapedCharacter == ' ') {
+          if (escapedCharacter == '\\' || escapedCharacter == ',' || escapedCharacter == '=' || escapedCharacter == '[' || escapedCharacter == ']' || escapedCharacter == '?' ||
+              escapedCharacter == ' ') {
             substring.append(escapedCharacter);
           } else {
             throw new IllegalArgumentException("Unrecognised escape sequence: \\" + escapedCharacter);
@@ -1885,20 +1892,37 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         if (inValue) {
           throw new IllegalArgumentException("Unexpected '=' at position " + pos);
         }
+        space = -1;
         name = substring.toString();
         substring = new StringBuilder();
         inValue = true;
-        if (pos + 1 < s.length() && s.charAt(pos + 1) == '[') {
-          bracketedValue = true;
-          pos++;
+        while (pos + 1 < s.length()) {
+          if (s.charAt(pos + 1) == ' ') {
+            pos++;
+            continue;
+          }
+          if (s.charAt(pos + 1) == '[') {
+            bracketedValue = true;
+            pos++;
+          }
+          break;
         }
       } else if (next == ']') { // End of values
+        space = -1;
         inValue = false;
-        if (s.length() > pos + 1 && s.charAt(pos + 1) == '?') {
-          isOptional = true;
-          pos++;
+        while (pos + 1 < s.length()) {
+          if (s.charAt(pos + 1) == ' ') {
+            pos++;
+            continue;
+          }
+          if (s.charAt(pos + 1) == '?') {
+            isOptional = true;
+            pos++;
+          }
+          break;
         }
       } else if (next == ',' || next == 0) { // Separator between values in a group or between properties
+        space = -1;
         if (substring.length() > 0) {
           if (name == null) {
             name = substring.toString();
@@ -1931,7 +1955,17 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
           bracketedValue = false;
         }
       } else if (next != ' ') {
+        if (space > 0) {
+          for (int i = 0; i < space; i++) {
+            substring.append(' ');
+          }
+        }
+        space = 0;
         substring.append(next);
+      } else {
+        if (space >= 0) {
+          space++;
+        }
       }
       pos++;
     }
@@ -1953,7 +1987,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    */
   @Deprecated
   public static String toString(final Map<String, Set<String>> properties, final Set<String> optional, final boolean strict) {
-    Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\]");
+    Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\ ]");
     final StringBuilder sb = new StringBuilder();
     if (strict) {
       sb.append("{");

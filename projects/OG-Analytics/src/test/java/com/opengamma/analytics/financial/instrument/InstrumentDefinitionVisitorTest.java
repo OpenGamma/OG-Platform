@@ -134,6 +134,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.VolatilitySwapDefinition;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -1078,6 +1079,16 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
+    public String visitVolatilitySwapDefinition(final VolatilitySwapDefinition volatilitySwap) {
+      return getValue(volatilitySwap, false);
+    }
+
+    @Override
+    public String visitVolatilitySwapDefinition(final VolatilitySwapDefinition volatilitySwap, final T data) {
+      return getValue(volatilitySwap, true);
+    }
+
+    @Override
     public String visitCouponIborCompoundingSpreadDefinition(final CouponIborCompoundingSpreadDefinition payment, final T data) {
       return getValue(payment, true);
     }
@@ -1159,342 +1170,322 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitDeliverableSwapFuturesTransactionDefinition(final SwapFuturesPriceDeliverableTransactionDefinition futures, final T data) {
-      return null;
+      return getValue(futures, true);
     }
 
     @Override
     public String visitDeliverableSwapFuturesTransactionDefinition(final SwapFuturesPriceDeliverableTransactionDefinition futures) {
-      return null;
+      return getValue(futures, false);
     }
 
     @Override
     public String visitCapFloorInflationZeroCouponInterpolationDefinition(final CapFloorInflationZeroCouponInterpolationDefinition coupon, final T data) {
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCapFloorInflationZeroCouponInterpolationDefinition(final CapFloorInflationZeroCouponInterpolationDefinition coupon) {
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
     public String visitCapFloorInflationZeroCouponMonthlyDefinition(final CapFloorInflationZeroCouponMonthlyDefinition coupon, final T data) {
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCapFloorInflationZeroCouponMonthlyDefinition(final CapFloorInflationZeroCouponMonthlyDefinition coupon) {
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
     public String visitCapFloorInflationYearOnYearInterpolationDefinition(final CapFloorInflationYearOnYearInterpolationDefinition coupon, final T data) {
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCapFloorInflationYearOnYearInterpolationDefinition(final CapFloorInflationYearOnYearInterpolationDefinition coupon) {
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
     public String visitCapFloorInflationYearOnYearMonthlyDefinition(final CapFloorInflationYearOnYearMonthlyDefinition coupon, final T data) {
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCapFloorInflationYearOnYearMonthlyDefinition(final CapFloorInflationYearOnYearMonthlyDefinition coupon) {
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
     public String visitCouponArithmeticAverageONDefinition(final CouponONArithmeticAverageDefinition payment, final T data) {
-      return null;
+      return getValue(payment, true);
     }
 
     @Override
     public String visitCouponArithmeticAverageONDefinition(final CouponONArithmeticAverageDefinition payment) {
-      return null;
+      return getValue(payment, false);
     }
 
     @Override
     public String visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment, final T data) {
-      return null;
+      return getValue(payment, true);
     }
 
     @Override
     public String visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment) {
-      return null;
+      return getValue(payment, false);
     }
 
     @Override
     public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponONArithmeticAverageSpreadSimplifiedDefinition payment, final T data) {
-      return null;
+      return getValue(payment, true);
     }
 
     @Override
     public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
-      return null;
+      return getValue(payment, false);
     }
 
     @Override
     public String visitBondFuturesSecurityDefinition(final BondFuturesSecurityDefinition bond, final T data) {
-      return null;
+      return getValue(bond, true);
     }
 
     @Override
     public String visitBondFuturesSecurityDefinition(final BondFuturesSecurityDefinition bond) {
-      return null;
+      return getValue(bond, false);
     }
 
     @Override
     public String visitBondFuturesTransactionDefinition(final BondFuturesTransactionDefinition bond, final T data) {
-      return null;
+      return getValue(bond, true);
     }
 
     @Override
     public String visitBondFuturesTransactionDefinition(final BondFuturesTransactionDefinition bond) {
-      return null;
+      return getValue(bond, false);
     }
 
     @Override
     public String visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMarginDefinition coupon, final T data) {
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMarginDefinition coupon) {
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
     public String visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMarginDefinition coupon, final T data) {
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMarginDefinition coupon) {
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
     public String visitBondInterestIndexedSecurity(final BondInterestIndexedSecurityDefinition<?, ?> bond, final T data) {
-      return null;
+      return getValue(bond, true);
     }
 
     @Override
     public String visitBondInterestIndexedSecurity(final BondInterestIndexedSecurityDefinition<?, ?> bond) {
-      return null;
+      return getValue(bond, false);
     }
 
     @Override
     public String visitBondInterestIndexedTransaction(final BondInterestIndexedTransactionDefinition<?, ?> bond, final T data) {
-      return null;
+      return getValue(bond, true);
     }
 
     @Override
     public String visitBondInterestIndexedTransaction(final BondInterestIndexedTransactionDefinition<?, ?> bond) {
-      return null;
+      return getValue(bond, false);
     }
 
     @Override
     public String visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment, final T data) {
-      return null;
+      return getValue(payment, true);
     }
 
     @Override
     public String visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment) {
-      return null;
+      return getValue(payment, false);
     }
 
     @Override
     public String visitCouponFixedAccruedCompoundingDefinition(final CouponFixedAccruedCompoundingDefinition payment, final T data) {
-      return null;
+      return getValue(payment, true);
     }
 
     @Override
     public String visitCouponFixedAccruedCompoundingDefinition(final CouponFixedAccruedCompoundingDefinition payment) {
-      return null;
+      return getValue(payment, false);
     }
 
     @Override
     public String visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment, final T data) {
-      return null;
+      return getValue(payment, true);
     }
 
     @Override
     public String visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment) {
-      return null;
+      return getValue(payment, false);
     }
 
     @Override
     public String visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption, final T data) {
-      return null;
+      return getValue(swaption, true);
     }
 
     @Override
     public String visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption) {
-      return null;
+      return getValue(swaption, false);
     }
 
     @Override
     public String visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment, final T data) {
-      return null;
+      return getValue(payment, true);
     }
 
     @Override
     public String visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment) {
-      return null;
+      return getValue(payment, false);
     }
 
     @Override
     public String visitSwapMultilegDefinition(final SwapMultilegDefinition swap, final T data) {
-      return null;
+      return getValue(swap, true);
     }
 
     @Override
     public String visitSwapMultilegDefinition(final SwapMultilegDefinition swap) {
-      return null;
+      return getValue(swap, false);
     }
 
     @Override
     public String visitMetalFutureSecurityDefinition(final MetalFutureSecurityDefinition future, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, true);
     }
 
     @Override
     public String visitMetalFutureSecurityDefinition(final MetalFutureSecurityDefinition future) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, false);
     }
 
     @Override
     public String visitMetalFutureTransactionDefinition(final MetalFutureTransactionDefinition future, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, true);
     }
 
     @Override
     public String visitMetalFuturTransactioneDefinition(final MetalFutureTransactionDefinition future) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, false);
     }
 
     @Override
     public String visitAgricultureFutureSecurityDefinition(final AgricultureFutureSecurityDefinition future, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, true);
     }
 
     @Override
     public String visitAgricultureFutureSecurityDefinition(final AgricultureFutureSecurityDefinition future) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, false);
     }
 
     @Override
     public String visitAgricultureFutureTransactionDefinition(final AgricultureFutureTransactionDefinition future, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, true);
     }
 
     @Override
     public String visitAgricultureFutureTransactionDefinition(final AgricultureFutureTransactionDefinition future) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, false);
     }
 
     @Override
     public String visitEnergyFutureSecurityDefinition(final EnergyFutureSecurityDefinition future, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, true);
     }
 
     @Override
     public String visitEnergyFutureSecurityDefinition(final EnergyFutureSecurityDefinition future) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, false);
     }
 
     @Override
     public String visitEnergyFutureTransactionDefinition(final EnergyFutureTransactionDefinition future, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, true);
     }
 
     @Override
     public String visitEnergyFutureTransactionDefinition(final EnergyFutureTransactionDefinition future) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(future, false);
     }
 
     @Override
     public String visitForwardCommodityCashSettleDefinition(final ForwardCommodityCashSettleDefinition forward, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(forward, true);
     }
 
     @Override
     public String visitForwardCommodityCashSettleDefinition(final ForwardCommodityCashSettleDefinition forward) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(forward, false);
     }
 
     @Override
     public String visitForwardCommodityPhysicalSettleDefinition(final ForwardCommodityPhysicalSettleDefinition forward, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(forward, true);
     }
 
     @Override
     public String visitForwardCommodityPhysicalSettleDefinition(final ForwardCommodityPhysicalSettleDefinition forward) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(forward, false);
     }
 
     @Override
     public String visitCouponCommodityCashSettleDefinition(final CouponCommodityCashSettleDefinition coupon, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCouponCommodityCashSettleDefinition(final CouponCommodityCashSettleDefinition coupon) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
     public String visitCouponCommodityPhysicalSettleDefinition(final CouponCommodityPhysicalSettleDefinition coupon, final T data) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(coupon, true);
     }
 
     @Override
     public String visitCouponCommodityPhysicalSettleDefinition(final CouponCommodityPhysicalSettleDefinition coupon) {
-      // TODO Auto-generated method stub
-      return null;
+      return getValue(coupon, false);
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture, T data) {
-      return null;
+    public String visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bondFuture, final T data) {
+      return getValue(bondFuture, true);
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture) {
-      return null;
+    public String visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bondFuture) {
+      return getValue(bondFuture, false);
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture, T data) {
-      return null;
+    public String visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bondFuture, final T data) {
+      return getValue(bondFuture, true);
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture) {
-      return null;
+    public String visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bondFuture) {
+      return getValue(bondFuture, false);
     }
 
   }

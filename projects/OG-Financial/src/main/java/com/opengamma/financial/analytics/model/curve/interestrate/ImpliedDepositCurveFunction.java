@@ -88,6 +88,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -268,7 +269,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
       final double[] t = new double[n];
       final double[] r = new double[n];
       int i = 0;
-      final DayCount dayCount = DayCounts.ACT_365; //TODO
+      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO: Get the convention from the curve.
 
       final String impliedDepositCurveName = _curveCalculationConfig + "_" + _currency.getCode();
       final List<InstrumentDerivative> derivatives = new ArrayList<>();
@@ -278,7 +279,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
         final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
         final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
         final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
-        final double accrualFactor = dayCount.getDayCountFraction(valuationDateTime, valuationDateTime.plus(tenor.getPeriod()), calendar);
+        final double accrualFactor = dayCount.getDayCountFraction(spotDate, paymentDate, calendar);
         final Cash cashFXCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
         final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
         final Cash cashDepositCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, impliedDepositCurveName);

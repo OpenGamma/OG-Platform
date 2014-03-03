@@ -236,7 +236,7 @@ public class InflationMarketModelConvexityAdjustmentForCoupon {
     final int numberOfInterval = (int) Math.round((endTime - startTime) / lenghtOfInterval);
 
     if (numberOfInterval == 0) {
-      double volBondForward = ((endTime - startTime) / lenghtOfInterval) * inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, startTime, endTime, 1.0);
+      double volBondForward = ((endTime - startTime) / lenghtOfInterval) * inflationConvexity.getMulticurveProvider().getSimplyCompoundForwardRate(iborIndex, startTime, endTime, 1.0);
       volBondForward = volBondForward / (1 + volBondForward) * inflationConvexity.getBlackSmileIborCapParameters().getVolatility(endTime);
       return volBondForward;
     }
@@ -258,9 +258,9 @@ public class InflationMarketModelConvexityAdjustmentForCoupon {
       // Implementation note : breaktrough for the last period where the accrued calculation is different. 
       if (i == numberOfInterval + 1) {
         volatilityComponents[i] = (scheduleTimes[i + 1] - scheduleTimes[i]) / lenghtOfInterval *
-            inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, scheduleTimes[i], scheduleTimes[i + 1], 1.0);
+            inflationConvexity.getMulticurveProvider().getSimplyCompoundForwardRate(iborIndex, scheduleTimes[i], scheduleTimes[i + 1], 1.0);
       } else {
-        volatilityComponents[i] = inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, scheduleTimes[i], scheduleTimes[i + 1], 1.0);
+        volatilityComponents[i] = inflationConvexity.getMulticurveProvider().getSimplyCompoundForwardRate(iborIndex, scheduleTimes[i], scheduleTimes[i + 1], 1.0);
       }
 
       volatilityComponents[i] = volatilityComponents[i] / (1 + volatilityComponents[i]) * inflationConvexity.getBlackSmileIborCapParameters().getVolatility(scheduleTimes[i + 1]);

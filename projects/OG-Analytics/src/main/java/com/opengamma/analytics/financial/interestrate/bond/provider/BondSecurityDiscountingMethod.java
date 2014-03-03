@@ -9,6 +9,7 @@ import static com.opengamma.financial.convention.yield.SimpleYieldConvention.AUS
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.FRANCE_COMPOUND_METHOD;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.GERMAN_BOND;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.ITALY_TREASURY_BONDS;
+import static com.opengamma.financial.convention.yield.SimpleYieldConvention.MEXICAN_BONOS;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.UK_BUMP_DMO_METHOD;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.US_STREET;
 
@@ -44,9 +45,6 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class with methods related to bond security valued by discounting.
- */
-/**
- *
  */
 public final class BondSecurityDiscountingMethod {
   /**
@@ -137,7 +135,7 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond.
+   * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity).
    * The parallel shift is done in the curve convention.
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
@@ -149,8 +147,7 @@ public final class BondSecurityDiscountingMethod {
     return presentValue(bond, issuerShifted);
   }
 
-  /**
-   *
+  /** 
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param zSpread The z-spread.
@@ -202,7 +199,7 @@ public final class BondSecurityDiscountingMethod {
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
       if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)
-          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND)) {
+          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND) || yieldConvention.equals(MEXICAN_BONOS)) {
         return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
       }
       if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
@@ -210,7 +207,7 @@ public final class BondSecurityDiscountingMethod {
       }
     }
     if ((yieldConvention.equals(US_STREET)) || (yieldConvention.equals(UK_BUMP_DMO_METHOD)) || (yieldConvention.equals(GERMAN_BOND))
-        || (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) || (yieldConvention.equals(AUSTRALIA_EX_DIVIDEND))) {
+        || (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) || (yieldConvention.equals(AUSTRALIA_EX_DIVIDEND) || yieldConvention.equals(MEXICAN_BONOS))) {
       return dirtyPriceFromYieldStandard(bond, yield);
     }
     if (yieldConvention.equals(ITALY_TREASURY_BONDS)) {
@@ -355,7 +352,7 @@ public final class BondSecurityDiscountingMethod {
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
       if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)
-          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND)) {
+          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND) || yieldConvention.equals(MEXICAN_BONOS)) {
         return bond.getFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear());
       }
       if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
@@ -447,7 +444,7 @@ public final class BondSecurityDiscountingMethod {
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
         (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND)) || (bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD)) ||
-        (bond.getYieldConvention().equals(SimpleYieldConvention.ITALY_TREASURY_BONDS))) {
+        (bond.getYieldConvention().equals(SimpleYieldConvention.ITALY_TREASURY_BONDS) || bond.getYieldConvention().equals(MEXICAN_BONOS))) {
       return modifiedDurationFromYield(bond, yield) * (1 + yield / bond.getCouponPerYear());
     }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported for Macaulay duration.");
@@ -497,7 +494,7 @@ public final class BondSecurityDiscountingMethod {
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
       if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)
-          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND)) {
+          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND) || yieldConvention.equals(MEXICAN_BONOS)) {
         final double timeToPay = bond.getFactorToNextCoupon() / bond.getCouponPerYear();
         final double disc = (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear());
         return 2 * timeToPay * timeToPay / (disc * disc);
@@ -583,6 +580,7 @@ public final class BondSecurityDiscountingMethod {
 
   /**
    * Computes a bond z-spread from the curves and a present value.
+   * The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity) to match the present value.
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param pv The target present value.
@@ -620,7 +618,8 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes a bond z-spread from the curves and a clean price.
+   * Computes a bond z-spread from the curves and a clean price. 
+   * The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity) to match the CleanPrice present value.
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param cleanPrice The target clean price.
@@ -631,7 +630,7 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes a bond z-spread from the curves and a yield.
+   * Computes a bond z-spread from the curves and a yield. 
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param yield The yield.

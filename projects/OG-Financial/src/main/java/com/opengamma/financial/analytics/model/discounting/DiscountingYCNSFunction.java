@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.discounting;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
@@ -18,8 +19,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -42,9 +41,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -53,8 +58,6 @@ import com.opengamma.util.tuple.Pair;
  * curves constructed using the discounting method.
  */
 public class DiscountingYCNSFunction extends DiscountingFunction {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingYCNSFunction.class);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
@@ -67,14 +70,6 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final Security security = target.getTrade().getSecurity();
-        return super.canApplyTo(compilationContext, target) ||
-            security instanceof FederalFundsFutureSecurity;
-      }
-
-      @SuppressWarnings("synthetic-access")
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
@@ -95,8 +90,15 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
             return Collections.singleton(new ComputedValue(spec, ycns));
           }
         }
-        s_logger.info("Could not get sensitivities to " + curveName + " for " + target.getName());
-        return Collections.emptySet();
+        final ValueProperties properties = desiredValue.getConstraints().copy()
+            .with(CURVE, curveName)
+            .get();
+        final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
+            ValueProperties.builder().with(CURVE, curveName).get()));
+        final double[] zeroes = new double[curveDefinition.getNodes().size()];
+        final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
+        final DoubleLabelledMatrix1D ycns = MultiCurveUtils.getLabelledMatrix(new DoubleMatrix1D(zeroes), curveDefinition);
+        return Collections.singleton(new ComputedValue(spec, ycns));
       }
 
       @Override
@@ -131,10 +133,31 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
         return requirements;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
+        final ValueProperties.Builder properties = createValueProperties()
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+            .withAny(CURVE_EXPOSURES)
+            .withAny(CURVE);
+        final Security security = target.getTrade().getSecurity();
+        if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+          if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+            final SwapSecurity swapSecurity = (SwapSecurity) security;
+            if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
+              final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
+              properties.with(CURRENCY, currency);
+              return properties;
+            }
+          }
+          properties.withAny(CURRENCY);
+          return properties;
+        } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
+          properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
+        } else {
+          properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
+        }
+        return properties;
       }
 
     };

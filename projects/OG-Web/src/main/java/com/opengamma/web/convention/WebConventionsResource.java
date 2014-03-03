@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -72,12 +73,13 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       @QueryParam("pgSze") Integer pgSze,
       @QueryParam("sort") String sort,
       @QueryParam("name") String name,
+      @QueryParam("identifier") String id,
       @QueryParam("type") String type,
       @QueryParam("conventionId") List<String> conventionIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConventionSearchSortOrder so = buildSortOrder(sort, ConventionSearchSortOrder.NAME_ASC);
-    FlexiBean out = search(pr, so, name, type, conventionIdStrs, uriInfo);
+    FlexiBean out = search(pr, so, name, id, type, conventionIdStrs, uriInfo);
     return getFreemarker().build(HTML_DIR + "conventions.ftl", out);
   }
 
@@ -90,20 +92,22 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       @QueryParam("pgSze") Integer pgSze,
       @QueryParam("sort") String sort,
       @QueryParam("name") String name,
+      @QueryParam("identifier") String id,
       @QueryParam("type") String type,
       @QueryParam("conventionId") List<String> conventionIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConventionSearchSortOrder so = buildSortOrder(sort, ConventionSearchSortOrder.NAME_ASC);
-    FlexiBean out = search(pr, so, name, type, conventionIdStrs, uriInfo);
+    FlexiBean out = search(pr, so, name, id, type, conventionIdStrs, uriInfo);
     return getFreemarker().build(JSON_DIR + "conventions.ftl", out);
   }
 
-  private FlexiBean search(PagingRequest request, ConventionSearchSortOrder so, String name,
+  private FlexiBean search(PagingRequest request, ConventionSearchSortOrder so, String name, String id,
       String typeName, List<String> conventionIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
 
     ConventionSearchRequest searchRequest = new ConventionSearchRequest();
+    searchRequest.setExternalIdValue(StringUtils.trimToNull(id));
     typeName = StringUtils.trimToNull(typeName);
     if (typeName != null) {
       searchRequest.setConventionType(ConventionType.of(typeName));
@@ -153,17 +157,26 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       }
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put("xml", StringUtils.defaultString(xml));
+      out.put("conventionXml", StringEscapeUtils.escapeJava(StringUtils.defaultString(xml)));
       String html = getFreemarker().build(HTML_DIR + "convention-add.ftl", out);
       return Response.ok(html).build();
     }
-
-    final ManageableConvention convention = parseXML(xml, typeClazz);
-    convention.setName(name);
-    ConventionDocument doc = new ConventionDocument(convention);
-    ConventionDocument added = data().getConventionMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return Response.seeOther(uri).build();
+    try {
+      final ManageableConvention convention = parseXML(xml, typeClazz);
+      convention.setName(name);
+      ConventionDocument doc = new ConventionDocument(convention);
+      ConventionDocument added = data().getConventionMaster().add(doc);
+      URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
+      return Response.seeOther(uri).build();
+    } catch (Exception ex) {
+      FlexiBean out = createRootData();
+      out.put("name", StringUtils.defaultString(name));
+      out.put("type", StringUtils.defaultString(typeName));
+      out.put("conventionXml", StringEscapeUtils.escapeJava(StringUtils.defaultString(xml)));
+      out.put("err_conventionXmlMsg", StringUtils.defaultString(ex.getMessage()));
+      String html = getFreemarker().build(HTML_DIR + "convention-add.ftl", out);
+      return Response.ok(html).build();
+    }
   }
 
   @POST

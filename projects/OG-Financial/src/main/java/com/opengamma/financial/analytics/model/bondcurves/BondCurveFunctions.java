@@ -10,7 +10,6 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.bondcurves.future.BondFutureConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.bondcurves.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bondcurves.future.BondFutureNetBasisFromCurvesFunction;
 
@@ -42,7 +41,7 @@ public class BondCurveFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondAndBondFutureYCNSFunction.class));
     functions.add(functionConfiguration(BondYieldFromCurvesFunction.class));
 
-    functions.add(functionConfiguration(BondFutureConstantSpreadThetaFunction.class));
+    functions.add(functionConfiguration(BondAndBondFutureConstantSpreadThetaFunction.class));
     functions.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
     functions.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
   }

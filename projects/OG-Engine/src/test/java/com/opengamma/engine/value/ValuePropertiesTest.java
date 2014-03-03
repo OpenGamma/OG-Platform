@@ -296,7 +296,8 @@ public class ValuePropertiesTest {
     parseCycle(ValueProperties.all());
     parseCycle(ValueProperties.with("Foo", "1").get());
     parseCycle(ValueProperties.with("Foo", "1").with("Bar", "456").get());
-    parseCycle(ValueProperties.with("Foo", "1").withAny("Bar").get());
+    parseCycle(ValueProperties.with("Foo", "1").with("Bar", "45 6").get());
+    parseCycle(ValueProperties.with("Foo", " 1").withAny("Bar ").get());
     parseCycle(ValueProperties.with("Foo", "1").withOptional("Bar").get());
     parseCycle(ValueProperties.all().withoutAny("ABC"));
     parseCycle(ValueProperties.all().withoutAny("ABC").withoutAny("DEF"));
@@ -329,6 +330,7 @@ public class ValuePropertiesTest {
   public void testCharacterEscaping() {
     assertEquals(ValueProperties.with("[", " ]").get(), ValueProperties.parse("\\[=\\ \\]"));
     assertEquals(ValueProperties.with(",", "=").get(), ValueProperties.parse("\\,=\\="));
+    assertEquals(ValueProperties.with("F  oo", "45 6").get(), ValueProperties.parse(" F  oo = [ 45 6 ]"));
   }
 
   public void testWithWithoutIsNone() {

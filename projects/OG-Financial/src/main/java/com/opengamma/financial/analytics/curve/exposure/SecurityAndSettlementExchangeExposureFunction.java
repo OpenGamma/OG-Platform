@@ -8,12 +8,15 @@ package com.opengamma.financial.analytics.curve.exposure;
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -174,6 +177,11 @@ public class SecurityAndSettlementExchangeExposureFunction implements ExposureFu
   }
 
   @Override
+  public List<ExternalId> visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return null;
+  }
+
+  @Override
   public List<ExternalId> visitCashSecurity(final CashSecurity security) {
     return null;
   }
@@ -293,6 +301,11 @@ public class SecurityAndSettlementExchangeExposureFunction implements ExposureFu
 
   @Override
   public List<ExternalId> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitBillSecurity(final BillSecurity security) {
     return null;
   }
 
@@ -458,4 +471,8 @@ public class SecurityAndSettlementExchangeExposureFunction implements ExposureFu
     return null;
   }
 
+  @Override
+  public List<ExternalId> visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return null;
+  }
 }

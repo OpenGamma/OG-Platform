@@ -39,6 +39,12 @@ import com.opengamma.util.paging.PagingRequest;
 public abstract class AbstractSearchRequest extends DirectBean implements PagedRequest {
 
   /**
+   * The scheme of the unique identifier of the underlying master to search. Wildcards are not allowed.
+   */
+  @PropertyDefinition
+  private String _uniqueIdScheme;
+
+  /**
    * The request for paging.
    * By default all matching items will be returned.
    */
@@ -111,6 +117,31 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the scheme of the unique identifier of the underlying master to search. Wildcards are not allowed.
+   * @return the value of the property
+   */
+  public String getUniqueIdScheme() {
+    return _uniqueIdScheme;
+  }
+
+  /**
+   * Sets the scheme of the unique identifier of the underlying master to search. Wildcards are not allowed.
+   * @param uniqueIdScheme  the new value of the property
+   */
+  public void setUniqueIdScheme(String uniqueIdScheme) {
+    this._uniqueIdScheme = uniqueIdScheme;
+  }
+
+  /**
+   * Gets the the {@code uniqueIdScheme} property.
+   * @return the property, not null
+   */
+  public final Property<String> uniqueIdScheme() {
+    return metaBean().uniqueIdScheme().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the request for paging.
    * By default all matching items will be returned.
    * @return the value of the property
@@ -177,7 +208,8 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       AbstractSearchRequest other = (AbstractSearchRequest) obj;
-      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+      return JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
+          JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
           JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection());
     }
     return false;
@@ -186,6 +218,7 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
     return hash;
@@ -193,7 +226,7 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("AbstractSearchRequest{");
     int len = buf.length();
     toString(buf);
@@ -205,6 +238,7 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
   }
 
   protected void toString(StringBuilder buf) {
+    buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
     buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
     buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
   }
@@ -220,6 +254,11 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code uniqueIdScheme} property.
+     */
+    private final MetaProperty<String> _uniqueIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "uniqueIdScheme", AbstractSearchRequest.class, String.class);
+    /**
      * The meta-property for the {@code pagingRequest} property.
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(
@@ -234,6 +273,7 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "uniqueIdScheme",
         "pagingRequest",
         "versionCorrection");
 
@@ -246,6 +286,8 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1737146991:  // uniqueIdScheme
+          return _uniqueIdScheme;
         case -2092032669:  // pagingRequest
           return _pagingRequest;
         case -2031293866:  // versionCorrection
@@ -271,6 +313,14 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code uniqueIdScheme} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> uniqueIdScheme() {
+      return _uniqueIdScheme;
+    }
+
+    /**
      * The meta-property for the {@code pagingRequest} property.
      * @return the meta-property, not null
      */
@@ -290,6 +340,8 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -1737146991:  // uniqueIdScheme
+          return ((AbstractSearchRequest) bean).getUniqueIdScheme();
         case -2092032669:  // pagingRequest
           return ((AbstractSearchRequest) bean).getPagingRequest();
         case -2031293866:  // versionCorrection
@@ -301,6 +353,9 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -1737146991:  // uniqueIdScheme
+          ((AbstractSearchRequest) bean).setUniqueIdScheme((String) newValue);
+          return;
         case -2092032669:  // pagingRequest
           ((AbstractSearchRequest) bean).setPagingRequest((PagingRequest) newValue);
           return;

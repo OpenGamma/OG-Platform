@@ -105,7 +105,7 @@ public class CompoundingIborLegConvention extends FinancialConvention {
    * @param iborIndexConvention  the id of the underlying ibor index convention, not null
    * @param paymentTenor  the payment tenor, not null
    * @param compoundingType  the compounding type, not null
-   * @param compositionTenor  the composition tenor, not null
+   * @param compositionTenor  the composition tenor, not null TODO: Remove: in the ibor Index.
    * @param stubTypeCompound  the stub type used in each coupon for the compounding, not null
    * @param settlementDays  the number of settlement days
    * @param isEOM  true if dates follow the end-of-month rule

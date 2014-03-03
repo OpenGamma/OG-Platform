@@ -46,7 +46,7 @@ public class AUConventions extends ConventionMasterInitializer {
   /** Singleton. */
   public static final ConventionMasterInitializer INSTANCE = new AUConventions();
   /** The BBSW string **/
-  private static final String BBSW = "BBSW";
+  public static final String BBSW = "BBSW";
   /** The BBSW leg string **/
   private static final String BBSW_LEG = "BBSW Leg";
 

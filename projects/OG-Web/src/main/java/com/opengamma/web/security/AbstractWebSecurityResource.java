@@ -1,12 +1,14 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.web.security;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.index.IndexFamily;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
@@ -26,7 +29,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityLoader;
@@ -35,6 +38,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
@@ -45,7 +49,10 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
-  
+  /**
+   * Security XML parameter name
+   */
+  protected static final String SECURITY_XML = "securityXml";
   /**
    * HTML ftl directory
    */
@@ -69,19 +76,19 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
-   * @param organizationMaster the organization master, not null
+   * @param legalEntityMaster the organization master, not null
    */
   protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, 
-      final OrganizationMaster organizationMaster) {
+      final LegalEntityMaster legalEntityMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(htsMaster, "htsMaster");
-    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
+    ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
     _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);
     data().setHistoricalTimeSeriesMaster(htsMaster);
-    data().setOrganizationMaster(organizationMaster);
+    data().setLegalEntityMaster(legalEntityMaster);
   }
 
   /**
@@ -138,7 +145,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   protected void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
     if (security instanceof FinancialSecurity) {
       FinancialSecurity financialSec = (FinancialSecurity) security;
-      financialSec.accept(new SecurityTemplateModelObjectBuilder(out, data().getSecurityMaster(), data().getOrganizationMaster()));
+      financialSec.accept(new SecurityTemplateModelObjectBuilder(out, data().getSecurityMaster(), data().getLegalEntityMaster()));
     } else {
       if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
         RawSecurity rawSecurity = (RawSecurity) security;
@@ -166,6 +173,16 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
         List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, msg.getMessage());
         List<FactorExposure> factorExposuresList = convertToFactorExposure(factorExposureDataList);
         out.put("factorExposuresList", factorExposuresList);
+      }
+      if (security.getSecurityType().equals(IndexFamily.METADATA_TYPE)) {
+        Map<String, ExternalId> convertedMap = new LinkedHashMap<>();
+        IndexFamily indexFamily = (IndexFamily) security;
+        if (indexFamily.getMembers() != null) {
+          for (Map.Entry<Tenor, ExternalId> entry : indexFamily.getMembers().entrySet()) {
+            convertedMap.put(entry.getKey().toFormattedString(), entry.getValue());
+          }
+        }
+        out.put("members", convertedMap);
       }
     }
   }

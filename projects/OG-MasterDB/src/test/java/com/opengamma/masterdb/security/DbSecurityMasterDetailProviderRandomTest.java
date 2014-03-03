@@ -277,5 +277,32 @@ public class DbSecurityMasterDetailProviderRandomTest extends AbstractDbSecurity
   public void testCreditDefaultSwapOptionSecurity() {
     _testCase.testCreditDefaultSwapOptionSecurity();
   }
+
+  @Override
+  public void testBondIndex() {
+    _testCase.testBondIndex();
+  }
+
+  @Override
+  public void testEquityIndex() {
+    _testCase.testEquityIndex();
+  }
+
+  @Override
+  public void testIborIndex() {
+    _testCase.testIborIndex();
+  }
+
+  @Override
+  public void testOvernightIndex() {
+    _testCase.testOvernightIndex();
+  }
+
+  @Override
+  public void testIndexFamily() {
+    _testCase.testIndexFamily();
+  }
+  
+
   
 }

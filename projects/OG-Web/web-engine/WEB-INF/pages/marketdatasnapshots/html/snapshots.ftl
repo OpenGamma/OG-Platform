@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Market Data Snapshot">
+<@page title="Market Data Snapshot" jquery=true jqueryDate=true>
 
 
 <#-- SECTION Market Data Snapshot search -->
@@ -28,11 +28,6 @@
 <#-- SECTION Add market data snapshot -->
 <@section title="Add market data snapshot">
   <@form method="POST" action="${uris.snapshots()}">
-  
-    <script src="/prototype/scripts/lib/jquery/jquery-1.8.0.js"></script>
-    <script src="/prototype/scripts/lib/jquery/ui/jquery-ui-1.8.11.custom.min.js"></script>
-    <script src="/prototype/scripts/lib/jquery/ui/jquery.ui.datepicker.js"></script>
-    <!--<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script> -->
     <script src="/green/js/marketDataSnapshot.js"></script>
   <p>
     <@rowin label="Snapshot Name"><input type="text" size="30" maxlength="80" name="name" value="${searchRequest.name}" /></@rowin>

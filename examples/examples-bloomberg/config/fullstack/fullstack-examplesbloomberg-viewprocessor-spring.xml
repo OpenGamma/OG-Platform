@@ -146,6 +146,9 @@
         <bean class="com.opengamma.financial.config.ConfigSourceChangeProvider">
           <constructor-arg ref="sharedConfigSource" />
         </bean>
+        <bean class=" com.opengamma.financial.timeseries.HistoricalTimeSeriesSourceChangeProvider">
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+        </bean>
       </list>
     </property>
     <property name="watchSetProviders">

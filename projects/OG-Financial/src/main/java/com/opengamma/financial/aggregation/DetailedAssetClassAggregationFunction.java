@@ -19,6 +19,7 @@ import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
@@ -105,7 +106,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   private static final String EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS = "Equity Index Dividend Future Options";
   private static final String BOND_FUTURE_OPTIONS = "Bond Future Options";
   private static final String FX_VOLATILITY_SWAPS = "FX Volatility Swaps";
-
+  private static final String CASH_BALANCE = "Cash Balance";
 
   @Override
   public String classifyPosition(final Position position) {
@@ -142,6 +143,11 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitCapFloorSecurity(final CapFloorSecurity security) {
           return CAP_FLOOR;
+        }
+
+        @Override
+        public String visitCashBalanceSecurity(final CashBalanceSecurity security) {
+          return CASH_BALANCE;
         }
 
         @Override

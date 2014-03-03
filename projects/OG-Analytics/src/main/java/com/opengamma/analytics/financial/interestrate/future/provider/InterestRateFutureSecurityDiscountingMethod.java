@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -52,7 +53,7 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
   public double price(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    final double forward = multicurves.getMulticurveProvider().getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
+    final double forward = multicurves.getMulticurveProvider().getSimplyCompoundForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
         futures.getFixingPeriodAccrualFactor());
     final double price = 1.0 - forward;
     return price;
@@ -67,7 +68,7 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
   public double parRate(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    return multicurves.getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
+    return multicurves.getSimplyCompoundForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
   }
 
   /**
@@ -85,7 +86,7 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
     final double forwardBar = -priceBar;
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getMulticurveProvider().getName(futures.getIborIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);
   }

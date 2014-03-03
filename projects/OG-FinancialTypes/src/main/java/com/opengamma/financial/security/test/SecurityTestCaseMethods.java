@@ -102,4 +102,13 @@ public interface SecurityTestCaseMethods {
   
   void testCreditDefaultSwapOptionSecurity();
 
+  void testBondIndex();
+  
+  void testEquityIndex();
+  
+  void testIborIndex();
+  
+  void testOvernightIndex();
+
+  void testIndexFamily();
 }

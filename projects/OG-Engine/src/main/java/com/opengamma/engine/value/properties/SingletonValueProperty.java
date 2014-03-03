@@ -206,7 +206,7 @@ public final class SingletonValueProperty extends AbstractValueProperty {
     if (isOptional()) {
       final MutableFudgeMsg subMsg = msg.addSubMessage(getKey(), null);
       subMsg.add(ValuePropertiesFudgeBuilder.OPTIONAL_FIELD, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
-      subMsg.add(null, null, FudgeWireType.STRING, _value);
+      subMsg.add(null, 0, FudgeWireType.STRING, _value);
     } else {
       msg.add(getKey(), null, FudgeWireType.STRING, _value);
     }

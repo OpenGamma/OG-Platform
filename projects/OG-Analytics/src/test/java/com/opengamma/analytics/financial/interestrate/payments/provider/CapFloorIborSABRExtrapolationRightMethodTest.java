@@ -106,7 +106,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueBelowCutOff() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_X.presentValue(CAP_LONG, SABR_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double maturity = CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
     final DoublesPair expiryMaturity = DoublesPair.of(CAP_LONG.getFixingTime(), maturity);
     final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
@@ -127,7 +127,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueAboveCutOff() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_X.presentValue(CAP_HIGH_LONG, SABR_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_HIGH_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_HIGH_LONG.getFixingPeriodStartTime(), CAP_HIGH_LONG.getFixingPeriodEndTime(), CAP_HIGH_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_HIGH_LONG.getFixingPeriodStartTime(), CAP_HIGH_LONG.getFixingPeriodEndTime(), CAP_HIGH_LONG.getFixingAccrualFactor());
     final double maturity = CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
     final DoublesPair expiryMaturity = DoublesPair.of(CAP_HIGH_LONG.getFixingTime(), maturity);
     final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);

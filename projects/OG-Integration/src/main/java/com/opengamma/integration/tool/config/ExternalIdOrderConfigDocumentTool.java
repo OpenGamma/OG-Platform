@@ -19,12 +19,14 @@ public class ExternalIdOrderConfigDocumentTool extends AbstractTool<IntegrationT
 
   private static final String DEFAULT_CONFIG_NAME = "DEFAULT";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExternalIdOrderConfigDocumentTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ExternalIdOrderConfigDocumentTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

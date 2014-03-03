@@ -6,6 +6,7 @@
 package com.opengamma.examples.simulated;
 
 import com.opengamma.component.OpenGammaComponentServer;
+import com.opengamma.util.ShutdownUtils;
 
 /**
  * Entry point for the OpenGamma component-based server in Examples-Simulated automatically
@@ -40,7 +41,9 @@ public class ExamplesSimulatedComponentServerDev extends OpenGammaComponentServe
       // the second argument defines the start of a chain of properties files providing the configuration
       args = new String[] {"-v", "classpath:/fullstack/fullstack-examplessimulated-dev.properties"};
     }
-    new ExamplesSimulatedComponentServerDev().run(args);
+    if (!new ExamplesSimulatedComponentServerDev().run(args)) {
+      ShutdownUtils.exit(-1);
+    }
   }
 
 }

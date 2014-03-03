@@ -152,6 +152,9 @@ public class DbSecurityMaster
     Timer.Context context = _metaDataTimer.time();
     try {
       SecurityMetaDataResult result = new SecurityMetaDataResult();
+      if (!matchesUniqueIdScheme(request)) {
+        return result;
+      }
       if (request.isSecurityTypes()) {
         final String sql = getElSqlBundle().getSql("SelectTypes");
         List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
@@ -166,6 +169,10 @@ public class DbSecurityMaster
     }
   }
 
+  private boolean matchesUniqueIdScheme(SecurityMetaDataRequest request) {
+    return request.getUniqueIdScheme() == null || getUniqueIdScheme().equals(request.getUniqueIdScheme());
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public SecuritySearchResult search(final SecuritySearchRequest request) {
@@ -178,8 +185,13 @@ public class DbSecurityMaster
     if (vc.containsLatest()) {
       vc = vc.withLatestFixed(now());
     }
+    
     final SecuritySearchResult result = new SecuritySearchResult(vc);
-
+    
+    if (!matchesUniqueIdScheme(request)) {
+      return result;
+    }
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final Map<String, String> attributes = request.getAttributes();
     final List<ObjectId> objectIds = request.getObjectIds();
@@ -239,7 +251,12 @@ public class DbSecurityMaster
     if (request.isFullDetail()) {
       loadDetail(detailProvider, result.getDocuments());
     }
+
     return result;
+  }
+
+  private boolean matchesUniqueIdScheme(final SecuritySearchRequest request) {
+    return request.getUniqueIdScheme() == null || getUniqueIdScheme().equals(request.getUniqueIdScheme());
   }
 
   /**

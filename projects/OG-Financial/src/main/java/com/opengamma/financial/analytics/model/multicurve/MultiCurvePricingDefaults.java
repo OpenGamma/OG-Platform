@@ -6,10 +6,12 @@
 package com.opengamma.financial.analytics.model.multicurve;
 
 import static com.opengamma.engine.value.ValueRequirementNames.ACCRUED_INTEREST;
+import static com.opengamma.engine.value.ValueRequirementNames.ALL_PV01S;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.CONVEXITY;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.GROSS_BASIS;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
@@ -17,6 +19,8 @@ import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION
 import static com.opengamma.engine.value.ValueRequirementNames.NET_BASIS;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
+import static com.opengamma.engine.value.ValueRequirementNames.SWAP_PAY_LEG_DETAILS;
+import static com.opengamma.engine.value.ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.YTM;
@@ -42,10 +46,12 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
   /** The value requirement names for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ACCRUED_INTEREST,
+    ALL_PV01S,
     BLOCK_CURVE_SENSITIVITIES,
     BUCKETED_PV01,
     CLEAN_PRICE,
     CONVEXITY,
+    FX_PRESENT_VALUE,
     GAMMA_PV01,
     GROSS_BASIS,
     MACAULAY_DURATION,
@@ -53,6 +59,8 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
     NET_BASIS,
     PRESENT_VALUE,
     PV01,
+    SWAP_PAY_LEG_DETAILS,
+    SWAP_RECEIVE_LEG_DETAILS,
     VALUE_THETA,
     YIELD_CURVE_NODE_SENSITIVITIES,
     YTM,

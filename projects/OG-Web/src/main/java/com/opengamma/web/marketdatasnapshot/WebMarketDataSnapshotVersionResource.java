@@ -17,6 +17,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -42,8 +43,6 @@ public class WebMarketDataSnapshotVersionResource extends AbstractWebMarketDataS
   @GET
   public String getHTML() {
     FlexiBean out = createRootData();
-    MarketDataSnapshotDocument versioned = data().getVersioned();
-    out.put("snapshotXml", createBeanXML(versioned.getSnapshot()));
     return getFreemarker().build(HTML_DIR + "snapshotversion.ftl", out);
   }
 
@@ -74,6 +73,7 @@ public class WebMarketDataSnapshotVersionResource extends AbstractWebMarketDataS
     out.put("snapshotDoc", versionedSnapshot);
     out.put("snapshot", versionedSnapshot.getSnapshot());
     out.put("deleted", !latestDoc.isLatest());
+    out.put("snapshotXml", StringEscapeUtils.escapeJavaScript(createBeanXML(versionedSnapshot.getSnapshot())));
     return out;
   }
 

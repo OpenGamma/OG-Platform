@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -45,8 +46,6 @@ public class WebMarketDataSnapshotResource extends AbstractWebMarketDataSnapshot
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     final FlexiBean out = createRootData();
-    final MarketDataSnapshotDocument doc = data().getSnapshot();
-    out.put("snapshotXml", createBeanXML(doc.getSnapshot()));
     return getFreemarker().build(HTML_DIR + "snapshot.ftl", out);
   }
   
@@ -115,6 +114,7 @@ public class WebMarketDataSnapshotResource extends AbstractWebMarketDataSnapshot
     out.put("snapshotDoc", doc);
     out.put("snapshot", doc.getSnapshot());
     out.put("deleted", !doc.isLatest());
+    out.put("snapshotXml", StringEscapeUtils.escapeJavaScript(createBeanXML(doc.getSnapshot())));
     return out;
   }
 

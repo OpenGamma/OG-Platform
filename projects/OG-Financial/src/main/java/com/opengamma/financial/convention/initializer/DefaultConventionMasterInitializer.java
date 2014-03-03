@@ -38,6 +38,7 @@ public class DefaultConventionMasterInitializer extends ConventionMasterInitiali
   @Override
   public void init(final ConventionMaster master) {
     AUConventions.INSTANCE.init(master);
+    CAConventions.INSTANCE.init(master);
     CHConventions.INSTANCE.init(master);
     EUConventions.INSTANCE.init(master);
     GBConventions.INSTANCE.init(master);

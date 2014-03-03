@@ -63,16 +63,14 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
    */
   public static final String PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
 
-
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new CDSStrikeFixer().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new CDSStrikeFixer().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

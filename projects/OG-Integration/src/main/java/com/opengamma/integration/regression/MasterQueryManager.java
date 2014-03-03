@@ -11,6 +11,9 @@ import com.google.common.base.Function;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.convention.ConventionDocument;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.ConventionSearchRequest;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
@@ -20,12 +23,12 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.legalentity.LegalEntityDocument;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.LegalEntitySearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.OrganizationMaster;
-import com.opengamma.master.orgs.OrganizationSearchRequest;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -49,13 +52,15 @@ final class MasterQueryManager {
   private final Function<HolidayMaster, ? extends Iterable<HolidayDocument>> _holidayQuery;
   private final Function<ExchangeMaster, ? extends Iterable<ExchangeDocument>> _exchangeQuery;
   private final Function<MarketDataSnapshotMaster, ? extends Iterable<MarketDataSnapshotDocument>> _marketDataSnapshotQuery;
-  private final Function<OrganizationMaster, ? extends Iterable<OrganizationDocument>> _organizationQuery;
+  private final Function<LegalEntityMaster, ? extends Iterable<LegalEntityDocument>> _legalEntityQuery;
+  private final Function<ConventionMaster, ? extends Iterable<ConventionDocument>> _conventionQuery;
 
   public MasterQueryManager(Function<SecurityMaster, ? extends Iterable<SecurityDocument>> securityQuery, Function<PositionMaster, ? extends Iterable<PositionDocument>> positionQuery,
       Function<PortfolioMaster, ? extends Iterable<PortfolioDocument>> portfolioQuery, Function<ConfigMaster, ? extends Iterable<ConfigDocument>> configQuery,
       Function<HistoricalTimeSeriesMaster, ? extends Iterable<HistoricalTimeSeriesInfoDocument>> htsQuery, Function<HolidayMaster, ? extends Iterable<HolidayDocument>> holidayQuery,
       Function<ExchangeMaster, ? extends Iterable<ExchangeDocument>> exchangeQuery, Function<MarketDataSnapshotMaster, ? extends Iterable<MarketDataSnapshotDocument>> marketDataSnapshotQuery,
-      Function<OrganizationMaster, ? extends Iterable<OrganizationDocument>> organizationQuery) {
+      Function<LegalEntityMaster, ? extends Iterable<LegalEntityDocument>> legalEntityQuery,
+      Function<ConventionMaster, ? extends Iterable<ConventionDocument>> conventionQuery) {
     super();
     _securityQuery = securityQuery;
     _positionQuery = positionQuery;
@@ -65,7 +70,8 @@ final class MasterQueryManager {
     _holidayQuery = holidayQuery;
     _exchangeQuery = exchangeQuery;
     _marketDataSnapshotQuery = marketDataSnapshotQuery;
-    _organizationQuery = organizationQuery;
+    _legalEntityQuery = legalEntityQuery;
+    _conventionQuery = conventionQuery;
   }
 
   public Function<SecurityMaster, ? extends Iterable<SecurityDocument>> getSecurityQuery() {
@@ -100,8 +106,12 @@ final class MasterQueryManager {
     return _marketDataSnapshotQuery;
   }
 
-  public Function<OrganizationMaster, ? extends Iterable<OrganizationDocument>> getOrganizationQuery() {
-    return _organizationQuery;
+  public Function<LegalEntityMaster, ? extends Iterable<LegalEntityDocument>> getLegalEntityQuery() {
+    return _legalEntityQuery;
+  }
+
+  public Function<ConventionMaster, ? extends Iterable<ConventionDocument>> getConventionQuery() {
+    return _conventionQuery;
   }
 
   public static MasterQueryManager queryAll() {
@@ -113,7 +123,8 @@ final class MasterQueryManager {
                                   new HolidayQueryAll(),
                                   new ExchangeQueryAll(),
                                   new MarketDataSnapshotQueryAll(),
-                                  new OrgQueryAll());
+                                  new OrgQueryAll(),
+                                  new ConventionQueryAll());
   }
   
   //no getAll() on AbstractMaster so have to write out for each one:
@@ -192,14 +203,26 @@ final class MasterQueryManager {
     
   }
 
-  private static class OrgQueryAll implements Function<OrganizationMaster, List<OrganizationDocument>> {
+  private static class OrgQueryAll implements Function<LegalEntityMaster, List<LegalEntityDocument>> {
 
     @Override
-    public List<OrganizationDocument> apply(OrganizationMaster input) {
-      return input.search(new OrganizationSearchRequest()).getDocuments();
+    public List<LegalEntityDocument> apply(LegalEntityMaster input) {
+      return input.search(new LegalEntitySearchRequest()).getDocuments();
     }
 
     
   }
+  
+  private static class ConventionQueryAll implements Function<ConventionMaster, List<ConventionDocument>> {
+
+    @Override
+    public List<ConventionDocument> apply(ConventionMaster input) {
+      return input.search(new ConventionSearchRequest()).getDocuments();
+    }
+
+    
+  }
+  
+  
 
 }

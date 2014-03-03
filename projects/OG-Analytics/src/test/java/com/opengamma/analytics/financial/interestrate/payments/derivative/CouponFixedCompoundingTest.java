@@ -92,7 +92,7 @@ public class CouponFixedCompoundingTest {
     assertEquals("CouponFixedCompounding: getter", PAYMENT_ACCRUAL_FACTORS, CPN.getPaymentAccrualFactors());
     assertEquals("CouponFixedCompounding: getter", PAYMENT_TIME, CPN.getPaymentTime());
     assertEquals("CouponFixedCompounding: getter", PAYMENT_ACCRUAL_FACTOR, CPN.getPaymentYearFraction());
-    assertEquals("CouponFixedCompounding: getter", FIXED_RATE, CPN.getRate());
+    assertEquals("CouponFixedCompounding: getter", FIXED_RATE, CPN.getFixedRate());
   }
 
   @Test

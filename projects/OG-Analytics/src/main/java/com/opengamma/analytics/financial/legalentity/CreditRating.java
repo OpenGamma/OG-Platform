@@ -364,6 +364,22 @@ public final class CreditRating implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -938102371:  // rating
+          return _rating;
+        case 1353926175:  // ratingDescription
+          return _ratingDescription;
+        case -1646362576:  // agencyName
+          return _agencyName;
+        case -2074418936:  // longTerm
+          return _longTerm;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -938102371:  // rating

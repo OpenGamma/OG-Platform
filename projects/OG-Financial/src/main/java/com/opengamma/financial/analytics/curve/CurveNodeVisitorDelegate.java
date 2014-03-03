@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
@@ -38,6 +39,11 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   public CurveNodeVisitorDelegate(final CurveNodeVisitor<T> delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
+  }
+
+  @Override
+  public T visitBillNode(final BillNode node) {
+    return _delegate.visitBillNode(node);
   }
 
   @Override

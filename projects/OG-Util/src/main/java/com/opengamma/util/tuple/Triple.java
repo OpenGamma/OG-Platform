@@ -19,7 +19,7 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -357,7 +357,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
    * The bean-builder for {@code Triple}.
    */
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private static final class Builder extends BasicImmutableBeanBuilder<Triple> {
+  private static final class Builder extends DirectFieldsBeanBuilder<Triple> {
 
     /** The first element. */
     private Object _first;
@@ -370,7 +370,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
      * Restricted constructor.
      */
     private Builder() {
-      super(Triple.Meta.INSTANCE);
+      super();
     }
 
     //-----------------------------------------------------------------------
@@ -389,6 +389,12 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
       return this;
     }
 

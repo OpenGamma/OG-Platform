@@ -59,10 +59,6 @@ public class DataViewProcessorResource extends AbstractDataResource {
    */
   public static final String PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY = "namedMarketDataSpecRepository";
   /**
-   * URI path to clear view execution cache.
-   */
-  public static final String PATH_CLEAR_CACHE = "clearViewExecutionCache";
-  /**
    * URI path to the name.
    */
   public static final String PATH_NAME = "name";
@@ -167,13 +163,6 @@ public class DataViewProcessorResource extends AbstractDataResource {
   @Path(PATH_NAME)
   public Response getName() {
     return responseOk(getViewProcessor().getName());
-  }
-
-  @POST
-  @Path(PATH_CLEAR_CACHE)
-  public Response clearViewExecutionCache() {
-    getViewProcessor().clearViewExecutionCache();
-    return responseOk();
   }
 
   @Path(PATH_CONFIG_SOURCE)

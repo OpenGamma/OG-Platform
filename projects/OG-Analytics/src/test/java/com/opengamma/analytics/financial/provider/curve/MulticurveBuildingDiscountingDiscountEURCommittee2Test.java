@@ -367,7 +367,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, TARGET);
         final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
         final double accrualFactor = EONIA.getDayCount().getDayCountFraction(startDate, endDate);
-        rateDsc[loopdate] = multicurve.getForwardRate(EONIA, startTime[loopdate], endTime, accrualFactor); // EONIA curve
+        rateDsc[loopdate] = multicurve.getSimplyCompoundForwardRate(EONIA, startTime[loopdate], endTime, accrualFactor); // EONIA curve
         //        rateDsc[loopdate] = multicurve.getForwardRate(EURIBOR6M, startTime[loopdate], endTime, accrualFactor); // EURIBOR6M curve
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, TARGET);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
@@ -398,7 +398,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR6M, TARGET);
         final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
         final double accrualFactor = EURIBOR6M.getDayCount().getDayCountFraction(startDate, endDate);
-        rateDsc[loopdate] = multicurve.getForwardRate(EURIBOR6M, startTime[loopdate], endTime, accrualFactor);
+        rateDsc[loopdate] = multicurve.getSimplyCompoundForwardRate(EURIBOR6M, startTime[loopdate], endTime, accrualFactor);
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, TARGET);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
       }

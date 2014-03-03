@@ -29,6 +29,8 @@ import com.opengamma.web.historicaltimeseries.WebHistoricalTimeSeriesData;
 import com.opengamma.web.historicaltimeseries.WebHistoricalTimeSeriesUris;
 import com.opengamma.web.holiday.WebHolidayData;
 import com.opengamma.web.holiday.WebHolidayUris;
+import com.opengamma.web.legalentity.WebLegalEntityData;
+import com.opengamma.web.legalentity.WebLegalEntityUris;
 import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotData;
 import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotUris;
 import com.opengamma.web.portfolio.WebPortfoliosData;
@@ -88,6 +90,10 @@ public class WebHomeResource extends AbstractWebResource {
     WebConventionData conventionData = new WebConventionData();
     conventionData.setUriInfo(uriInfo);
     out.put("conventionUris", new WebConventionUris(conventionData));
+
+    WebLegalEntityData legalEntityData = new WebLegalEntityData();
+    legalEntityData.setUriInfo(uriInfo);
+    out.put("legalEntityUris", new WebLegalEntityUris(legalEntityData));
     
     WebExchangeData exchangeData = new WebExchangeData();
     exchangeData.setUriInfo(uriInfo);

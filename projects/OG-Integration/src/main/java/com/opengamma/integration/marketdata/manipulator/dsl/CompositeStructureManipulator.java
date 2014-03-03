@@ -15,6 +15,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -37,10 +38,10 @@ public class CompositeStructureManipulator<T> implements StructureManipulator<T>
   }
 
   @Override
-  public T execute(T structure, ValueSpecification valueSpecification) {
+  public T execute(T structure, ValueSpecification valueSpecification, FunctionExecutionContext executionContext) {
     T value = structure;
     for (StructureManipulator<T> manipulator : _manipulators) {
-      value = manipulator.execute(value, valueSpecification);
+      value = manipulator.execute(value, valueSpecification, executionContext);
     }
     return value;
   }

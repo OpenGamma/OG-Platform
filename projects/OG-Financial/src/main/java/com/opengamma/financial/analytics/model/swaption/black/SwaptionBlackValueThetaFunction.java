@@ -42,7 +42,7 @@ public class SwaptionBlackValueThetaFunction extends SwaptionBlackFunction {
     if (!expectedCurrency.equals(resultCurrency)) {
       throw new OpenGammaRuntimeException("Expected currency " + expectedCurrency + " does not equal result currency " + resultCurrency);
     }
-    final double thetaValue = result.getAmount();
+    final double thetaValue = result.getAmount() / 365.25;
     return Collections.singleton(new ComputedValue(spec, thetaValue));
   }
 }

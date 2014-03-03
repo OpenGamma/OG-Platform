@@ -21,7 +21,7 @@ public enum RollConvention {
   EOM {
     @Override
     public RollDateAdjuster getRollDateAdjuster(int numMonthsToAdjust) {
-      return new GeneralRollDateAdjuster(numMonthsToAdjust, EndOfMonthTemporalAdjuster.getAdjuster());
+      return EndOfMonthRollDateAdjuster.getAdjuster();
     }
   },
 

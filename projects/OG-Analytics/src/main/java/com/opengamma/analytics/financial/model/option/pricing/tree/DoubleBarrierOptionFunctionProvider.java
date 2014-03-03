@@ -15,21 +15,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DoubleBarrierOptionFunctionProvider extends BarrierOptionFunctionProvider {
 
-  /**
-   * 
-   */
-  public static enum BarrierTypes {
-    /**
-     * Up-and-Out-Down-and-Out
-     */
-    DoubleKnockOut,
-    /**
-     * Up-and-In-Down-and-In, not implemented
-     * Knock-in type should be priced by another model
-     */
-    DoubleKnockIn
-  }
-
   private double _upperBarrier;
   private CrossBarrierChecker _checkerDouble;
 
@@ -53,7 +38,7 @@ public class DoubleBarrierOptionFunctionProvider extends BarrierOptionFunctionPr
       case DoubleKnockOut:
         _checkerDouble = new DoubleBarrier();
         break;
-      default: //i.e., DoubleKnockIn
+      default:
         throw new NotImplementedException();
     }
 
@@ -61,13 +46,14 @@ public class DoubleBarrierOptionFunctionProvider extends BarrierOptionFunctionPr
   }
 
   @Override
-  public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
+  public double[] getPayoffAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
     final double strike = getStrike();
-    final int nStepsP = getNumberOfSteps() + 1;
+    final int nSteps = getNumberOfSteps();
+    final int nStepsP = nSteps + 1;
     final double sign = getSign();
 
     final double[] values = new double[nStepsP];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nStepsP; ++i) {
       values[i] = _checkerDouble.checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= upOverDown;
@@ -90,13 +76,14 @@ public class DoubleBarrierOptionFunctionProvider extends BarrierOptionFunctionPr
   }
 
   @Override
-  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double middleOverDown) {
+  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double downFactor, final double middleOverDown) {
     final double strike = getStrike();
+    final int nSteps = getNumberOfSteps();
     final int nNodes = 2 * getNumberOfSteps() + 1;
     final double sign = getSign();
 
     final double[] values = new double[nNodes];
-    double priceTmp = assetPrice;
+    double priceTmp = assetPrice * Math.pow(downFactor, nSteps);
     for (int i = 0; i < nNodes; ++i) {
       values[i] = _checkerDouble.checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= middleOverDown;
@@ -121,6 +108,10 @@ public class DoubleBarrierOptionFunctionProvider extends BarrierOptionFunctionPr
   @Override
   public CrossBarrierChecker getChecker() {
     return this._checkerDouble;
+  }
+
+  public BarrierTypes getBarrierType() {
+    return BarrierTypes.DoubleKnockOut;
   }
 
   private CrossBarrierChecker getSuperclassChecker() {

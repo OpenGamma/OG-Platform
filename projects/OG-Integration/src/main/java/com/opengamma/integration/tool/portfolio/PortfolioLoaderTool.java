@@ -32,8 +32,6 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   private static final String MERGE_POSITIONS_OPT = "m";
   /** Keep existing positions in the previous version of the portfolio and add the newly loaded positions */
   private static final String KEEP_CURRENT_POSITIONS_OPT = "k";
-  /** Ignore versioning flag */
-  private static final String IGNORE_VERSION_OPT = "i";
   /** Structure by attributes option */
   private static final String STRUCTURE_OPT = "t";
 
@@ -41,11 +39,10 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioLoaderTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new PortfolioLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -71,7 +68,7 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
                         getCommandLine().hasOption(VERBOSE_OPT),
                         getCommandLine().hasOption(MERGE_POSITIONS_OPT),
                         getCommandLine().hasOption(KEEP_CURRENT_POSITIONS_OPT),
-                        getCommandLine().hasOption(IGNORE_VERSION_OPT),
+                        true,
                         true,
                         getCommandLine().getOptionValues(STRUCTURE_OPT)).execute();
   }
@@ -108,11 +105,6 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
     Option keepCurrentPositionsOption = new Option(KEEP_CURRENT_POSITIONS_OPT, "keep", false,
         "Keep existing positions in the previous version of the portfolio and add the newly loaded positions");
     options.addOption(keepCurrentPositionsOption);
-
-    Option ignoreVersionOption = new Option(
-        IGNORE_VERSION_OPT, "ignoreversion", false,
-        "Ignore the versioning hashes in METADATA.INI when reading from a ZIP file");
-    options.addOption(ignoreVersionOption);
 
     Option verboseOption = new Option(
         VERBOSE_OPT, "verbose", false, 

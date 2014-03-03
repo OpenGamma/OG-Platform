@@ -82,18 +82,16 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
   public static final String PORTFOLIO_NAME = "Equity Portfolio";
 
   //-------------------------------------------------------------------------
-
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new ExampleEquityPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ExampleEquityPortfolioLoader().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   protected void createPortfolio(final Collection<ExternalId> tickers) {
 
     // create shell portfolio

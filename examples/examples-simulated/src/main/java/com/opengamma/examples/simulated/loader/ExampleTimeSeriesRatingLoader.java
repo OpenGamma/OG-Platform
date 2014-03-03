@@ -42,11 +42,10 @@ public class ExampleTimeSeriesRatingLoader extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleTimeSeriesRatingLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

@@ -62,11 +62,8 @@ public class DistributedEntitlementChecker {
 
     final Map<LiveDataSpecification, Boolean> returnValue = new HashMap<>();
 
-    // User null indicates that we haven't got authentication turned on or
-    // may be an internal client that doesn't need permissioning
-    if (specifications == null || specifications.size() == 0 || user == null ||
-        // todo resolve the use of these hard coded user names
-        user.getUserName().equals("bbgintegrationtestuser") || user.getUserName().equals("Test user")) {
+    // User null indicates that we are an internal client that doesn't need permissioning (e.g JMX)
+    if (specifications.isEmpty() || user == null) {
       // Nothing to check
       return returnValue;
     }

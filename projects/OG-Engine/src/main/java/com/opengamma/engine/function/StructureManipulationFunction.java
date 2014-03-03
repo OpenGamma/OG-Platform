@@ -80,7 +80,7 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
       final Object inputValueObject = inputValue.getValue();
       final Object outputValueObject;
       if ((inputValueObject != null) && (structureManipulator != null) && structureManipulator.getExpectedType().isAssignableFrom(inputValueObject.getClass())) {
-        outputValueObject = structureManipulator.execute(inputValueObject, inputValue.getSpecification());
+        outputValueObject = structureManipulator.execute(inputValueObject, inputValue.getSpecification(), executionContext);
         s_logger.debug("changed value for target {} from {} to {}", target, inputValueObject, outputValueObject);
       } else {
         outputValueObject = inputValueObject;

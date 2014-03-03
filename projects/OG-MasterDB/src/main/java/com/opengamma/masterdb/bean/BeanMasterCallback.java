@@ -8,10 +8,10 @@ package com.opengamma.masterdb.bean;
 import java.util.Map;
 
 import org.joda.beans.Bean;
-import org.joda.beans.ser.JodaBeanSer;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.AbstractDocument;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.ZipUtils;
 
 /**
@@ -108,7 +108,7 @@ public abstract class BeanMasterCallback<D extends AbstractDocument, V extends B
    * @return the document, not null
    */
   protected byte[] getPackedData(V value) {
-    String xml = JodaBeanSer.COMPACT.xmlWriter().write(value);
+    String xml = JodaBeanSerialization.serializer(false).xmlWriter().write(value);
     return ZipUtils.deflateString(xml);
   }
 
@@ -119,7 +119,7 @@ public abstract class BeanMasterCallback<D extends AbstractDocument, V extends B
    */
   protected V parsePackedData(final byte[] data) {
     String xml = ZipUtils.inflateString(data);
-    return JodaBeanSer.COMPACT.xmlReader().read(xml, getRootType());
+    return JodaBeanSerialization.deserializer().xmlReader().read(xml, getRootType());
   }
 
 }

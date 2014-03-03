@@ -43,8 +43,6 @@ public class WebConventionVersionResource extends AbstractWebConventionResource 
   @GET
   public String getHTML() {
     FlexiBean out = createRootData();
-    ConventionDocument doc = data().getVersioned();
-    out.put("conventionXml", createBeanXML(doc.getConvention()));
     return getFreemarker().build(HTML_DIR + "conventionversion.ftl", out);
   }
 
@@ -58,7 +56,6 @@ public class WebConventionVersionResource extends AbstractWebConventionResource 
     }
     FlexiBean out = createRootData();
     ConventionDocument doc = data().getVersioned();
-    out.put("conventionXML", StringEscapeUtils.escapeJavaScript(createBeanXML(doc.getConvention())));
     out.put("type", data().getTypeMap().inverse().get(doc.getConvention().getClass()));
     String json = getFreemarker().build(JSON_DIR + "convention.ftl", out);
     return Response.ok(json).tag(etag).build();
@@ -78,7 +75,7 @@ public class WebConventionVersionResource extends AbstractWebConventionResource 
     out.put("conventionDoc", versionedConvention);
     out.put("convention", versionedConvention.getConvention());
     out.put("conventionDescription", getConventionTypesProvider().getDescription(versionedConvention.getConvention().getClass()));
-    out.put("conventionXml", createXML(versionedConvention.getConvention()));
+    out.put("conventionXml", StringEscapeUtils.escapeJavaScript(createXML(versionedConvention.getConvention())));
     out.put("deleted", !latestDoc.isLatest());
     return out;
   }

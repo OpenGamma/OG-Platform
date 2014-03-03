@@ -15,12 +15,14 @@ import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -114,11 +116,16 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
       if (SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE.equals(security.getSecurityType())) {
         final FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
         final SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class,
-                                                                                                   msg.getMessage());
+            msg.getMessage());
         return Collections.singleton(securityEntryData.getCurrency());
       }
     }
     return null;
+  }
+
+  @Override
+  public Collection<Currency> visitBillSecurity(final BillSecurity security) {
+    return Collections.singletonList(security.getCurrency());
   }
 
   @Override
@@ -138,6 +145,11 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitInflationBondSecurity(final InflationBondSecurity security) {
+    return Collections.singletonList(security.getCurrency());
+  }
+
+  @Override
+  public Collection<Currency> visitCashBalanceSecurity(final CashBalanceSecurity security) {
     return Collections.singletonList(security.getCurrency());
   }
 

@@ -71,8 +71,8 @@ public class RateFutureNode extends CurveNode {
   /**
    * @param futureNumber The future number, not null, greater than zero
    * @param startTenor The start tenor, not null
-   * @param futureTenor The future tenor, not null
-   * @param underlyingTenor The underlying tenor, not null
+   * @param futureTenor The future tenor, not null Remove
+   * @param underlyingTenor The underlying tenor, not null Remove
    * @param futureConvention The future convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */

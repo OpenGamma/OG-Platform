@@ -37,20 +37,24 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
  */
 @Scriptable
 public class TimeSeriesDataProviderReplaceTool extends AbstractTool<IntegrationToolContext> {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesDataProviderReplaceTool.class);
 
   private static final String REPLACE_WITH_PROVIDER_OPTION = "replaceWith";
   private static final String FIND_PROVIDER_OPTION = "find";
 
+  //-------------------------------------------------------------------------
   /**
-   * @param args
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new TimeSeriesDataProviderReplaceTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new TimeSeriesDataProviderReplaceTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     CommandLine commandLine = getCommandLine();

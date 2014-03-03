@@ -138,7 +138,6 @@ public class RemoteUserMaster
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
       ArgumentChecker.notNull(replacementDocument.getUser(), "replacementDocument.user");
     }
-
     URI uri = (new DataUserResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
     }, replacementDocuments);

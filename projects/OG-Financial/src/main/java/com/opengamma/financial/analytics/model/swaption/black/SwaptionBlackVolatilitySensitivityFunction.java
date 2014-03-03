@@ -43,6 +43,6 @@ public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFun
     if (result.size() != 1) {
       throw new OpenGammaRuntimeException("Expecting only one result for Black value vega");
     }
-    return Collections.singleton(new ComputedValue(spec, result.values().iterator().next()));
+    return Collections.singleton(new ComputedValue(spec, result.values().iterator().next() / 100));
   }
 }

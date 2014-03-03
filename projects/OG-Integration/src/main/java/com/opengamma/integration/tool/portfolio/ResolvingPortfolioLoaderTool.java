@@ -57,16 +57,15 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
   private static final String TIME_SERIES_DATAFIELD_OPT = "d";
   /** Date format option flag */
   private static final String DATE_FORMAT_OPT = "df";
-  
+
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new ResolvingPortfolioLoaderTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ResolvingPortfolioLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

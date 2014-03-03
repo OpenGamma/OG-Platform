@@ -45,9 +45,9 @@ ${ogStyle.print('og_all.css', 'all',false)}
             <label>
               Date Format: <br />
               <select name="dateFormat">
-                <option value="yyyy-MM-dd">ISO Format (yyyy-MM-dd)</option>
-                <option value="MM/dd/yyyy">US Format (MM/dd/yyyy)</option>
-                <option value="dd/MM/yyyy">UK Format (dd/MM/yyyy)</option>
+                <option value="ISO">ISO Format (yyyy-MM-dd or yyyyMMdd)</option>
+                <option value="US">US Format (MM-dd-yyyy or MM/dd/yyyy)</option>
+                <option value="UK">UK Format (dd-MM-yyyy or dd/MM/yyyy)</option>
               </select>
             </label>
           </div>

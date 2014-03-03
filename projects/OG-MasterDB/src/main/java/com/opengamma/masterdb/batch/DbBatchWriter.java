@@ -45,10 +45,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.threeten.bp.Instant;
 
-import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.batch.RunCreationMode;
@@ -371,25 +371,10 @@ public class DbBatchWriter extends AbstractDbMaster {
     return riskRun.getCreateInstant();
   }
 
-  /**
-   * Creates a, empty {@code ConcurrentMap} instance. With default ArrayList value 
-   *
-   * @return a new, empty {@code ConcurrentMap}
-   */
-  @SuppressWarnings("deprecation")
-  private static <K, V> Map<K, Collection<V>> newHashMapWithDefaultCollection() {
-    return (new MapMaker()).makeComputingMap(new Function<K, Collection<V>>() {
-      @Override
-      public Collection<V> apply(K input) {
-        return newArrayList();
-      }
-    });
-  }
-
   protected void populateRiskValueRequirements(ViewCycleMetadata cycleMetadata) {
     populateRiskValueSpecifications(cycleMetadata);
     
-    Map<Map<String, Object>, Collection<ValueRequirement>> data = newHashMapWithDefaultCollection();
+    Multimap<Map<String, Object>, ValueRequirement> data = ArrayListMultimap.create();
     for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
       Map<ValueSpecification, Set<ValueRequirement>> outputs = cycleMetadata.getTerminalOutputs(configName);
       for (ValueSpecification specification : outputs.keySet()) {
@@ -398,7 +383,7 @@ public class DbBatchWriter extends AbstractDbMaster {
           Map<String, Object> attribs = newHashMap();
           attribs.put("synthetic_form", RiskValueSpecification.synthesize(requirement.getConstraints()));
           attribs.put("specification_id", specificationId);
-          data.get(attribs).add(requirement);
+          data.put(attribs, requirement);
         }
       }
     }
@@ -406,19 +391,19 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   protected void populateRiskValueSpecifications(ViewCycleMetadata cycleMetadata) {
-    Map<Map<String, Object>, Collection<ValueSpecification>> data = newHashMapWithDefaultCollection();
+    Multimap<Map<String, Object>, ValueSpecification> data = ArrayListMultimap.create();
     for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
       for (ValueSpecification specification : cycleMetadata.getTerminalOutputs(configName).keySet()) {
         Map<String, Object> attribs = newHashMap();
         attribs.put("synthetic_form", RiskValueSpecification.synthesize(specification.getProperties()));
-        data.get(attribs).add(specification);
+        data.put(attribs, specification);
       }
     }
     _riskValueSpecifications.putAll(populate(data, getElSqlBundle().getSql("SelectRiskValueSpecification"), getElSqlBundle().getSql("InsertRiskValueSpecification"), RSK_SEQUENCE_NAME));
   }
 
   protected void populateComputationTargets(Collection<ComputationTargetSpecification> computationTargetSpecifications) {
-    Map<Map<String, Object>, Collection<ComputationTargetSpecification>> computationTargetsData = newHashMapWithDefaultCollection();
+    Multimap<Map<String, Object>, ComputationTargetSpecification> computationTargetsData = ArrayListMultimap.create();
     for (ComputationTargetSpecification targetSpecification : computationTargetSpecifications) {
       Map<String, Object> attribs = newHashMap();
       
@@ -439,7 +424,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       attribs.put("id_value", idValue);
       attribs.put("id_version", idVersion);
       attribs.put("type", targetSpecification.getType().toString());
-      computationTargetsData.get(attribs).add(targetSpecification);
+      computationTargetsData.put(attribs, targetSpecification);
     }
 
     //------------------------------
@@ -453,7 +438,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     Map<ComputationTargetSpecification, Long> cache = newHashMap();
 
-    for (Map.Entry<Map<String, Object>, Collection<ComputationTargetSpecification>> attribsToObjects : computationTargetsData.entrySet()) {
+    for (Map.Entry<Map<String, Object>, Collection<ComputationTargetSpecification>> attribsToObjects : computationTargetsData.asMap().entrySet()) {
       Map<String, Object> attribs = attribsToObjects.getKey();
 
       String selectSql;
@@ -483,7 +468,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       } else {
         Map<String, Object> result = results.get(0);
         for (ComputationTargetSpecification obj : attribsToObjects.getValue()) {
-          cache.put(obj, (Long) result.get("ID"));
+          cache.put(obj, ((Number) result.get("ID")).longValue());
         }
       }
     }
@@ -495,21 +480,21 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   protected void populateCalculationConfigurations(Long riskRunId, ViewCycleMetadata cycleMetadata) {
-    Map<Map<String, Object>, Collection<String>> data = newHashMapWithDefaultCollection();
+    Multimap<Map<String, Object>, String> data = ArrayListMultimap.create();
     for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
       Map<String, Object> map = newHashMap();
       map.put("name", configName);
       map.put("run_id", riskRunId);
-      data.get(map).add(configName);
+      data.put(map, configName);
     }
     _calculationConfigurations.putAll(populate(data, getElSqlBundle().getSql("SelectConfigName"), getElSqlBundle().getSql("InsertConfigName"), RSK_SEQUENCE_NAME));
   }
 
-  protected <T> Map<T, Long> populate(Map<Map<String, Object>, Collection<T>> data, String selectSql, String insertSql, String pkSequenceName) {
+  protected <T> Map<T, Long> populate(Multimap<Map<String, Object>, T> data, String selectSql, String insertSql, String pkSequenceName) {
     final List<DbMapSqlParameterSource> insertArgsList = new ArrayList<DbMapSqlParameterSource>();
 
     Map<T, Long> cache = newHashMap();
-    for (Map.Entry<Map<String, Object>, Collection<T>> attribsToObjects : data.entrySet()) {
+    for (Map.Entry<Map<String, Object>, Collection<T>> attribsToObjects : data.asMap().entrySet()) {
       Map<String, Object> attribs = attribsToObjects.getKey();
       final DbMapSqlParameterSource selectArgs = createParameterSource();
       for (String attribName : attribs.keySet()) {
@@ -531,7 +516,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       } else {
         Map<String, Object> result = results.get(0);
         for (T obj : attribsToObjects.getValue()) {
-          cache.put(obj, (Long) result.get("ID"));
+          cache.put(obj, ((Number) result.get("ID")).longValue());
         }
       }
     }
@@ -888,7 +873,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     String sqlUpdate = getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", "));
     getJdbcTemplate().getJdbcOperations().update(sqlUpdate);
     
-    String sqlDelete = "DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", "));
+    String sqlDelete = getElSqlBundle().getSql("DeleteMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", "));
     getJdbcTemplate().getJdbcOperations().update(sqlDelete);
   }
 
@@ -1209,7 +1194,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     for (int count : counts) {
       totalCount += count;
     }
-    if (totalCount != batchArgsArray.length) {
+    if (totalCount != batchArgsArray.length && totalCount != java.sql.Statement.SUCCESS_NO_INFO) {
       throw new RuntimeException(rowType + " insert count is wrong: expected = " +
         batchArgsArray.length + " actual = " + totalCount);
     }

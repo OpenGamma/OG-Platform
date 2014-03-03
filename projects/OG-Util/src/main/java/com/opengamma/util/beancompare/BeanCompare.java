@@ -10,14 +10,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -37,21 +35,11 @@ public class BeanCompare {
    * @param bean2  the second bean, not null
    * @param properties  the properties to ignore, not null
    * @return true if equal
+   * @deprecated Use JodaBeanUtils.equalIgnoring
    */
+  @Deprecated
   public static boolean equalIgnoring(Bean bean1, Bean bean2, MetaProperty<?>... properties) {
-    ArgumentChecker.notNull(bean1, "bean1");
-    ArgumentChecker.notNull(bean2, "bean2");
-    ArgumentChecker.notNull(properties, "properties");
-    if (bean1.getClass() != bean2.getClass()) {
-      return false;
-    }
-    Set<MetaProperty<?>> ignored = ImmutableSet.copyOf(properties);
-    for (MetaProperty<?> mp : bean1.metaBean().metaPropertyIterable()) {
-      if (ignored.contains(mp) == false && JodaBeanUtils.equal(mp.get(bean1), mp.get(bean2)) == false) {
-        return false;
-      }
-    }
-    return true;
+    return JodaBeanUtils.equalIgnoring(bean1, bean2, properties);
   }
 
   //-------------------------------------------------------------------------
@@ -140,7 +128,6 @@ public class BeanCompare {
    *  {@link org.joda.beans.JodaBeanUtils#equal(Object, Object)} if there is no comparator for the property
    */
   private boolean equal(MetaProperty<?> property, Object value1, Object value2) {
-    System.out.println(property);
     Comparator<Object> comparator = _propertyComparators.get(property);
     if (comparator == null) {
       comparator = _typeComparators.get(property.propertyType());

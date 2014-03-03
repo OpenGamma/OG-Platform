@@ -229,9 +229,10 @@ class Listener extends AbstractViewResultListener {
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     try {
-      System.out.println("cycle completed");
+      System.out.println("cycle completed - building CalculationResults object");
       _results = CalculationResults.create(fullResult, _viewDef.get(), _snapshotName, fullResult.getViewCycleExecutionOptions().getValuationTime(),
                                            _version, _positionSource, _securitySource);
+      System.out.println("built CalculationResults object");
     } finally {
       _latch.countDown();
     }

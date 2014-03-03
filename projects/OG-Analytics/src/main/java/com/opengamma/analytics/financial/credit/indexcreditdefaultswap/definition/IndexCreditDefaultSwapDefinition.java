@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.van
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -85,10 +86,10 @@ public class IndexCreditDefaultSwapDefinition {
   private final BuySellProtection _buySellProtection;
 
   // The protection buyer
-  private final Obligor _protectionBuyer;
+  private final LegalEntity _protectionBuyer;
 
   // The protection seller
-  private final Obligor _protectionSeller;
+  private final LegalEntity _protectionSeller;
 
   // The pool of obligors which constitute the index e.g. the names in the CDX.NA.IG index for a particular series
   private final UnderlyingPool _underlyingPool;
@@ -168,7 +169,7 @@ public class IndexCreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Constructor for a CDS index swap definition object (all fields are user specified)
-  public IndexCreditDefaultSwapDefinition(final String indexName, final BuySellProtection buySellProtection, final Obligor protectionBuyer, final Obligor protectionSeller,
+  public IndexCreditDefaultSwapDefinition(final String indexName, final BuySellProtection buySellProtection, final LegalEntity protectionBuyer, final LegalEntity protectionSeller,
       final UnderlyingPool underlyingPool, final CDSIndex cdsIndex, final int series, final String version, final Currency currency, final Calendar calendar, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final StubType stubType, final PeriodFrequency couponFrequency,
       final DayCount daycountFractionConvention, final BusinessDayConvention businessdayAdjustmentConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
@@ -314,11 +315,11 @@ public class IndexCreditDefaultSwapDefinition {
     return _buySellProtection;
   }
 
-  public Obligor getProtectionBuyer() {
+  public LegalEntity getProtectionBuyer() {
     return _protectionBuyer;
   }
 
-  public Obligor getProtectionSeller() {
+  public LegalEntity getProtectionSeller() {
     return _protectionSeller;
   }
 

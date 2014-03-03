@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,15 +41,27 @@ public class YieldCurveManipulatorBuilder {
     return _scenario;
   }
 
-
+  /**
+   * Adds an action to perform a parallel shift to the scenario.
+   * @param shiftType Specifies how to apply the shift. A relative shift is expressed as an amount
+   * to add or subtract, e.g. 10% shift = rate * 1.1, -20% shift = rate * 0.8
+   * @param shift The size of the shift
+   * @return This builder
+   */
+  public YieldCurveManipulatorBuilder parallelShift(ScenarioShiftType shiftType, Number shift) {
+    _scenario.add(_selector, new YieldCurveParallelShift(shiftType, shift.doubleValue()));
+    return this;
+  }
 
   /**
    * Adds an action to perform a parallel shift to the scenario.
    * @param shift The size of the shift
    * @return This builder
+   * @deprecated Use {@link #parallelShift(ScenarioShiftType, Number)}
    */
+  @Deprecated
   public YieldCurveManipulatorBuilder parallelShift(Number shift) {
-    _scenario.add(_selector, new YieldCurveParallelShift(shift.doubleValue()));
+    _scenario.add(_selector, new YieldCurveParallelShift(ScenarioShiftType.ABSOLUTE, shift.doubleValue()));
     return this;
   }
 
@@ -64,22 +78,33 @@ public class YieldCurveManipulatorBuilder {
 
   
   /**
-   * Creates a bucketed shift builder with the given type
-   * @param type the type of the shift
+   * Creates a bucketed shift builder with the given type.
+   * This is only for the benefit of the Java API, not the DSL
+   *
+   * @param shiftType The type of shift
    * @return the bucketed shift builder
    */
-  public final BucketedShiftManipulatorBuilder bucketedShifts(BucketedShiftType type) {
-    return new BucketedShiftManipulatorBuilder(_selector, _scenario, type);
+  public final YieldCurveManipulatorBuilder bucketedShifts(ScenarioShiftType shiftType, YieldCurveBucketedShift... shifts) {
+    ArgumentChecker.notNull(shiftType, "shiftType");
+    ArgumentChecker.notEmpty(shifts, "shifts");
+    YieldCurveBucketedShiftManipulator manipulator = new YieldCurveBucketedShiftManipulator(shiftType, Arrays.asList(shifts));
+    _scenario.add(_selector, manipulator);
+    return this;
   }
   
 
   /**
-   * Creates a point shift builder
+   * Creates a point shift builder.
+   * This is only for the benefit of the Java API, not the DSL.
    * @return the point shifts builder
+   * @param shiftType The type of shift
    */
-  public final PointShiftManipulatorBuilder pointShifts() {
-    return new PointShiftManipulatorBuilder(_selector, _scenario);
+  public final YieldCurveManipulatorBuilder pointShifts(ScenarioShiftType shiftType, YieldCurvePointShift... shifts) {
+    ArgumentChecker.notNull(shiftType, "shiftType");
+    ArgumentChecker.notEmpty(shifts, "shifts");
+    YieldCurvePointShiftManipulator manipulator = new YieldCurvePointShiftManipulator(shiftType, Arrays.asList(shifts));
+    _scenario.add(_selector, manipulator);
+    return this;
   }
-  
-  
+
 }

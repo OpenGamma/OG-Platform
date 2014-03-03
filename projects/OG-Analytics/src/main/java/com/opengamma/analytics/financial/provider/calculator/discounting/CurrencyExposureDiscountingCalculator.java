@@ -56,6 +56,4 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
     return METHOD_FOREX_NDF.currencyExposure(derivative, multicurves);
   }
 
-  //TODO: Forex options
-
 }

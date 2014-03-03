@@ -129,7 +129,7 @@ public class CS01FromPUFTest extends ISDABaseTest {
 
       final int m = cs01[i].length;
       for (int j = 0; j < m; j++) {
-        assertEquals(EXPECTED_BCS01[i][j], scale * cs01[i][j], 1e-15 * NOTIONAL);
+        assertEquals(EXPECTED_BCS01[i][j], scale * cs01[i][j], 1e-14 * NOTIONAL);
       }
     }
 

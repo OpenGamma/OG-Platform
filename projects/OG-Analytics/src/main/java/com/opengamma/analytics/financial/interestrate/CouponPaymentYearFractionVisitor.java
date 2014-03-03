@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
@@ -16,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 
 /**
@@ -80,6 +82,16 @@ public class CouponPaymentYearFractionVisitor extends InstrumentDerivativeVisito
 
   @Override
   public Double visitCouponCMS(final CouponCMS payment) {
+    return payment.getPaymentYearFraction();
+  }
+
+  @Override
+  public Double visitCouponFixedCompounding(final CouponFixedCompounding payment) {
+    return payment.getPaymentYearFraction();
+  }
+
+  @Override
+  public Double visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
     return payment.getPaymentYearFraction();
   }
 }

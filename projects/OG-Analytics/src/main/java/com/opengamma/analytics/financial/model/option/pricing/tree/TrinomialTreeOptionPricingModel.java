@@ -5,9 +5,13 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import org.apache.commons.lang.Validate;
+
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -53,8 +57,7 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(middleProbability < 1., "middleProbability should be smaller than 1.");
     ArgumentChecker.isTrue(downProbability > 0., "downProbability should be greater than 0.");
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiryTrinomial(assetPrice, middleOverDown);
+    double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(discount, upProbability, middleProbability, downProbability, values, spot, 0., downFactor, middleOverDown, i);
     }
@@ -117,8 +120,7 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(downProbability[i] > 0., "downProbability should be greater than 0.");
     }
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiryTrinomial(assetPrice, middleOverDown);
+    double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(df[i], upProbability[i], middleProbability[i], downProbability[i], values, spot, 0., downFactor, middleOverDown, i);
     }
@@ -171,8 +173,7 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiryTrinomial(assetPriceTerminal, middleOverDown);
+    double[] values = function.getPayoffAtExpiryTrinomial(assetPriceBase, downFactor, middleOverDown);
 
     int counter = 0;
     final int nDivs = dividend.getNumberOfDividends();
@@ -297,8 +298,7 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(middleProbability < 1., "middleProbability should be smaller than 1.");
     ArgumentChecker.isTrue(downProbability > 0., "downProbability should be greater than 0.");
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiryTrinomial(assetPrice, middleOverDown);
+    double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     final double[] res = new double[4];
 
     final double[] pForDelta = new double[] {spot * downFactor, spot * middleFactor, spot * upFactor };
@@ -383,8 +383,7 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(downProbability[i] > 0., "downProbability should be greater than 0.");
     }
 
-    final double assetPrice = spot * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiryTrinomial(assetPrice, middleOverDown);
+    double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleOverDown);
     final double[] res = new double[4];
 
     final double[] pForDelta = new double[] {spot * downFactor, spot, spot * middleOverDown };
@@ -461,8 +460,7 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
-    double[] values = function.getPayoffAtExpiryTrinomial(assetPriceTerminal, middleOverDown);
+    double[] values = function.getPayoffAtExpiryTrinomial(assetPriceBase, downFactor, middleOverDown);
 
     int counter = 0;
     final int nDivs = dividend.getNumberOfDividends();
@@ -645,4 +643,114 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     return res;
   }
+
+  @Override
+  public double getPrice(final OptionFunctionProvider1D function, final StandardOptionDataBundle data) {
+    ArgumentChecker.notNull(function, "function");
+    Validate.notNull(data, "data");
+
+    final int nSteps = function.getNumberOfSteps();
+    final double strike = function.getStrike();
+    final double timeToExpiry = function.getTimeToExpiry();
+
+    final double spot = data.getSpot();
+    final double interestRate = data.getInterestRate(timeToExpiry);
+    final double cost = data.getCostOfCarry();
+    double volatility = data.getVolatility(timeToExpiry, strike);
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double dx = volatility * Math.sqrt(2. * dt);
+
+    final double upFactor = Math.exp(dx);
+    final double downFactor = 1 / upFactor;
+
+    final double[] adSec = new double[2 * nSteps + 1];
+    final double[] assetPrice = new double[2 * nSteps + 1];
+    final double[] values = function.getPayoffAtExpiryTrinomial(spot, downFactor, upFactor);
+
+    for (int i = nSteps; i > -1; --i) {
+      if (i == 0) {
+        final double upProb = adSec[2] / discount;
+        final double midProb = getMiddle(upProb, 1. / discount, spot, assetPrice[0], assetPrice[1], assetPrice[2]);
+        final double dwProb = 1. - upProb - midProb;
+        values[0] = discount * (dwProb * values[0] + midProb * values[1] + upProb * values[2]);
+      } else {
+        final int nNodes = 2 * i + 1;
+        final double[] assetPriceLocal = new double[nNodes];
+        final double[] callOptionPrice = new double[nNodes];
+        final double[] putOptionPrice = new double[nNodes];
+        final double time = dt * i;
+        int position = i - 1;
+        double assetTmp = spot * Math.pow(upFactor, i);
+        for (int j = nNodes - 1; j > -1; --j) {
+          assetPriceLocal[j] = assetTmp;
+          final double impliedVol = data.getVolatility(time, assetPriceLocal[j]);
+          callOptionPrice[j] = BlackScholesFormulaRepository.price(spot, assetPriceLocal[j], time, impliedVol, interestRate, cost, true);
+          putOptionPrice[j] = BlackScholesFormulaRepository.price(spot, assetPriceLocal[j], time, impliedVol, interestRate, cost, false);
+          assetTmp *= downFactor;
+        }
+
+        final double[] adSecLocal = new double[nNodes];
+        for (int j = nNodes - 1; j > position; --j) {
+          adSecLocal[j] = callOptionPrice[j - 1];
+          for (int k = j + 1; k < nNodes; ++k) {
+            adSecLocal[j] -= (assetPriceLocal[k] - assetPriceLocal[j - 1]) * adSecLocal[k];
+          }
+          adSecLocal[j] /= (assetPriceLocal[j] - assetPriceLocal[j - 1]);
+        }
+        ++position;
+        for (int j = 0; j < position; ++j) {
+          adSecLocal[j] = putOptionPrice[j + 1];
+          for (int k = 0; k < j; ++k) {
+            adSecLocal[j] -= (assetPriceLocal[j + 1] - assetPriceLocal[k]) * adSecLocal[k];
+          }
+          adSecLocal[j] /= (assetPriceLocal[j + 1] - assetPriceLocal[j]);
+        }
+
+        if (i != nSteps) {
+          final double[][] prob = new double[nNodes][3];
+          prob[nNodes - 1][2] = adSec[nNodes + 1] / adSecLocal[nNodes - 1] / discount;
+          prob[nNodes - 1][1] = getMiddle(prob[nNodes - 1][2], 1. / discount, assetPriceLocal[nNodes - 1], assetPrice[nNodes - 1], assetPrice[nNodes], assetPrice[nNodes + 1]);
+          prob[nNodes - 1][0] = 1. - prob[nNodes - 1][2] - prob[nNodes - 1][1];
+
+          prob[nNodes - 2][2] = (adSec[nNodes] / discount - prob[nNodes - 1][1] * adSecLocal[nNodes - 1]) / adSecLocal[nNodes - 2];
+          prob[nNodes - 2][1] = getMiddle(prob[nNodes - 2][2], 1. / discount, assetPriceLocal[nNodes - 2], assetPrice[nNodes - 2], assetPrice[nNodes - 1], assetPrice[nNodes]);
+          prob[nNodes - 2][0] = 1. - prob[nNodes - 2][2] - prob[nNodes - 2][1];
+
+          for (int j = nNodes - 3; j > -1; --j) {
+            prob[j][2] = (adSec[j + 2] / discount - prob[j + 2][0] * adSecLocal[j + 2] - prob[j + 1][1] * adSecLocal[j + 1]) / adSecLocal[j];
+            prob[j][1] = getMiddle(prob[j][2], 1. / discount, assetPriceLocal[j], assetPrice[j], assetPrice[j + 1], assetPrice[j + 2]);
+            prob[j][0] = 1. - prob[j][1] - prob[j][2];
+            if (prob[j][2] <= 0. || prob[j][1] <= 0. || prob[j][0] <= 0.) {
+              final double fwd = assetPriceLocal[j] / discount;
+              if (fwd < assetPrice[j + 1] && fwd > assetPrice[j]) {
+                prob[j][2] = 0.5 * (fwd - assetPrice[j]) / (assetPrice[j + 2] - assetPrice[j]);
+                prob[j][0] = 0.5 * ((assetPrice[j + 2] - fwd) / (assetPrice[j + 2] - assetPrice[j]) + (assetPrice[j + 1] - fwd) / (assetPrice[j + 1] - assetPrice[j]));
+              } else if (fwd < assetPrice[j + 2] && fwd > assetPrice[j + 1]) {
+                prob[j][2] = 0.5 * ((fwd - assetPrice[j + 1]) / (assetPrice[j + 2] - assetPrice[j]) + (fwd - assetPrice[j]) / (assetPrice[j + 2] - assetPrice[j]));
+                prob[j][0] = 0.5 * (assetPrice[j + 2] - fwd) / (assetPrice[j + 2]);
+              }
+              prob[j][1] = 1. - prob[j][0] - prob[j][2];
+            }
+
+          }
+
+          for (int j = 0; j < nNodes; ++j) {
+            values[j] = discount * (prob[j][0] * values[j] + prob[j][1] * values[j + 1] + prob[j][2] * values[j + 2]);
+          }
+        }
+
+        System.arraycopy(adSecLocal, 0, adSec, 0, nNodes);
+        System.arraycopy(assetPriceLocal, 0, assetPrice, 0, nNodes);
+      }
+    }
+
+    return values[0];
+  }
+
+  private double getMiddle(final double upProbability, final double factor, final double assetBase, final double assetPrevDw, final double assetPrevMd, final double assetPrevUp) {
+    return (factor * assetBase - assetPrevDw - upProbability * (assetPrevUp - assetPrevDw)) / (assetPrevMd - assetPrevDw);
+  }
+
 }

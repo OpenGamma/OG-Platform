@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.loader.BloombergEquityScaleResolver;
 import com.opengamma.bbg.loader.BloombergFXForwardScaleResolver;
 import com.opengamma.bbg.loader.BloombergSecurityTypeResolver;
 import com.opengamma.bbg.loader.SecurityType;
@@ -39,6 +40,8 @@ public class BloombergRateClassifier {
   private final BloombergFXForwardScaleResolver _fwdScaleResolver;
   private final Cache _cache;
   private final ExternalScheme _bbgScheme;
+
+  private final BloombergEquityScaleResolver _equityScaleResolver;
   
   /**
    * Constructs an instance.
@@ -53,6 +56,7 @@ public class BloombergRateClassifier {
     ArgumentChecker.notNull(bbgScheme, "bbgScheme");
     _securityTypeResolver = new BloombergSecurityTypeResolver(referenceDataProvider);
     _fwdScaleResolver = new BloombergFXForwardScaleResolver(referenceDataProvider, bbgScheme);
+    _equityScaleResolver = new BloombergEquityScaleResolver(referenceDataProvider, bbgScheme);
     EHCacheUtils.addCache(cacheManager, CACHE_KEY);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_KEY);
     _bbgScheme = bbgScheme;
@@ -109,6 +113,7 @@ public class BloombergRateClassifier {
       case IR_FUTURE_OPTION:
       case BOND_FUTURE_OPTION:
       case RATE:
+      case INDEX:
       case SWAP:
       case VOLATILITY_QUOTE:
       case CD:
@@ -118,6 +123,9 @@ public class BloombergRateClassifier {
         return 1;
       case INDEX_FUTURE:
         return 1;
+      case EQUITY:
+        Integer equityScale = _equityScaleResolver.getBloombergEquityScale(Collections.singleton(buidBundle)).get(buidBundle);
+        return equityScale;
       default:
         return 1;
     }
