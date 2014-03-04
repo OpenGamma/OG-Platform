@@ -164,16 +164,16 @@ public class InterestRateSensitivityCalculator {
     return curve.withRate(curve.getZeroRateAtIndex(index) + bumpAmount, index);
   }
 
-  @SuppressWarnings("unused")
-  private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurveBuild builder, final double[] rates, final double[] bumpAmounts) {
-    final int n = bumpAmounts.length;
-    ArgumentChecker.isTrue(n == rates.length, "rates length does not match bumpAmounts");
-    final double[] bumped = new double[n];
-    System.arraycopy(rates, 0, bumped, 0, n);
-    for (int i = 0; i < n; i++) {
-      bumped[i] += bumpAmounts[i];
-    }
-    return builder.build(bumped);
-  }
+  //  @SuppressWarnings("unused")
+  //  private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurveBuild builder, final double[] rates, final double[] bumpAmounts) {
+  //    final int n = bumpAmounts.length;
+  //    ArgumentChecker.isTrue(n == rates.length, "rates length does not match bumpAmounts");
+  //    final double[] bumped = new double[n];
+  //    System.arraycopy(rates, 0, bumped, 0, n);
+  //    for (int i = 0; i < n; i++) {
+  //      bumped[i] += bumpAmounts[i];
+  //    }
+  //    return builder.build(bumped);
+  //  }
 
 }
