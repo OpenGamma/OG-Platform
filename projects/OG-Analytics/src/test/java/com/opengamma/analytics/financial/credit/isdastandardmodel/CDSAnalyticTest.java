@@ -142,7 +142,7 @@ public class CDSAnalyticTest {
     final LocalDate fwdStartDate = tradeDate.plusDays(90);
     final DayCount accDCC = DayCounts.ACT_365;
 
-    final CDSAnalytic cdsi = FACTORY.makeForwardStartingIMMCDS(tradeDate, fwdStartDate, tenor);
+    final CDSAnalytic cdsi = FACTORY.makeForwardStartingCDX(tradeDate, fwdStartDate, tenor);
     final double accStart = cdsi.getAccStart();
     final double exp = accDCC.getDayCountFraction(tradeDate, IMMDateLogic.getPrevIMMDate(fwdStartDate));
     assertEquals(exp, accStart);
