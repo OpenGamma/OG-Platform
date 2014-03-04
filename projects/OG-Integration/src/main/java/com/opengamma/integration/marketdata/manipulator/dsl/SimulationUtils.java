@@ -168,7 +168,7 @@ public final class SimulationUtils {
   /**
    * @param binding 
    */
-  private static void registerAliases(Binding binding) {
+  static void registerAliases(Binding binding) {
 
     for (GroovyAliasable aliasable : s_aliases) {
 
