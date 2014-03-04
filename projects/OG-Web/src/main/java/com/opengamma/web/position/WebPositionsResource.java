@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
@@ -45,6 +46,7 @@ import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.analytics.rest.MasterType;
@@ -144,37 +146,60 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   public Response postHTML(
       @FormParam("quantity") String quantityStr,
       @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue) {
-    quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
-    BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
-    idScheme = StringUtils.trimToNull(idScheme);
-    idValue = StringUtils.trimToNull(idValue);
-    if (quantity == null || idScheme == null || idValue == null) {
-      FlexiBean out = createRootData();
-      if (quantityStr == null) {
-        out.put("err_quantityMissing", true);
-      }
-      if (quantity == null) {
-        out.put("err_quantityNotNumeric", true);
-      }
-      if (idScheme == null) {
-        out.put("err_idschemeMissing", true);
-      }
-      if (idValue == null) {
-        out.put("err_idvalueMissing", true);
-      }
-      String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
-      return Response.ok(html).build();
+      @FormParam("idvalue") String idValue, 
+      @FormParam("type") String type,
+      @FormParam(POSITION_XML) String positionXml) {
+    
+    type = StringUtils.trimToEmpty(type);
+    URI uri = null;
+    switch (type) {
+      case "xml":
+        positionXml = StringUtils.trimToNull(positionXml);
+        if (positionXml == null) {
+          FlexiBean out = createRootData();
+          out.put("err_xmlMissing", true);
+          String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
+          return Response.ok(html).build();
+        }
+        uri = addPosition(positionXml);
+        break;
+      case StringUtils.EMPTY:
+        quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
+        BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
+        idScheme = StringUtils.trimToNull(idScheme);
+        idValue = StringUtils.trimToNull(idValue);
+        if (quantity == null || idScheme == null || idValue == null) {
+          FlexiBean out = createRootData();
+          if (quantityStr == null) {
+            out.put("err_quantityMissing", true);
+          } 
+          if (quantity == null) {
+            out.put("err_quantityNotNumeric", true);
+          }
+          if (idScheme == null) {
+            out.put("err_idschemeMissing", true);
+          }
+          if (idValue == null) {
+            out.put("err_idvalueMissing", true);
+          }
+          out.put("quantity", quantityStr);
+          out.put("idvalue", idValue);
+          String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
+          return Response.ok(html).build();
+        }
+        ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
+        UniqueId secUid = getSecurityUniqueId(id);
+        if (secUid == null) {
+          FlexiBean out = createRootData();
+          out.put("err_idvalueNotFound", true);
+          String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
+          return Response.ok(html).build();
+        }
+        uri = addPosition(quantity, secUid);
+        break;
+      default:
+        throw new IllegalArgumentException("Can only add position by XML or completing provided web form");
     }
-    ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
-    UniqueId secUid = getSecurityUniqueId(id);
-    if (secUid == null) {
-      FlexiBean out = createRootData();
-      out.put("err_idvalueNotFound", true);
-      String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
-      return Response.ok(html).build();
-    }
-    URI uri = addPosition(quantity, secUid);
     return Response.seeOther(uri).build();
   }
 
@@ -185,31 +210,52 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @FormParam("quantity") String quantityStr,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue,
-      @FormParam("tradesJson") String tradesJson) {
+      @FormParam("tradesJson") String tradesJson,
+      @FormParam("type") String type,
+      @FormParam(POSITION_XML) String positionXml) {
     
-    quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
-    BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
-    idScheme = StringUtils.trimToNull(idScheme);
-    idValue = StringUtils.trimToNull(idValue);
-    tradesJson = StringUtils.trimToNull(tradesJson);
-    
-    if (quantity == null || idScheme == null || idValue == null) {
-      return Response.status(Status.BAD_REQUEST).build();
+    type = StringUtils.trimToEmpty(type);
+    URI uri = null;
+    switch (type) {
+      case "xml":
+        uri = addPosition(positionXml);
+        break;
+      case StringUtils.EMPTY:
+        quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
+        BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
+        idScheme = StringUtils.trimToNull(idScheme);
+        idValue = StringUtils.trimToNull(idValue);
+        tradesJson = StringUtils.trimToNull(tradesJson);
+        
+        if (quantity == null || idScheme == null || idValue == null) {
+          return Response.status(Status.BAD_REQUEST).build();
+        }
+        
+        ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
+        UniqueId secUid = getSecurityUniqueId(id);
+        if (secUid == null) {
+          throw new DataNotFoundException("invalid " + idScheme + "~" + idValue);
+        }
+        Collection<ManageableTrade> trades = null;
+        if (tradesJson != null) {
+          trades = parseTrades(tradesJson);
+        } else {
+          trades = Collections.<ManageableTrade>emptyList();
+        }
+        uri = addPosition(quantity, secUid, trades);
+        break;
+      default:
+        throw new IllegalArgumentException("Can only add position by XML or completing provided web form");
     }
-    
-    ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
-    UniqueId secUid = getSecurityUniqueId(id);
-    if (secUid == null) {
-      throw new DataNotFoundException("invalid " + idScheme + "~" + idValue);
-    }
-    Collection<ManageableTrade> trades = null;
-    if (tradesJson != null) {
-      trades = parseTrades(tradesJson);
-    } else {
-      trades = Collections.<ManageableTrade>emptyList();
-    }
-    URI uri = addPosition(quantity, secUid, trades);
     return Response.created(uri).build();
+  }
+
+  private URI addPosition(String positionXml) {
+    positionXml = StringUtils.trimToEmpty(positionXml);
+    Bean positionBean = JodaBeanSerialization.deserializer().xmlReader().read(positionXml);
+    PositionMaster positionMaster = data().getPositionMaster();
+    ManageablePosition position = positionMaster.add(new PositionDocument((ManageablePosition) positionBean)).getPosition();
+    return  new WebPositionsUris(data()).position(position);
   }
 
   private UniqueId getSecurityUniqueId(ExternalIdBundle id) {

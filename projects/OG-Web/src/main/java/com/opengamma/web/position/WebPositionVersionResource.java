@@ -17,6 +17,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -75,8 +76,8 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     out.put("security", versionedPosition.getPosition().getSecurity());
     out.put("deleted", !latestPositionDoc.isLatest());
     
-    TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
-    out.put("tradeAttrModel", tradeAttributesModel);
+    out.put("tradeAttrModel", getTradeAttributesModel());
+    out.put(POSITION_XML, StringEscapeUtils.escapeJavaScript(getPositionXml(versionedPosition.getPosition())));
     return out;
   }
 
