@@ -30,7 +30,7 @@ public class WebPositionsResourceTest extends AbstractWebPositionResourceTestCas
   @Test
   public void testAddPositionWithTrades() throws Exception {
     String tradesJson = getTradesJson();
-    Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), tradesJson);
+    Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), tradesJson, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     assertEquals("/positions/MemPos~1", getActualURL(response));
@@ -40,7 +40,7 @@ public class WebPositionsResourceTest extends AbstractWebPositionResourceTestCas
   @Test
   public void testAddPositionWithEmptyTrades() throws Exception {
     String tradesJson = EMPTY_TRADES;
-    Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), tradesJson);
+    Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), tradesJson, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     assertEquals("/positions/MemPos~1", getActualURL(response));
@@ -49,7 +49,7 @@ public class WebPositionsResourceTest extends AbstractWebPositionResourceTestCas
 
   @Test
   public void testAddPositionWithNoTrades() throws Exception {
-    Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), null);
+    Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     assertEquals("/positions/MemPos~1", getActualURL(response));
