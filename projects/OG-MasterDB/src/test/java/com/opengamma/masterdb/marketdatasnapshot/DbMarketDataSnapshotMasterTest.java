@@ -1,6 +1,5 @@
 package com.opengamma.masterdb.marketdatasnapshot;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -15,16 +14,15 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -82,7 +80,7 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     final ManageableMarketDataSnapshot marketDataSnapshot = new ManageableMarketDataSnapshot();
     marketDataSnapshot.setName("Test");
 
-    final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey, YieldCurveSnapshot>();
+    final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<>();
 
     final ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
     marketDataSnapshot.setGlobalValues(globalValues);
@@ -103,7 +101,7 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     final ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
     snapshot1.setGlobalValues(globalValues);
 
-    final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey, YieldCurveSnapshot>();
+    final HashMap<YieldCurveKey, YieldCurveSnapshot> yieldCurves = new HashMap<>();
 
     final ExternalIdBundle specA = ExternalId.of("XXX", "AAA").toBundle();
     final ExternalIdBundle specB = ExternalIdBundle.of(ExternalId.of("XXX", "B1"), ExternalId.of("XXX", "B2"));
@@ -118,17 +116,17 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
 
     snapshot1.setYieldCurves(yieldCurves);
 
-    final HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
+    final HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<>();
     strikes.put(Pairs.of(Tenor.DAY, Tenor.WORKING_WEEK), ValueSnapshot.of(12.0, 12.0));
     strikes.put(Pairs.of(Tenor.DAY, Tenor.WORKING_WEEK), null);
 
-    final HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<VolatilityCubeKey, VolatilityCubeSnapshot>();
+    final HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<>();
     final ManageableVolatilityCubeSnapshot volCube = new ManageableVolatilityCubeSnapshot();
 
     volCube.setValues(Maps.<Triple<Tenor, Tenor, Double>, ValueSnapshot>newHashMap());
     volCube.getValues().put(Triple.of(Tenor.DAY, Tenor.YEAR, -1.0), ValueSnapshot.of(null, null));
 
-    volCubes.put(VolatilityCubeKey.of(Currency.USD, "Default", "DUMMY_INSTRUMENT_TYPE", "DUMMY_QUOTE_TYPE", "DUMMY_QUOTE_UNITS"), volCube);
+    volCubes.put(VolatilityCubeKey.of("Default", "Default", "DUMMY_QUOTE_TYPE", "DUMMY_QUOTE_UNITS"), volCube);
     snapshot1.setVolatilityCubes(volCubes);
 
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);

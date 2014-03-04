@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.cube.rest;
@@ -11,7 +11,6 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
@@ -21,7 +20,7 @@ public class RemoteVolatilityCubeDefinitionSource extends AbstractRemoteClient i
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemoteVolatilityCubeDefinitionSource(final URI baseUri) {
@@ -30,20 +29,18 @@ public class RemoteVolatilityCubeDefinitionSource extends AbstractRemoteClient i
 
   //-------------------------------------------------------------------------
   @Override
-  public VolatilityCubeDefinition getDefinition(String instrumentType, String name) {
-    ArgumentChecker.notNull(instrumentType, "instrumentType");
+  public VolatilityCubeDefinition getDefinition(final String name) {
     ArgumentChecker.notNull(name, "name");
-    
-    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), instrumentType, name, null);
+
+    final URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), name, null);
     return accessRemote(uri).get(VolatilityCubeDefinition.class);
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(String instrumentType, String name, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(instrumentType, "instrumentType");
+  public VolatilityCubeDefinition getDefinition(final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
-    
-    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), instrumentType, name, versionCorrection.getVersionAsOf());
+
+    final URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), name, versionCorrection.getVersionAsOf());
     return accessRemote(uri).get(VolatilityCubeDefinition.class);
   }
 

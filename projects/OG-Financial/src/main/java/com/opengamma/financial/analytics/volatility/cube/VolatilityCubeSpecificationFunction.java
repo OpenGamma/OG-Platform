@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_DEFN;
+import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_SPEC;
 
 import java.util.Collections;
 import java.util.Set;
@@ -31,37 +31,37 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Gets a {@link VolatilityCubeDefinition} from the database.
+ * Gets a {@link VolatilityCubeSpecification} from the database.
  */
-public class VolatilityCubeDefinitionFunction extends AbstractFunction {
+public class VolatilityCubeSpecificationFunction extends AbstractFunction {
   /** The cube definition name */
-  private final String _cubeDefinitionName;
-  /** The volatility cube definition source */
-  private ConfigDBVolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
+  private final String _cubeSpecificationName;
+  /** The volatility cube specification source */
+  private ConfigDBVolatilityCubeSpecificationSource _volatilityCubeSpecificationSource;
 
   /**
-   * @param cubeDefinitionName The cube definition name, not null
+   * @param cubeSpecificationName The cube specification name, not null
    */
-  public VolatilityCubeDefinitionFunction(final String cubeDefinitionName) {
-    ArgumentChecker.notNull(cubeDefinitionName, "cubeDefinitionName");
-    _cubeDefinitionName = cubeDefinitionName;
+  public VolatilityCubeSpecificationFunction(final String cubeSpecificationName) {
+    ArgumentChecker.notNull(cubeSpecificationName, "cubeSpecificationName");
+    _cubeSpecificationName = cubeSpecificationName;
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _volatilityCubeDefinitionSource = ConfigDBVolatilityCubeDefinitionSource.init(context, this);
+    _volatilityCubeSpecificationSource = ConfigDBVolatilityCubeSpecificationSource.init(context, this);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext outerContext, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final VolatilityCubeDefinition<?, ?, ?> definition = _volatilityCubeDefinitionSource.getDefinition(_cubeDefinitionName);
-    if (definition == null) {
-      throw new OpenGammaRuntimeException("Could not get volatility cube definition called " + _cubeDefinitionName);
+    final VolatilityCubeSpecification specification = _volatilityCubeSpecificationSource.getSpecification(_cubeSpecificationName);
+    if (specification == null) {
+      throw new OpenGammaRuntimeException("Could not get volatility cube specification called " + _cubeSpecificationName);
     }
     final ValueProperties properties = createValueProperties().get();
-    final ValueSpecification spec = new ValueSpecification(VOLATILITY_CUBE_DEFN, ComputationTargetSpecification.NULL, properties);
-    final Set<ComputedValue> result = Collections.singleton(new ComputedValue(spec, definition));
+    final ValueSpecification spec = new ValueSpecification(VOLATILITY_CUBE_SPEC, ComputationTargetSpecification.NULL, properties);
+    final Set<ComputedValue> result = Collections.singleton(new ComputedValue(spec, specification));
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override

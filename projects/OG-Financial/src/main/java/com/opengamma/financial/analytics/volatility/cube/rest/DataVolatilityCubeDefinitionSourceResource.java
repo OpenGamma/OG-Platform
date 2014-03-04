@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.cube.rest;
@@ -38,7 +38,7 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
 
   /**
    * Creates the resource, exposing the underlying source over REST.
-   * 
+   *
    * @param source  the underlying source, not null
    */
   public DataVolatilityCubeDefinitionSourceResource(final VolatilityCubeDefinitionSource source) {
@@ -49,7 +49,7 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
   //-------------------------------------------------------------------------
   /**
    * Gets the source.
-   * 
+   *
    * @return the source, not null
    */
   public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
@@ -58,38 +58,35 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
 
   //-------------------------------------------------------------------------
   @GET
-  public Response getHateaos(@Context UriInfo uriInfo) {
+  public Response getHateaos(@Context final UriInfo uriInfo) {
     return hateoasResponse(uriInfo);
   }
 
   @GET
   @Path("definitions/searchSingle")
   public Response searchSingle(
-      @QueryParam("instrumentType") String instrumentType,
-      @QueryParam("versionAsOf") String versionAsOfStr,
-      @QueryParam("name") String name) {
+      @QueryParam("versionAsOf") final String versionAsOfStr,
+      @QueryParam("name") final String name) {
     if (versionAsOfStr != null) {
       final VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, null);
-      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(name, instrumentType, versionCorrection);
+      final VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(name, versionCorrection);
       return responseOkFudge(result);
     } else {
-      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(name, instrumentType);
+      final VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(name);
       return responseOkFudge(result);
     }
   }
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
-   * @param instrumentType  the instrumentType, not null
    * @param name  the name, not null
    * @param versionAsOf  the version to fetch, null means latest
    * @return the URI, not null
    */
-  public static URI uriSearchSingle(URI baseUri, String instrumentType, String name, Instant versionAsOf) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/definitions/searchSingle");
-    bld.queryParam("instrumentType", instrumentType);
+  public static URI uriSearchSingle(final URI baseUri, final String name, final Instant versionAsOf) {
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("/definitions/searchSingle");
     bld.queryParam("name", name);
     if (versionAsOf != null) {
       bld.queryParam("versionAsOf", versionAsOf.toString());

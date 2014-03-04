@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.tool.marketdata;
@@ -102,7 +102,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
-   * 
+   *
    * @param computationTargetResolver  the resolver, not null
    * @param historicalTimeSeriesSource  the source, not null
    * @param viewProcessor  the view processor, not null
@@ -113,20 +113,19 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
    * @param marketDataTimeoutMillis  the maximum time to wait, in milliseconds, for market data, null to use a default value
    * @return the saver, not null
    */
-  public static MarketDataSnapshotSaver of(ComputationTargetResolver computationTargetResolver, HistoricalTimeSeriesSource historicalTimeSeriesSource, 
-      ViewProcessor viewProcessor, ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster,
-      VolatilityCubeDefinitionSource volatilityCubeDefinitionSource, MarketDataSnapshotter.Mode mode, Long marketDataTimeoutMillis) {
+  public static MarketDataSnapshotSaver of(final ComputationTargetResolver computationTargetResolver, final HistoricalTimeSeriesSource historicalTimeSeriesSource,
+      final ViewProcessor viewProcessor, final ConfigMaster configMaster, final MarketDataSnapshotMaster marketDataSnapshotMaster,
+      final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource, final MarketDataSnapshotter.Mode mode, final Long marketDataTimeoutMillis) {
     ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    ArgumentChecker.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
-    
-    final MarketDataSnapshotterImpl snapshotter = new MarketDataSnapshotterImpl(computationTargetResolver, volatilityCubeDefinitionSource, historicalTimeSeriesSource, mode);
+
+    final MarketDataSnapshotterImpl snapshotter = new MarketDataSnapshotterImpl(computationTargetResolver, historicalTimeSeriesSource, mode);
     return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter, marketDataTimeoutMillis);
   }
 
   /**
    * Obtains an instance.
-   * 
+   *
    * @param snapshotter  the snapshotter, not null
    * @param viewProcessor  the view processor, not null
    * @param configMaster  the master, not null
@@ -134,20 +133,20 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
    * @param marketDataTimeoutMillis  the maximum time to wait, in milliseconds, for market data, null to use a default value
    * @return the saver, not null
    */
-  public static MarketDataSnapshotSaver of(MarketDataSnapshotter snapshotter, ViewProcessor viewProcessor,
-      ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster, Long marketDataTimeoutMillis) {
+  public static MarketDataSnapshotSaver of(final MarketDataSnapshotter snapshotter, final ViewProcessor viewProcessor,
+      final ConfigMaster configMaster, final MarketDataSnapshotMaster marketDataSnapshotMaster, final Long marketDataTimeoutMillis) {
     return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter, marketDataTimeoutMillis);
   }
 
   //-------------------------------------------------------------------------
-  public MarketDataSnapshotDocument createSnapshot(String name, final String viewDefinitionName, final Instant valuationInstant, 
+  public MarketDataSnapshotDocument createSnapshot(final String name, final String viewDefinitionName, final Instant valuationInstant,
       final List<MarketDataSpecification> marketDataSpecs) throws InterruptedException {
-    ViewCycleExecutionOptions cycleExecutionOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationInstant).setMarketDataSpecifications(marketDataSpecs).create();
-    ArbitraryViewCycleExecutionSequence executionSequence = ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions);
+    final ViewCycleExecutionOptions cycleExecutionOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationInstant).setMarketDataSpecifications(marketDataSpecs).create();
+    final ArbitraryViewCycleExecutionSequence executionSequence = ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions);
     final ViewExecutionOptions viewExecutionOptions = new ExecutionOptions(executionSequence, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA), null, getMarketDataTimeoutMillis(), null);
 
-    Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
-    ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
+    final Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
+    final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
     request.setName(viewDefinitionName);
     Iterables.addAll(viewDefinitions, ConfigSearchIterator.iterable(getConfigMaster(), request));
     if (viewDefinitions.isEmpty()) {
@@ -156,21 +155,21 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     if (viewDefinitions.size() > 1) {
       endWithError("Multiple view definitions resolved when searching for string '%s': %s", viewDefinitionName, viewDefinitions);
     }
-    UniqueId viewDefinitionId = Iterables.getOnlyElement(viewDefinitions).getValue().getUniqueId();
-    ManageableMarketDataSnapshot snapshot = createSnapshotFromNewProcess(getSnapshotter(), name, getViewProcessor(), viewDefinitionId, viewExecutionOptions);
+    final UniqueId viewDefinitionId = Iterables.getOnlyElement(viewDefinitions).getValue().getUniqueId();
+    final ManageableMarketDataSnapshot snapshot = createSnapshotFromNewProcess(getSnapshotter(), name, getViewProcessor(), viewDefinitionId, viewExecutionOptions);
     return getMarketDataSnapshotMaster().add(new MarketDataSnapshotDocument(snapshot));
   }
-  
-  public MarketDataSnapshotDocument createSnapshot(String name, UniqueId viewProcessId) throws InterruptedException {
-    ManageableMarketDataSnapshot snapshot = createSnapshotFromExistingProcess(getSnapshotter(), name, getViewProcessor(), viewProcessId);
+
+  public MarketDataSnapshotDocument createSnapshot(final String name, final UniqueId viewProcessId) throws InterruptedException {
+    final ManageableMarketDataSnapshot snapshot = createSnapshotFromExistingProcess(getSnapshotter(), name, getViewProcessor(), viewProcessId);
     return getMarketDataSnapshotMaster().add(new MarketDataSnapshotDocument(snapshot));
   }
 
   //-------------------------------------------------------------------------
-  private static ManageableMarketDataSnapshot createSnapshotFromNewProcess(MarketDataSnapshotter marketDataSnapshotter, String name,
-      ViewProcessor viewProcessor, UniqueId viewDefinitionId, ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
+  private static ManageableMarketDataSnapshot createSnapshotFromNewProcess(final MarketDataSnapshotter marketDataSnapshotter, final String name,
+      final ViewProcessor viewProcessor, final UniqueId viewDefinitionId, final ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
     final ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    SnapshotResultListener resultListener = new SnapshotResultListener();
+    final SnapshotResultListener resultListener = new SnapshotResultListener();
     viewClient.setResultListener(resultListener);
     viewClient.setViewCycleAccessSupported(true);
     viewClient.attachToViewProcess(viewDefinitionId, viewExecutionOptions);
@@ -180,11 +179,11 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
       viewClient.shutdown();
     }
   }
-  
-  private static ManageableMarketDataSnapshot createSnapshotFromExistingProcess(MarketDataSnapshotter marketDataSnapshotter, String name,
-      ViewProcessor viewProcessor, UniqueId viewProcessId) throws InterruptedException {
+
+  private static ManageableMarketDataSnapshot createSnapshotFromExistingProcess(final MarketDataSnapshotter marketDataSnapshotter, final String name,
+      final ViewProcessor viewProcessor, final UniqueId viewProcessId) throws InterruptedException {
     final ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    SnapshotResultListener resultListener = new SnapshotResultListener();
+    final SnapshotResultListener resultListener = new SnapshotResultListener();
     viewClient.setResultListener(resultListener);
     viewClient.setViewCycleAccessSupported(true);
     viewClient.attachToViewProcess(viewProcessId);
@@ -195,8 +194,8 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     }
   }
 
-  private static ManageableMarketDataSnapshot takeSnapshot(MarketDataSnapshotter marketDataSnapshotter, String name,
-      final ViewClient viewClient, SnapshotResultListener resultListener) throws InterruptedException {
+  private static ManageableMarketDataSnapshot takeSnapshot(final MarketDataSnapshotter marketDataSnapshotter, final String name,
+      final ViewClient viewClient, final SnapshotResultListener resultListener) throws InterruptedException {
     resultListener.await();
     viewClient.setResultListener(null);
     if (!resultListener.isSuccess()) {
@@ -208,7 +207,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
       if (cycleReference == null) {
         throw new OpenGammaRuntimeException("Unable to obtain a view cycle reference to snapshot");
       }
-      ViewCycle viewCycle = cycleReference.get();
+      final ViewCycle viewCycle = cycleReference.get();
       return takeSnapshot(marketDataSnapshotter, name, viewClient, viewCycle);
     } finally {
       if (cycleReference != null) {
@@ -217,36 +216,36 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     }
   }
 
-  private static ManageableMarketDataSnapshot takeSnapshot(MarketDataSnapshotter marketDataSnapshotter, String name, final ViewClient viewClient, ViewCycle viewCycle) {
+  private static ManageableMarketDataSnapshot takeSnapshot(final MarketDataSnapshotter marketDataSnapshotter, String name, final ViewClient viewClient, final ViewCycle viewCycle) {
     s_logger.debug("Taking snapshot");
-    StructuredMarketDataSnapshot snapshot = marketDataSnapshotter.createSnapshot(viewClient, viewCycle);
+    final StructuredMarketDataSnapshot snapshot = marketDataSnapshotter.createSnapshot(viewClient, viewCycle);
     s_logger.debug("Snapshot complete");
-    ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
+    final ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
     if (name == null) {
       name = snapshot.getBasisViewName() + "/" + viewCycle.getExecutionOptions().getValuationTime();
     }
     manageableMarketDataSnapshot.setName(name);
     return manageableMarketDataSnapshot;
   }
-  
-  private void endWithError(String message, Object... messageArgs) {
+
+  private void endWithError(final String message, final Object... messageArgs) {
     s_logger.error(message, messageArgs);
     throw new OpenGammaRuntimeException(format(message, messageArgs));
   }
-  
+
   private static class SnapshotResultListener extends AbstractViewResultListener {
-    
+
     private final CountDownLatch _latch = new CountDownLatch(1);
     private boolean _success;
-    
+
     public void await() throws InterruptedException {
       _latch.await();
     }
-    
+
     public boolean isSuccess() {
       return _success;
     }
-    
+
     @Override
     public UserPrincipal getUser() {
       String ipAddress;
@@ -288,7 +287,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     }
 
   }
-  
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**

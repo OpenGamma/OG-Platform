@@ -118,7 +118,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param viewProcessor the view processor, not null
    * @param targetResolver the target resolver, not null
    * @param volatilityCubeDefinitionSource the volatility cube, not null
@@ -146,7 +146,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   /**
    * Gets the viewProcessor field.
-   * 
+   *
    * @return the viewProcessor
    */
   public ViewProcessor getViewProcessor() {
@@ -177,7 +177,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   @Path(PATH_SNAPSHOTTER + "/{mode}")
   public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl(@PathParam("mode") final String mode) {
-    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource, _htsSource,  Mode.valueOf(Mode.class, mode));
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _htsSource,  Mode.valueOf(Mode.class, mode));
     return new DataMarketDataSnapshotterResource(getViewProcessor(), snp);
   }
 
@@ -232,7 +232,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
   public static URI uriClient(final URI clientsBaseUri, final UniqueId viewClientId) {
     return UriBuilder.fromUri(clientsBaseUri).segment(viewClientId.toString()).build();
   }
-  
+
   public static URI uriSnapshotter(final URI clientsBaseUri, final Mode mode) {
     return UriBuilder.fromUri(clientsBaseUri).path(PATH_SNAPSHOTTER).segment(mode.name()).build();
   }
