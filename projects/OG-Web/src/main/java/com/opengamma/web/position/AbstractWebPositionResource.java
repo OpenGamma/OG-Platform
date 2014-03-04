@@ -14,8 +14,10 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
@@ -27,6 +29,10 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * Abstract base class for RESTful position resources.
  */
 public abstract class AbstractWebPositionResource extends AbstractPerRequestWebResource {
+  /**
+   * Position XML parameter name
+   */
+  protected static final String POSITION_XML = "positionXml";
   /**
    * HTML ftl directory
    */
@@ -107,6 +113,21 @@ public abstract class AbstractWebPositionResource extends AbstractPerRequestWebR
 
   protected Set<ManageableTrade> parseTrades(String tradesJson) {
     return TradeJsonConverter.fromJson(tradesJson);
+  }
+  
+  protected String getPositionXml(final ManageablePosition manageablePosition) {
+    ManageablePosition position = manageablePosition.clone();
+    ManageableSecurityLink securityLink = position.getSecurityLink();
+    if (securityLink != null) {
+      securityLink.setTarget(null);
+    }
+    for (ManageableTrade manageableTrade : position.getTrades()) {
+      ManageableSecurityLink manageableSecurityLink = manageableTrade.getSecurityLink();
+      if (manageableSecurityLink != null) {
+        manageableSecurityLink.setTarget(null);
+      }
+    }
+    return createBeanXML(position);
   }
 
 }
