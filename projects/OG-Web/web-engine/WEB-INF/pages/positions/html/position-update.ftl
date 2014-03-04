@@ -1,6 +1,5 @@
 <#escape x as x?html>
-<@page title="Update position - ${position.name}">
-
+<@page title="Update position - ${position.name}" jquery=true aceXmlEditor=true>
 
 <#-- SECTION Position output -->
 <@section title="Portfolio node">
@@ -11,15 +10,18 @@
 </@section>
 <#-- SECTION Update position -->
 <@section title="Update position">
-  <@form method="PUT" action="${uris.position()}">
+  <@form method="PUT" action="${uris.position()}" id="updatePositionForm">
   <p>
-    <#if err_quantityMissing??><div class="err">The quantity must be entered</div></#if>
-    <@rowin label="Quantity"><input type="text" size="30" maxlength="12" name="quantity" value="" /></@rowin>
+    <#if err_xmlMissing??><div class="err">The position XML must be entered</div></#if>
+    <@rowin>
+      <div id="ace-xml-editor"></div>
+    </@rowin>
+    <input type="hidden" name="positionXml" id="position-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
+<#noescape><@xmlEditorScript formId="updatePositionForm" inputId="position-xml" xmlValue="${positionXml}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>
-
 
 <#-- SECTION Links -->
 <@section title="Links">

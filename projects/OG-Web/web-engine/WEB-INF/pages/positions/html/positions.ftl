@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Positions">
+<@page title="Positions" jquery=true aceXmlEditor=true>
 
 
 <#-- SECTION Position search -->
@@ -50,6 +50,23 @@
   </@form>
 </@section>
 
+<#-- SECTION Add position by XML-->
+<@section title="Add position by XML">
+  <@form method="POST" action="${uris.positions()}" id="addPositionForm">
+  <p>
+    <#if err_xmlMissing??>
+      <div class="err">The position XML must be entered</div>
+    </#if>
+    <@rowin>
+      <div id="ace-xml-editor"></div>
+    </@rowin>
+    <@rowin><input type="hidden" name="positionXml" id="position-xml"/></@rowin>
+    <input type="hidden" name="type" value="xml"/>
+    <@rowin><input type="submit" value="Add" /></@rowin>
+  </p>
+  <#noescape><@xmlEditorScript formId="addPositionForm" inputId="position-xml" xmlValue="${positionXml!''}"></@xmlEditorScript></#noescape> 
+  </@form>
+</@section>
 
 <#-- SECTION Links -->
 <@section title="Links">
