@@ -205,7 +205,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   //-----------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesInfoMetaDataResult clone() {
-    return (HistoricalTimeSeriesInfoMetaDataResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

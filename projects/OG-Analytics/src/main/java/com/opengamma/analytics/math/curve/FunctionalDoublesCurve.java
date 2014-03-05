@@ -326,7 +326,7 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public FunctionalDoublesCurve clone() {
-    return (FunctionalDoublesCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

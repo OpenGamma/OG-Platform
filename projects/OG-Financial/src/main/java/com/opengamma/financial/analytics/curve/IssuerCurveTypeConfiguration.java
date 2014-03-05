@@ -241,7 +241,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   //-----------------------------------------------------------------------
   @Override
   public IssuerCurveTypeConfiguration clone() {
-    return (IssuerCurveTypeConfiguration) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

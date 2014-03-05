@@ -361,7 +361,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public IRFutureOptionSecurity clone() {
-    return (IRFutureOptionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

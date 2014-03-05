@@ -486,7 +486,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public PositionSearchRequest clone() {
-    return (PositionSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

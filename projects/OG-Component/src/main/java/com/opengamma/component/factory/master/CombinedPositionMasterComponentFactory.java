@@ -189,7 +189,7 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public CombinedPositionMasterComponentFactory clone() {
-    return (CombinedPositionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

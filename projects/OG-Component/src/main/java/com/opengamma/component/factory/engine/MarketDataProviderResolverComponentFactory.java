@@ -281,7 +281,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   @Override
   public MarketDataProviderResolverComponentFactory clone() {
-    return (MarketDataProviderResolverComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

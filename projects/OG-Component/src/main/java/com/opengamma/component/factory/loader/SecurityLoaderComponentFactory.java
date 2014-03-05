@@ -233,7 +233,7 @@ public class SecurityLoaderComponentFactory extends AbstractSecurityLoaderCompon
   //-----------------------------------------------------------------------
   @Override
   public SecurityLoaderComponentFactory clone() {
-    return (SecurityLoaderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

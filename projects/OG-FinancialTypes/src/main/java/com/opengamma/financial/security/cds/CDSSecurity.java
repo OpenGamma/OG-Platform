@@ -558,7 +558,7 @@ public class CDSSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public CDSSecurity clone() {
-    return (CDSSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

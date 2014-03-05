@@ -171,7 +171,7 @@ public class SwapTrade extends Trade {
   //-----------------------------------------------------------------------
   @Override
   public SwapTrade clone() {
-    return (SwapTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -95,7 +95,7 @@ public class DbFunctionCostsMasterFactoryBean extends SpringFactoryBean<DbFuncti
   //-----------------------------------------------------------------------
   @Override
   public DbFunctionCostsMasterFactoryBean clone() {
-    return (DbFunctionCostsMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

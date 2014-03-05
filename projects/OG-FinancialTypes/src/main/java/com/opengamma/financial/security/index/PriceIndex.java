@@ -114,7 +114,7 @@ public class PriceIndex extends Index {
   //-----------------------------------------------------------------------
   @Override
   public PriceIndex clone() {
-    return (PriceIndex) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

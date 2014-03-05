@@ -101,7 +101,7 @@ public class SpringActiveMqComponentFactory extends AbstractSpringComponentFacto
   //-----------------------------------------------------------------------
   @Override
   public SpringActiveMqComponentFactory clone() {
-    return (SpringActiveMqComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

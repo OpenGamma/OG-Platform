@@ -125,7 +125,7 @@ public class DataTrackingSecurityMasterComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   @Override
   public DataTrackingSecurityMasterComponentFactory clone() {
-    return (DataTrackingSecurityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

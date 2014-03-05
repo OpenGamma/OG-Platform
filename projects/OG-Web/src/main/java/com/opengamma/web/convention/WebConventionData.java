@@ -327,17 +327,7 @@ public class WebConventionData extends DirectBean {
   //-----------------------------------------------------------------------
   @Override
   public WebConventionData clone() {
-    BeanBuilder<? extends WebConventionData> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

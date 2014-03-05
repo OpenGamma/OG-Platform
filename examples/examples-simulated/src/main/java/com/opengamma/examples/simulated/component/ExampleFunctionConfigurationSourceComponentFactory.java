@@ -70,7 +70,7 @@ public class ExampleFunctionConfigurationSourceComponentFactory extends Function
   //-----------------------------------------------------------------------
   @Override
   public ExampleFunctionConfigurationSourceComponentFactory clone() {
-    return (ExampleFunctionConfigurationSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

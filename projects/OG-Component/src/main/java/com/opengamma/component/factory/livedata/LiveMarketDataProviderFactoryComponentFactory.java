@@ -352,7 +352,7 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
   //-----------------------------------------------------------------------
   @Override
   public LiveMarketDataProviderFactoryComponentFactory clone() {
-    return (LiveMarketDataProviderFactoryComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

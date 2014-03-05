@@ -122,7 +122,7 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
   //-----------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesInfoSearchResult clone() {
-    return (HistoricalTimeSeriesInfoSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

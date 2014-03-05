@@ -181,7 +181,7 @@ public class NodalObjectsCurve<T extends Comparable<T>, U>
   //-----------------------------------------------------------------------
   @Override
   public NodalObjectsCurve<T, U> clone() {
-    return (NodalObjectsCurve<T, U>) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

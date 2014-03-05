@@ -71,7 +71,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDocument
   //-----------------------------------------------------------------------
   @Override
   public DbMarketDataSnapshotMasterComponentFactory clone() {
-    return (DbMarketDataSnapshotMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -704,7 +704,7 @@ public class BondSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public BondSecurityBean clone() {
-    return (BondSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -202,7 +202,7 @@ public class CMSLegConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public CMSLegConvention clone() {
-    return (CMSLegConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

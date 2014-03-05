@@ -469,7 +469,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public EmbeddedJettyComponentFactory clone() {
-    return (EmbeddedJettyComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

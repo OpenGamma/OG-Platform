@@ -211,7 +211,7 @@ public class InMemoryLegalEntityMasterComponentFactory extends AbstractComponent
   //-----------------------------------------------------------------------
   @Override
   public InMemoryLegalEntityMasterComponentFactory clone() {
-    return (InMemoryLegalEntityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

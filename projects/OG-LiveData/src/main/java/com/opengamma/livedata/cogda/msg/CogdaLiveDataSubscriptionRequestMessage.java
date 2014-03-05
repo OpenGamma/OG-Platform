@@ -42,7 +42,7 @@ public class CogdaLiveDataSubscriptionRequestMessage extends CogdaLiveDataComman
   //-----------------------------------------------------------------------
   @Override
   public CogdaLiveDataSubscriptionRequestMessage clone() {
-    return (CogdaLiveDataSubscriptionRequestMessage) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

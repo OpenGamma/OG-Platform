@@ -120,7 +120,7 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
   //-----------------------------------------------------------------------
   @Override
   public ExchangeSearchResult clone() {
-    return (ExchangeSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

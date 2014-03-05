@@ -181,7 +181,7 @@ public class InterpolatedYieldCurveSpecificationBuilderComponentFactory extends 
   //-----------------------------------------------------------------------
   @Override
   public InterpolatedYieldCurveSpecificationBuilderComponentFactory clone() {
-    return (InterpolatedYieldCurveSpecificationBuilderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

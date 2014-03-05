@@ -224,7 +224,7 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public LiveDataClientComponentFactory clone() {
-    return (LiveDataClientComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

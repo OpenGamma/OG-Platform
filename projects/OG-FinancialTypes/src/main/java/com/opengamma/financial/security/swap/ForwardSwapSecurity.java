@@ -104,7 +104,7 @@ public class ForwardSwapSecurity extends SwapSecurity {
   //-----------------------------------------------------------------------
   @Override
   public ForwardSwapSecurity clone() {
-    return (ForwardSwapSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

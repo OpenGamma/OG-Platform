@@ -191,7 +191,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public RegionDocument clone() {
-    return (RegionDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

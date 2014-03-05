@@ -101,7 +101,7 @@ public class BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory extends H
   //-----------------------------------------------------------------------
   @Override
   public BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory clone() {
-    return (BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

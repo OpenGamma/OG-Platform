@@ -300,7 +300,7 @@ public class VanillaIborLegRollDateConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public VanillaIborLegRollDateConvention clone() {
-    return (VanillaIborLegRollDateConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

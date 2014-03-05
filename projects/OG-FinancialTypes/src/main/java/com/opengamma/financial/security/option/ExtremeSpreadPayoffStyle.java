@@ -135,7 +135,7 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public ExtremeSpreadPayoffStyle clone() {
-    return (ExtremeSpreadPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

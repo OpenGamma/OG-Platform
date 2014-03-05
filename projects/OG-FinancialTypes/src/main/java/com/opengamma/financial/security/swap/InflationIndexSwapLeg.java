@@ -215,7 +215,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
   //-----------------------------------------------------------------------
   @Override
   public InflationIndexSwapLeg clone() {
-    return (InflationIndexSwapLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

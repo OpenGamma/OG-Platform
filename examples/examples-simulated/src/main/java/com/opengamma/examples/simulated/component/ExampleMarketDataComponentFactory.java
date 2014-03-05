@@ -229,7 +229,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   //-----------------------------------------------------------------------
   @Override
   public ExampleMarketDataComponentFactory clone() {
-    return (ExampleMarketDataComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

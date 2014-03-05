@@ -158,7 +158,7 @@ public class NonVersionedRedisConfigSourceComponentFactory extends AbstractNonVe
   //-----------------------------------------------------------------------
   @Override
   public NonVersionedRedisConfigSourceComponentFactory clone() {
-    return (NonVersionedRedisConfigSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

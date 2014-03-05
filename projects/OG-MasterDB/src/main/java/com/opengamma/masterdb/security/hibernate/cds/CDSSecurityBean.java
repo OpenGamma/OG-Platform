@@ -487,7 +487,7 @@ public class CDSSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public CDSSecurityBean clone() {
-    return (CDSSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

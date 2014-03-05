@@ -131,7 +131,7 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   //-----------------------------------------------------------------------
   @Override
   public SecurityMetaDataResult clone() {
-    return (SecurityMetaDataResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

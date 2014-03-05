@@ -52,7 +52,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractBloombergLive
   //-----------------------------------------------------------------------
   @Override
   public ExampleLiveDataServerComponentFactory clone() {
-    return (ExampleLiveDataServerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

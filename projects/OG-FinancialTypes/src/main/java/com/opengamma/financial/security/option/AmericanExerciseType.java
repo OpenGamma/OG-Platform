@@ -60,7 +60,7 @@ public class AmericanExerciseType extends ExerciseType {
   //-----------------------------------------------------------------------
   @Override
   public AmericanExerciseType clone() {
-    return (AmericanExerciseType) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

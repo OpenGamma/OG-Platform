@@ -112,7 +112,7 @@ public class DbSecurityMasterFactoryBean extends AbstractDbMasterFactoryBean<DbS
   //-----------------------------------------------------------------------
   @Override
   public DbSecurityMasterFactoryBean clone() {
-    return (DbSecurityMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

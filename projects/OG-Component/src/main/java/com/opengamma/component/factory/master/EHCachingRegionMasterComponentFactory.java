@@ -202,7 +202,7 @@ public class EHCachingRegionMasterComponentFactory extends AbstractComponentFact
   //-----------------------------------------------------------------------
   @Override
   public EHCachingRegionMasterComponentFactory clone() {
-    return (EHCachingRegionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

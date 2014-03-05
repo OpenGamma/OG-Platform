@@ -435,7 +435,7 @@ public class SwapFixedLegConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public SwapFixedLegConvention clone() {
-    return (SwapFixedLegConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

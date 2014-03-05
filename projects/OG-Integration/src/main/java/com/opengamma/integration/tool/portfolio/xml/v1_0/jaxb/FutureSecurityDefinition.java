@@ -244,7 +244,7 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
   //-----------------------------------------------------------------------
   @Override
   public FutureSecurityDefinition clone() {
-    return (FutureSecurityDefinition) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

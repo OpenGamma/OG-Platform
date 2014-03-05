@@ -125,7 +125,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   //-----------------------------------------------------------------------
   @Override
   public ISDACompliantYieldCurve clone() {
-    return (ISDACompliantYieldCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

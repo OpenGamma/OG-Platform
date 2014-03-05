@@ -495,7 +495,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public ForwardRateAgreementSecurity clone() {
-    return (ForwardRateAgreementSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -119,7 +119,7 @@ public class ConventionMetaDataRequest extends AbstractMetaDataRequest {
   //-----------------------------------------------------------------------
   @Override
   public ConventionMetaDataRequest clone() {
-    return (ConventionMetaDataRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

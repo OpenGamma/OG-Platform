@@ -143,7 +143,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
   //-----------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesInfoDocument clone() {
-    return (HistoricalTimeSeriesInfoDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

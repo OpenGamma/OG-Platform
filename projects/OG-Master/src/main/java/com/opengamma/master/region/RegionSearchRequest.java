@@ -434,7 +434,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   //-----------------------------------------------------------------------
   @Override
   public RegionSearchRequest clone() {
-    return (RegionSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

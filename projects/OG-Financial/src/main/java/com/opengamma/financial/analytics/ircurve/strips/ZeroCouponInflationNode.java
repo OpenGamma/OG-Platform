@@ -233,7 +233,7 @@ public class ZeroCouponInflationNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public ZeroCouponInflationNode clone() {
-    return (ZeroCouponInflationNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

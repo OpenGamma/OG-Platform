@@ -78,7 +78,7 @@ public class CogdaLiveDataSubscriptionResponseMessage extends CogdaLiveDataComma
   //-----------------------------------------------------------------------
   @Override
   public CogdaLiveDataSubscriptionResponseMessage clone() {
-    return (CogdaLiveDataSubscriptionResponseMessage) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -268,7 +268,7 @@ public class FXForwardNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public FXForwardNode clone() {
-    return (FXForwardNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

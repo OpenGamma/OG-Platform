@@ -343,7 +343,7 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   @Override
   public UserFinancialSecuritySourceComponentFactory clone() {
-    return (UserFinancialSecuritySourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

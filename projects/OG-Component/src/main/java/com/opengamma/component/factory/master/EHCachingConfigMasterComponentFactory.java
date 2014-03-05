@@ -202,7 +202,7 @@ public class EHCachingConfigMasterComponentFactory extends AbstractComponentFact
   //-----------------------------------------------------------------------
   @Override
   public EHCachingConfigMasterComponentFactory clone() {
-    return (EHCachingConfigMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

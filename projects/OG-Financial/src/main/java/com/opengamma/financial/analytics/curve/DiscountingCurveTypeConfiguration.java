@@ -96,7 +96,7 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
   //-----------------------------------------------------------------------
   @Override
   public DiscountingCurveTypeConfiguration clone() {
-    return (DiscountingCurveTypeConfiguration) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -87,7 +87,7 @@ class CacheTestDocument extends AbstractDocument {
   //-----------------------------------------------------------------------
   @Override
   public CacheTestDocument clone() {
-    return (CacheTestDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

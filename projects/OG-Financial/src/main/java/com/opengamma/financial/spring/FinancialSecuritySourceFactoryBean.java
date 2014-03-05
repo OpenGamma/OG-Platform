@@ -132,7 +132,7 @@ public class FinancialSecuritySourceFactoryBean extends SpringFactoryBean<Financ
   //-----------------------------------------------------------------------
   @Override
   public FinancialSecuritySourceFactoryBean clone() {
-    return (FinancialSecuritySourceFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -163,7 +163,7 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
   //-----------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesSourceFactoryBean clone() {
-    return (HistoricalTimeSeriesSourceFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

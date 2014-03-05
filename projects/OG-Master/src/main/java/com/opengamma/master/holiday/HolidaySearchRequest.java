@@ -699,7 +699,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   //-----------------------------------------------------------------------
   @Override
   public HolidaySearchRequest clone() {
-    return (HolidaySearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

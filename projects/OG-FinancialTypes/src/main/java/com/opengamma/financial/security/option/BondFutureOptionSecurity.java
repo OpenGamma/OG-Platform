@@ -366,7 +366,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public BondFutureOptionSecurity clone() {
-    return (BondFutureOptionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

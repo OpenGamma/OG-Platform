@@ -544,7 +544,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public CronTriggerComponentFactory clone() {
-    return (CronTriggerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

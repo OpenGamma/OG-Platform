@@ -152,7 +152,7 @@ public class IborIndex extends Index {
   //-----------------------------------------------------------------------
   @Override
   public IborIndex clone() {
-    return (IborIndex) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

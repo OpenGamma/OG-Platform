@@ -319,7 +319,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   @Override
   public TempTargetRepositoryComponentFactory clone() {
-    return (TempTargetRepositoryComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

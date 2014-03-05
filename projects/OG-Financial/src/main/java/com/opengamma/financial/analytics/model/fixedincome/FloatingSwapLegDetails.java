@@ -423,7 +423,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * @return the value of the property, not null
    */
   public double[] getAccrualYearFractions() {
-    return (_accrualYearFractions != null ? _accrualYearFractions.clone() : null);
+    return _accrualYearFractions;
   }
 
   /**
@@ -605,7 +605,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * @return the value of the property, not null
    */
   public double[] getPaymentTimes() {
-    return (_paymentTimes != null ? _paymentTimes.clone() : null);
+    return _paymentTimes;
   }
 
   /**
@@ -683,7 +683,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * @return the value of the property, not null
    */
   public double[] getSpreads() {
-    return (_spreads != null ? _spreads.clone() : null);
+    return _spreads;
   }
 
   /**
@@ -709,7 +709,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * @return the value of the property, not null
    */
   public double[] getGearings() {
-    return (_gearings != null ? _gearings.clone() : null);
+    return _gearings;
   }
 
   /**
@@ -735,7 +735,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * @return the value of the property, not null
    */
   public double[] getPaymentDiscountFactors() {
-    return (_paymentDiscountFactors != null ? _paymentDiscountFactors.clone() : null);
+    return _paymentDiscountFactors;
   }
 
   /**
@@ -855,17 +855,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
   //-----------------------------------------------------------------------
   @Override
   public FloatingSwapLegDetails clone() {
-    BeanBuilder<? extends FloatingSwapLegDetails> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

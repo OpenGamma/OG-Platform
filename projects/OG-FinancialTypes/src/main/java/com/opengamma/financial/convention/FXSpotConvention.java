@@ -166,7 +166,7 @@ public class FXSpotConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public FXSpotConvention clone() {
-    return (FXSpotConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

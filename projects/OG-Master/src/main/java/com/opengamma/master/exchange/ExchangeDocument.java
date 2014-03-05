@@ -154,7 +154,7 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public ExchangeDocument clone() {
-    return (ExchangeDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

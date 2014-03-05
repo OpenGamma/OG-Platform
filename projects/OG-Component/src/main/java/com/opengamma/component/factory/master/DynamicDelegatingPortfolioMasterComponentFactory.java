@@ -143,7 +143,7 @@ public class DynamicDelegatingPortfolioMasterComponentFactory extends AbstractCo
   //-----------------------------------------------------------------------
   @Override
   public DynamicDelegatingPortfolioMasterComponentFactory clone() {
-    return (DynamicDelegatingPortfolioMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

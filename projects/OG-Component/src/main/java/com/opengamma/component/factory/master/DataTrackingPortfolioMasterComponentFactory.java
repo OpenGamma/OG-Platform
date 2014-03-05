@@ -125,7 +125,7 @@ public class DataTrackingPortfolioMasterComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   @Override
   public DataTrackingPortfolioMasterComponentFactory clone() {
-    return (DataTrackingPortfolioMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

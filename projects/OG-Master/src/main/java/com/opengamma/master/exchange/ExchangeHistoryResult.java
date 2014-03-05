@@ -111,7 +111,7 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
   //-----------------------------------------------------------------------
   @Override
   public ExchangeHistoryResult clone() {
-    return (ExchangeHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

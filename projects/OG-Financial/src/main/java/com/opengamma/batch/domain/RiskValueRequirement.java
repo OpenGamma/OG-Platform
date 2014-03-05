@@ -83,7 +83,7 @@ public class RiskValueRequirement extends RiskValueProperties {
   //-----------------------------------------------------------------------
   @Override
   public RiskValueRequirement clone() {
-    return (RiskValueRequirement) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

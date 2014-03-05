@@ -401,7 +401,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public SwaptionSecurity clone() {
-    return (SwaptionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

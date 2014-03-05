@@ -432,7 +432,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   @Override
   public FinancialUserManagerComponentFactory clone() {
-    return (FinancialUserManagerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

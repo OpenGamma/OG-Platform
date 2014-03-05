@@ -527,7 +527,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public BeanMasterSearchRequest clone() {
-    return (BeanMasterSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

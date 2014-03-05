@@ -306,7 +306,7 @@ public class DeliverableSwapFutureNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public DeliverableSwapFutureNode clone() {
-    return (DeliverableSwapFutureNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

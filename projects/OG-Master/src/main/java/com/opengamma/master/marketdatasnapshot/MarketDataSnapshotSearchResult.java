@@ -122,7 +122,7 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
   //-----------------------------------------------------------------------
   @Override
   public MarketDataSnapshotSearchResult clone() {
-    return (MarketDataSnapshotSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

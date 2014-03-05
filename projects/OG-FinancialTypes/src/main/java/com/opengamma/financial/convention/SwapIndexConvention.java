@@ -170,7 +170,7 @@ public class SwapIndexConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public SwapIndexConvention clone() {
-    return (SwapIndexConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

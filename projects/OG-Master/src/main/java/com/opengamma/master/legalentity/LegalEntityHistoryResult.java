@@ -112,7 +112,7 @@ public class LegalEntityHistoryResult extends AbstractHistoryResult<LegalEntityD
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityHistoryResult clone() {
-    return (LegalEntityHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

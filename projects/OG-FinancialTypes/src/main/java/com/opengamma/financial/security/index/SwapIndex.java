@@ -152,7 +152,7 @@ public class SwapIndex extends Index {
   //-----------------------------------------------------------------------
   @Override
   public SwapIndex clone() {
-    return (SwapIndex) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

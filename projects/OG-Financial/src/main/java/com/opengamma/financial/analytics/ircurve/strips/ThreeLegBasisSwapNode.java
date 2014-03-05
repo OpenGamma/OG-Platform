@@ -344,7 +344,7 @@ public class ThreeLegBasisSwapNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public ThreeLegBasisSwapNode clone() {
-    return (ThreeLegBasisSwapNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

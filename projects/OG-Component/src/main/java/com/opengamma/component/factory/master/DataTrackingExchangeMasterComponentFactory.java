@@ -126,7 +126,7 @@ public class DataTrackingExchangeMasterComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   @Override
   public DataTrackingExchangeMasterComponentFactory clone() {
-    return (DataTrackingExchangeMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

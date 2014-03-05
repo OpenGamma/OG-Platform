@@ -73,7 +73,7 @@ public class DbLegalEntityMasterComponentFactory extends AbstractDocumentDbMaste
   //-----------------------------------------------------------------------
   @Override
   public DbLegalEntityMasterComponentFactory clone() {
-    return (DbLegalEntityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

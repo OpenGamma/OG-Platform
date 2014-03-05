@@ -679,7 +679,7 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
   //-----------------------------------------------------------------------
   @Override
   public FloatingInterestRateSwapLeg clone() {
-    return (FloatingInterestRateSwapLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

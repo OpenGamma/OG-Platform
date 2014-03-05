@@ -398,7 +398,7 @@ public class VanillaIborLegConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public VanillaIborLegConvention clone() {
-    return (VanillaIborLegConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -164,7 +164,7 @@ public class InMemoryPositionMasterComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public InMemoryPositionMasterComponentFactory clone() {
-    return (InMemoryPositionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

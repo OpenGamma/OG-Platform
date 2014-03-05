@@ -130,7 +130,7 @@ public class MarketDataSnapshotSourceFactoryBean extends SpringFactoryBean<Marke
   //-----------------------------------------------------------------------
   @Override
   public MarketDataSnapshotSourceFactoryBean clone() {
-    return (MarketDataSnapshotSourceFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

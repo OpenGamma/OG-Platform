@@ -57,7 +57,7 @@ public class CommodityNotional extends Notional {
   //-----------------------------------------------------------------------
   @Override
   public CommodityNotional clone() {
-    return (CommodityNotional) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

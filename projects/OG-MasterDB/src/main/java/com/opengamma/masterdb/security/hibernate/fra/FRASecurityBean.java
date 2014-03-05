@@ -270,7 +270,7 @@ public class FRASecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public FRASecurityBean clone() {
-    return (FRASecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

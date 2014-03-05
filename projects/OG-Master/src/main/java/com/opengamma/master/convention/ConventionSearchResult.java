@@ -120,7 +120,7 @@ public class ConventionSearchResult extends AbstractSearchResult<ConventionDocum
   //-----------------------------------------------------------------------
   @Override
   public ConventionSearchResult clone() {
-    return (ConventionSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

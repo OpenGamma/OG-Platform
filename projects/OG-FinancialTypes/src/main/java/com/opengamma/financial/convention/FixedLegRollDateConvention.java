@@ -336,7 +336,7 @@ public class FixedLegRollDateConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public FixedLegRollDateConvention clone() {
-    return (FixedLegRollDateConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

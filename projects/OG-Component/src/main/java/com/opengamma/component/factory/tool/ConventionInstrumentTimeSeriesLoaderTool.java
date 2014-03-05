@@ -271,7 +271,7 @@ public class ConventionInstrumentTimeSeriesLoaderTool extends AbstractComponentF
   //-----------------------------------------------------------------------
   @Override
   public ConventionInstrumentTimeSeriesLoaderTool clone() {
-    return (ConventionInstrumentTimeSeriesLoaderTool) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

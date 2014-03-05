@@ -44,7 +44,7 @@ public class BeanMasterHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public BeanMasterHistoryRequest clone() {
-    return (BeanMasterHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

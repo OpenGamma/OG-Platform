@@ -200,7 +200,7 @@ public class EHCachingUserMasterComponentFactory extends AbstractComponentFactor
   //-----------------------------------------------------------------------
   @Override
   public EHCachingUserMasterComponentFactory clone() {
-    return (EHCachingUserMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

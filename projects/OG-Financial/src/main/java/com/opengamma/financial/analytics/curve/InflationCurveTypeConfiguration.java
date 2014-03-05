@@ -132,7 +132,7 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
   //-----------------------------------------------------------------------
   @Override
   public InflationCurveTypeConfiguration clone() {
-    return (InflationCurveTypeConfiguration) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

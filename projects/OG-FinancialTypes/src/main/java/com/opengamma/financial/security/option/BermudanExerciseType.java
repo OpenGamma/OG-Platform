@@ -60,7 +60,7 @@ public class BermudanExerciseType extends ExerciseType {
   //-----------------------------------------------------------------------
   @Override
   public BermudanExerciseType clone() {
-    return (BermudanExerciseType) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

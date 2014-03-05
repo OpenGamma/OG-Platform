@@ -143,7 +143,7 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public SecurityHistoryRequest clone() {
-    return (SecurityHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

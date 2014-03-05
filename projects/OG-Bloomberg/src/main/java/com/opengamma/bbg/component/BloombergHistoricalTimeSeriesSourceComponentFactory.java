@@ -205,7 +205,7 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
   //-----------------------------------------------------------------------
   @Override
   public BloombergHistoricalTimeSeriesSourceComponentFactory clone() {
-    return (BloombergHistoricalTimeSeriesSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

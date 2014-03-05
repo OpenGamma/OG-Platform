@@ -362,7 +362,7 @@ public class SpreadDoublesCurve
   //-----------------------------------------------------------------------
   @Override
   public SpreadDoublesCurve clone() {
-    return (SpreadDoublesCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

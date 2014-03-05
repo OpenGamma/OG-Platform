@@ -161,7 +161,7 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
   //-----------------------------------------------------------------------
   @Override
   public FieldMappingHistoricalTimeSeriesResolverFactoryBean clone() {
-    return (FieldMappingHistoricalTimeSeriesResolverFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

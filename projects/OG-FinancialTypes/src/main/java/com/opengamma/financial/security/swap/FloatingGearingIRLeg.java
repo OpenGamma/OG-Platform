@@ -116,7 +116,7 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
   //-----------------------------------------------------------------------
   @Override
   public FloatingGearingIRLeg clone() {
-    return (FloatingGearingIRLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

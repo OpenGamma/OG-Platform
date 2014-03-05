@@ -342,7 +342,7 @@ public class EquityWarrantSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public EquityWarrantSecurity clone() {
-    return (EquityWarrantSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

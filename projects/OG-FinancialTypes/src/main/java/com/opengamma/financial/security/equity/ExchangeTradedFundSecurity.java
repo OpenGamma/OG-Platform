@@ -213,7 +213,7 @@ public class ExchangeTradedFundSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public ExchangeTradedFundSecurity clone() {
-    return (ExchangeTradedFundSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

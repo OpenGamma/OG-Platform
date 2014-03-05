@@ -101,7 +101,7 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
   //-----------------------------------------------------------------------
   @Override
   public IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory clone() {
-    return (IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

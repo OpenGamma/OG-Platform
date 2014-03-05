@@ -579,7 +579,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   //-----------------------------------------------------------------------
   @Override
   public SpringViewProcessorComponentFactory clone() {
-    return (SpringViewProcessorComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

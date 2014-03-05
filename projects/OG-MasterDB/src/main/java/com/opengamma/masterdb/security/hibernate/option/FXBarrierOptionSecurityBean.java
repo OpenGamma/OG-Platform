@@ -430,7 +430,7 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public FXBarrierOptionSecurityBean clone() {
-    return (FXBarrierOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

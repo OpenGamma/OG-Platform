@@ -197,7 +197,7 @@ public class ListedSecurityTrade extends Trade {
   //-----------------------------------------------------------------------
   @Override
   public ListedSecurityTrade clone() {
-    return (ListedSecurityTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

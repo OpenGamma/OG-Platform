@@ -276,7 +276,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   @Override
   public RedisSimulationSeriesSourceComponentFactory clone() {
-    return (RedisSimulationSeriesSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

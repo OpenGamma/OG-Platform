@@ -103,7 +103,7 @@ public class NodalTenorDoubleCurve
   //-----------------------------------------------------------------------
   @Override
   public NodalTenorDoubleCurve clone() {
-    return (NodalTenorDoubleCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

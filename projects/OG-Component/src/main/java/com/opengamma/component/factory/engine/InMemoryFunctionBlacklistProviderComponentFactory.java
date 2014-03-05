@@ -203,7 +203,7 @@ public class InMemoryFunctionBlacklistProviderComponentFactory extends AbstractC
   //-----------------------------------------------------------------------
   @Override
   public InMemoryFunctionBlacklistProviderComponentFactory clone() {
-    return (InMemoryFunctionBlacklistProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -70,7 +70,7 @@ public class DbConfigMasterFactoryBean extends AbstractDbMasterFactoryBean<DbCon
   //-----------------------------------------------------------------------
   @Override
   public DbConfigMasterFactoryBean clone() {
-    return (DbConfigMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

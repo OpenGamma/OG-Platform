@@ -125,7 +125,7 @@ public class DataTrackingMarketDataSnapshotMasterComponentFactory extends Abstra
   //-----------------------------------------------------------------------
   @Override
   public DataTrackingMarketDataSnapshotMasterComponentFactory clone() {
-    return (DataTrackingMarketDataSnapshotMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -555,7 +555,7 @@ public class FloatingRateNoteSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public FloatingRateNoteSecurity clone() {
-    return (FloatingRateNoteSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

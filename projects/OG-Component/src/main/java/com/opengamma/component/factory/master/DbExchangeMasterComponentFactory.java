@@ -70,7 +70,7 @@ public class DbExchangeMasterComponentFactory extends AbstractDocumentDbMasterCo
   //-----------------------------------------------------------------------
   @Override
   public DbExchangeMasterComponentFactory clone() {
-    return (DbExchangeMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

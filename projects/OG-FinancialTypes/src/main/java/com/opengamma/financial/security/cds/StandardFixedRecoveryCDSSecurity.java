@@ -118,7 +118,7 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
   //-----------------------------------------------------------------------
   @Override
   public StandardFixedRecoveryCDSSecurity clone() {
-    return (StandardFixedRecoveryCDSSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

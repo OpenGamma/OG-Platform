@@ -111,7 +111,7 @@ public class HolidayHistoryResult extends AbstractHistoryResult<HolidayDocument>
   //-----------------------------------------------------------------------
   @Override
   public HolidayHistoryResult clone() {
-    return (HolidayHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

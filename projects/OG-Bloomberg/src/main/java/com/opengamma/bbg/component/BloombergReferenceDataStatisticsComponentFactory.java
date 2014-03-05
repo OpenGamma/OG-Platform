@@ -92,7 +92,7 @@ public class BloombergReferenceDataStatisticsComponentFactory extends AbstractCo
   //-----------------------------------------------------------------------
   @Override
   public BloombergReferenceDataStatisticsComponentFactory clone() {
-    return (BloombergReferenceDataStatisticsComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

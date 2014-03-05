@@ -344,7 +344,7 @@ public class EquityIndexDividendFutureOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public EquityIndexDividendFutureOptionSecurityBean clone() {
-    return (EquityIndexDividendFutureOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

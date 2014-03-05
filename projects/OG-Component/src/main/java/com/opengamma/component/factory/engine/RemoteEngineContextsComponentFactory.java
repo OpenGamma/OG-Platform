@@ -814,7 +814,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   @Override
   public RemoteEngineContextsComponentFactory clone() {
-    return (RemoteEngineContextsComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

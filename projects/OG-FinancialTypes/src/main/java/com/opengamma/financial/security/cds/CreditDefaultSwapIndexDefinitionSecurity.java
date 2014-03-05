@@ -315,7 +315,7 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
   //-----------------------------------------------------------------------
   @Override
   public CreditDefaultSwapIndexDefinitionSecurity clone() {
-    return (CreditDefaultSwapIndexDefinitionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

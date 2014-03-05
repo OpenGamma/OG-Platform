@@ -143,7 +143,7 @@ public class ExchangeHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public ExchangeHistoryRequest clone() {
-    return (ExchangeHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

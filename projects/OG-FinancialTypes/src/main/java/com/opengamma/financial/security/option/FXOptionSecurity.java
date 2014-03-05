@@ -352,7 +352,7 @@ public class FXOptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public FXOptionSecurity clone() {
-    return (FXOptionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

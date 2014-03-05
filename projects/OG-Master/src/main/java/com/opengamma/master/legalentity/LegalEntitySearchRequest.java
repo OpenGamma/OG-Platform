@@ -484,7 +484,7 @@ public class LegalEntitySearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public LegalEntitySearchRequest clone() {
-    return (LegalEntitySearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

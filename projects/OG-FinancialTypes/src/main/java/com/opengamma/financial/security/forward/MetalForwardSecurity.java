@@ -65,7 +65,7 @@ public class MetalForwardSecurity extends CommodityForwardSecurity {
   //-----------------------------------------------------------------------
   @Override
   public MetalForwardSecurity clone() {
-    return (MetalForwardSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

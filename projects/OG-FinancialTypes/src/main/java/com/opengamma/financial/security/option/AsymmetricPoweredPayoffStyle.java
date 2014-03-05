@@ -101,7 +101,7 @@ public class AsymmetricPoweredPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public AsymmetricPoweredPayoffStyle clone() {
-    return (AsymmetricPoweredPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

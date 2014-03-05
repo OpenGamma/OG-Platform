@@ -74,7 +74,7 @@ public class LegacyVanillaCDSSecurityBean extends CreditDefaultSwapSecurityBean 
   //-----------------------------------------------------------------------
   @Override
   public LegacyVanillaCDSSecurityBean clone() {
-    return (LegacyVanillaCDSSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

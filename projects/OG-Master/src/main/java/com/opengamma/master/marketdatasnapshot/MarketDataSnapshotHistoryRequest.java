@@ -139,7 +139,7 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public MarketDataSnapshotHistoryRequest clone() {
-    return (MarketDataSnapshotHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

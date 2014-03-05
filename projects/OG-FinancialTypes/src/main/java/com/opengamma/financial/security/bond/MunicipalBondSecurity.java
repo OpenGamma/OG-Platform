@@ -71,7 +71,7 @@ public class MunicipalBondSecurity extends BondSecurity {
   //-----------------------------------------------------------------------
   @Override
   public MunicipalBondSecurity clone() {
-    return (MunicipalBondSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

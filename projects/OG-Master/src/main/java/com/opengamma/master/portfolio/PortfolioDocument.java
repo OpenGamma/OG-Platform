@@ -179,7 +179,7 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
   //-----------------------------------------------------------------------
   @Override
   public PortfolioDocument clone() {
-    return (PortfolioDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

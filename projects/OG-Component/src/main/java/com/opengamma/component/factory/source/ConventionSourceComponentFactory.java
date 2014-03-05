@@ -239,7 +239,7 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public ConventionSourceComponentFactory clone() {
-    return (ConventionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

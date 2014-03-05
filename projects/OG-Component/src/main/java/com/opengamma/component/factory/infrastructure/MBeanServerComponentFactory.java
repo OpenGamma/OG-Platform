@@ -216,7 +216,7 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public MBeanServerComponentFactory clone() {
-    return (MBeanServerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

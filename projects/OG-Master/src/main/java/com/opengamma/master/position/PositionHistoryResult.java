@@ -111,7 +111,7 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
   //-----------------------------------------------------------------------
   @Override
   public PositionHistoryResult clone() {
-    return (PositionHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

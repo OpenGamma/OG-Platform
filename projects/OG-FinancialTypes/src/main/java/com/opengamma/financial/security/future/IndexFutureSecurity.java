@@ -99,7 +99,7 @@ public class IndexFutureSecurity extends FutureSecurity {
   //-----------------------------------------------------------------------
   @Override
   public IndexFutureSecurity clone() {
-    return (IndexFutureSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

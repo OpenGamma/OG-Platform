@@ -59,7 +59,7 @@ public class RemoteNamedMarketDataSpecificationRepositoryComponentFactory extend
   //-----------------------------------------------------------------------
   @Override
   public RemoteNamedMarketDataSpecificationRepositoryComponentFactory clone() {
-    return (RemoteNamedMarketDataSpecificationRepositoryComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

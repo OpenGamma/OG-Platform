@@ -120,7 +120,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
   //-----------------------------------------------------------------------
   @Override
   public UserSearchResult clone() {
-    return (UserSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

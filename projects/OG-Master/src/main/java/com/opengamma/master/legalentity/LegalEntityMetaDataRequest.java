@@ -89,7 +89,7 @@ public class LegalEntityMetaDataRequest extends AbstractMetaDataRequest {
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityMetaDataRequest clone() {
-    return (LegalEntityMetaDataRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

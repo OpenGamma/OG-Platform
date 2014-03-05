@@ -57,7 +57,7 @@ public class FloatingStrikeLookbackPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public FloatingStrikeLookbackPayoffStyle clone() {
-    return (FloatingStrikeLookbackPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

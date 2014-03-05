@@ -128,7 +128,7 @@ public class DefaultHistoricalTimeSeriesResolverFactoryBean extends SpringFactor
   //-----------------------------------------------------------------------
   @Override
   public DefaultHistoricalTimeSeriesResolverFactoryBean clone() {
-    return (DefaultHistoricalTimeSeriesResolverFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

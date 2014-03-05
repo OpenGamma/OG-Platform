@@ -114,7 +114,7 @@ public class MockLegalEntity extends ManageableLegalEntity {
   //-----------------------------------------------------------------------
   @Override
   public MockLegalEntity clone() {
-    return (MockLegalEntity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

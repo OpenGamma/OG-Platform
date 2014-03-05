@@ -60,7 +60,7 @@ public class BeanMasterSearchResult<D extends AbstractDocument> extends Abstract
   //-----------------------------------------------------------------------
   @Override
   public BeanMasterSearchResult<D> clone() {
-    return (BeanMasterSearchResult<D>) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

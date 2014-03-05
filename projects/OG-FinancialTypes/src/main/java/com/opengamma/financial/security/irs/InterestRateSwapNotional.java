@@ -286,7 +286,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   //-----------------------------------------------------------------------
   @Override
   public InterestRateSwapNotional clone() {
-    return (InterestRateSwapNotional) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -214,7 +214,7 @@ public class HolidaySourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public HolidaySourceComponentFactory clone() {
-    return (HolidaySourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

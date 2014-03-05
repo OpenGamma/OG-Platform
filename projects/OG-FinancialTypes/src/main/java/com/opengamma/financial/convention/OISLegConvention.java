@@ -366,7 +366,7 @@ public class OISLegConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public OISLegConvention clone() {
-    return (OISLegConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

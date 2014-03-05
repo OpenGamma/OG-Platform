@@ -368,7 +368,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public EquityIndexFutureOptionSecurity clone() {
-    return (EquityIndexFutureOptionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

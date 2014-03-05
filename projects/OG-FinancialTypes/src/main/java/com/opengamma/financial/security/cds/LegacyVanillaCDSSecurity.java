@@ -116,7 +116,7 @@ public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
   //-----------------------------------------------------------------------
   @Override
   public LegacyVanillaCDSSecurity clone() {
-    return (LegacyVanillaCDSSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -234,7 +234,7 @@ public class FXForwardAndSwapConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public FXForwardAndSwapConvention clone() {
-    return (FXForwardAndSwapConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

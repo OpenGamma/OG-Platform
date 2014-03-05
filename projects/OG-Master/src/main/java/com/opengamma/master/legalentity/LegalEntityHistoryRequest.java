@@ -96,7 +96,7 @@ public class LegalEntityHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityHistoryRequest clone() {
-    return (LegalEntityHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -105,7 +105,7 @@ public class FudgeContextComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public FudgeContextComponentFactory clone() {
-    return (FudgeContextComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

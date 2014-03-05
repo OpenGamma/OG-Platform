@@ -256,9 +256,8 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public ConfigSearchRequest<T> clone() {
-    return (ConfigSearchRequest<T>) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -145,7 +145,7 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
   //-----------------------------------------------------------------------
   @Override
   public CurveCalculationConfigSourceComponentFactory clone() {
-    return (CurveCalculationConfigSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

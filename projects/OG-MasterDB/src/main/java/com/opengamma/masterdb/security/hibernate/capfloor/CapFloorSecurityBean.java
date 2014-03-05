@@ -393,7 +393,7 @@ public class CapFloorSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public CapFloorSecurityBean clone() {
-    return (CapFloorSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

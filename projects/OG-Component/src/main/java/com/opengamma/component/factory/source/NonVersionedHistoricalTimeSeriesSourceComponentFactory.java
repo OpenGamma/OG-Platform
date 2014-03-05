@@ -68,7 +68,7 @@ public class NonVersionedHistoricalTimeSeriesSourceComponentFactory extends Abst
   //-----------------------------------------------------------------------
   @Override
   public NonVersionedHistoricalTimeSeriesSourceComponentFactory clone() {
-    return (NonVersionedHistoricalTimeSeriesSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

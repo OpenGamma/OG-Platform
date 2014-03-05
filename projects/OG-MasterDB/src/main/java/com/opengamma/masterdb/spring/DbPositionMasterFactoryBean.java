@@ -70,7 +70,7 @@ public class DbPositionMasterFactoryBean extends AbstractDbMasterFactoryBean<DbP
   //-----------------------------------------------------------------------
   @Override
   public DbPositionMasterFactoryBean clone() {
-    return (DbPositionMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

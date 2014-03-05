@@ -75,7 +75,7 @@ public class DbHolidayMasterComponentFactory extends AbstractDocumentDbMasterCom
   //-----------------------------------------------------------------------
   @Override
   public DbHolidayMasterComponentFactory clone() {
-    return (DbHolidayMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

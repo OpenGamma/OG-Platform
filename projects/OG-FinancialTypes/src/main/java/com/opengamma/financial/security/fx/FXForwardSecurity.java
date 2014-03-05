@@ -269,7 +269,7 @@ public class FXForwardSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public FXForwardSecurity clone() {
-    return (FXForwardSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

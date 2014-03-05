@@ -290,7 +290,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public IntegrationWebComponentFactory clone() {
-    return (IntegrationWebComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

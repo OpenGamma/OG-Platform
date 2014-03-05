@@ -337,7 +337,7 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
   //-----------------------------------------------------------------------
   @Override
   public UserFinancialConfigSourceComponentFactory clone() {
-    return (UserFinancialConfigSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

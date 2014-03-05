@@ -557,7 +557,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public SecuritySearchRequest clone() {
-    return (SecuritySearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

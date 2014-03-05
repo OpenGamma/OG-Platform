@@ -116,7 +116,7 @@ public class FixedInterestRateLeg extends InterestRateLeg {
   //-----------------------------------------------------------------------
   @Override
   public FixedInterestRateLeg clone() {
-    return (FixedInterestRateLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

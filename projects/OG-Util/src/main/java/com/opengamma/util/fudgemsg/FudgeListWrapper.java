@@ -128,19 +128,8 @@ public class FudgeListWrapper<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public FudgeListWrapper<T> clone() {
-    BeanBuilder<?> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return (FudgeListWrapper<T>) builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

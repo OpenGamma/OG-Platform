@@ -142,7 +142,7 @@ public class DynamicDelegatingConfigMasterComponentFactory extends AbstractCompo
   //-----------------------------------------------------------------------
   @Override
   public DynamicDelegatingConfigMasterComponentFactory clone() {
-    return (DynamicDelegatingConfigMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -101,7 +101,7 @@ public class CashOrNothingPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public CashOrNothingPayoffStyle clone() {
-    return (CashOrNothingPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

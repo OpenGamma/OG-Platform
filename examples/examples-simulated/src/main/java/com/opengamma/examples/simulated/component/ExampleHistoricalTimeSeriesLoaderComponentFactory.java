@@ -54,7 +54,7 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractH
   //-----------------------------------------------------------------------
   @Override
   public ExampleHistoricalTimeSeriesLoaderComponentFactory clone() {
-    return (ExampleHistoricalTimeSeriesLoaderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

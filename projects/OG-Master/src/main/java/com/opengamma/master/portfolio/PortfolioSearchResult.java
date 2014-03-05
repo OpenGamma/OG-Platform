@@ -123,7 +123,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
   //-----------------------------------------------------------------------
   @Override
   public PortfolioSearchResult clone() {
-    return (PortfolioSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

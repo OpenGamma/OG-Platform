@@ -104,7 +104,7 @@ public class MetalFutureSecurity extends CommodityFutureSecurity {
   //-----------------------------------------------------------------------
   @Override
   public MetalFutureSecurity clone() {
-    return (MetalFutureSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

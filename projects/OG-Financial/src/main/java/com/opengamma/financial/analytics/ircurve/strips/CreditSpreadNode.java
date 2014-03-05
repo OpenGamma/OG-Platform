@@ -120,7 +120,7 @@ public class CreditSpreadNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public CreditSpreadNode clone() {
-    return (CreditSpreadNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -100,7 +100,7 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
   //-----------------------------------------------------------------------
   @Override
   public HolidaySourceFactoryBean clone() {
-    return (HolidaySourceFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -232,7 +232,7 @@ public class Tutorial1Security extends ManageableSecurity {
   //-----------------------------------------------------------------------
   @Override
   public Tutorial1Security clone() {
-    return (Tutorial1Security) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

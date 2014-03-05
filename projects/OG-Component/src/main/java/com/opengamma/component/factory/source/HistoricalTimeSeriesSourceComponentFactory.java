@@ -298,7 +298,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesSourceComponentFactory clone() {
-    return (HistoricalTimeSeriesSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

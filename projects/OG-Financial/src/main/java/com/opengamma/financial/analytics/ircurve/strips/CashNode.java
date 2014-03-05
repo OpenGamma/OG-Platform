@@ -196,7 +196,7 @@ public class CashNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public CashNode clone() {
-    return (CashNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

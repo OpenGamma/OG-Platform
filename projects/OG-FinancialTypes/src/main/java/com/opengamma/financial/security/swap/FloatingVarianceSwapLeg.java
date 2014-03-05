@@ -185,7 +185,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   //-----------------------------------------------------------------------
   @Override
   public FloatingVarianceSwapLeg clone() {
-    return (FloatingVarianceSwapLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -448,7 +448,7 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   //-----------------------------------------------------------------------
   @Override
   public RedisHtsSnapshotJobDetailComponentFactory clone() {
-    return (RedisHtsSnapshotJobDetailComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

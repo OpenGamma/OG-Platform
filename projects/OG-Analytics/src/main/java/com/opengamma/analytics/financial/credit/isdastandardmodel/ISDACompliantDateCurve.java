@@ -241,7 +241,7 @@ public class ISDACompliantDateCurve
   //-----------------------------------------------------------------------
   @Override
   public ISDACompliantDateCurve clone() {
-    return (ISDACompliantDateCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -711,7 +711,7 @@ public class ISDACompliantCurve extends DoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public ISDACompliantCurve clone() {
-    return (ISDACompliantCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -120,7 +120,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
   //-----------------------------------------------------------------------
   @Override
   public HolidaySearchResult clone() {
-    return (HolidaySearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

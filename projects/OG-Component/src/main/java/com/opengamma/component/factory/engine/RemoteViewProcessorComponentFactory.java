@@ -96,7 +96,7 @@ public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponent
   //-----------------------------------------------------------------------
   @Override
   public RemoteViewProcessorComponentFactory clone() {
-    return (RemoteViewProcessorComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

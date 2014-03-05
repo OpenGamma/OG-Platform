@@ -116,7 +116,7 @@ public class FloatingSpreadIRLeg extends FloatingInterestRateLeg {
   //-----------------------------------------------------------------------
   @Override
   public FloatingSpreadIRLeg clone() {
-    return (FloatingSpreadIRLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

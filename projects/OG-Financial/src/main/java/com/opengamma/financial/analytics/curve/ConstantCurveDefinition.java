@@ -145,7 +145,7 @@ public class ConstantCurveDefinition extends AbstractCurveDefinition {
   //-----------------------------------------------------------------------
   @Override
   public ConstantCurveDefinition clone() {
-    return (ConstantCurveDefinition) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

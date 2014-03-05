@@ -202,7 +202,7 @@ public class EHCachingHistoricalTimeSeriesMasterComponentFactory extends Abstrac
   //-----------------------------------------------------------------------
   @Override
   public EHCachingHistoricalTimeSeriesMasterComponentFactory clone() {
-    return (EHCachingHistoricalTimeSeriesMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

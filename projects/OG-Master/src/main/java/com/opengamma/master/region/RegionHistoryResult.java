@@ -111,7 +111,7 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
   //-----------------------------------------------------------------------
   @Override
   public RegionHistoryResult clone() {
-    return (RegionHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

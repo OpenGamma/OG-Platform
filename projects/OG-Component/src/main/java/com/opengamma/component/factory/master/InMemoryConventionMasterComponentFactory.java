@@ -278,7 +278,7 @@ public class InMemoryConventionMasterComponentFactory extends AbstractComponentF
   //-----------------------------------------------------------------------
   @Override
   public InMemoryConventionMasterComponentFactory clone() {
-    return (InMemoryConventionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

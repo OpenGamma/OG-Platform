@@ -164,7 +164,7 @@ public class ExampleVolatilityCubeDefinitionSourceComponentFactory extends Abstr
   //-----------------------------------------------------------------------
   @Override
   public ExampleVolatilityCubeDefinitionSourceComponentFactory clone() {
-    return (ExampleVolatilityCubeDefinitionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -104,7 +104,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityWithREDCode clone() {
-    return (LegalEntityWithREDCode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

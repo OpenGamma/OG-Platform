@@ -218,7 +218,7 @@ public class InterpolatedYieldCurveDefinitionSourceComponentFactory extends Abst
   //-----------------------------------------------------------------------
   @Override
   public InterpolatedYieldCurveDefinitionSourceComponentFactory clone() {
-    return (InterpolatedYieldCurveDefinitionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

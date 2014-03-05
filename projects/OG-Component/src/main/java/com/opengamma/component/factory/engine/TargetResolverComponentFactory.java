@@ -390,7 +390,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   @Override
   public TargetResolverComponentFactory clone() {
-    return (TargetResolverComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

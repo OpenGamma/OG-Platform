@@ -155,7 +155,7 @@ public class ExchangeTradedFutureAndOptionConvention extends FinancialConvention
   //-----------------------------------------------------------------------
   @Override
   public ExchangeTradedFutureAndOptionConvention clone() {
-    return (ExchangeTradedFutureAndOptionConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

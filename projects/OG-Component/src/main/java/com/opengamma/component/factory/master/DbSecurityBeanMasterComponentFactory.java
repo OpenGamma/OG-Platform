@@ -83,7 +83,7 @@ public class DbSecurityBeanMasterComponentFactory extends AbstractDocumentDbMast
   //-----------------------------------------------------------------------
   @Override
   public DbSecurityBeanMasterComponentFactory clone() {
-    return (DbSecurityBeanMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

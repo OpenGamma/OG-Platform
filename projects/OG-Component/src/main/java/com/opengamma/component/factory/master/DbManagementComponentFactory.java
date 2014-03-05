@@ -207,7 +207,7 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public DbManagementComponentFactory clone() {
-    return (DbManagementComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

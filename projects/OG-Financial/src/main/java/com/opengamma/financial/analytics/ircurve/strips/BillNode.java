@@ -122,7 +122,7 @@ public class BillNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public BillNode clone() {
-    return (BillNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

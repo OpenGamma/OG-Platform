@@ -266,7 +266,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
   //-----------------------------------------------------------------------
   @Override
   public SpreadCurveDefinition clone() {
-    return (SpreadCurveDefinition) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

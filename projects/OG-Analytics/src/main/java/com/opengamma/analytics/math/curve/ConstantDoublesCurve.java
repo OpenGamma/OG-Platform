@@ -240,7 +240,7 @@ public class ConstantDoublesCurve
   //-----------------------------------------------------------------------
   @Override
   public ConstantDoublesCurve clone() {
-    return (ConstantDoublesCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

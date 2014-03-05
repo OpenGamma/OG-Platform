@@ -320,7 +320,7 @@ public class MongoFakeBloombergReferenceDataProviderComponentFactory extends Abs
   //-----------------------------------------------------------------------
   @Override
   public MongoFakeBloombergReferenceDataProviderComponentFactory clone() {
-    return (MongoFakeBloombergReferenceDataProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

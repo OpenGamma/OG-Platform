@@ -152,7 +152,7 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
   //-----------------------------------------------------------------------
   @Override
   public FreemarkerConfigurationComponentFactory clone() {
-    return (FreemarkerConfigurationComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

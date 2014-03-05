@@ -301,7 +301,7 @@ public class NonDeliverableFXForwardSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public NonDeliverableFXForwardSecurity clone() {
-    return (NonDeliverableFXForwardSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

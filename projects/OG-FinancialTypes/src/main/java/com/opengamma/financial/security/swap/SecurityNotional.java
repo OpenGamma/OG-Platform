@@ -104,7 +104,7 @@ public class SecurityNotional extends Notional {
   //-----------------------------------------------------------------------
   @Override
   public SecurityNotional clone() {
-    return (SecurityNotional) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

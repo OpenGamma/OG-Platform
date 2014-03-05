@@ -188,17 +188,7 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
   //-----------------------------------------------------------------------
   @Override
   public AbstractSearchRequest clone() {
-    BeanBuilder<? extends AbstractSearchRequest> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

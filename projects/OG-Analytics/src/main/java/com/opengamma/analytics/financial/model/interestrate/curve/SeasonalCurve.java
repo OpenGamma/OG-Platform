@@ -67,7 +67,7 @@ public final class SeasonalCurve extends FunctionalDoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public SeasonalCurve clone() {
-    return (SeasonalCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

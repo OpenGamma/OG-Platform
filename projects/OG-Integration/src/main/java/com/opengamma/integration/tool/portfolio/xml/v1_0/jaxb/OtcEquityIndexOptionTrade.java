@@ -366,7 +366,7 @@ public class OtcEquityIndexOptionTrade extends Trade {
   //-----------------------------------------------------------------------
   @Override
   public OtcEquityIndexOptionTrade clone() {
-    return (OtcEquityIndexOptionTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

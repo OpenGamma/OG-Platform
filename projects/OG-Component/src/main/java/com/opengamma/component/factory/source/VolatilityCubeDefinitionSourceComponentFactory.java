@@ -207,7 +207,7 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
   //-----------------------------------------------------------------------
   @Override
   public VolatilityCubeDefinitionSourceComponentFactory clone() {
-    return (VolatilityCubeDefinitionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

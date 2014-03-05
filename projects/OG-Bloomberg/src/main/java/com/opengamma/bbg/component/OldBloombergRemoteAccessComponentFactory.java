@@ -441,7 +441,7 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   //-----------------------------------------------------------------------
   @Override
   public OldBloombergRemoteAccessComponentFactory clone() {
-    return (OldBloombergRemoteAccessComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

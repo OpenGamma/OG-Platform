@@ -404,7 +404,7 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public DataSourceComponentFactory clone() {
-    return (DataSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

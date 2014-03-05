@@ -178,7 +178,7 @@ public class IntegrationToolContext extends ToolContext implements BloombergTool
   //-----------------------------------------------------------------------
   @Override
   public IntegrationToolContext clone() {
-    return (IntegrationToolContext) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -63,7 +63,7 @@ public class EnergyForwardSecurity extends CommodityForwardSecurity {
   //-----------------------------------------------------------------------
   @Override
   public EnergyForwardSecurity clone() {
-    return (EnergyForwardSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

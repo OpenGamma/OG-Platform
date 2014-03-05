@@ -206,7 +206,7 @@ public class DoublesCurveNelsonSiegel
    * @return the value of the property, not null
    */
   private double[] getParameters() {
-    return (_parameters != null ? _parameters.clone() : null);
+    return _parameters;
   }
 
   /**
@@ -231,7 +231,7 @@ public class DoublesCurveNelsonSiegel
   //-----------------------------------------------------------------------
   @Override
   public DoublesCurveNelsonSiegel clone() {
-    return (DoublesCurveNelsonSiegel) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -121,7 +121,7 @@ public class LegalEntitySearchResult extends AbstractSearchResult<LegalEntityDoc
   //-----------------------------------------------------------------------
   @Override
   public LegalEntitySearchResult clone() {
-    return (LegalEntitySearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

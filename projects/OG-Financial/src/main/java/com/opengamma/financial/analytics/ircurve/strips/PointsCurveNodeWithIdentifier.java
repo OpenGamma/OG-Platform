@@ -131,7 +131,7 @@ public class PointsCurveNodeWithIdentifier extends CurveNodeWithIdentifier {
   //-----------------------------------------------------------------------
   @Override
   public PointsCurveNodeWithIdentifier clone() {
-    return (PointsCurveNodeWithIdentifier) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

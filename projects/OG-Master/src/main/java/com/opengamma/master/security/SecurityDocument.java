@@ -153,7 +153,7 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public SecurityDocument clone() {
-    return (SecurityDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

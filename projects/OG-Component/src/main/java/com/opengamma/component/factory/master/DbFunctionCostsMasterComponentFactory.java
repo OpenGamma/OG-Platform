@@ -270,7 +270,7 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractComponentFact
   //-----------------------------------------------------------------------
   @Override
   public DbFunctionCostsMasterComponentFactory clone() {
-    return (DbFunctionCostsMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

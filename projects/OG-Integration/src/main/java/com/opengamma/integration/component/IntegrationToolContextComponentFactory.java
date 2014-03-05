@@ -120,7 +120,7 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   //-----------------------------------------------------------------------
   @Override
   public IntegrationToolContextComponentFactory clone() {
-    return (IntegrationToolContextComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

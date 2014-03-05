@@ -330,7 +330,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public MetricRepositoryFactory clone() {
-    return (MetricRepositoryFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

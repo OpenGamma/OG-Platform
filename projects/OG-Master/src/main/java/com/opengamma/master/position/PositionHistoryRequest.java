@@ -96,7 +96,7 @@ public class PositionHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public PositionHistoryRequest clone() {
-    return (PositionHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

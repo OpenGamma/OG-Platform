@@ -92,7 +92,7 @@ public class SharedUserComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public SharedUserComponentFactory clone() {
-    return (SharedUserComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -167,7 +167,7 @@ public class JmxManagementServiceFactory extends AbstractSpringComponentFactory 
   //-----------------------------------------------------------------------
   @Override
   public JmxManagementServiceFactory clone() {
-    return (JmxManagementServiceFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

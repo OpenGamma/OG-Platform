@@ -89,7 +89,7 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
   //-----------------------------------------------------------------------
   @Override
   public HolidayMetaDataRequest clone() {
-    return (HolidayMetaDataRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

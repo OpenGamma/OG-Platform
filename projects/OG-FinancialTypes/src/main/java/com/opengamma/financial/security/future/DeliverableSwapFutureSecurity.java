@@ -147,7 +147,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   //-----------------------------------------------------------------------
   @Override
   public DeliverableSwapFutureSecurity clone() {
-    return (DeliverableSwapFutureSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

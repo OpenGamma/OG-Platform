@@ -114,7 +114,7 @@ public class OvernightIndex extends Index {
   //-----------------------------------------------------------------------
   @Override
   public OvernightIndex clone() {
-    return (OvernightIndex) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

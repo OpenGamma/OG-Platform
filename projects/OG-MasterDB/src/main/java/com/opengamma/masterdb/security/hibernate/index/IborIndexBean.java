@@ -128,7 +128,7 @@ public class IborIndexBean extends IndexBean {
   //-----------------------------------------------------------------------
   @Override
   public IborIndexBean clone() {
-    return (IborIndexBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

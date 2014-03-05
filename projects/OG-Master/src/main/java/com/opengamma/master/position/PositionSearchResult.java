@@ -120,7 +120,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
   //-----------------------------------------------------------------------
   @Override
   public PositionSearchResult clone() {
-    return (PositionSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

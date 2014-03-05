@@ -132,7 +132,7 @@ public class InMemorySecurityMasterComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public InMemorySecurityMasterComponentFactory clone() {
-    return (InMemorySecurityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

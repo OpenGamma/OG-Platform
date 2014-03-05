@@ -121,7 +121,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
   //-----------------------------------------------------------------------
   @Override
   public RegionSearchResult clone() {
-    return (RegionSearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

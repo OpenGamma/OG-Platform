@@ -133,7 +133,7 @@ public class InMemoryHistoricalTimeSeriesMasterComponentFactory extends Abstract
   //-----------------------------------------------------------------------
   @Override
   public InMemoryHistoricalTimeSeriesMasterComponentFactory clone() {
-    return (InMemoryHistoricalTimeSeriesMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

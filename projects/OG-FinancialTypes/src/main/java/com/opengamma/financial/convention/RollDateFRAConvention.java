@@ -169,7 +169,7 @@ public class RollDateFRAConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public RollDateFRAConvention clone() {
-    return (RollDateFRAConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

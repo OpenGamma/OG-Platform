@@ -976,7 +976,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public ToolContextComponentFactory clone() {
-    return (ToolContextComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

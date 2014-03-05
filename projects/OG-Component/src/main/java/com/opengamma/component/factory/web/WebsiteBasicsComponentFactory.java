@@ -909,7 +909,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public WebsiteBasicsComponentFactory clone() {
-    return (WebsiteBasicsComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

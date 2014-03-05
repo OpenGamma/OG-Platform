@@ -152,7 +152,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDocumentDbMasterCo
   //-----------------------------------------------------------------------
   @Override
   public DbSecurityMasterComponentFactory clone() {
-    return (DbSecurityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

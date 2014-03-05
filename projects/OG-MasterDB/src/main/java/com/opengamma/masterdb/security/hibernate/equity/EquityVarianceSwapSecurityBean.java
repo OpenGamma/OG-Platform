@@ -394,7 +394,7 @@ public class EquityVarianceSwapSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public EquityVarianceSwapSecurityBean clone() {
-    return (EquityVarianceSwapSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

@@ -327,7 +327,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   @Override
   public FunctionConfigurationSourceComponentFactory clone() {
-    return (FunctionConfigurationSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

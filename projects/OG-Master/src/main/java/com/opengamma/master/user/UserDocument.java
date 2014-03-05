@@ -153,7 +153,7 @@ public class UserDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public UserDocument clone() {
-    return (UserDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -133,7 +133,7 @@ public class FadeInPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public FadeInPayoffStyle clone() {
-    return (FadeInPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

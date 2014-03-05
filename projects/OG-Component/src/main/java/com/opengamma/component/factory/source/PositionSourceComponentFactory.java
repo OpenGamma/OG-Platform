@@ -250,7 +250,7 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public PositionSourceComponentFactory clone() {
-    return (PositionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

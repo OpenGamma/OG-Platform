@@ -136,9 +136,8 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> 
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public ConfigSearchResult<T> clone() {
-    return (ConfigSearchResult<T>) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

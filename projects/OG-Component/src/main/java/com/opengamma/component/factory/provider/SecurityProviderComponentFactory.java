@@ -154,7 +154,7 @@ public class SecurityProviderComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public SecurityProviderComponentFactory clone() {
-    return (SecurityProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

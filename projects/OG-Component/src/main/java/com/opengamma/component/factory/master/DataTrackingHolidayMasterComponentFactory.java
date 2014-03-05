@@ -125,7 +125,7 @@ public class DataTrackingHolidayMasterComponentFactory extends AbstractComponent
   //-----------------------------------------------------------------------
   @Override
   public DataTrackingHolidayMasterComponentFactory clone() {
-    return (DataTrackingHolidayMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
