@@ -7,6 +7,7 @@ package com.opengamma.examples.simulated.loader;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.examples.simulated.curve.ExampleFXForwardCurveConfigPopulator;
+import com.opengamma.examples.simulated.volatility.cube.ExampleSwaptionVolatilityCubeConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleATMSwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleFXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
@@ -35,8 +36,9 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
     new YieldCurveConfigPopulator(configMaster, true);
     ExampleFXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.CURRENCY_PAIRS);
-    ExampleATMSwaptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_SURFACES);
+    ExampleATMSwaptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_CONFIGS);
     ExampleFXForwardCurveConfigPopulator.populateCurveConfigMaster(configMaster, ExampleViewsPopulator.CURRENCY_PAIRS);
+    ExampleSwaptionVolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_CONFIGS);
   }
 
 }

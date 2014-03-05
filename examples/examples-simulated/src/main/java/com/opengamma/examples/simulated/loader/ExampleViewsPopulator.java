@@ -130,19 +130,19 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     "DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig", "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
   /** A list of currency pairs */
   public static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), UnorderedCurrencyPair.of(Currency.USD, Currency.CHF),
-      UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
-      UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY) };
+    UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
+    UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY) };
   /** Map of currencies to swaption surface names */
-  public static final Map<Currency, String> SWAPTION_SURFACES = new HashMap<>();
+  public static final Map<Currency, String> SWAPTION_CONFIGS = new HashMap<>();
   /** Map of currencies to curves */
   public static final Map<Currency, Pair<String, String>> SWAPTION_CURVES = new HashMap<>();
 
   static {
-    SWAPTION_SURFACES.put(Currency.USD, "PROVIDER1");
-    SWAPTION_SURFACES.put(Currency.GBP, "PROVIDER1");
-    SWAPTION_SURFACES.put(Currency.EUR, "PROVIDER2");
-    SWAPTION_SURFACES.put(Currency.JPY, "PROVIDER3");
-    SWAPTION_SURFACES.put(Currency.CHF, "PROVIDER2");
+    SWAPTION_CONFIGS.put(Currency.USD, "PROVIDER1");
+    SWAPTION_CONFIGS.put(Currency.GBP, "PROVIDER1");
+    SWAPTION_CONFIGS.put(Currency.EUR, "PROVIDER2");
+    SWAPTION_CONFIGS.put(Currency.JPY, "PROVIDER3");
+    SWAPTION_CONFIGS.put(Currency.CHF, "PROVIDER2");
     SWAPTION_CURVES.put(Currency.USD, Pairs.of("Discounting", "Forward3M"));
     SWAPTION_CURVES.put(Currency.GBP, Pairs.of("Discounting", "Forward6M"));
     SWAPTION_CURVES.put(Currency.EUR, Pairs.of("Discounting", "Forward6M"));
@@ -192,7 +192,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE, new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
-        ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueRequirementNames.PNL });
+      ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueRequirementNames.PNL });
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }
@@ -234,7 +234,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
     return viewDefinition;
   }
-  
+
   private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
@@ -249,10 +249,10 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalcConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
         ValueProperties.with(CurrencyConversionFunction.ORIGINAL_CURRENCY, "Default").withOptional(CurrencyConversionFunction.ORIGINAL_CURRENCY).get());
     defaultCalcConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CURRENCY, "USD").get());
-    MergedOutput discountingPV01Output = new MergedOutput("Discounting PV01", MergedOutputAggregationType.LINEAR);
-    MergedOutput discountingYCNSOutput = new MergedOutput("Discounting Bucketed PV01", MergedOutputAggregationType.LINEAR);
-    MergedOutput forwardPV01Output = new MergedOutput("Forward PV01", MergedOutputAggregationType.LINEAR);
-    MergedOutput forwardYCNSOutput = new MergedOutput("Forward Bucketed PV01", MergedOutputAggregationType.LINEAR);
+    final MergedOutput discountingPV01Output = new MergedOutput("Discounting PV01", MergedOutputAggregationType.LINEAR);
+    final MergedOutput discountingYCNSOutput = new MergedOutput("Discounting Bucketed PV01", MergedOutputAggregationType.LINEAR);
+    final MergedOutput forwardPV01Output = new MergedOutput("Forward PV01", MergedOutputAggregationType.LINEAR);
+    final MergedOutput forwardYCNSOutput = new MergedOutput("Forward Bucketed PV01", MergedOutputAggregationType.LINEAR);
     for (int i = 0; i < s_swapCurrencies.length; i++) {
       final Currency ccy = s_swapCurrencies[i];
       final String ccyCode = ccy.getCode();
@@ -260,7 +260,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
       discountingYCNSOutput.addMergedRequirement(YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccyCode).get());
       defaultCalcConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy), ValueProperties.with(CURVE, "Discounting")
           .with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
-      
+
       if (ccyCode.equals("USD")) {
         forwardYCNSOutput.addMergedRequirement(YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyCode).get());
         forwardPV01Output.addMergedRequirement(PV01, ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyCode).get());
@@ -426,7 +426,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    for (final Map.Entry<Currency, String> entry : SWAPTION_SURFACES.entrySet()) {
+    for (final Map.Entry<Currency, String> entry : SWAPTION_CONFIGS.entrySet()) {
       final ComputationTargetSpecification target = ComputationTargetSpecification.of(entry.getKey().getUniqueId());
       final ValueProperties properties = ValueProperties.builder().with(SURFACE, entry.getValue())
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
@@ -580,7 +580,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     secondConfig.addPortfolioRequirement(FutureSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Discounting").with(CURVE_CALCULATION_CONFIG, curveConfig2).get());
     secondConfig.addPortfolioRequirement(FutureSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Forward3MFut").with(CURVE_CALCULATION_CONFIG, curveConfig2).get());
     secondConfig.addPortfolioRequirement(FutureSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Forward6M").with(CURVE_CALCULATION_CONFIG, curveConfig2).get());
-    ViewCalculationConfiguration thirdConfig = new ViewCalculationConfiguration(viewDefinition, "STIR futures MtM");
+    final ViewCalculationConfiguration thirdConfig = new ViewCalculationConfiguration(viewDefinition, "STIR futures MtM");
     thirdConfig.addPortfolioRequirement(FutureSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CALCULATION_METHOD, "MarkToMarket").get());
     viewDefinition.addViewCalculationConfiguration(firstConfig);
     viewDefinition.addViewCalculationConfiguration(secondConfig);
