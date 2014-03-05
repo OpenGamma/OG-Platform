@@ -32,6 +32,13 @@ public class SwapSecurityUtils {
     if (payLeg.getNotional() instanceof InterestRateNotional && receiveLeg.getNotional() instanceof InterestRateNotional) {
       final InterestRateNotional payNotional = (InterestRateNotional) payLeg.getNotional();
       final InterestRateNotional receiveNotional = (InterestRateNotional) receiveLeg.getNotional();
+      if (payLeg instanceof FixedInflationSwapLeg) {
+        return InterestRateInstrumentType.ZERO_COUPON_INFLATION_SWAP;
+      }
+      if (payLeg instanceof InflationIndexSwapLeg) {
+        return InterestRateInstrumentType.ZERO_COUPON_INFLATION_SWAP;
+      }
+
       if (!payNotional.getCurrency().equals(receiveNotional.getCurrency())) {
         return InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
       }

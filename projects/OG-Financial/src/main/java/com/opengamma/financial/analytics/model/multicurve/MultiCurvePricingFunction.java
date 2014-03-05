@@ -407,6 +407,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      * @return The results
      */
     protected abstract Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
+
         InstrumentDerivative derivative, FXMatrix fxMatrix);
   }
 }
