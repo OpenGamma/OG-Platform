@@ -52,6 +52,8 @@ import com.opengamma.transport.jaxrs.FudgeObjectJSONConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectJSONProducer;
 import com.opengamma.transport.jaxrs.FudgeObjectXMLConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectXMLProducer;
+import com.opengamma.transport.jaxrs.JodaBeanBinaryProducerConsumer;
+import com.opengamma.transport.jaxrs.JodaBeanXmlProducerConsumer;
 import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.rest.DataDuplicationExceptionMapper;
 import com.opengamma.util.rest.DataNotFoundExceptionMapper;
@@ -247,6 +249,8 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     restComponents.publishHelper(new FudgeObjectXMLProducer());
     restComponents.publishHelper(new FudgeObjectBinaryConsumer());
     restComponents.publishHelper(new FudgeObjectBinaryProducer());
+    restComponents.publishHelper(new JodaBeanBinaryProducerConsumer());
+    restComponents.publishHelper(new JodaBeanXmlProducerConsumer());
     restComponents.publishHelper(new DataNotFoundExceptionMapper());
     restComponents.publishHelper(new DataDuplicationExceptionMapper());
     restComponents.publishHelper(new IllegalArgumentExceptionMapper());
