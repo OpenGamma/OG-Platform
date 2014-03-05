@@ -14,6 +14,8 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.opengamma.core.marketdatasnapshot.SurfaceKey;
+import com.opengamma.core.marketdatasnapshot.SurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
@@ -21,6 +23,7 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableSurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
@@ -123,11 +126,20 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     final HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<>();
     final ManageableVolatilityCubeSnapshot volCube = new ManageableVolatilityCubeSnapshot();
 
-    volCube.setValues(Maps.<Triple<Tenor, Tenor, Double>, ValueSnapshot>newHashMap());
-    volCube.getValues().put(Triple.of(Tenor.DAY, Tenor.YEAR, -1.0), ValueSnapshot.of(null, null));
+    volCube.setValues(Maps.<Triple<Object, Object, Object>, ValueSnapshot>newHashMap());
+    volCube.getValues().put(Triple.<Object, Object, Object>of(Tenor.DAY, Tenor.YEAR, -1.0), ValueSnapshot.of(null, null));
 
     volCubes.put(VolatilityCubeKey.of("Default", "Default", "DUMMY_QUOTE_TYPE", "DUMMY_QUOTE_UNITS"), volCube);
     snapshot1.setVolatilityCubes(volCubes);
+
+    final HashMap<SurfaceKey, SurfaceSnapshot> surfaces = new HashMap<>();
+    final ManageableSurfaceSnapshot surface = new ManageableSurfaceSnapshot();
+
+    surface.setValues(Maps.<Pair<Object, Object>, ValueSnapshot>newHashMap());
+    surface.getValues().put(Pairs.<Object, Object>of(Tenor.DAY, -1.0), ValueSnapshot.of(null, null));
+
+    surfaces.put(SurfaceKey.of("Surface"), surface);
+    snapshot1.setSurfaces(surfaces);
 
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
     doc1 = _snpMaster.add(doc1);

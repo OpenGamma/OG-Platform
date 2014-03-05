@@ -28,10 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -44,7 +42,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * The values in the snapshot.
    */
   @PropertyDefinition(validate = "notNull")
-  private Map<Triple<Tenor, Tenor, Double>, ValueSnapshot> _values;
+  private Map<Triple<Object, Object, Object>, ValueSnapshot> _values;
 
   /**
    * Creates a Fudge representation of the snapshot:
@@ -61,12 +59,12 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * @return the message representation of this snapshot
    */
   public FudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
-    MutableFudgeMsg ret = serializer.newMessage();
+    final MutableFudgeMsg ret = serializer.newMessage();
     // TODO: this should not be adding it's own class header; the caller should be doing that, or this be registered as a generic builder for VolatilityCubeSnapshot and that class name be added
     FudgeSerializer.addClassHeader(ret, ManageableVolatilityCubeSnapshot.class);
-    MutableFudgeMsg valuesMsg = serializer.newMessage();
+    final MutableFudgeMsg valuesMsg = serializer.newMessage();
     if (_values != null) {
-      for (Entry<Triple<Tenor, Tenor, Double>, ValueSnapshot> entry : _values.entrySet()) {
+      for (final Entry<Triple<Object, Object, Object>, ValueSnapshot> entry : _values.entrySet()) {
         serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
         if (entry.getValue() == null) {
           valuesMsg.add(2, IndicatorType.INSTANCE);
@@ -89,12 +87,11 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * @param msg message containing the snapshot representation, not null
    * @return a snapshot object
    */
-  @SuppressWarnings("unchecked")
   public static ManageableVolatilityCubeSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final HashMap<Triple<Tenor, Tenor, Double>, ValueSnapshot> values = Maps.newHashMap();
-    Triple<Tenor, Tenor, Double> key = null;
-    for (FudgeField fudgeField : msg.getMessage("values")) {
-      Integer ordinal = fudgeField.getOrdinal();
+    final HashMap<Triple<Object, Object, Object>, ValueSnapshot> values = new HashMap<>();
+    Triple<Object, Object, Object> key = null;
+    for (final FudgeField fudgeField : msg.getMessage("values")) {
+      final Integer ordinal = fudgeField.getOrdinal();
       if (ordinal == null) {
         continue;
       }
@@ -102,7 +99,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
       if (intValue == 1) {
         key = deserializer.fieldValueToObject(Triple.class, fudgeField);
       } else if (intValue == 2) {
-        ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
+        final ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
         values.put(key, value);
         key = null;
       }
@@ -146,7 +143,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * Gets the values in the snapshot.
    * @return the value of the property, not null
    */
-  public Map<Triple<Tenor, Tenor, Double>, ValueSnapshot> getValues() {
+  public Map<Triple<Object, Object, Object>, ValueSnapshot> getValues() {
     return _values;
   }
 
@@ -154,7 +151,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * Sets the values in the snapshot.
    * @param values  the new value of the property, not null
    */
-  public void setValues(Map<Triple<Tenor, Tenor, Double>, ValueSnapshot> values) {
+  public void setValues(Map<Triple<Object, Object, Object>, ValueSnapshot> values) {
     JodaBeanUtils.notNull(values, "values");
     this._values = values;
   }
@@ -163,7 +160,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * Gets the the {@code values} property.
    * @return the property, not null
    */
-  public final Property<Map<Triple<Tenor, Tenor, Double>, ValueSnapshot>> values() {
+  public final Property<Map<Triple<Object, Object, Object>, ValueSnapshot>> values() {
     return metaBean().values().createProperty(this);
   }
 
@@ -233,7 +230,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Triple<Tenor, Tenor, Double>, ValueSnapshot>> _values = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Map<Triple<Object, Object, Object>, ValueSnapshot>> _values = DirectMetaProperty.ofReadWrite(
         this, "values", ManageableVolatilityCubeSnapshot.class, (Class) Map.class);
     /**
      * The meta-properties.
@@ -277,7 +274,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<Triple<Tenor, Tenor, Double>, ValueSnapshot>> values() {
+    public final MetaProperty<Map<Triple<Object, Object, Object>, ValueSnapshot>> values() {
       return _values;
     }
 
@@ -296,7 +293,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          ((ManageableVolatilityCubeSnapshot) bean).setValues((Map<Triple<Tenor, Tenor, Double>, ValueSnapshot>) newValue);
+          ((ManageableVolatilityCubeSnapshot) bean).setValues((Map<Triple<Object, Object, Object>, ValueSnapshot>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

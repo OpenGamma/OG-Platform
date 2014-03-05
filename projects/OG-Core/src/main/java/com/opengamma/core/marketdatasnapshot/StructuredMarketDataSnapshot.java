@@ -16,7 +16,7 @@ import com.opengamma.util.PublicSPI;
  * A snapshot of market data taken at a particular instant, potentially altered by hand.
  * <p>
  * This snapshot differs from {@code ( LiveDataSnapshot + overrides )} in that market
- * values can be overridden or updated separately for yield curves or other structured objects. 
+ * values can be overridden or updated separately for yield curves or other structured objects.
  */
 @PublicSPI
 public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
@@ -49,11 +49,11 @@ public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
    */
   Map<YieldCurveKey, YieldCurveSnapshot> getYieldCurves();
 
-    /**
-     * Gets the yield curves.
-     *
-     * @return the yield curves
-     */
+  /**
+   * Gets the yield curves.
+   *
+   * @return the yield curves
+   */
   Map<CurveKey, CurveSnapshot> getCurves();
 
   /**
@@ -71,13 +71,20 @@ public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
   Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> getVolatilitySurfaces();
 
   /**
+   * Gets the surfaces.
+   * 
+   * @return the surfaces
+   */
+  Map<SurfaceKey, SurfaceSnapshot> getSurfaces();
+
+  /**
    * Gets the valuation time of the snapshot
    * 
    * @return the valuation time of the snapshot, or null if
    * no valuation time could be inferred from the snapshot
    */
   Instant getValuationTime();
-  
-  
+
+
 
 }

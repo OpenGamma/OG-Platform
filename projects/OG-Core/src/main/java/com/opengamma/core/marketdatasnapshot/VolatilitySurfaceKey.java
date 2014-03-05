@@ -49,7 +49,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
   @PropertyDefinition(validate = "notNull")
   private final UniqueId _target;
   /**
-   * The curve name.
+   * The surface name.
    */
   @PropertyDefinition
   private final String _name;
@@ -92,7 +92,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
    * @return the comparison value
    */
   @Override
-  public int compareTo(VolatilitySurfaceKey other) {
+  public int compareTo(final VolatilitySurfaceKey other) {
     if (other == null) {
       throw new NullPointerException();
     }
@@ -132,10 +132,10 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
   public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final UniqueId targetUid;
-    String target = msg.getString("target");
+    final String target = msg.getString("target");
     if (target == null) {
       //Handle old form of snapshot
-      Currency curr = Currency.of(msg.getString("currency"));
+      final Currency curr = Currency.of(msg.getString("currency"));
       targetUid = curr.getUniqueId();
     } else {
       targetUid = UniqueId.parse(target);
@@ -205,7 +205,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve name.
+   * Gets the surface name.
    * @return the value of the property
    */
   public String getName() {
