@@ -53,9 +53,9 @@ public class ISDACompliantDateCurve
   private DayCount _dayCount;
 
   //-------------------------------------------------------------------------
-  //  protected static ISDACompliantCurve makeISDACompliantCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates) {
-  //    return makeISDACompliantCurve(baseDate, dates, rates, ACT_365);
-  //  }
+  protected static ISDACompliantCurve makeISDACompliantCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates) {
+    return makeISDACompliantCurve(baseDate, dates, rates, ACT_365);
+  }
 
   protected static ISDACompliantCurve makeISDACompliantCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates, final DayCount dayCount) {
     double[] t = checkAndGetTimes(baseDate, dates, rates, dayCount);
