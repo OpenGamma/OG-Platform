@@ -101,7 +101,7 @@ public class DataHistoricalTimeSeriesResource extends AbstractDocumentDataResour
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     HistoricalTimeSeriesInfoHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
 

@@ -85,7 +85,7 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
   @Path("portfolioSearches")
   public Response search(PortfolioSearchRequest request) {
     PortfolioSearchResult result = getPortfolioMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -93,7 +93,7 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, PortfolioDocument request) {
     PortfolioDocument result = getPortfolioMaster().add(request);
     URI createdUri = (new DataPortfolioResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

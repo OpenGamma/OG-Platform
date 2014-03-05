@@ -73,7 +73,7 @@ public class DataCurveSpecificationBuilderResource extends AbstractDataResource 
     final Instant valuationTime = Instant.parse(valuationTimeStr);
     final LocalDate curveDate = LocalDate.parse(curveDateStr);
     CurveSpecification result = getCurveSpecificationBuilder().buildCurve(valuationTime, curveDate, definition);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /**

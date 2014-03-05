@@ -81,11 +81,11 @@ public class DataHolidaySourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       final Holiday result = getHolidaySource().get(objectId.atVersion(version));
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       Holiday result = getHolidaySource().get(objectId, vc);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 
@@ -135,11 +135,11 @@ public class DataHolidaySourceResource extends AbstractDataResource {
     LocalDate date = LocalDate.parse(localDateStr);
     if (holidayType == HolidayType.CURRENCY) {
       boolean result = getHolidaySource().isHoliday(date, Currency.of(currencyCode));
-      return responseOkFudge(FudgeBooleanWrapper.of(result));
+      return responseOkObject(FudgeBooleanWrapper.of(result));
     } else {
       final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
       boolean result = getHolidaySource().isHoliday(date, holidayType, bundle);
-      return responseOkFudge(FudgeBooleanWrapper.of(result));
+      return responseOkObject(FudgeBooleanWrapper.of(result));
     }
   }
 

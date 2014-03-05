@@ -65,7 +65,7 @@ public class DataCurrencyPairsSourceResource extends AbstractDataResource {
   @Path("currencyPairs/{name}")
   public Response getPairs(@PathParam("name") String name) {
     CurrencyPairs result = getCurrencyPairsSource().getCurrencyPairs(name);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET
@@ -74,7 +74,7 @@ public class DataCurrencyPairsSourceResource extends AbstractDataResource {
     Currency currency1 = Currency.parse(currency1Str);
     Currency currency2 = Currency.parse(currency2Str);
     CurrencyPair result = getCurrencyPairsSource().getCurrencyPair(name, currency1, currency2);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

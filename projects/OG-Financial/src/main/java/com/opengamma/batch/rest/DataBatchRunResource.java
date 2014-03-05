@@ -75,7 +75,7 @@ public class DataBatchRunResource extends AbstractDataResource {
   @GET
   public Response get() {
     RiskRun result = getMaster().getRiskRun(_batchRunId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -83,7 +83,7 @@ public class DataBatchRunResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response getBatchValues(PagingRequest pagingRequest) {
     Pair<List<ViewResultEntry>, Paging> result = getMaster().getBatchValues(_batchRunId, pagingRequest);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

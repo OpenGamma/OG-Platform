@@ -72,14 +72,14 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   public Response metaData(@Context UriInfo uriInfo) {
     HolidayMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, HolidayMetaDataRequest.class);
     HolidayMetaDataResult result = getHolidayMaster().metaData(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
   @Path("holidaySearches")
   public Response search(HolidaySearchRequest request) {
     HolidaySearchResult result = getHolidayMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -87,7 +87,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
     HolidayDocument result = getHolidayMaster().add(request);
     URI createdUri = (new DataHolidayResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

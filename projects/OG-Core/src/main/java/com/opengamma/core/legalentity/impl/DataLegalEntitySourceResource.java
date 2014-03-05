@@ -83,7 +83,7 @@ public class DataLegalEntitySourceResource extends AbstractDataResource {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Collection<? extends LegalEntity> result = getLegalEntitySource().get(bundle, vc);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    return responseOkObject(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -96,11 +96,11 @@ public class DataLegalEntitySourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       final LegalEntity result = getLegalEntitySource().get(objectId.atVersion(version));
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       LegalEntity result = getLegalEntitySource().get(objectId, vc);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 
@@ -110,7 +110,7 @@ public class DataLegalEntitySourceResource extends AbstractDataResource {
       @QueryParam("id") List<String> uniqueIdStrs) {
     final List<UniqueId> uids = IdUtils.parseUniqueIds(uniqueIdStrs);
     Map<UniqueId, LegalEntity> result = getLegalEntitySource().get(uids);
-    return responseOkFudge(FudgeListWrapper.of(result.values()));
+    return responseOkObject(FudgeListWrapper.of(result.values()));
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +186,7 @@ public class DataLegalEntitySourceResource extends AbstractDataResource {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     @SuppressWarnings("deprecation")
     Collection<? extends LegalEntity> result = getLegalEntitySource().get(bundle);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    return responseOkObject(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -199,7 +199,7 @@ public class DataLegalEntitySourceResource extends AbstractDataResource {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     LegalEntity result = getLegalEntitySource().getSingle(bundle, vc);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /**

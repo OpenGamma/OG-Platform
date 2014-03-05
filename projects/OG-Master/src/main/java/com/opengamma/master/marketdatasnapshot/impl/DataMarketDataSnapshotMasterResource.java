@@ -77,7 +77,7 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   @Path("snapshotSearches")
   public Response search(MarketDataSnapshotSearchRequest request) {
     MarketDataSnapshotSearchResult result = getMarketDataSnapshotMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -85,7 +85,7 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().add(request);
     URI createdUri = (new DataMarketDataSnapshotResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

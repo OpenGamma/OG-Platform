@@ -38,7 +38,7 @@ public abstract class AbstractDocumentDataResource<D extends AbstractDocument> e
   protected Response get(/*@QueryParam("versionAsOf")*/ String versionAsOf, /*@QueryParam("correctedTo")*/ String correctedTo) {
     VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     D result = getMaster().get(getUrlId(), vc);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   // @POST
@@ -48,7 +48,7 @@ public abstract class AbstractDocumentDataResource<D extends AbstractDocument> e
     }
     D result = getMaster().update(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
+    return responseCreatedObject(uri, result);
   }
 
   // @DELETE
@@ -62,7 +62,7 @@ public abstract class AbstractDocumentDataResource<D extends AbstractDocument> e
   protected Response getVersioned(/*@PathParam("versionId")*/ String versionId) {
     UniqueId uniqueId = getUrlId().atVersion(versionId);
     D result = getMaster().get(uniqueId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
 
@@ -72,14 +72,14 @@ public abstract class AbstractDocumentDataResource<D extends AbstractDocument> e
     UniqueId uniqueId = getUrlId().atVersion(versionId);
 
     List<UniqueId> result = getMaster().replaceVersion(uniqueId, replacementDocuments);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   // @PUT
   protected Response replaceVersions(List<D> replacementDocuments) {
     ObjectId objectId = getUrlId();
     List<UniqueId> result = getMaster().replaceVersions(objectId, replacementDocuments);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   // @PUT
@@ -87,7 +87,7 @@ public abstract class AbstractDocumentDataResource<D extends AbstractDocument> e
   protected Response replaceAllVersions(List<D> replacementDocuments) {
     ObjectId objectId = getUrlId();
     List<UniqueId> result = getMaster().replaceAllVersions(objectId, replacementDocuments);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
   
   //====================================================================================================================

@@ -39,14 +39,14 @@ public class DataDependencyGraphExplorerResource extends AbstractDataResource {
   @Path(PATH_WHOLE_GRAPH)
   @GET
   public Response getWholeGraph() {
-    return responseOkFudge(_explorer.getWholeGraph());
+    return responseOkObject(_explorer.getWholeGraph());
   }
 
   @Path(PATH_SUBGRAPH_PRODUCING)
   @GET
   public Response getSubgraphProducing(@QueryParam("msg") String msgBase64) {
     ValueSpecification output = RestUtils.decodeBase64(ValueSpecification.class, msgBase64);
-    return responseOkFudge(_explorer.getSubgraphProducing(output));
+    return responseOkObject(_explorer.getSubgraphProducing(output));
   }
 
   //-------------------------------------------------------------------------

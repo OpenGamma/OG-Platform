@@ -33,13 +33,13 @@ public class DataNamedMarketDataSpecificationRepositoryResource extends Abstract
   @GET
   @Path(PATH_NAMES)
   public Response getProviderNames() {
-    return responseOkFudge(getNamedMarketDataSpecificationRepository().getNames());
+    return responseOkObject(getNamedMarketDataSpecificationRepository().getNames());
   }
 
   @GET
   @Path(PATH_SPECIFICATION + "/{name}")
   public Response getSpecification(@PathParam("name") final String name) {
-    return responseOkFudge(getNamedMarketDataSpecificationRepository().getSpecification(name));
+    return responseOkObject(getNamedMarketDataSpecificationRepository().getSpecification(name));
   }
 
   //-------------------------------------------------------------------------

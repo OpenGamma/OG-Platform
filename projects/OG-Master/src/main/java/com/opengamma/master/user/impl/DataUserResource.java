@@ -99,7 +99,7 @@ public class DataUserResource extends AbstractDocumentDataResource<UserDocument>
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     UserHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

@@ -100,7 +100,7 @@ public class DataLegalEntityResource extends AbstractDocumentDataResource<LegalE
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     LegalEntityHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

@@ -83,7 +83,7 @@ public class DataConventionSourceResource extends AbstractDataResource {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Collection<? extends Convention> result = getConventionSource().get(bundle, vc);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    return responseOkObject(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -96,11 +96,11 @@ public class DataConventionSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       final Convention result = getConventionSource().get(objectId.atVersion(version));
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       Convention result = getConventionSource().get(objectId, vc);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 
@@ -110,7 +110,7 @@ public class DataConventionSourceResource extends AbstractDataResource {
       @QueryParam("id") List<String> uniqueIdStrs) {
     final List<UniqueId> uids = IdUtils.parseUniqueIds(uniqueIdStrs);
     Map<UniqueId, Convention> result = getConventionSource().get(uids);
-    return responseOkFudge(FudgeListWrapper.of(result.values()));
+    return responseOkObject(FudgeListWrapper.of(result.values()));
   }
 
   //-------------------------------------------------------------------------
@@ -185,7 +185,7 @@ public class DataConventionSourceResource extends AbstractDataResource {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     @SuppressWarnings("deprecation")
     Collection<? extends Convention> result = getConventionSource().get(bundle);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    return responseOkObject(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -201,10 +201,10 @@ public class DataConventionSourceResource extends AbstractDataResource {
     if (typeStr != null) {
       Class<? extends Convention> type = ClassUtils.loadClassRuntime(typeStr, Convention.class);
       Convention result = getConventionSource().getSingle(bundle, vc, type);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       Convention result = getConventionSource().getSingle(bundle, vc);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 

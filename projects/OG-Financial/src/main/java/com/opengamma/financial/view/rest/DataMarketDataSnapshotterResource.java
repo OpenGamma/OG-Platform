@@ -56,7 +56,7 @@ public class DataMarketDataSnapshotterResource extends AbstractDataResource {
     }
     try {
       StructuredMarketDataSnapshot result = _snapshotter.createSnapshot(client, cycleReference.get());
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } finally {
       cycleReference.release();
     }
@@ -75,7 +75,7 @@ public class DataMarketDataSnapshotterResource extends AbstractDataResource {
     }
     try {
       Map<YieldCurveKey, Map<String, ValueRequirement>> result = _snapshotter.getYieldCurveSpecifications(client, cycleReference.get());
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } finally {
       cycleReference.release();
     }

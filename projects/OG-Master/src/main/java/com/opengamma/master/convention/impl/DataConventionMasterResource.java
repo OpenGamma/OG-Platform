@@ -80,14 +80,14 @@ public class DataConventionMasterResource extends AbstractDataResource {
   public Response metaData(@Context UriInfo uriInfo) {
     ConventionMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, ConventionMetaDataRequest.class);
     ConventionMetaDataResult result = getConventionMaster().metaData(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
   @Path("conventionSearches")
   public Response search(ConventionSearchRequest request) {
     ConventionSearchResult result = getConventionMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -95,7 +95,7 @@ public class DataConventionMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, ConventionDocument request) {
     ConventionDocument result = getConventionMaster().add(request);
     URI createdUri = (new DataConventionResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

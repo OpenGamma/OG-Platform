@@ -76,7 +76,7 @@ public class DataUserMasterResource extends AbstractDataResource {
   @Path("userSearches")
   public Response search(UserSearchRequest request) {
     UserSearchResult result = getUserMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -84,7 +84,7 @@ public class DataUserMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, UserDocument request) {
     UserDocument result = getUserMaster().add(request);
     URI createdUri = (new DataUserResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------
