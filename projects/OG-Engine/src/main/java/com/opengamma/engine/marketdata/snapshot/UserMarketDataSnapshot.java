@@ -9,6 +9,8 @@ import static java.lang.String.format;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,6 +28,9 @@ import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.SurfaceData;
+import com.opengamma.core.marketdatasnapshot.SurfaceKey;
+import com.opengamma.core.marketdatasnapshot.SurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
@@ -59,7 +64,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
@@ -159,13 +163,26 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         xs.toArray(), ys.toArray(), values);
   }
 
-  private static VolatilityCubeData<Tenor, Tenor, Double> createVolatilityCubeData(final VolatilityCubeSnapshot volCubeSnapshot, final VolatilityCubeKey marketDataKey) {
+  private static SurfaceData<Object, Object> createSurfaceData(final SurfaceSnapshot surfaceSnapshot, final SurfaceKey marketDataKey) {
+    final Set<Object> xs = new HashSet<>();
+    final Set<Object> ys = new HashSet<>();
+    final Map<Pair<Object, Object>, Double> values = new HashMap<>();
+    final Map<Pair<Object, Object>, ValueSnapshot> snapValues = surfaceSnapshot.getValues();
+    for (final Entry<Pair<Object, Object>, ValueSnapshot> entry : snapValues.entrySet()) {
+      values.put(entry.getKey(), queryDouble(entry.getValue()));
+      xs.add(entry.getKey().getFirst());
+      ys.add(entry.getKey().getSecond());
+    }
+    return new SurfaceData<>(marketDataKey.getName(), values);
+  }
+
+  private static VolatilityCubeData<Object, Object, Object> createVolatilityCubeData(final VolatilityCubeSnapshot volCubeSnapshot, final VolatilityCubeKey marketDataKey) {
     final Set<Object> xs = Sets.newHashSet();
     final Set<Object> ys = Sets.newHashSet();
     final Set<Object> zs = Sets.newHashSet();
-    final Map<Triple<Tenor, Tenor, Double>, Double> values = Maps.newHashMap();
-    final Map<Triple<Tenor, Tenor, Double>, ValueSnapshot> snapValues = volCubeSnapshot.getValues();
-    for (final Entry<Triple<Tenor, Tenor, Double>, ValueSnapshot> entry : snapValues.entrySet()) {
+    final Map<Triple<Object, Object, Object>, Double> values = Maps.newHashMap();
+    final Map<Triple<Object, Object, Object>, ValueSnapshot> snapValues = volCubeSnapshot.getValues();
+    for (final Entry<Triple<Object, Object, Object>, ValueSnapshot> entry : snapValues.entrySet()) {
       values.put(entry.getKey(), queryDouble(entry.getValue()));
       xs.add(entry.getKey().getFirst());
       ys.add(entry.getKey().getSecond());
@@ -451,7 +468,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
 
     @Override
-    protected VolatilityCubeData<Tenor, Tenor, Double> query(final UniqueId target,
+    protected VolatilityCubeData<Object, Object, Object> query(final UniqueId target,
         final ValueProperties properties,
         final StructuredMarketDataSnapshot snapshot) {
       final String definitionName = properties.getValues(CUBE_DEFINITION_PROPERTY).iterator().next();

@@ -40,6 +40,7 @@ import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
+import com.opengamma.financial.analytics.surface.SurfaceFunctions;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctions;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
@@ -195,8 +196,20 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return TimeSeriesFunctions.providers(getConfigMaster());
   }
 
+  /**
+   * Adds volatility cube functions.
+   * @return A source of volatility cube functions
+   */
   protected FunctionConfigurationSource volatilityCubeConfigConfigurations() {
     return VolatilityCubeFunctions.providers(getConfigMaster());
+  }
+
+  /**
+   * Adds surface functions.
+   * @return A source of surface functions
+   */
+  protected FunctionConfigurationSource surfaceConfigConfigurations() {
+    return SurfaceFunctions.providers(getConfigMaster());
   }
 
   /**
@@ -225,6 +238,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     sources.add(curveParameterConfigurations());
     sources.add(fxForwardCurveConfigurations());
     sources.add(timeSeriesConfigurations());
+    sources.add(surfaceConfigConfigurations());
     return sources;
   }
 
@@ -270,7 +284,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -296,7 +310,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(boolean publishRest) {
+  public void setPublishRest(final boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -321,7 +335,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Sets the config master.
    * @param configMaster  the new value of the property, not null
    */
-  public void setConfigMaster(ConfigMaster configMaster) {
+  public void setConfigMaster(final ConfigMaster configMaster) {
     JodaBeanUtils.notNull(configMaster, "configMaster");
     this._configMaster = configMaster;
   }
@@ -341,12 +355,12 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
+      final FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           (isPublishRest() == other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
@@ -366,9 +380,9 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    final StringBuilder buf = new StringBuilder(128);
     buf.append("FunctionConfigurationSourceComponentFactory{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -378,7 +392,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
@@ -426,7 +440,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
@@ -480,7 +494,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return ((FunctionConfigurationSourceComponentFactory) bean).getClassifier();
@@ -493,7 +507,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           ((FunctionConfigurationSourceComponentFactory) bean).setClassifier((String) newValue);
@@ -509,7 +523,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected void validate(Bean bean) {
+    protected void validate(final Bean bean) {
       JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._configMaster, "configMaster");
       super.validate(bean);

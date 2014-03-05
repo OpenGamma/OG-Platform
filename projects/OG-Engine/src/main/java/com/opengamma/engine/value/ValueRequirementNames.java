@@ -64,7 +64,6 @@ public final class ValueRequirementNames {
   //  public static final String DAILY_CALL_IMP_VOL_30D = "Last Call Implied Vol 30D";
   /**
    * The mark as of the previous close (e.g. equity price) <p>
-   * Used in {@link ExternallyProvidedSecurityMarkFunction}
    */
   public static final String MARK = "Mark";
   /**
@@ -259,6 +258,10 @@ public final class ValueRequirementNames {
    */
   public static final String CURVE_MARKET_DATA = "CurveMarketData";
   /**
+   * Data for an arbitrary surface.
+   */
+  public static final String SURFACE_MARKET_DATA = "SurfaceMarketData";
+  /**
    * The sensitivities of a cash-flow based fixed-income instrument to each of the nodal points in a yield curve.
    */
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
@@ -275,7 +278,7 @@ public final class ValueRequirementNames {
    */
   public static final String BLOOMBERG_TICKER = "BLOOMBERG_TICKER";
   /**
-   * Bloomberg's older security identifier scheme. 
+   * Bloomberg's older security identifier scheme.
    * They now wish users to adopt their new Bloomberg Global ID (BBGID). See {@link ExternalSchemes}
    */
   public static final String BLOOMBERG_BUID = "BLOOMBERG_BUID";
@@ -361,7 +364,18 @@ public final class ValueRequirementNames {
   public static final String CURRENCY_PAIRS = "CurrencyPairs";
 
   ///// Surfaces
-
+  /**
+   * A surface specification
+   */
+  public static final String SURFACE_SPECIFICATION = "SurfaceSpecification";
+  /**
+   * A surface definition
+   */
+  public static final String SURFACE_DEFINITION = "SurfaceDefinition";
+  /**
+   * Surface containing arrays of x, y, and  values for (x, y) pairs.
+   */
+  public static final String SURFACE_DATA = "SurfaceData";
   /**
    * Set of data containing surfaces of (x, y, parameter) triples, where the parameters are those in the Heston model.
    */
@@ -444,7 +458,7 @@ public final class ValueRequirementNames {
   /**
    * A volatility cube specification.
    */
-  public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
+  public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpecification";
   /**
    * The points that have been included in a fit
    */
@@ -1665,7 +1679,7 @@ public final class ValueRequirementNames {
    * External position quantity.
    */
   public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
-  
+
   /**
    * Delta Equivalent value of a position. Essentially equivalent to {@link ValueRequirementNames#VALUE_DELTA}
    */

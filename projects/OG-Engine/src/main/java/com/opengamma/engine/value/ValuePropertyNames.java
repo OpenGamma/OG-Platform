@@ -281,7 +281,7 @@ public final class ValuePropertyNames {
    * Controls the number formatting of the barrier distance - e.g. abs, percentage
    */
   public static final String BARRIER_DISTANCE_OUTPUT_FORMAT = "BarrierDistanceOutputFormat";
-  
+
   /**
    * The name of a property that provides the name of a forward curve.
    */
@@ -292,40 +292,42 @@ public final class ValuePropertyNames {
    * Used to differentiate this from {@link ValuePropertyNames#FORWARD_CURVE_NAME}
    */
   public static final String DISCOUNTING_CURVE_NAME = "DiscountingCurveName";
-  
+
   /**
    * A general name for a property describing a transformation method to use.
    */
   public static final String TRANSFORMATION_METHOD = "TransformationMethod";
-  
-  /** 
-   * The name of a property that provides the type of dividends, be they Continuous, Discrete or None 
+
+  /**
+   * The name of a property that provides the type of dividends, be they Continuous, Discrete or None
    */
   public static final String DIVIDEND_TYPE = "DividendType";
-  
-  /** 
-   * Instance of DIVIDEND_TYPE_PROPERTY representing a continuous dividend yield 
+
+  /**
+   * Instance of DIVIDEND_TYPE_PROPERTY representing a continuous dividend yield
    */
   public static final String DIVIDEND_TYPE_CONTINUOUS = "Continuous";
-  
-  /** 
-   * Instance of DIVIDEND_TYPE_PROPERTY representing discrete dividend payments. See { @link DiscreteDividendFunction} 
+
+  /**
+   * Instance of DIVIDEND_TYPE_PROPERTY representing discrete dividend payments. See { @link DiscreteDividendFunction}
    */
   public static final String DIVIDEND_TYPE_DISCRETE = "Discrete";
-  
-  /** 
-   * Instance of DIVIDEND_TYPE_PROPERTY representing no dividends 
-  */
+
+  /**
+   * Instance of DIVIDEND_TYPE_PROPERTY representing no dividends
+   */
   public static final String DIVIDEND_TYPE_NONE = "None";
-  
-  /** 
-   * The name of a general property that scales results. 
+
+  /**
+   * The name of a general property that scales results.
    */
   public static final String SCALE = "Scale";
-  
-  /** The name of a property representing the exposure configuration used for pricing */
+
+  /**
+   * The name of a property representing the exposure configuration used for pricing
+   */
   public static final String CURVE_EXPOSURES = "CurveExposures";
-  
+
   /**
    * The name of the conversion method.
    */
@@ -336,26 +338,26 @@ public final class ValuePropertyNames {
    * See {@link ValuePropertyNames#SNAP_TIME_LIVE} and {@link ValuePropertyNames#SNAP_TIME_CLOSE}
    */
   public static final String SNAP_TIME = "SnapTime";
-  
+
   /**
    * Property used to choose whether market data is to be snapped Live or at last Close. <p>
    * See {@link ValuePropertyNames#SNAP_TIME_LIVE} and {@link ValuePropertyNames#SNAP_TIME_CLOSE}
    */
   public static final String SNAP_TIME_VOL = "VolSnapTime";
-  
+
   /**
    * Value for {@link ValuePropertyNames#SNAP_TIME} when data is to be snapped at current, Live, time
    */
   public static final String SNAP_TIME_LIVE = "Live";
-  
+
   /**
    * Value for {@link ValuePropertyNames#SNAP_TIME} when data is to be snapped at time of previous Close
    */
   public static final String SNAP_TIME_CLOSE = "Close";
-  
+
   /**
    * Value for a name.
    */
   public static final String NAME = "Name";
-  
+
 }
