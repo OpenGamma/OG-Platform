@@ -9,7 +9,9 @@ import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CU
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS;
+import static com.opengamma.engine.value.ValuePropertyNames.CUBE;
 import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_DEFN;
+import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA;
 import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_SPEC;
 
 import java.util.Collections;
@@ -20,18 +22,19 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -44,6 +47,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecificationSource;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -68,6 +72,9 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Builds the market data requirements for a volatility cube.
+   * @param <X> The type of the x axis data
+   * @param <Y> The type of the y axis data
+   * @param <Z> The type of the z axis data
    * @param specificationSource The specification source
    * @param definitionSource The definition source
    * @param specificationName The specification name
@@ -76,27 +83,40 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
    * @throws OpenGammaRuntimeException If the cube specification or definition is null or if the cube quote types
    * are not equal
    */
-  public static Set<ValueRequirement> buildDataRequirements(final VolatilityCubeSpecificationSource specificationSource, final VolatilityCubeDefinitionSource definitionSource,
-      final String specificationName, final String definitionName) {
+  public static <X, Y, Z> Set<ValueRequirement> buildDataRequirements(final VolatilityCubeSpecificationSource specificationSource,
+      final VolatilityCubeDefinitionSource definitionSource, final String specificationName, final String definitionName) {
     final VolatilityCubeSpecification specification = specificationSource.getSpecification(specificationName);
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get volatility cube specification named " + specificationName);
     }
-    final VolatilityCubeDefinition<Object, Object, Object> definition = (VolatilityCubeDefinition<Object, Object, Object>) definitionSource.getDefinition(definitionName);
+    final VolatilityCubeDefinition<X, Y, Z> definition = (VolatilityCubeDefinition<X, Y, Z>) definitionSource.getDefinition(definitionName);
     if (definition == null) {
-      throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition named " + definitionName);
+      throw new OpenGammaRuntimeException("Could not get volatility cube definition named " + definitionName);
     }
     if (!(definition.getCubeQuoteType().equals(specification.getCubeQuoteType()))) {
       throw new OpenGammaRuntimeException("Inconsistent cube quote type for definition (" + definition.getCubeQuoteType() +
           ") and specification (" + specification.getCubeQuoteType() + ")");
     }
-    final CubeInstrumentProvider<Object, Object, Object> provider = (CubeInstrumentProvider<Object, Object, Object>) specification.getCubeInstrumentProvider();
+    final CubeInstrumentProvider<X, Y, Z> provider = (CubeInstrumentProvider<X, Y, Z>) specification.getCubeInstrumentProvider();
     final Set<ValueRequirement> result = new HashSet<>();
-    for (final Object x : definition.getXs()) {
-      for (final Object y : definition.getYs()) {
-        for (final Object z : definition.getZs()) {
-          final ExternalId identifier = provider.getInstrument(x, y, z);
-          result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
+    for (final X x : definition.getXs()) {
+      for (final Y y : definition.getYs()) {
+        for (final Z z : definition.getZs()) {
+          if (x instanceof String && y instanceof String) {
+            try {
+              //TODO the type is not picked up successfully
+              final Tenor xTenor = Tenor.parse((String) x);
+              final Tenor yTenor = Tenor.parse((String) y);
+              final ExternalId identifier = provider.getInstrument((X) xTenor, (Y) yTenor, z);
+              result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
+            } catch (final DateTimeParseException e) {
+              final ExternalId identifier = provider.getInstrument(x, y, z);
+              result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
+            }
+          } else {
+            final ExternalId identifier = provider.getInstrument(x, y, z);
+            result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
+          }
         }
       }
     }
@@ -125,15 +145,23 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
     for (final Object x : definition.getXs()) {
       for (final Object y : definition.getYs()) {
         for (final Object z : definition.getZs()) {
-          final ExternalId id = provider.getInstrument(x, y, z);
-          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, id);
+          ExternalId identifier;
+          try {
+            //TODO the type is not picked up successfully
+            final Tenor xTenor = Tenor.parse((String) x);
+            final Tenor yTenor = Tenor.parse((String) y);
+            identifier = provider.getInstrument(xTenor, yTenor, z);
+          } catch (final Exception e) {
+            identifier = provider.getInstrument(x, y, z);
+          }
+          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           final Object volatilityObject = inputs.getValue(requirement);
           if (volatilityObject != null) {
             final Double volatility = (Double) volatilityObject;
             final Triple<Object, Object, Object> coordinate = Triple.of(x, y, z);
             data.put(coordinate, volatility);
           } else {
-            s_logger.info("Could not get market data for {}", id);
+            s_logger.info("Could not get market data for {}", identifier);
           }
         }
       }
@@ -163,31 +191,32 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
     return ComputationTargetType.NULL;
   }
 
-  @SuppressWarnings("synthetic-access")
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION)
-        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION)
-        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE)
-        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties));
+        .withAny(PROPERTY_CUBE_DEFINITION)
+        .withAny(PROPERTY_CUBE_SPECIFICATION)
+        .withAny(PROPERTY_CUBE_QUOTE_TYPE)
+        .withAny(PROPERTY_CUBE_UNITS).get();
+    return Collections.singleton(new ValueSpecification(VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties));
   }
 
-  @SuppressWarnings("synthetic-access")
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> definitionNames = constraints.getValues(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION);
+    final Set<String> definitionNames = constraints.getValues(PROPERTY_CUBE_DEFINITION);
     if (definitionNames == null || definitionNames.size() != 1) {
       return null;
     }
-    final Set<String> specificationNames = constraints.getValues(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION);
+    final Set<String> specificationNames = constraints.getValues(PROPERTY_CUBE_SPECIFICATION);
     if (specificationNames == null || specificationNames.size() != 1) {
       return null;
     }
     final String definitionName = Iterables.getOnlyElement(definitionNames);
     final String specificationName = Iterables.getOnlyElement(specificationNames);
-    return buildDataRequirements(_volatilityCubeSpecificationSource, _volatilityCubeDefinitionSource, specificationName, definitionName);
+    final Set<ValueRequirement> requirements = buildDataRequirements(_volatilityCubeSpecificationSource, _volatilityCubeDefinitionSource, specificationName, definitionName);
+    requirements.add(new ValueRequirement(VOLATILITY_CUBE_DEFN, ComputationTargetSpecification.NULL, ValueProperties.builder().with(CUBE, definitionNames).get()));
+    requirements.add(new ValueRequirement(VOLATILITY_CUBE_SPEC, ComputationTargetSpecification.NULL, ValueProperties.builder().with(CUBE, specificationNames).get()));
+    return requirements;
   }
 }

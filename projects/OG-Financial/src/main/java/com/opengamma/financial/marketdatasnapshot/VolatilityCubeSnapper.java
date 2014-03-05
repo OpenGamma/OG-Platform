@@ -21,13 +21,12 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapsh
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * Create a structured snapshot of {@link VolatilityCubeData}.
  */
-public class VolatilityCubeSnapper extends StructuredSnapper<VolatilityCubeKey, VolatilityCubeData<Tenor, Tenor, Double>, VolatilityCubeSnapshot> {
+public class VolatilityCubeSnapper extends StructuredSnapper<VolatilityCubeKey, VolatilityCubeData<Object, Object, Object>, VolatilityCubeSnapshot> {
 
   /**
    * Sets the requirement name to {@link ValueRequirementNames#VOLATILITY_CUBE_MARKET_DATA}
@@ -46,14 +45,14 @@ public class VolatilityCubeSnapper extends StructuredSnapper<VolatilityCubeKey, 
   }
 
   @Override
-  VolatilityCubeSnapshot buildSnapshot(final ViewComputationResultModel resultModel, final VolatilityCubeKey key, final VolatilityCubeData<Tenor, Tenor, Double> volatilityCubeData) {
+  VolatilityCubeSnapshot buildSnapshot(final ViewComputationResultModel resultModel, final VolatilityCubeKey key, final VolatilityCubeData<Object, Object, Object> volatilityCubeData) {
 
-    final Map<Triple<Tenor, Tenor, Double>, ValueSnapshot> dict = new HashMap<>();
-    for (final Tenor x : volatilityCubeData.getXs()) {
-      for (final Tenor y : volatilityCubeData.getYs()) {
-        for (final Double z : volatilityCubeData.getZs()) {
+    final Map<Triple<Object, Object, Object>, ValueSnapshot> dict = new HashMap<>();
+    for (final Object x : volatilityCubeData.getXs()) {
+      for (final Object y : volatilityCubeData.getYs()) {
+        for (final Object z : volatilityCubeData.getZs()) {
           final Double volatility = volatilityCubeData.getVolatility(x, y, z);
-          final Triple<Tenor, Tenor, Double> volKey = Triple.of(x, y, z);
+          final Triple<Object, Object, Object> volKey = Triple.of(x, y, z);
           dict.put(volKey, ValueSnapshot.of(volatility));
         }
       }

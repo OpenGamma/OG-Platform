@@ -17,31 +17,31 @@ import javax.ws.rs.core.UriInfo;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecificationSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for the volatility cube definition source.
+ * RESTful resource for the volatility cube specification source.
  * <p>
  * This resource receives and processes RESTful calls to the source.
  */
-@Path("volatilityCubeDefinitionSource")
-public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataResource {
+@Path("volatilityCubeSpecificationSource")
+public class DataVolatilityCubeSpecificationSourceResource extends AbstractDataResource {
 
   /**
    * The source.
    */
-  private final VolatilityCubeDefinitionSource _source;
+  private final VolatilityCubeSpecificationSource _source;
 
   /**
    * Creates the resource, exposing the underlying source over REST.
    *
    * @param source  the underlying source, not null
    */
-  public DataVolatilityCubeDefinitionSourceResource(final VolatilityCubeDefinitionSource source) {
+  public DataVolatilityCubeSpecificationSourceResource(final VolatilityCubeSpecificationSource source) {
     ArgumentChecker.notNull(source, "source");
     _source = source;
   }
@@ -52,7 +52,7 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
    *
    * @return the source, not null
    */
-  public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
+  public VolatilityCubeSpecificationSource getVolatilityCubeSpecificationSource() {
     return _source;
   }
 
@@ -69,10 +69,10 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
       @QueryParam("name") final String name) {
     if (versionAsOfStr != null) {
       final VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, null);
-      final VolatilityCubeDefinition<?, ?, ?> result = getVolatilityCubeDefinitionSource().getDefinition(name, versionCorrection);
+      final VolatilityCubeSpecification result = getVolatilityCubeSpecificationSource().getSpecification(name, versionCorrection);
       return responseOkFudge(result);
     }
-    final VolatilityCubeDefinition<?, ?, ?> result = getVolatilityCubeDefinitionSource().getDefinition(name);
+    final VolatilityCubeSpecification result = getVolatilityCubeSpecificationSource().getSpecification(name);
     return responseOkFudge(result);
   }
 
@@ -85,7 +85,7 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
    * @return the URI, not null
    */
   public static URI uriSearchSingle(final URI baseUri, final String name, final Instant versionAsOf) {
-    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("/definitions/searchSingle");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("/specifications/searchSingle");
     bld.queryParam("name", name);
     if (versionAsOf != null) {
       bld.queryParam("versionAsOf", versionAsOf.toString());

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import org.joda.beans.Bean;
+import java.io.Serializable;
 
 import com.opengamma.id.ExternalId;
 
@@ -18,7 +18,7 @@ import com.opengamma.id.ExternalId;
  * @param <Y> The type of the y-axis values
  * @param <Z> The type of the z-axis values
  */
-public interface CubeInstrumentProvider<X, Y, Z> extends Bean {
+public interface CubeInstrumentProvider<X, Y, Z> extends Serializable {
 
   /**
    * Gets the external

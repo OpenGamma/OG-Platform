@@ -9,22 +9,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Aggregates an ordered set of sources into a single source.
+ * Aggregates an ordered set of volatility cube definition sources into a single source.
  */
 public class AggregatingVolatilityCubeDefinitionSource implements VolatilityCubeDefinitionSource {
-
+  /** The definition sources */
   private final Collection<VolatilityCubeDefinitionSource> _sources;
 
+  /**
+   * @param sources A collection of sources, not null
+   */
   public AggregatingVolatilityCubeDefinitionSource(final Collection<VolatilityCubeDefinitionSource> sources) {
+    ArgumentChecker.notNull(sources, "sources");
     _sources = new ArrayList<>(sources);
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final String name) {
+  public VolatilityCubeDefinition<?, ?, ?> getDefinition(final String name) {
     for (final VolatilityCubeDefinitionSource source : _sources) {
-      final VolatilityCubeDefinition definition = source.getDefinition(name);
+      final VolatilityCubeDefinition<?, ?, ?> definition = source.getDefinition(name);
       if (definition != null) {
         return definition;
       }
@@ -33,9 +38,9 @@ public class AggregatingVolatilityCubeDefinitionSource implements VolatilityCube
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final String name, final VersionCorrection versionCorrection) {
+  public VolatilityCubeDefinition<?, ?, ?> getDefinition(final String name, final VersionCorrection versionCorrection) {
     for (final VolatilityCubeDefinitionSource source : _sources) {
-      final VolatilityCubeDefinition definition = source.getDefinition(name, versionCorrection);
+      final VolatilityCubeDefinition<?, ?, ?> definition = source.getDefinition(name, versionCorrection);
       if (definition != null) {
         return definition;
       }

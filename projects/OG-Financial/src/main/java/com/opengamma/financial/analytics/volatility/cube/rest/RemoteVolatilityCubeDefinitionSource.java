@@ -29,7 +29,7 @@ public class RemoteVolatilityCubeDefinitionSource extends AbstractRemoteClient i
 
   //-------------------------------------------------------------------------
   @Override
-  public VolatilityCubeDefinition getDefinition(final String name) {
+  public VolatilityCubeDefinition<?, ?, ?> getDefinition(final String name) {
     ArgumentChecker.notNull(name, "name");
 
     final URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), name, null);
@@ -37,7 +37,7 @@ public class RemoteVolatilityCubeDefinitionSource extends AbstractRemoteClient i
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final String name, final VersionCorrection versionCorrection) {
+  public VolatilityCubeDefinition<?, ?, ?> getDefinition(final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
 
     final URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), name, versionCorrection.getVersionAsOf());

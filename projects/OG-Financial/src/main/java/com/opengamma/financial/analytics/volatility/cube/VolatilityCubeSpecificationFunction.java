@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CUBE;
 import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_SPEC;
 
 import java.util.Collections;
@@ -59,7 +60,9 @@ public class VolatilityCubeSpecificationFunction extends AbstractFunction {
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get volatility cube specification called " + _cubeSpecificationName);
     }
-    final ValueProperties properties = createValueProperties().get();
+    final ValueProperties properties = createValueProperties()
+        .with(CUBE, specification.getName())
+        .get();
     final ValueSpecification spec = new ValueSpecification(VOLATILITY_CUBE_SPEC, ComputationTargetSpecification.NULL, properties);
     final Set<ComputedValue> result = Collections.singleton(new ComputedValue(spec, specification));
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
