@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -129,6 +130,18 @@ public class MarketDataSelectionGraphManipulatorTest {
     assertEquals(result.size(), 1);
     // Selector is the underlying, not composite
     assertEquals(result.containsKey(yieldCurveSelector), true);
+  }
+
+  @Test
+  public void noSelectors() {
+    Set<MarketDataSelector> noSelectors = Collections.emptySet();
+    MarketDataSelectionGraphManipulator manipulator =
+        new MarketDataSelectionGraphManipulator(CompositeMarketDataSelector.of(noSelectors),
+                                                createEmptyViewCalcManipulations());
+    DependencyGraph graph = createSimpleGraphWithMarketDataNodes();
+    Map<DistinctMarketDataSelector, Set<ValueSpecification>> result = new HashMap<>();
+    manipulator.modifyDependencyGraph(graph, _resolver, result);
+    assertTrue(result.isEmpty());
   }
 
   private DistinctMarketDataSelector createYieldCurveSelector(Currency currency, String curveType) {
