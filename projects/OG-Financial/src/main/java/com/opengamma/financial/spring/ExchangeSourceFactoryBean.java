@@ -132,7 +132,7 @@ public class ExchangeSourceFactoryBean extends SpringFactoryBean<ExchangeSource>
   //-----------------------------------------------------------------------
   @Override
   public ExchangeSourceFactoryBean clone() {
-    return (ExchangeSourceFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

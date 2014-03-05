@@ -97,7 +97,7 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   //-----------------------------------------------------------------------
   @Override
   public ConfigMetaDataResult clone() {
-    return (ConfigMetaDataResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

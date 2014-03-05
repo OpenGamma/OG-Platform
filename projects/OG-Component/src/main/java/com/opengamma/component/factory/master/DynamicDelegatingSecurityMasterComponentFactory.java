@@ -144,7 +144,7 @@ public class DynamicDelegatingSecurityMasterComponentFactory extends AbstractCom
   //-----------------------------------------------------------------------
   @Override
   public DynamicDelegatingSecurityMasterComponentFactory clone() {
-    return (DynamicDelegatingSecurityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

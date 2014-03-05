@@ -96,7 +96,7 @@ public class ConventionHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public ConventionHistoryRequest clone() {
-    return (ConventionHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

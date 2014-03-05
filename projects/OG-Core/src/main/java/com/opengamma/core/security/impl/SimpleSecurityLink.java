@@ -256,7 +256,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
   //-----------------------------------------------------------------------
   @Override
   public SimpleSecurityLink clone() {
-    return (SimpleSecurityLink) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

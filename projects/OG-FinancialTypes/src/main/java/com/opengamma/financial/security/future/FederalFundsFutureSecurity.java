@@ -103,7 +103,7 @@ public class FederalFundsFutureSecurity extends FutureSecurity {
   //-----------------------------------------------------------------------
   @Override
   public FederalFundsFutureSecurity clone() {
-    return (FederalFundsFutureSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

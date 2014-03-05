@@ -43,7 +43,7 @@ public class CogdaLiveDataUnsubscribeMessage extends CogdaLiveDataCommandMessage
   //-----------------------------------------------------------------------
   @Override
   public CogdaLiveDataUnsubscribeMessage clone() {
-    return (CogdaLiveDataUnsubscribeMessage) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

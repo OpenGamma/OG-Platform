@@ -60,7 +60,7 @@ public class UnsupportedSecurityLoaderComponentFactory extends AbstractSecurityL
   //-----------------------------------------------------------------------
   @Override
   public UnsupportedSecurityLoaderComponentFactory clone() {
-    return (UnsupportedSecurityLoaderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

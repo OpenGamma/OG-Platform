@@ -70,7 +70,7 @@ public class DbHolidayMasterFactoryBean extends AbstractDbMasterFactoryBean<DbHo
   //-----------------------------------------------------------------------
   @Override
   public DbHolidayMasterFactoryBean clone() {
-    return (DbHolidayMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

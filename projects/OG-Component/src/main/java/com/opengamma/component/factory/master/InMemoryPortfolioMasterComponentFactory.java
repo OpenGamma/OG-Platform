@@ -163,7 +163,7 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
   //-----------------------------------------------------------------------
   @Override
   public InMemoryPortfolioMasterComponentFactory clone() {
-    return (InMemoryPortfolioMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

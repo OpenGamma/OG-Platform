@@ -155,7 +155,7 @@ public class EquityIndex extends Index {
   //-----------------------------------------------------------------------
   @Override
   public EquityIndex clone() {
-    return (EquityIndex) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

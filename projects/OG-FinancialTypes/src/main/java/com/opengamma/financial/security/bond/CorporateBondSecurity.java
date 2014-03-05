@@ -70,7 +70,7 @@ public class CorporateBondSecurity extends BondSecurity {
   //-----------------------------------------------------------------------
   @Override
   public CorporateBondSecurity clone() {
-    return (CorporateBondSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

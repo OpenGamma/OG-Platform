@@ -96,7 +96,7 @@ public class HolidayHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public HolidayHistoryRequest clone() {
-    return (HolidayHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

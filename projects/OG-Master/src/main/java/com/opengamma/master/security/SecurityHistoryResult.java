@@ -111,7 +111,7 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
   //-----------------------------------------------------------------------
   @Override
   public SecurityHistoryResult clone() {
-    return (SecurityHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

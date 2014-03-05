@@ -256,7 +256,7 @@ public class PeriodicZeroDepositSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public PeriodicZeroDepositSecurity clone() {
-    return (PeriodicZeroDepositSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

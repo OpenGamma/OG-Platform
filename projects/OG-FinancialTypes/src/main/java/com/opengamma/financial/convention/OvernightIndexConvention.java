@@ -236,7 +236,7 @@ public class OvernightIndexConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public OvernightIndexConvention clone() {
-    return (OvernightIndexConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -248,17 +248,7 @@ public class SurfaceSpecification implements Bean, Serializable, UniqueIdentifia
   //-----------------------------------------------------------------------
   @Override
   public SurfaceSpecification clone() {
-    BeanBuilder<? extends SurfaceSpecification> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

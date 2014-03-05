@@ -201,7 +201,7 @@ public class PoolExecutorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public PoolExecutorComponentFactory clone() {
-    return (PoolExecutorComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -173,7 +173,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   //-----------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument clone() {
-    return (MarketDataSnapshotDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

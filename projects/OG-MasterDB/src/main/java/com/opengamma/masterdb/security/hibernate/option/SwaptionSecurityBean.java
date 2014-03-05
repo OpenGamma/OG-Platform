@@ -347,7 +347,7 @@ public class SwaptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public SwaptionSecurityBean clone() {
-    return (SwaptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

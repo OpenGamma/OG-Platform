@@ -516,7 +516,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public DbConnectorComponentFactory clone() {
-    return (DbConnectorComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -96,7 +96,7 @@ public class RegionHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public RegionHistoryRequest clone() {
-    return (RegionHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

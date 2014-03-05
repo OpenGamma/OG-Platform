@@ -262,7 +262,7 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   //-----------------------------------------------------------------------
   @Override
   public BloombergConnectorFactoryBean clone() {
-    return (BloombergConnectorFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

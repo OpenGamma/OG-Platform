@@ -246,7 +246,7 @@ public class FXForwardSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public FXForwardSecurityBean clone() {
-    return (FXForwardSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

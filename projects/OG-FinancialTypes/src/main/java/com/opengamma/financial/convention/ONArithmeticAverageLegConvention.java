@@ -366,7 +366,7 @@ public class ONArithmeticAverageLegConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public ONArithmeticAverageLegConvention clone() {
-    return (ONArithmeticAverageLegConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

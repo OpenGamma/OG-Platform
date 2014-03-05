@@ -202,7 +202,7 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
   //-----------------------------------------------------------------------
   @Override
   public EHCachingMarketDataSnapshotMasterComponentFactory clone() {
-    return (EHCachingMarketDataSnapshotMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

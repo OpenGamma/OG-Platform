@@ -123,7 +123,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
   //-----------------------------------------------------------------------
   @Override
   public ISDACompliantCreditCurve clone() {
-    return (ISDACompliantCreditCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

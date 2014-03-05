@@ -218,7 +218,7 @@ public class LegalEntitySourceComponentFactory extends AbstractComponentFactory 
   //-----------------------------------------------------------------------
   @Override
   public LegalEntitySourceComponentFactory clone() {
-    return (LegalEntitySourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

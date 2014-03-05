@@ -267,7 +267,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * @return the value of the property, not null
    */
   public double[] getDiscountFactors() {
-    return (_discountFactors != null ? _discountFactors.clone() : null);
+    return _discountFactors;
   }
 
   /**
@@ -293,7 +293,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * @return the value of the property, not null
    */
   public double[] getPaymentTimes() {
-    return (_paymentTimes != null ? _paymentTimes.clone() : null);
+    return _paymentTimes;
   }
 
   /**
@@ -319,7 +319,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * @return the value of the property, not null
    */
   public double[] getPaymentFractions() {
-    return (_paymentFractions != null ? _paymentFractions.clone() : null);
+    return _paymentFractions;
   }
 
   /**
@@ -438,17 +438,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public FixedSwapLegDetails clone() {
-    BeanBuilder<? extends FixedSwapLegDetails> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

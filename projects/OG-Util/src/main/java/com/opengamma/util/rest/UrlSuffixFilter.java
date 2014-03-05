@@ -13,6 +13,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
+import org.joda.beans.ser.JodaBeanMimeType;
+
 import com.google.common.collect.Maps;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.sun.jersey.core.header.InBoundHeaders;
@@ -39,6 +41,8 @@ public class UrlSuffixFilter implements ContainerRequestFilter {
     SUFFIXES.put(".xml", MediaType.APPLICATION_XML);
     SUFFIXES.put(".fudge", FudgeRest.MEDIA);
     SUFFIXES.put(".html", MediaType.TEXT_HTML);
+    SUFFIXES.put(".jbxml", JodaBeanMimeType.XML);
+    SUFFIXES.put(".jbbin", JodaBeanMimeType.BINARY);
   }
 
   @Override

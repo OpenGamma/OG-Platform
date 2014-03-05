@@ -80,14 +80,14 @@ public class DataLegalEntityMasterResource extends AbstractDataResource {
   public Response metaData(@Context UriInfo uriInfo) {
     LegalEntityMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, LegalEntityMetaDataRequest.class);
     LegalEntityMetaDataResult result = getLegalEntityMaster().metaData(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
   @Path("legalentitiesearches")
   public Response search(LegalEntitySearchRequest request) {
     LegalEntitySearchResult result = getLegalEntityMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -95,7 +95,7 @@ public class DataLegalEntityMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, LegalEntityDocument request) {
     LegalEntityDocument result = getLegalEntityMaster().add(request);
     URI createdUri = (new com.opengamma.master.legalentity.impl.DataLegalEntityResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

@@ -89,7 +89,7 @@ public class ConfigMetaDataRequest extends AbstractMetaDataRequest {
   //-----------------------------------------------------------------------
   @Override
   public ConfigMetaDataRequest clone() {
-    return (ConfigMetaDataRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

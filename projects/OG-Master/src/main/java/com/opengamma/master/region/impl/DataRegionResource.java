@@ -104,7 +104,7 @@ public class DataRegionResource
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     RegionHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

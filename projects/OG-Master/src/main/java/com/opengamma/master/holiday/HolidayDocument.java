@@ -244,7 +244,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public HolidayDocument clone() {
-    return (HolidayDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

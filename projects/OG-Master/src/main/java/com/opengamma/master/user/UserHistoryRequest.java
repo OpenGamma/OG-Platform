@@ -96,7 +96,7 @@ public class UserHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public UserHistoryRequest clone() {
-    return (UserHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -157,7 +157,7 @@ public class LegalEntityDocument extends AbstractDocument implements Serializabl
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityDocument clone() {
-    return (LegalEntityDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

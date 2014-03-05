@@ -96,7 +96,7 @@ public class RoleHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public RoleHistoryRequest clone() {
-    return (RoleHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

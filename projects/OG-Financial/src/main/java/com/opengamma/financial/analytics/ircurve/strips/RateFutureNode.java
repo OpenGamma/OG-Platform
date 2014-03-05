@@ -270,7 +270,7 @@ public class RateFutureNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public RateFutureNode clone() {
-    return (RateFutureNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

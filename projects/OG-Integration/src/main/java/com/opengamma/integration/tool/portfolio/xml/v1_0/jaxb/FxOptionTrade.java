@@ -205,7 +205,7 @@ public class FxOptionTrade extends AbstractFxOptionTrade {
   //-----------------------------------------------------------------------
   @Override
   public FxOptionTrade clone() {
-    return (FxOptionTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

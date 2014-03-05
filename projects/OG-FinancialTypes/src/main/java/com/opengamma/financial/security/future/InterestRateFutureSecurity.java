@@ -104,7 +104,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   //-----------------------------------------------------------------------
   @Override
   public InterestRateFutureSecurity clone() {
-    return (InterestRateFutureSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

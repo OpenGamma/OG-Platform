@@ -218,7 +218,7 @@ public class PaymentServiceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public PaymentServiceComponentFactory clone() {
-    return (PaymentServiceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

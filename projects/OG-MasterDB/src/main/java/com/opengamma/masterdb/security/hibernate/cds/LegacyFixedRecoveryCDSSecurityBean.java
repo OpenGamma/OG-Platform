@@ -102,7 +102,7 @@ public class LegacyFixedRecoveryCDSSecurityBean extends CreditDefaultSwapSecurit
   //-----------------------------------------------------------------------
   @Override
   public LegacyFixedRecoveryCDSSecurityBean clone() {
-    return (LegacyFixedRecoveryCDSSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

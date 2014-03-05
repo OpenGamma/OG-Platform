@@ -381,7 +381,7 @@ public class CreditDefaultSwapOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public CreditDefaultSwapOptionSecurityBean clone() {
-    return (CreditDefaultSwapOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

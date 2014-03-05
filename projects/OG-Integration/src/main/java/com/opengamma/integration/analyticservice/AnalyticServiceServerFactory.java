@@ -378,7 +378,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public AnalyticServiceServerFactory clone() {
-    return (AnalyticServiceServerFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

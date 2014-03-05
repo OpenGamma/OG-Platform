@@ -395,7 +395,7 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public CapFloorCMSSpreadSecurityBean clone() {
-    return (CapFloorCMSSpreadSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

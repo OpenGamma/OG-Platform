@@ -72,7 +72,7 @@ public class DbConfigMasterComponentFactory extends AbstractDocumentDbMasterComp
   //-----------------------------------------------------------------------
   @Override
   public DbConfigMasterComponentFactory clone() {
-    return (DbConfigMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

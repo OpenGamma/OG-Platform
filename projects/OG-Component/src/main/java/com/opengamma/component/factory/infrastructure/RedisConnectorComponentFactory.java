@@ -230,7 +230,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public RedisConnectorComponentFactory clone() {
-    return (RedisConnectorComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

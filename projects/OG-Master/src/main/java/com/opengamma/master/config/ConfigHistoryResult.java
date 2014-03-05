@@ -142,9 +142,8 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public ConfigHistoryResult<T> clone() {
-    return (ConfigHistoryResult<T>) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -125,7 +125,7 @@ public class DataTrackingLegalEntityMasterComponentFactory extends AbstractCompo
   //-----------------------------------------------------------------------
   @Override
   public DataTrackingLegalEntityMasterComponentFactory clone() {
-    return (DataTrackingLegalEntityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

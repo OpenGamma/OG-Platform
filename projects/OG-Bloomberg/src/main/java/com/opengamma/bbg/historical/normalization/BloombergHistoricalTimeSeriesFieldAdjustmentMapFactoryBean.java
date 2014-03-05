@@ -129,7 +129,7 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
   //-----------------------------------------------------------------------
   @Override
   public BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean clone() {
-    return (BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

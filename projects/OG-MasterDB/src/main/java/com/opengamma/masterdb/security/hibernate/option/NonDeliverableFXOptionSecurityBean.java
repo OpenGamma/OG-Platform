@@ -353,7 +353,7 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public NonDeliverableFXOptionSecurityBean clone() {
-    return (NonDeliverableFXOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

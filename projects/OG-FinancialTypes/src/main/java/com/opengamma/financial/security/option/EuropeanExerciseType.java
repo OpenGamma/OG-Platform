@@ -60,7 +60,7 @@ public class EuropeanExerciseType extends ExerciseType {
   //-----------------------------------------------------------------------
   @Override
   public EuropeanExerciseType clone() {
-    return (EuropeanExerciseType) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -316,7 +316,7 @@ public class EquityOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public EquityOptionSecurityBean clone() {
-    return (EquityOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

@@ -121,7 +121,7 @@ public class InMemoryCachingReferenceDataProviderComponentFactory extends Abstra
   //-----------------------------------------------------------------------
   @Override
   public InMemoryCachingReferenceDataProviderComponentFactory clone() {
-    return (InMemoryCachingReferenceDataProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

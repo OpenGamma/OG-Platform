@@ -7,7 +7,6 @@ package com.opengamma.util.spring;
 
 import java.util.Map;
 
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -121,19 +120,8 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public SpringFactoryBean<T> clone() {
-    BeanBuilder<?> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return (SpringFactoryBean<T>) builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

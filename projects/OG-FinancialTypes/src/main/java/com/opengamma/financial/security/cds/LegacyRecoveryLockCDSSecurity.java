@@ -149,7 +149,7 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
   //-----------------------------------------------------------------------
   @Override
   public LegacyRecoveryLockCDSSecurity clone() {
-    return (LegacyRecoveryLockCDSSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

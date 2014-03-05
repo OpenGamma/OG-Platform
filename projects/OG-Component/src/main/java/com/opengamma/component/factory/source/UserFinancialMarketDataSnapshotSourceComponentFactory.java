@@ -332,7 +332,7 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
   //-----------------------------------------------------------------------
   @Override
   public UserFinancialMarketDataSnapshotSourceComponentFactory clone() {
-    return (UserFinancialMarketDataSnapshotSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

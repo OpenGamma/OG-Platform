@@ -70,7 +70,7 @@ public class DbHistoricalTimeSeriesMasterFactoryBean extends AbstractDbMasterFac
   //-----------------------------------------------------------------------
   @Override
   public DbHistoricalTimeSeriesMasterFactoryBean clone() {
-    return (DbHistoricalTimeSeriesMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

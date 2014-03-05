@@ -327,7 +327,7 @@ public class EquityVarianceSwapTrade extends Trade {
   //-----------------------------------------------------------------------
   @Override
   public EquityVarianceSwapTrade clone() {
-    return (EquityVarianceSwapTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

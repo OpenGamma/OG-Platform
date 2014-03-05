@@ -273,7 +273,7 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public CreditDefaultSwapIndexDefinitionSecurityBean clone() {
-    return (CreditDefaultSwapIndexDefinitionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

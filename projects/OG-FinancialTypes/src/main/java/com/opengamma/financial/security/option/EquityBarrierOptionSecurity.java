@@ -491,7 +491,7 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public EquityBarrierOptionSecurity clone() {
-    return (EquityBarrierOptionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

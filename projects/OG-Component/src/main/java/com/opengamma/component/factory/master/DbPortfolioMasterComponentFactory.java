@@ -73,7 +73,7 @@ public class DbPortfolioMasterComponentFactory extends AbstractDocumentDbMasterC
   //-----------------------------------------------------------------------
   @Override
   public DbPortfolioMasterComponentFactory clone() {
-    return (DbPortfolioMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -116,7 +116,7 @@ public class DataComponentServerResource extends AbstractDataResource {
   @GET
   public Response getComponentInfos() {
     ComponentServer server = createServerInfo();
-    return responseOkFudge(server);
+    return responseOkObject(server);
   }
 
   @GET

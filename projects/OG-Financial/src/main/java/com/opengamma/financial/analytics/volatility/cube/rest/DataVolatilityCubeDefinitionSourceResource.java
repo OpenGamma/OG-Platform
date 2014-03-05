@@ -70,10 +70,10 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
     if (versionAsOfStr != null) {
       final VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, null);
       final VolatilityCubeDefinition<?, ?, ?> result = getVolatilityCubeDefinitionSource().getDefinition(name, versionCorrection);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
     final VolatilityCubeDefinition<?, ?, ?> result = getVolatilityCubeDefinitionSource().getDefinition(name);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /**

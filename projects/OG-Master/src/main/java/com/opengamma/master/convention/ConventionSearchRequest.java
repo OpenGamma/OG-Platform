@@ -513,7 +513,7 @@ public class ConventionSearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public ConventionSearchRequest clone() {
-    return (ConventionSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

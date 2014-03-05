@@ -196,7 +196,7 @@ public class DbPositionMasterComponentFactory extends AbstractDocumentDbMasterCo
   //-----------------------------------------------------------------------
   @Override
   public DbPositionMasterComponentFactory clone() {
-    return (DbPositionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

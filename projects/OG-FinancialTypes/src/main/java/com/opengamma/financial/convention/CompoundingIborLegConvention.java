@@ -436,7 +436,7 @@ public class CompoundingIborLegConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public CompoundingIborLegConvention clone() {
-    return (CompoundingIborLegConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -63,7 +63,7 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Historica
   //-----------------------------------------------------------------------
   @Override
   public ExampleHistoricalTimeSeriesSourceComponentFactory clone() {
-    return (ExampleHistoricalTimeSeriesSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -133,7 +133,7 @@ public class InMemoryHolidayMasterComponentFactory extends AbstractComponentFact
   //-----------------------------------------------------------------------
   @Override
   public InMemoryHolidayMasterComponentFactory clone() {
-    return (InMemoryHolidayMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

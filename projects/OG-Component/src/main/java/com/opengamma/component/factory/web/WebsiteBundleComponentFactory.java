@@ -395,7 +395,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public WebsiteBundleComponentFactory clone() {
-    return (WebsiteBundleComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

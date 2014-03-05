@@ -118,7 +118,7 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
   //-----------------------------------------------------------------------
   @Override
   public FxDigitalOptionTrade clone() {
-    return (FxDigitalOptionTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

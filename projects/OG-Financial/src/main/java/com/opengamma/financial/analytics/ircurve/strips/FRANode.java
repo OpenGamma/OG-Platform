@@ -195,7 +195,7 @@ public class FRANode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public FRANode clone() {
-    return (FRANode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

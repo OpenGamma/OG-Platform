@@ -212,17 +212,7 @@ public class CurveNodeWithIdentifier extends DirectBean implements Comparable<Cu
   //-----------------------------------------------------------------------
   @Override
   public CurveNodeWithIdentifier clone() {
-    BeanBuilder<? extends CurveNodeWithIdentifier> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

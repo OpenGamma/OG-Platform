@@ -111,7 +111,7 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
   //-----------------------------------------------------------------------
   @Override
   public PortfolioHistoryResult clone() {
-    return (PortfolioHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

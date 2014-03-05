@@ -134,7 +134,7 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
   //-----------------------------------------------------------------------
   @Override
   public FixedDateInterpolatedCurveDefinition clone() {
-    return (FixedDateInterpolatedCurveDefinition) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

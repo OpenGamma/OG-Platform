@@ -110,21 +110,21 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
     updateLastAccessed();
-    return responseOkFudge(getViewClient().getUniqueId());
+    return responseOkObject(getViewClient().getUniqueId());
   }
   
   @GET
   @Path(PATH_USER)
   public Response getUser() {
     updateLastAccessed();
-    return responseOkFudge(getViewClient().getUser());
+    return responseOkObject(getViewClient().getUser());
   }
   
   @GET
   @Path(PATH_STATE)
   public Response getState() {
     updateLastAccessed();
-    return responseOkFudge(getViewClient().getState());
+    return responseOkObject(getViewClient().getState());
   }
   
   //-------------------------------------------------------------------------
@@ -175,7 +175,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   @Path(PATH_VIEW_DEFINITION)
   public Response getLatestViewDefinition() {
     ViewDefinition result = getViewClient().getLatestViewDefinition();
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
   
   @Path(PATH_VIEW_PROCESS)
@@ -200,7 +200,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   @Path(PATH_RESULT_MODE)
   public Response getResultMode() {
     updateLastAccessed();
-    return responseOkFudge(getViewClient().getResultMode());
+    return responseOkObject(getViewClient().getResultMode());
   }
   
   @PUT
@@ -225,7 +225,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   @Path(PATH_FRAGMENT_RESULT_MODE)
   public Response getFragmentResultMode() {
     updateLastAccessed();
-    return responseOkFudge(getViewClient().getFragmentResultMode());
+    return responseOkObject(getViewClient().getFragmentResultMode());
   }
 
   @PUT
@@ -279,14 +279,14 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   @Path(PATH_LATEST_RESULT)
   public Response getLatestResult() {
     updateLastAccessed();
-    return responseOkFudge(getViewClient().getLatestResult());
+    return responseOkObject(getViewClient().getLatestResult());
   }
   
   @GET
   @Path(PATH_LATEST_COMPILED_VIEW_DEFINITION)
   public Response getLatestCompiledViewDefinition() {
     updateLastAccessed();
-    return responseOkFudge(getViewClient().getLatestCompiledViewDefinition());
+    return responseOkObject(getViewClient().getLatestCompiledViewDefinition());
   }
   
   @GET

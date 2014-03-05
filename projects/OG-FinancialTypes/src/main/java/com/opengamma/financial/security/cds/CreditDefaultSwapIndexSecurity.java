@@ -254,7 +254,7 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
   //-----------------------------------------------------------------------
   @Override
   public CreditDefaultSwapIndexSecurity clone() {
-    return (CreditDefaultSwapIndexSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -344,7 +344,7 @@ public class IRFutureOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public IRFutureOptionSecurityBean clone() {
-    return (IRFutureOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

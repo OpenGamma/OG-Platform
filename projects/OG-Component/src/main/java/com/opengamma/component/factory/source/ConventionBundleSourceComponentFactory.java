@@ -161,7 +161,7 @@ public class ConventionBundleSourceComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public ConventionBundleSourceComponentFactory clone() {
-    return (ConventionBundleSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -941,7 +941,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public WebsiteViewportsComponentFactory clone() {
-    return (WebsiteViewportsComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

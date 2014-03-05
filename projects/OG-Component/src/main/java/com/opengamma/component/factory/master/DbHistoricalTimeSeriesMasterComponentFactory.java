@@ -76,7 +76,7 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDocume
   //-----------------------------------------------------------------------
   @Override
   public DbHistoricalTimeSeriesMasterComponentFactory clone() {
-    return (DbHistoricalTimeSeriesMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

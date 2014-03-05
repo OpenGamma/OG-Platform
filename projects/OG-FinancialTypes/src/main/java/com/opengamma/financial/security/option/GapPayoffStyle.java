@@ -101,7 +101,7 @@ public class GapPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public GapPayoffStyle clone() {
-    return (GapPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

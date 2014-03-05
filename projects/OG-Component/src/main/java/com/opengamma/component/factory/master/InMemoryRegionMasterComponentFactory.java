@@ -280,7 +280,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   @Override
   public InMemoryRegionMasterComponentFactory clone() {
-    return (InMemoryRegionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

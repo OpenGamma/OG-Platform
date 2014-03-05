@@ -108,7 +108,7 @@ public class CurveDefinition extends AbstractCurveDefinition {
   //-----------------------------------------------------------------------
   @Override
   public CurveDefinition clone() {
-    return (CurveDefinition) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

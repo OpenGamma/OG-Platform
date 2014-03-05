@@ -218,7 +218,7 @@ public class ExchangeSourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public ExchangeSourceComponentFactory clone() {
-    return (ExchangeSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

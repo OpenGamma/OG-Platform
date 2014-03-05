@@ -49,7 +49,7 @@ public class BondFutureBean extends FutureSecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public BondFutureBean clone() {
-    return (BondFutureBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

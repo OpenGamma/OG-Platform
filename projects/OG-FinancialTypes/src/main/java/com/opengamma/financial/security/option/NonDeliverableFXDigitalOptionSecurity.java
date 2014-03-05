@@ -383,7 +383,7 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public NonDeliverableFXDigitalOptionSecurity clone() {
-    return (NonDeliverableFXDigitalOptionSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

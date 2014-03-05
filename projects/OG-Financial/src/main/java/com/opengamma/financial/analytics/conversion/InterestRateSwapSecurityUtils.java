@@ -25,6 +25,7 @@ public class InterestRateSwapSecurityUtils {
     }
     final InterestRateSwapLeg payLeg = security.getPayLeg();
     final InterestRateSwapLeg receiveLeg = security.getReceiveLeg();
+
     if (payLeg.getNotional() instanceof InterestRateNotional && receiveLeg.getNotional() instanceof InterestRateNotional) {
       final InterestRateNotional payNotional = payLeg.getNotional();
       final InterestRateNotional receiveNotional = receiveLeg.getNotional();

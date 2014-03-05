@@ -57,7 +57,7 @@ public class AssetOrNothingPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public AssetOrNothingPayoffStyle clone() {
-    return (AssetOrNothingPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

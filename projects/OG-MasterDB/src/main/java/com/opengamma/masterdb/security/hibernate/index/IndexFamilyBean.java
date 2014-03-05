@@ -98,7 +98,7 @@ public class IndexFamilyBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public IndexFamilyBean clone() {
-    return (IndexFamilyBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

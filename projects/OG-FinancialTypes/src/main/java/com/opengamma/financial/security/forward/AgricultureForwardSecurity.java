@@ -63,7 +63,7 @@ public class AgricultureForwardSecurity extends CommodityForwardSecurity {
   //-----------------------------------------------------------------------
   @Override
   public AgricultureForwardSecurity clone() {
-    return (AgricultureForwardSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

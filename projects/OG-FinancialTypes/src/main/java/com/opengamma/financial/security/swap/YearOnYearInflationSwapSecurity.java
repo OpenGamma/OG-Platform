@@ -123,7 +123,7 @@ public class YearOnYearInflationSwapSecurity extends SwapSecurity {
   //-----------------------------------------------------------------------
   @Override
   public YearOnYearInflationSwapSecurity clone() {
-    return (YearOnYearInflationSwapSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

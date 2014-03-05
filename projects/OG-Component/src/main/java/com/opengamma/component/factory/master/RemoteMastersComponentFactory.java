@@ -198,7 +198,7 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public RemoteMastersComponentFactory clone() {
-    return (RemoteMastersComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

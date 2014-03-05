@@ -111,7 +111,7 @@ public class UserHistoryResult extends AbstractHistoryResult<UserDocument> {
   //-----------------------------------------------------------------------
   @Override
   public UserHistoryResult clone() {
-    return (UserHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -138,7 +138,7 @@ public class SpringInfrastructureComponentFactory extends AbstractSpringComponen
   //-----------------------------------------------------------------------
   @Override
   public SpringInfrastructureComponentFactory clone() {
-    return (SpringInfrastructureComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

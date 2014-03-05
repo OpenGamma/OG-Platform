@@ -245,7 +245,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
   //-----------------------------------------------------------------------
   @Override
   public MarketDataSnapshotSearchRequest clone() {
-    return (MarketDataSnapshotSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

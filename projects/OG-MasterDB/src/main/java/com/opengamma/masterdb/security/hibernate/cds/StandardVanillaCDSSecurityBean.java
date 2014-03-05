@@ -130,7 +130,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public StandardVanillaCDSSecurityBean clone() {
-    return (StandardVanillaCDSSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

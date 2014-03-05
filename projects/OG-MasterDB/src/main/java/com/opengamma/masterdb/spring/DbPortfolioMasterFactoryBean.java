@@ -70,7 +70,7 @@ public class DbPortfolioMasterFactoryBean extends AbstractDbMasterFactoryBean<Db
   //-----------------------------------------------------------------------
   @Override
   public DbPortfolioMasterFactoryBean clone() {
-    return (DbPortfolioMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

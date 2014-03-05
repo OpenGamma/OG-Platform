@@ -380,7 +380,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public PortfolioSearchRequest clone() {
-    return (PortfolioSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

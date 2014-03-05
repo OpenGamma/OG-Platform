@@ -350,7 +350,7 @@ public class SwapSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public SwapSecurityBean clone() {
-    return (SwapSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -133,7 +133,7 @@ public class CappedPoweredPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public CappedPoweredPayoffStyle clone() {
-    return (CappedPoweredPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

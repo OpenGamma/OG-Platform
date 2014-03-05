@@ -57,7 +57,7 @@ public class VanillaPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public VanillaPayoffStyle clone() {
-    return (VanillaPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

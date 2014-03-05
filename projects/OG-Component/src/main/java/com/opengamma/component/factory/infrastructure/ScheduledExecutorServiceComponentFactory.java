@@ -146,7 +146,7 @@ public class ScheduledExecutorServiceComponentFactory extends AbstractComponentF
   //-----------------------------------------------------------------------
   @Override
   public ScheduledExecutorServiceComponentFactory clone() {
-    return (ScheduledExecutorServiceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

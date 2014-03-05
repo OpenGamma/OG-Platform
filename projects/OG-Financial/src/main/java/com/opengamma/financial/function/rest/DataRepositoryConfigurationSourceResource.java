@@ -65,7 +65,7 @@ public class DataRepositoryConfigurationSourceResource extends AbstractDataResou
   @Path("repoConfigs/all/{version}")
   public Response getAll(@PathParam("version") String version) {
     FunctionConfigurationBundle result = getRepositoryConfigurationSource().getFunctionConfiguration(Instant.parse(version));
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

@@ -307,7 +307,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public DbToolContextComponentFactory clone() {
-    return (DbToolContextComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

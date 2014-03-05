@@ -60,7 +60,7 @@ public class BeanMasterHistoryResult<D extends AbstractDocument> extends Abstrac
   //-----------------------------------------------------------------------
   @Override
   public BeanMasterHistoryResult<D> clone() {
-    return (BeanMasterHistoryResult<D>) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

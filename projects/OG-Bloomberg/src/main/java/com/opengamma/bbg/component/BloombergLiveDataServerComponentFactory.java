@@ -96,7 +96,7 @@ public class BloombergLiveDataServerComponentFactory extends AbstractBloombergLi
   //-----------------------------------------------------------------------
   @Override
   public BloombergLiveDataServerComponentFactory clone() {
-    return (BloombergLiveDataServerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

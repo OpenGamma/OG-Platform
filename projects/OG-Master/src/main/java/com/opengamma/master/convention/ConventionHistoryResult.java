@@ -111,7 +111,7 @@ public class ConventionHistoryResult extends AbstractHistoryResult<ConventionDoc
   //-----------------------------------------------------------------------
   @Override
   public ConventionHistoryResult clone() {
-    return (ConventionHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

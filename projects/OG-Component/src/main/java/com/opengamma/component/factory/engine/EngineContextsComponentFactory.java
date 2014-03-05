@@ -959,7 +959,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public EngineContextsComponentFactory clone() {
-    return (EngineContextsComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

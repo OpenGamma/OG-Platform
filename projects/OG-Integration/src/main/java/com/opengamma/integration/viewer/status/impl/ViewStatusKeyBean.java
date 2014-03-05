@@ -193,17 +193,7 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
   //-----------------------------------------------------------------------
   @Override
   public ViewStatusKeyBean clone() {
-    BeanBuilder<? extends ViewStatusKeyBean> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

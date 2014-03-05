@@ -96,10 +96,10 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
     HistoricalTimeSeriesGetFilter filter = RestUtils.decodeQueryParams(uriInfo, HistoricalTimeSeriesGetFilter.class);
     if (filter != null) {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId(), vc, filter);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId(), vc);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 
@@ -107,14 +107,14 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
   @Path("updates")
   public Response postUpdates(LocalDateDoubleTimeSeries newPoints) {
     UniqueId result = getHistoricalTimeSeriesMaster().updateTimeSeriesDataPoints(getUrlDataPointsId(), newPoints);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
   @Path("corrections")
   public Response postCorrections(LocalDateDoubleTimeSeries newPoints) {
     UniqueId result = getHistoricalTimeSeriesMaster().correctTimeSeriesDataPoints(getUrlDataPointsId(), newPoints);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @DELETE
@@ -124,7 +124,7 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
     LocalDate toDateInclusive = (endDateStr != null ? LocalDate.parse(endDateStr) : null);
     
     UniqueId result = getHistoricalTimeSeriesMaster().removeTimeSeriesDataPoints(getUrlDataPointsId(), fromDateInclusive, toDateInclusive);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------
@@ -134,10 +134,10 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
     HistoricalTimeSeriesGetFilter filter = RestUtils.decodeQueryParams(uriInfo, HistoricalTimeSeriesGetFilter.class);
     if (filter != null) {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId().atVersion(versionId), filter);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId().atVersion(versionId));
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 

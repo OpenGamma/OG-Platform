@@ -70,7 +70,7 @@ public class DbMarketDataSnapshotMasterFactoryBean extends AbstractDbMasterFacto
   //-----------------------------------------------------------------------
   @Override
   public DbMarketDataSnapshotMasterFactoryBean clone() {
-    return (DbMarketDataSnapshotMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -317,7 +317,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public ExchangeSearchRequest clone() {
-    return (ExchangeSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

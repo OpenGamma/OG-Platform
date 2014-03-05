@@ -163,7 +163,7 @@ public class PositionSourceFactoryBean extends SpringFactoryBean<PositionSource>
   //-----------------------------------------------------------------------
   @Override
   public PositionSourceFactoryBean clone() {
-    return (PositionSourceFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -156,7 +156,7 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
   //-----------------------------------------------------------------------
   @Override
   public YieldCurveDefinitionDocument clone() {
-    return (YieldCurveDefinitionDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

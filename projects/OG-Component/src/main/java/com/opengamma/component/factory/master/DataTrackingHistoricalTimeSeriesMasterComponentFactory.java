@@ -125,7 +125,7 @@ public class DataTrackingHistoricalTimeSeriesMasterComponentFactory extends Abst
   //-----------------------------------------------------------------------
   @Override
   public DataTrackingHistoricalTimeSeriesMasterComponentFactory clone() {
-    return (DataTrackingHistoricalTimeSeriesMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

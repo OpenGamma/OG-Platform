@@ -68,7 +68,7 @@ public class NonVersionedRedisHolidaySourceComponentFactory extends AbstractNonV
   //-----------------------------------------------------------------------
   @Override
   public NonVersionedRedisHolidaySourceComponentFactory clone() {
-    return (NonVersionedRedisHolidaySourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

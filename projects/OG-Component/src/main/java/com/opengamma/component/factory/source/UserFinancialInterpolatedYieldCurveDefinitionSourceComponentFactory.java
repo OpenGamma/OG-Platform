@@ -317,7 +317,7 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
   //-----------------------------------------------------------------------
   @Override
   public UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory clone() {
-    return (UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

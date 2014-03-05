@@ -120,7 +120,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
   //-----------------------------------------------------------------------
   @Override
   public SecuritySearchResult clone() {
-    return (SecuritySearchResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

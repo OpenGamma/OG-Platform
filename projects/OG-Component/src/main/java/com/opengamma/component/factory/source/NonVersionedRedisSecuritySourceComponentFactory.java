@@ -303,7 +303,7 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   //-----------------------------------------------------------------------
   @Override
   public NonVersionedRedisSecuritySourceComponentFactory clone() {
-    return (NonVersionedRedisSecuritySourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

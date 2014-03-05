@@ -369,7 +369,7 @@ public class AmericanDepositaryReceiptSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public AmericanDepositaryReceiptSecurity clone() {
-    return (AmericanDepositaryReceiptSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

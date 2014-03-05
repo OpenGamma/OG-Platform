@@ -346,17 +346,7 @@ public class SimpleHoliday extends DirectBean
   //-----------------------------------------------------------------------
   @Override
   public SimpleHoliday clone() {
-    BeanBuilder<? extends SimpleHoliday> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

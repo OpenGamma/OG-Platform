@@ -455,7 +455,7 @@ public class EquityBarrierOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public EquityBarrierOptionSecurityBean clone() {
-    return (EquityBarrierOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

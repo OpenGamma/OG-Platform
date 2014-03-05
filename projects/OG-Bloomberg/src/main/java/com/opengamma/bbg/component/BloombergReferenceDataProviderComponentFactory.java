@@ -336,7 +336,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   //-----------------------------------------------------------------------
   @Override
   public BloombergReferenceDataProviderComponentFactory clone() {
-    return (BloombergReferenceDataProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

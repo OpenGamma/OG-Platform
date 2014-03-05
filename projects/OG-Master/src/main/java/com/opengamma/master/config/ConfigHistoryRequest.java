@@ -149,9 +149,8 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public ConfigHistoryRequest<T> clone() {
-    return (ConfigHistoryRequest<T>) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

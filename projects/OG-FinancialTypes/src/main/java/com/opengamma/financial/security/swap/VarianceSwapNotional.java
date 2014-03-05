@@ -137,7 +137,7 @@ public class VarianceSwapNotional extends Notional {
   //-----------------------------------------------------------------------
   @Override
   public VarianceSwapNotional clone() {
-    return (VarianceSwapNotional) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

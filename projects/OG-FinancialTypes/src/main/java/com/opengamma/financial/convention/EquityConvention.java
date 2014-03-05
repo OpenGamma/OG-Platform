@@ -131,7 +131,7 @@ public class EquityConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public EquityConvention clone() {
-    return (EquityConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

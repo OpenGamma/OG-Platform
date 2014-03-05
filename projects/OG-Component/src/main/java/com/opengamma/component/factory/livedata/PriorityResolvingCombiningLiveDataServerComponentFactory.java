@@ -385,7 +385,7 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   //-----------------------------------------------------------------------
   @Override
   public PriorityResolvingCombiningLiveDataServerComponentFactory clone() {
-    return (PriorityResolvingCombiningLiveDataServerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

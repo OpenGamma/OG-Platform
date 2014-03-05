@@ -96,7 +96,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   //-----------------------------------------------------------------------
   @Override
   public BloombergSecurityProviderComponentFactory clone() {
-    return (BloombergSecurityProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

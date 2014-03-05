@@ -98,7 +98,7 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
   //-----------------------------------------------------------------------
   @Override
   public OvernightCurveTypeConfiguration clone() {
-    return (OvernightCurveTypeConfiguration) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

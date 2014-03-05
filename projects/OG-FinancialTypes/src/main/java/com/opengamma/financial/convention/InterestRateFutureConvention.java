@@ -138,7 +138,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   //-----------------------------------------------------------------------
   @Override
   public InterestRateFutureConvention clone() {
-    return (InterestRateFutureConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

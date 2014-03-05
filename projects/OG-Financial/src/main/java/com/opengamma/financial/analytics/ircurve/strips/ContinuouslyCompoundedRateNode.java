@@ -121,7 +121,7 @@ public class ContinuouslyCompoundedRateNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public ContinuouslyCompoundedRateNode clone() {
-    return (ContinuouslyCompoundedRateNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

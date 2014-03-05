@@ -163,7 +163,7 @@ public class FXFutureSecurity extends FutureSecurity {
   //-----------------------------------------------------------------------
   @Override
   public FXFutureSecurity clone() {
-    return (FXFutureSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

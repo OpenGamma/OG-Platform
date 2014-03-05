@@ -343,7 +343,7 @@ public class CommodityFutureOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public CommodityFutureOptionSecurityBean clone() {
-    return (CommodityFutureOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

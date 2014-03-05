@@ -75,7 +75,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   public Response add(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().add(document);
     URI createdUri = (new DataInterpolatedYieldCurveDefinitionResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   @POST
@@ -83,7 +83,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   public Response addOrUpdate(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().addOrUpdate(document);
     URI createdUri = (new DataInterpolatedYieldCurveDefinitionResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

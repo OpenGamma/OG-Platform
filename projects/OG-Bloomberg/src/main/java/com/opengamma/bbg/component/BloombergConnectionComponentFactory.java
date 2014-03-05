@@ -270,7 +270,7 @@ public class BloombergConnectionComponentFactory extends AbstractComponentFactor
   //-----------------------------------------------------------------------
   @Override
   public BloombergConnectionComponentFactory clone() {
-    return (BloombergConnectionComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

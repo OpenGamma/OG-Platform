@@ -184,7 +184,7 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public CacheManagerComponentFactory clone() {
-    return (CacheManagerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

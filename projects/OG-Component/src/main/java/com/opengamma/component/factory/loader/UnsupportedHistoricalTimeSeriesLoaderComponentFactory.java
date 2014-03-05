@@ -60,7 +60,7 @@ public class UnsupportedHistoricalTimeSeriesLoaderComponentFactory extends Abstr
   //-----------------------------------------------------------------------
   @Override
   public UnsupportedHistoricalTimeSeriesLoaderComponentFactory clone() {
-    return (UnsupportedHistoricalTimeSeriesLoaderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -386,7 +386,7 @@ public class BillSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public BillSecurity clone() {
-    return (BillSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

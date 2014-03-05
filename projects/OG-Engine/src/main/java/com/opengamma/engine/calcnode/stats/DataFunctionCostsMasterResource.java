@@ -73,14 +73,14 @@ public class DataFunctionCostsMasterResource extends AbstractDataResource {
   public Response search(@QueryParam("configurationName") String configurationName, @QueryParam("functionId") String functionId, @QueryParam("versionAsOf") String versionAsOfStr) {
     Instant versionAsOf = (versionAsOfStr != null ? Instant.parse(versionAsOfStr) : null);
     FunctionCostsDocument result = getFunctionCostsMaster().load(configurationName, functionId, versionAsOf);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
   @Path("functioncosts")
   public Response store(@Context UriInfo uriInfo, FunctionCostsDocument request) {
     FunctionCostsDocument result = getFunctionCostsMaster().store(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

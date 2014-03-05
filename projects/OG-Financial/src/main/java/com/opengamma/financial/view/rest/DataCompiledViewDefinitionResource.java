@@ -47,57 +47,57 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   @GET
   @Path(PATH_VIEW_DEFINITION)
   public Response getViewDefinition() {
-    return responseOkFudge(_compiledViewDefinition.getViewDefinition());
+    return responseOkObject(_compiledViewDefinition.getViewDefinition());
   }
   
   @GET
   @Path(PATH_PORTFOLIO)
   public Response getPortfolio() {
-    return responseOkFudge(_compiledViewDefinition.getPortfolio());
+    return responseOkObject(_compiledViewDefinition.getPortfolio());
   }
   
   @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS)
   public Response getCompiledCalculationConfigurations() {
-    return responseOkFudge(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations()));
+    return responseOkObject(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations()));
   }
 
   @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS_MAP)
   public Response getCompiledCalculationConfigurationsMap() {
-    return responseOkFudge(new HashMap<>(_compiledViewDefinition.getCompiledCalculationConfigurationsMap()));
+    return responseOkObject(new HashMap<>(_compiledViewDefinition.getCompiledCalculationConfigurationsMap()));
   }
   
   @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS + "/{calcConfigName}")
   public Response getCompiledViewCalculationConfiguration(@PathParam("calcConfigName") String calcConfigName) {
-    return responseOkFudge(_compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigName));
+    return responseOkObject(_compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigName));
   }
   
   @GET
   @Path(PATH_COMPUTATION_TARGETS)
   public Response getComputationTargets() {
-    return responseOkFudge(_compiledViewDefinition.getComputationTargets());
+    return responseOkObject(_compiledViewDefinition.getComputationTargets());
   }
 
   @GET
   @Path(PATH_MARKET_DATA_REQUIREMENTS)
   public Response getMarketDataRequirements() {
-    return responseOkFudge(_compiledViewDefinition.getMarketDataRequirements());
+    return responseOkObject(_compiledViewDefinition.getMarketDataRequirements());
   }
   
   @GET
   @Path(PATH_VALID_FROM)
   public Response getValidFrom() {
     Instant validFrom = _compiledViewDefinition.getValidFrom();
-    return validFrom != null ? responseOkFudge(validFrom) : responseOkNoContent();
+    return validFrom != null ? responseOkObject(validFrom) : responseOkNoContent();
   }
   
   @GET
   @Path(PATH_VALID_TO)
   public Response getValidTo() {
     Instant validTo = _compiledViewDefinition.getValidTo();
-    return validTo != null ? responseOkFudge(validTo) : responseOkNoContent();
+    return validTo != null ? responseOkObject(validTo) : responseOkNoContent();
   }
   
   @Path(PATH_GRAPHS + "/{calcConfigName}")

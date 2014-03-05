@@ -400,19 +400,8 @@ public class SurfaceData<X, Y> implements Bean, Serializable {
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public SurfaceData<X, Y> clone() {
-    BeanBuilder<?> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return (SurfaceData<X, Y>) builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

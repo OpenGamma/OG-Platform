@@ -74,7 +74,7 @@ public class DbUserMasterComponentFactory extends AbstractDocumentDbMasterCompon
   //-----------------------------------------------------------------------
   @Override
   public DbUserMasterComponentFactory clone() {
-    return (DbUserMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

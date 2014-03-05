@@ -343,7 +343,7 @@ public class FRASecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public FRASecurity clone() {
-    return (FRASecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

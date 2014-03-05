@@ -67,7 +67,7 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
   public Response getMatrixByName(@PathParam("name") String name, @PathParam("versionCorrection") String versionCorrectionStr) {
     final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
     CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(name, versionCorrection);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET
@@ -75,7 +75,7 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
   public Response getMatrixByUniqueId(@PathParam("uniqueId") String uniqueIdStr) {
     final UniqueId uniqueId = UniqueId.parse(uniqueIdStr);
     final CurrencyMatrix result = getCurrencyMatrixSource().get(uniqueId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET
@@ -84,7 +84,7 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(objectIdStr);
     final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
     final CurrencyMatrix result = getCurrencyMatrixSource().get(objectId, versionCorrection);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

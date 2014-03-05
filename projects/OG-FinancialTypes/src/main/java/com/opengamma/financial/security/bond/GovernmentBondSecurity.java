@@ -70,7 +70,7 @@ public class GovernmentBondSecurity extends BondSecurity {
   //-----------------------------------------------------------------------
   @Override
   public GovernmentBondSecurity clone() {
-    return (GovernmentBondSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

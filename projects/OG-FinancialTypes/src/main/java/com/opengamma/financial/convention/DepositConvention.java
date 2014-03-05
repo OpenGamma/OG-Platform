@@ -303,7 +303,7 @@ public class DepositConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public DepositConvention clone() {
-    return (DepositConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

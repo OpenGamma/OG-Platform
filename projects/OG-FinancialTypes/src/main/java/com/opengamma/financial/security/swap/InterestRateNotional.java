@@ -136,7 +136,7 @@ public class InterestRateNotional extends Notional {
   //-----------------------------------------------------------------------
   @Override
   public InterestRateNotional clone() {
-    return (InterestRateNotional) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

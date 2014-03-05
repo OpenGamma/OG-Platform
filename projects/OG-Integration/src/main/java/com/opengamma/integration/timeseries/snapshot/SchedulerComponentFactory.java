@@ -103,7 +103,7 @@ public class SchedulerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public SchedulerComponentFactory clone() {
-    return (SchedulerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -48,23 +49,36 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
   @PropertyDefinition
   private boolean _publishRest = true; 
   /**
-   * The underlying position master.
+   * The default position master.
    */
   @PropertyDefinition(validate = "notNull")
-  private PositionMaster _underlyingPositionMaster;
-  /**
-   * The user position master.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private PositionMaster _userPositionMaster;
+  private PositionMaster _defaultPositionMaster;
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {    
-    Map<String, PositionMaster> map = new HashMap<String, PositionMaster>();    
-    String scheme = repo.getInfo(getUserPositionMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
-    map.put(scheme, getUserPositionMaster());
-    PositionMaster master = new DelegatingPositionMaster(getUnderlyingPositionMaster(), map);
+  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {   
+    Map<String, PositionMaster> map = new HashMap<>();    
+    final String defaultPositionScheme = repo.getInfo(getDefaultPositionMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
+    map.put(defaultPositionScheme, getDefaultPositionMaster());
+    
+    for (final String key : configuration.keySet()) {
+      if (key.matches("positionMaster[0-9]+")) {
+        final String valueStr = configuration.get(key);
+        if (valueStr.contains("::")) {
+          final String type = StringUtils.substringBefore(valueStr, "::");
+          final String classifier = StringUtils.substringAfter(valueStr, "::");
+          final ComponentInfo info = repo.findInfo(type, classifier);
+          if (info == null) {
+            throw new IllegalArgumentException("Component not found: " + valueStr);
+          }
+          PositionMaster positionMaster = repo.getInstance(PositionMaster.class, classifier);
+          String uniqueIdScheme = repo.getInfo(positionMaster).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
+          map.put(uniqueIdScheme, positionMaster);
+          configuration.remove(key);
+        }
+      }
+    }
+    PositionMaster master = new DelegatingPositionMaster(getDefaultPositionMaster(), map);
     
     // register
     ComponentInfo info = new ComponentInfo(PositionMaster.class, getClassifier());
@@ -148,60 +162,34 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying position master.
+   * Gets the default position master.
    * @return the value of the property, not null
    */
-  public PositionMaster getUnderlyingPositionMaster() {
-    return _underlyingPositionMaster;
+  public PositionMaster getDefaultPositionMaster() {
+    return _defaultPositionMaster;
   }
 
   /**
-   * Sets the underlying position master.
-   * @param underlyingPositionMaster  the new value of the property, not null
+   * Sets the default position master.
+   * @param defaultPositionMaster  the new value of the property, not null
    */
-  public void setUnderlyingPositionMaster(PositionMaster underlyingPositionMaster) {
-    JodaBeanUtils.notNull(underlyingPositionMaster, "underlyingPositionMaster");
-    this._underlyingPositionMaster = underlyingPositionMaster;
+  public void setDefaultPositionMaster(PositionMaster defaultPositionMaster) {
+    JodaBeanUtils.notNull(defaultPositionMaster, "defaultPositionMaster");
+    this._defaultPositionMaster = defaultPositionMaster;
   }
 
   /**
-   * Gets the the {@code underlyingPositionMaster} property.
+   * Gets the the {@code defaultPositionMaster} property.
    * @return the property, not null
    */
-  public final Property<PositionMaster> underlyingPositionMaster() {
-    return metaBean().underlyingPositionMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the user position master.
-   * @return the value of the property, not null
-   */
-  public PositionMaster getUserPositionMaster() {
-    return _userPositionMaster;
-  }
-
-  /**
-   * Sets the user position master.
-   * @param userPositionMaster  the new value of the property, not null
-   */
-  public void setUserPositionMaster(PositionMaster userPositionMaster) {
-    JodaBeanUtils.notNull(userPositionMaster, "userPositionMaster");
-    this._userPositionMaster = userPositionMaster;
-  }
-
-  /**
-   * Gets the the {@code userPositionMaster} property.
-   * @return the property, not null
-   */
-  public final Property<PositionMaster> userPositionMaster() {
-    return metaBean().userPositionMaster().createProperty(this);
+  public final Property<PositionMaster> defaultPositionMaster() {
+    return metaBean().defaultPositionMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   @Override
   public CombinedPositionMasterComponentFactory clone() {
-    return (CombinedPositionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -213,8 +201,7 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
       CombinedPositionMasterComponentFactory other = (CombinedPositionMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           (isPublishRest() == other.isPublishRest()) &&
-          JodaBeanUtils.equal(getUnderlyingPositionMaster(), other.getUnderlyingPositionMaster()) &&
-          JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
+          JodaBeanUtils.equal(getDefaultPositionMaster(), other.getDefaultPositionMaster()) &&
           super.equals(obj);
     }
     return false;
@@ -225,14 +212,13 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultPositionMaster());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CombinedPositionMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -248,8 +234,7 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
-    buf.append("underlyingPositionMaster").append('=').append(JodaBeanUtils.toString(getUnderlyingPositionMaster())).append(',').append(' ');
-    buf.append("userPositionMaster").append('=').append(JodaBeanUtils.toString(getUserPositionMaster())).append(',').append(' ');
+    buf.append("defaultPositionMaster").append('=').append(JodaBeanUtils.toString(getDefaultPositionMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -273,15 +258,10 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", CombinedPositionMasterComponentFactory.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code underlyingPositionMaster} property.
+     * The meta-property for the {@code defaultPositionMaster} property.
      */
-    private final MetaProperty<PositionMaster> _underlyingPositionMaster = DirectMetaProperty.ofReadWrite(
-        this, "underlyingPositionMaster", CombinedPositionMasterComponentFactory.class, PositionMaster.class);
-    /**
-     * The meta-property for the {@code userPositionMaster} property.
-     */
-    private final MetaProperty<PositionMaster> _userPositionMaster = DirectMetaProperty.ofReadWrite(
-        this, "userPositionMaster", CombinedPositionMasterComponentFactory.class, PositionMaster.class);
+    private final MetaProperty<PositionMaster> _defaultPositionMaster = DirectMetaProperty.ofReadWrite(
+        this, "defaultPositionMaster", CombinedPositionMasterComponentFactory.class, PositionMaster.class);
     /**
      * The meta-properties.
      */
@@ -289,8 +269,7 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "underlyingPositionMaster",
-        "userPositionMaster");
+        "defaultPositionMaster");
 
     /**
      * Restricted constructor.
@@ -305,10 +284,8 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
-        case -440936024:  // underlyingPositionMaster
-          return _underlyingPositionMaster;
-        case 1808868758:  // userPositionMaster
-          return _userPositionMaster;
+        case -789608052:  // defaultPositionMaster
+          return _defaultPositionMaster;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -346,19 +323,11 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
     }
 
     /**
-     * The meta-property for the {@code underlyingPositionMaster} property.
+     * The meta-property for the {@code defaultPositionMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PositionMaster> underlyingPositionMaster() {
-      return _underlyingPositionMaster;
-    }
-
-    /**
-     * The meta-property for the {@code userPositionMaster} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<PositionMaster> userPositionMaster() {
-      return _userPositionMaster;
+    public final MetaProperty<PositionMaster> defaultPositionMaster() {
+      return _defaultPositionMaster;
     }
 
     //-----------------------------------------------------------------------
@@ -369,10 +338,8 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
           return ((CombinedPositionMasterComponentFactory) bean).getClassifier();
         case -614707837:  // publishRest
           return ((CombinedPositionMasterComponentFactory) bean).isPublishRest();
-        case -440936024:  // underlyingPositionMaster
-          return ((CombinedPositionMasterComponentFactory) bean).getUnderlyingPositionMaster();
-        case 1808868758:  // userPositionMaster
-          return ((CombinedPositionMasterComponentFactory) bean).getUserPositionMaster();
+        case -789608052:  // defaultPositionMaster
+          return ((CombinedPositionMasterComponentFactory) bean).getDefaultPositionMaster();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -386,11 +353,8 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
         case -614707837:  // publishRest
           ((CombinedPositionMasterComponentFactory) bean).setPublishRest((Boolean) newValue);
           return;
-        case -440936024:  // underlyingPositionMaster
-          ((CombinedPositionMasterComponentFactory) bean).setUnderlyingPositionMaster((PositionMaster) newValue);
-          return;
-        case 1808868758:  // userPositionMaster
-          ((CombinedPositionMasterComponentFactory) bean).setUserPositionMaster((PositionMaster) newValue);
+        case -789608052:  // defaultPositionMaster
+          ((CombinedPositionMasterComponentFactory) bean).setDefaultPositionMaster((PositionMaster) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -399,8 +363,7 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((CombinedPositionMasterComponentFactory) bean)._classifier, "classifier");
-      JodaBeanUtils.notNull(((CombinedPositionMasterComponentFactory) bean)._underlyingPositionMaster, "underlyingPositionMaster");
-      JodaBeanUtils.notNull(((CombinedPositionMasterComponentFactory) bean)._userPositionMaster, "userPositionMaster");
+      JodaBeanUtils.notNull(((CombinedPositionMasterComponentFactory) bean)._defaultPositionMaster, "defaultPositionMaster");
       super.validate(bean);
     }
 

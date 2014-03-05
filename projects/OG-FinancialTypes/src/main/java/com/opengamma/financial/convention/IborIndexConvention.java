@@ -439,7 +439,7 @@ public class IborIndexConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public IborIndexConvention clone() {
-    return (IborIndexConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

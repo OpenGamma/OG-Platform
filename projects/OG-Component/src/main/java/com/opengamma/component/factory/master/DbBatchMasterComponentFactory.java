@@ -104,7 +104,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   //-----------------------------------------------------------------------
   @Override
   public DbBatchMasterComponentFactory clone() {
-    return (DbBatchMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

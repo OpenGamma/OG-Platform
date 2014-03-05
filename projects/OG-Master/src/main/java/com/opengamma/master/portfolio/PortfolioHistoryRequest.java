@@ -143,7 +143,7 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   @Override
   public PortfolioHistoryRequest clone() {
-    return (PortfolioHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

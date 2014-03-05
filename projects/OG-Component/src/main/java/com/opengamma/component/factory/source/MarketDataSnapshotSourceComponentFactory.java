@@ -184,7 +184,7 @@ public class MarketDataSnapshotSourceComponentFactory extends AbstractComponentF
   //-----------------------------------------------------------------------
   @Override
   public MarketDataSnapshotSourceComponentFactory clone() {
-    return (MarketDataSnapshotSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

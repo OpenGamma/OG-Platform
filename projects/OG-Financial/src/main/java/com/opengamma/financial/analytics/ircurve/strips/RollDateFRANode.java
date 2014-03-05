@@ -271,7 +271,7 @@ public class RollDateFRANode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public RollDateFRANode clone() {
-    return (RollDateFRANode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

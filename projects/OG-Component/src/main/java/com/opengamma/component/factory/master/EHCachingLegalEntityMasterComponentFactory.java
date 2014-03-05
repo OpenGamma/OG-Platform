@@ -203,7 +203,7 @@ public class EHCachingLegalEntityMasterComponentFactory extends AbstractComponen
   //-----------------------------------------------------------------------
   @Override
   public EHCachingLegalEntityMasterComponentFactory clone() {
-    return (EHCachingLegalEntityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

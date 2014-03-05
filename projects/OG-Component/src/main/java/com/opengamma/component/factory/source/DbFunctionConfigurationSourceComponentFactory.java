@@ -126,7 +126,7 @@ public class DbFunctionConfigurationSourceComponentFactory extends FunctionConfi
   //-----------------------------------------------------------------------
   @Override
   public DbFunctionConfigurationSourceComponentFactory clone() {
-    return (DbFunctionConfigurationSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

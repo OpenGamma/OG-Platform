@@ -70,7 +70,7 @@ public class DbExchangeMasterFactoryBean extends AbstractDbMasterFactoryBean<DbE
   //-----------------------------------------------------------------------
   @Override
   public DbExchangeMasterFactoryBean clone() {
-    return (DbExchangeMasterFactoryBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

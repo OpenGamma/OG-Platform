@@ -161,7 +161,7 @@ public class FXVolatilitySwapSecurity extends VolatilitySwapSecurity {
   //-----------------------------------------------------------------------
   @Override
   public FXVolatilitySwapSecurity clone() {
-    return (FXVolatilitySwapSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

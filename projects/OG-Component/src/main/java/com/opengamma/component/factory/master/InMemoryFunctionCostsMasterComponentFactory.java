@@ -132,7 +132,7 @@ public class InMemoryFunctionCostsMasterComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   @Override
   public InMemoryFunctionCostsMasterComponentFactory clone() {
-    return (InMemoryFunctionCostsMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -128,7 +128,7 @@ public class EquityIndexBean extends IndexBean {
   //-----------------------------------------------------------------------
   @Override
   public EquityIndexBean clone() {
-    return (EquityIndexBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

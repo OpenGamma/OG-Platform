@@ -224,7 +224,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public SimpleZeroDepositSecurity clone() {
-    return (SimpleZeroDepositSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

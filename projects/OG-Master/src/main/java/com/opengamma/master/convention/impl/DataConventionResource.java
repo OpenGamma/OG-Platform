@@ -99,7 +99,7 @@ public class DataConventionResource extends AbstractDocumentDataResource<Convent
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     ConventionHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

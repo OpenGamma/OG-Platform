@@ -350,7 +350,7 @@ public class CalendarSwapNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public CalendarSwapNode clone() {
-    return (CalendarSwapNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

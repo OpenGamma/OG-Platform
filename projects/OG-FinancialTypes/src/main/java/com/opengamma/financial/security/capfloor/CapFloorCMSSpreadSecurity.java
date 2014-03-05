@@ -427,7 +427,7 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public CapFloorCMSSpreadSecurity clone() {
-    return (CapFloorCMSSpreadSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

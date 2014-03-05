@@ -82,7 +82,7 @@ public class ZeroCouponInflationSwapSecurity extends SwapSecurity {
   //-----------------------------------------------------------------------
   @Override
   public ZeroCouponInflationSwapSecurity clone() {
-    return (ZeroCouponInflationSwapSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

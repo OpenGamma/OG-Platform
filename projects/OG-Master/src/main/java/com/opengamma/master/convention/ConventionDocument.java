@@ -154,7 +154,7 @@ public class ConventionDocument extends AbstractDocument implements Serializable
   //-----------------------------------------------------------------------
   @Override
   public ConventionDocument clone() {
-    return (ConventionDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

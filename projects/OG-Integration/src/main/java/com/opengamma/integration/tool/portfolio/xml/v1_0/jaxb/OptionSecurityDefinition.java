@@ -213,7 +213,7 @@ public class OptionSecurityDefinition extends ListedSecurityDefinition {
   //-----------------------------------------------------------------------
   @Override
   public OptionSecurityDefinition clone() {
-    return (OptionSecurityDefinition) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

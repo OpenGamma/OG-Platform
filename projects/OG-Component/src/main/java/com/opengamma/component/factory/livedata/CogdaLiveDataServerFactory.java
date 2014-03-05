@@ -264,7 +264,7 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public CogdaLiveDataServerFactory clone() {
-    return (CogdaLiveDataServerFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

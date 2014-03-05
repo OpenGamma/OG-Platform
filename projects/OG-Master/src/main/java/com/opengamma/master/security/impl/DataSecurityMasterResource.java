@@ -79,14 +79,14 @@ public class DataSecurityMasterResource extends AbstractDataResource {
   public Response metaData(@Context UriInfo uriInfo) {
     SecurityMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, SecurityMetaDataRequest.class);
     SecurityMetaDataResult result = getSecurityMaster().metaData(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
   @Path("securitySearches")
   public Response search(SecuritySearchRequest request) {
     SecuritySearchResult result = getSecurityMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -94,7 +94,7 @@ public class DataSecurityMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, SecurityDocument request) {
     SecurityDocument result = getSecurityMaster().add(request);
     URI createdUri = (new DataSecurityResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

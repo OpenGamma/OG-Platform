@@ -42,7 +42,7 @@ public class CogdaLiveDataSnapshotRequestMessage extends CogdaLiveDataCommandMes
   //-----------------------------------------------------------------------
   @Override
   public CogdaLiveDataSnapshotRequestMessage clone() {
-    return (CogdaLiveDataSnapshotRequestMessage) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

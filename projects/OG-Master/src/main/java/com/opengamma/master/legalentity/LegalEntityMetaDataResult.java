@@ -93,7 +93,7 @@ public class LegalEntityMetaDataResult extends AbstractMetaDataResult {
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityMetaDataResult clone() {
-    return (LegalEntityMetaDataResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -143,7 +143,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public PositionDocument clone() {
-    return (PositionDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

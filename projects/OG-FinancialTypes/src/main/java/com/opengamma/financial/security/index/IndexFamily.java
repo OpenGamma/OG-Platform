@@ -100,7 +100,7 @@ public class IndexFamily extends ManageableSecurity {
   //-----------------------------------------------------------------------
   @Override
   public IndexFamily clone() {
-    return (IndexFamily) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

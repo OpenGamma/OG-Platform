@@ -133,7 +133,7 @@ public class InMemoryExchangeMasterComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public InMemoryExchangeMasterComponentFactory clone() {
-    return (InMemoryExchangeMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

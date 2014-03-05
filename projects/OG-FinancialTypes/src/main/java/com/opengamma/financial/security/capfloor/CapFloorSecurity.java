@@ -425,7 +425,7 @@ public class CapFloorSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public CapFloorSecurity clone() {
-    return (CapFloorSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

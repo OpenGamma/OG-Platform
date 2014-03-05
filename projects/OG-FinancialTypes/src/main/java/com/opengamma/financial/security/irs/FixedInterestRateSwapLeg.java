@@ -125,7 +125,7 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
   //-----------------------------------------------------------------------
   @Override
   public FixedInterestRateSwapLeg clone() {
-    return (FixedInterestRateSwapLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

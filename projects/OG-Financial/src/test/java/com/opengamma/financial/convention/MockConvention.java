@@ -125,7 +125,7 @@ public class MockConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public MockConvention clone() {
-    return (MockConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

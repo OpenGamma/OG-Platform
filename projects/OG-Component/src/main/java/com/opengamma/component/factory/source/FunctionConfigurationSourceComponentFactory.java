@@ -284,7 +284,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -310,7 +310,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(final boolean publishRest) {
+  public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -335,7 +335,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Sets the config master.
    * @param configMaster  the new value of the property, not null
    */
-  public void setConfigMaster(final ConfigMaster configMaster) {
+  public void setConfigMaster(ConfigMaster configMaster) {
     JodaBeanUtils.notNull(configMaster, "configMaster");
     this._configMaster = configMaster;
   }
@@ -351,16 +351,16 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   @Override
   public FunctionConfigurationSourceComponentFactory clone() {
-    return (FunctionConfigurationSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
+      FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           (isPublishRest() == other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
@@ -380,9 +380,9 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("FunctionConfigurationSourceComponentFactory{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -392,7 +392,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
@@ -440,7 +440,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
@@ -494,7 +494,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return ((FunctionConfigurationSourceComponentFactory) bean).getClassifier();
@@ -507,7 +507,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           ((FunctionConfigurationSourceComponentFactory) bean).setClassifier((String) newValue);
@@ -523,7 +523,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._configMaster, "configMaster");
       super.validate(bean);

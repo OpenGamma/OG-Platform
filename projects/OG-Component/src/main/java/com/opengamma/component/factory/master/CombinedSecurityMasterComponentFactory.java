@@ -189,7 +189,7 @@ public class CombinedSecurityMasterComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public CombinedSecurityMasterComponentFactory clone() {
-    return (CombinedSecurityMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

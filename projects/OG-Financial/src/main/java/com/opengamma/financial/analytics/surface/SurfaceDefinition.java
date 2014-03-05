@@ -99,7 +99,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R, S> SurfaceDefinition.Meta<R, S> metaSurfaceDefinition(final Class<R> cls1, final Class<S> cls2) {
+  public static <R, S> SurfaceDefinition.Meta<R, S> metaSurfaceDefinition(Class<R> cls1, Class<S> cls2) {
     return SurfaceDefinition.Meta.INSTANCE;
   }
 
@@ -114,7 +114,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
   }
 
   @Override
-  public <R> Property<R> property(final String propertyName) {
+  public <R> Property<R> property(String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -128,7 +128,6 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
    * Gets the unique id.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -137,7 +136,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
    * Sets the unique id.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -162,7 +161,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
    * Sets the name.
    * @param name  the new value of the property, not null
    */
-  public void setName(final String name) {
+  public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
@@ -188,7 +187,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
    * Sets the x axis data.
    * @param xs  the new value of the property, not null
    */
-  public void setXs(final X[] xs) {
+  public void setXs(X[] xs) {
     JodaBeanUtils.notNull(xs, "xs");
     this._xs = xs;
   }
@@ -214,7 +213,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
    * Sets the y axis data.
    * @param ys  the new value of the property, not null
    */
-  public void setYs(final Y[] ys) {
+  public void setYs(Y[] ys) {
     JodaBeanUtils.notNull(ys, "ys");
     this._ys = ys;
   }
@@ -229,28 +228,17 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
 
   //-----------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
   public SurfaceDefinition<X, Y> clone() {
-    final BeanBuilder<?> builder = metaBean().builder();
-    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return (SurfaceDefinition<X, Y>) builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final SurfaceDefinition<?, ?> other = (SurfaceDefinition<?, ?>) obj;
+      SurfaceDefinition<?, ?> other = (SurfaceDefinition<?, ?>) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getXs(), other.getXs()) &&
@@ -271,9 +259,9 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SurfaceDefinition{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -282,7 +270,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
     return buf.toString();
   }
 
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("xs").append('=').append(JodaBeanUtils.toString(getXs())).append(',').append(' ');
@@ -339,7 +327,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
@@ -404,7 +392,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return ((SurfaceDefinition<?, ?>) bean).getUniqueId();
@@ -420,7 +408,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           ((SurfaceDefinition<X, Y>) bean).setUniqueId((UniqueId) newValue);
@@ -439,7 +427,7 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((SurfaceDefinition<?, ?>) bean)._name, "name");
       JodaBeanUtils.notNull(((SurfaceDefinition<?, ?>) bean)._xs, "xs");
       JodaBeanUtils.notNull(((SurfaceDefinition<?, ?>) bean)._ys, "ys");

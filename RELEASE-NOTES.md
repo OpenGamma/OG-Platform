@@ -8,6 +8,21 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M13
+------------
+* Sub-task
+    * [PLAT-6049] - CombinedPositionMasterComponentFactory to use arbitrary number of masters
+      This change will require modifications to server configuration files(.ini). It requires a default position master and a list of other masters that will be combined into a single positionmaster
+      e.g
+      [combinedPositionMaster]
+      factory = com.opengamma.component.factory.master.CombinedPositionMasterComponentFactory
+      classifier = combined
+      defaultPositionMaster = ::central
+      positionMaster0 = PositionMaster::user
+      .
+      .
+      positionMasterN = PositionMaster::<classifier>
+
 To 2.2.0-M12
 ------------
 - [PLAT-5744] Server needs a restart to pick up new timeseries

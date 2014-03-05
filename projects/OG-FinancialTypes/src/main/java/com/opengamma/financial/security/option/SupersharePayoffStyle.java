@@ -133,7 +133,7 @@ public class SupersharePayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public SupersharePayoffStyle clone() {
-    return (SupersharePayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -168,7 +168,7 @@ public class DeliverablePriceQuotedSwapFutureConvention extends ExchangeTradedFu
   //-----------------------------------------------------------------------
   @Override
   public DeliverablePriceQuotedSwapFutureConvention clone() {
-    return (DeliverablePriceQuotedSwapFutureConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

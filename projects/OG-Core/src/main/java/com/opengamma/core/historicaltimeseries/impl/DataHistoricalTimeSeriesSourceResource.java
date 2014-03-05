@@ -100,7 +100,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     } else {
       result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
     }
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
   
   @GET
@@ -110,7 +110,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
       @QueryParam("version") String version) {
     final UniqueId uniqueId = ObjectId.parse(idStr).atVersion(version);
     final ExternalIdBundle idBundle = getHistoricalTimeSeriesSource().getExternalIdBundle(uniqueId);
-    return responseOkFudge(idBundle);
+    return responseOkObject(idBundle);
   }
 
   @GET
@@ -154,7 +154,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
             bundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
       }
     }
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET
@@ -197,7 +197,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
             dataField, bundle, resolutionKey, start, includeStart, end, includeEnd);
       }
     }
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @SuppressWarnings("unchecked")
@@ -218,7 +218,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     
     Map<ExternalIdBundle, HistoricalTimeSeries> result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, includeEnd);
-    return responseOkFudge(FudgeMapWrapper.of(result));
+    return responseOkObject(FudgeMapWrapper.of(result));
   }
 
   //-------------------------------------------------------------------------

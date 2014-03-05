@@ -76,7 +76,7 @@ public class DataUserSourceResource extends AbstractDataResource {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Collection<? extends OGUser> result = getUserSource().getUsers(bundle, vc);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    return responseOkObject(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -89,11 +89,11 @@ public class DataUserSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       final OGUser result = getUserSource().get(objectId.atVersion(version));
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       OGUser result = getUserSource().get(objectId, vc);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 
@@ -157,7 +157,7 @@ public class DataUserSourceResource extends AbstractDataResource {
       @QueryParam("correctedTo") String correctedTo) {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     OGUser result = getUserSource().getUser(userid, vc);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /**

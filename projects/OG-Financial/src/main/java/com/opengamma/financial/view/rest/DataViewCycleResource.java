@@ -43,37 +43,37 @@ public class DataViewCycleResource extends AbstractDataResource {
   @GET
   @Path(PATH_NAME)
   public Response getName() {
-    return responseOkFudge(_cycle.getName());
+    return responseOkObject(_cycle.getName());
   }
   
   @GET
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
-    return responseOkFudge(_cycle.getUniqueId());
+    return responseOkObject(_cycle.getUniqueId());
   }
 
   @GET
   @Path(PATH_VIEW_PROCESS_ID)
   public Response getViewProcessId() {
-    return responseOkFudge(_cycle.getViewProcessId());
+    return responseOkObject(_cycle.getViewProcessId());
   }
 
   @GET
   @Path(PATH_STATE)
   public Response getState() {
-    return responseOkFudge(_cycle.getState());
+    return responseOkObject(_cycle.getState());
   }
 
   @GET
   @Path(PATH_DURATION)
   public Response getDuration() {
-    return responseOkFudge(_cycle.getDuration());
+    return responseOkObject(_cycle.getDuration());
   }
   
   @GET
   @Path(PATH_EXECUTION_OPTIONS)
   public Response getExecutionOptions() {
-    return responseOkFudge(_cycle.getExecutionOptions());
+    return responseOkObject(_cycle.getExecutionOptions());
   }
 
   @Path(PATH_COMPILED_VIEW_DEFINITION)
@@ -84,21 +84,21 @@ public class DataViewCycleResource extends AbstractDataResource {
   @GET
   @Path(PATH_RESULT)
   public Response getResult() {
-    return responseOkFudge(_cycle.getResultModel());
+    return responseOkObject(_cycle.getResultModel());
   }
 
   @POST
   @Path(PATH_QUERY_CACHES)
   public Response queryComputationCaches(ComputationCycleQuery query) {
     ComputationCacheResponse response = _cycle.queryComputationCaches(query);
-    return responseOkFudge(response);
+    return responseOkObject(response);
   }
 
   @POST
   @Path(PATH_QUERY_RESULTS)
   public Response queryResults(ComputationCycleQuery query) {
     ComputationResultsResponse response = _cycle.queryResults(query);
-    return responseOkFudge(response);
+    return responseOkObject(response);
   }
 
 }

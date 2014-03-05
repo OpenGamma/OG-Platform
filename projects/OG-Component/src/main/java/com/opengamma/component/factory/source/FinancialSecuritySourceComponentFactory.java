@@ -219,7 +219,7 @@ public class FinancialSecuritySourceComponentFactory extends AbstractComponentFa
   //-----------------------------------------------------------------------
   @Override
   public FinancialSecuritySourceComponentFactory clone() {
-    return (FinancialSecuritySourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

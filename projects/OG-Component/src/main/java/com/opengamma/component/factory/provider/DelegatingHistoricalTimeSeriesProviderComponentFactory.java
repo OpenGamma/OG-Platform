@@ -325,7 +325,7 @@ public class DelegatingHistoricalTimeSeriesProviderComponentFactory extends Abst
   //-----------------------------------------------------------------------
   @Override
   public DelegatingHistoricalTimeSeriesProviderComponentFactory clone() {
-    return (DelegatingHistoricalTimeSeriesProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

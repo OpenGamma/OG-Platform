@@ -275,7 +275,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   @Override
   public InterestRateSwapSecurity clone() {
-    return (InterestRateSwapSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

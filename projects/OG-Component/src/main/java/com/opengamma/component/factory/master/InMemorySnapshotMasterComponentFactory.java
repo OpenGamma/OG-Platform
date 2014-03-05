@@ -134,7 +134,7 @@ public class InMemorySnapshotMasterComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public InMemorySnapshotMasterComponentFactory clone() {
-    return (InMemorySnapshotMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

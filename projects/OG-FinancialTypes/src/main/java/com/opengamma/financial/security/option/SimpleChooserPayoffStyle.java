@@ -170,7 +170,7 @@ public class SimpleChooserPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public SimpleChooserPayoffStyle clone() {
-    return (SimpleChooserPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

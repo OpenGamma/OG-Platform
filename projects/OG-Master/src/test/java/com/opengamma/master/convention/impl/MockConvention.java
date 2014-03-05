@@ -124,7 +124,7 @@ public class MockConvention extends ManageableConvention {
   //-----------------------------------------------------------------------
   @Override
   public MockConvention clone() {
-    return (MockConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

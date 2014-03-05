@@ -224,7 +224,7 @@ public class ConfigDocument extends AbstractDocument {
   //-----------------------------------------------------------------------
   @Override
   public ConfigDocument clone() {
-    return (ConfigDocument) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

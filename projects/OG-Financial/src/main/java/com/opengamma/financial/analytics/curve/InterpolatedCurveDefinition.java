@@ -193,7 +193,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   //-----------------------------------------------------------------------
   @Override
   public InterpolatedCurveDefinition clone() {
-    return (InterpolatedCurveDefinition) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

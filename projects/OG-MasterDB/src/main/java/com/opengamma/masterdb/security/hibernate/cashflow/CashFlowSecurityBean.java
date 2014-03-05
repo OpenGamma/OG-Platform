@@ -155,7 +155,7 @@ public class CashFlowSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public CashFlowSecurityBean clone() {
-    return (CashFlowSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -218,7 +218,7 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public ConfigSourceComponentFactory clone() {
-    return (ConfigSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

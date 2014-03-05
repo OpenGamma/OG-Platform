@@ -642,7 +642,7 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public InterpolatedDoublesCurve clone() {
-    return (InterpolatedDoublesCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

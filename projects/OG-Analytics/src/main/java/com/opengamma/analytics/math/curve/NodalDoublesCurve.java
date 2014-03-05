@@ -499,7 +499,7 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public NodalDoublesCurve clone() {
-    return (NodalDoublesCurve) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -96,7 +96,7 @@ public class HistoricalTimeSeriesInfoHistoryRequest extends AbstractHistoryReque
   //-----------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesInfoHistoryRequest clone() {
-    return (HistoricalTimeSeriesInfoHistoryRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

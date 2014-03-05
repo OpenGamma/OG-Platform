@@ -131,7 +131,7 @@ public class ParameterizedFunctionConfiguration extends StaticFunctionConfigurat
   //-----------------------------------------------------------------------
   @Override
   public ParameterizedFunctionConfiguration clone() {
-    return (ParameterizedFunctionConfiguration) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

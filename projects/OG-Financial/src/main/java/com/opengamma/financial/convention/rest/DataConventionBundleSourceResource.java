@@ -56,7 +56,7 @@ public class DataConventionBundleSourceResource extends AbstractDataResource {
   @Path("identifier/{id}")
   public Response getByIdentifier(@PathParam("id") final String idStr) {
     final ExternalId id = ExternalId.parse(idStr);
-    return responseOkFudge(encodeBundle(getUnderlying().getConventionBundle(id)));
+    return responseOkObject(encodeBundle(getUnderlying().getConventionBundle(id)));
   }
 
   public static URI uriGetByIdentifier(final URI baseUri, final ExternalId id) {
@@ -68,7 +68,7 @@ public class DataConventionBundleSourceResource extends AbstractDataResource {
   @Path("bundle")
   public Response getByBundle(@QueryParam("id") final List<String> idStrs) {
     final ExternalIdBundle ids = ExternalIdBundle.parse(idStrs);
-    return responseOkFudge(encodeBundle(getUnderlying().getConventionBundle(ids)));
+    return responseOkObject(encodeBundle(getUnderlying().getConventionBundle(ids)));
   }
 
   public static URI uriGetByBundle(final URI baseUri, final ExternalIdBundle ids) {
@@ -81,7 +81,7 @@ public class DataConventionBundleSourceResource extends AbstractDataResource {
   @Path("unique/{id}")
   public Response getByUniqueId(@PathParam("id") final String idStr) {
     final UniqueId id = UniqueId.parse(idStr);
-    return responseOkFudge(encodeBundle(getUnderlying().getConventionBundle(id)));
+    return responseOkObject(encodeBundle(getUnderlying().getConventionBundle(id)));
   }
 
   public static URI uriGetByUniqueId(final URI baseUri, final UniqueId id) {

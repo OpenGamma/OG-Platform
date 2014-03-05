@@ -57,7 +57,7 @@ public class BarrierPayoffStyle extends PayoffStyle {
   //-----------------------------------------------------------------------
   @Override
   public BarrierPayoffStyle clone() {
-    return (BarrierPayoffStyle) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -181,7 +181,7 @@ public class CurveSpecificationBuilderComponentFactory extends AbstractComponent
   //-----------------------------------------------------------------------
   @Override
   public CurveSpecificationBuilderComponentFactory clone() {
-    return (CurveSpecificationBuilderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

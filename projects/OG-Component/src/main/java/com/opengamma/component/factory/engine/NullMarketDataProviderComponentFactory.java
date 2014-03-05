@@ -144,7 +144,7 @@ public class NullMarketDataProviderComponentFactory extends AbstractComponentFac
   //-----------------------------------------------------------------------
   @Override
   public NullMarketDataProviderComponentFactory clone() {
-    return (NullMarketDataProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

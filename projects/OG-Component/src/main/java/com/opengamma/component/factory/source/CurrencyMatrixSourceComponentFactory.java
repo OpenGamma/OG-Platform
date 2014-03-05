@@ -181,7 +181,7 @@ public class CurrencyMatrixSourceComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   @Override
   public CurrencyMatrixSourceComponentFactory clone() {
-    return (CurrencyMatrixSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

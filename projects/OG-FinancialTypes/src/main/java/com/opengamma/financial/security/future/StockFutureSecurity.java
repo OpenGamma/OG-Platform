@@ -99,7 +99,7 @@ public class StockFutureSecurity extends FutureSecurity {
   //-----------------------------------------------------------------------
   @Override
   public StockFutureSecurity clone() {
-    return (StockFutureSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

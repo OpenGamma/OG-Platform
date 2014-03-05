@@ -154,7 +154,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   //-----------------------------------------------------------------------
   @Override
   public ExampleLiveDataServerComponentFactory clone() {
-    return (ExampleLiveDataServerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -71,7 +71,7 @@ public class InflationBondSecurity extends BondSecurity {
   //-----------------------------------------------------------------------
   @Override
   public InflationBondSecurity clone() {
-    return (InflationBondSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

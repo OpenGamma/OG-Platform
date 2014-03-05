@@ -25,6 +25,7 @@ import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
 /**
  *
@@ -128,6 +129,11 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitBondFutureSecurity(final BondFutureSecurity security) {
       return BOND_FUTURE;
+    }
+
+    @Override
+    public InterestRateInstrumentType visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+      return ZERO_COUPON_INFLATION_SWAP;
     }
 
     @Override

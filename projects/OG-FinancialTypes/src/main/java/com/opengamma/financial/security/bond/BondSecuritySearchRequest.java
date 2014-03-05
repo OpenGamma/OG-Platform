@@ -145,7 +145,7 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public BondSecuritySearchRequest clone() {
-    return (BondSecuritySearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

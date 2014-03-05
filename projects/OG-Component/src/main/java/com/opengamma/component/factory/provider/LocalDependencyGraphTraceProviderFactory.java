@@ -311,7 +311,7 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
   //-----------------------------------------------------------------------
   @Override
   public LocalDependencyGraphTraceProviderFactory clone() {
-    return (LocalDependencyGraphTraceProviderFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

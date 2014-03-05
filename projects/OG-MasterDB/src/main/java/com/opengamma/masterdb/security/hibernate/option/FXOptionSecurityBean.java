@@ -323,7 +323,7 @@ public class FXOptionSecurityBean extends SecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public FXOptionSecurityBean clone() {
-    return (FXOptionSecurityBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------

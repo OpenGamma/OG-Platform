@@ -122,7 +122,7 @@ public class BondNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public BondNode clone() {
-    return (BondNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

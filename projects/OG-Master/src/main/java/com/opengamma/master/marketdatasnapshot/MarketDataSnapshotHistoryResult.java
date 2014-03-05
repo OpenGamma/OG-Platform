@@ -112,7 +112,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
   //-----------------------------------------------------------------------
   @Override
   public MarketDataSnapshotHistoryResult clone() {
-    return (MarketDataSnapshotHistoryResult) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

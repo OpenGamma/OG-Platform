@@ -121,7 +121,7 @@ public class DiscountFactorNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public DiscountFactorNode clone() {
-    return (DiscountFactorNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

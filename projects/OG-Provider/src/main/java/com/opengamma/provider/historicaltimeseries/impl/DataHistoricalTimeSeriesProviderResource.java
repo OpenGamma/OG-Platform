@@ -72,7 +72,7 @@ public class DataHistoricalTimeSeriesProviderResource extends AbstractDataResour
   @Path("htsGet")
   public Response getHistoricalTimeSeries(HistoricalTimeSeriesProviderGetRequest request) {
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeriesProvider().getHistoricalTimeSeries(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

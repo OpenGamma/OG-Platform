@@ -215,7 +215,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
   //-----------------------------------------------------------------------
   @Override
   public DoublesCurveInterpolatedAnchor clone() {
-    return (DoublesCurveInterpolatedAnchor) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -133,7 +133,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   //-----------------------------------------------------------------------
   @Override
   public IborCurveTypeConfiguration clone() {
-    return (IborCurveTypeConfiguration) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

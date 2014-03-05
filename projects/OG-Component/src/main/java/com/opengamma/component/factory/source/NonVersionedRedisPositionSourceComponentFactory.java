@@ -69,7 +69,7 @@ public class NonVersionedRedisPositionSourceComponentFactory extends AbstractNon
   //-----------------------------------------------------------------------
   @Override
   public NonVersionedRedisPositionSourceComponentFactory clone() {
-    return (NonVersionedRedisPositionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

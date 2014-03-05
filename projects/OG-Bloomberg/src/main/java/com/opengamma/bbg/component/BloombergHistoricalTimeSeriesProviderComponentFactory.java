@@ -138,7 +138,7 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
   //-----------------------------------------------------------------------
   @Override
   public BloombergHistoricalTimeSeriesProviderComponentFactory clone() {
-    return (BloombergHistoricalTimeSeriesProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

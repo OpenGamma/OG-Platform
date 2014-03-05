@@ -150,7 +150,7 @@ public class RemoteProvidersComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public RemoteProvidersComponentFactory clone() {
-    return (RemoteProvidersComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

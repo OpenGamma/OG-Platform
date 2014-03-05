@@ -143,7 +143,7 @@ public class DynamicDelegatingPositionMasterComponentFactory extends AbstractCom
   //-----------------------------------------------------------------------
   @Override
   public DynamicDelegatingPositionMasterComponentFactory clone() {
-    return (DynamicDelegatingPositionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

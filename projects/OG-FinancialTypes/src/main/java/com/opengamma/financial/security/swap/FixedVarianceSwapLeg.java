@@ -152,7 +152,7 @@ public class FixedVarianceSwapLeg extends VarianceSwapLeg {
   //-----------------------------------------------------------------------
   @Override
   public FixedVarianceSwapLeg clone() {
-    return (FixedVarianceSwapLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

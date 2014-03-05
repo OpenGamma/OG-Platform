@@ -205,7 +205,7 @@ public class TestsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public TestsComponentFactory clone() {
-    return (TestsComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

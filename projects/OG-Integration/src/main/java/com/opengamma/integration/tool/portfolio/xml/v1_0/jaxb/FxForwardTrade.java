@@ -268,7 +268,7 @@ public class FxForwardTrade extends Trade {
   //-----------------------------------------------------------------------
   @Override
   public FxForwardTrade clone() {
-    return (FxForwardTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -92,7 +92,7 @@ public class PatchableReferenceDataProviderComponentFactory extends AbstractComp
   //-----------------------------------------------------------------------
   @Override
   public PatchableReferenceDataProviderComponentFactory clone() {
-    return (PatchableReferenceDataProviderComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

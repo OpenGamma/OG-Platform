@@ -218,7 +218,7 @@ public class RegionSourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public RegionSourceComponentFactory clone() {
-    return (RegionSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

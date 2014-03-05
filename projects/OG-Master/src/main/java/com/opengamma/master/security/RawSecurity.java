@@ -115,7 +115,7 @@ public class RawSecurity extends ManageableSecurity {
    * @return the value of the property, not null
    */
   public byte[] getRawData() {
-    return (_rawData != null ? _rawData.clone() : null);
+    return _rawData;
   }
 
   /**
@@ -140,7 +140,7 @@ public class RawSecurity extends ManageableSecurity {
   //-----------------------------------------------------------------------
   @Override
   public RawSecurity clone() {
-    return (RawSecurity) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -170,7 +170,7 @@ public class FederalFundsFutureConvention extends ExchangeTradedFutureAndOptionC
   //-----------------------------------------------------------------------
   @Override
   public FederalFundsFutureConvention clone() {
-    return (FederalFundsFutureConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

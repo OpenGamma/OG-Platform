@@ -94,17 +94,7 @@ public class ManageableSurfaceSnapshot implements Bean, SurfaceSnapshot {
   //-----------------------------------------------------------------------
   @Override
   public ManageableSurfaceSnapshot clone() {
-    BeanBuilder<? extends ManageableSurfaceSnapshot> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

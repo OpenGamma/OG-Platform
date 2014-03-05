@@ -109,7 +109,7 @@ public class ForeignExchangeFutureBean extends FutureSecurityBean {
   //-----------------------------------------------------------------------
   @Override
   public ForeignExchangeFutureBean clone() {
-    return (ForeignExchangeFutureBean) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

@@ -72,10 +72,10 @@ public class DataInterpolatedYieldCurveDefinitionSourceResource extends Abstract
     final Currency currency = Currency.parse(currencyStr);
     if (versionAsOfStr != null) {
       YieldCurveDefinition result = getInterpolatedYieldCurveDefinitionSource().getDefinition(currency, name, VersionCorrection.parse(versionAsOfStr, null));
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       YieldCurveDefinition result = getInterpolatedYieldCurveDefinitionSource().getDefinition(currency, name);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 

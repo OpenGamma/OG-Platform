@@ -514,7 +514,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   @Override
   public UserSearchRequest clone() {
-    return (UserSearchRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

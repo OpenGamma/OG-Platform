@@ -413,7 +413,7 @@ public class FraTrade extends Trade {
   //-----------------------------------------------------------------------
   @Override
   public FraTrade clone() {
-    return (FraTrade) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

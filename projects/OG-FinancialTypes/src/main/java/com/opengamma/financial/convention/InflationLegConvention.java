@@ -301,7 +301,7 @@ public class InflationLegConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public InflationLegConvention clone() {
-    return (InflationLegConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

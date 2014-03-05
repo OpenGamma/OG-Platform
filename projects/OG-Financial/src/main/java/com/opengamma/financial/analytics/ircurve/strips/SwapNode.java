@@ -302,7 +302,7 @@ public class SwapNode extends CurveNode {
   //-----------------------------------------------------------------------
   @Override
   public SwapNode clone() {
-    return (SwapNode) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

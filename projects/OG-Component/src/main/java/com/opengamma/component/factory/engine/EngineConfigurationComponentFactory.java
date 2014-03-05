@@ -321,7 +321,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   //-----------------------------------------------------------------------
   @Override
   public EngineConfigurationComponentFactory clone() {
-    return (EngineConfigurationComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

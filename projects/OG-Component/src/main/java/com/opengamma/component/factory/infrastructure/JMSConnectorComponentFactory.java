@@ -196,7 +196,7 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public JMSConnectorComponentFactory clone() {
-    return (JMSConnectorComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

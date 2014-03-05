@@ -179,7 +179,7 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
   //-----------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesInfoMetaDataRequest clone() {
-    return (HistoricalTimeSeriesInfoMetaDataRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

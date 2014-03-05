@@ -120,7 +120,7 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
   //-----------------------------------------------------------------------
   @Override
   public SecurityMetaDataRequest clone() {
-    return (SecurityMetaDataRequest) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

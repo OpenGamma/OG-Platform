@@ -182,7 +182,7 @@ public class UserSourceComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public UserSourceComponentFactory clone() {
-    return (UserSourceComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

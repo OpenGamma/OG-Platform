@@ -109,7 +109,7 @@ public class DbConventionMasterComponentFactory extends AbstractDocumentDbMaster
   //-----------------------------------------------------------------------
   @Override
   public DbConventionMasterComponentFactory clone() {
-    return (DbConventionMasterComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

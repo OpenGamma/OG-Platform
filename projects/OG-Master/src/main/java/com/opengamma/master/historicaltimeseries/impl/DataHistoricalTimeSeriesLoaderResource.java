@@ -74,14 +74,14 @@ public class DataHistoricalTimeSeriesLoaderResource extends AbstractDataResource
   @Path("htsLoad")
   public Response loadTimeSeries(HistoricalTimeSeriesLoaderRequest request) {
     HistoricalTimeSeriesLoaderResult result = getHistoricalTimeSeriesLoader().loadTimeSeries(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
   @Path("htsUpdate/{uniqueId}")
   public Response updateTimeSeries(@PathParam("uniqueId") String uniqueId) {
     boolean succes = getHistoricalTimeSeriesLoader().updateTimeSeries(UniqueId.parse(uniqueId));
-    return responseOkFudge(succes);
+    return responseOkObject(succes);
   }
 
   //-------------------------------------------------------------------------

@@ -203,7 +203,7 @@ public class PriceIndexConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public PriceIndexConvention clone() {
-    return (PriceIndexConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

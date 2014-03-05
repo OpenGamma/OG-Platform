@@ -114,7 +114,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
   //-----------------------------------------------------------------------
   @Override
   public FixedInflationSwapLeg clone() {
-    return (FixedInflationSwapLeg) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

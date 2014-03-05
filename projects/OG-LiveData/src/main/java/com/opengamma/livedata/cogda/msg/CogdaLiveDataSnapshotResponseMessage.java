@@ -78,7 +78,7 @@ public class CogdaLiveDataSnapshotResponseMessage extends CogdaLiveDataCommandRe
   //-----------------------------------------------------------------------
   @Override
   public CogdaLiveDataSnapshotResponseMessage clone() {
-    return (CogdaLiveDataSnapshotResponseMessage) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

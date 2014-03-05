@@ -268,7 +268,7 @@ public class ONCompoundedLegRollDateConvention extends FinancialConvention {
   //-----------------------------------------------------------------------
   @Override
   public ONCompoundedLegRollDateConvention clone() {
-    return (ONCompoundedLegRollDateConvention) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

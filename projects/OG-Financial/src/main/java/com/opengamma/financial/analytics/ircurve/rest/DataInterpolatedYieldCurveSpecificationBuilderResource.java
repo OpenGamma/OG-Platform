@@ -70,7 +70,7 @@ public class DataInterpolatedYieldCurveSpecificationBuilderResource extends Abst
     final LocalDate curveDate = LocalDate.parse(curveDateStr);
     final VersionCorrection version = VersionCorrection.parse(versionStr);
     InterpolatedYieldCurveSpecification result = getInterpolatedYieldCurveSpecificationBuilder().buildCurve(curveDate, definition, version);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /**
