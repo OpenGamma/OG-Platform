@@ -6,12 +6,14 @@
 package com.opengamma.analytics.math.matrix;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.longdog.helpers.FuzzyEquals;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -21,12 +23,12 @@ import com.opengamma.util.test.TestGroup;
 public class OGMatrixAlgebraTest {
   private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1);
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
-  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { {1., 2., 3. }, {-1., 1., 0. }, {-2., 1., -2. } });
-  private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { {1, 1 }, {2, -2 }, {3, 1 } });
-  private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { {14, 0 }, {1, -3 }, {-6, -6 } });
-  private static final DoubleMatrix1D D = new DoubleMatrix1D(new double[] {1, 1, 1 });
-  private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] {-1, 2, 3 });
-  private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] {2, -2, 1 });
+  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { { 1., 2., 3. }, { -1., 1., 0. }, { -2., 1., -2. } });
+  private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { { 1, 1 }, { 2, -2 }, { 3, 1 } });
+  private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { { 14, 0 }, { 1, -3 }, { -6, -6 } });
+  private static final DoubleMatrix1D D = new DoubleMatrix1D(new double[] { 1, 1, 1 });
+  private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] { -1, 2, 3 });
+  private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] { 2, -2, 1 });
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixSizeMismatch() {
@@ -37,8 +39,32 @@ public class OGMatrixAlgebraTest {
   public void testDotProduct() {
     double res = ALGEBRA.getInnerProduct(E, F);
     assertEquals(-3.0, res, 1e-15);
+  }
+
+  @Test
+  public void testNorm2() {
+    double res;
     res = ALGEBRA.getNorm2(E);
     assertEquals(Math.sqrt(14.0), res, 1e-15);
+    res = ALGEBRA.getNorm2(A);
+    assertTrue(FuzzyEquals.SingleValueFuzzyEquals(4.24795897308943e0, res));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNorm2IllegalMatrixType() {
+    // illegal matrix branch
+    Matrix<Double> foo = new Matrix<Double>() {
+      @Override
+      public int getNumberOfElements() {
+        return 0;
+      }
+
+      @Override
+      public Double getEntry(int... indices) {
+        return null;
+      }
+    };
+    ALGEBRA.getNorm2(foo);
   }
 
   @Test
@@ -104,7 +130,7 @@ public class OGMatrixAlgebraTest {
 
   @Test
   public void testTranspose() {
-    final DoubleMatrix2D a = new DoubleMatrix2D(new double[][] { {1, 2 }, {3, 4 }, {5, 6 } });
+    final DoubleMatrix2D a = new DoubleMatrix2D(new double[][] { { 1, 2 }, { 3, 4 }, { 5, 6 } });
     assertEquals(3, a.getNumberOfRows());
     assertEquals(2, a.getNumberOfColumns());
     DoubleMatrix2D aT = ALGEBRA.getTranspose(a);

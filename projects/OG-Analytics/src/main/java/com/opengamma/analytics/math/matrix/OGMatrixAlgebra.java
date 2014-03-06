@@ -9,6 +9,10 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
+import com.opengamma.longdog.datacontainers.OGNumeric;
+import com.opengamma.longdog.datacontainers.matrix.OGRealDenseMatrix;
+import com.opengamma.longdog.materialisers.Materialisers;
+import com.opengamma.longdog.nodes.NORM2;
 
 /**
  * An absolutely minimal implementation of matrix algebra - only various multiplications covered. For more advanced stuff (e.g. calculating the inverse) use {@link ColtMatrixAlgebra} or
@@ -81,18 +85,18 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   @Override
   public double getNorm2(final Matrix<?> m) {
     Validate.notNull(m, "m");
+    OGNumeric data = null;
     if (m instanceof DoubleMatrix1D) {
       final double[] a = ((DoubleMatrix1D) m).getData();
-      final int l = a.length;
-      double sum = 0.0;
-      for (int i = 0; i < l; i++) {
-        sum += a[i] * a[i];
-      }
-      return Math.sqrt(sum);
+      data = new OGRealDenseMatrix(a);
     } else if (m instanceof DoubleMatrix2D) {
-      throw new NotImplementedException();
+      final double[][] a = ((DoubleMatrix2D) m).getData();
+      data = new OGRealDenseMatrix(a);
+    } else {
+      throw new IllegalArgumentException("Found unknown matrix type");
     }
-    throw new IllegalArgumentException("Can only find norm2 of a DoubleMatrix1D; have " + m.getClass());
+    NORM2 norm = new NORM2(data);
+    return Materialisers.toDoubleArrayOfArrays(norm)[0][0];
   }
 
   /**
