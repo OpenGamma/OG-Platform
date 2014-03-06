@@ -23,8 +23,8 @@ import com.opengamma.util.time.Tenor;
  * Populates the example database with swaption volatility cube definitions and specifications
  * for a given list of currencies.
  * <p>
- * The specifications have expiry as the x axis, maturity as the y axis and distance from
- * ATM as the z axis, and use direct volatility quotes. The instrument provider is
+ * The specifications have expiry as the x axis, maturity as the y axis and relative strike as
+ * the z axis, and use direct volatility quotes. The instrument provider is
  * {@link ExampleSwaptionVolatilityCubeInstrumentProvider}.
  * <p>
  * The definitions have x axis tenors of (3m, 6m, 1y, 2y, 3y, 4y, 5y, 10y, 15y, 20y, 30y),
@@ -64,6 +64,7 @@ public class ExampleSwaptionVolatilityCubeConfigPopulator {
    * Creates and stores the volatility cube specifications.
    * @param configMaster The config master
    * @param name The configuration name
+   * @param currency The currency
    */
   private static void populateVolatilityCubeSpecifications(final ConfigMaster configMaster, final String name, final String currency) {
     final CubeInstrumentProvider<Tenor, Tenor, Double> instrumentProvider = new ExampleSwaptionVolatilityCubeInstrumentProvider(currency);

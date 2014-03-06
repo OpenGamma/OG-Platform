@@ -132,17 +132,24 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   public static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), UnorderedCurrencyPair.of(Currency.USD, Currency.CHF),
     UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
     UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY) };
-  /** Map of currencies to swaption surface names */
-  public static final Map<Currency, String> SWAPTION_CONFIGS = new HashMap<>();
+  /** Map of currencies to swaption surface / cube names */
+  public static final Map<Currency, String> SWAPTION_CURRENCY_CONFIGS = new HashMap<>();
+  /** Map of countries to swaption surface / cube names */
+  public static final Map<String, String> SWAPTION_COUNTRY_CONFIGS = new HashMap<>();
   /** Map of currencies to curves */
   public static final Map<Currency, Pair<String, String>> SWAPTION_CURVES = new HashMap<>();
 
   static {
-    SWAPTION_CONFIGS.put(Currency.USD, "PROVIDER1");
-    SWAPTION_CONFIGS.put(Currency.GBP, "PROVIDER1");
-    SWAPTION_CONFIGS.put(Currency.EUR, "PROVIDER2");
-    SWAPTION_CONFIGS.put(Currency.JPY, "PROVIDER3");
-    SWAPTION_CONFIGS.put(Currency.CHF, "PROVIDER2");
+    SWAPTION_CURRENCY_CONFIGS.put(Currency.USD, "PROVIDER1");
+    SWAPTION_CURRENCY_CONFIGS.put(Currency.GBP, "PROVIDER1");
+    SWAPTION_CURRENCY_CONFIGS.put(Currency.EUR, "PROVIDER2");
+    SWAPTION_CURRENCY_CONFIGS.put(Currency.JPY, "PROVIDER3");
+    SWAPTION_CURRENCY_CONFIGS.put(Currency.CHF, "PROVIDER2");
+    SWAPTION_COUNTRY_CONFIGS.put("US", "FWD SWAP PROVIDER1");
+    SWAPTION_COUNTRY_CONFIGS.put("GB", "FWD SWAP PROVIDER1");
+    SWAPTION_COUNTRY_CONFIGS.put("EU", "FWD SWAP PROVIDER2");
+    SWAPTION_COUNTRY_CONFIGS.put("JP", "FWD SWAP PROVIDER3");
+    SWAPTION_COUNTRY_CONFIGS.put("SF", "FWD_SWAP PROVIDER2");
     SWAPTION_CURVES.put(Currency.USD, Pairs.of("Discounting", "Forward3M"));
     SWAPTION_CURVES.put(Currency.GBP, Pairs.of("Discounting", "Forward6M"));
     SWAPTION_CURVES.put(Currency.EUR, Pairs.of("Discounting", "Forward6M"));
@@ -426,7 +433,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    for (final Map.Entry<Currency, String> entry : SWAPTION_CONFIGS.entrySet()) {
+    for (final Map.Entry<Currency, String> entry : SWAPTION_CURRENCY_CONFIGS.entrySet()) {
       final ComputationTargetSpecification target = ComputationTargetSpecification.of(entry.getKey().getUniqueId());
       final ValueProperties properties = ValueProperties.builder().with(SURFACE, entry.getValue())
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();

@@ -29,7 +29,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Generates {@link ExternalId}s for the tickers in the simulated market data files.
+ * Generates {@link ExternalId}s for the swaption vol cube tickers in the simulated market data files.
  */
 @BeanDefinition
 public class ExampleSwaptionVolatilityCubeInstrumentProvider implements Bean, CubeInstrumentProvider<Tenor, Tenor, Double> {
