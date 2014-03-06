@@ -112,5 +112,8 @@ public class VolatilityCubeFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(RawVolatilityCubeDataFunction.class));
+    functions.add(functionConfiguration(RelativeStrikeLognormalVolatilityCubeConverterFunction.class));
+    functions.add(functionConfiguration(MoneynessLognormalVolatilityCubeConverterFunction.class));
   }
 }

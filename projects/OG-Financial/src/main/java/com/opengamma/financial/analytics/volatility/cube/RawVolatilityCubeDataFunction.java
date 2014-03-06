@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.cube;
+package com.opengamma.financial.analytics.volatility.cube;
 
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE;
@@ -39,13 +39,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource;
-import com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeSpecificationSource;
-import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecificationSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
@@ -176,6 +169,7 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
         volatilityCubeData));
   }
 
+
   @Override
   public boolean canHandleMissingInputs() {
     return true;
@@ -215,8 +209,47 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
     final String definitionName = Iterables.getOnlyElement(definitionNames);
     final String specificationName = Iterables.getOnlyElement(specificationNames);
     final Set<ValueRequirement> requirements = buildDataRequirements(_volatilityCubeSpecificationSource, _volatilityCubeDefinitionSource, specificationName, definitionName);
-    requirements.add(new ValueRequirement(VOLATILITY_CUBE_DEFN, ComputationTargetSpecification.NULL, ValueProperties.builder().with(CUBE, definitionNames).get()));
-    requirements.add(new ValueRequirement(VOLATILITY_CUBE_SPEC, ComputationTargetSpecification.NULL, ValueProperties.builder().with(CUBE, specificationNames).get()));
+    final ValueProperties definitionProperties = ValueProperties.builder()
+        .with(CUBE, definitionNames)
+        .get();
+    requirements.add(new ValueRequirement(VOLATILITY_CUBE_DEFN, ComputationTargetSpecification.NULL, definitionProperties));
+    final ValueProperties specificationProperties = ValueProperties.builder()
+        .with(CUBE, specificationNames)
+        .get();
+    requirements.add(new ValueRequirement(VOLATILITY_CUBE_SPEC, ComputationTargetSpecification.NULL, specificationProperties));
     return requirements;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String definitionName = null;
+    String specificationName = null;
+    String cubeQuoteType = null;
+    String cubeUnits = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification key = entry.getKey();
+      if (key.getValueName().equals(VOLATILITY_CUBE_DEFN)) {
+        definitionName = key.getProperty(CUBE);
+        if (specificationName != null) {
+          break; // don't want to have to loop through all market data points
+        }
+      } else if (key.getValueName().equals(VOLATILITY_CUBE_SPEC)) {
+        specificationName = key.getProperty(CUBE);
+        cubeQuoteType = key.getProperty(PROPERTY_CUBE_QUOTE_TYPE);
+        cubeUnits = key.getProperty(PROPERTY_CUBE_UNITS);
+        if (definitionName != null) {
+          break; // don't want to have to loop through all market data points
+        }
+      }
+    }
+    if (definitionName == null || specificationName == null) {
+      return null;
+    }
+    final ValueProperties properties = createValueProperties()
+        .with(PROPERTY_CUBE_DEFINITION, definitionName)
+        .with(PROPERTY_CUBE_SPECIFICATION, specificationName)
+        .with(PROPERTY_CUBE_QUOTE_TYPE, cubeQuoteType)
+        .with(PROPERTY_CUBE_UNITS, cubeUnits).get();
+    return Collections.singleton(new ValueSpecification(VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties));
   }
 }

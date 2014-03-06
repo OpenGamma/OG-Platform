@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS;
 import static com.opengamma.engine.value.ValuePropertyNames.CUBE;
 import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_SPEC;
 
@@ -62,6 +64,8 @@ public class VolatilityCubeSpecificationFunction extends AbstractFunction {
     }
     final ValueProperties properties = createValueProperties()
         .with(CUBE, specification.getName())
+        .with(PROPERTY_CUBE_QUOTE_TYPE, specification.getCubeQuoteType())
+        .with(PROPERTY_CUBE_UNITS, specification.getVolatilityQuoteUnits())
         .get();
     final ValueSpecification spec = new ValueSpecification(VOLATILITY_CUBE_SPEC, ComputationTargetSpecification.NULL, properties);
     final Set<ComputedValue> result = Collections.singleton(new ComputedValue(spec, specification));

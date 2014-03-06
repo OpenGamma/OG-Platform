@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.cube;
+package com.opengamma.financial.analytics.volatility.cube;
 
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_DEFINITION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_SPECIFICATION;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE_CALCULATION_METHOD;
@@ -46,6 +47,7 @@ public abstract class StandardVolatilityCubeDataFunction extends AbstractFunctio
         .withAny(PROPERTY_CUBE_SPECIFICATION)
         .withAny(PROPERTY_SURFACE_DEFINITION)
         .withAny(PROPERTY_SURFACE_SPECIFICATION)
+        .with(PROPERTY_CUBE_UNITS, getCubeQuoteUnits())
         .get();
     return Collections.singleton(new ValueSpecification(STANDARD_VOLATILITY_CUBE_DATA, target.toSpecification(), properties));
   }
@@ -69,10 +71,7 @@ public abstract class StandardVolatilityCubeDataFunction extends AbstractFunctio
     if (surfaceSpecificationNames == null || surfaceSpecificationNames.size() != 1) {
       return null;
     }
-    final Set<String> surfaceCalculationMethodNames = constraints.getValues(SURFACE_CALCULATION_METHOD);
-    if (surfaceCalculationMethodNames == null || surfaceCalculationMethodNames.size() != 1) {
-      return null;
-    }
+    final Set<String> surfaceCalculationMethodNames = constraints.getValues(SURFACE_CALCULATION_METHOD); // Don't insist the surface calculation method is set
     final ValueProperties cubeProperties = getInputCubeProperties(cubeDefinitionNames, cubeSpecificationNames);
     final ValueProperties surfaceProperties = getInputSurfaceProperties(surfaceDefinitionNames, surfaceSpecificationNames,
         surfaceCalculationMethodNames);
@@ -81,6 +80,12 @@ public abstract class StandardVolatilityCubeDataFunction extends AbstractFunctio
     requirements.add(new ValueRequirement(SURFACE_DATA, ComputationTargetSpecification.NULL, surfaceProperties));
     return requirements;
   }
+
+  /**
+   * Gets the cube quote volatility units (e.g. lognormal or normal).
+   * @return The quote volatility units
+   */
+  protected abstract String getCubeQuoteUnits();
 
   /**
    * Gets the properties for the raw input cube. Implementing classes should set the

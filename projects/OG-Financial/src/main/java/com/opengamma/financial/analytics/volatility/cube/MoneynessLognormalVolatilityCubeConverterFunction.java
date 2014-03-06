@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.cube;
+package com.opengamma.financial.analytics.volatility.cube;
 
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.LOGNORMAL;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION;
@@ -40,7 +40,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  *
  */
-public class MoneynessVolatilityCubeConverterFunction extends StandardVolatilityCubeDataFunction {
+public class MoneynessLognormalVolatilityCubeConverterFunction extends StandardVolatilityCubeDataFunction {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -53,10 +53,10 @@ public class MoneynessVolatilityCubeConverterFunction extends StandardVolatility
         final Double forward = forwardSurfaceData.getValue(x, y);
         if (forward != null) {
           for (final Object z : volatilityCubeData.getZs()) {
-            final Double relativeStrike = (Double) z;
+            final Double moneyness = (Double) z;
             final Double data = volatilityCubeData.getVolatility(x, y, z);
             if (data != null) {
-              final double strike = forward + relativeStrike;
+              final double strike = forward * (1 + moneyness);
               values.put(Triple.<Object, Object, Object>of(x, y, strike), data);
             }
           }
@@ -83,11 +83,22 @@ public class MoneynessVolatilityCubeConverterFunction extends StandardVolatility
   @Override
   protected ValueProperties getInputSurfaceProperties(final Set<String> definitionNames, final Set<String> specificationNames,
       final Set<String> calculationMethodNames) {
+    if (calculationMethodNames == null) {
+      return ValueProperties.builder()
+          .with(PROPERTY_SURFACE_DEFINITION, definitionNames)
+          .with(PROPERTY_SURFACE_SPECIFICATION, specificationNames)
+          .get();
+    }
     return ValueProperties.builder()
         .with(PROPERTY_SURFACE_DEFINITION, definitionNames)
         .with(PROPERTY_SURFACE_SPECIFICATION, specificationNames)
         .with(SURFACE_CALCULATION_METHOD, calculationMethodNames)
         .get();
+  }
+
+  @Override
+  protected String getCubeQuoteUnits() {
+    return LOGNORMAL;
   }
 
 }
