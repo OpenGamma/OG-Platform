@@ -8,8 +8,7 @@ package com.opengamma.integration.tool.marketdata;
 import static java.lang.String.format;
 import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,12 +27,12 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter.Mode;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.financial.tool.marketdata.MarketDataSnapshotSaver;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.tool.cli.MarketDataSourceCli;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.scripts.Scriptable;
 
@@ -63,9 +62,9 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   /** Time format: yyyyMMdd */
   private static final DateTimeFormatter VALUATION_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-  private static final List<String> DEFAULT_PREFERRED_CLASSIFIERS = Arrays.asList("central", "main", "default", "shared", "combined");
-
   private static ToolContext s_context;
+  
+  private static MarketDataSourceCli s_mktDataSourceCli = new MarketDataSourceCli();
 
   //-------------------------------------------------------------------------
   /**
@@ -99,7 +98,7 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
       marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter(Mode.STRUCTURED);
     }
     Long marketDataTimeoutSeconds = getCommandLine().hasOption(TIMEOUT_OPTION) ? Long.parseLong(getCommandLine().getOptionValue(TIMEOUT_OPTION)) : null;
-    long marketDataTimeoutMillis = TimeUnit.SECONDS.toMillis(marketDataTimeoutSeconds);
+    Long marketDataTimeoutMillis = marketDataTimeoutSeconds != null ? TimeUnit.SECONDS.toMillis(marketDataTimeoutSeconds) : null;
     final MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster, marketDataTimeoutMillis);
 
     if (getCommandLine().hasOption(VIEW_PROCESS_ID_OPTION)) {
@@ -111,33 +110,43 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
         endWithError(e.getMessage());
       }
     } else {
-      final String viewDefinitionName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
-      final String valuationTimeArg = getCommandLine().getOptionValue(VALUATION_TIME_OPTION);
+      final String viewDefinitionName = StringUtils.trimToNull(getCommandLine().getOptionValue(VIEW_NAME_OPTION));
+      if (viewDefinitionName == null) {
+        s_logger.warn("Given view definition name is blank");
+        return;
+      }
+      final String valuationTimeArg = StringUtils.trimToNull(getCommandLine().getOptionValue(VALUATION_TIME_OPTION));
       Instant valuationInstant;
-      if (!StringUtils.isBlank(valuationTimeArg)) {
+      if (valuationTimeArg != null) {
         final LocalTime valuationTime = LocalTime.parse(valuationTimeArg, VALUATION_TIME_FORMATTER);
         valuationInstant = ZonedDateTime.now().with(valuationTime.truncatedTo(SECONDS)).toInstant();
       } else {
         valuationInstant = Instant.now();
       }
-      final boolean historicalInput = getCommandLine().hasOption(HISTORICAL_OPTION);
-  
+      
+      List<MarketDataSpecification> marketDataSpecs = new ArrayList<>();
+      if (getCommandLine().hasOption(HISTORICAL_OPTION)) {
+        marketDataSpecs.add(new LatestHistoricalMarketDataSpecification());
+      } else {
+        marketDataSpecs.addAll(getMarketDataSpecs());
+      }
+      
       s_logger.info("Creating snapshot for view definition " + viewDefinitionName);
-      final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
       try {
-        
-        String snapshotName;
-        if (getCommandLine().hasOption(SNAPSHOT_NAME_OPTION)) {
-          snapshotName = getCommandLine().getOptionValue(SNAPSHOT_NAME_OPTION);
-        } else {
+        String snapshotName = StringUtils.trimToNull(getCommandLine().getOptionValue(SNAPSHOT_NAME_OPTION));
+        if (snapshotName == null) {
+          s_logger.warn("Given snapshot name is blank, using {}/{}", viewDefinitionName, valuationInstant);
           snapshotName = viewDefinitionName + "/" + valuationInstant;
         }
-        
-        snapshotSaver.createSnapshot(snapshotName, viewDefinitionName, valuationInstant, Collections.singletonList(marketDataSpecification));
+        snapshotSaver.createSnapshot(snapshotName, viewDefinitionName, valuationInstant, marketDataSpecs);
       } catch (Exception e) {
         endWithError(e.getMessage());
       }
     }
+  }
+
+  private List<MarketDataSpecification> getMarketDataSpecs() {
+    return s_mktDataSourceCli.getMarketDataSpecs(getCommandLine(), s_context.getMarketDataSnapshotMaster());
   }
 
   private void endWithError(String message, Object... messageArgs) {
@@ -155,11 +164,19 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
     options.addOption(createSnapshotNameOption());
     options.addOption(createValuationTimeOption());
     options.addOption(createTimeoutOption());
-    options.addOption(createHistoricalOption());
+    options.addOptionGroup(createMarketDataSourceOptionGroup());
     options.addOption(createUnstructuredSnapshot());
     return options;
   }
   
+  private OptionGroup createMarketDataSourceOptionGroup() {
+    final OptionGroup optionGroup = new OptionGroup();
+    optionGroup.addOption(createHistoricalOption());
+    optionGroup.addOption(s_mktDataSourceCli.getOption());
+    optionGroup.setRequired(true);
+    return optionGroup;
+  }
+
   private static OptionGroup createViewOptionGroup() {
     final OptionGroup optionGroup = new OptionGroup();
     optionGroup.addOption(createViewNameOption());
@@ -181,7 +198,7 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   }
   
   private static Option createViewProcessIdOption() {
-    final Option option = new Option(VIEW_PROCESS_ID_OPTION, "viewProcessId", true, "the unique identifier of an existing view process");
+    final Option option = new Option(VIEW_PROCESS_ID_OPTION, "viewProcessId", true, "the unique identifier of an existing view process e.g ViewProcess~1234");
     option.setArgName("unique identifier");
     return option;
   }
@@ -199,7 +216,7 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   }
 
   private static Option createHistoricalOption() {
-    return new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
+    return new Option("hts", HISTORICAL_OPTION, false, "if true use data from latest hts");
   }
   
   private static Option createUnstructuredSnapshot() {
