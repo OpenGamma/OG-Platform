@@ -75,6 +75,17 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     throw new IllegalStateException("Unable to get a value from a failure result");
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <U> Result<U> propagateFailure() {
+    return (Result<U>) this;
+  }
+
+  @Override
+  public <U> Result<U> map(ResultMapper<T, U> mapper) {
+    return propagateFailure();
+  }
+
   @Override
   public String getFailureMessage() {
     return _errorMessage;
