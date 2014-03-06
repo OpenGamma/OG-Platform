@@ -89,9 +89,7 @@ public class ResultGenerator {
    * @return a result object wrapping the failure details, not null
    */
   public static <T> Result<T> failure(String message, Exception cause) {
-    return new FailureResult<>(FailureStatus.ERROR,
-                               ArgumentChecker.notEmpty(message, "message"),
-                               ArgumentChecker.notNull(cause, "cause"));
+    return new FailureResult<>(message, cause);
   }
 
   /**
@@ -104,7 +102,7 @@ public class ResultGenerator {
    */
   public static <T> Result<T> failure(Exception cause) {
     ArgumentChecker.notNull(cause, "cause");
-    return new FailureResult<>(FailureStatus.ERROR, cause.getMessage(), cause);
+    return new FailureResult<>(cause);
   }
 
   /**
