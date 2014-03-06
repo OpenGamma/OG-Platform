@@ -175,7 +175,7 @@ public class CarrLeeFXVolatilitySwapCalculator {
   private double findStrike(final double delta, final double timeToExpiry, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final double forward, final boolean isCall) {
     final Function1D<Double, Double> func = getDeltaDifference(delta, timeToExpiry, smile, forward, isCall);
     final BisectionSingleRootFinder rtFinder = new BisectionSingleRootFinder(1.e-12);
-    final double strike = rtFinder.getRoot(func, forward * 0.7, forward * 1.3);
+    final double strike = rtFinder.getRoot(func, forward * 0.2, forward * 1.8);
     return strike;
   }
 
