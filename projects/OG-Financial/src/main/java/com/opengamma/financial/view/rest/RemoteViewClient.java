@@ -53,7 +53,7 @@ import com.sun.jersey.api.client.ClientResponse;
  * At most <b>one</b> remote view client is supported for any view client; attempting to attach more than one remote view client to a single engine-side view client may result in undesired behaviour
  * including inconsistencies.
  */
-public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implements ViewClient {
+public class RemoteViewClient extends AbstractRestfulJmsResultConsumer<ViewResultListener> implements ViewClient {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewClient.class);
@@ -419,17 +419,16 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
 
   //-------------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
-  protected void dispatchListenerCall(Function<?, ?> listenerCall) {
+  protected void dispatchListenerCall(Function<ViewResultListener, ?> listenerCall) {
     ViewResultListener listener = _resultListener;
     if (listener != null) {
       try {
-        ((Function<ViewResultListener, ?>) listenerCall).apply(listener);
+        listenerCall.apply(listener);
       } catch (Exception e) {
         s_logger.warn("Exception notifying ViewClient listener of call " + listenerCall.getClass().getName(), e);
       }
     }
-    ((Function<ViewResultListener, ?>) listenerCall).apply(_internalResultListener);
+    listenerCall.apply(_internalResultListener);
   }
 
   @Override
