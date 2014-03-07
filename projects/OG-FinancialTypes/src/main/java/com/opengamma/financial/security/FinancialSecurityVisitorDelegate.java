@@ -70,6 +70,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -444,4 +445,8 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
     return _delegate.visitEquityTotalReturnSwapSecurity(security);
   }
 
+  @Override
+  public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return _delegate.visitBondTotalReturnSwapSecurity(security);
+  }
 }
