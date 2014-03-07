@@ -1159,6 +1159,10 @@ public final class ValueRequirementNames {
    * An ExternalId of a security
    */
   public static final String EXTERNAL_ID = "ExternalId";
+  /** 
+   * The realized variance of a time series.
+   */
+  public static final String REALIZED_VARIANCE = "Realized Variance";
 
   ///// Value At Risk
 
@@ -1665,7 +1669,7 @@ public final class ValueRequirementNames {
    * External position quantity.
    */
   public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
-  
+
   /**
    * Delta Equivalent value of a position. Essentially equivalent to {@link ValueRequirementNames#VALUE_DELTA}
    */

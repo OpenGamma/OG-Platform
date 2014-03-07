@@ -63,6 +63,21 @@ public final class CalculationPropertyNamesAndValues {
   /** The property value indicating that bond analytics are produced from curves */
   public static final String CURVES_METHOD = "Curves";
 
+  // Properties for variance and volatility swap pricing
+  /** The name of the property that determines how realized variance is calculated */
+  public static final String PROPERTY_REALIZED_VARIANCE_METHOD = "RealizedVarianceMethod";
+  /** The property value indicating that the realized variance is supplied as market data */
+  public static final String MARKET_REALIZED_VARIANCE = "MarketRealizedVariance";
+  /**
+   * The property value indicating that the realized variance is calculated from a
+   * historical time series.
+   */
+  public static final String HISTORICAL_REALIZED_VARIANCE = "HistoricalRealizedVariance";
+  /** The historical realized variance start date */
+  public static final String HISTORICAL_VARIANCE_START = "HistoricalVarianceStartDate";
+  /** The historical realized variance end date */
+  public static final String HISTORICAL_VARIANCE_END = "HistoricalVarianceEndDate";
+
   /**
    * Private constructor.
    */

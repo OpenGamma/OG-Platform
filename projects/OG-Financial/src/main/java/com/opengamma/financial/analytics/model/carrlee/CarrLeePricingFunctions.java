@@ -26,6 +26,6 @@ public class CarrLeePricingFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(CarrLeePVFXVolatilitySwapFunction.class));
+    functions.add(functionConfiguration(CarrLeeFairValueFXVolatilitySwapFunction.class));
   }
 }

@@ -1,13 +1,19 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.carrlee;
 
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+import static com.opengamma.engine.value.ValueRequirementNames.REALIZED_VARIANCE;
 import static com.opengamma.engine.value.ValueRequirementNames.SPOT_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_REALIZED_VARIANCE;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_VARIANCE_END;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_VARIANCE_START;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.MARKET_REALIZED_VARIANCE;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.PROPERTY_REALIZED_VARIANCE_METHOD;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.FOREX;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME;
@@ -17,8 +23,8 @@ import static com.opengamma.financial.analytics.model.InterpolatedDataProperties
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
-import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.volatilityswap.CarrLeeFXData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -90,21 +96,32 @@ public abstract class CarrLeeFXVolatilitySwapFunction extends CarrLeeVolatilityS
       return new ValueRequirement(SPOT_RATE, CurrencyPair.TYPE.specification(currencyPair));
     }
 
-    /**
-     * Gets the Black surface and curve data.
-     * @param executionContext The execution context, not null
-     * @param inputs The function inputs, not null
-     * @param target The computation target, not null
-     * @param fxMatrix The FX matrix, not null
-     * @return The Black surface and curve data
-     */
-    protected BlackForexSmileProvider getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final FXMatrix fxMatrix) {
+    @Override
+    protected ValueRequirement getRealizedVarianceRequirement(final ValueRequirement desiredValue, final ComputationTarget target) {
+      final ValueProperties constraints = desiredValue.getConstraints();
+      final ValueProperties.Builder properties = ValueProperties.builder();
+      final String varianceCalculationMethod = Iterables.getOnlyElement(constraints.getValues(PROPERTY_REALIZED_VARIANCE_METHOD));
+      if (MARKET_REALIZED_VARIANCE.equals(varianceCalculationMethod)) {
+        properties.with(PROPERTY_REALIZED_VARIANCE_METHOD, MARKET_REALIZED_VARIANCE);
+      } else if (HISTORICAL_REALIZED_VARIANCE.equals(varianceCalculationMethod)) {
+        properties.with(PROPERTY_REALIZED_VARIANCE_METHOD, MARKET_REALIZED_VARIANCE)
+          .with(HISTORICAL_VARIANCE_START, constraints.getValues(HISTORICAL_VARIANCE_START))
+          .with(HISTORICAL_VARIANCE_END, constraints.getValues(HISTORICAL_VARIANCE_END));
+      }
+      final FXVolatilitySwapSecurity swap = (FXVolatilitySwapSecurity) target.getTrade().getSecurity();
+      final Currency counterCurrency = swap.getCounterCurrency();
+      final Currency baseCurrency = swap.getBaseCurrency();
+      final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(counterCurrency, baseCurrency);
+      return new ValueRequirement(REALIZED_VARIANCE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair), properties.get());
+    }
+
+    @Override
+    protected CarrLeeFXData getCarrLeeData(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final FXMatrix fxMatrix) {
       final FXVolatilitySwapSecurity security = (FXVolatilitySwapSecurity) target.getTrade().getSecurity();
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final SmileDeltaTermStructureParametersStrikeInterpolation volatilitySurface = (SmileDeltaTermStructureParametersStrikeInterpolation) inputs.getValue(STANDARD_VOLATILITY_SURFACE_DATA);
       final Pair<Currency, Currency> currencyPair = Pairs.of(security.getBaseCurrency(), security.getCounterCurrency());
-      final BlackForexSmileProvider blackData = new BlackForexSmileProvider(data, volatilitySurface, currencyPair);
-      return blackData;
+      return new CarrLeeFXData(currencyPair, volatilitySurface, data);
     }
 
   }
