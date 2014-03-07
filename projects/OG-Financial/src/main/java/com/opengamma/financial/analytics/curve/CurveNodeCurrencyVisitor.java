@@ -74,6 +74,7 @@ import com.opengamma.util.money.Currency;
  * to the curve node.
  */
 public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>, FinancialConventionVisitor<Set<Currency>> {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(CurveNodeCurrencyVisitor.class);
   /** The security source */
   private final SecuritySource _securitySource;
@@ -137,7 +138,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     try {
       final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
       return convention.accept(this);
-    } catch (Exception e) { // If the convention is not found, try with the security
+    } catch (final Exception e) { // If the convention is not found, try with the security
       final Security security = _securitySource.getSingle(node.getConvention().toBundle());
       if (security == null) {
         throw new OpenGammaRuntimeException("Cash node in curve points to " + node.getConvention() + " which has not been loaded. Load by putting identifier into 'Add security' dialog.");
@@ -150,9 +151,8 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
         final com.opengamma.financial.security.index.OvernightIndex indexSecurity = (com.opengamma.financial.security.index.OvernightIndex) security;
         final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
         return indexConvention.accept(this);*/
-      } else {
-        throw new OpenGammaRuntimeException("Security should be of type IborIndex or OvernightIndex, was " + security);
       }
+      throw new OpenGammaRuntimeException("Security should be of type IborIndex or OvernightIndex, was " + security);
     }
   }
 
