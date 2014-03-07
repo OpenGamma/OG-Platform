@@ -8,6 +8,13 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M12p01
+------------
+
+* Bug
+    * [PLAT-6109] - Swap PV01s failing on hts which isn't required
+
+
 To 2.2.0-M12
 ------------
 - [PLAT-5744] Server needs a restart to pick up new timeseries
