@@ -122,7 +122,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * Sets the notional currency.
    * @param notionalCurrency  the new value of the property, not null
    */
-  public void setNotionalCurrency(final Currency notionalCurrency) {
+  public void setNotionalCurrency(Currency notionalCurrency) {
     JodaBeanUtils.notNull(notionalCurrency, "notionalCurrency");
     this._notionalCurrency = notionalCurrency;
   }
@@ -148,7 +148,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * Sets the notional amount.
    * @param notionalAmount  the new value of the property, not null
    */
-  public void setNotionalAmount(final Double notionalAmount) {
+  public void setNotionalAmount(Double notionalAmount) {
     JodaBeanUtils.notNull(notionalAmount, "notionalAmount");
     this._notionalAmount = notionalAmount;
   }
@@ -168,12 +168,12 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final BondTotalReturnSwapSecurity other = (BondTotalReturnSwapSecurity) obj;
+      BondTotalReturnSwapSecurity other = (BondTotalReturnSwapSecurity) obj;
       return JodaBeanUtils.equal(getNotionalCurrency(), other.getNotionalCurrency()) &&
           JodaBeanUtils.equal(getNotionalAmount(), other.getNotionalAmount()) &&
           super.equals(obj);
@@ -191,9 +191,9 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("BondTotalReturnSwapSecurity{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -203,7 +203,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("notionalCurrency").append('=').append(JodaBeanUtils.toString(getNotionalCurrency())).append(',').append(' ');
     buf.append("notionalAmount").append('=').append(JodaBeanUtils.toString(getNotionalAmount())).append(',').append(' ');
@@ -244,7 +244,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1573783695:  // notionalCurrency
           return _notionalCurrency;
@@ -288,7 +288,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1573783695:  // notionalCurrency
           return ((BondTotalReturnSwapSecurity) bean).getNotionalCurrency();
@@ -299,7 +299,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1573783695:  // notionalCurrency
           ((BondTotalReturnSwapSecurity) bean).setNotionalCurrency((Currency) newValue);
@@ -312,7 +312,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((BondTotalReturnSwapSecurity) bean)._notionalCurrency, "notionalCurrency");
       JodaBeanUtils.notNull(((BondTotalReturnSwapSecurity) bean)._notionalAmount, "notionalAmount");
       super.validate(bean);
