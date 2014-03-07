@@ -199,13 +199,6 @@ public class CurveMarketDataFunction extends AbstractFunction {
         return null;
       }
       requirements.addAll(firstRequirements);
-      if (!spread.isNumericalSpread()) {
-        final Set<ValueRequirement> secondRequirements = getRequirements(spread.getSecondCurve(), curveName);
-        if (secondRequirements == null) {
-          return null;
-        }
-        requirements.addAll(secondRequirements);
-      }
     }
     return requirements;
   }
@@ -291,9 +284,6 @@ public class CurveMarketDataFunction extends AbstractFunction {
     } else if (abstractSpecification instanceof SpreadCurveSpecification) {
       final SpreadCurveSpecification spread = (SpreadCurveSpecification) abstractSpecification;
       populateSnapshot(spread.getFirstCurve(), inputs, marketData, resolver);
-      if (!spread.isNumericalSpread()) {
-        populateSnapshot(spread.getSecondCurve(), inputs, marketData, resolver);
-      }
     } else {
       throw new OpenGammaRuntimeException("Cannot handle specifications of type " + abstractSpecification.getClass());
     }
