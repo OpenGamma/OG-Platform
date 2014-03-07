@@ -15,7 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.AnalyticsTestBase;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
-import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
+import com.opengamma.analytics.financial.volatilityswap.FXVolatilitySwap;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -26,7 +26,7 @@ import com.opengamma.util.test.TestGroup;
  * Tests the volatility swap definition object.
  */
 @Test(groups = TestGroup.UNIT)
-public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
+public class FXVolatilitySwapDefinitionTest extends AnalyticsTestBase {
   /** The current date */
   private static final ZonedDateTime NOW = ZonedDateTime.of(2014, 02, 27, 12, 0, 0, 0, ZoneId.of("UTC"));
   /** The settlement date */
@@ -37,6 +37,10 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
   private static final PeriodFrequency OBSERVATION_FREQUENCY = PeriodFrequency.DAILY;
   /** The currency */
   private static final Currency CCY = Currency.EUR;
+  /** The base currency */
+  private static final Currency BASE = Currency.EUR;
+  /** The counter currency */
+  private static final Currency COUNTER = Currency.USD;
   /** The calendar */
   private static final Calendar WEEKENDS = new MondayToFridayCalendar("WEEKEND");
   /** The number of observations per year */
@@ -46,18 +50,18 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
   /** The volatility notional */
   private static final double VOL_NOTIONAL = 1.0E6;
   /** A Volatility swap definition */
-  private static final VolatilitySwapDefinition DEFINITION = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+  private static final FXVolatilitySwapDefinition DEFINITION = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
       T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
 
   /**
-   * @throws Exception If a volatility swap definition cannot be created from the inputs
+   * @throws Exception If a FX volatility swap definition cannot be created from the inputs
    */
-  private VolatilitySwapDefinitionTest() throws Exception {
-    super(VolatilitySwapDefinition.class,
-        new Object[] {CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y, NOW, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS },
-        new Class[] {Currency.class, double.class, double.class,
+  private FXVolatilitySwapDefinitionTest() throws Exception {
+    super(FXVolatilitySwapDefinition.class,
+        new Object[] {CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y, NOW, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS },
+        new Class[] {Currency.class, Currency.class, Currency.class, double.class, double.class,
           ZonedDateTime.class, ZonedDateTime.class, ZonedDateTime.class, ZonedDateTime.class, PeriodFrequency.class, double.class, Calendar.class },
-        new boolean[] {true, false, false, true, true, true, true, true, false, true });
+        new boolean[] {true, true, true, false, false, true, true, true, true, true, false, true });
   }
 
   /**
@@ -76,6 +80,8 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(T_PLUS_5Y, DEFINITION.getMaturityDate());
     assertEquals(VOL_NOTIONAL, DEFINITION.getVolatilityNotional());
     assertEquals(VOL_STRIKE, DEFINITION.getVolatilityStrike());
+    assertEquals(BASE, DEFINITION.getBaseCurrency());
+    assertEquals(COUNTER, DEFINITION.getCounterCurrency());
   }
 
   /**
@@ -83,38 +89,44 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
    */
   @Test
   public void testHashCodeEquals() {
-    VolatilitySwapDefinition other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    FXVolatilitySwapDefinition other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertEquals(DEFINITION, DEFINITION);
     assertEquals(DEFINITION, other);
     assertEquals(DEFINITION.hashCode(), other.hashCode());
     assertFalse(DEFINITION.equals(null));
     assertFalse(DEFINITION.equals(new CashDefinition(CCY, NOW, T_PLUS_5Y, VOL_NOTIONAL, VOL_STRIKE, 5)));
-    other = new VolatilitySwapDefinition(Currency.USD, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(Currency.USD, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE + 0.01, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE + 0.01, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL * 10, T_PLUS_2D, T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(CCY, Currency.AUD, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D.plusDays(1), T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(CCY, BASE, Currency.AUD, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y.plusDays(1),
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL * 10, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D.plusDays(1), T_PLUS_5Y,
+        T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
+    assertFalse(other.equals(DEFINITION));
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y.plusDays(1),
+        T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
+    assertFalse(other.equals(DEFINITION));
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D.plusDays(1), T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y.plusDays(1), OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR + 1, WEEKENDS);
     assertFalse(other.equals(DEFINITION));
-    other = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    other = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, new NoHolidayCalendar());
     assertFalse(other.equals(DEFINITION));
   }
@@ -125,7 +137,7 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
   @SuppressWarnings("deprecation")
   @Test
   public void testForwardStarting() {
-    final VolatilitySwap volatilitySwap = DEFINITION.toDerivative(NOW);
+    final FXVolatilitySwap volatilitySwap = DEFINITION.toDerivative(NOW);
     assertEquals(OBS_PER_YEAR, volatilitySwap.getAnnualizationFactor());
     assertEquals(CCY, volatilitySwap.getCurrency());
     assertEquals(5, volatilitySwap.getTimeToObservationEnd(), 0);
@@ -136,6 +148,8 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike());
     assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW));
     assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW, "A", "B"));
+    assertEquals(BASE, volatilitySwap.getBaseCurrency());
+    assertEquals(COUNTER, volatilitySwap.getCounterCurrency());
   }
 
   /**
@@ -144,9 +158,9 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
   @SuppressWarnings("deprecation")
   @Test
   public void testSeasoned() {
-    final VolatilitySwapDefinition definition = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
+    final FXVolatilitySwapDefinition definition = new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
         T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, new NoHolidayCalendar());
-    final VolatilitySwap volatilitySwap = definition.toDerivative(NOW.plusYears(1));
+    final FXVolatilitySwap volatilitySwap = definition.toDerivative(NOW.plusYears(1));
     assertEquals(OBS_PER_YEAR, volatilitySwap.getAnnualizationFactor());
     assertEquals(CCY, volatilitySwap.getCurrency());
     assertEquals(4, volatilitySwap.getTimeToObservationEnd(), 0);
@@ -156,6 +170,8 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional());
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike(), 0);
     assertEquals(volatilitySwap, definition.toDerivative(NOW.plusYears(1), "A", "B"));
+    assertEquals(BASE, volatilitySwap.getBaseCurrency());
+    assertEquals(COUNTER, volatilitySwap.getCounterCurrency());
   }
 
   /**
@@ -164,6 +180,14 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWeeklyObservations() {
     final PeriodFrequency freqWeek = PeriodFrequency.WEEKLY;
-    new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y, T_PLUS_2D, T_PLUS_5Y, freqWeek, OBS_PER_YEAR, WEEKENDS);
+    new FXVolatilitySwapDefinition(CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y, T_PLUS_2D, T_PLUS_5Y, freqWeek, OBS_PER_YEAR, WEEKENDS);
+  }
+
+  /**
+   * Tests that the base and counter currency are different.
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDifferentFXCurrencies() {
+    new FXVolatilitySwapDefinition(CCY, BASE, BASE, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y, T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
   }
 }

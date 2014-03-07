@@ -122,6 +122,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.FXVolatilitySwapDefinition;
 import com.opengamma.analytics.financial.instrument.volatilityswap.VolatilitySwapDefinition;
 
 /**
@@ -1181,6 +1182,16 @@ public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitVolatilitySwapDefinition(final VolatilitySwapDefinition varianceSwap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitFXVolatilitySwapDefinition(final FXVolatilitySwapDefinition varianceSwap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitFXVolatilitySwapDefinition(final FXVolatilitySwapDefinition varianceSwap, final DATA_TYPE data) {
     return _value;
   }
 

@@ -134,6 +134,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.FXVolatilitySwapDefinition;
 import com.opengamma.analytics.financial.instrument.volatilityswap.VolatilitySwapDefinition;
 import com.opengamma.util.test.TestGroup;
 
@@ -1085,6 +1086,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitVolatilitySwapDefinition(final VolatilitySwapDefinition volatilitySwap, final T data) {
+      return getValue(volatilitySwap, true);
+    }
+
+    @Override
+    public String visitFXVolatilitySwapDefinition(final FXVolatilitySwapDefinition volatilitySwap) {
+      return getValue(volatilitySwap, false);
+    }
+
+    @Override
+    public String visitFXVolatilitySwapDefinition(final FXVolatilitySwapDefinition volatilitySwap, final T data) {
       return getValue(volatilitySwap, true);
     }
 

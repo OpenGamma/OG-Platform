@@ -133,6 +133,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.FXVolatilitySwap;
 import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 import com.opengamma.util.test.TestGroup;
 
@@ -933,6 +934,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitVolatilitySwap(final VolatilitySwap volatilitySwap, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFXVolatilitySwap(final FXVolatilitySwap volatilitySwap) {
+      return null;
+    }
+
+    @Override
+    public String visitFXVolatilitySwap(final FXVolatilitySwap volatilitySwap, final T data) {
       return null;
     }
 

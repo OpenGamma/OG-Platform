@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.volatilityswap;
@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A volatility swap is a forward contract on the realised volatility of a generic underlying. This could be a single equity price, the value of an equity index,
- * an FX rate or <b>any</b> other financial metric on which a variance swap contract is based.<p>
+ * an FX rate or <b>any</b> other financial metric on which a volatility swap contract is based.<p>
  */
 public class VolatilitySwap implements InstrumentDerivative {
   /** Time to the start of volatility observations */
@@ -24,8 +24,8 @@ public class VolatilitySwap implements InstrumentDerivative {
   private final double _timeToObservationEnd;
   /** The observation frequency */
   private final PeriodFrequency _observationFrequency;
-  /** Time to settlement */
-  private final double _timeToSettlement;
+  /** Time to maturity */
+  private final double _timeToMaturity;
   /** The volatility strike */
   private final double _volStrike;
   /** The volatility notional */
@@ -39,20 +39,20 @@ public class VolatilitySwap implements InstrumentDerivative {
    * @param timeToObservationStart Time to first observation. Negative if observations have begun.
    * @param timeToObservationEnd Time to final observation. Negative if observations have finished.
    * @param observationFrequency The observation frequency, not null
-   * @param timeToSettlement Time of cash settlement. If negative, the swap has expired.
+   * @param timeToMaturity Time of cash maturity. If negative, the swap has expired.
    * @param volStrike Fair value of Variance struck at trade date
    * @param volNotional Trade pays the difference between realized and strike variance multiplied by this
-   * @param currency Currency of cash settlement
+   * @param currency Currency of cash maturity
    * @param annualizationFactor Number of business days per year
    */
   public VolatilitySwap(final double timeToObservationStart, final double timeToObservationEnd, final PeriodFrequency observationFrequency,
-      final double timeToSettlement, final double volStrike, final double volNotional, final Currency currency, final double annualizationFactor) {
+      final double timeToMaturity, final double volStrike, final double volNotional, final Currency currency, final double annualizationFactor) {
     ArgumentChecker.notNull(observationFrequency, "observationFrequency");
     ArgumentChecker.notNull(currency, "currency");
     _timeToObservationStart = timeToObservationStart;
     _timeToObservationEnd = timeToObservationEnd;
     _observationFrequency = observationFrequency;
-    _timeToSettlement = timeToSettlement;
+    _timeToMaturity = timeToMaturity;
     _volStrike = volStrike;
     _volNotional = volNotional;
     _currency = currency;
@@ -68,7 +68,7 @@ public class VolatilitySwap implements InstrumentDerivative {
     _timeToObservationStart = other._timeToObservationStart;
     _timeToObservationEnd = other._timeToObservationEnd;
     _observationFrequency = other._observationFrequency;
-    _timeToSettlement = other._timeToSettlement;
+    _timeToMaturity = other._timeToMaturity;
     _volStrike = other._volStrike;
     _volNotional = other._volNotional;
     _currency = other._currency;
@@ -100,11 +100,11 @@ public class VolatilitySwap implements InstrumentDerivative {
   }
 
   /**
-   * Gets the time to settlement.
-   * @return The time to settlement
+   * Gets the time to maturity.
+   * @return The time to maturity
    */
-  public double getTimeToSettlement() {
-    return _timeToSettlement;
+  public double getTimeToMaturity() {
+    return _timeToMaturity;
   }
 
   /**
@@ -164,7 +164,7 @@ public class VolatilitySwap implements InstrumentDerivative {
     temp = Double.doubleToLongBits(_timeToObservationStart);
     result = prime * result + _observationFrequency.hashCode();
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_timeToSettlement);
+    temp = Double.doubleToLongBits(_timeToMaturity);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_volNotional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -198,7 +198,7 @@ public class VolatilitySwap implements InstrumentDerivative {
     if (Double.doubleToLongBits(_timeToObservationStart) != Double.doubleToLongBits(other._timeToObservationStart)) {
       return false;
     }
-    if (Double.doubleToLongBits(_timeToSettlement) != Double.doubleToLongBits(other._timeToSettlement)) {
+    if (Double.doubleToLongBits(_timeToMaturity) != Double.doubleToLongBits(other._timeToMaturity)) {
       return false;
     }
     if (Double.doubleToLongBits(_volNotional) != Double.doubleToLongBits(other._volNotional)) {

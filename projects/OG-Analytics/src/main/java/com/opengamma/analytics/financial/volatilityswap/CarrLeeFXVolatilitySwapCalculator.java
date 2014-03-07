@@ -1,27 +1,30 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.volatilityswap;
 
 import com.google.common.primitives.Doubles;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
+import com.opengamma.analytics.financial.provider.description.volatilityswap.CarrLeeFXData;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ *
  */
-public class CarrLeeFXVolatilitySwapCalculator {
-
+public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisitorAdapter<CarrLeeFXData, VolatilitySwapCalculatorResult> {
   private static final double DEFAULT_LOWEST_PUT_DELTA = -0.1;
   private static final double DEFAULT_HIGHEST_CALL_DELTA = 0.1;
   private static final int DEFAULT_NUM_POINTS = 50;
-
+  private static final CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator NEW_CALCULATOR = new CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator();
+  private static final CarrLeeSeasonedSyntheticVolatilitySwapCalculator SEASONED_CALCULATOR = new CarrLeeSeasonedSyntheticVolatilitySwapCalculator();
   private final double _lowestPutDelta;
   private final double _highestCallDelta;
   private final int _numPoints;
@@ -48,42 +51,42 @@ public class CarrLeeFXVolatilitySwapCalculator {
     _numPoints = numPoints;
   }
 
-  /**
-   * 
-   * @param spot The spot
-   * @param timeToExpiry The time to expiry
-   * @param domesticRate The domestic interest rate
-   * @param foreignRate The foreign interest rate
-   * @param smile The volatility smile
-   * @return {@link VolatilitySwapCalculatorResult}
-   */
-  final VolatilitySwapCalculatorResult fairValueNew(final double spot, final double timeToExpiry, final double domesticRate, final double foreignRate,
-      final SmileDeltaTermStructureParametersStrikeInterpolation smile) {
-    ArgumentChecker.notNull(smile, "smile");
-
+  @Override
+  public VolatilitySwapCalculatorResult visitFXVolatilitySwap(final FXVolatilitySwap swap, final CarrLeeFXData data) {
+    ArgumentChecker.notNull(swap, "swap");
+    ArgumentChecker.notNull(data, "data");
+    final double spot = data.getSpot();
+    final double timeToExpiry = swap.getTimeToMaturity();
     ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "spot should be finite");
     ArgumentChecker.isTrue(spot > 0., "spot should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(domesticRate), "domesticRate should be finite");
-    ArgumentChecker.isTrue(Doubles.isFinite(foreignRate), "foreignRate should be finite");
-
-    final CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator calNew = new CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator();
-
+    final double domesticDF = data.getMulticurveProvider().getDiscountFactor(swap.getBaseCurrency(), timeToExpiry);
+    final double foreignDF = data.getMulticurveProvider().getDiscountFactor(swap.getBaseCurrency(), timeToExpiry);
+    final double domesticRate = -Math.log(domesticDF) / timeToExpiry;
+    final double foreignRate = -Math.log(foreignDF) / timeToExpiry;
+    ArgumentChecker.isTrue(Doubles.isFinite(domesticRate), "domestic rate should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(foreignRate), "foreign rate should be finite");
     final double forward = spot * Math.exp((domesticRate - foreignRate) * timeToExpiry);
-    final double[] strikeRange = getStrikeRange(timeToExpiry, smile, forward, 0.);
-
+    final double timeFromInception = swap.getTimeToObservationStart() < 0 ? Math.abs(swap.getTimeToObservationStart()) : 0;
+    final double[] strikeRange;
+    if (swap.getTimeToObservationStart() < 0) {
+      final double reference = 3.0 * Math.sqrt(data.getRealizedVariance() * timeFromInception) / 100.;
+      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilitySurface(), forward, reference);
+      System.out.println("forward2: " + forward);
+      System.out.println("reference2: " + reference);
+    } else {
+      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilitySurface(), forward, 0.);
+    }
     final double deltaK = (strikeRange[1] - strikeRange[0]) / _numPoints;
     final double[] strikes = new double[_numPoints + 1];
     for (int i = 0; i < _numPoints; ++i) {
       strikes[i] = strikeRange[0] + deltaK * i;
     }
     strikes[_numPoints] = strikeRange[1];
-
     final int index = FunctionUtils.getLowerBoundIndex(strikes, forward);
     final int nPuts = index + 1;
     final int nCalls = _numPoints - index;
-
     final double[] putStrikes = new double[nPuts];
     final double[] callStrikes = new double[nCalls];
     final double[] putVols = new double[nPuts];
@@ -91,76 +94,20 @@ public class CarrLeeFXVolatilitySwapCalculator {
     System.arraycopy(strikes, 0, putStrikes, 0, nPuts);
     System.arraycopy(strikes, index + 1, callStrikes, 0, nCalls);
     for (int i = 0; i < nPuts; ++i) {
-      putVols[i] = smile.getVolatility(timeToExpiry, putStrikes[i], forward);
+      putVols[i] = data.getVolatilitySurface().getVolatility(Triple.of(timeToExpiry, putStrikes[i], forward));
     }
     for (int i = 0; i < nCalls; ++i) {
-      callVols[i] = smile.getVolatility(timeToExpiry, callStrikes[i], forward);
+      callVols[i] = data.getVolatilitySurface().getVolatility(Triple.of(timeToExpiry, callStrikes[i], forward));
     }
-    final double strdVol = smile.getVolatility(timeToExpiry, forward, forward);
-
-    return calNew.evaluate(spot, putStrikes, callStrikes, timeToExpiry, domesticRate, foreignRate, putVols, strdVol, callVols);
+    if (swap.getTimeToObservationStart() < 0) {
+      return SEASONED_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeFromInception, domesticRate,
+          foreignRate, putVols, callVols, data.getRealizedVariance());
+    }
+    final double strdVol = data.getVolatilitySurface().getVolatility(Triple.of(timeToExpiry, forward, forward));
+    return NEW_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, domesticRate, foreignRate, putVols, strdVol, callVols);
   }
 
-  /**
-   * 
-   * @param spot The spot
-   * @param timeToExpiry The time to expiry
-   * @param timeFromInception The time from inception
-   * @param domesticRate The domestic interest rate
-   * @param foreignRate The foreign interest rate
-   * @param realizedQV The realized variance
-   * @param smile The volatility smile
-   * @return {@link VolatilitySwapCalculatorResult}
-   */
-  final VolatilitySwapCalculatorResult fairValueSeasoned(final double spot, final double timeToExpiry, final double timeFromInception, final double domesticRate, final double foreignRate,
-      final double realizedQV, final SmileDeltaTermStructureParametersStrikeInterpolation smile) {
-    ArgumentChecker.notNull(smile, "smile");
-
-    ArgumentChecker.isTrue(Doubles.isFinite(spot), "spot should be finite");
-    ArgumentChecker.isTrue(spot > 0., "spot should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeFromInception), "timeFromInception should be finite");
-    ArgumentChecker.isTrue(timeFromInception > 0., "timeFromInception should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(domesticRate), "domesticRate should be finite");
-    ArgumentChecker.isTrue(Doubles.isFinite(foreignRate), "foreignRate should be finite");
-    ArgumentChecker.isTrue(Doubles.isFinite(realizedQV), "realizedQV should be finite");
-    ArgumentChecker.isTrue(realizedQV > 0., "realizedQV should be positive");
-
-    final CarrLeeSeasonedSyntheticVolatilitySwapCalculator calSeasoned = new CarrLeeSeasonedSyntheticVolatilitySwapCalculator();
-
-    final double forward = spot * Math.exp((domesticRate - foreignRate) * timeToExpiry);
-    final double reference = 3.0 * Math.sqrt(realizedQV * timeFromInception) / 100.;
-    final double[] strikeRange = getStrikeRange(timeToExpiry, smile, forward, reference);
-
-    final double deltaK = (strikeRange[1] - strikeRange[0]) / _numPoints;
-    final double[] strikes = new double[_numPoints + 1];
-    for (int i = 0; i < _numPoints; ++i) {
-      strikes[i] = strikeRange[0] + deltaK * i;
-    }
-    strikes[_numPoints] = strikeRange[1];
-
-    final int index = FunctionUtils.getLowerBoundIndex(strikes, forward);
-    final int nPuts = index + 1;
-    final int nCalls = _numPoints - index;
-
-    final double[] putStrikes = new double[nPuts];
-    final double[] callStrikes = new double[nCalls];
-    final double[] putVols = new double[nPuts];
-    final double[] callVols = new double[nCalls];
-    System.arraycopy(strikes, 0, putStrikes, 0, nPuts);
-    System.arraycopy(strikes, index + 1, callStrikes, 0, nCalls);
-    for (int i = 0; i < nPuts; ++i) {
-      putVols[i] = smile.getVolatility(timeToExpiry, putStrikes[i], forward);
-    }
-    for (int i = 0; i < nCalls; ++i) {
-      callVols[i] = smile.getVolatility(timeToExpiry, callStrikes[i], forward);
-    }
-
-    return calSeasoned.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeFromInception, domesticRate, foreignRate, putVols, callVols, realizedQV);
-  }
-
-  private double[] getStrikeRange(final double timeToExpiry, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final double forward, final double reference) {
+  private double[] getStrikeRange(final double timeToExpiry, final SmileDeltaTermStructureParameters smile, final double forward, final double reference) {
     final double[] res = new double[2];
     res[0] = findStrike(_lowestPutDelta, timeToExpiry, smile, forward, false);
     res[1] = findStrike(_highestCallDelta, timeToExpiry, smile, forward, true);
@@ -172,19 +119,19 @@ public class CarrLeeFXVolatilitySwapCalculator {
     return res;
   }
 
-  private double findStrike(final double delta, final double timeToExpiry, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final double forward, final boolean isCall) {
+  private double findStrike(final double delta, final double timeToExpiry, final SmileDeltaTermStructureParameters smile, final double forward, final boolean isCall) {
     final Function1D<Double, Double> func = getDeltaDifference(delta, timeToExpiry, smile, forward, isCall);
     final BisectionSingleRootFinder rtFinder = new BisectionSingleRootFinder(1.e-12);
     final double strike = rtFinder.getRoot(func, forward * 0.2, forward * 1.8);
     return strike;
   }
 
-  private Function1D<Double, Double> getDeltaDifference(final double delta, final double timeToExpiry, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final double forward,
+  private Function1D<Double, Double> getDeltaDifference(final double delta, final double timeToExpiry, final SmileDeltaTermStructureParameters smile, final double forward,
       final boolean isCall) {
     return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double strike) {
-        final double vol = smile.getVolatility(timeToExpiry, strike, forward);
+        final double vol = smile.getVolatility(Triple.of(timeToExpiry, strike, forward));
         return BlackFormulaRepository.delta(forward, strike, timeToExpiry, vol, isCall) - delta;
       }
     };
