@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.security.Security;
@@ -44,6 +45,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -66,15 +68,19 @@ public class DiscountingPV01Function extends DiscountingFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
-      @SuppressWarnings("synthetic-access")
+      
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints();
-        final Map<Pair<String, Currency>, Double> pv01s = (Map<Pair<String, Currency>, Double>) inputs.getValue(ALL_PV01S);
+        final Object allPV01s = inputs.getValue(ALL_PV01S);
+        if (allPV01s == null) {
+          throw new OpenGammaRuntimeException("Could not get requirement: ALL_PV01S");
+        }
+        @SuppressWarnings("unchecked")
+        final Map<Pair<String, Currency>, Double> pv01s = (Map<Pair<String, Currency>, Double>) allPV01s;
         final Set<ComputedValue> results = new HashSet<>();
         for (final Map.Entry<Pair<String, Currency>, Double> entry : pv01s.entrySet()) {
           final String curveName = entry.getKey().getFirst();
@@ -140,6 +146,12 @@ public class DiscountingPV01Function extends DiscountingFunction {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
         }
         return properties;
+      }
+
+      @Override
+      protected Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
+          InstrumentDerivative derivative, FXMatrix fxMatrix) {
+        return null;
       }
     };
   }
