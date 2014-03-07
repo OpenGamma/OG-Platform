@@ -172,6 +172,7 @@ public class ResultGenerator {
    */
   // results can include successes which are ignored
   public static <T> Result<T> propagateFailures(Result<?> result1, Result<?> result2, Result<?>... results) {
+    // TODO - what if one of the results was itself a MultipleFailureResult?
     List<Result<?>> resultList = Lists.newArrayListWithCapacity(results.length + 2);
     resultList.add(result1);
     resultList.add(result2);
@@ -182,7 +183,7 @@ public class ResultGenerator {
 
 
   public static <T> Result<T> propagateFailures(Collection<Result<?>> results) {
-    // todo - what if one of the results was itself a MultipleFailureResult?
+    // TODO - what if one of the results was itself a MultipleFailureResult?
     List<Result<?>> failures = new ArrayList<>();
     for (Result<?> result : results) {
       if (result instanceof FailureResult) {

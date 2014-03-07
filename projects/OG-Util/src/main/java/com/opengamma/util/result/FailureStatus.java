@@ -9,7 +9,6 @@ package com.opengamma.util.result;
  * Represents the status of a function call which has not completed successfully.
  */
 public enum FailureStatus implements ResultStatus {
-  // TODO rename failure reason? create FailureStatus marker interface it can implement?
 
   /**
    * Some data required for the function was missing and therefore it could not
@@ -29,7 +28,12 @@ public enum FailureStatus implements ResultStatus {
   /**
    * There were multiple failures of different types during execution of the function.
    */
-  MULTIPLE;
+  MULTIPLE,
+  /**
+   * Some data required for the function has been requested but not received and therefore the function
+   * could not be successfully completed.
+   */
+  PENDING_DATA;
 
   //-------------------------------------------------------------------------
   /**
