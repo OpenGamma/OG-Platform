@@ -142,9 +142,17 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
 
   @Override
   public String toString() {
-    final StringBuilder result = new StringBuilder(String.format("IRS %s-%s:", getEffectiveDate(), getUnadjustedMaturityDate()));
-    for (final InterestRateSwapLeg leg : getLegs()) {
-      result.append(" leg=[" + leg + "]");
+    final StringBuilder result = new StringBuilder("IRS ");
+    if (getUniqueId() != null) {
+      result.append('[').append(getUniqueId().toString()).append("] ").append(' ');
+    }
+    if (getName() != null && !getName().isEmpty()) {
+      result.append(getName());
+    } else {
+      result.append(String.format("start=%s maturity=%s", getEffectiveDate(), getUnadjustedMaturityDate()));
+      for (final InterestRateSwapLeg leg : getLegs()) {
+        result.append(" [" + leg + "]");
+      }
     }
     return result.toString();
   }
