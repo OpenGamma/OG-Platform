@@ -55,6 +55,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -107,6 +108,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   private static final String BOND_FUTURE_OPTIONS = "Bond Future Options";
   private static final String FX_VOLATILITY_SWAPS = "FX Volatility Swaps";
   private static final String CASH_BALANCE = "Cash Balance";
+  private static final String EQUITY_TRS = "Equity Total Return Swap";
 
   @Override
   public String classifyPosition(final Position position) {
@@ -329,6 +331,12 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
           return FX_VOLATILITY_SWAPS;
         }
+
+        @Override
+        public String visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+          return EQUITY_TRS;
+        }
+
       });
     }
     return UNKNOWN;

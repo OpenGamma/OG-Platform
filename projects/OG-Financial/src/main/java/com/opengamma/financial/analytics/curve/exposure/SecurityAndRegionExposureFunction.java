@@ -76,6 +76,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -523,6 +524,11 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     final String region = security.getRegionId().getValue();
     final String securityType = security.getSecurityType();
     return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + region));
+  }
+
+  @Override
+  public List<ExternalId> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+    return null;
   }
 
 }
