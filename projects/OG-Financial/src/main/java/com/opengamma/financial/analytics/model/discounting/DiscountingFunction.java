@@ -40,6 +40,8 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -69,6 +71,15 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
     protected DiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter);
       _withCurrency = withCurrency;
+    }
+
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      final Security security = target.getTrade().getSecurity();
+      if (security instanceof ZeroCouponInflationSwapSecurity || security instanceof YearOnYearInflationSwapSecurity) {
+        return false;
+      }
+      return super.canApplyTo(context, target);
     }
 
     @SuppressWarnings("synthetic-access")

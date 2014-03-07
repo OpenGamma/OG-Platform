@@ -11,7 +11,6 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
-import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -263,7 +262,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
           for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
             final ValueProperties properties = commonCurveProperties.get().copy().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
             requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
-            requirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
+            //requirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
             final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
             final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
             for (final String curveName : curveNames) {

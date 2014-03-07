@@ -22,6 +22,7 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -111,7 +113,10 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final List<String> exogenousConfigurations = curveConstructionConfiguration.getExogenousConfigurations();
       for (final String name : exogenousConfigurations) {
         //TODO deal with arbitrary depth
-        final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, name).with(CURVE_CALCULATION_METHOD, ROOT_FINDING).get();
+        final ValueProperties properties = ValueProperties.builder()
+            .with(CURVE_CONSTRUCTION_CONFIG, name)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+            .get();
         exogenousRequirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
         exogenousRequirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
@@ -251,7 +256,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, _configurationName).get();
       requirements.add(new ValueRequirement(CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
       requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, properties));
-      requirements.addAll(_exogenousRequirements);
+      addExogenousRequirements(constraints, requirements);
       return requirements;
     }
 
@@ -262,6 +267,34 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      */
     protected Set<ValueRequirement> getExogenousRequirements() {
       return _exogenousRequirements;
+    }
+
+    /**
+     * Adds the exogenous requirements, composed with any input constraints, to a collection.
+     * 
+     * @param desiredValue the input constraints, not null
+     * @param requirements the collection to add the requirements to, not null
+     */
+    protected void addExogenousRequirements(final ValueProperties desiredValue, Collection<ValueRequirement> requirements) {
+      if (!_exogenousRequirements.isEmpty()) {
+        for (ValueRequirement exogenousRequirement : _exogenousRequirements) {
+          final String valueName = exogenousRequirement.getValueName();
+          final ComputationTargetReference targetReq = exogenousRequirement.getTargetReference();
+          final ValueProperties exogenousConstraints = exogenousRequirement.getConstraints();
+          final ValueProperties.Builder composedConstraints = exogenousConstraints.copy();
+          // add desired contraints as optional constraints on the exogenous requirment
+          for (String desiredConstraintProperty : desiredValue.getProperties()) {
+            if (!exogenousConstraints.isDefined(desiredConstraintProperty)) {
+              final Set<String> constrainedValue = desiredValue.getValues(desiredConstraintProperty);
+              if (!constrainedValue.isEmpty()) {
+                composedConstraints.with(desiredConstraintProperty, constrainedValue);
+              }
+              composedConstraints.withOptional(desiredConstraintProperty);
+            }
+          }
+          requirements.add(new ValueRequirement(valueName, targetReq, composedConstraints.get()));
+        }
+      }
     }
 
     /**

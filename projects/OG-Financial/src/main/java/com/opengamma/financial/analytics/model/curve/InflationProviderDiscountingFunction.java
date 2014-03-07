@@ -59,8 +59,10 @@ import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -234,7 +236,7 @@ public class InflationProviderDiscountingFunction extends
               if (priceIndexConvention == null) {
                 throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
               }
-              inflation.add(ConverterUtils.indexPrice(indexSecurity.getName(), priceIndexConvention));
+              inflation.add(ConverterUtils.indexPrice(priceIndexConvention.getName(), priceIndexConvention));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -271,6 +273,11 @@ public class InflationProviderDiscountingFunction extends
         knownData.getMulticurveProvider().setForexMatrix(fxMatrix);
       }
       return knownData;
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+      return getResults(context, target);
     }
 
     @Override
@@ -334,5 +341,5 @@ public class InflationProviderDiscountingFunction extends
       return result;
     }
   }
-  
+
 }
