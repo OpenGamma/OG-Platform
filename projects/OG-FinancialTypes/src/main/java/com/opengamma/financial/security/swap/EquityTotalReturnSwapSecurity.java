@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Security definition for 
+ * Equity total return swap security. 
  */
 @BeanDefinition
 public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
@@ -135,7 +135,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * Sets the number of shares.
    * @param numberOfShares  the new value of the property, not null
    */
-  public void setNumberOfShares(final Double numberOfShares) {
+  public void setNumberOfShares(Double numberOfShares) {
     JodaBeanUtils.notNull(numberOfShares, "numberOfShares");
     this._numberOfShares = numberOfShares;
   }
@@ -161,7 +161,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * Sets the notional currency.
    * @param notionalCurrency  the new value of the property, not null
    */
-  public void setNotionalCurrency(final Currency notionalCurrency) {
+  public void setNotionalCurrency(Currency notionalCurrency) {
     JodaBeanUtils.notNull(notionalCurrency, "notionalCurrency");
     this._notionalCurrency = notionalCurrency;
   }
@@ -187,7 +187,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * Sets the notional amount.
    * @param notionalAmount  the new value of the property, not null
    */
-  public void setNotionalAmount(final Double notionalAmount) {
+  public void setNotionalAmount(Double notionalAmount) {
     JodaBeanUtils.notNull(notionalAmount, "notionalAmount");
     this._notionalAmount = notionalAmount;
   }
@@ -213,7 +213,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * Sets the dividend percentage.
    * @param dividendPercentage  the new value of the property, not null
    */
-  public void setDividendPercentage(final Double dividendPercentage) {
+  public void setDividendPercentage(Double dividendPercentage) {
     JodaBeanUtils.notNull(dividendPercentage, "dividendPercentage");
     this._dividendPercentage = dividendPercentage;
   }
@@ -233,12 +233,12 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final EquityTotalReturnSwapSecurity other = (EquityTotalReturnSwapSecurity) obj;
+      EquityTotalReturnSwapSecurity other = (EquityTotalReturnSwapSecurity) obj;
       return JodaBeanUtils.equal(getNumberOfShares(), other.getNumberOfShares()) &&
           JodaBeanUtils.equal(getNotionalCurrency(), other.getNotionalCurrency()) &&
           JodaBeanUtils.equal(getNotionalAmount(), other.getNotionalAmount()) &&
@@ -260,9 +260,9 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("EquityTotalReturnSwapSecurity{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -272,7 +272,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("numberOfShares").append('=').append(JodaBeanUtils.toString(getNumberOfShares())).append(',').append(' ');
     buf.append("notionalCurrency").append('=').append(JodaBeanUtils.toString(getNotionalCurrency())).append(',').append(' ');
@@ -327,7 +327,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1922273172:  // numberOfShares
           return _numberOfShares;
@@ -391,7 +391,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1922273172:  // numberOfShares
           return ((EquityTotalReturnSwapSecurity) bean).getNumberOfShares();
@@ -406,7 +406,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1922273172:  // numberOfShares
           ((EquityTotalReturnSwapSecurity) bean).setNumberOfShares((Double) newValue);
@@ -425,7 +425,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((EquityTotalReturnSwapSecurity) bean)._numberOfShares, "numberOfShares");
       JodaBeanUtils.notNull(((EquityTotalReturnSwapSecurity) bean)._notionalCurrency, "notionalCurrency");
       JodaBeanUtils.notNull(((EquityTotalReturnSwapSecurity) bean)._notionalAmount, "notionalAmount");

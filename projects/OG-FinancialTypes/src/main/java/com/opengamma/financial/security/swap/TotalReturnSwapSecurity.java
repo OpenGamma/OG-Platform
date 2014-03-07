@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -82,6 +83,12 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _paymentBusinessDayConvention;
+
+  /**
+   * Flag that describes whether the reset date is relative to the start or end of the accrual periods.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DateRelativeTo _resetDateRelativeTo = DateRelativeTo.START;
 
   /**
    * The frequency of the return payment dates.
@@ -368,6 +375,23 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets flag that describes whether the reset date is relative to the start or end of the accrual periods.
+   * @return the value of the property, not null
+   */
+  public DateRelativeTo getResetDateRelativeTo() {
+    return _resetDateRelativeTo;
+  }
+
+  /**
+   * Gets the the {@code resetDateRelativeTo} property.
+   * @return the property, not null
+   */
+  public final Property<DateRelativeTo> resetDateRelativeTo() {
+    return metaBean().resetDateRelativeTo().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the frequency of the return payment dates.
    * @return the value of the property, not null
    */
@@ -483,6 +507,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
           (getPaymentSettlementDays() == other.getPaymentSettlementDays()) &&
           JodaBeanUtils.equal(getPaymentDateCalendar(), other.getPaymentDateCalendar()) &&
           JodaBeanUtils.equal(getPaymentBusinessDayConvention(), other.getPaymentBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getResetDateRelativeTo(), other.getResetDateRelativeTo()) &&
           JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
           JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
           JodaBeanUtils.equal(getDates(), other.getDates()) &&
@@ -502,6 +527,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentSettlementDays());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResetDateRelativeTo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
@@ -511,7 +537,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(384);
+    StringBuilder buf = new StringBuilder(416);
     buf.append("TotalReturnSwapSecurity{");
     int len = buf.length();
     toString(buf);
@@ -532,6 +558,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
     buf.append("paymentSettlementDays").append('=').append(JodaBeanUtils.toString(getPaymentSettlementDays())).append(',').append(' ');
     buf.append("paymentDateCalendar").append('=').append(JodaBeanUtils.toString(getPaymentDateCalendar())).append(',').append(' ');
     buf.append("paymentBusinessDayConvention").append('=').append(JodaBeanUtils.toString(getPaymentBusinessDayConvention())).append(',').append(' ');
+    buf.append("resetDateRelativeTo").append('=').append(JodaBeanUtils.toString(getResetDateRelativeTo())).append(',').append(' ');
     buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(getPaymentFrequency())).append(',').append(' ');
     buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention())).append(',').append(' ');
     buf.append("dates").append('=').append(JodaBeanUtils.toString(getDates())).append(',').append(' ');
@@ -585,6 +612,11 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
     private final MetaProperty<BusinessDayConvention> _paymentBusinessDayConvention = DirectMetaProperty.ofReadWrite(
         this, "paymentBusinessDayConvention", TotalReturnSwapSecurity.class, BusinessDayConvention.class);
     /**
+     * The meta-property for the {@code resetDateRelativeTo} property.
+     */
+    private final MetaProperty<DateRelativeTo> _resetDateRelativeTo = DirectMetaProperty.ofReadOnly(
+        this, "resetDateRelativeTo", TotalReturnSwapSecurity.class, DateRelativeTo.class);
+    /**
      * The meta-property for the {@code paymentFrequency} property.
      */
     private final MetaProperty<Frequency> _paymentFrequency = DirectMetaProperty.ofReadWrite(
@@ -616,6 +648,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
         "paymentSettlementDays",
         "paymentDateCalendar",
         "paymentBusinessDayConvention",
+        "resetDateRelativeTo",
         "paymentFrequency",
         "rollConvention",
         "dates",
@@ -644,6 +677,8 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
           return _paymentDateCalendar;
         case -1357599257:  // paymentBusinessDayConvention
           return _paymentBusinessDayConvention;
+        case 397410276:  // resetDateRelativeTo
+          return _resetDateRelativeTo;
         case 863656438:  // paymentFrequency
           return _paymentFrequency;
         case -10223666:  // rollConvention
@@ -729,6 +764,14 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
     }
 
     /**
+     * The meta-property for the {@code resetDateRelativeTo} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DateRelativeTo> resetDateRelativeTo() {
+      return _resetDateRelativeTo;
+    }
+
+    /**
      * The meta-property for the {@code paymentFrequency} property.
      * @return the meta-property, not null
      */
@@ -778,6 +821,8 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
           return ((TotalReturnSwapSecurity) bean).getPaymentDateCalendar();
         case -1357599257:  // paymentBusinessDayConvention
           return ((TotalReturnSwapSecurity) bean).getPaymentBusinessDayConvention();
+        case 397410276:  // resetDateRelativeTo
+          return ((TotalReturnSwapSecurity) bean).getResetDateRelativeTo();
         case 863656438:  // paymentFrequency
           return ((TotalReturnSwapSecurity) bean).getPaymentFrequency();
         case -10223666:  // rollConvention
@@ -815,6 +860,11 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
         case -1357599257:  // paymentBusinessDayConvention
           ((TotalReturnSwapSecurity) bean).setPaymentBusinessDayConvention((BusinessDayConvention) newValue);
           return;
+        case 397410276:  // resetDateRelativeTo
+          if (quiet) {
+            return;
+          }
+          throw new UnsupportedOperationException("Property cannot be written: resetDateRelativeTo");
         case 863656438:  // paymentFrequency
           ((TotalReturnSwapSecurity) bean).setPaymentFrequency((Frequency) newValue);
           return;
@@ -839,6 +889,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._maturityDate, "maturityDate");
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._paymentDateCalendar, "paymentDateCalendar");
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._paymentBusinessDayConvention, "paymentBusinessDayConvention");
+      JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._resetDateRelativeTo, "resetDateRelativeTo");
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._paymentFrequency, "paymentFrequency");
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._rollConvention, "rollConvention");
       super.validate(bean);
