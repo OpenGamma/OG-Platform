@@ -149,13 +149,13 @@ public class MarketDataSourceCli {
 
   private UniqueId getSnapshotUniqueId(String snapshotName, MarketDataSnapshotMaster mktDataSnapshotMaster) {
     MarketDataSnapshotSearchRequest request = new MarketDataSnapshotSearchRequest();
+    request.setName(snapshotName);
     MarketDataSnapshotSearchResult snapshotSearchResult = mktDataSnapshotMaster.search(request);
     MarketDataSnapshotDocument snapshotDoc = Iterables.getFirst(snapshotSearchResult.getDocuments(), null);
-    UniqueId result = null;
     if (snapshotDoc != null) {
-      result = snapshotDoc.getUniqueId();
+      return snapshotDoc.getUniqueId();
     }
-    return result;
+    return null;
   }
 
 }
