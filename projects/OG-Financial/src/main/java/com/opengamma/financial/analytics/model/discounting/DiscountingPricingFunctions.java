@@ -38,6 +38,9 @@ public class DiscountingPricingFunctions extends AbstractFunctionConfigurationBe
     functions.add(functionConfiguration(DiscountingSwapLegDetailFunction.class, "false"));
     functions.add(functionConfiguration(DiscountingSwapLegDetailFunction.class, "true"));
     functions.add(functionConfiguration(DiscountingYCNSFunction.class));
+    
+    functions.add(functionConfiguration(DiscountingInterpolatedPVFunction.class));
+    functions.add(functionConfiguration(DiscountingInterpolatedPV01Function.class));
 
     functions.add(functionConfiguration(DiscountingInflationBCSFunction.class));
     functions.add(functionConfiguration(DiscountingInflationPVFunction.class));
