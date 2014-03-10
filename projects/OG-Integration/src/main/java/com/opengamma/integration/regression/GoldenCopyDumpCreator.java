@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.bbg.referencedata.ReferenceData;
 import com.opengamma.bbg.referencedata.impl.InMemoryCachingReferenceDataProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -95,8 +97,14 @@ class GoldenCopyDumpCreator {
     _regressionIO.beginWrite();
     try {
       //dump ref data accesses first
-      _regressionIO.write(null, RegressionReferenceData.create(_referenceDataProvider.getDataAccessed()), RegressionUtils.REF_DATA_ACCESSES_IDENTIFIER);
-
+      ImmutableMap<String, ReferenceData> dataAccessed;
+      if (_referenceDataProvider != null) {
+        dataAccessed = _referenceDataProvider.getDataAccessed();
+      } else {
+        dataAccessed = ImmutableMap.of();
+      }
+      
+      _regressionIO.write(null, RegressionReferenceData.create(dataAccessed), RegressionUtils.REF_DATA_ACCESSES_IDENTIFIER);
       DatabaseDump databaseDump = new DatabaseDump(_regressionIO,
                                                   _securityMaster,
                                                   _positionMaster,
