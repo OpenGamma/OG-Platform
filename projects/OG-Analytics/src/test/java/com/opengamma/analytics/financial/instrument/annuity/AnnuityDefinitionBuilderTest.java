@@ -373,7 +373,7 @@ public class AnnuityDefinitionBuilderTest {
     //    Period paymentPeriod = Period.ofMonths(6);
     final StubType stub = StubType.SHORT_START;
     AnnuityDefinition<CouponDefinition> leg = AnnuityDefinitionBuilder.couponIborWithNotional(settlementDate, maturityDate, NOTIONAL,
-        USDLIBOR6M, ACT_365, PRECEDING, false, true, NYC, stub, 0, true, true);
+        USDLIBOR6M, ACT_365, PRECEDING, false, USDLIBOR6M.getTenor(), true, NYC, stub, 0, true, true);
     ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2014, 9, 19),
       DateUtils.getUTCDate(2015, 3, 20), DateUtils.getUTCDate(2015, 9, 18) };
     assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", expectedPaymentDates.length + 2, leg.getNumberOfPayments());
@@ -740,7 +740,7 @@ public class AnnuityDefinitionBuilderTest {
     //    Period paymentPeriod = Period.ofMonths(6);
     final StubType stub = StubType.SHORT_START;
     AnnuityDefinition<CouponDefinition> leg = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate, NOTIONAL,
-        SPREAD, USDLIBOR6M, ACT_365, PRECEDING, false, true, NYC, stub, 0, true, true);
+        SPREAD, USDLIBOR6M, ACT_365, PRECEDING, false, USDLIBOR6M.getTenor(), true, NYC, stub, 0, true, true);
     ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2014, 9, 19),
       DateUtils.getUTCDate(2015, 3, 20), DateUtils.getUTCDate(2015, 9, 18) };
     assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedPaymentDates.length + 2, leg.getNumberOfPayments());
