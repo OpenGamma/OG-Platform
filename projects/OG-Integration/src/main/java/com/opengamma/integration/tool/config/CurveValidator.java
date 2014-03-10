@@ -42,6 +42,11 @@ import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.security.index.IborIndex;
+import com.opengamma.financial.security.index.Index;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -78,7 +83,7 @@ public class CurveValidator {
                         final RegionSource regionSource, final SecuritySource secSource, final HolidayMaster holidayMaster) {
     _configMaster = configMaster;
     _configSource = configSource;
-    _configValidationUtils = new ConfigValidationUtils(conventionSource, holidayMaster);
+    _configValidationUtils = new ConfigValidationUtils(secSource, conventionSource, holidayMaster, regionSource);
     _regionSource = regionSource;
     _securitySource = secSource;
     _curveDate = LocalDate.now();
@@ -262,18 +267,19 @@ public class CurveValidator {
   }
   
   private void validateIborCurveTypeConfiguration(String name, IborCurveTypeConfiguration curveTypeConfiguration, ValidationNode curveTypeConfigNode) {
-    if (!_configValidationUtils.conventionExists(curveTypeConfiguration.getConvention())) {
+    if (!_configValidationUtils.indexExists(curveTypeConfiguration.getConvention())) {
       ValidationNode validationNode = new ValidationNode();
       validationNode.setName(curveTypeConfiguration.getConvention().getValue());
-      validationNode.setType(Convention.class);
-      validationNode.getErrors().add("Could not find convention " + curveTypeConfiguration.getConvention());
+      validationNode.setType(Index.class);
+      validationNode.getErrors().add("Could not find index " + curveTypeConfiguration.getConvention());
       validationNode.setError(true);
+      curveTypeConfigNode.getSubNodes().add(validationNode);
     } else {
+      Index index = _configValidationUtils.getIndex(curveTypeConfiguration.getConvention());
       final ValidationNode validationNode = new ValidationNode();
       validationNode.setName(curveTypeConfiguration.getConvention().getValue());
-      validationNode.setType(Convention.class);
-      validationNode.getErrors().add("Could not find convention " + curveTypeConfiguration.getConvention());
-      validationNode.setError(true);
+      validationNode.setType(index.getClass());
+      validateIndex(index.getName(), index, validationNode);
     }
     final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
     if (abstractCurveDefinition instanceof CurveDefinition) {
@@ -300,6 +306,50 @@ public class CurveValidator {
       validationNode.getErrors().add("Using IborCurveTypeConfiguration with constant curve definition: check this is okay.");
       validationNode.setError(true);
       curveTypeConfigNode.getSubNodes().add(validationNode);
+    }
+  }
+  
+  private void validateIndex(String name, Index index, ValidationNode indexNode) {
+    if (index instanceof IborIndex) {
+      ExternalId conventionId = ((IborIndex) index).getConventionId();
+      if (_configValidationUtils.conventionExists(conventionId)) {
+        ManageableConvention convention = _configValidationUtils.getConvention(conventionId);
+        validateConvention(convention.getName(), convention, IborIndexConvention.class, indexNode);
+      } else {
+        final ValidationNode validationNode = new ValidationNode();
+        validationNode.setName(name);
+        validationNode.setType(IborIndex.class);
+        validationNode.getErrors().add("Cannot find valid convention " + conventionId);
+        validationNode.setError(true);
+        indexNode.getSubNodes().add(validationNode);
+      }
+    } else if (index instanceof OvernightIndex) {
+      ExternalId conventionId = ((OvernightIndex) index).getConventionId();
+      if (_configValidationUtils.conventionExists(conventionId)) {
+        ManageableConvention convention = _configValidationUtils.getConvention(conventionId);
+        validateConvention(convention.getName(), convention, OvernightIndexConvention.class, indexNode);
+      } else {
+        final ValidationNode validationNode = new ValidationNode();
+        validationNode.setName(name);
+        validationNode.setType(OvernightIndex.class);
+        validationNode.getErrors().add("Cannot find valid convention " + conventionId);
+        validationNode.setError(true);
+        indexNode.getSubNodes().add(validationNode);
+      }      
+    }
+  }
+  
+  private void validateConvention(String name, Convention convention, Class<? extends Convention> expectedType, ValidationNode conventionNode) {
+    ConventionValidator conventionValidator = new ConventionValidator(_configValidationUtils);
+    if (!convention.getClass().isAssignableFrom(expectedType)) {
+      final ValidationNode validationNode = new ValidationNode();
+      validationNode.setName(name);
+      validationNode.setType(convention.getClass());
+      validationNode.getErrors().add("Expected convention of type " + expectedType + " but was " + convention.getClass());
+      validationNode.getErrors().add("Full convention found was " + convention.toString());
+      validationNode.setError(true);
+    } else {
+      conventionValidator.followConvention(convention, conventionNode);
     }
   }
 
@@ -381,13 +431,19 @@ public class CurveValidator {
   private void validateOvernightCurveTypeConfiguration(final String name, final OvernightCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
     final ValidationNode onValidationNode = new ValidationNode();
     onValidationNode.setName(curveTypeConfiguration.getConvention().getValue());
-    if (_configValidationUtils.conventionExists(curveTypeConfiguration.getConvention())) {
-      ManageableConvention convention = _configValidationUtils.getConvention(curveTypeConfiguration.getConvention());
-      onValidationNode.setType(convention.getClass());
+    if (!_configValidationUtils.indexExists(curveTypeConfiguration.getConvention())) {
+      ValidationNode validationNode = new ValidationNode();
+      validationNode.setName(curveTypeConfiguration.getConvention().getValue());
+      validationNode.setType(Index.class);
+      validationNode.getErrors().add("Could not find overnight index " + curveTypeConfiguration.getConvention());
+      validationNode.setError(true);
+      curveTypeConfigNode.getSubNodes().add(validationNode);
     } else {
-      onValidationNode.setType(Convention.class);
-      onValidationNode.getErrors().add("Can't find overnight convention using ID " + curveTypeConfiguration.getConvention());
-      onValidationNode.setError(true);
+      Index index = _configValidationUtils.getIndex(curveTypeConfiguration.getConvention());
+      final ValidationNode validationNode = new ValidationNode();
+      validationNode.setName(curveTypeConfiguration.getConvention().getValue());
+      validationNode.setType(index.getClass());
+      validateIndex(index.getName(), index, validationNode);
     }
     curveTypeConfigNode.getSubNodes().add(onValidationNode);
     final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);

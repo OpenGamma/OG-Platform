@@ -12,6 +12,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -36,6 +37,8 @@ import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.financial.security.index.Index;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.master.holiday.HolidaySearchRequest;
@@ -140,6 +143,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getSwapConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getSwapConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find swap convention using ID " + node.getSwapConvention());
@@ -165,12 +170,18 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     }
     ValidationNode validationNode = new ValidationNode();
     validationNode.setName(node.getConvention().getValue());
-    if (_configValidationUtils.conventionExists(node.getConvention())) {
-      ManageableConvention convention = _configValidationUtils.getConvention(node.getConvention());
-      validationNode.setType(convention.getClass());
+//    if (_configValidationUtils.conventionExists(node.getConvention())) {
+//      ManageableConvention convention = _configValidationUtils.getConvention(node.getConvention());
+//      validationNode.setType(convention.getClass());
+//      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+//      validator.followConvention(convention, validationNode);
+    if (_configValidationUtils.indexExists(node.getConvention())) {
+      Index index = _configValidationUtils.getIndex(node.getConvention());
+      validationNode.setType(index.getClass());
+      _configValidationUtils.checkIndex(index, validationNode);
     } else {
-      validationNode.setType(Convention.class);
-      validationNode.getErrors().add("Can't find convention using ID " + node.getConvention());
+      validationNode.setType(Index.class);
+      validationNode.getErrors().add("Can't find index using ID " + node.getConvention());
       validationNode.setError(true);
     }
     cashNodeValidationNode.getSubNodes().add(validationNode);
@@ -232,6 +243,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getFutureConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getFutureConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find future convention using ID " + node.getFutureConvention());
@@ -286,12 +299,18 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     }
     ValidationNode validationNode = new ValidationNode();
     validationNode.setName(node.getConvention().getValue());
-    if (_configValidationUtils.conventionExists(node.getConvention())) {
-      ManageableConvention convention = _configValidationUtils.getConvention(node.getConvention());
-      validationNode.setType(convention.getClass());
+//    if (_configValidationUtils.conventionExists(node.getConvention())) {
+//      ManageableConvention convention = _configValidationUtils.getConvention(node.getConvention());
+//      validationNode.setType(convention.getClass());
+//      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+//      validator.followConvention(convention, validationNode);
+    if (_configValidationUtils.indexExists(node.getConvention())) {
+      Index index = _configValidationUtils.getIndex(node.getConvention());
+      validationNode.setType(index.getClass());
+      _configValidationUtils.checkIndex(index, validationNode);
     } else {
       validationNode.setType(Convention.class);
-      validationNode.getErrors().add("Can't find convention using ID " + node.getConvention());
+      validationNode.getErrors().add("Can't find index using ID " + node.getConvention());
       validationNode.setError(true);
     }
     dsValidationNode.getSubNodes().add(validationNode);
@@ -319,6 +338,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getFxForwardConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getFxForwardConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find convention using ID " + node.getFxForwardConvention());
@@ -347,6 +368,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getRollDateFRAConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getRollDateFRAConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find convention using ID " + node.getRollDateFRAConvention());
@@ -375,6 +398,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getRollDateSwapConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getRollDateSwapConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find convention using ID " + node.getRollDateSwapConvention());
@@ -403,6 +428,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getFutureConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getFutureConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find convention using ID " + node.getFutureConvention());
@@ -431,6 +458,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getPayLegConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getPayLegConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find pay leg convention using ID " + node.getPayLegConvention());
@@ -470,6 +499,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getPayLegConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getPayLegConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find pay leg convention using ID " + node.getPayLegConvention());
@@ -481,6 +512,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getReceiveLegConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getReceiveLegConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find receive leg convention using ID " + node.getReceiveLegConvention());
@@ -492,6 +525,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getSpreadLegConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getSpreadLegConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find spread leg convention using ID " + node.getReceiveLegConvention());
@@ -505,7 +540,7 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
   public Void visitZeroCouponInflationNode(ZeroCouponInflationNode node) {
     ExternalId nodeId;
     try {
-      nodeId = _curveNodeIdMapper.getSwapNodeId(_curveDate, node.getTenor());
+      nodeId = _curveNodeIdMapper.getZeroCouponInflationNodeId(_curveDate, node.getTenor());
     } catch (OpenGammaRuntimeException ogre) {
       nodeId = null;
     }
@@ -520,6 +555,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getFixedLegConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getFixedLegConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find fixed leg convention using ID " + node.getFixedLegConvention());
@@ -531,6 +568,8 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     if (_configValidationUtils.conventionExists(node.getInflationLegConvention())) {
       ManageableConvention convention = _configValidationUtils.getConvention(node.getInflationLegConvention());
       validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      validator.followConvention(convention, validationNode);
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find inflation leg convention using ID " + node.getInflationLegConvention());
