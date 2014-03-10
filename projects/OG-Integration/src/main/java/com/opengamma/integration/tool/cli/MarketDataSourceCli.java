@@ -64,7 +64,7 @@ public class MarketDataSourceCli {
   
   public MarketDataSourceCli() {
     final Option option = new Option("ds", MARKET_DATA_SOURCE_OPTION, true, "the market data source name " +
-        "format is \nlive:<dataSourceName> or \nhistorical:<resolverkey>~<date> date in yyyymmdd or \nsnapshot:snapshotId");
+        "format is \nlive:<dataSourceName> or \nhistorical:<resolverkey>~<date> date in yyyymmdd or \nsnapshot:snapshotName");
     option.setArgName("data source");
     _option = option;
   }
