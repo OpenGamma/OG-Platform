@@ -20,7 +20,8 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 
 import java.util.Set;
 
-import org.threeten.bp.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -50,6 +51,7 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.curve.ConventionUtils;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctionHelper;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -61,13 +63,16 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Base function for all interest rate future option pricing and risk functions that use a Black surface
  * and curves constructed using the discounting method.
  */
 public abstract class BlackDiscountingIRFutureOptionFunction extends DiscountingFunction {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackDiscountingIRFutureOptionFunction.class);
+  
   /**
    * @param valueRequirements The value requirements, not null
    */
@@ -169,6 +174,7 @@ public abstract class BlackDiscountingIRFutureOptionFunction extends Discounting
     protected BlackSTIRFuturesSmileProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
         final ComputationTarget target, final FXMatrix fxMatrix) {
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
       final IRFutureOptionSecurity security = (IRFutureOptionSecurity) target.getTrade().getSecurity();
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(INTERPOLATED_VOLATILITY_SURFACE);
@@ -176,10 +182,11 @@ public abstract class BlackDiscountingIRFutureOptionFunction extends Discounting
       // TODO the convention name should not be hard-coded, but there's no way of getting this information until
       // there's a convention link in the security.
       final InterestRateFutureConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE), InterestRateFutureConvention.class);
-      final IborIndexConvention iborIndexConvention = conventionSource.getSingle(convention.getIndexConvention(), IborIndexConvention.class);
-      final Period period = Period.ofMonths(3); //TODO
+      final ObjectsPair<IborIndexConvention, Tenor> pair = ConventionUtils.of(securitySource, conventionSource).withIborIndexId(convention.getIndexConvention(), Tenor.ofMonths(3));
+      final IborIndexConvention iborIndexConvention = pair.getFirst();
+      final Tenor indexTenor = pair.getSecond();
       final int spotLag = iborIndexConvention.getSettlementDays();
-      final IborIndex iborIndex = new IborIndex(currency, period, spotLag, iborIndexConvention.getDayCount(),
+      final IborIndex iborIndex = new IborIndex(currency, indexTenor.getPeriod(), spotLag, iborIndexConvention.getDayCount(),
           iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
       final BlackSTIRFuturesSmileProvider blackData = new BlackSTIRFuturesSmileProvider(data, volatilitySurface.getSurface(), iborIndex);
       return blackData;

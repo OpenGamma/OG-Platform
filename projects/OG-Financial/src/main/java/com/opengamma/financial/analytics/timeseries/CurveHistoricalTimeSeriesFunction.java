@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.convention.InflationLegConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -103,6 +104,28 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
         final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
         final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
         InflationLegConvention inflationLegConvention = conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
+        
+        final Security priceIndexSec = securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle()); 
+        final PriceIndexConvention priceIndexConvention;
+        final ExternalIdBundle ids;
+        if (priceIndexSec instanceof com.opengamma.financial.security.index.PriceIndex) {
+          com.opengamma.financial.security.index.PriceIndex priceIndex = (com.opengamma.financial.security.index.PriceIndex) priceIndexSec; // implicit null check
+          priceIndexConvention = conventionSource.getSingle(priceIndex.getConventionId(), PriceIndexConvention.class);
+          if (priceIndexConvention == null) {
+            s_logger.error("Found price index, but couldn't find linked convention {}", priceIndex.getConventionId());
+            throw new OpenGammaRuntimeException("Found price index, but couldn't find linked convention " + priceIndex.getConventionId());
+          }
+          ids = priceIndexSec.getExternalIdBundle();
+        } else {
+          s_logger.warn("Couldn't find price index, falling back to looking for convention directly for compatibility");
+          priceIndexConvention = conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
+          if (priceIndexConvention == null) {
+            s_logger.error("Couldn't find price index as direct convention either of id {}", inflationLegConvention.getPriceIndexConvention());
+            throw new OpenGammaRuntimeException("Couldn't find price index as direct convention of id " + inflationLegConvention.getPriceIndexConvention());
+          }
+          ids = priceIndexConvention.getPriceIndexId().toBundle();
+        }
+        
         final Security sec = securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
         if (sec == null) {
           throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
@@ -110,18 +133,17 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
         if (!(sec instanceof PriceIndex)) {
           throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " not of type PriceIndex");
         }
-        final PriceIndex indexSecurity = (PriceIndex) sec;
         final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
-        final HistoricalTimeSeries priceIndexSeries = timeSeriesSource.getHistoricalTimeSeries(priceIndexField, indexSecurity.getExternalIdBundle(), 
+        final HistoricalTimeSeries priceIndexSeries = timeSeriesSource.getHistoricalTimeSeries(priceIndexField, ids, 
             resolutionKey, startDate, includeStart, endDate, true);
         if (priceIndexSeries != null) {
           if (priceIndexSeries.getTimeSeries().isEmpty()) {
-            s_logger.info("Time series for {} is empty", indexSecurity.getExternalIdBundle());
+            s_logger.info("Time series for {} is empty", ids);
           } else {
-            bundle.add(dataField, indexSecurity.getExternalIdBundle(), priceIndexSeries);
+            bundle.add(dataField, ids, priceIndexSeries);
           }
         } else {
-          s_logger.info("Couldn't get time series for {}", indexSecurity.getExternalIdBundle());
+          s_logger.info("Couldn't get time series for {}", ids);
         }
       }
     }

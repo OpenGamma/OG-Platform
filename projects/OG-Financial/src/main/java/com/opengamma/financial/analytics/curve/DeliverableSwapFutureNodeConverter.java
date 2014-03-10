@@ -5,11 +5,14 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
@@ -21,6 +24,8 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.convention.DeliverablePriceQuotedSwapFutureConvention;
@@ -47,6 +52,10 @@ import com.opengamma.util.time.Tenor;
  * The futures notional is 1. The futures PVBP is 1. The PBVP is not used in the par spread on which the curve calibration is based.
  */
 public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
+  private static final Logger s_logger = LoggerFactory.getLogger(DeliverableSwapFutureNodeConverter.class);
+  
+  /** The security source */
+  private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -68,14 +77,16 @@ public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
    */
-  public DeliverableSwapFutureNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+  public DeliverableSwapFutureNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
+    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -107,7 +118,7 @@ public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<
     final int spotLagSwap = fixedLegConvention.getSettlementDays();
     final ZonedDateTime lastTradeDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(swapFuture.getFutureNumber(), startDate.toLocalDate(), calendar), time, timeZone);
     final ZonedDateTime deliveryDate = ScheduleCalculator.getAdjustedDate(lastTradeDate, spotLagSwap, calendar);
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(iborLegConvention.getIborIndexConvention(), IborIndexConvention.class);
+    final IborIndexConvention indexConvention = ConventionUtils.of(_securitySource, _conventionSource).withIborIndexId(iborLegConvention.getIborIndexConvention());
     final Currency currency = indexConvention.getCurrency();
     final DayCount dayCount = indexConvention.getDayCount();
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();

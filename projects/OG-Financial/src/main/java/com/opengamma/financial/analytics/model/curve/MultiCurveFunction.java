@@ -44,6 +44,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -377,12 +378,27 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     /**
      * Gets the curve node converter used to convert a node into an InstrumentDerivative.
      *
+     * @param securitySource the security source, can be null for backwards compatibility
+     * @param conventionSource the convention source, not null
+     * @return The curve node converter used to convert a node into an InstrumentDerivative.
+     */
+    protected CurveNodeConverter getCurveNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource) {
+      // security source is allowed to be null for backwards compatibility
+      ArgumentChecker.notNull(conventionSource, "convention source");
+      return new CurveNodeConverter(securitySource, conventionSource);
+    }
+    
+    /**
+     * Gets the curve node converter used to convert a node into an InstrumentDerivative.
+     *
+     * @deprecated use version wiht security source
      * @param conventionSource the convention source, not null
      * @return The curve node converter used to convert a node into an InstrumentDerivative.
      */
     protected CurveNodeConverter getCurveNodeConverter(final ConventionSource conventionSource) {
+      // security source is allowed to be null for backwards compatibility
       ArgumentChecker.notNull(conventionSource, "convention source");
-      return new CurveNodeConverter(conventionSource);
+      return new CurveNodeConverter(null, conventionSource);
     }
 
     /**

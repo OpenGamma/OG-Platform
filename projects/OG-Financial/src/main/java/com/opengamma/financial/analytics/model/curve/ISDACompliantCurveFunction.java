@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
@@ -28,6 +30,8 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrument
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -53,6 +57,7 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -62,6 +67,8 @@ import com.opengamma.util.async.AsynchronousExecution;
  */
 // non compiled for now to allow dynamic config db lookup
 public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Logger - happy Elaine? */
+  private static final Logger s_logger = LoggerFactory.getLogger(ISDACompliantCurveFunction.class);
 
   /** ISDA fixes yield curve daycout to Act/365 */
   private static final DayCount ACT_365 = DayCounts.ACT_365;
@@ -163,10 +170,27 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
       k++;
     }
 
+   
     ArgumentChecker.notNull(cashConvention, "Cash convention");
     ArgumentChecker.notNull(floatLegConvention, "Floating leg convention");
     ArgumentChecker.notNull(fixLegConvention, "Fixed leg convention");
-    liborConvention = conventionSource.getSingle(floatLegConvention.getIborIndexConvention(), IborIndexConvention.class);
+    SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+    Security iborIndexSec = securitySource.getSingle(floatLegConvention.getIborIndexConvention().toBundle());
+    if (iborIndexSec != null && iborIndexSec instanceof IborIndex) {
+      IborIndex iborIndex = (IborIndex) iborIndexSec;
+      liborConvention = conventionSource.getSingle(iborIndex.getConventionId(), IborIndexConvention.class);
+      if (liborConvention == null) {
+        s_logger.error("Found index, but couldn't find linked convention {}", iborIndex.getConventionId());
+        throw new OpenGammaRuntimeException("Found index, but couldn't find linked convention " + iborIndex.getConventionId());
+      }
+    } else {
+      s_logger.warn("Couldn't find index, falling back to looking for convention directly for compatibility");
+      liborConvention = conventionSource.getSingle(floatLegConvention.getIborIndexConvention(), IborIndexConvention.class);
+      if (liborConvention == null) {
+        s_logger.error("Couldn't find IBOR index as direct convention either of id {}", floatLegConvention.getIborIndexConvention());
+        throw new OpenGammaRuntimeException("Couldn't find IBOR index as direct convention of id " + floatLegConvention.getIborIndexConvention());
+      }
+    } 
     ArgumentChecker.notNull(liborConvention, floatLegConvention.getIborIndexConvention().toString());
 
     final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(spotDate, spotDate, instruments, tenors, marketDataForCurve, cashConvention.getDayCount(),

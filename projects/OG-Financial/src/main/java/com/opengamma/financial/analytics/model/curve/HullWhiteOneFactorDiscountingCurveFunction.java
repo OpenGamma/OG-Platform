@@ -216,7 +216,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(context, snapshot,
                 node.getIdentifier(), timeSeries, now, fx));
-            derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
+            derivativesForCurve[k++] = getCurveNodeConverter(securitySource, conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
           } // Node points - end
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
             if (type instanceof DiscountingCurveTypeConfiguration) {
@@ -360,7 +360,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
           .cashNodeVisitor(new CashNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .immFRANode(new RollDateFRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
