@@ -86,9 +86,9 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
 
   @Test
   /**
-   * Test different results with a standard set of data against hardcoded values. Can be used for platform testing or regression testing.
+   * Test different results with a standard set of data against hard coded values. Can be used for platform testing or regression testing.
    */
-  public void BucketedPV() {
+  public void BucketedPV01() {
     // Delta
     final double[] deltaDsc = {-0.007, -0.007, 0.000, -0.005, -0.031, -0.552, -1.041, 0.247, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 };
     final double[] deltaFwd = {119.738, 120.930, -26.462, -460.755, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 };

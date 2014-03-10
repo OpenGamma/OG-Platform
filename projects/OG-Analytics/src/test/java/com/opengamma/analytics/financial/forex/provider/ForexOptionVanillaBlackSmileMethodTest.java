@@ -158,7 +158,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     final double df = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, PAY_DATE[indexPay]));
     final double forward = SPOT * MULTICURVES.getDiscountFactor(EUR, TimeCalculator.getTimeBetween(REFERENCE_DATE, PAY_DATE[indexPay])) / df;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(TIME_TO_EXPIRY[indexPay + 1], strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(TIME_TO_EXPIRY[indexPay + 1], strike, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(forexOption);
     final double priceExpected = func.evaluate(dataBlack) * notional;
@@ -183,7 +183,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     final double df = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate));
     final double forward = SPOT * MULTICURVES.getDiscountFactor(EUR, TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)) / df;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, strike, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(forexOption);
     final double priceExpected = func.evaluate(dataBlack) * notional;
@@ -268,7 +268,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double dfDomestic = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // USD
     final double dfForeign = MULTICURVES.getDiscountFactor(EUR, TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // EUR
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, strike, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, dfDomestic, volatility);
     final double[] priceAdjointCall = BLACK_FUNCTION.getPriceAdjoint(forexOptionCall, dataBlack);
     final double[] priceAdjointPut = BLACK_FUNCTION.getPriceAdjoint(forexOptionPut, dataBlack);
