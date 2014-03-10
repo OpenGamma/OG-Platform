@@ -111,7 +111,7 @@ public class DatabaseRestore {
     ArgumentChecker.notNull(holidayMaster, "holidayMaster");
     ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
-    ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
+    //ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
     _io = io;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
