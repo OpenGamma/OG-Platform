@@ -13,6 +13,7 @@ To 2.2.0-M12p01
 
 * Bug
     * [PLAT-6109] - Swap PV01s failing on hts which isn't required
+    * [PLAT-6110] - JACOBIAN_BUNDLE removed from MultiCurvePricingFunction
 
 
 To 2.2.0-M12
