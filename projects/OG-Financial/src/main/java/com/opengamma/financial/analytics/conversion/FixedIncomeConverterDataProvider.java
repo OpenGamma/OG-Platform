@@ -1041,6 +1041,7 @@ public class FixedIncomeConverterDataProvider {
           final SwapLeg receiveLeg = security.getReceiveLeg();
           final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
           final ZonedDateTime fixingSeriesStartLocalDate = fixingSeriesStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+          // normalisation of the timeseries
           final ZonedDateTimeDoubleTimeSeries payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, timeSeries);
           final ZonedDateTimeDoubleTimeSeries receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, timeSeries);
           if (payLegTS != null) {
@@ -1281,9 +1282,9 @@ public class FixedIncomeConverterDataProvider {
         return ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(now.getZone());
       }
       LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
-      //TODO remove me when KWCDC Curncy is normalised correctly
-      if (localDateTS.getLatestValue() > 0.50) {
-        localDateTS = localDateTS.divide(100);
+      //TODO remove when inflation timeseries will be normalised properly
+      if (localDateTS.getLatestValue() < 50.0) {
+        localDateTS = localDateTS.multiply(100);
       }
       return convertTimeSeries(now.getZone(), localDateTS);
 
