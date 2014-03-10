@@ -26,7 +26,7 @@ public class FuturesViewTest extends AbstractRegressionTest {
   }
   
   
-  @Test
+  @Test(enabled=false) //PLAT-6127
   public void testFuturesView() {
     runTestForView("Futures View", "Futures Snapshot");
   }
