@@ -19,14 +19,19 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateYieldCurve.Meta;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantYieldCurveTest {
 
   private static final double EPS = 1.e-13;
 
+  /**
+   * 
+   */
   @Test
   public void buildYieldCurveTest() {
     final double[] time = new double[] {0.1, 0.3, 0.5, 1., 3. };
@@ -59,6 +64,10 @@ public class ISDACompliantYieldCurveTest {
     assertNotSame(cv1, cv1Clone);
     assertEquals(cv1, cv1Clone);
     assertEquals(cv1.toString(), cv1Clone.toString());
+    /*
+     * Forward rate curve shifted
+     */
+    assertEquals(cv1.getForwardRate(0.32), cv1.withOffset(base).getForwardRate(0.32 - base), EPS);
 
     for (int i = 0; i < num; ++i) {
       assertEquals(cv1.getKnotTimes()[i], cv2.getKnotTimes()[i], EPS);
