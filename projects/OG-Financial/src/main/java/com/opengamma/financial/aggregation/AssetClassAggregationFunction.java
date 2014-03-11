@@ -81,6 +81,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
@@ -137,6 +139,8 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String BILLS = "Bills";
   /* package */static final String FLOATING_RATE_NOTES = "Floating Rate Notes";
   /* package */static final String CASH_BALANCE = "Cash Balance";
+  /* package */static final String EQUITY_TRS = "Equity Total Return Swap";
+  /* package */static final String BOND_TRS = "Bond Total Return Swap";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -145,7 +149,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
       SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS, FX_VOLATILITY_SWAPS,
-      EXCHANGE_TRADED_FUNDS, ADRS, EQUITY_WARRANTS, FLOATING_RATE_NOTES, UNKNOWN);
+      EXCHANGE_TRADED_FUNDS, ADRS, EQUITY_WARRANTS, FLOATING_RATE_NOTES, EQUITY_TRS, BOND_TRS, UNKNOWN);
 
   private final boolean _includeEmptyCategories;
 
@@ -524,6 +528,16 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
           return FLOATING_RATE_NOTES;
+        }
+
+        @Override
+        public String visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+          return EQUITY_TRS;
+        }
+
+        @Override
+        public String visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+          return BOND_TRS;
         }
       });
     } else {

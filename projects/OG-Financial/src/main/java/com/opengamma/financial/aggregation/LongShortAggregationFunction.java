@@ -81,6 +81,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
@@ -526,6 +528,15 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
       return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
     }
 
+    @Override
+    public String visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
   }
 
 }

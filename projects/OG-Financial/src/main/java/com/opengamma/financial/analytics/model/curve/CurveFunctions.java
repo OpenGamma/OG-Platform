@@ -227,6 +227,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
       } else if (curveTypeConfigClasses.contains(IssuerCurveTypeConfiguration.class)) {
         functions.add(functionConfiguration(IssuerProviderDiscountingFunction.class, curveConfigName));
+        functions.add(functionConfiguration(IssuerProviderInterpolatedFunction.class, curveConfigName));
       } else {
         functions.add(functionConfiguration(MultiCurveDiscountingFunction.class, curveConfigName));
         functions.add(functionConfiguration(HullWhiteOneFactorDiscountingCurveFunction.class, curveConfigName));

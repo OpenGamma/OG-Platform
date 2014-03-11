@@ -156,10 +156,6 @@ public final class CurveSpecificationBuilders {
     private static final String FIRST_CURVE_FIELD = "firstCurve";
     /** The second curve field */
     private static final String SECOND_CURVE_FIELD = "secondCurve";
-    /** The spread field */
-    private static final String SPREAD_FIELD = "spread";
-    /** The units field */
-    private static final String UNITS_FIELD = "units";
     /** The operation field */
     private static final String OPERATION_FIELD = "operation";
 
@@ -171,11 +167,6 @@ public final class CurveSpecificationBuilders {
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, FIRST_CURVE_FIELD, null, object.getFirstCurve());
       message.add(OPERATION_FIELD, object.getOperation());
-      if (object.isNumericalSpread()) {
-        message.add(SPREAD_FIELD, object.getSpread());
-        message.add(UNITS_FIELD, object.getUnits());
-        return message;
-      }
       serializer.addToMessage(message, SECOND_CURVE_FIELD, null, object.getSecondCurve());
       return message;
     }
@@ -186,11 +177,6 @@ public final class CurveSpecificationBuilders {
       final String name = message.getString(NAME_FIELD);
       final AbstractCurveSpecification firstCurve = deserializer.fieldValueToObject(AbstractCurveSpecification.class, message.getByName(FIRST_CURVE_FIELD));
       final String operation = message.getString(OPERATION_FIELD);
-      if (message.hasField(SPREAD_FIELD)) {
-        final double spread = message.getDouble(SPREAD_FIELD);
-        final String units = message.getString(UNITS_FIELD);
-        return new SpreadCurveSpecification(curveDate, name, firstCurve, spread, units, operation);
-      }
       final AbstractCurveSpecification secondCurve = deserializer.fieldValueToObject(AbstractCurveSpecification.class, message.getByName(SECOND_CURVE_FIELD));
       return new SpreadCurveSpecification(curveDate, name, firstCurve, secondCurve, operation);
     }

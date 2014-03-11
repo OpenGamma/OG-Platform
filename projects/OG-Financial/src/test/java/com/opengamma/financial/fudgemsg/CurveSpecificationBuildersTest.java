@@ -88,11 +88,9 @@ public class CurveSpecificationBuildersTest extends AnalyticsTestBase {
     final LocalDate date = LocalDate.of(2013, 1, 1);
     final AbstractCurveSpecification constant = new ConstantCurveSpecification(date, "C", ExternalSchemes.bloombergTickerSecurityId("A"), null);
     final AbstractCurveSpecification interpolated = new InterpolatedCurveSpecification(date, "R", NODES, "B", "F", "G");
-    SpreadCurveSpecification spread1 = new SpreadCurveSpecification(date, "I", constant, interpolated, "+");
+    final SpreadCurveSpecification spread1 = new SpreadCurveSpecification(date, "I", constant, interpolated, "+");
     assertEquals(spread1, cycleObject(SpreadCurveSpecification.class, spread1));
     final SpreadCurveSpecification spread2 = new SpreadCurveSpecification(date, "D", spread1, interpolated, "-");
     assertEquals(spread2, cycleObject(SpreadCurveSpecification.class, spread2));
-    spread1 = new SpreadCurveSpecification(date, "n1", spread2, 0.04, "bp", "-");
-    assertEquals(spread1, cycleObject(SpreadCurveSpecification.class, spread1));
   }
 }

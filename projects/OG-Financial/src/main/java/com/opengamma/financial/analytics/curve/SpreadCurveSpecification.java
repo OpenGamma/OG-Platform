@@ -30,10 +30,6 @@ public class SpreadCurveSpecification extends AbstractCurveSpecification {
   private final AbstractCurveSpecification _firstCurve;
   /** The second curve */
   private final AbstractCurveSpecification _secondCurve;
-  /** The spread */
-  private final Double _spread;
-  /** The units */
-  private final String _units;
   /** The operation */
   private final String _operation;
 
@@ -52,40 +48,7 @@ public class SpreadCurveSpecification extends AbstractCurveSpecification {
     ArgumentChecker.notNull(operation, "operation");
     _firstCurve = firstCurve;
     _secondCurve = secondCurve;
-    _spread = null;
-    _units = null;
     _operation = operation;
-  }
-
-  /**
-   * @param curveDate The curve date, not null
-   * @param name The curve name, not null
-   * @param curve The curve, not null
-   * @param spread The spread
-   * @param units The units, not null
-   * @param operation The operation, not null
-   */
-  public SpreadCurveSpecification(final LocalDate curveDate, final String name, final AbstractCurveSpecification curve,
-      final double spread, final String units, final String operation) {
-    super(curveDate, name);
-    ArgumentChecker.notNull(curve, "curve");
-    ArgumentChecker.notNull(units, "units");
-    ArgumentChecker.notNull(operation, "operation");
-    _firstCurve = curve;
-    _secondCurve = null;
-    _spread = spread;
-    _units = units;
-    _operation = operation;
-  }
-
-  /**
-   * Returns true if the spread curve is constructed using a curve
-   * and a constant value.
-   * @return True if the spread curve is represented as a curve, operation and
-   * constant value.
-   */
-  public boolean isNumericalSpread() {
-    return _units != null;
   }
 
   /**
@@ -99,39 +62,9 @@ public class SpreadCurveSpecification extends AbstractCurveSpecification {
   /**
    * Gets the second curve.
    * @return the second curve
-   * @throws UnsupportedOperationException If the spread curve is not constructed from two curves.
    */
   public AbstractCurveSpecification getSecondCurve() {
-    if (_secondCurve != null) {
-      return _secondCurve;
-    }
-    throw new UnsupportedOperationException("Spread curve is of the form (curve " + _operation + " " + _spread + ")");
-  }
-
-  /**
-   * Gets the constant spread.
-   * @return The spread
-   * @throws UnsupportedOperationException If the spread curve is not constructed from a curve and a
-   * spread value.
-   */
-  public Double getSpread() {
-    if (_spread != null) {
-      return _spread;
-    }
-    throw new UnsupportedOperationException("Spread curve is of the form (curve " + _operation + " curve)");
-  }
-
-  /**
-   * Gets the constant spread units.
-   * @return The units
-   * @throws UnsupportedOperationException If the spread curve is not constructed from a curve and a
-   * spread value.
-   */
-  public String getUnits() {
-    if (_units != null) {
-      return _units;
-    }
-    throw new UnsupportedOperationException("Spread curve is of the form (curve " + _operation + " curve)");
+    return _secondCurve;
   }
 
   /**
@@ -153,9 +86,7 @@ public class SpreadCurveSpecification extends AbstractCurveSpecification {
     int result = super.hashCode();
     result = prime * result + _firstCurve.hashCode();
     result = prime * result + _operation.hashCode();
-    result = prime * result + ((_secondCurve == null) ? 0 : _secondCurve.hashCode());
-    result = prime * result + ((_spread == null) ? 0 : _spread.hashCode());
-    result = prime * result + ((_units == null) ? 0 : _units.hashCode());
+    result = prime * result + _secondCurve.hashCode();
     return result;
   }
 
@@ -172,15 +103,6 @@ public class SpreadCurveSpecification extends AbstractCurveSpecification {
     }
     final SpreadCurveSpecification other = (SpreadCurveSpecification) obj;
     if (!ObjectUtils.equals(_operation, other._operation)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_units, other._units)) {
-      return false;
-    }
-    if (_spread != null) {
-      if (other._spread != null) {
-        return Double.compare(_spread, other._spread) == 0;
-      }
       return false;
     }
     if (!ObjectUtils.equals(_secondCurve, other._secondCurve)) {

@@ -90,7 +90,9 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   protected PooledConnectionFactory initPooledConnectionFactory() {
-    return new PooledConnectionFactory(initActiveMQConnectionFactory());
+    PooledConnectionFactory pooledConnectionFactory = new PooledConnectionFactory(initActiveMQConnectionFactory());
+        pooledConnectionFactory.setIdleTimeout(0);
+    return pooledConnectionFactory;
   }
 
   protected ConnectionFactory defaultToActiveMQConnectionFactory() {

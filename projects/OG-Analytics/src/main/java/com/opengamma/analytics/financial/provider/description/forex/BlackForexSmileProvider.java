@@ -85,7 +85,7 @@ public class BlackForexSmileProvider implements BlackForexSmileProviderInterface
   }
 
   /**
-   * Returns volatility for a expiration, strike and forward. The volatility take into account the curerncy order.
+   * Returns volatility for a expiration, strike and forward. The volatility take into account the currency order.
    * @param ccy1 The first currency.
    * @param ccy2 The second currency.
    * @param time The expiration time.
@@ -95,10 +95,10 @@ public class BlackForexSmileProvider implements BlackForexSmileProviderInterface
    */
   @Override
   public double getVolatility(final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward) {
-    if ((ccy1 == getCurrencyPair().getFirst()) && (ccy2 == getCurrencyPair().getSecond())) {
+    if (getCurrencyPair().getFirst().equals(ccy1) && getCurrencyPair().getSecond().equals(ccy2)) {
       return getVolatility().getVolatility(time, strike, forward);
     }
-    if ((ccy2 == getCurrencyPair().getFirst()) && (ccy1 == getCurrencyPair().getSecond())) {
+    if (getCurrencyPair().getFirst().equals(ccy2) && getCurrencyPair().getSecond().equals(ccy1)) {
       return getVolatility().getVolatility(time, 1.0 / strike, 1.0 / forward);
     }
     throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2);
@@ -106,10 +106,10 @@ public class BlackForexSmileProvider implements BlackForexSmileProviderInterface
 
   @Override
   public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward) {
-    if ((ccy1 == getCurrencyPair().getFirst()) && (ccy2 == getCurrencyPair().getSecond())) {
+    if (getCurrencyPair().getFirst().equals(ccy1) && getCurrencyPair().getSecond().equals(ccy2)) {
       return getVolatility().getVolatilityAndSensitivities(time, strike, forward);
     }
-    if ((ccy2 == getCurrencyPair().getFirst()) && (ccy1 == getCurrencyPair().getSecond())) {
+    if (getCurrencyPair().getFirst().equals(ccy2) && getCurrencyPair().getSecond().equals(ccy1)) {
       return getVolatility().getVolatilityAndSensitivities(time, 1.0 / strike, 1.0 / forward);
     }
     throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2);

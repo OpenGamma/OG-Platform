@@ -25,6 +25,8 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.Equity;
+import com.opengamma.analytics.financial.equity.EquityTotalReturnSwap;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
@@ -56,6 +58,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSe
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -119,12 +122,14 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.TotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.FXVolatilitySwap;
 import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 import com.opengamma.util.ArgumentChecker;
 
@@ -1187,6 +1192,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitFXVolatilitySwap(final FXVolatilitySwap volatilitySwap) {
+    return _delegate.visitFXVolatilitySwap(volatilitySwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitFXVolatilitySwap(final FXVolatilitySwap volatilitySwap, final DATA_TYPE data) {
+    return _delegate.visitFXVolatilitySwap(volatilitySwap, data);
+  }
+
+  @Override
   public RESULT_TYPE visitCashSettledFuture(final CashSettledFuture future, final DATA_TYPE data) {
     return _delegate.visitCashSettledFuture(future, data);
   }
@@ -1288,7 +1303,6 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
 
   @Override
   public RESULT_TYPE visitCouponCommodityCashSettle(final CouponCommodityCashSettle coupon, final DATA_TYPE data) {
-
     return _delegate.visitCouponCommodityCashSettle(coupon, data);
   }
 
@@ -1326,5 +1340,45 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitForwardCommodityPhysicalSettle(final ForwardCommodityPhysicalSettle forward) {
     return _delegate.visitForwardCommodityPhysicalSettle(forward);
+  }
+
+  @Override
+  public RESULT_TYPE visitTotalReturnSwap(final TotalReturnSwap totalReturnSwap) {
+    return _delegate.visitTotalReturnSwap(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitTotalReturnSwap(final TotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
+    return _delegate.visitTotalReturnSwap(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondTotalReturnSwap(final BondTotalReturnSwap totalReturnSwap) {
+    return _delegate.visitBondTotalReturnSwap(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondTotalReturnSwap(final BondTotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
+    return _delegate.visitBondTotalReturnSwap(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityTotalReturnSwap(final EquityTotalReturnSwap totalReturnSwap) {
+    return _delegate.visitEquityTotalReturnSwap(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityTotalReturnSwap(final EquityTotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
+    return _delegate.visitEquityTotalReturnSwap(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquity(final Equity equity) {
+    return _delegate.visitEquity(equity);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquity(final Equity equity, final DATA_TYPE data) {
+    return _delegate.visitEquity(equity, data);
   }
 }

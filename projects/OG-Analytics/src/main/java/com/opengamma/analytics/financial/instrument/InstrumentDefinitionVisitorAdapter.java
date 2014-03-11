@@ -24,6 +24,8 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.definitio
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureTransactionDefinition;
+import com.opengamma.analytics.financial.equity.EquityDefinition;
+import com.opengamma.analytics.financial.equity.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
@@ -51,6 +53,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinit
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -116,12 +119,14 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.TotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.FXVolatilitySwapDefinition;
 import com.opengamma.analytics.financial.instrument.volatilityswap.VolatilitySwapDefinition;
 
 /**
@@ -1163,6 +1168,56 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   @Override
   public RESULT_TYPE visitVolatilitySwapDefinition(final VolatilitySwapDefinition volatilitySwap, final DATA_TYPE data) {
     return getException(volatilitySwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitFXVolatilitySwapDefinition(final FXVolatilitySwapDefinition volatilitySwap) {
+    return getException(volatilitySwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitFXVolatilitySwapDefinition(final FXVolatilitySwapDefinition volatilitySwap, final DATA_TYPE data) {
+    return getException(volatilitySwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitTotalReturnSwapDefinition(final TotalReturnSwapDefinition totalReturnSwap) {
+    return getException(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitTotalReturnSwapDefinition(final TotalReturnSwapDefinition totalReturnSwap, final DATA_TYPE data) {
+    return getException(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondTotalReturnSwapDefinition(final BondTotalReturnSwapDefinition totalReturnSwap) {
+    return getException(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondTotalReturnSwapDefinition(final BondTotalReturnSwapDefinition totalReturnSwap, final DATA_TYPE data) {
+    return getException(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityTotalReturnSwapDefinition(final EquityTotalReturnSwapDefinition totalReturnSwap) {
+    return getException(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityTotalReturnSwapDefinition(final EquityTotalReturnSwapDefinition totalReturnSwap, final DATA_TYPE data) {
+    return getException(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityDefinition(final EquityDefinition equity) {
+    return getException(equity);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityDefinition(final EquityDefinition equity, final DATA_TYPE data) {
+    return getException(equity, data);
   }
 
   @Override

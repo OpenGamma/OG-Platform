@@ -79,6 +79,17 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     _failureMessage = StringUtils.join(messages, "\n");
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <U> Result<U> propagateFailure() {
+    return (Result<U>) this;
+  }
+
+  @Override
+  public <U> Result<U> map(ResultMapper<T, U> mapper) {
+    return propagateFailure();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public T getValue() {

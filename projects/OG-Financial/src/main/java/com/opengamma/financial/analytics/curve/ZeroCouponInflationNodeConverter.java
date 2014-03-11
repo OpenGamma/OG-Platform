@@ -131,16 +131,15 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     }
     final int conventionalMonthLag = inflationLegConvention.getMonthLag();
     final int monthLag = inflationLegConvention.getMonthLag();
-    final IndexPrice index = ConverterUtils.indexPrice(indexSecurity.getName(), priceIndexConvention);
+
+    final IndexPrice index = ConverterUtils.indexPrice(priceIndexConvention.getName(), priceIndexConvention);
     switch (inflationNode.getInflationNodeType()) {
-      case INTERPOLATED:
-      {
+      case INTERPOLATED: {
         final CouponInflationZeroCouponInterpolationDefinition inflationCoupon = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate,
             -notional, index, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);
       }
-      case MONTHLY:
-      {
+      case MONTHLY: {
         final CouponInflationZeroCouponMonthlyDefinition inflationCoupon = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, -notional,
             index, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);

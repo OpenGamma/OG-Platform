@@ -10,8 +10,7 @@ Upgrading from 2.1.0
 
 To 2.2.0-M13
 ------------
-* Sub-task
-    * [PLAT-6049] - CombinedPositionMasterComponentFactory to use arbitrary number of masters
+- PLAT-6049 - CombinedPositionMasterComponentFactory to use arbitrary number of masters
       This change will require modifications to server configuration files(.ini). It requires a default position master and a list of other masters that will be combined into a single positionmaster
       e.g
       [combinedPositionMaster]
@@ -22,6 +21,62 @@ To 2.2.0-M13
       .
       .
       positionMasterN = PositionMaster::<classifier>
+
+* Bug
+    * [PLAT-6035] - Version on Web About page is incorrect
+    * [PLAT-6036] - Add Joda-Beans mime type
+    * [PLAT-6037] - FixingYearFractionsVisitor fixes for fixed coupon payments
+    * [PLAT-6038] - Add backward compatible ibor convention lookup to ForwardRateAgreementSecurity
+    * [PLAT-6041] - some configs can't be overriden through env variables in the start scripts
+    * [PLAT-6042] - ManageablePosition clone method doesnt not do deep copy as specified
+    * [PLAT-6053] - Simulation API does not allow creation of an empty (base) scenario
+    * [PLAT-6086] - Can't serialize FailureResult with an exception
+    * [PLAT-6091] - OG-Financial : index curve construction : the wrong name is used for the index 
+    * [PLAT-6092] - OG-Financial : security converter : the wrong name is used for the index 
+    * [PLAT-6101] - exogenous curves are not working in ui environment
+    * [PLAT-6102] - quant sandbox : use the new forward definition 
+* Improvement
+    * [PLAT-5933] - MarketDataSnapshotTool should allow the market data source to be specified
+    * [PLAT-6034] - Create XML view of positions in WebUI
+    * [PLAT-6045] - OG-Financial : in FixedIncomeConverterDataProvider, converters are not working properly for inflation swaps
+    * [PLAT-6076] - Add propagateFailure() method to Result
+    * [PLAT-6079] - Move map() method from ResultGenerator to Result
+    * [PLAT-6080] - AbstractRestfulJmsResultConsumer should be generic wrt Listener type
+    * [PLAT-6093] - Add FailureStatus.PENDING_DATA
+* New Feature
+    * [PLAT-5576] - Carr-Lee model for FX volatility swaps
+    * [PLAT-5629] - OG-Financial: Black Swaption - vega to node points
+    * [PLAT-6017] - Ability to specify scenario output files as CSV
+    * [PLAT-6021] - Converter from volatility swap securities to definitions
+    * [PLAT-6028] - Add base integration functions for FX volatility swaps
+    * [PLAT-6029] - Create a CashBalanceSecurity
+    * [PLAT-6030] - Add support for CashBalanceSecurity to visitors
+    * [PLAT-6031] - Add support for CashBalanceSecurity to web UIs
+    * [PLAT-6032] - Add PV functions for cash balances
+    * [PLAT-6033] - FX currency exposure function for all non-FX instruments
+    * [PLAT-6094] - Equity TRS security definition
+    * [PLAT-6095] - Add support for equity TRS to FinancialSecurityVisitor
+    * [PLAT-6096] - Add bond TRS security
+    * [PLAT-6097] - Add support for bond TRS to FinancialSecurityVisitor
+    * [PLAT-6105] - Point FX volatility swap functions to the new calculators in OG-Analytics
+    * [PLAT-6106] - Write a realized variance function that uses historical data
+* Task
+    * [PLAT-5973] - More tests for CDSAnalyticFactory
+    * [PLAT-6015] - Tests for InterestRateSensitivityCalculator
+    * [PLAT-6016] - More tests for ISDACompliantDateCurve
+    * [PLAT-6039] - OG-Financial : add inflationSwapConverter in MultiCurvePricingFunction 
+    * [PLAT-6040] - add zero coupon inflation swap in InterestRateInstrumentType
+    * [PLAT-6044] - in FixedIncomeConverterDataProvider change DAYS_BEFORE_EFFECTIVE
+    * [PLAT-6050] - More tests for MarketQuoteConverter
+    * [PLAT-6051] - More tests for ISDACompliantDateYieldCurve
+    * [PLAT-6052] - More tests for ISDACompliantDateCreditCurve
+    * [PLAT-6054] - OG-Financial : add ZERO_COUPON_INFLATION_SWAP in canApplyTo in the YieldCurveNodePnLFunction
+    * [PLAT-6055] - OG-Financial : add zero coupon inflation swap to SwapSecurityUtils
+    * [PLAT-6057] - Upgrade to Joda-Beans 0.9.7
+    * [PLAT-6089] - Tests for Carr-Lee volatility swap calculator
+* Sub-task
+    * [PLAT-6049] - Modify CombinedPositionMasterComponentFactory to use arbitrary number of masters
+
 
 To 2.2.0-M12
 ------------

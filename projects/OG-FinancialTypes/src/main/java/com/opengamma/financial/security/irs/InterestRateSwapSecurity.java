@@ -43,7 +43,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   public static final String SECURITY_TYPE = "INTEREST_RATE_SWAP";
 
   /**
-   * Notional exchange rules. Null if no exchange.
+   * Notional exchange rules.
    */
   @PropertyDefinition(validate = "notNull")
   private NotionalExchange _notionalExchange = NotionalExchange.NO_EXCHANGE;
@@ -53,13 +53,13 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private LocalDate _effectiveDate;
-  
+
   /**
    * The unadjusted maturity.
    */
   @PropertyDefinition(validate = "notNull")
   private LocalDate _unadjustedMaturityDate;
-  
+
   /**
    * The swap legs.
    */
@@ -67,7 +67,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   private List<InterestRateSwapLeg> _legs;
 
   @Deprecated  // CSIGNORE
-  public InterestRateSwapSecurity(LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
+  public InterestRateSwapSecurity(final LocalDate effectiveDate, final LocalDate unAdjustedMaturityDate, final Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
@@ -75,7 +75,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   }
 
   @Deprecated  // CSIGNORE
-  public InterestRateSwapSecurity(ExternalIdBundle id, LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
+  public InterestRateSwapSecurity(final ExternalIdBundle id, final LocalDate effectiveDate, final LocalDate unAdjustedMaturityDate, final Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setEffectiveDate(effectiveDate);
@@ -83,7 +83,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setLegs(Lists.newArrayList(legs));
   }
 
-  public InterestRateSwapSecurity(ExternalIdBundle id, String name, LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
+  public InterestRateSwapSecurity(final ExternalIdBundle id, final String name, final LocalDate effectiveDate, final LocalDate unAdjustedMaturityDate, final Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setName(name);
@@ -93,7 +93,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   }
 
   public InterestRateSwapLeg getPayLeg() {
-    Collection<InterestRateSwapLeg> legs = getLegs(PayReceiveType.PAY);
+    final Collection<InterestRateSwapLeg> legs = getLegs(PayReceiveType.PAY);
     if (legs.size() == 1) {
       return Iterables.getOnlyElement(legs);
     }
@@ -101,7 +101,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   }
 
   public InterestRateSwapLeg getReceiveLeg() {
-    Collection<InterestRateSwapLeg> legs = getLegs(PayReceiveType.RECEIVE);
+    final Collection<InterestRateSwapLeg> legs = getLegs(PayReceiveType.RECEIVE);
     if (legs.size() == 1) {
       return Iterables.getOnlyElement(legs);
     }
@@ -109,8 +109,8 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   }
 
   public Collection<InterestRateSwapLeg> getLegs(final PayReceiveType payReceiveType) {
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    for (InterestRateSwapLeg leg : getLegs()) {
+    final List<InterestRateSwapLeg> legs = new ArrayList<>();
+    for (final InterestRateSwapLeg leg : getLegs()) {
       if (leg.getPayReceiveType().equals(payReceiveType)) {
         legs.add(leg);
       }
@@ -122,8 +122,8 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   public <T extends InterestRateSwapLeg> Collection<T> getLegs(final Class<T> desiredLegClass) {
     //ArgumentChecker.isTrue(desiredLegClass.isAssignableFrom(InterestRateSwapLeg.class),
     //                       "desiredLegClass must be a subtype of InterestRateSwpaLeg: got" + desiredLegClass);
-    List<T> legs = new ArrayList<>();
-    for (InterestRateSwapLeg leg : getLegs()) {
+    final List<T> legs = new ArrayList<>();
+    for (final InterestRateSwapLeg leg : getLegs()) {
       if (leg.getClass().isAssignableFrom(desiredLegClass)) {
         legs.add((T) leg);
       }
@@ -132,7 +132,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   }
 
   @Override
-  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+  public <T> T accept(final FinancialSecurityVisitor<T> visitor) {
     return visitor.visitInterestRateSwapSecurity(this);
   }
 
@@ -142,9 +142,17 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
 
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder(String.format("IRS %s-%s:", getEffectiveDate(), getUnadjustedMaturityDate()));
-    for (InterestRateSwapLeg leg : getLegs()) {
-      result.append(" leg=[" + leg + "]");
+    final StringBuilder result = new StringBuilder("IRS ");
+    if (getUniqueId() != null) {
+      result.append('[').append(getUniqueId().toString()).append("] ").append(' ');
+    }
+    if (getName() != null && !getName().isEmpty()) {
+      result.append(getName());
+    } else {
+      result.append(String.format("start=%s maturity=%s", getEffectiveDate(), getUnadjustedMaturityDate()));
+      for (final InterestRateSwapLeg leg : getLegs()) {
+        result.append(" [" + leg + "]");
+      }
     }
     return result.toString();
   }
@@ -170,7 +178,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets notional exchange rules. Null if no exchange.
+   * Gets notional exchange rules.
    * @return the value of the property, not null
    */
   public NotionalExchange getNotionalExchange() {
@@ -178,7 +186,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets notional exchange rules. Null if no exchange.
+   * Sets notional exchange rules.
    * @param notionalExchange  the new value of the property, not null
    */
   public void setNotionalExchange(NotionalExchange notionalExchange) {

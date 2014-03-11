@@ -72,7 +72,7 @@ public class CDXNAHYTest extends ISDABaseTest {
   private static final PortfolioSwapAdjustment PSA = new PortfolioSwapAdjustment();
   private static final CDSIndexCalculator INDEX_CAL = new CDSIndexCalculator();
 
-  private static final boolean PRINT = true;
+  private static final boolean PRINT = false;
 
   static {
     final int n = PRICES.length;

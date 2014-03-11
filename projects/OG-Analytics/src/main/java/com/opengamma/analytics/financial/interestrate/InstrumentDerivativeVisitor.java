@@ -25,6 +25,8 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.Equity;
+import com.opengamma.analytics.financial.equity.EquityTotalReturnSwap;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
@@ -56,6 +58,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSe
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -119,12 +122,14 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.TotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.analytics.financial.volatilityswap.FXVolatilitySwap;
 import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 
 /**
@@ -212,7 +217,7 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   /**
    * Fixed-coupon swap method that takes data.
    * @param swap A fixed-coupon swap
-   * @param data The data 
+   * @param data The data
    * @return The result
    */
   RESULT_TYPE visitFixedCouponSwap(SwapFixedCoupon<?> swap, DATA_TYPE data);
@@ -754,4 +759,78 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitVolatilitySwap(VolatilitySwap volatilitySwap, DATA_TYPE data);
 
+  /**
+   * FX volatility swap method.
+   * @param volatilitySwap A volatility swap
+   * @return The result
+   */
+  RESULT_TYPE visitFXVolatilitySwap(FXVolatilitySwap volatilitySwap);
+
+  /**
+   * FX volatility swap method that takes data.
+   * @param volatilitySwap A volatility swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitFXVolatilitySwap(FXVolatilitySwap volatilitySwap, DATA_TYPE data);
+
+  /**
+   * The total return swap method.
+   * @param totalReturnSwap A total return swap
+   * @return The result
+   */
+  RESULT_TYPE visitTotalReturnSwap(TotalReturnSwap totalReturnSwap);
+
+  /**
+   * The total return swap method.
+   * @param totalReturnSwap A total return swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitTotalReturnSwap(TotalReturnSwap totalReturnSwap, DATA_TYPE data);
+
+  /**
+   * The bond total return swap method.
+   * @param totalReturnSwap A bond total return swap
+   * @return The result
+   */
+  RESULT_TYPE visitBondTotalReturnSwap(BondTotalReturnSwap totalReturnSwap);
+
+  /**
+   * The bond total return swap method.
+   * @param totalReturnSwap A bond total return swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBondTotalReturnSwap(BondTotalReturnSwap totalReturnSwap, DATA_TYPE data);
+
+  /**
+   * The equity total return swap method.
+   * @param totalReturnSwap A equity total return swap
+   * @return The result
+   */
+  RESULT_TYPE visitEquityTotalReturnSwap(EquityTotalReturnSwap totalReturnSwap);
+
+  /**
+   * The equity total return swap method.
+   * @param totalReturnSwap A equity total return swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEquityTotalReturnSwap(EquityTotalReturnSwap totalReturnSwap, DATA_TYPE data);
+
+  /**
+   * The equity method.
+   * @param equity A equity
+   * @return The result
+   */
+  RESULT_TYPE visitEquity(Equity equity);
+
+  /**
+   * The equity method.
+   * @param equity An equity
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEquity(Equity equity, DATA_TYPE data);
 }

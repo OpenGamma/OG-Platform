@@ -187,7 +187,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
             !payFixed, calendarIbor, stub, paymentLag, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
       } else {
         iborLegDefinition = AnnuityDefinitionBuilder.couponIbor(effectiveDate, maturityDate, indexIbor.getTenor(), iborLegNotional, indexIbor,
-            !payFixed, indexIbor.getDayCount(), indexIbor.getBusinessDayConvention(), indexIbor.isEndOfMonth(), calendarIbor, stub, paymentLag);
+            !payFixed, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), calendarIbor, stub, paymentLag);
       }
     }
     // Fixed Leg
@@ -371,21 +371,20 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
         final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
         final IborIndex iborIndex = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
-        final Frequency freqIbor = swapLeg.getFrequency();
-        final Period tenorIbor = getTenor(freqIbor);
-        final DayCount dayCount = swapLeg.getDayCount();
-        final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
         final double notional = interestRateNotional.getAmount();
         final StubType stub = StubType.SHORT_START;  // TODO stub type should be available at the security level
-        final int paymentLag = 0; // TODO Payment lag should be available at the security levell
+        final int paymentLag = 0; // TODO Payment lag should be available at the security level
+        final Period tenorPayment = getTenor(swapLeg.getFrequency());
         if (swapLeg instanceof FloatingSpreadIRLeg) {
           final FloatingSpreadIRLeg spread = (FloatingSpreadIRLeg) swapLeg;
           // TODO : stub and payment lag
-          return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, notional, spread.getSpread(), iborIndex, isPayer, calendar, stub, paymentLag,
+          return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, notional, spread.getSpread(), iborIndex, 
+              swapLeg.getDayCount(), swapLeg.getBusinessDayConvention(), swapLeg.isEom(), tenorPayment, isPayer, calendar, stub, paymentLag,
               isInitialNotionalExchange, isFinalNotionalExchange);
         }
         // TODO : stub and payment lag
-        return AnnuityDefinitionBuilder.couponIborWithNotional(effectiveDate, maturityDate, notional, iborIndex, isPayer, calendar, stub, paymentLag, isInitialNotionalExchange,
+        return AnnuityDefinitionBuilder.couponIborWithNotional(effectiveDate, maturityDate, notional, iborIndex, 
+            swapLeg.getDayCount(), swapLeg.getBusinessDayConvention(), swapLeg.isEom(), tenorPayment, isPayer, calendar, stub, paymentLag, isInitialNotionalExchange,
             isFinalNotionalExchange);
       }
 

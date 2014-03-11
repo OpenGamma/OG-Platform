@@ -209,7 +209,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
       for (final ForwardSensitivity timeAndS : pointSensitivity) {
         final double startTime = timeAndS.getStartTime();
         final double endTime = timeAndS.getEndTime();
-        final double accrualFactor = timeAndS.getAccrualFactor();
         final double forwardBar = timeAndS.getValue();
         // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
         final double dfForwardStart = curve.getDiscountFactor(startTime);
@@ -561,7 +560,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   }
 
   /**
-   * Sets or replaces the discounting curve for a given currency. 
+   * Sets or replaces the discounting curve for a given currency.
    * If the currency has not associated curve, the currency and the curve are added.
    * If the currency has already an associated curve, the curve for that currency is replace by the one provided.
    * @param ccy The currency.

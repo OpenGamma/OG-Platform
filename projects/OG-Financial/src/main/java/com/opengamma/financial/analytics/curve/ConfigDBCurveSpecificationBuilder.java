@@ -85,8 +85,8 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       return getCurveSpecification(valuationTime, curveDate, (CurveDefinition) curveDefinition);
     } else if (curveDefinition instanceof ConstantCurveDefinition) {
       return getConstantCurveSpecification(valuationTime, curveDate, (ConstantCurveDefinition) curveDefinition);
-    } else if (curveDefinition instanceof SpreadCurveDefinition) {
-      return getSpreadCurveSpecification(valuationTime, curveDate, (SpreadCurveDefinition) curveDefinition);
+//    } else if (curveDefinition instanceof SpreadCurveDefinition) {
+//      return getSpreadCurveSpecification(valuationTime, curveDate, (SpreadCurveDefinition) curveDefinition);
     }
     throw new UnsupportedOperationException("Cannot handle curve definitions of type " + curveDefinition.getClass());
   }
@@ -155,27 +155,40 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     return new ConstantCurveSpecification(curveDate, curveName, curveDefinition.getExternalId(), curveDefinition.getDataField());
   }
 
-  /**
-   * Creates a {@link SpreadCurveSpecification}
-   *
-   * @param valuationTime The valuation time
-   * @param curveDate The curve date
-   * @param curveDefinition The curve definition
-   * @return The curve specification
-   */
-  private AbstractCurveSpecification getSpreadCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final SpreadCurveDefinition curveDefinition) {
-    if (curveDefinition.isNumericalSpread()) {
-      final AbstractCurveDefinition definition = _definitionSource.getDefinition(curveDefinition.getFirstCurve());
-      final AbstractCurveSpecification specification = buildSpecification(valuationTime, curveDate, definition);
-      return new SpreadCurveSpecification(curveDate, curveDefinition.getName(), specification, curveDefinition.getSpread(),
-          curveDefinition.getUnits(), curveDefinition.getOperationName());
-    }
-    final AbstractCurveDefinition firstDefinition = _definitionSource.getDefinition(curveDefinition.getFirstCurve());
-    final AbstractCurveDefinition secondDefinition = _definitionSource.getDefinition(curveDefinition.getSecondCurve());
-    final AbstractCurveSpecification firstSpecification = buildSpecification(valuationTime, curveDate, firstDefinition);
-    final AbstractCurveSpecification secondSpecification = buildSpecification(valuationTime, curveDate, secondDefinition);
-    return new SpreadCurveSpecification(curveDate, curveDefinition.getName(), firstSpecification, secondSpecification, curveDefinition.getOperationName());
-  }
+//  /**
+//   * Creates a {@link ConstantSpreadCurveSpecification}
+//   *
+//   * @param valuationTime The valuation time
+//   * @param curveDate The curve date
+//   * @param curveDefinition The curve definition
+//   * @return The curve specification
+//   */
+//  private AbstractCurveSpecification getConstantSpreadCurveSpecification(final Instant valuationTime, final LocalDate curveDate,
+//      final ConstantSpreadCurveDefinition curveDefinition) {
+//    if (curveDefinition.getSpread() != null) {
+//      final AbstractCurveDefinition definition = _definitionSource.getDefinition(curveDefinition.getFirstCurve());
+//      final AbstractCurveSpecification specification = buildSpecification(valuationTime, curveDate, definition);
+//      return new SpreadCurveSpecification(curveDate, curveDefinition.getName(), specification, curveDefinition.getSpread(),
+//          curveDefinition.getUnits(), curveDefinition.getOperationName());
+//    }
+//
+//  }
+//
+//  /**
+//   * Creates a {@link SpreadCurveSpecification}
+//   *
+//   * @param valuationTime The valuation time
+//   * @param curveDate The curve date
+//   * @param curveDefinition The curve definition
+//   * @return The curve specification
+//   */
+//  private AbstractCurveSpecification getSpreadCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final SpreadCurveDefinition curveDefinition) {
+//    final AbstractCurveDefinition firstDefinition = _definitionSource.getDefinition(curveDefinition.getFirstCurve());
+//    final AbstractCurveDefinition secondDefinition = _definitionSource.getDefinition(curveDefinition.getSecondCurve());
+//    final AbstractCurveSpecification firstSpecification = buildSpecification(valuationTime, curveDate, firstDefinition);
+//    final AbstractCurveSpecification secondSpecification = buildSpecification(valuationTime, curveDate, secondDefinition);
+//    return new SpreadCurveSpecification(curveDate, curveDefinition.getName(), firstSpecification, secondSpecification, curveDefinition.getOperationName());
+//  }
 
   /**
    * Gets a {@link CurveNodeIdMapper} from the config source.

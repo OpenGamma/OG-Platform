@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.volatilityswap;
@@ -39,7 +39,7 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
   private final ZonedDateTime _maturityDate;
   /** The observation frequency */
   private final PeriodFrequency _observationFrequency;
-  /** The number of observations expected given the observatin dates andthe holiday calendar */
+  /** The number of observations expected given the observation dates and the holiday calendar */
   private final int _nObservations;
   /** The annualization factor */
   private final double _annualizationFactor;
@@ -200,8 +200,8 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
     ArgumentChecker.notNull(date, "date");
     final double timeToObservationStart = TimeCalculator.getTimeBetween(date, _observationStartDate);
     final double timeToObservationEnd = TimeCalculator.getTimeBetween(date, _observationEndDate);
-    final double timeTomaturity = TimeCalculator.getTimeBetween(date, _maturityDate);
-    return new VolatilitySwap(timeToObservationStart, timeToObservationEnd, _observationFrequency, timeTomaturity, _volStrike, _volNotional,
+    final double timeToMaturity = TimeCalculator.getTimeBetween(date, _maturityDate);
+    return new VolatilitySwap(timeToObservationStart, timeToObservationEnd, _observationFrequency, timeToMaturity, _volStrike, _volNotional,
         _currency, _annualizationFactor);
   }
 

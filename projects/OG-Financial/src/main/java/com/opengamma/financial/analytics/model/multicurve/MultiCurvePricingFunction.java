@@ -9,9 +9,9 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
+import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
-import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 
 import java.util.Collection;
 import java.util.HashSet;

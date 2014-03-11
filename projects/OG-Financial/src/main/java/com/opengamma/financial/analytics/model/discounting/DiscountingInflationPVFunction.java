@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
@@ -63,6 +64,10 @@ public class DiscountingInflationPVFunction extends DiscountingInflationFunction
         final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, data);
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));
+      }
+
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+        return getResults(context, target);
       }
     };
   }

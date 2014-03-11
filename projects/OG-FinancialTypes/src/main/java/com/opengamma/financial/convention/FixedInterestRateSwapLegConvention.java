@@ -94,21 +94,21 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
    * @param paymentLag  the payment lag in days
    */
   public FixedInterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle,
-      Set<ExternalId> paymentCalendars,
-      Set<ExternalId> calculationCalendars,
-      Set<ExternalId> maturityCalendars,
-      BusinessDayConvention paymentDayConvention,
-      BusinessDayConvention calculationBusinessDayConvention,
-      BusinessDayConvention maturityBusinessDayConvention,
-      DayCount dayCountConvention,
-      Frequency paymentFrequency,
-      Frequency calculationFrequency,
-      DateRelativeTo paymentRelativeTo,
-      boolean adjustedAccrual,
-      int settlementDays,
-      RollConvention rollConvention,
-      CompoundingMethod compoundingMethod,
-      int paymentLag) {
+      final Set<ExternalId> paymentCalendars,
+      final Set<ExternalId> calculationCalendars,
+      final Set<ExternalId> maturityCalendars,
+      final BusinessDayConvention paymentDayConvention,
+      final BusinessDayConvention calculationBusinessDayConvention,
+      final BusinessDayConvention maturityBusinessDayConvention,
+      final DayCount dayCountConvention,
+      final Frequency paymentFrequency,
+      final Frequency calculationFrequency,
+      final DateRelativeTo paymentRelativeTo,
+      final boolean adjustedAccrual,
+      final int settlementDays,
+      final RollConvention rollConvention,
+      final CompoundingMethod compoundingMethod,
+      final int paymentLag) {
     super(name, externalIdBundle, paymentCalendars, calculationCalendars, maturityCalendars,
         paymentDayConvention, calculationBusinessDayConvention, maturityBusinessDayConvention,
         dayCountConvention, paymentFrequency, calculationFrequency, paymentRelativeTo,
@@ -146,12 +146,12 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
    *
    * @param notional  the notional (may be simple or complex)
    * @param payOrReceive  is this a pay or receive leg?
-   * @param rate  the interest rate (may be simple of complex)
+   * @param rate  the interest rate (may be simple or complex)
    * @return the leg, not null
    */
   public FixedInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive, final Rate rate) {
     validate();
-    FixedInterestRateSwapLeg leg = new FixedInterestRateSwapLeg();
+    final FixedInterestRateSwapLeg leg = new FixedInterestRateSwapLeg();
     leg.setRate(rate);
     leg.setPayReceiveType(payOrReceive);
     leg.setNotional(notional);

@@ -1173,6 +1173,10 @@ public final class ValueRequirementNames {
    * An ExternalId of a security
    */
   public static final String EXTERNAL_ID = "ExternalId";
+  /** 
+   * The realized variance of a time series.
+   */
+  public static final String REALIZED_VARIANCE = "Realized Variance";
 
   ///// Value At Risk
 

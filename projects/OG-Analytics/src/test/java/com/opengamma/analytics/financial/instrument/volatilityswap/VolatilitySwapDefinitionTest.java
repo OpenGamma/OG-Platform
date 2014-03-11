@@ -50,7 +50,7 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
       T_PLUS_2D, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS);
 
   /**
-   * @throws Exception If a variance swap definition cannot be created from the inputs
+   * @throws Exception If a volatility swap definition cannot be created from the inputs
    */
   private VolatilitySwapDefinitionTest() throws Exception {
     super(VolatilitySwapDefinition.class,
@@ -131,7 +131,7 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(5, volatilitySwap.getTimeToObservationEnd(), 0);
     assertEquals(2. / 365, volatilitySwap.getTimeToObservationStart(), 0);
     assertEquals(OBSERVATION_FREQUENCY, volatilitySwap.getObservationFrequency());
-    assertEquals(5, volatilitySwap.getTimeToSettlement(), 0);
+    assertEquals(5, volatilitySwap.getTimeToMaturity(), 0);
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional(), 0);
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike());
     assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW));
@@ -152,14 +152,14 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(4, volatilitySwap.getTimeToObservationEnd(), 0);
     assertEquals(-1 + 2 / 365., volatilitySwap.getTimeToObservationStart(), 0);
     assertEquals(OBSERVATION_FREQUENCY, volatilitySwap.getObservationFrequency());
-    assertEquals(4, volatilitySwap.getTimeToSettlement(), 0);
+    assertEquals(4, volatilitySwap.getTimeToMaturity(), 0);
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional());
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike(), 0);
     assertEquals(volatilitySwap, definition.toDerivative(NOW.plusYears(1), "A", "B"));
   }
 
   /**
-   * Tests expected failure for observation frequencies other than daily 
+   * Tests expected failure for observation frequencies other than daily
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWeeklyObservations() {

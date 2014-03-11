@@ -122,6 +122,15 @@ public class MultiCurveInterpolatedFunction extends
   protected class MultiCurveInterpolatedCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
     /** The curve construction configuration */
     private final CurveConstructionConfiguration _curveConstructionConfiguration;
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return true;
+    }
+
+    @Override
+    public boolean canHandleMissingInputs() {
+      return true;
+    }
 
     /**
      * @param earliestInvocation The earliest time for which this function is valid, null if there is no bound
@@ -145,11 +154,6 @@ public class MultiCurveInterpolatedFunction extends
     protected Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder,
         final MulticurveProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
-      final Object dataObject = inputs.getValue(ValueRequirementNames.CURVE_MARKET_DATA);
-      if (dataObject == null) {
-        throw new OpenGammaRuntimeException("Could not get yield curve data");
-      }
-      final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
       int n = 0;
       // These loops are here because the market data snapshot might not contain all of the required information
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
@@ -169,15 +173,23 @@ public class MultiCurveInterpolatedFunction extends
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
 
         for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
-
+          
           final String curveName = entry.getKey();
           final List<? extends CurveTypeConfiguration> types = entry.getValue();
 
           final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
 
+          final Object dataObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, curveProperties));
+          if (dataObject == null) {
+            throw new OpenGammaRuntimeException("Could not get yield curve data");
+          }
+          final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
+
           final InterpolatedCurveSpecification specification =
               (InterpolatedCurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, curveProperties));
 
+          n = specification.getNodes().size();
+          
           final double[] times = new double[n];
           final double[] yields = new double[n];
           final double[][] jacobian = new double[n][n];

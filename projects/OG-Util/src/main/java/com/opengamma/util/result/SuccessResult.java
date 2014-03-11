@@ -54,6 +54,16 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
   }
 
   @Override
+  public <U> Result<U> propagateFailure() {
+    throw new IllegalStateException("propagateFailure can only be invoked with a failed result");
+  }
+
+  @Override
+  public <U> Result<U> map(ResultMapper<T, U> mapper) {
+    return mapper.map(getValue());
+  }
+
+  @Override
   public String getFailureMessage() {
     throw new IllegalStateException("Unable to get an error message from a success result");
   }

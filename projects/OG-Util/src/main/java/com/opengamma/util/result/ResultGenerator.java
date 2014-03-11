@@ -89,9 +89,7 @@ public class ResultGenerator {
    * @return a result object wrapping the failure details, not null
    */
   public static <T> Result<T> failure(String message, Exception cause) {
-    return new FailureResult<>(FailureStatus.ERROR,
-                               ArgumentChecker.notEmpty(message, "message"),
-                               ArgumentChecker.notNull(cause, "cause"));
+    return new FailureResult<>(message, cause);
   }
 
   /**
@@ -104,7 +102,7 @@ public class ResultGenerator {
    */
   public static <T> Result<T> failure(Exception cause) {
     ArgumentChecker.notNull(cause, "cause");
-    return new FailureResult<>(FailureStatus.ERROR, cause.getMessage(), cause);
+    return new FailureResult<>(cause);
   }
 
   /**
@@ -114,7 +112,9 @@ public class ResultGenerator {
    * @param <T>  the required type of the new result object
    * @param result  the failure to be propagated, not null
    * @return the new function result object, not null
+   * @deprecated use {@link Result#propagateFailure()}
    */
+  @Deprecated
   @SuppressWarnings("unchecked")
   public static <T> Result<T> propagateFailure(Result<?> result) {
     if (result instanceof SuccessResult<?>) {
@@ -132,8 +132,9 @@ public class ResultGenerator {
    * @param result  the result to be transformed, not null
    * @param mapper  the mapper object to transform the value with, not null
    * @return the new function result object, not null
-   * TODO should this be on Result?
+   * @deprecated use {@link Result#map}
    */
+  @Deprecated
   public static <R, T> Result<T> map(Result<R> result, ResultMapper<R, T> mapper) {
     if (result.isValueAvailable()) {
       return mapper.map(result.getValue());
@@ -171,6 +172,7 @@ public class ResultGenerator {
    */
   // results can include successes which are ignored
   public static <T> Result<T> propagateFailures(Result<?> result1, Result<?> result2, Result<?>... results) {
+    // TODO - what if one of the results was itself a MultipleFailureResult?
     List<Result<?>> resultList = Lists.newArrayListWithCapacity(results.length + 2);
     resultList.add(result1);
     resultList.add(result2);
@@ -181,7 +183,7 @@ public class ResultGenerator {
 
 
   public static <T> Result<T> propagateFailures(Collection<Result<?>> results) {
-    // todo - what if one of the results was itself a MultipleFailureResult?
+    // TODO - what if one of the results was itself a MultipleFailureResult?
     List<Result<?>> failures = new ArrayList<>();
     for (Result<?> result : results) {
       if (result instanceof FailureResult) {
@@ -195,21 +197,5 @@ public class ResultGenerator {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Functional interface that can transform a result.
-   * 
-   * @param <R> the result type
-   * @param <T> the type of the mapped result
-   */
-  public interface ResultMapper<R, T> {
-
-    /**
-     * Transforms the input.
-     * 
-     * @param result the result to be transformed
-     * @return the result
-     */
-    Result<T> map(R result);
-  }
 
 }

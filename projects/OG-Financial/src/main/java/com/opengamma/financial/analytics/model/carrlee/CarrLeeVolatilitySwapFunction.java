@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.carrlee;
@@ -9,6 +9,10 @@ import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_REALIZED_VARIANCE;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_VARIANCE_END;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_VARIANCE_START;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.PROPERTY_REALIZED_VARIANCE_METHOD;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.X_INTERPOLATOR_NAME;
@@ -17,9 +21,15 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.volatilityswap.CarrLeeData;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -55,6 +65,9 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
 
   /**
    * Base compiled function for all pricing and risk functions that use the Carr-Lee method.
+   */
+  /**
+   *
    */
   protected abstract class CarrLeeVolatilitySwapCompiledFunction extends DiscountingCompiledFunction {
 
@@ -93,6 +106,7 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
       }
       requirements.add(getVolatilitySurfaceRequirement(desiredValue, target));
       requirements.add(getSpotRequirement(target));
+      requirements.add(getRealizedVarianceRequirement(desiredValue, target));
       return requirements;
     }
 
@@ -114,6 +128,21 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
       if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
         return false;
       }
+      final Set<String> varianceCalculationMethods = constraints.getValues(PROPERTY_REALIZED_VARIANCE_METHOD);
+      if (varianceCalculationMethods == null || varianceCalculationMethods.size() != 1) {
+        return false;
+      }
+      final String varianceCalculationMethod = Iterables.getOnlyElement(varianceCalculationMethods);
+      if (HISTORICAL_REALIZED_VARIANCE.equals(varianceCalculationMethod)) {
+        final Set<String> startDate = constraints.getValues(HISTORICAL_VARIANCE_START);
+        if (startDate == null || startDate.size() != 1) {
+          return false;
+        }
+        final Set<String> endDate = constraints.getValues(HISTORICAL_VARIANCE_END);
+        if (endDate == null || endDate.size() != 1) {
+          return false;
+        }
+      }
       return super.requirementsSet(constraints);
     }
 
@@ -131,5 +160,25 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
      * @return The spot requirement
      */
     protected abstract ValueRequirement getSpotRequirement(ComputationTarget target);
+
+    /**
+     * Gets the realized variance requirement.
+     * @param desiredValue The desired vale
+     * @param target The target
+     * @return The realized variance requirement
+     */
+    protected abstract ValueRequirement getRealizedVarianceRequirement(ValueRequirement desiredValue, ComputationTarget target);
+
+
+    /**
+     * Gets the Carr-Lee data.
+     * @param executionContext The execution context, not null
+     * @param inputs The function inputs, not null
+     * @param target The computation target, not null
+     * @param fxMatrix The FX matrix, not null
+     * @return The Carr-Lee data
+     */
+    protected abstract CarrLeeData<? extends MulticurveProviderInterface, ?> getCarrLeeData(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+        final ComputationTarget target, final FXMatrix fxMatrix);
   }
 }

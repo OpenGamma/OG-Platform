@@ -177,7 +177,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double rateForeign = -Math.log(dfForeign) / payTime;
     final double costOfCarry = rateDomestic - rateForeign;
     final double forward = SPOT * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
     final double priceComputed = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER_KI, REBATE / NOTIONAL, SPOT, costOfCarry, rateDomestic, volatility) * NOTIONAL;
     assertEquals("Barriers present value", priceComputed, priceMethod.getAmount(USD), TOLERANCE_PV);
   }
@@ -307,7 +307,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double forward = SPOT * dfForeign / dfDomestic;
     final double rateDomestic = -Math.log(dfDomestic) / payTime;
     final double rateForeign = -Math.log(dfForeign) / payTime;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, STRIKE, forward));
     final double[] derivatives = new double[5];
     BLACK_BARRIER_FUNCTION.getPriceAdjoint(VANILLA_LONG, BARRIER_KI, REBATE / NOTIONAL, SPOT, rateDomestic - rateForeign, rateDomestic, volatility, derivatives);
     assertEquals("Forex vanilla option: vega", derivatives[4] * NOTIONAL, sensi.getVega().getMap().get(point));

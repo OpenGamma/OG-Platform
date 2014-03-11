@@ -69,15 +69,15 @@ public class CurveNodeConverter {
         final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(
             ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention(), InflationLegConvention.class);
         final ExternalId priceIndexConventionId = inflationLegConvention.getPriceIndexConvention();
-//        final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(priceIndexConventionId, PriceIndexConvention.class);
-//        final Security sec = _securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
-//        if (sec == null) {
-//          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
-//        }
-//        if (!(sec instanceof PriceIndex)) {
-//          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " not of type PriceIndex");
-//        }
-//        final PriceIndex indexSecurity = (PriceIndex) sec;
+        //        final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(priceIndexConventionId, PriceIndexConvention.class);
+        //        final Security sec = _securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
+        //        if (sec == null) {
+        //          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+        //        }
+        //        if (!(sec instanceof PriceIndex)) {
+        //          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " not of type PriceIndex");
+        //        }
+        //        final PriceIndex indexSecurity = (PriceIndex) sec;
         priceIndexId = priceIndexConventionId;
         final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
         if (historicalTimeSeries == null) {
@@ -91,10 +91,11 @@ public class CurveNodeConverter {
         if (length == 0) {
           throw new OpenGammaRuntimeException("Price time series for " + priceIndexId + " was empty");
         }
+        // the timeseies is multiply by 100 because bloomberg do not provide the right one
         final ZonedDateTimeDoubleTimeSeries multiply = convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
         return ((InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]>) definition).toDerivative(
             now,
-            new ZonedDateTimeDoubleTimeSeries[] {multiply, multiply});
+            new ZonedDateTimeDoubleTimeSeries[] {multiply, multiply });
       }
       if (node.getCurveNode() instanceof RateFutureNode || node.getCurveNode() instanceof DeliverableSwapFutureNode) {
         ArgumentChecker.notNull(timeSeries, "time series");

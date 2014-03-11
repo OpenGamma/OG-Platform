@@ -23,6 +23,7 @@ public interface Result<T> {
    * cases, check the result status using {@link #getStatus()}.
    *
    * @return true if a value is available
+   * TODO too long winded. replace with isSuccess()? isAvailable()?
    */
   boolean isValueAvailable();
 
@@ -60,4 +61,24 @@ public interface Result<T> {
    */
   String getFailureMessage();
 
+  /**
+   * Propagate a failure result, ensuring that its generic type signature
+   * matches the one required.
+   *
+   * @param <U>  the required type of the new result object
+   * @return the new function result object, not null
+   * @throws IllegalStateException if invoked on a successful result
+   */
+  <U> Result<U> propagateFailure();
+
+  /**
+   * Transforms this result into one containing a type U.
+   * If the passed result is a failure then the original object will be passed through unaltered.
+   *
+   * @param <U>  the required type of the new result object
+   * @param mapper  the mapper object to transform the value with, not null
+   * @return the new result, not null
+   * TODO should this be called onSuccess?
+   */
+  <U> Result<U> map(ResultMapper<T, U> mapper);
 }
