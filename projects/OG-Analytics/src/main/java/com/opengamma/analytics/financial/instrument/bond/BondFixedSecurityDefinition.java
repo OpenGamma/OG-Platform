@@ -27,7 +27,6 @@ import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
