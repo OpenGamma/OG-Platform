@@ -21,10 +21,12 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateCurve.Meta;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantDateCurveTest {
 
   @Test

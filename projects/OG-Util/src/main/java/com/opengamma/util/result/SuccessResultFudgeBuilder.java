@@ -16,7 +16,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
  * Fudge builder for SuccessResult.
  */
 @FudgeBuilderFor(SuccessResult.class)
-public class SuccessFunctionResultFudgeBuilder implements FudgeBuilder<SuccessResult<?>> {
+public class SuccessResultFudgeBuilder implements FudgeBuilder<SuccessResult<?>> {
 
   private static final String RESULT = "result";
 
