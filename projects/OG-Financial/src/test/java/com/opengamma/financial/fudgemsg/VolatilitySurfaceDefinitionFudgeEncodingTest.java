@@ -26,7 +26,7 @@ public class VolatilitySurfaceDefinitionFudgeEncodingTest extends FinancialTestB
     for (int i = 1; i <= 10; i++) {
       oneToTenYears[i - 1] = Tenor.ofYears(i);
     }
-    final VolatilitySurfaceDefinition<Tenor, Tenor> def = new VolatilitySurfaceDefinition<Tenor, Tenor>("US", Currency.USD, oneToTenYears, oneToTenYears);
+    final VolatilitySurfaceDefinition<Tenor, Tenor> def = new VolatilitySurfaceDefinition<>("US", Currency.USD, oneToTenYears, oneToTenYears);
     assertEquals(def, cycleObject(VolatilitySurfaceDefinition.class, def));
   }
 }

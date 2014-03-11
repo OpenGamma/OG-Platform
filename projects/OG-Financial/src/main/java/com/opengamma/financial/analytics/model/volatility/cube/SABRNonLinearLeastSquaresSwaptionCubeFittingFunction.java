@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.volatility.cube;
 
-import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.LOGNORMAL;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS;
@@ -55,6 +54,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
+import com.opengamma.financial.analytics.volatility.VolatilityQuoteUnits;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
@@ -91,8 +91,8 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy().get();
-    final VolatilityCubeData<Object, Object, Object> volatilityCubeData = (VolatilityCubeData<Object, Object, Object>) inputs.getValue(STANDARD_VOLATILITY_CUBE_DATA);
-    final SurfaceData<Object, Object> forwardSwapSurface = (SurfaceData<Object, Object>) inputs.getValue(SURFACE_DATA);
+    final VolatilityCubeData<Tenor, Tenor, Double> volatilityCubeData = (VolatilityCubeData<Tenor, Tenor, Double>) inputs.getValue(STANDARD_VOLATILITY_CUBE_DATA);
+    final SurfaceData<Tenor, Tenor> forwardSwapSurface = (SurfaceData<Tenor, Tenor>) inputs.getValue(SURFACE_DATA);
     final DoubleArrayList swapMaturitiesList = new DoubleArrayList();
     final DoubleArrayList swaptionExpiriesList = new DoubleArrayList();
     final DoubleArrayList alphaList = new DoubleArrayList();
@@ -102,24 +102,12 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<>();
     final Map<Pair<Tenor, Tenor>, Double[]> fittedRelativeStrikes = new HashMap<>();
-    for (final Object x : volatilityCubeData.getUniqueXValues()) {
-      Tenor expiry;
-      try {
-        expiry = Tenor.parse((String) x);
-      } catch (final Exception e) {
-        expiry = (Tenor) x;
-      }
+    for (final Tenor expiry : volatilityCubeData.getUniqueXValues()) {
       final double swaptionExpiry = getTime(expiry);
-      for (final Object y : volatilityCubeData.getUniqueYValues()) {
-        Tenor maturity;
-        try {
-          maturity = Tenor.parse((String) y);
-        } catch (final Exception e) {
-          maturity = (Tenor) y;
-        }
+      for (final Tenor maturity : volatilityCubeData.getUniqueYValues()) {
         final double swapMaturity = getTime(maturity);
         final double forward = forwardSwapSurface.getValue(expiry, maturity);
-        final List<ObjectsPair<Object, Double>> strikeVol = volatilityCubeData.getZValuesForXandY(expiry, maturity);
+        final List<ObjectsPair<Double, Double>> strikeVol = volatilityCubeData.getZValuesForXandY(expiry, maturity);
         final int nVols = strikeVol.size();
         if (nVols < 5) {
           s_logger.error("Smile had less than 5 points for expiry = {} and maturity = {}", expiry, maturity);
@@ -130,9 +118,9 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
         final double[] blackVols = new double[nVols];
         final double[] errors = new double[nVols];
         int i = 0;
-        for (final ObjectsPair<Object, Double> sv : strikeVol) {
-          strikes[i] = (Double) sv.getFirst();
-          strikeCopy[i] = (Double) sv.getFirst();
+        for (final ObjectsPair<Double, Double> sv : strikeVol) {
+          strikes[i] = sv.getFirst();
+          strikeCopy[i] = sv.getFirst();
           blackVols[i] = sv.getSecond();
           errors[i++] = ERROR;
         }
@@ -233,7 +221,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
         .with(PROPERTY_CUBE_SPECIFICATION, specificationNames)
         .with(PROPERTY_SURFACE_DEFINITION, surfaceDefinitionNames)
         .with(PROPERTY_SURFACE_SPECIFICATION, surfaceSpecificationNames)
-        .with(PROPERTY_CUBE_UNITS, LOGNORMAL)
+        .with(PROPERTY_CUBE_UNITS, VolatilityQuoteUnits.LOGNORMAL.getName())
         .get();
     return new ValueRequirement(STANDARD_VOLATILITY_CUBE_DATA, ComputationTargetSpecification.NULL, cubeProperties);
   }

@@ -38,14 +38,4 @@ public class SurfaceAndCubePropertyNames {
   public static final String PROPERTY_EXERCISE_TYPE = "ExerciseType";
   /** The type of the instrument */
   public static final String INSTRUMENT_TYPE = "InstrumentType";
-  /** Represents lognormal volatility quotes */
-  public static final String LOGNORMAL = "Lognormal";
-  /** Represents normal volatility quotes */
-  public static final String NORMAL = "Normal";
-  /** Represents quotes as rates (i.e. 5% = 5 = 0.05) */
-  public static final String RATES = "Rate";
-  /** Represents quotes as decimals (i.e. 5% = 0.05) */
-  public static final String DECIMALS = "Decimal";
-  /** Represents quotes as basis points (i.e. 500 = 5% = 0.05) */
-  public static final String BP = "bp";
 }

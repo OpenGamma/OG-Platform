@@ -8,10 +8,10 @@ package com.opengamma.examples.simulated.volatility.surface;
 import java.util.Map;
 
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.surface.SurfaceDefinition;
 import com.opengamma.financial.analytics.surface.SurfaceSpecification;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
+import com.opengamma.financial.analytics.volatility.SurfaceQuoteType;
+import com.opengamma.financial.analytics.volatility.VolatilityQuoteUnits;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -32,10 +32,10 @@ public class ExampleForwardSwapSurfaceConfigPopulator {
   /** The expiries */
   private static final Tenor[] EXPIRIES = new Tenor[] {Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS,
     Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.TEN_YEARS, Tenor.ofYears(15), Tenor.ofYears(20),
-    Tenor.ofYears(30)};
+    Tenor.ofYears(30) };
   /** The maturities */
   private static final Tenor[] MATURITIES = new Tenor[] {Tenor.THREE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS,
-    Tenor.TEN_YEARS, Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(30)};
+    Tenor.TEN_YEARS, Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(30) };
 
   /**
    * Populates the config master with forward swap surfaces for a number of countries.
@@ -64,8 +64,8 @@ public class ExampleForwardSwapSurfaceConfigPopulator {
    */
   private static void populateSurfaceSpecifications(final ConfigMaster configMaster, final String name, final String country) {
     final SurfaceInstrumentProvider<Tenor, Tenor> instrumentProvider = new ExampleForwardSwapSurfaceInstrumentProvider(country);
-    final SurfaceSpecification spec = new SurfaceSpecification(name, SurfaceAndCubeQuoteType.EXPIRY_MATURITY_FWD_SWAP,
-        SurfaceAndCubePropertyNames.DECIMALS, instrumentProvider);
+    final SurfaceSpecification spec = new SurfaceSpecification(name, SurfaceQuoteType.EXPIRY_MATURITY.getName(),
+        VolatilityQuoteUnits.DECIMALS.getName(), instrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec, name));
   }
 

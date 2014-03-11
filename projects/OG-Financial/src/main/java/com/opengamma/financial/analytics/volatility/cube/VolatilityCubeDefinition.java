@@ -7,26 +7,26 @@ package com.opengamma.financial.analytics.volatility.cube;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
 import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.tuple.Triple;
-import java.util.Map;
-import java.util.Set;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Hold the valid range of X, Y and Z for a cube.
@@ -54,7 +54,7 @@ public class VolatilityCubeDefinition<X, Y, Z> implements Bean, Serializable, Un
   private String _name;
 
   /**
-   * The cube quote type
+   * The cube quote type.
    */
   @PropertyDefinition(validate = "notNull")
   private String _cubeQuoteType;
@@ -229,7 +229,7 @@ public class VolatilityCubeDefinition<X, Y, Z> implements Bean, Serializable, Un
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the cube quote type
+   * Gets the cube quote type.
    * @return the value of the property, not null
    */
   public String getCubeQuoteType() {
@@ -237,7 +237,7 @@ public class VolatilityCubeDefinition<X, Y, Z> implements Bean, Serializable, Un
   }
 
   /**
-   * Sets the cube quote type
+   * Sets the cube quote type.
    * @param cubeQuoteType  the new value of the property, not null
    */
   public void setCubeQuoteType(String cubeQuoteType) {

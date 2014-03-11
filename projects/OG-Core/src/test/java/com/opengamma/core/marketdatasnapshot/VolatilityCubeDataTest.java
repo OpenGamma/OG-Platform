@@ -26,6 +26,7 @@ import com.opengamma.util.tuple.Triple;
  */
 @Test(groups = TestGroup.UNIT)
 public class VolatilityCubeDataTest {
+  //TODO why is type information lost?
 
   /**
    * Tests a rectangular cube.

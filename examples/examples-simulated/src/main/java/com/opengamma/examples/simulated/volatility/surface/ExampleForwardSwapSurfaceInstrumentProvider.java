@@ -160,7 +160,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
   }
 
   @Override
-  public <R> Property<R> property(final String propertyName) {
+  public <R> Property<R> property(String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -182,7 +182,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
    * Sets the country prefix.
    * @param country  the new value of the property, not null
    */
-  public void setCountry(final String country) {
+  public void setCountry(String country) {
     JodaBeanUtils.notNull(country, "country");
     this._country = country;
   }
@@ -202,12 +202,12 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ExampleForwardSwapSurfaceInstrumentProvider other = (ExampleForwardSwapSurfaceInstrumentProvider) obj;
+      ExampleForwardSwapSurfaceInstrumentProvider other = (ExampleForwardSwapSurfaceInstrumentProvider) obj;
       return JodaBeanUtils.equal(getCountry(), other.getCountry());
     }
     return false;
@@ -222,9 +222,9 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("ExampleForwardSwapSurfaceInstrumentProvider{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -233,7 +233,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
     return buf.toString();
   }
 
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     buf.append("country").append('=').append(JodaBeanUtils.toString(getCountry())).append(',').append(' ');
   }
 
@@ -266,7 +266,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 957831062:  // country
           return _country;
@@ -300,7 +300,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 957831062:  // country
           return ((ExampleForwardSwapSurfaceInstrumentProvider) bean).getCountry();
@@ -309,7 +309,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 957831062:  // country
           ((ExampleForwardSwapSurfaceInstrumentProvider) bean).setCountry((String) newValue);
@@ -319,7 +319,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((ExampleForwardSwapSurfaceInstrumentProvider) bean)._country, "country");
     }
 

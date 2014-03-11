@@ -16,19 +16,13 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
-import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.util.money.Currency;
+import com.opengamma.financial.analytics.surface.SurfaceDefinition;
 
 /**
- * Builder for converting VolatilitySurfaceDefinition instances to/from Fudge messages.
+ * Builder for converting SurfaceDefinition instances to/from Fudge messages.
  */
-@FudgeBuilderFor(VolatilitySurfaceDefinition.class)
-public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<VolatilitySurfaceDefinition<?, ?>> {
-  /** The target field */
-  private static final String TARGET_FIELD = "target";
-  /** The currency field (kept in for backwards compatibility */
-  private static final String CURRENCY_FIELD = "currency";
+@FudgeBuilderFor(SurfaceDefinition.class)
+public class SurfaceDefinitionFudgeBuilder implements FudgeBuilder<SurfaceDefinition<?, ?>> {
   /** The definition name field */
   private static final String NAME_FIELD = "name";
   /** The xs field */
@@ -37,17 +31,8 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
   private static final String YS_FIELD = "ys";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilitySurfaceDefinition<?, ?> object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SurfaceDefinition<?, ?> object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    // the following forces it not to use a secondary type if one is available.
-    message.add(TARGET_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
-    if (object.getTarget() instanceof Currency) {
-      final Currency ccy = (Currency) object.getTarget();
-      message.add(CURRENCY_FIELD, null, ccy.getCode());
-    } else {
-      // just for now...
-      message.add(CURRENCY_FIELD, null, Currency.USD.getCode());
-    }
     message.add(NAME_FIELD, object.getName());
     for (final Object x : object.getXs()) {
       if (x instanceof Number) {
@@ -67,14 +52,7 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
   }
 
   @Override
-  public VolatilitySurfaceDefinition<?, ?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    UniqueIdentifiable target;
-    if (!message.hasField(TARGET_FIELD)) {
-      final String currencyCode = message.getString(CURRENCY_FIELD);
-      target = Currency.of(currencyCode);
-    } else {
-      target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName(TARGET_FIELD));
-    }
+  public SurfaceDefinition<?, ?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String name = message.getString(NAME_FIELD);
     final List<FudgeField> xsFields = message.getAllByName(XS_FIELD);
     final Object firstX = deserializer.fieldValueToObject(xsFields.get(0));
@@ -94,7 +72,7 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
       ys[j] = y;
       j++;
     }
-    return new VolatilitySurfaceDefinition<>(name, target, xs, ys);
+    return new SurfaceDefinition<>(name, xs, ys);
   }
 
 }

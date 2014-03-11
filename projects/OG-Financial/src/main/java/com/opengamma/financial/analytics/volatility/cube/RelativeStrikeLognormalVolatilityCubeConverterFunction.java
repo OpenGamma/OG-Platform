@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.LOGNORMAL;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION;
@@ -33,8 +32,10 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
+import com.opengamma.financial.analytics.volatility.CubeQuoteType;
+import com.opengamma.financial.analytics.volatility.VolatilityQuoteUnits;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -45,25 +46,24 @@ public class RelativeStrikeLognormalVolatilityCubeConverterFunction extends Stan
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final VolatilityCubeData<Object, Object, Object> volatilityCubeData = (VolatilityCubeData<Object, Object, Object>) inputs.getValue(VOLATILITY_CUBE_MARKET_DATA);
-    final SurfaceData<Object, Object> forwardSurfaceData = (SurfaceData<Object, Object>) inputs.getValue(SURFACE_DATA);
-    final Map<Triple<Object, Object, Object>, Double> values = new HashMap<>();
-    for (final Object x : volatilityCubeData.getXs()) {
-      for (final Object y : volatilityCubeData.getYs()) {
+    final VolatilityCubeData<Tenor, Tenor, Double> volatilityCubeData = (VolatilityCubeData<Tenor, Tenor, Double>) inputs.getValue(VOLATILITY_CUBE_MARKET_DATA);
+    final SurfaceData<Tenor, Tenor> forwardSurfaceData = (SurfaceData<Tenor, Tenor>) inputs.getValue(SURFACE_DATA);
+    final Map<Triple<Tenor, Tenor, Double>, Double> values = new HashMap<>();
+    for (final Tenor x : volatilityCubeData.getXs()) {
+      for (final Tenor y : volatilityCubeData.getYs()) {
         final Double forward = forwardSurfaceData.getValue(x, y);
         if (forward != null) {
-          for (final Object z : volatilityCubeData.getZs()) {
-            final Double relativeStrike = (Double) z;
+          for (final Double z : volatilityCubeData.getZs()) {
             final Double data = volatilityCubeData.getVolatility(x, y, z);
             if (data != null) {
-              final double strike = forward + relativeStrike;
-              values.put(Triple.<Object, Object, Object>of(x, y, strike), data);
+              final double strike = forward + z;
+              values.put(Triple.of(x, y, strike), data);
             }
           }
         }
       }
     }
-    final VolatilityCubeData<Object, Object, Object> resultCube = new VolatilityCubeData<>(volatilityCubeData.getDefinitionName(),
+    final VolatilityCubeData<Tenor, Tenor, Double> resultCube = new VolatilityCubeData<>(volatilityCubeData.getDefinitionName(),
         volatilityCubeData.getSpecificationName(), values);
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
     final ValueSpecification spec = new ValueSpecification(STANDARD_VOLATILITY_CUBE_DATA, ComputationTargetSpecification.NULL, properties);
@@ -75,8 +75,8 @@ public class RelativeStrikeLognormalVolatilityCubeConverterFunction extends Stan
     return ValueProperties.builder()
         .with(PROPERTY_CUBE_DEFINITION, definitionNames)
         .with(PROPERTY_CUBE_SPECIFICATION, specificationNames)
-        .with(PROPERTY_CUBE_QUOTE_TYPE, SurfaceAndCubeQuoteType.EXPIRY_MATURITY_RELATIVE_STRIKE)
-        .with(PROPERTY_CUBE_UNITS, LOGNORMAL)
+        .with(PROPERTY_CUBE_QUOTE_TYPE, CubeQuoteType.EXPIRY_MATURITY_RELATIVE_STRIKE.getName())
+        .with(PROPERTY_CUBE_UNITS, VolatilityQuoteUnits.LOGNORMAL.getName())
         .get();
   }
 
@@ -98,7 +98,7 @@ public class RelativeStrikeLognormalVolatilityCubeConverterFunction extends Stan
 
   @Override
   protected String getCubeQuoteUnits() {
-    return LOGNORMAL;
+    return VolatilityQuoteUnits.LOGNORMAL.getName();
   }
 
 }

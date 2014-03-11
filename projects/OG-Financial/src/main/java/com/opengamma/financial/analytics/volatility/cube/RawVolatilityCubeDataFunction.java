@@ -37,7 +37,6 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
@@ -131,27 +130,19 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
     if (specificationObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility cube specification called " + specificationName);
     }
-    final VolatilityCubeDefinition<Object, Object, Object> definition = (VolatilityCubeDefinition<Object, Object, Object>) definitionObject;
+    final VolatilityCubeDefinition<Tenor, Tenor, Double> definition = (VolatilityCubeDefinition<Tenor, Tenor, Double>) definitionObject;
     final VolatilityCubeSpecification specification = (VolatilityCubeSpecification) specificationObject;
-    final CubeInstrumentProvider<Object, Object, Object> provider = (CubeInstrumentProvider<Object, Object, Object>) specification.getCubeInstrumentProvider();
-    final Map<Triple<Object, Object, Object>, Double> data = new HashMap<>();
-    for (final Object x : definition.getXs()) {
-      for (final Object y : definition.getYs()) {
-        for (final Object z : definition.getZs()) {
-          ExternalId identifier;
-          try {
-            //TODO the type is not picked up successfully
-            final Tenor xTenor = Tenor.parse((String) x);
-            final Tenor yTenor = Tenor.parse((String) y);
-            identifier = provider.getInstrument(xTenor, yTenor, z);
-          } catch (final Exception e) {
-            identifier = provider.getInstrument(x, y, z);
-          }
+    final CubeInstrumentProvider<Tenor, Tenor, Double> provider = (CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
+    final Map<Triple<Tenor, Tenor, Double>, Double> data = new HashMap<>();
+    for (final Tenor x : definition.getXs()) {
+      for (final Tenor y : definition.getYs()) {
+        for (final Double z : definition.getZs()) {
+          final ExternalId identifier = provider.getInstrument(x, y, z);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           final Object volatilityObject = inputs.getValue(requirement);
           if (volatilityObject != null) {
             final Double volatility = (Double) volatilityObject;
-            final Triple<Object, Object, Object> coordinate = Triple.of(x, y, z);
+            final Triple<Tenor, Tenor, Double> coordinate = Triple.of(x, y, z);
             data.put(coordinate, volatility);
           } else {
             s_logger.info("Could not get market data for {}", identifier);
@@ -159,13 +150,13 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
         }
       }
     }
-    final VolatilityCubeData<Object, Object, Object> volatilityCubeData = new VolatilityCubeData<>(definitionName, specificationName, data);
+    final VolatilityCubeData<Tenor, Tenor, Double> volatilityCubeData = new VolatilityCubeData<>(definitionName, specificationName, data);
     final ValueProperties properties = createValueProperties()
         .with(PROPERTY_CUBE_DEFINITION, definitionName)
         .with(PROPERTY_CUBE_SPECIFICATION, specificationName)
         .with(PROPERTY_CUBE_QUOTE_TYPE, specification.getCubeQuoteType())
         .with(PROPERTY_CUBE_UNITS, specification.getVolatilityQuoteUnits()).get();
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties),
+    return Collections.singleton(new ComputedValue(new ValueSpecification(VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties),
         volatilityCubeData));
   }
 

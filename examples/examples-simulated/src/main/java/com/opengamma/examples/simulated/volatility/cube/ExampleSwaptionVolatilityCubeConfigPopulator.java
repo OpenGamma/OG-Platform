@@ -8,11 +8,11 @@ package com.opengamma.examples.simulated.volatility.cube;
 import java.util.Map;
 
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
+import com.opengamma.financial.analytics.volatility.CubeQuoteType;
+import com.opengamma.financial.analytics.volatility.VolatilityQuoteUnits;
 import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.ArgumentChecker;
@@ -34,12 +34,12 @@ public class ExampleSwaptionVolatilityCubeConfigPopulator {
   /** The expiries */
   private static final Tenor[] EXPIRIES = new Tenor[] {Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS,
     Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.TEN_YEARS, Tenor.ofYears(15), Tenor.ofYears(20),
-    Tenor.ofYears(30)};
+    Tenor.ofYears(30) };
   /** The maturities */
   private static final Tenor[] MATURITIES = new Tenor[] {Tenor.THREE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS,
-    Tenor.TEN_YEARS, Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(30)};
+    Tenor.TEN_YEARS, Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(30) };
   /** The relative strikes */
-  private static final Double[] RELATIVE_STRIKES = new Double[] {-200., -100., 0., 100., 200.};
+  private static final Double[] RELATIVE_STRIKES = new Double[] {-200., -100., 0., 100., 200. };
 
   /**
    * Populates the config master with swaption volatility cubes for a number of currencies.
@@ -68,8 +68,8 @@ public class ExampleSwaptionVolatilityCubeConfigPopulator {
    */
   private static void populateVolatilityCubeSpecifications(final ConfigMaster configMaster, final String name, final String currency) {
     final CubeInstrumentProvider<Tenor, Tenor, Double> instrumentProvider = new ExampleSwaptionVolatilityCubeInstrumentProvider(currency);
-    final VolatilityCubeSpecification spec = new VolatilityCubeSpecification(name, SurfaceAndCubeQuoteType.EXPIRY_MATURITY_RELATIVE_STRIKE,
-        SurfaceAndCubePropertyNames.LOGNORMAL, instrumentProvider);
+    final VolatilityCubeSpecification spec = new VolatilityCubeSpecification(name, CubeQuoteType.EXPIRY_MATURITY_RELATIVE_STRIKE.getName(),
+        VolatilityQuoteUnits.LOGNORMAL.getName(), instrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec, name));
   }
 
@@ -79,7 +79,7 @@ public class ExampleSwaptionVolatilityCubeConfigPopulator {
    * @param name The configuration name
    */
   private static void populateVolatilityCubeDefinitions(final ConfigMaster configMaster, final String name) {
-    final VolatilityCubeDefinition<Tenor, Tenor, Double> def = new VolatilityCubeDefinition<>(name, SurfaceAndCubeQuoteType.EXPIRY_MATURITY_RELATIVE_STRIKE,
+    final VolatilityCubeDefinition<Tenor, Tenor, Double> def = new VolatilityCubeDefinition<>(name, CubeQuoteType.EXPIRY_MATURITY_RELATIVE_STRIKE.getName(),
         EXPIRIES, MATURITIES, RELATIVE_STRIKES);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(def, name));
   }

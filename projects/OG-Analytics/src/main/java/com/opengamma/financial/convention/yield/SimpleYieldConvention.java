@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.yield;
@@ -15,13 +15,12 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * A simple yield convention.
  */
 public class SimpleYieldConvention implements YieldConvention, Serializable {
-  // TODO: should be an enum?
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * 
+   *
    */
   public static final YieldConvention UK_STRIP_METHOD = new SimpleYieldConvention("UK STRIP METHOD");
   /**
@@ -37,7 +36,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention US_STREET = new SimpleYieldConvention("US street");
   /**
-   * The US treasury equivalent yield convention. 
+   * The US treasury equivalent yield convention.
    */
   public static final YieldConvention US_TREASURY_EQUIVALANT = new SimpleYieldConvention("US Treasury equivalent");
   /**
@@ -52,7 +51,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * The true yield convention.
    */
   public static final YieldConvention TRUE = new SimpleYieldConvention("True");
-  /** 
+  /**
    * US bond (T-bill and treasuries) yield convention - US treasury for all periods but the last, in which case use money-market
    */
   public static final YieldConvention US_BOND = new SimpleYieldConvention("US Treasury"); //TODO better name
@@ -77,7 +76,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention JAPAN_SIMPLE = new SimpleYieldConvention("JAPAN:SIMPLE YIELD");
   /**
-   * Bank of Canada 
+   * Bank of Canada
    */
   public static final YieldConvention BANK_OF_CANADA = new SimpleYieldConvention("BANK OF CANADA YLD");
   /**
@@ -124,7 +123,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Italy Treasury Bonds
    */
   public static final YieldConvention ITALY_TREASURY_BONDS = new SimpleYieldConvention("ITALY:TRSY BONDS");
-  /** 
+  /**
    * Spainish T-bills
    */
   public static final YieldConvention SPANISH_T_BILLS = new SimpleYieldConvention("SPANISH T-BILLS");

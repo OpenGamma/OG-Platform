@@ -25,12 +25,8 @@ public class SurfaceAndCubeQuoteType {
   public static final String MARKET_STRANGLE_RISK_REVERSAL = "MarketStrangleRiskReversal";
   /** Surfaces or cubes defined using expiry / maturity ATM values (useful for swaptions) */
   public static final String EXPIRY_MATURITY_ATM = "ExpiryMaturityATM";
-  /** Surfaces defined using expiry / maturity forward swaps */
-  public static final String EXPIRY_MATURITY_FWD_SWAP = "ExpiryMaturityFwdSwap";
   /** Surfaces or cubes defined using relative (to the forward) strikes */
   public static final String RELATIVE_STRIKE = "RelativeStrike";
   /** Surfaces or cubes defined as flat (i.e. no smile) with a term structure */
   public static final String FLAT_WITH_TERM_STRUCTURE = "FlatWithTermStructure";
-  /** Cubes with expiry / maturity / relative strike <b>in bp</b> axes */
-  public static final String EXPIRY_MATURITY_RELATIVE_STRIKE = "ExpiryMaturityRelativeStrike";
 }
