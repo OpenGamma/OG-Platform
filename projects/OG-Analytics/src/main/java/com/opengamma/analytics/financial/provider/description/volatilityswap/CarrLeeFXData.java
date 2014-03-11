@@ -21,9 +21,9 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Contains the information required to price FX volatility swaps using the Carr-Lee model.
  */
-//TODO make this a Bean
+//TODO make this a Bean when curve provider and volatility surface are beans.
 public class CarrLeeFXData implements CarrLeeData<MulticurveProviderInterface, SmileDeltaTermStructureParameters> {
 
   /**
@@ -46,6 +46,13 @@ public class CarrLeeFXData implements CarrLeeData<MulticurveProviderInterface, S
    */
   private final Pair<Currency, Currency> _currencyPair;
 
+  /**
+   * Sets the realized variance to null. This constructor should not be used when attempting to
+   * price seasoned swaps.
+   * @param currencyPair The currency pair for which the data apply, not null
+   * @param volatilitySurface The volatility surface, not null
+   * @param curves The curves, not null
+   */
   public CarrLeeFXData(final Pair<Currency, Currency> currencyPair, final SmileDeltaTermStructureParameters volatilitySurface, final MulticurveProviderInterface curves) {
     ArgumentChecker.notNull(currencyPair, "currencyPair");
     ArgumentChecker.notNull(volatilitySurface, "volatilitySurface");
@@ -56,6 +63,12 @@ public class CarrLeeFXData implements CarrLeeData<MulticurveProviderInterface, S
     _realizedVariance = null;
   }
 
+  /**
+   * @param currencyPair The currency pair for which the data apply, not null
+   * @param volatilitySurface The volatility surface, not null
+   * @param curves The curves, not null
+   * @param realizedVariance The realized variance, not null
+   */
   public CarrLeeFXData(final Pair<Currency, Currency> currencyPair, final SmileDeltaTermStructureParameters volatilitySurface, final MulticurveProviderInterface curves,
       final Double realizedVariance) {
     ArgumentChecker.notNull(currencyPair, "currencyPair");
@@ -95,18 +108,18 @@ public class CarrLeeFXData implements CarrLeeData<MulticurveProviderInterface, S
   }
 
   @Override
-  public SmileDeltaTermStructureParameters getVolatilitySurface() {
+  public SmileDeltaTermStructureParameters getVolatilityData() {
     return _volatilitySurface;
   }
 
   /**
-   * Returns volatility for a expiration, strike and forward. The volatility take into account the currency order.
-   * @param ccy1 The first currency.
-   * @param ccy2 The second currency.
-   * @param time The expiration time.
-   * @param strike The strike.
-   * @param forward The forward rate.
-   * @return The volatility.
+   * Returns volatility for a time, strike and forward. The volatility surface takes into account the currency order.
+   * @param ccy1 The first currency
+   * @param ccy2 The second currency
+   * @param time The time to expiry
+   * @param strike The strike
+   * @param forward The forward FX rate
+   * @return The volatility
    */
   public double getVolatility(final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward) {
     if (_currencyPair.getFirst().equals(ccy1) && _currencyPair.getSecond().equals(ccy2)) {
@@ -118,6 +131,16 @@ public class CarrLeeFXData implements CarrLeeData<MulticurveProviderInterface, S
     throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2);
   }
 
+  /**
+   * Returns the volatility and bucketed sensitivities for a time, strike and forward. The volatility surface takes into
+   * account the currency order.
+   * @param ccy1 The first currency
+   * @param ccy2 The second currency
+   * @param time The time to expiry
+   * @param strike The strike
+   * @param forward The forward
+   * @return The volatilty
+   */
   public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(final Currency ccy1, final Currency ccy2, final double time,
       final double strike, final double forward) {
     if (_currencyPair.getFirst().equals(ccy1) && _currencyPair.getSecond().equals(ccy2)) {
@@ -135,7 +158,7 @@ public class CarrLeeFXData implements CarrLeeData<MulticurveProviderInterface, S
   }
 
   @Override
-  public double getRealizedVariance() {
+  public Double getRealizedVariance() {
     return _realizedVariance;
   }
 

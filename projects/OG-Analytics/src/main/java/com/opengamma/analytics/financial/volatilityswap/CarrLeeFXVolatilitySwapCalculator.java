@@ -71,12 +71,13 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
     final double timeFromInception = swap.getTimeToObservationStart() < 0 ? Math.abs(swap.getTimeToObservationStart()) : 0;
     final double[] strikeRange;
     if (swap.getTimeToObservationStart() < 0) {
+      if (data.getRealizedVariance() == null) {
+        throw new IllegalStateException("Trying to price a seasoned swap but have null realized variance in the market data object");
+      }
       final double reference = 3.0 * Math.sqrt(data.getRealizedVariance() * timeFromInception) / 100.;
-      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilitySurface(), forward, reference);
-      System.out.println("forward2: " + forward);
-      System.out.println("reference2: " + reference);
+      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilityData(), forward, reference);
     } else {
-      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilitySurface(), forward, 0.);
+      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilityData(), forward, 0.);
     }
     final double deltaK = (strikeRange[1] - strikeRange[0]) / _numPoints;
     final double[] strikes = new double[_numPoints + 1];
@@ -94,16 +95,16 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
     System.arraycopy(strikes, 0, putStrikes, 0, nPuts);
     System.arraycopy(strikes, index + 1, callStrikes, 0, nCalls);
     for (int i = 0; i < nPuts; ++i) {
-      putVols[i] = data.getVolatilitySurface().getVolatility(Triple.of(timeToExpiry, putStrikes[i], forward));
+      putVols[i] = data.getVolatilityData().getVolatility(Triple.of(timeToExpiry, putStrikes[i], forward));
     }
     for (int i = 0; i < nCalls; ++i) {
-      callVols[i] = data.getVolatilitySurface().getVolatility(Triple.of(timeToExpiry, callStrikes[i], forward));
+      callVols[i] = data.getVolatilityData().getVolatility(Triple.of(timeToExpiry, callStrikes[i], forward));
     }
     if (swap.getTimeToObservationStart() < 0) {
       return SEASONED_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeFromInception, domesticRate,
           foreignRate, putVols, callVols, data.getRealizedVariance());
     }
-    final double strdVol = data.getVolatilitySurface().getVolatility(Triple.of(timeToExpiry, forward, forward));
+    final double strdVol = data.getVolatilityData().getVolatility(Triple.of(timeToExpiry, forward, forward));
     return NEW_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, domesticRate, foreignRate, putVols, strdVol, callVols);
   }
 
