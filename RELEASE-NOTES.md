@@ -7,12 +7,39 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M10p03
+---------------
+
+Configuration compatibility
+- No upgrade required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No changes
+
+Analytics compatibility
+- No expected differences
+
+Bug fixes
+* [PLAT-5906] - Make semantics of shifts and scaling in scenarios consistent
+* [PLAT-5947] - Fix for aliased subscriptions being stuck in a pending state
+* [PLAT-5958] - Fix for missing live data server subscription responses with aliased subscriptions
+* [PLAT-5961] - Clean up last known value cache correctly when fully unsubscribed from live market data
+* [PLAT-6107] - VolatilitySurfaceSelector does not pick up all vol surface types
+* [PLAT-6125, PLAT-6126, PLAT-6127] - fixes in regression testing framework
+
+Improvements
+* [PLAT-5662] - Add min/max functionality to scenario DSL
+
+
 To 2.2.0-M10p02
---------------
+---------------
 * [PLAT-5959] - MarketDataSnapshotTool should allow a timeout to be specified
 
 To 2.2.0-M10p01
---------------
+---------------
 * Improvement
     * [PLAT-5688] - Port CFG DB sub-system to Oracle
 
