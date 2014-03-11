@@ -478,6 +478,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> inflationBondSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitInflationBondSecurity(final InflationBondSecurity security) {
+          return visitor.visitInflationBondSecurity(security);
+        }
+      };
+      return this;
+    }
+    
     public Builder<T> cashBalanceSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -1694,6 +1704,10 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         @Override
         public T visitCorporateBondSecurity(final CorporateBondSecurity security) {
           return visitor.visitCorporateBondSecurity(security);
+        }
+        @Override
+        public T visitInflationBondSecurity(final InflationBondSecurity security) {
+          return visitor.visitInflationBondSecurity(security);
         }
       };
       return this;
