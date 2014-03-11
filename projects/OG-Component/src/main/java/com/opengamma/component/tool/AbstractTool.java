@@ -196,6 +196,7 @@ public abstract class AbstractTool<T extends ToolContext> {
     try {
       line = parser.parse(options, args);
     } catch (final ParseException e) {
+      System.err.println(e.getMessage());
       usage(options);
       return false;
     }
