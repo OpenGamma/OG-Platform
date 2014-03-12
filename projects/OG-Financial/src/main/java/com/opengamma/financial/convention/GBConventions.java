@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class GBConventions {
   /** Month codes used by Bloomberg */
-  private static final char[] BBG_MONTH_CODES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'};
+  private static final char[] BBG_MONTH_CODES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' };
   /** Modified business day convention */
   private static final BusinessDayConvention MODIFIED = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** Following business day convention */
@@ -136,7 +136,7 @@ public class GBConventions {
     //TODO sort out the swap names so that they are consistent
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_IBOR_INDEX")), "GBP_IBOR_INDEX", ACT_365, MODIFIED, 0, false);
 
-    final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
+    final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30 };
     // ISDA fixing Libor 11:00am London
     utils.addConventionBundle(
         ExternalIdBundle.of(simpleNameSecurityId("GBP_ISDAFIX_GBPLIBOR11_1Y"), ExternalSchemes.ricSecurityId("GBPSFIX1Y="),
@@ -161,6 +161,17 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GB_TREASURY_BOND_CONVENTION")), "GB_TREASURY_BOND_CONVENTION", false,
+        true, 6, 0, true);
+  }
+
+  /**
+   * Adds conventions for GBP government bonds.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GB_INFLATION_BOND_CONVENTION")), "GB_INFLATION_BOND_CONVENTION", false,
         true, 6, 0, true);
   }
 

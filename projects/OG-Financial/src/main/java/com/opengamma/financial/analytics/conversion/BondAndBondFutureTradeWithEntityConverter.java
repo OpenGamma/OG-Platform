@@ -66,6 +66,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalId;
@@ -83,7 +84,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
   /** Excluded coupon types */
   private static final Set<String> EXCLUDED_TYPES = Sets.newHashSet("TOGGLE PIK NOTES", "FLOAT_RATE_NOTE");
   /** Rating agency strings */
-  private static final String[] RATING_STRINGS = new String[] {"RatingMoody", "RatingFitch"};
+  private static final String[] RATING_STRINGS = new String[] {"RatingMoody", "RatingFitch" };
   /** Sector name string */
   public static final String SECTOR_STRING = "IndustrySector";
   /** Market type string */
@@ -263,6 +264,18 @@ public class BondAndBondFutureTradeWithEntityConverter {
       }
 
       @Override
+      public InstrumentDefinition<?> visitInflationBondSecurity(final InflationBondSecurity bond) {
+        final String domicile = bond.getIssuerDomicile();
+        ArgumentChecker.notNull(domicile, "bond security domicile cannot be null");
+        final String conventionName = domicile + "_INFLATION_BOND_CONVENTION";
+        final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
+        }
+        return visitBondSecurity(bond, convention, conventionName);
+      }
+
+      @Override
       public InstrumentDefinition<?> visitGovernmentBondSecurity(final GovernmentBondSecurity bond) {
         final String domicile = bond.getIssuerDomicile();
         if (domicile == null) {
@@ -364,12 +377,12 @@ public class BondAndBondFutureTradeWithEntityConverter {
     final IborIndexConvention iborConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
     final boolean isEOM = iborConvention.isIsEOM();
     final IborIndex index = new IborIndex(currency, indexSecurity.getTenor().getPeriod(), iborConvention.getSettlementDays(), iborConvention.getDayCount(),
-      iborConvention.getBusinessDayConvention(), isEOM, iborConvention.getName());
+        iborConvention.getBusinessDayConvention(), isEOM, iborConvention.getName());
     final ExternalId regionId = frn.getRegionId();
     final DayCount dayCount = frn.getDayCount();
     final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING;
     return null;
-//    return BondIborSecurityDefinition.from(maturityDate, firstAccrualDate, index, settlementDays, dayCount, businessDay, isEOM, legalEntity, calendar);
+    //    return BondIborSecurityDefinition.from(maturityDate, firstAccrualDate, index, settlementDays, dayCount, businessDay, isEOM, legalEntity, calendar);
   }
 
   /**
@@ -405,7 +418,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
 
   private static LegalEntity convertToAnalyticsLegalEntity(final com.opengamma.core.legalentity.LegalEntity entity, final FinancialSecurity security) {
     final Collection<Rating> ratings = entity.getRatings();
-//    final Map<String, String> securityAttributes = security.getAttributes();
+    //    final Map<String, String> securityAttributes = security.getAttributes();
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
     final String ticker;
     if (identifiers != null) {
@@ -423,15 +436,15 @@ public class BondAndBondFutureTradeWithEntityConverter {
       //TODO seniority level needs to go into the credit rating
       creditRatings.add(CreditRating.of(rating.getRater(), rating.getScore().toString(), true));
     }
-//    final String sectorName = security.getIssuerType();
-//    final FlexiBean classifications = new FlexiBean();
-//    classifications.put(MARKET_STRING, security.getMarket());
-//    if (tradeAttributes.containsKey(SECTOR_STRING)) {
-//      classifications.put(SECTOR_STRING, tradeAttributes.get(SECTOR_STRING));
-//    }
-//    final Sector sector = Sector.of(sectorName, classifications);
-//    final Region region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
-//    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
+    //    final String sectorName = security.getIssuerType();
+    //    final FlexiBean classifications = new FlexiBean();
+    //    classifications.put(MARKET_STRING, security.getMarket());
+    //    if (tradeAttributes.containsKey(SECTOR_STRING)) {
+    //      classifications.put(SECTOR_STRING, tradeAttributes.get(SECTOR_STRING));
+    //    }
+    //    final Sector sector = Sector.of(sectorName, classifications);
+    //    final Region region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
+    //    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
     final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, null, null);
     return legalEntity;
   }
@@ -441,7 +454,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
    * @param freq The frequency
    * @return The tenor
    */
-  /* package */ static Period getTenor(final Frequency freq) {
+  /* package */static Period getTenor(final Frequency freq) {
     if (freq instanceof PeriodFrequency) {
       return ((PeriodFrequency) freq).getPeriod();
     } else if (freq instanceof SimpleFrequency) {
