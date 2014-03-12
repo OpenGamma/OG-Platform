@@ -327,6 +327,34 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   }
 
   /**
+   * Builder of Inflation capital index bond from financial details. The first coupon date is provided to cope with short or long first coupons.
+   * The notional and the coupon reference index are monthly index (no interpolation).
+   * @param priceIndex The price index associated to the bond.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param startDate The bond start date.
+   * @param indexStartValue The index value at the start of the bond.
+   * @param firstCouponDate The bond first coupon date. Used for short/long first coupon.
+   * @param maturityDate The bond maturity date.
+   * @param couponPeriod The period between coupon payments.
+   * @param realRate The bond nominal rate.
+   * @param businessDay The business day convention to compute the payment days.
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The payment calendar.
+   * @param dayCount The coupon day count convention.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param isEOM The end-of-month flag.
+   * @param issuer The bond issuer.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final IndexPrice priceIndex, final int monthLag, final ZonedDateTime startDate,
+      final double indexStartValue, final ZonedDateTime firstCouponDate, final ZonedDateTime maturityDate, final Period couponPeriod, final double realRate,
+      final BusinessDayConvention businessDay, final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM,
+      final LegalEntity issuer) {
+    return fromMonthly(priceIndex, monthLag, startDate, indexStartValue, firstCouponDate, maturityDate, couponPeriod, 1.0, realRate,
+        businessDay, settlementDays, calendar, dayCount, yieldConvention, isEOM, issuer);
+  }
+
+  /**
    * Builder of Inflation capital index bond from financial details. The notional and the coupon reference index are interpolated index.
    * The coupon dates are computed from the maturity and have a short first coupon if required.
    * @param priceIndex The price index associated to the bond.
@@ -351,7 +379,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final BusinessDayConvention businessDay, final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM,
       final String issuer) {
     return fromInterpolation(priceIndex, monthLag, startDate, indexStartValue, maturityDate, couponPeriod, notional, realRate,
-      businessDay, settlementDays, calendar, dayCount, yieldConvention, isEOM, new LegalEntity(null, issuer, null, null, null));
+        businessDay, settlementDays, calendar, dayCount, yieldConvention, isEOM, new LegalEntity(null, issuer, null, null, null));
   }
 
   /**

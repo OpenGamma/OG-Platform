@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.PRICE_INDEX;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +30,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
@@ -33,6 +39,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefi
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
@@ -51,6 +58,8 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.InflationLegConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -160,6 +169,19 @@ public class BondAndBondFutureTradeWithEntityConverter {
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
       return new BondFuturesTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
     }
+
+    if (security instanceof InflationBondSecurity) {
+      final OffsetTime tradeTime = trade.getTradeTime();
+      if (tradeTime == null) {
+        throw new OpenGammaRuntimeException("Trade time should not be null");
+      }
+      final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
+      final InflationBondSecurity bondSecurity = (InflationBondSecurity) security;
+      final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
+      final BondCapitalIndexedSecurityDefinition bondFuture = (BondCapitalIndexedSecurityDefinition) getInflationBond(bondSecurity, legalEntity);
+      return new BondCapitalIndexedTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
+    }
+
     OffsetTime settleTime = trade.getPremiumTime();
     if (settleTime == null) {
       settleTime = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC); //TODO get the real time zone
@@ -259,18 +281,6 @@ public class BondAndBondFutureTradeWithEntityConverter {
         final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
         if (convention == null) {
           throw new OpenGammaRuntimeException("No corporate bond convention found for domicile " + domicile);
-        }
-        return visitBondSecurity(bond, convention, conventionName);
-      }
-
-      @Override
-      public InstrumentDefinition<?> visitInflationBondSecurity(final InflationBondSecurity bond) {
-        final String domicile = bond.getIssuerDomicile();
-        ArgumentChecker.notNull(domicile, "bond security domicile cannot be null");
-        final String conventionName = domicile + "_INFLATION_BOND_CONVENTION";
-        final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
-        if (convention == null) {
-          throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
         }
         return visitBondSecurity(bond, convention, conventionName);
       }
@@ -383,6 +393,73 @@ public class BondAndBondFutureTradeWithEntityConverter {
     final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING;
     return null;
     //    return BondIborSecurityDefinition.from(maturityDate, firstAccrualDate, index, settlementDays, dayCount, businessDay, isEOM, legalEntity, calendar);
+  }
+
+  /**
+   * Creates a fixed coupon bond using the full legal entity information available.
+   * @param security The bond security
+   * @param legalEntity The legal entity
+   * @return The fixed coupon bond security definition
+   */
+  @SuppressWarnings("synthetic-access")
+  private InstrumentDefinition<?> getInflationBond(final InflationBondSecurity security, final LegalEntity legalEntity) {
+    return security.accept(new FinancialSecurityVisitorAdapter<InstrumentDefinition<?>>() {
+
+      @Override
+      public InstrumentDefinition<?> visitInflationBondSecurity(final InflationBondSecurity bond) {
+        final String domicile = bond.getIssuerDomicile();
+        ArgumentChecker.notNull(domicile, "bond security domicile cannot be null");
+        final String conventionName = domicile + "_INFLATION_BOND_CONVENTION";
+        final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
+        }
+        if (EXCLUDED_TYPES.contains(bond.getCouponType())) {
+          throw new UnsupportedOperationException("Cannot support fixed coupon bonds with coupon of type " + bond.getCouponType());
+        }
+        final ExternalId regionId = ExternalSchemes.financialRegionId(bond.getIssuerDomicile());
+        if (regionId == null) {
+          throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());
+        }
+        final Currency currency = bond.getCurrency();
+        final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
+        final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);
+        final Calendar calendar;
+        // If the bond is Supranational, we use the calendar derived from the currency of the bond.
+        // this may need revisiting.
+        if (regionId.getValue().equals("SNAT")) { // Supranational
+          calendar = CalendarUtils.getCalendar(_holidaySource, currency);
+        } else {
+          calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+        }
+        if (bond.getInterestAccrualDate() == null) {
+          throw new OpenGammaRuntimeException("Bond first interest accrual date was null");
+        }
+        final ZoneId zone = bond.getInterestAccrualDate().getZone();
+        final ZonedDateTime firstAccrualDate = ZonedDateTime.of(bond.getInterestAccrualDate().toLocalDate().atStartOfDay(), zone);
+        final ZonedDateTime maturityDate = ZonedDateTime.of(bond.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
+        final int monthLag = _conventionSource.getSingle(getIds(currency, INFLATION_LEG), InflationLegConvention.class).getMonthLag();
+        final double rate = bond.getCouponRate() / 100;
+        final DayCount dayCount = bond.getDayCount();
+        final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING; //bond.getBusinessDayConvention();
+        if (convention.isEOMConvention() == null) {
+          throw new OpenGammaRuntimeException("Could not get EOM convention information from " + conventionName);
+        }
+        final boolean isEOM = convention.isEOMConvention();
+        final YieldConvention yieldConvention = bond.getYieldConvention();
+        if (bond.getCouponType().equals("NONE") || bond.getCouponType().equals("ZERO COUPON")) { //TODO find where string is
+          return new PaymentFixedDefinition(currency, maturityDate, 1);
+        }
+        if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
+          throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
+        }
+        final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
+        final Period paymentPeriod = getTenor(bond.getCouponFrequency());
+        final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
+        return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, 100.0, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
+            calendar, dayCount, yieldConvention, isEOM, legalEntity);
+      }
+    });
   }
 
   /**

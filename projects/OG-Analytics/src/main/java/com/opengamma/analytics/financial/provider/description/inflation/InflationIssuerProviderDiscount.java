@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,9 +21,12 @@ import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -349,7 +353,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * Set all the curves contains in another bundle. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other bundle.
    */
-//  * TODO: REVIEW: Should we check that the curve are already present?
+  //  * TODO: REVIEW: Should we check that the curve are already present?
   public void setAll(final InflationIssuerProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     _inflationProvider.setAll(other.getInflationProvider());
@@ -401,6 +405,21 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
       return false;
     }
     return true;
+  }
+
+  @Override
+  public IssuerProviderInterface getIssuerProvider() {
+    return (IssuerProviderInterface) this;
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _inflationProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _inflationProvider.parameterForwardSensitivity(name, pointSensitivity);
   }
 
 }

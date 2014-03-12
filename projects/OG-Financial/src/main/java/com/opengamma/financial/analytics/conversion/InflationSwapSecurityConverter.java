@@ -154,7 +154,7 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final BusinessDayConvention businessDayConvention = fixedLeg.getBusinessDayConvention();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegion());
     final ZoneOffset zone = ZoneOffset.UTC; //TODO
-    
+
     final int swapMaturityTenor = (int) Math.round(indexLeg.getDayCount().getDayCountFraction(security.getEffectiveDate(), security.getMaturityDate()));
     boolean isMonthly;
     switch (indexLeg.getInterpolationMethod()) {

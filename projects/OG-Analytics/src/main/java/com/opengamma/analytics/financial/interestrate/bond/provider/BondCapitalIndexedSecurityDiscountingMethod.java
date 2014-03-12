@@ -30,6 +30,19 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public final class BondCapitalIndexedSecurityDiscountingMethod {
 
   /**
+   * The unique instance of the class.
+   */
+  private static final BondCapitalIndexedSecurityDiscountingMethod INSTANCE = new BondCapitalIndexedSecurityDiscountingMethod();
+
+  /**
+   * Return the class instance.
+   * @return The instance.
+   */
+  public static BondCapitalIndexedSecurityDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
