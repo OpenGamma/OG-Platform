@@ -30,6 +30,7 @@ import com.opengamma.util.paging.PagingRequest;
 public abstract class AbstractSearchIterator<D extends AbstractDocument, M extends AbstractMaster<D>, R extends AbstractSearchRequest>
     implements Iterator<D> {
 
+  private static final int BATCH_SIZE = 500;
   /**
    * The master that is being used.
    */
@@ -111,7 +112,7 @@ public abstract class AbstractSearchIterator<D extends AbstractDocument, M exten
   private void doFetch() {
     try {
       // try to fetch a batch of 20 documents
-      _request.setPagingRequest(PagingRequest.ofIndex(_overallIndex, 20));
+      _request.setPagingRequest(PagingRequest.ofIndex(_overallIndex, BATCH_SIZE));
       _currentBatch = doSearch(_request);
       
     } catch (RuntimeException ex) {
