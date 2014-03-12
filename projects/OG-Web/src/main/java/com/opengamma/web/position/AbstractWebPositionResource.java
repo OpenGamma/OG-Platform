@@ -5,7 +5,10 @@
  */
 package com.opengamma.web.position;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -14,6 +17,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
@@ -53,19 +57,23 @@ public abstract class AbstractWebPositionResource extends AbstractPerRequestWebR
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
    * @param htsSource  the historical time series source, not null
+   * @param externalSchemes the map of external schemes, with {@link ExternalScheme} as key and description as value
    */
   protected AbstractWebPositionResource(
       final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
-      final HistoricalTimeSeriesSource htsSource) {
+      final HistoricalTimeSeriesSource htsSource, final Map<ExternalScheme, String> externalSchemes) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(htsSource, "htsSource");
+    ArgumentChecker.notEmpty(externalSchemes, "externalSchemes");
+    
     _data = new WebPositionsData();
     data().setPositionMaster(positionMaster);
     data().setSecurityLoader(securityLoader);
     data().setSecuritySource(securitySource);
     data().setHistoricalTimeSeriesSource(htsSource);
+    data().setExternalSchemes(externalSchemes);
   }
 
   /**
@@ -99,7 +107,16 @@ public abstract class AbstractWebPositionResource extends AbstractPerRequestWebR
     out.put("uris", new WebPositionsUris(data()));
     WebSecuritiesData secData = new WebSecuritiesData(data().getUriInfo());
     out.put("securityUris", new WebSecuritiesUris(secData));
+    out.put("externalSchemes", getExternalSchemes());
     return out;
+  }
+
+  private Map<String, String> getExternalSchemes() {
+    Map<String, String> result = new TreeMap<>();
+    for (Entry<ExternalScheme, String> entry : data().getExternalSchemes().entrySet()) {
+      result.put(entry.getKey().getName(), entry.getValue());
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

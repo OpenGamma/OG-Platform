@@ -283,7 +283,9 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     Bean securityBean = JodaBeanSerialization.deserializer().xmlReader().read(securityXml);
     SecurityMaster securityMaster = data().getSecurityMaster();
     ManageableSecurity manageableSecurity = (ManageableSecurity) securityBean;
-    manageableSecurity.setUniqueId(UniqueId.of(uniqueIdScheme, uniqueIdScheme));
+    if (uniqueIdScheme != null) {
+      manageableSecurity.setUniqueId(UniqueId.of(uniqueIdScheme, uniqueIdScheme));
+    }
     SecurityDocument addedSecDoc = securityMaster.add(new SecurityDocument(manageableSecurity));
     return addedSecDoc.getSecurity();
   }
