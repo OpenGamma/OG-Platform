@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.link;
 
+import java.util.Objects;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -64,5 +66,24 @@ public abstract class AbstractLink<I, T> implements Link<I, T> {
   @Override
   public T resolve() {
     return _resolver.resolve();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_identifier, _type);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    AbstractLink other = (AbstractLink) obj;
+    return
+        Objects.equals(this._identifier, other._identifier) &&
+        Objects.equals(this._type, other._type);
   }
 }
