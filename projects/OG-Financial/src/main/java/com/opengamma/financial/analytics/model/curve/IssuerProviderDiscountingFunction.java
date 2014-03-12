@@ -213,7 +213,7 @@ public class IssuerProviderDiscountingFunction extends
             parameterGuessForCurves[k] = 0.02; // TODO: [PlAT-5883] Get a better starting point.
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(context,
                 snapshot, node.getIdentifier(), timeSeries, now, fx));
-            derivativesForCurve[k++] = getCurveNodeConverter(securitySource, conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
+            derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
           } // Node points - end
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
             if (type instanceof DiscountingCurveTypeConfiguration) {

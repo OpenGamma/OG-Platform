@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -49,8 +47,6 @@ import com.opengamma.util.ArgumentChecker;
  * The futures notional is 1.
  */
 public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
-  /** The logger...... */
-  private static final Logger s_logger = LoggerFactory.getLogger(RateFutureNodeConverter.class);
   /** The security source */
   private final SecuritySource _securitySource;
   /** The convention source */
@@ -146,8 +142,13 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = ConventionUtils.of(_securitySource, _conventionSource).withOvernightIndexId(futureConvention.getIndexConvention());
-    final IndexON indexON = ConverterUtils.indexON(indexConvention.getName(), indexConvention);
+    final Security sec = _securitySource.getSingle(futureConvention.getIndexConvention().toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Overnight index with id " + futureConvention.getIndexConvention() + " was null");
+    }
+    final OvernightIndex index = (OvernightIndex) sec;
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
+    final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
     final double paymentAccrualFactor = 1 / 12.;
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
     final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);

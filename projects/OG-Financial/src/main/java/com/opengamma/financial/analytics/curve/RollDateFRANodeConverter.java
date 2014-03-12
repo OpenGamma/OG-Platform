@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -31,15 +29,11 @@ import com.opengamma.financial.convention.rolldate.RollDateAdjusterUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  *
  */
 public class RollDateFRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(RollDateFRANodeConverter.class);
   /** The security source */
   private final SecuritySource _securitySource;
   /** The convention source */
@@ -89,12 +83,15 @@ public class RollDateFRANodeConverter extends CurveNodeVisitorAdapter<Instrument
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
     final RollDateFRAConvention convention = _conventionSource.getSingle(rollDateFRANode.getRollDateFRAConvention(), RollDateFRAConvention.class);
-    final ObjectsPair<IborIndexConvention, Tenor> pair = ConventionUtils.of(_securitySource, _conventionSource).withIborIndexId(convention.getIndexConvention(), rollDateFRANode.getIndexTenor());
-    final IborIndexConvention indexConvention = pair.getFirst();
-    final Tenor indexTenor = pair.getSecond();
-    final IborIndex index = ConverterUtils.indexIbor(indexConvention.getName(), indexConvention, indexTenor);
+    final com.opengamma.financial.security.index.IborIndex indexSecurity = 
+        (com.opengamma.financial.security.index.IborIndex) _securitySource.getSingle(convention.getIndexConvention().toBundle()); 
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("Convention with id " + convention.getIndexConvention() + " was null");
+    }
+    final IborIndex index = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
     final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
-    final RollDateAdjuster adjuster = RollDateAdjusterFactory.of(convention.getRollDateConvention().getValue());
+    final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(convention.getRollDateConvention().getValue());
     final ZonedDateTime adjustedStartDate = ScheduleCalculator.getAdjustedDate(_valuationTime.plus(rollDateFRANode.getStartTenor().getPeriod()), 0, fixingCalendar);
     // Implementation note: Date adjustment to following
     ZonedDateTime immStartDate = RollDateAdjusterUtils.nthDate(adjustedStartDate, adjuster, rollDateFRANode.getRollDateStartNumber());

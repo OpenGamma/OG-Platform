@@ -50,11 +50,9 @@ public class ValidationTextFormatter {
   private static void printNode(StringBuilder sb, ValidationNode node) {
     sb.append(" ");
     sb.append(node.getName());
-    if (node.getType() != null) {
-      sb.append(" (");
-      sb.append(node.getType().getSimpleName());
-      sb.append(")");
-    }
+    sb.append(" (");
+    sb.append(node.getType().getSimpleName());
+    sb.append(")");
     for (String error : node.getErrors()) {
       sb.append(" Error:");
       sb.append(error);

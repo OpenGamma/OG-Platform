@@ -5,23 +5,24 @@
  */
 package com.opengamma.financial.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.NodeConverterUtils;
@@ -45,7 +46,6 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -66,8 +66,7 @@ import com.opengamma.util.tuple.Triple;
  * The FRA notional is 1.
  */
 public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<FinancialSecurity> {
-  /** The logger :P */
-  private static final Logger s_logger = LoggerFactory.getLogger(SecurityFromNodeConverter.class);
+
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -83,11 +82,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   private final Double _amount;
   /** the external identifier */
   private final ExternalId _identifier;
-  /** The security source */
-  private final SecuritySource _securitySource;
 
   /**
-   * @param securitySource The security source, not null
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
@@ -96,20 +92,17 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
    * @param identifier The floating rate identifier
    * @param tradeDateTime The trade date time, not null
    */
-  public SecurityFromNodeConverter(final SecuritySource securitySource,
-                                   final ConventionSource conventionSource,
+  public SecurityFromNodeConverter(final ConventionSource conventionSource,
                                    final HolidaySource holidaySource,
                                    final RegionSource regionSource,
                                    final ZonedDateTime tradeDateTime,
                                    final Double rate,
                                    final Double amount,
                                    final ExternalId identifier) {
-    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     ArgumentChecker.notNull(tradeDateTime, "trade date time");
-    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -195,7 +188,6 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
         payLegConvention,
         swapNode.getStartTenor().getPeriod(),
         swapNode.getMaturityTenor().getPeriod(),
-        _securitySource,
         _regionSource,
         _holidaySource,
         _conventionSource,
@@ -210,7 +202,6 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
         receiveLegConvention,
         swapNode.getStartTenor().getPeriod(),
         swapNode.getMaturityTenor().getPeriod(),
-        _securitySource,
         _regionSource,
         _holidaySource,
         _conventionSource,
@@ -259,6 +250,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                        businessDayConvention,
                                                                        calendar,
                                                                        isEOM);
+      final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
       return new CashSecurity(currency,
                               depositConvention.getRegionCalendar(),
                               startDate,
@@ -287,6 +279,18 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                        businessDayConvention,
                                                                        calendar,
                                                                        isEOM);
+      final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
+      final int spotLag = iborConvention.getSettlementDays();
+      final boolean eom = iborConvention.isIsEOM();
+      final long months = maturityPeriod.toTotalMonths() - startPeriod.toTotalMonths();
+      final Period indexTenor = Period.ofMonths((int) months);
+      final IborIndex iborIndex = new IborIndex(currency,
+                                                indexTenor,
+                                                spotLag,
+                                                dayCount,
+                                                businessDayConvention,
+                                                eom,
+                                                convention.getName());
       CashSecurity security = new CashSecurity(currency,
                                                iborConvention.getRegionCalendar(),
                                                startDate,
@@ -330,29 +334,28 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                            final InterestRateFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    
-    final Security sec = _securitySource.getSingle(futureConvention.getIndexConvention().toBundle());
-    final IborIndexConvention indexConvention;
-    if (sec instanceof com.opengamma.financial.security.index.IborIndex) { // implicit null check
-      final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-      indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-      if (indexConvention == null) {
-        s_logger.error("Found IborIndex, but convention it points to {} does not exist", indexSecurity.getConventionId());
-        throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegConvention: Found IborIndex, but convention it points to " +
-                                            indexSecurity.getConventionId() + " does not exist");
-      }
-    } else {
-      indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(), IborIndexConvention.class);
-      if (indexConvention == null) {
-        s_logger.error("Couldn't find IborIndex, but so fell back to convention lookup, but that ({}) does not exist either", futureConvention.getIndexConvention());
-        throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegConvention: Convention with id " + futureConvention.getIndexConvention() + " was null");
-      }
-    }
-    
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(),
+                                                                                IborIndexConvention.class);
+    final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
+    final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
     final Currency currency = indexConvention.getCurrency();
+    final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource,
+                                                              _holidaySource,
+                                                              indexConvention.getFixingCalendar());
     final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource,
                                                               _holidaySource,
                                                               indexConvention.getRegionCalendar());
+    final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
+    final DayCount dayCount = indexConvention.getDayCount();
+    final boolean eom = indexConvention.isIsEOM();
+    final int spotLag = indexConvention.getSettlementDays();
+    final IborIndex iborIndex = new IborIndex(currency,
+                                              indexTenor,
+                                              spotLag,
+                                              dayCount,
+                                              businessDayConvention,
+                                              eom,
+                                              indexConvention.getName());
     final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(
         expiryCalculatorName);
     final ZonedDateTime startDate = _tradeDateTime.plus(rateFuture.getStartTenor().getPeriod());
@@ -361,6 +364,19 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(),
                                                                                      startDate.toLocalDate(),
                                                                                      regionCalendar), time, timeZone);
+    final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(expiryDate,
+                                                                                                             iborIndex,
+                                                                                                             1,
+                                                                                                             paymentAccrualFactor,
+                                                                                                             "",
+                                                                                                             fixingCalendar);
+    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(
+        securityDefinition,
+        1,
+        _tradeDateTime,
+        price);
+    //return transactionDefinition;
+
     final Expiry expiry = new Expiry(expiryDate);
     return new InterestRateFutureSecurity(expiry,
                                           "TRADING_EXCHANGE",
@@ -384,24 +400,13 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                            final FederalFundsFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention;
-    final Security overnightIndexSec = _securitySource.getSingle(futureConvention.getIndexConvention().toBundle());
-    if (overnightIndexSec instanceof OvernightIndex) {
-      OvernightIndex overnightIndex = (OvernightIndex) overnightIndexSec; // implicit null check
-      indexConvention = _conventionSource.getSingle(overnightIndex.getConventionId(), OvernightIndexConvention.class);
-      if (indexConvention == null) {
-        s_logger.error("Found index, but could not find linked convention {}", overnightIndex.getConventionId());
-        throw new OpenGammaRuntimeException("Found index, but could not find linked convention " + overnightIndex.getConventionId());
-      }
-    } else {
-      s_logger.warn("Couldn't find index {}, falling back to looking in convention source for compatibility", futureConvention.getIndexConvention());
-      indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(), OvernightIndexConvention.class);
-      if (indexConvention == null) {
-        s_logger.error("Could not find legacy overnight index convention {}", futureConvention.getIndexConvention());
-        throw new OpenGammaRuntimeException("Could not find legacy overnight index convention " + futureConvention.getIndexConvention());
-      }
-    }
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(),
+                                                                                     OvernightIndexConvention.class);
     final Currency currency = indexConvention.getCurrency();
+    final DayCount dayCount = indexConvention.getDayCount();
+    final int publicationLag = indexConvention.getPublicationLag();
+    final IndexON index = new IndexON(indexConvention.getName(), currency, dayCount, publicationLag);
+    final double paymentAccrualFactor = 1 / 12.;
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
                                                         _holidaySource,
                                                         indexConvention.getRegionCalendar());
@@ -413,6 +418,19 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(),
                                                                                      startDate.toLocalDate(),
                                                                                      calendar), time, timeZone);
+    final FederalFundsFutureSecurityDefinition securityDefinition = FederalFundsFutureSecurityDefinition.from(expiryDate,
+                                                                                                              index,
+                                                                                                              1,
+                                                                                                              paymentAccrualFactor,
+                                                                                                              "",
+                                                                                                              calendar);
+    final FederalFundsFutureTransactionDefinition transactionDefinition = new FederalFundsFutureTransactionDefinition(
+        securityDefinition,
+        1,
+        _tradeDateTime,
+        price);
+    //return transactionDefinition;
+
     final Expiry expiry = new Expiry(expiryDate);
     return new FederalFundsFutureSecurity(expiry,
                                           "TRADING_EXCHANGE",

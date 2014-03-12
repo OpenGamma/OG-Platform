@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -18,9 +16,6 @@ import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTra
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.analytics.curve.ConventionUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
@@ -28,9 +23,7 @@ import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.InflationLegConvention;
-import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -38,31 +31,21 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  *
  */
 public class CurveNodeConverter {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(CurveNodeConverter.class);
   /** The convention source */
   private final ConventionSource _conventionSource;
-  /** The security source */
-  private SecuritySource _securitySource;
 
   /**
-   * @param securitySource The security source, not null
    * @param conventionSource The convention source, not null
    */
-  public CurveNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource) {
-    ArgumentChecker.notNull(securitySource, "security source");
+  public CurveNodeConverter(final ConventionSource conventionSource) {
     ArgumentChecker.notNull(conventionSource, "convention source");
-    _securitySource = securitySource;
     _conventionSource = conventionSource;
   }
-  
-  
 
   /**
    * Given an {@link InstrumentDefinition} (the time-independent form used in the analytics library) and a valuation time, converts to the
@@ -82,22 +65,31 @@ public class CurveNodeConverter {
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
+        ExternalId priceIndexId;
         final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(
             ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention(), InflationLegConvention.class);
-        ObjectsPair<PriceIndexConvention, ExternalIdBundle> conventionAndIds = ConventionUtils.of(_securitySource, _conventionSource)
-                                                                                              .withPriceIndexId(inflationLegConvention.getPriceIndexConvention());
-        ExternalIdBundle ids = conventionAndIds.getSecond();
-        final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), ids);
+        final ExternalId priceIndexConventionId = inflationLegConvention.getPriceIndexConvention();
+        //        final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(priceIndexConventionId, PriceIndexConvention.class);
+        //        final Security sec = _securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
+        //        if (sec == null) {
+        //          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+        //        }
+        //        if (!(sec instanceof PriceIndex)) {
+        //          throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention() + " not of type PriceIndex");
+        //        }
+        //        final PriceIndex indexSecurity = (PriceIndex) sec;
+        priceIndexId = priceIndexConventionId;
+        final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
         if (historicalTimeSeries == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + ids);
+          throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);
         }
         final DoubleTimeSeries<?> ts = historicalTimeSeries.getTimeSeries();
         if (ts == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + ids);
+          throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);
         }
         final int length = ts.size();
         if (length == 0) {
-          throw new OpenGammaRuntimeException("Price time series for " + ids + " was empty");
+          throw new OpenGammaRuntimeException("Price time series for " + priceIndexId + " was empty");
         }
         // the timeseies is multiply by 100 because bloomberg do not provide the right one
         final ZonedDateTimeDoubleTimeSeries multiply = convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));

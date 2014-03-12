@@ -1373,7 +1373,7 @@ public class CurveNodeToDefinitionConverterTest {
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
     marketValues.setDataPoint(marketDataId, rate);
     final DeliverableSwapFutureNode futureNode = new DeliverableSwapFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.TEN_YEARS, DELIVERABLE_SWAP_FUTURE_ID, FIXED_IBOR_3M_SWAP_ID, "Mapper");
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new DeliverableSwapFutureNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, NOW);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new DeliverableSwapFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, NOW);
     final InstrumentDefinition<?> definition = futureNode.accept(converter);
     final Currency currency = Currency.USD;
     final DayCount dayCount = THIRTY_360;

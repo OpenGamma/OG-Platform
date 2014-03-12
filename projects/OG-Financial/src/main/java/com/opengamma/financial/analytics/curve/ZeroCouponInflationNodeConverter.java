@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -35,18 +33,15 @@ import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  *
  */
 public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(ZeroCouponInflationNodeConverter.class);
   /** The security source */
   private final SecuritySource _securitySource;
   /** The convention source */
@@ -102,8 +97,20 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     }
     final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(inflationNode.getFixedLegConvention(), SwapFixedLegConvention.class);
     final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
-    ObjectsPair<PriceIndexConvention, ExternalIdBundle> pair = ConventionUtils.of(_securitySource, _conventionSource).withPriceIndexId(inflationLegConvention.getPriceIndexConvention());
-    final PriceIndexConvention priceIndexConvention = pair.getFirst();
+    final Security sec = _securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention()
+          + " was null");
+    }
+    if (!(sec instanceof PriceIndex)) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention()
+          + " not of type PriceIndex");
+    }
+    final PriceIndex indexSecurity = (PriceIndex) sec;
+    final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), PriceIndexConvention.class);
+    if (priceIndexConvention == null) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
+    }
     final int settlementDays = fixedLegConvention.getSettlementDays();
     final Period tenor = inflationNode.getTenor().getPeriod();
     final double notional = 1;
@@ -124,6 +131,7 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     }
     final int conventionalMonthLag = inflationLegConvention.getMonthLag();
     final int monthLag = inflationLegConvention.getMonthLag();
+
     final IndexPrice index = ConverterUtils.indexPrice(priceIndexConvention.getName(), priceIndexConvention);
     switch (inflationNode.getInflationNodeType()) {
       case INTERPOLATED: {

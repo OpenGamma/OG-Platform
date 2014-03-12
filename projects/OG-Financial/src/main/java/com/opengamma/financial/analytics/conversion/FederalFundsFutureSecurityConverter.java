@@ -8,20 +8,15 @@ package com.opengamma.financial.analytics.conversion;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.analytics.curve.ConventionUtils;
 import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -37,8 +32,6 @@ import com.opengamma.util.ArgumentChecker;
  * Converts Federal funds future securities into the definition form used by the analytics library.
  */
 public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(FederalFundsFutureSecurityConverter.class);
   /** The security source */
   private final SecuritySource _securitySource;
   /** The holiday source */
@@ -92,8 +85,9 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry().withHour(0);
     final FederalFundsFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
-    final OvernightIndexConvention overnightIndexConvention = ConventionUtils.of(_securitySource, _conventionSource).withOvernightIndexId(convention.getIndexConvention());
-    final IndexON indexON = ConverterUtils.indexON(overnightIndexConvention.getName(), overnightIndexConvention);
+    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getIndexConvention().toBundle());
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
+    final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
     final double paymentAccrualFactor = 1 / 12.; //TODO should not be hard-coded
     final double notional = security.getUnitAmount() / paymentAccrualFactor;
     return FederalFundsFutureSecurityDefinition.from(lastTradeDate, indexON, notional, paymentAccrualFactor, security.getName(), calendar);
