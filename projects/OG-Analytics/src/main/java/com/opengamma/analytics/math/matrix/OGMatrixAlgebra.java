@@ -219,7 +219,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
         return new DoubleMatrix1D(term.getData());
       } else if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix2D) {
         DoubleMatrix1D conc = (DoubleMatrix1D) m1;
-        mat1 = new OGRealDenseMatrix(conc.asDoubleArray(), conc.getData().length, 1);
+        mat1 = new OGRealDenseMatrix(conc.asDoubleArray(), 1, conc.getData().length);
         mat2 = new OGRealDenseMatrix(((DoubleMatrix2D) m2).asDoubleAoA());
         node = new MTIMES(mat1, mat2);
         OGTerminal term = Materialisers.toOGTerminal(node);

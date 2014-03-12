@@ -84,6 +84,7 @@ public class OGMatrixAlgebraTest {
 
   @Test
   public void testMultiply() {
+    // test dgemm
     final DoubleMatrix2D c = (DoubleMatrix2D) ALGEBRA.multiply(A, B);
     final int rows = c.getNumberOfRows();
     final int cols = c.getNumberOfColumns();
@@ -94,10 +95,38 @@ public class OGMatrixAlgebraTest {
       }
     }
 
-    final DoubleMatrix1D d = (DoubleMatrix1D) ALGEBRA.multiply(A, D);
+    DoubleMatrix1D d;
+    // test dgemv
+    d = (DoubleMatrix1D) ALGEBRA.multiply(A, D);
     assertEquals(6, d.getEntry(0), 1e-15);
     assertEquals(0, d.getEntry(1), 1e-15);
     assertEquals(-3, d.getEntry(2), 1e-15);
+
+    // test dgevm
+    d = (DoubleMatrix1D) ALGEBRA.multiply(D, A);
+    assertEquals(-2, d.getEntry(0), 1e-15);
+    assertEquals(4, d.getEntry(1), 1e-15);
+    assertEquals(1, d.getEntry(2), 1e-15);
+
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testMultiplyUnknownType()
+  {
+    Matrix<Double> foo = new Matrix<Double>() {
+
+      @Override
+      public int getNumberOfElements() {
+        return 0;
+      }
+
+      @Override
+      public Double getEntry(int... indices) {
+        return null;
+      }
+    };
+    Matrix<Double> bar = foo;
+    ALGEBRA.multiply(foo, bar);
   }
 
   @Test
