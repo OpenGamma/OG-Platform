@@ -27,11 +27,11 @@ import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful market data snapshot resources.
- * 
  */
 @SuppressWarnings("deprecation")
-public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerRequestWebResource {
-    
+public abstract class AbstractWebMarketDataSnapshotResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * HTML ftl directory
    */
@@ -40,7 +40,7 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
    * JSON ftl directory
    */
   protected static final String JSON_DIR = "marketdatasnapshots/json/";
-  
+
   /**
    * The Fudge context.
    */
@@ -52,15 +52,16 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
 
   /**
    * Creates the resource.
+   * 
    * @param marketdataSnapshotMaster  the market data snapshot master, not null
    * @param configMaster  the config master, not null
-   * @param liveMarketDataProviderFactory the live market data provider factory, Either this or marketDataSpecificationRepository must be set
-   * @param marketDataSpecificationRepository the market data specification repository, not null
-   * @param configSource the config source, not null
-   * @param targetResolver the computation target resolver, not null
-   * @param viewProcessor the view processor, not null
-   * @param htsSource the historical timeseries source, not null
-   * @param volatilityCubeDefinitionSource the volatility cube definition source, not null
+   * @param liveMarketDataProviderFactory  the live market data provider factory, Either this or marketDataSpecificationRepository must be set
+   * @param marketDataSpecificationRepository  the market data specification repository, not null
+   * @param configSource  the config source, not null
+   * @param targetResolver  the computation target resolver, not null
+   * @param viewProcessor  the view processor, not null
+   * @param htsSource  the historical timeseries source, not null
+   * @param volatilityCubeDefinitionSource  the volatility cube definition source, not null
    */
   protected AbstractWebMarketDataSnapshotResource(final MarketDataSnapshotMaster marketdataSnapshotMaster, final ConfigMaster configMaster, 
       final LiveMarketDataProviderFactory liveMarketDataProviderFactory, final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
@@ -90,6 +91,7 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebMarketDataSnapshotResource(final AbstractWebMarketDataSnapshotResource parent) {
@@ -107,7 +109,7 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
   public void setUriInfo(final UriInfo uriInfo) {
     data().setUriInfo(uriInfo);
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
@@ -136,5 +138,5 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
+
 }

@@ -32,7 +32,9 @@ import com.opengamma.web.security.WebSecuritiesUris;
 /**
  * Abstract base class for RESTful position resources.
  */
-public abstract class AbstractWebPositionResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebPositionResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * Position XML parameter name
    */
@@ -78,6 +80,7 @@ public abstract class AbstractWebPositionResource extends AbstractPerRequestWebR
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebPositionResource(final AbstractWebPositionResource parent) {
@@ -131,7 +134,7 @@ public abstract class AbstractWebPositionResource extends AbstractPerRequestWebR
   protected Set<ManageableTrade> parseTrades(String tradesJson) {
     return TradeJsonConverter.fromJson(tradesJson);
   }
-  
+
   protected String getPositionXml(final ManageablePosition manageablePosition) {
     ManageablePosition position = manageablePosition.clone();
     ManageableSecurityLink securityLink = position.getSecurityLink();

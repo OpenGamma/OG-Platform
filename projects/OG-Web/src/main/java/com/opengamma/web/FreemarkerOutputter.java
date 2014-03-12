@@ -233,7 +233,7 @@ public class FreemarkerOutputter {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "FreemarkerOutputter[" + Configuration.getVersionNumber() + "]";
+    return String.format("FreemarkerOutputter[%s]", Configuration.getVersionNumber());
   }
 
 }

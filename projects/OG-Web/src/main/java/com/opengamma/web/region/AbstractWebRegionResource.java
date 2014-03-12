@@ -18,7 +18,9 @@ import com.opengamma.web.WebHomeUris;
 /**
  * Abstract base class for RESTful region resources.
  */
-public abstract class AbstractWebRegionResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebRegionResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * HTML ftl directory
    */
@@ -35,6 +37,7 @@ public abstract class AbstractWebRegionResource extends AbstractPerRequestWebRes
 
   /**
    * Creates the resource.
+   * 
    * @param regionMaster  the region master, not null
    */
   protected AbstractWebRegionResource(final RegionMaster regionMaster) {
@@ -45,6 +48,7 @@ public abstract class AbstractWebRegionResource extends AbstractPerRequestWebRes
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebRegionResource(final AbstractWebRegionResource parent) {
@@ -66,6 +70,7 @@ public abstract class AbstractWebRegionResource extends AbstractPerRequestWebRes
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {

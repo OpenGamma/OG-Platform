@@ -35,7 +35,9 @@ import com.opengamma.web.security.WebSecuritiesUris;
 /**
  * Abstract base class for RESTful portfolio resources.
  */
-public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebPortfolioResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * HTML ftl directory
    */
@@ -45,8 +47,9 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
    */
   protected static final String JSON_DIR = "portfolios/json/";
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebPortfolioResource.class);
-  
+
   /**
    * The backing bean.
    */
@@ -58,6 +61,7 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
 
   /**
    * Creates the resource.
+   * 
    * @param portfolioMaster  the portfolio master, not null
    * @param positionMaster  the position master, not null
    * @param securitySource  the security source, not null
@@ -76,6 +80,7 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebPortfolioResource(final AbstractWebPortfolioResource parent) {
@@ -98,6 +103,7 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {

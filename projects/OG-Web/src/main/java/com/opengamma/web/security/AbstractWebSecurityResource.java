@@ -45,7 +45,8 @@ import com.opengamma.web.WebHomeUris;
 /**
  * Abstract base class for RESTful security resources.
  */
-public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebSecurityResource
+    extends AbstractPerRequestWebResource {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
@@ -73,6 +74,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /**
    * Creates the resource.
+   * 
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
@@ -93,6 +95,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebSecurityResource(final AbstractWebSecurityResource parent) {
@@ -112,7 +115,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Creates the output root data.
    * @return the output root data, not null
@@ -135,7 +137,8 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   }
   
   /**
-   * Gets the security template provider
+   * Gets the security template provider.
+   * 
    * @return the template provider, not null
    */
   protected SecurityTemplateNameProvider getTemplateProvider() {

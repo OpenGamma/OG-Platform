@@ -18,7 +18,9 @@ import com.opengamma.web.WebHomeUris;
 /**
  * Abstract base class for RESTful exchange resources.
  */
-public abstract class AbstractWebExchangeResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebExchangeResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * HTML ftl directory
    */
@@ -35,6 +37,7 @@ public abstract class AbstractWebExchangeResource extends AbstractPerRequestWebR
 
   /**
    * Creates the resource.
+   * 
    * @param exchangeMaster  the exchange master, not null
    */
   protected AbstractWebExchangeResource(final ExchangeMaster exchangeMaster) {
@@ -45,6 +48,7 @@ public abstract class AbstractWebExchangeResource extends AbstractPerRequestWebR
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebExchangeResource(final AbstractWebExchangeResource parent) {
@@ -66,6 +70,7 @@ public abstract class AbstractWebExchangeResource extends AbstractPerRequestWebR
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {

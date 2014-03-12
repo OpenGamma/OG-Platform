@@ -22,7 +22,9 @@ import com.opengamma.web.region.WebRegionUris;
 /**
  * Abstract base class for RESTful holiday resources.
  */
-public abstract class AbstractWebHolidayResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebHolidayResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * HTML ftl directory
    */
@@ -39,6 +41,7 @@ public abstract class AbstractWebHolidayResource extends AbstractPerRequestWebRe
   
   /**
    * Creates the resource.
+   * 
    * @param holidayMaster  the holiday master, not null
    */
   protected AbstractWebHolidayResource(final HolidayMaster holidayMaster) {
@@ -49,6 +52,7 @@ public abstract class AbstractWebHolidayResource extends AbstractPerRequestWebRe
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebHolidayResource(final AbstractWebHolidayResource parent) {
@@ -70,6 +74,7 @@ public abstract class AbstractWebHolidayResource extends AbstractPerRequestWebRe
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {

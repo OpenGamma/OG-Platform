@@ -12,7 +12,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.Iterables;
@@ -22,7 +21,8 @@ import com.opengamma.web.AbstractPerRequestWebResource;
 /**
  * Abstract base class for RESTful bundle resources.
  */
-public abstract class AbstractWebBundleResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebBundleResource
+    extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.
@@ -80,7 +80,7 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     data().setBundleManager(bundleManager);
     data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
   }
-  
+
   @Context
   public void setHttpHeaders(HttpHeaders httpHeaders) {
     data().setHttpHeaders(httpHeaders);
@@ -89,7 +89,8 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
-   * @param userName logged in user name
+   * 
+   * @param userName  logged in user name
    * @return the output root data, not null
    */
   protected FlexiBean createRootData(String userName) {
@@ -98,12 +99,12 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     out.put("ogScript", new ScriptTag(data()));
     out.put("ogUserName", userName);
     HttpHeaders httpHeaders = data().getHttpHeaders();
-    String openfin = StringUtils.EMPTY;
+    String openfin = "";
     if (httpHeaders != null) {
       out.put("httpHeaders", data().getHttpHeaders());
       List<String> openfinHeader = httpHeaders.getRequestHeader("x-powered-by");
       if (openfinHeader != null) {
-        openfin = Iterables.getFirst(openfinHeader, StringUtils.EMPTY);
+        openfin = Iterables.getFirst(openfinHeader, "");
       }
     }
     out.put("openfin", openfin.toLowerCase());

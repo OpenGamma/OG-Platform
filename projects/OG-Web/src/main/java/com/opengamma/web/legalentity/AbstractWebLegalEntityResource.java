@@ -16,8 +16,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
-/** Abstract base class for RESTful legalEntity resources. */
-public abstract class AbstractWebLegalEntityResource extends AbstractPerRequestWebResource {
+/**
+ * Abstract base class for RESTful legalEntity resources.
+ */
+public abstract class AbstractWebLegalEntityResource
+    extends AbstractPerRequestWebResource {
 
   /** HTML ftl directory */
   protected static final String HTML_DIR = "legalentities/html/";
@@ -29,9 +32,9 @@ public abstract class AbstractWebLegalEntityResource extends AbstractPerRequestW
 
   /**
    * Creates the resource.
-   *
-   * @param legalEntityMaster the legalEntity master, not null
-   * @param securityMaster the securityMaster master, not null
+   * 
+   * @param legalEntityMaster  the legalEntity master, not null
+   * @param securityMaster  the securityMaster master, not null
    */
   protected AbstractWebLegalEntityResource(final LegalEntityMaster legalEntityMaster, final SecurityMaster securityMaster) {
     ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
@@ -47,8 +50,8 @@ public abstract class AbstractWebLegalEntityResource extends AbstractPerRequestW
 
   /**
    * Creates the resource.
-   *
-   * @param parent the parent resource, not null
+   * 
+   * @param parent  the parent resource, not null
    */
   protected AbstractWebLegalEntityResource(final AbstractWebLegalEntityResource parent) {
     super(parent);
@@ -68,10 +71,9 @@ public abstract class AbstractWebLegalEntityResource extends AbstractPerRequestW
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Creates the output root data.
-   *
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {

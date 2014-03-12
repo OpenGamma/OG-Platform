@@ -21,7 +21,8 @@ import com.opengamma.web.WebHomeUris;
 /**
  * Abstract base class for RESTful convention resources.
  */
-public abstract class AbstractWebConventionResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebConventionResource
+    extends AbstractPerRequestWebResource {
 
   /**
    * HTML ftl directory
@@ -44,6 +45,7 @@ public abstract class AbstractWebConventionResource extends AbstractPerRequestWe
 
   /**
    * Creates the resource.
+   * 
    * @param conventionMaster  the convention master, not null
    */
   protected AbstractWebConventionResource(final ConventionMaster conventionMaster) {
@@ -62,6 +64,7 @@ public abstract class AbstractWebConventionResource extends AbstractPerRequestWe
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebConventionResource(final AbstractWebConventionResource parent) {
@@ -83,6 +86,7 @@ public abstract class AbstractWebConventionResource extends AbstractPerRequestWe
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {
@@ -103,6 +107,7 @@ public abstract class AbstractWebConventionResource extends AbstractPerRequestWe
 
   /**
    * Gets the convention types provider.
+   * 
    * @return the convention types provider
    */
   public ConventionTypesProvider getConventionTypesProvider() {

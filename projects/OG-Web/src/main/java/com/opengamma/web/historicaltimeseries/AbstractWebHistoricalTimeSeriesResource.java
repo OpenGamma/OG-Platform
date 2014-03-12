@@ -20,7 +20,9 @@ import com.opengamma.web.WebHomeUris;
 /**
  * Abstract base class for RESTful historical time-series resources.
  */
-public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebHistoricalTimeSeriesResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * HTML ftl directory
    */
@@ -37,6 +39,7 @@ public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPe
 
   /**
    * Creates the resource.
+   * 
    * @param master  the historical data master, not null
    * @param loader  the historical data loader, not null
    * @param configSource  the configuration source, not null
@@ -53,6 +56,7 @@ public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPe
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebHistoricalTimeSeriesResource(final AbstractWebHistoricalTimeSeriesResource parent) {
@@ -74,6 +78,7 @@ public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPe
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {

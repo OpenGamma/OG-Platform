@@ -37,14 +37,14 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
 /**
  * Abstract base class for RESTful config resources.
- * 
  */
-public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebConfigResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * Config xml form parameter name 
    */
   protected static final String CONFIG_XML = "configXML";
-    
   /**
    * HTML ftl directory
    */
@@ -57,7 +57,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
    * The Config Types provider
    */
   private final ConfigTypesProvider _configTypesProvider = ConfigTypesProvider.getInstance();
-  
+
   /**
    * The backing bean.
    */
@@ -65,6 +65,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
 
   /**
    * Creates the resource.
+   * 
    * @param configMaster  the config master, not null
    */
   protected AbstractWebConfigResource(final ConfigMaster configMaster) {
@@ -81,7 +82,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
       data().getTypeMap().put(entry.getKey(), entry.getValue());
     }
   }
-  
+
   private void initializeJSONBuilders() {
     data().getJsonBuilderMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.INSTANCE);
@@ -96,6 +97,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebConfigResource(final AbstractWebConfigResource parent) {
@@ -117,6 +119,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {
@@ -137,10 +140,11 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
 
   /**
    * Gets the configTypesProvider.
+   * 
    * @return the configTypesProvider
    */
   public ConfigTypesProvider getConfigTypesProvider() {
     return _configTypesProvider;
   }
-  
+
 }

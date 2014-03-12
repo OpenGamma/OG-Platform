@@ -22,7 +22,9 @@ import com.opengamma.web.region.WebRegionUris;
 /**
  * Abstract base class for RESTful function resources.
  */
-public abstract class AbstractWebFunctionResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebFunctionResource
+    extends AbstractPerRequestWebResource {
+
   /**
    * HTML ftl directory
    */
@@ -35,6 +37,7 @@ public abstract class AbstractWebFunctionResource extends AbstractPerRequestWebR
   
   /**
    * Creates the resource.
+   * 
    * @param functionConfigurationSource  the function master, not null
    */
   protected AbstractWebFunctionResource(final FunctionConfigurationSource functionConfigurationSource) {
@@ -45,6 +48,7 @@ public abstract class AbstractWebFunctionResource extends AbstractPerRequestWebR
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebFunctionResource(final AbstractWebFunctionResource parent) {
@@ -66,6 +70,7 @@ public abstract class AbstractWebFunctionResource extends AbstractPerRequestWebR
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {

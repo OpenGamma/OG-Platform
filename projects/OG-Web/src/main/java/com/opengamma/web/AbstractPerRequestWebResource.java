@@ -31,7 +31,7 @@ public abstract class AbstractPerRequestWebResource extends AbstractWebResource 
    * The Freemarker outputter.
    */
   private FreemarkerOutputter _freemarker;
-  
+
   /**
    * Creates the resource, used by the root resource.
    */
