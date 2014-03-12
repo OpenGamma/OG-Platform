@@ -22,8 +22,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
@@ -79,7 +81,11 @@ public class WebPositionsData extends DirectBean {
    */
   @PropertyDefinition
   private PositionDocument _versioned;
-
+  /**
+   * The external schemes.
+   */
+  @PropertyDefinition
+  private final Map<ExternalScheme, String> _externalSchemes = Maps.newHashMap();
   /**
    * Creates an instance.
    */
@@ -352,6 +358,33 @@ public class WebPositionsData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the external schemes.
+   * @return the value of the property, not null
+   */
+  public Map<ExternalScheme, String> getExternalSchemes() {
+    return _externalSchemes;
+  }
+
+  /**
+   * Sets the external schemes.
+   * @param externalSchemes  the new value of the property, not null
+   */
+  public void setExternalSchemes(Map<ExternalScheme, String> externalSchemes) {
+    JodaBeanUtils.notNull(externalSchemes, "externalSchemes");
+    this._externalSchemes.clear();
+    this._externalSchemes.putAll(externalSchemes);
+  }
+
+  /**
+   * Gets the the {@code externalSchemes} property.
+   * @return the property, not null
+   */
+  public final Property<Map<ExternalScheme, String>> externalSchemes() {
+    return metaBean().externalSchemes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public WebPositionsData clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -372,7 +405,8 @@ public class WebPositionsData extends DirectBean {
           JodaBeanUtils.equal(getUriPositionId(), other.getUriPositionId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getPosition(), other.getPosition()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          JodaBeanUtils.equal(getExternalSchemes(), other.getExternalSchemes());
     }
     return false;
   }
@@ -389,12 +423,13 @@ public class WebPositionsData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPosition());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSchemes());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("WebPositionsData{");
     int len = buf.length();
     toString(buf);
@@ -415,6 +450,7 @@ public class WebPositionsData extends DirectBean {
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
     buf.append("position").append('=').append(JodaBeanUtils.toString(getPosition())).append(',').append(' ');
     buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+    buf.append("externalSchemes").append('=').append(JodaBeanUtils.toString(getExternalSchemes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -473,6 +509,12 @@ public class WebPositionsData extends DirectBean {
     private final MetaProperty<PositionDocument> _versioned = DirectMetaProperty.ofReadWrite(
         this, "versioned", WebPositionsData.class, PositionDocument.class);
     /**
+     * The meta-property for the {@code externalSchemes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<ExternalScheme, String>> _externalSchemes = DirectMetaProperty.ofReadWrite(
+        this, "externalSchemes", WebPositionsData.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -485,7 +527,8 @@ public class WebPositionsData extends DirectBean {
         "uriPositionId",
         "uriVersionId",
         "position",
-        "versioned");
+        "versioned",
+        "externalSchemes");
 
     /**
      * Restricted constructor.
@@ -514,6 +557,8 @@ public class WebPositionsData extends DirectBean {
           return _position;
         case -1407102089:  // versioned
           return _versioned;
+        case -1949439709:  // externalSchemes
+          return _externalSchemes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -606,6 +651,14 @@ public class WebPositionsData extends DirectBean {
       return _versioned;
     }
 
+    /**
+     * The meta-property for the {@code externalSchemes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<ExternalScheme, String>> externalSchemes() {
+      return _externalSchemes;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -628,10 +681,13 @@ public class WebPositionsData extends DirectBean {
           return ((WebPositionsData) bean).getPosition();
         case -1407102089:  // versioned
           return ((WebPositionsData) bean).getVersioned();
+        case -1949439709:  // externalSchemes
+          return ((WebPositionsData) bean).getExternalSchemes();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -662,8 +718,16 @@ public class WebPositionsData extends DirectBean {
         case -1407102089:  // versioned
           ((WebPositionsData) bean).setVersioned((PositionDocument) newValue);
           return;
+        case -1949439709:  // externalSchemes
+          ((WebPositionsData) bean).setExternalSchemes((Map<ExternalScheme, String>) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebPositionsData) bean)._externalSchemes, "externalSchemes");
     }
 
   }

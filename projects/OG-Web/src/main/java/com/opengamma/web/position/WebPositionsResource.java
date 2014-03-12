@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -34,6 +35,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -44,6 +46,7 @@ import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.position.impl.DelegatingPositionMaster;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.JodaBeanSerialization;
@@ -67,10 +70,11 @@ public class WebPositionsResource extends AbstractWebPositionResource {
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
    * @param htsSource  the historical time series source, not null
+   * @param externalSchemes the map of external schemes, with {@link ExternalScheme} as key and description as value
    */
   public WebPositionsResource(final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
-      final HistoricalTimeSeriesSource htsSource) {
-    super(positionMaster, securityLoader, securitySource, htsSource);
+      final HistoricalTimeSeriesSource htsSource, final Map<ExternalScheme, String> externalSchemes) {
+    super(positionMaster, securityLoader, securitySource, htsSource, externalSchemes);
   }
 
   //-------------------------------------------------------------------------
@@ -85,9 +89,10 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr,
       @QueryParam("positionId") List<String> positionIdStrs,
-      @QueryParam("tradeId") List<String> tradeIdStrs) {
+      @QueryParam("tradeId") List<String> tradeIdStrs,
+      @QueryParam("uniqueIdScheme") String uniqueIdScheme) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
+    FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs, uniqueIdScheme);
     return getFreemarker().build(HTML_DIR + "positions.ftl", out);
   }
 
@@ -102,14 +107,15 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr,
       @QueryParam("positionId") List<String> positionIdStrs,
-      @QueryParam("tradeId") List<String> tradeIdStrs) {
+      @QueryParam("tradeId") List<String> tradeIdStrs,
+      @QueryParam("uniqueIdScheme") String uniqueIdScheme) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
+    FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs, uniqueIdScheme);
     return getFreemarker().build(JSON_DIR + "positions.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, String identifier, String minQuantityStr,
-      String maxQuantityStr, List<String> positionIdStrs, List<String> tradeIdStrs) {
+      String maxQuantityStr, List<String> positionIdStrs, List<String> tradeIdStrs, String uniqueIdScheme) {
     minQuantityStr = StringUtils.defaultString(minQuantityStr).replace(",", "");
     maxQuantityStr = StringUtils.defaultString(maxQuantityStr).replace(",", "");
     FlexiBean out = createRootData();
@@ -117,6 +123,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     PositionSearchRequest searchRequest = new PositionSearchRequest();
     searchRequest.setPagingRequest(pr);
     searchRequest.setSecurityIdValue(StringUtils.trimToNull(identifier));
+    searchRequest.setUniqueIdScheme(StringUtils.trimToNull(uniqueIdScheme));
     if (NumberUtils.isNumber(minQuantityStr)) {
       searchRequest.setMinQuantity(NumberUtils.createBigDecimal(minQuantityStr));
     }
@@ -148,8 +155,9 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue, 
       @FormParam("type") String type,
-      @FormParam(POSITION_XML) String positionXml) {
-    
+      @FormParam(POSITION_XML) String positionXml,
+      @FormParam("uniqueIdScheme") String uniqueIdScheme) {
+    uniqueIdScheme = StringUtils.trimToNull(uniqueIdScheme);
     type = StringUtils.trimToEmpty(type);
     URI uri = null;
     switch (type) {
@@ -161,7 +169,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
           String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
           return Response.ok(html).build();
         }
-        uri = addPosition(positionXml);
+        uri = addPosition(positionXml, uniqueIdScheme);
         break;
       case StringUtils.EMPTY:
         quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
@@ -195,7 +203,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
           String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
           return Response.ok(html).build();
         }
-        uri = addPosition(quantity, secUid);
+        uri = addPosition(quantity, secUid, uniqueIdScheme);
         break;
       default:
         throw new IllegalArgumentException("Can only add position by XML or completing provided web form");
@@ -212,13 +220,15 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @FormParam("idvalue") String idValue,
       @FormParam("tradesJson") String tradesJson,
       @FormParam("type") String type,
-      @FormParam(POSITION_XML) String positionXml) {
+      @FormParam(POSITION_XML) String positionXml,
+      @FormParam("uniqueIdScheme") String uniqueIdScheme) {
     
+    uniqueIdScheme = StringUtils.trimToNull(uniqueIdScheme);
     type = StringUtils.trimToEmpty(type);
     URI uri = null;
     switch (type) {
       case "xml":
-        uri = addPosition(positionXml);
+        uri = addPosition(positionXml, uniqueIdScheme);
         break;
       case StringUtils.EMPTY:
         quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
@@ -242,7 +252,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
         } else {
           trades = Collections.<ManageableTrade>emptyList();
         }
-        uri = addPosition(quantity, secUid, trades);
+        uri = addPosition(quantity, secUid, trades, uniqueIdScheme);
         break;
       default:
         throw new IllegalArgumentException("Can only add position by XML or completing provided web form");
@@ -250,11 +260,15 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     return Response.created(uri).build();
   }
 
-  private URI addPosition(String positionXml) {
+  private URI addPosition(String positionXml, String uniqueIdScheme) {
     positionXml = StringUtils.trimToEmpty(positionXml);
     Bean positionBean = JodaBeanSerialization.deserializer().xmlReader().read(positionXml);
     PositionMaster positionMaster = data().getPositionMaster();
-    ManageablePosition position = positionMaster.add(new PositionDocument((ManageablePosition) positionBean)).getPosition();
+    ManageablePosition manageablePosition = (ManageablePosition) positionBean;
+    if (uniqueIdScheme != null) {
+      manageablePosition.setUniqueId(UniqueId.of(uniqueIdScheme, uniqueIdScheme));
+    }
+    ManageablePosition position = positionMaster.add(new PositionDocument(manageablePosition)).getPosition();
     return  new WebPositionsUris(data()).position(position);
   }
 
@@ -269,13 +283,16 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     return result;
   }
 
-  private URI addPosition(BigDecimal quantity, UniqueId secUid) {
-    return addPosition(quantity, secUid, Collections.<ManageableTrade>emptyList());
+  private URI addPosition(BigDecimal quantity, UniqueId secUid, String uniqueIdScheme) {
+    return addPosition(quantity, secUid, Collections.<ManageableTrade>emptyList(), uniqueIdScheme);
   }
   
-  private URI addPosition(BigDecimal quantity, UniqueId secUid, Collection<ManageableTrade> trades) {
+  private URI addPosition(BigDecimal quantity, UniqueId secUid, Collection<ManageableTrade> trades, String uniqueIdScheme) {
     ExternalIdBundle secId = data().getSecuritySource().get(secUid).getExternalIdBundle();
     ManageablePosition position = new ManageablePosition(quantity, secId);
+    if (uniqueIdScheme != null) {
+      position.setUniqueId(UniqueId.of(uniqueIdScheme, uniqueIdScheme));
+    }
     for (ManageableTrade trade : trades) {
       trade.setSecurityLink(new ManageableSecurityLink(secId));
       position.addTrade(trade);
@@ -315,6 +332,11 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     FlexiBean out = super.createRootData();
     PositionSearchRequest searchRequest = new PositionSearchRequest();
     out.put("searchRequest", searchRequest);
+    if (data().getPositionMaster() instanceof DelegatingPositionMaster) {
+      DelegatingPositionMaster delegatingPositionMaster = (DelegatingPositionMaster) data().getPositionMaster();
+      Map<String, PositionMaster> delegates = delegatingPositionMaster.getDelegates();
+      out.put("uniqueIdSchemes", delegates.keySet());
+    }
     return out;
   }
 

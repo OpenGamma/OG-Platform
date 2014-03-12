@@ -7,10 +7,11 @@ package com.opengamma.examples.simulated.loader;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.examples.simulated.curve.ExampleFXForwardCurveConfigPopulator;
+import com.opengamma.examples.simulated.volatility.cube.ExampleSwaptionVolatilityCubeConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleATMSwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleFXOptionVolatilitySurfaceConfigPopulator;
+import com.opengamma.examples.simulated.volatility.surface.ExampleForwardSwapSurfaceConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.scripts.Scriptable;
@@ -36,9 +37,10 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
     new YieldCurveConfigPopulator(configMaster, true);
     ExampleFXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.CURRENCY_PAIRS);
-    ExampleATMSwaptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_SURFACES);
+    ExampleATMSwaptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_CURRENCY_CONFIGS);
     ExampleFXForwardCurveConfigPopulator.populateCurveConfigMaster(configMaster, ExampleViewsPopulator.CURRENCY_PAIRS);
-    new VolatilityCubeConfigPopulator(configMaster);
+    ExampleSwaptionVolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_CURRENCY_CONFIGS);
+    ExampleForwardSwapSurfaceConfigPopulator.populateSurfaceConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_COUNTRY_CONFIGS);
   }
 
 }

@@ -32,10 +32,10 @@ public class ExampleFunctionConfigurationSourceComponentFactory extends Function
     return ExampleStandardFunctionConfiguration.instance();
   }
 
-  @Override
-  protected FunctionConfigurationSource cubeConfigurations() {
-    return SyntheticVolatilityCubeFunctions.instance();
-  }
+  //@Override
+  //protected FunctionConfigurationSource cubeConfigurations() {
+  //  return SyntheticVolatilityCubeFunctions.instance();
+  //}
 
   protected FunctionConfigurationSource tutorialConfiguration() {
     return TutorialFunctions.instance();

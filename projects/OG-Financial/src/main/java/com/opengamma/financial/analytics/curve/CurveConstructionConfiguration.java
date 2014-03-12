@@ -74,6 +74,9 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    */
   private List<ConfigLink<CurveConstructionConfiguration>> _exogenousLinks = ImmutableList.of();
 
+  /**
+   * For the builder.
+   */
   /* package */CurveConstructionConfiguration() {
   }
 
@@ -102,7 +105,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     return Lists.transform(_exogenousLinks,
         new Function<ConfigLink<CurveConstructionConfiguration>, CurveConstructionConfiguration>() {
           @Override
-          public CurveConstructionConfiguration apply(ConfigLink<CurveConstructionConfiguration> input) {
+          public CurveConstructionConfiguration apply(final ConfigLink<CurveConstructionConfiguration> input) {
             return input.resolve();
           }
         }
@@ -115,7 +118,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    *
    * @param exogenousConfigurations the new value of the property, not null
    */
-  public void setExogenousConfigurations(List<String> exogenousConfigurations) {
+  public void setExogenousConfigurations(final List<String> exogenousConfigurations) {
 
     // if empty, we already have suitable defaults configured
     if (!exogenousConfigurations.isEmpty()) {
@@ -123,7 +126,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
       _exogenousLinks = Lists.transform(_exogenousConfigurations,
           new Function<String, ConfigLink<CurveConstructionConfiguration>>() {
             @Override
-            public ConfigLink<CurveConstructionConfiguration> apply(String config) {
+            public ConfigLink<CurveConstructionConfiguration> apply(final String config) {
               return ConfigLink.of(config, CurveConstructionConfiguration.class);
             }
           }

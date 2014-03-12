@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
 /**
- * 
+ *
  */
 public class SurfaceAndCubeQuoteType {
   /** Surfaces or cubes defined using call options and deltas */

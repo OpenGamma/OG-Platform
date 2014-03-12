@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -87,6 +87,10 @@ public class BillTransaction implements InstrumentDerivative {
     return _billStandard;
   }
 
+  /**
+   * Gets the currency.
+   * @return The currency
+   */
   public Currency getCurrency() {
     return _billStandard.getCurrency();
   }

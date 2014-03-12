@@ -5,10 +5,12 @@
  */
 package com.opengamma.component.factory.web;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -20,11 +22,13 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.rest.JerseyRestResourceFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
@@ -34,6 +38,7 @@ import com.opengamma.engine.target.ComputationTargetTypeProvider;
 import com.opengamma.engine.target.DefaultComputationTargetTypeProvider;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.convention.ConventionMaster;
@@ -196,12 +201,52 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
 
+  /**
+   * The external Scheme configuration 
+   * e.g BLOOMBERG_TICKER:Bloomberg Ticker,BLOOMBERG_TCM:Bloomberg Ticker/Coupon/Maturity
+   */
+  @PropertyDefinition
+  private String _externalSchemes;
+
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     initBasics(repo);
-    initMasters(repo);
+    initMasters(repo, getExternalSchemesMap());
     initValueRequirementNames(repo, configuration);
+  }
+
+  private Map<ExternalScheme, String> getExternalSchemesMap() {
+    Map<ExternalScheme, String> externalSchemes = new HashMap<>();
+    if (StringUtils.trimToNull(getExternalSchemes()) != null) {
+      String[] schemeTokens = getExternalSchemes().split(",");
+      for (String keyValueStr : schemeTokens) {
+        keyValueStr = StringUtils.trimToNull(keyValueStr);
+        if (keyValueStr != null) {
+          String[] externalScheme = keyValueStr.split(":");
+          if (externalScheme.length != 2) {
+            throw new OpenGammaRuntimeException("Invalid external schemes configuration [" + getExternalSchemes() + "]");
+          }
+          externalSchemes.put(ExternalScheme.of(externalScheme[0]), externalScheme[1]);
+        }
+      }
+    }
+    if (externalSchemes.isEmpty()) {
+      externalSchemes = getDefaultExternalSchemeMappings();
+    }
+    return externalSchemes;
+  }
+
+  private Map<ExternalScheme, String> getDefaultExternalSchemeMappings() {
+    Map<ExternalScheme, String> externalSchemes = new HashMap<>();
+    externalSchemes.put(ExternalSchemes.BLOOMBERG_TICKER, "Bloomberg Ticker");
+    externalSchemes.put(ExternalSchemes.BLOOMBERG_BUID, "Bloomberg BUID");
+    externalSchemes.put(ExternalSchemes.CUSIP, "Cusip");
+    externalSchemes.put(ExternalSchemes.OG_SYNTHETIC_TICKER, "OG Synthetic Ticker");
+    externalSchemes.put(ExternalSchemes.ISIN, "Isin");
+    externalSchemes.put(ExternalSchemes.RIC, "Ric");
+    externalSchemes.put(ExternalSchemes.SEDOL1, "Sedol");
+    return externalSchemes;
   }
 
   protected void initBasics(ComponentRepository repo) {
@@ -209,7 +254,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(new WebAboutResource());
   }
 
-  protected void initMasters(ComponentRepository repo) {
+  protected void initMasters(ComponentRepository repo, Map<ExternalScheme, String> externalSchemes) {
     JerseyRestResourceFactory resource;
     resource = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
     repo.getRestComponents().publishResource(resource);
@@ -225,7 +270,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebPositionsResource.class, getPositionMaster(), getSecurityLoader(), getSecuritySource(), getHistoricalTimeSeriesSource());
+    resource = new JerseyRestResourceFactory(WebPositionsResource.class, getPositionMaster(), getSecurityLoader(), 
+        getSecuritySource(), getHistoricalTimeSeriesSource(), externalSchemes);
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster(), getSecuritySource(), getScheduler());
     repo.getRestComponents().publishResource(resource);
@@ -907,6 +953,34 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the external Scheme configuration
+   * e.g BLOOMBERG_TICKER:Bloomberg Ticker,BLOOMBERG_TCM:Bloomberg Ticker/Coupon/Maturity
+   * @return the value of the property
+   */
+  public String getExternalSchemes() {
+    return _externalSchemes;
+  }
+
+  /**
+   * Sets the external Scheme configuration
+   * e.g BLOOMBERG_TICKER:Bloomberg Ticker,BLOOMBERG_TCM:Bloomberg Ticker/Coupon/Maturity
+   * @param externalSchemes  the new value of the property
+   */
+  public void setExternalSchemes(String externalSchemes) {
+    this._externalSchemes = externalSchemes;
+  }
+
+  /**
+   * Gets the the {@code externalSchemes} property.
+   * e.g BLOOMBERG_TICKER:Bloomberg Ticker,BLOOMBERG_TCM:Bloomberg Ticker/Coupon/Maturity
+   * @return the property, not null
+   */
+  public final Property<String> externalSchemes() {
+    return metaBean().externalSchemes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public WebsiteBasicsComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -943,6 +1017,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
+          JodaBeanUtils.equal(getExternalSchemes(), other.getExternalSchemes()) &&
           super.equals(obj);
     }
     return false;
@@ -975,12 +1050,13 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSchemes());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(800);
+    StringBuilder buf = new StringBuilder(832);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1018,6 +1094,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
     buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
     buf.append("volatilityCubeDefinitionSource").append('=').append(JodaBeanUtils.toString(getVolatilityCubeDefinitionSource())).append(',').append(' ');
+    buf.append("externalSchemes").append('=').append(JodaBeanUtils.toString(getExternalSchemes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -1151,6 +1228,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<VolatilityCubeDefinitionSource> _volatilityCubeDefinitionSource = DirectMetaProperty.ofReadWrite(
         this, "volatilityCubeDefinitionSource", WebsiteBasicsComponentFactory.class, VolatilityCubeDefinitionSource.class);
     /**
+     * The meta-property for the {@code externalSchemes} property.
+     */
+    private final MetaProperty<String> _externalSchemes = DirectMetaProperty.ofReadWrite(
+        this, "externalSchemes", WebsiteBasicsComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -1178,7 +1260,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "marketDataSpecificationRepository",
         "viewProcessor",
         "computationTargetResolver",
-        "volatilityCubeDefinitionSource");
+        "volatilityCubeDefinitionSource",
+        "externalSchemes");
 
     /**
      * Restricted constructor.
@@ -1237,6 +1320,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _computationTargetResolver;
         case 1540542824:  // volatilityCubeDefinitionSource
           return _volatilityCubeDefinitionSource;
+        case -1949439709:  // externalSchemes
+          return _externalSchemes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1451,6 +1536,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       return _volatilityCubeDefinitionSource;
     }
 
+    /**
+     * The meta-property for the {@code externalSchemes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> externalSchemes() {
+      return _externalSchemes;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -1503,6 +1596,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getComputationTargetResolver();
         case 1540542824:  // volatilityCubeDefinitionSource
           return ((WebsiteBasicsComponentFactory) bean).getVolatilityCubeDefinitionSource();
+        case -1949439709:  // externalSchemes
+          return ((WebsiteBasicsComponentFactory) bean).getExternalSchemes();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1581,6 +1676,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return;
         case 1540542824:  // volatilityCubeDefinitionSource
           ((WebsiteBasicsComponentFactory) bean).setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
+          return;
+        case -1949439709:  // externalSchemes
+          ((WebsiteBasicsComponentFactory) bean).setExternalSchemes((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

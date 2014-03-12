@@ -46,9 +46,10 @@ public class DbFunctionConfigurationSourceComponentFactory extends FunctionConfi
   //-------------------------------------------------------------------------
   @Override
   protected FunctionConfigurationSource initSource() {
-    List<FunctionConfigurationSource> underlying = new ArrayList<FunctionConfigurationSource>();
+    final List<FunctionConfigurationSource> underlying = new ArrayList<>();
     underlying.add(new DbFunctionConfigurationSource(getConfigMaster(), getFunctionDefinitionName()));
     underlying.addAll(curveAndSurfaceSources());
+    underlying.addAll(cubeSources());
     final FunctionConfigurationSource[] array = underlying.toArray(new FunctionConfigurationSource[underlying.size()]);
     return CombiningFunctionConfigurationSource.of(array);
   }

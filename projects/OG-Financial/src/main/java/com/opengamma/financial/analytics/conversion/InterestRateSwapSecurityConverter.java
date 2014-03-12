@@ -314,13 +314,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   /**
    * Converts the StubCalculationMethod to CouponStubs.
    */
-  private Pair<CouponStub, CouponStub> parseStubs(
-      final StubCalculationMethod stubCalcMethod) {
-    
+  private Pair<CouponStub, CouponStub> parseStubs(final StubCalculationMethod stubCalcMethod) {
     CouponStub startStub = null;
     CouponStub endStub = null;
     
     if (stubCalcMethod != null) {
+      stubCalcMethod.validate();
       StubType stubType = stubCalcMethod.getType();
       
       // first stub

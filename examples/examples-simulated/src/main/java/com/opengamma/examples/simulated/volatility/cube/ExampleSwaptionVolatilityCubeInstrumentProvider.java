@@ -1,205 +1,287 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.examples.simulated.volatility.cube;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashSet;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import au.com.bytecode.opencsv.CSVParser;
-import au.com.bytecode.opencsv.CSVReader;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.examples.simulated.volatility.surface.ExampleSwaptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
- * Generates Example instrument codes for volatilities given points.
+ * Generates {@link ExternalId}s for the swaption vol cube tickers in the simulated market data files.
  */
-public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
-  
-  //TODO: other ATM surfaces
-  private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
-  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER =
-      new ExampleSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, "INSTRUMENT", MarketDataRequirementNames.MARKET_VALUE);
-  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER =
-      new ExampleSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", false, true, "STRIKE", MarketDataRequirementNames.MARKET_VALUE);
+@BeanDefinition
+public class ExampleSwaptionVolatilityCubeInstrumentProvider implements Bean, CubeInstrumentProvider<Tenor, Tenor, Double> {
+
+  /** The serialization version */
+  private static final long serialVersionUID = 1L;
 
   /**
-   * Generates Example codes for volatilities given points.
+   * The instrument name.
    */
-  public static final ExampleSwaptionVolatilityCubeInstrumentProvider INSTANCE = new ExampleSwaptionVolatilityCubeInstrumentProvider();
+  private static final String INSTRUMENT = "SWAPTIONVOL";
 
-  private static final String TICKER_FILE = "SyntheticVolatilityCubeIdentifierLookupTable.csv";
-  
-//  private final Set<Currency> _currencies = ImmutableSet.of(Currency.CHF, 
-//      Currency.JPY, Currency.EUR, Currency.CZK, Currency.USD, Currency.GBP, Currency.NOK, Currency.DKK, Currency.SEK);
-//  
-//  private final Set<Currency> _currencies = ImmutableSet.of(Currency.USD);
-//  
-//  private final Set<Tenor> _swapTenors = ImmutableSet.of(Tenor.ofMonths(3), 
-//      Tenor.ofYears(1), 
-//      Tenor.ofYears(2), 
-//      Tenor.ofYears(3), 
-//      Tenor.ofYears(5), 
-//      Tenor.ofYears(10), 
-//      Tenor.ofYears(15), 
-//      Tenor.ofYears(20), 
-//      Tenor.ofYears(30));
-// 
-//  private final Set<Tenor> _optionTenors = ImmutableSet.of(Tenor.ofMonths(1), 
-//      Tenor.ofMonths(3),
-//      Tenor.ofMonths(6),
-//      Tenor.ofYears(1), 
-//      Tenor.ofYears(2), 
-//      Tenor.ofYears(3), 
-//      Tenor.ofYears(4),
-//      Tenor.ofYears(5), 
-//      Tenor.ofYears(10), 
-//      Tenor.ofYears(15), 
-//      Tenor.ofYears(20), 
-//      Tenor.ofYears(30));
-//  
-//  private final Set<Double> _relativeStrikes = ImmutableSet.of(20.0, 25.0, 50.0, 70.0, 75.0, 100.0, 200.0, 500.0);
-  
-  private final Map<Pair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint = Maps.newHashMap();
+  /**
+   * The relative strike formatter.
+   */
+  private static final Format FORMATTER = new DecimalFormat("##0.0");
 
-  private ExampleSwaptionVolatilityCubeInstrumentProvider() {
-//    for (Currency ccy : _currencies) {
-//      for (Tenor optionExpiry : _optionTenors) {
-//        for (Tenor swapTenor : _swapTenors) {
-//          for (Double relativeStrike : _relativeStrikes) {
-//            addPoint(ccy, optionExpiry, swapTenor, relativeStrike * -1, "%sSWAPTIONVOL%s%sN%s");
-//            addPoint(ccy, optionExpiry, swapTenor, relativeStrike, "%sSWAPTIONVOL%s%sP%s");
-//          }
-//        }
-//      }
-//    }
+  /**
+   * The positive spread prefix.
+   */
+  private static final String POSITIVE = "P";
 
-    final InputStream is = getClass().getResourceAsStream(TICKER_FILE);
-    if (is == null) {
-      throw new OpenGammaRuntimeException("Unable to locate " + TICKER_FILE);
-    }
-    final CSVReader csvReader = new CSVReader(new InputStreamReader(is), CSVParser.DEFAULT_SEPARATOR,
-        CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.DEFAULT_ESCAPE_CHARACTER, 1);
-    String[] nextLine;
-    try {
-      while ((nextLine = csvReader.readNext()) != null) {
-        //TODO: are these the right way round (copied from VolatilityCubeConfigPopulator)
-        final String currencyIso = nextLine[1];
-        final String expiry = nextLine[2];
-        final String expiryUnit = nextLine[3];
-        final String swapPeriod = nextLine[4];
-        final String swapPeriodUnit = nextLine[5];
-        final String payOrReceive = nextLine[6];
-        final String relativeStrike = nextLine[7];
-        final String ticker = nextLine[8];
+  /**
+   * The negative spread prefix.
+   */
+  private static final String NEGATIVE = "N";
 
-        if (ticker != null) {
-          final Currency currency = Currency.of(currencyIso);
-          final Tenor swapTenor = Tenor.parse("P" + swapPeriod + swapPeriodUnit);
-          final Tenor optionExpiry = Tenor.parse("P" + expiry + expiryUnit);
-          double sign;
-          if ("PY".equals(payOrReceive)) {
-            sign = -1;
-          } else if ("RC".equals(payOrReceive)) {
-            sign = 1;
-          } else {
-            csvReader.close();
-            throw new IllegalArgumentException();
-          }
+  /**
+   * The currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _currency;
 
-          final Double relativeStrikeRaw = Double.valueOf(relativeStrike);
-          final double normalizedStrike = relativeStrikeRaw > 10 ? relativeStrikeRaw : relativeStrikeRaw * 100;
-          Double relativeStrikeBps = sign * normalizedStrike;
-          if (relativeStrikeBps == -0.0) {
-            //Apparently the volatilities should be the same, so lets avoid fudge pains
-            relativeStrikeBps = 0.0;
-          }
-          final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
-
-          final ExternalId identifier = getIdentifier(ticker);
-
-          final Pair<Currency, VolatilityPoint> key = Pairs.of(currency, point);
-          if (_idsByPoint.containsKey(key)) {
-            _idsByPoint.get(key).add(identifier);
-          } else {
-            _idsByPoint.put(key, Sets.newHashSet(identifier));
-          }
-        }
-      }
-      csvReader.close();
-    } catch (final IOException e) {
-      throw new OpenGammaRuntimeException("Unable to read from " + TICKER_FILE, e);
-    }
+  /**
+   * For the builder.
+   */
+  /* package */ ExampleSwaptionVolatilityCubeInstrumentProvider() {
   }
 
-//  private void addPoint(Currency ccy, Tenor optionExpiry, Tenor swapTenor, Double relativeStrike, String format) {
-//    final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrike);
-//    String ticker = String.format(format, ccy.getCode(), optionExpiry.getPeriod().toString().substring(1), swapTenor.getPeriod().toString().substring(1), Math.abs(relativeStrike));
-//    final ExternalId identifier = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
-//    final ObjectsPair<Currency, VolatilityPoint> key = Pairs.of(ccy, point);
-//    _idsByPoint.put(key, Sets.newHashSet(identifier));
-//  }
-
-  private ExternalId getIdentifier(final String ticker) {
-    return ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
+  /**
+   * @param currency The currency string, not null
+   */
+  public ExampleSwaptionVolatilityCubeInstrumentProvider(final String currency) {
+    setCurrency(currency);
   }
 
-  public Set<ExternalId> getInstruments(final Currency currency, final VolatilityPoint point) {
-    if ((point.getRelativeStrike() == 0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
-      final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
-      return Sets.newHashSet(instrument);
+  @Override
+  public ExternalId getInstrument(final Tenor expiry, final Tenor maturity, final Double relativeStrike) {
+    final StringBuilder sb = new StringBuilder(_currency);
+    sb.append(INSTRUMENT);
+    sb.append(expiry.getPeriod().toString().substring(1));
+    sb.append(maturity.getPeriod().toString().substring(1));
+    if (relativeStrike < 0) {
+      sb.append(NEGATIVE);
+      sb.append(FORMATTER.format(Math.abs(relativeStrike)));
     } else {
-      return _idsByPoint.get(Pairs.of(currency, point));
+      sb.append(POSITIVE);
+      sb.append(FORMATTER.format(relativeStrike));
     }
+    return ExternalSchemes.syntheticSecurityId(sb.toString());
   }
 
-  public Set<Currency> getAllCurrencies() {
-    final HashSet<Currency> ret = new HashSet<Currency>();
-    for (final Entry<Pair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
-      ret.add(entry.getKey().getFirst());
-    }
-    return ret;
+  @Override
+  public String getDataFieldName() {
+    return MarketDataRequirementNames.MARKET_VALUE;
   }
 
-  public Set<VolatilityPoint> getAllPoints(final Currency currency) {
-    final HashSet<VolatilityPoint> ret = new HashSet<VolatilityPoint>();
-    for (final Entry<Pair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
-      if (entry.getKey().getFirst().equals(currency)) {
-        ret.add(entry.getKey().getSecond());
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code ExampleSwaptionVolatilityCubeInstrumentProvider}.
+   * @return the meta-bean, not null
+   */
+  public static ExampleSwaptionVolatilityCubeInstrumentProvider.Meta meta() {
+    return ExampleSwaptionVolatilityCubeInstrumentProvider.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(ExampleSwaptionVolatilityCubeInstrumentProvider.Meta.INSTANCE);
+  }
+
+  @Override
+  public ExampleSwaptionVolatilityCubeInstrumentProvider.Meta metaBean() {
+    return ExampleSwaptionVolatilityCubeInstrumentProvider.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property, not null
+   */
+  public String getCurrency() {
+    return _currency;
+  }
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(String currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
+  }
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<String> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExampleSwaptionVolatilityCubeInstrumentProvider clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExampleSwaptionVolatilityCubeInstrumentProvider other = (ExampleSwaptionVolatilityCubeInstrumentProvider) obj;
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ExampleSwaptionVolatilityCubeInstrumentProvider{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code ExampleSwaptionVolatilityCubeInstrumentProvider}.
+   */
+  public static class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<String> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", ExampleSwaptionVolatilityCubeInstrumentProvider.class, String.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "currency");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return _currency;
       }
+      return super.metaPropertyGet(propertyName);
     }
-    return ret;
+
+    @Override
+    public BeanBuilder<? extends ExampleSwaptionVolatilityCubeInstrumentProvider> builder() {
+      return new DirectBeanBuilder<ExampleSwaptionVolatilityCubeInstrumentProvider>(new ExampleSwaptionVolatilityCubeInstrumentProvider());
+    }
+
+    @Override
+    public Class<? extends ExampleSwaptionVolatilityCubeInstrumentProvider> beanType() {
+      return ExampleSwaptionVolatilityCubeInstrumentProvider.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> currency() {
+      return _currency;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((ExampleSwaptionVolatilityCubeInstrumentProvider) bean).getCurrency();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((ExampleSwaptionVolatilityCubeInstrumentProvider) bean).setCurrency((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ExampleSwaptionVolatilityCubeInstrumentProvider) bean)._currency, "currency");
+    }
+
   }
 
-  public ExternalId getStrikeInstrument(final Currency currency, final VolatilityPoint point) {
-    return getStrikeInstrument(currency, point.getSwapTenor(), point.getOptionExpiry());
-  }
-
-  public ExternalId getStrikeInstrument(final Currency currency, final Tenor swapTenor, final Tenor optionExpiry) {
-    if (currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
-      return ATM_STRIKE_INSTRUMENT_PROVIDER.getInstrument(swapTenor, optionExpiry);
-    } else {
-      //TODO other currencies
-      return null;
-    }
-  }
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

@@ -384,7 +384,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
           _second = newValue;
           break;
         case "third":
-          _second = newValue;
+          _third = newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

@@ -24,7 +24,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfigPopulator;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator;
@@ -114,9 +113,6 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     }
     if (isEquityOptionSurface()) {
       new EquityOptionSurfaceConfigPopulator(cm);
-    }
-    if (isVolatilityCube()) {
-      new VolatilityCubeConfigPopulator(cm);
     }
     if (isFxForwardCurve()) {
       new FXForwardCurveConfigPopulator(cm);

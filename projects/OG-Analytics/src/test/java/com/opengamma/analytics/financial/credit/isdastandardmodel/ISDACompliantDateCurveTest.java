@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
@@ -21,14 +21,19 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateCurve.Meta;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ *
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantDateCurveTest {
 
+  @Test
+  public void test() {
+  }
   /**
-   * 
+   *
    */
   @SuppressWarnings("unused")
   @Test
@@ -89,12 +94,12 @@ public class ISDACompliantDateCurveTest {
     final Meta meta = ISDACompliantDateCurve.meta();
     final Meta metafb = curve365.metaBean();
     assertEquals(meta, metafb);
-    BeanBuilder<?> builder = meta.builder();
-    Map<String, MetaProperty<?>> map = meta.metaPropertyMap();
+    final BeanBuilder<?> builder = meta.builder();
+    final Map<String, MetaProperty<?>> map = meta.metaPropertyMap();
 
     final MetaProperty<LocalDate> propBaseDate = meta.baseDate();
     final MetaProperty<LocalDate[]> metaDates = meta.dates();
-    MetaProperty<DayCount> metaDcc = meta.dayCount();
+    final MetaProperty<DayCount> metaDcc = meta.dayCount();
 
     builder.set(propBaseDate.name(), baseDate);
     builder.set(propDates.name(), dates);
@@ -102,7 +107,7 @@ public class ISDACompliantDateCurveTest {
     builder.set(meta.metaPropertyGet("name"), "");
     builder.set(meta.metaPropertyGet("t"), tt);
     builder.set(meta.metaPropertyGet("rt"), rtt);
-    ISDACompliantDateCurve builtCurve = (ISDACompliantDateCurve) builder.build();
+    final ISDACompliantDateCurve builtCurve = (ISDACompliantDateCurve) builder.build();
     assertEquals(curve365, builtCurve);
 
     /*
@@ -112,20 +117,20 @@ public class ISDACompliantDateCurveTest {
       final double[] ratesShort = Arrays.copyOf(rates, num - 1);
       new ISDACompliantDateCurve(baseDate, dates, ratesShort);
       throw new RuntimeException();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
       dates[1] = LocalDate.of(2015, 1, 22);
       new ISDACompliantDateCurve(baseDate, dates, rates);
       throw new RuntimeException();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void hashEqualsTest() {

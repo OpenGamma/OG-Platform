@@ -1,0 +1,178 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.fudgemsg;
+
+import java.lang.reflect.Array;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.SurfaceData;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
+
+/**
+ * Builder for converting {@link SurfaceData} instances to/from Fudge messages.
+ */
+@FudgeBuilderFor(SurfaceData.class)
+public class SurfaceDataFudgeBuilder implements FudgeBuilder<SurfaceData<?, ?>> {
+  /** The definition field */
+  private static final String NAME_FIELD = "name";
+  /** The xs field */
+  private static final String XS_FIELD = "xs";
+  /** The x sub-message field */
+  private static final String XS_SUBMESSAGE_FIELD = "xsSubMessage";
+  /** The ys field */
+  private static final String YS_FIELD = "ys";
+  /** The y sub-message field */
+  private static final String YS_SUBMESSAGE_FIELD = "ysSubMessage";
+  /** The x field */
+  private static final String X_FIELD = "x";
+  /** The y field */
+  private static final String Y_FIELD = "y";
+  /** The value field */
+  private static final String VALUE_FIELD = "value";
+  /** The values field */
+  private static final String VALUES_FIELD = "values";
+  /** The x labels field */
+  private static final String X_LABEL_FIELD = "xLabel";
+  /** The y labels field */
+  private static final String Y_LABEL_FIELD = "yLabel";
+
+  @Override
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SurfaceData<?, ?> object) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    message.add(NAME_FIELD, object.getName());
+    final MutableFudgeMsg xsSubMsg = message.addSubMessage(XS_SUBMESSAGE_FIELD, null);
+    FudgeSerializer.addClassHeader(xsSubMsg, object.getXs().getClass().getComponentType());
+    for (final Object x : object.getXs()) {
+      if (x != null) {
+        xsSubMsg.add(XS_FIELD, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(x), x.getClass()));
+      }
+    }
+    final MutableFudgeMsg ysSubMsg = message.addSubMessage(YS_SUBMESSAGE_FIELD, null);
+    FudgeSerializer.addClassHeader(ysSubMsg, object.getYs().getClass().getComponentType());
+    for (final Object y : object.getYs()) {
+      if (y != null) {
+        ysSubMsg.add(YS_FIELD, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(y), y.getClass()));
+      }
+    }
+    for (final Entry<?, Double> entry : object.asMap().entrySet()) {
+      final Pair<Object, Object> pair = (Pair<Object, Object>) entry.getKey();
+      final MutableFudgeMsg subMessage = serializer.newMessage();
+      if (pair.getFirst() != null && pair.getSecond() != null) {
+        subMessage.add(X_FIELD, null, serializer.objectToFudgeMsg(pair.getFirst()));
+        subMessage.add(Y_FIELD, null, serializer.objectToFudgeMsg(pair.getSecond()));
+        subMessage.add(VALUE_FIELD, null, entry.getValue());
+        message.add(VALUES_FIELD, null, subMessage);
+      }
+    }
+    message.add(X_LABEL_FIELD, object.getXLabel());
+    message.add(Y_LABEL_FIELD, object.getYLabel());
+    return message;
+  }
+
+  @Override
+  public SurfaceData<?, ?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final String name = message.getString(NAME_FIELD);
+    Object[] xsArray;
+    Object[] ysArray;
+    if (message.hasField(XS_SUBMESSAGE_FIELD)) {
+      try {
+        final FudgeMsg xsSubMsg = message.getMessage(XS_SUBMESSAGE_FIELD);
+        final String xClassName = xsSubMsg.getString(0);
+        final Class<?> xClass = xClassName != null ? Class.forName(xClassName) : Object.class;
+        final List<FudgeField> xsFields = xsSubMsg.getAllByName(XS_FIELD);
+        xsArray = (Object[]) Array.newInstance(xClass, xsFields.size());
+        int i = 0;
+        for (final FudgeField xField : xsFields) {
+          final Object x = deserializer.fieldValueToObject(xField);
+          xsArray[i] = x;
+          i++;
+        }
+        final FudgeMsg ysSubMsg = message.getMessage(YS_SUBMESSAGE_FIELD);
+        final String yClassName = ysSubMsg.getString(0);
+        final Class<?> yClass = yClassName != null ? Class.forName(yClassName) : Object.class;
+        final List<FudgeField> ysFields = ysSubMsg.getAllByName(YS_FIELD);
+        ysArray = (Object[]) Array.newInstance(yClass, ysFields.size());
+        int j = 0;
+        for (final FudgeField yField : ysFields) {
+          final Object y = deserializer.fieldValueToObject(yField);
+          ysArray[j] = y;
+          j++;
+        }
+      } catch (final ClassNotFoundException ex) {
+        throw new OpenGammaRuntimeException("Cannot find class, probably refactoring", ex);
+      }
+    } else { // old format, should still support
+      final List<FudgeField> xsFields = message.getAllByName(XS_FIELD);
+      if (xsFields.size() > 0) {
+        final Object firstX = deserializer.fieldValueToObject(xsFields.get(0));
+        xsArray = (Object[]) Array.newInstance(firstX.getClass(), xsFields.size());
+      } else {
+        xsArray = new Object[0];
+      }
+      int i = 0;
+      for (final FudgeField xField : xsFields) {
+        final Object x = deserializer.fieldValueToObject(xField);
+        xsArray[i] = x;
+        i++;
+      }
+      final List<FudgeField> ysFields = message.getAllByName(YS_FIELD);
+      if (ysFields.size() > 0) {
+        final Object firstY = deserializer.fieldValueToObject(ysFields.get(0));
+        ysArray = (Object[]) Array.newInstance(firstY.getClass(), ysFields.size());
+      } else {
+        ysArray = new Object[0];
+      }
+      int j = 0;
+      for (final FudgeField yField : ysFields) {
+        final Object y = deserializer.fieldValueToObject(yField);
+        ysArray[j] = y;
+        j++;
+      }
+    }
+    String xLabel;
+    String yLabel;
+    if (message.hasField(X_LABEL_FIELD)) {
+      xLabel = message.getString(X_LABEL_FIELD);
+    } else {
+      xLabel = SurfaceData.DEFAULT_X_LABEL;     // for backwards compatibility - should be removed at some point
+    }
+    if (message.hasField(Y_LABEL_FIELD)) {
+      yLabel = message.getString(Y_LABEL_FIELD);
+    } else {
+      yLabel = SurfaceData.DEFAULT_Y_LABEL;     // for backwards compatibility - should be removed at some point
+    }
+    if (xsArray.length > 0 && ysArray.length > 0) {
+      final Class<?> xClazz = xsArray[0].getClass();
+      final Class<?> yClazz = ysArray[0].getClass();
+      final Map<Pair<Object, Object>, Double> values = new HashMap<>();
+      final List<FudgeField> valuesFields = message.getAllByName(VALUES_FIELD);
+      for (final FudgeField valueField : valuesFields) {
+        final FudgeMsg subMessage = (FudgeMsg) valueField.getValue();
+        final Object x = deserializer.fieldValueToObject(xClazz, subMessage.getByName(X_FIELD));
+        final Object y = deserializer.fieldValueToObject(yClazz, subMessage.getByName(Y_FIELD));
+        final Double value = subMessage.getDouble(VALUE_FIELD);
+        values.put(Pairs.of(x, y), value);
+      }
+      return new SurfaceData<>(name, xLabel, yLabel, values);
+    }
+    return new SurfaceData<>(name, xLabel, yLabel, Collections.<Pair<Object, Object>, Double>emptyMap());
+  }
+
+}

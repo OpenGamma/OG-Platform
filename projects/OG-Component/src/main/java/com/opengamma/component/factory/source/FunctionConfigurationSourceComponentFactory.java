@@ -40,11 +40,12 @@ import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
+import com.opengamma.financial.analytics.surface.SurfaceFunctions;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctions;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
 /**
@@ -183,10 +184,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return FXForwardCurveFunctions.providers(getConfigMaster());
   }
 
-  protected FunctionConfigurationSource cubeConfigurations() {
-    return BloombergVolatilityCubeFunctions.instance();
-  }
-
   protected FunctionConfigurationSource curveConfigurations() {
     return CurveFunctions.providers(getConfigMaster());
   }
@@ -200,6 +197,22 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   }
 
   /**
+   * Adds volatility cube functions.
+   * @return A source of volatility cube functions
+   */
+  protected FunctionConfigurationSource volatilityCubeConfigConfigurations() {
+    return VolatilityCubeFunctions.providers(getConfigMaster());
+  }
+
+  /**
+   * Adds surface functions.
+   * @return A source of surface functions
+   */
+  protected FunctionConfigurationSource surfaceConfigConfigurations() {
+    return SurfaceFunctions.providers(getConfigMaster());
+  }
+
+  /**
    * Initializes the list of sources to be combined.
    * 
    * @return the list of base sources to be combined, not null
@@ -208,8 +221,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     final List<FunctionConfigurationSource> sources = new LinkedList<>();
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
-    sources.add(cubeConfigurations());
     sources.addAll(curveAndSurfaceSources());
+    sources.addAll(cubeSources());
     return sources;
   }
 
@@ -225,6 +238,17 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     sources.add(curveParameterConfigurations());
     sources.add(fxForwardCurveConfigurations());
     sources.add(timeSeriesConfigurations());
+    sources.add(surfaceConfigConfigurations());
+    return sources;
+  }
+
+  /**
+   * Gets the list of cube function configuration sources.
+   * @return The cube function configuration sources, not null
+   */
+  protected List<FunctionConfigurationSource> cubeSources() {
+    final List<FunctionConfigurationSource> sources = new LinkedList<>();
+    sources.add(volatilityCubeConfigConfigurations());
     return sources;
   }
 

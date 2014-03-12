@@ -48,7 +48,6 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -57,44 +56,46 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   // TODO: reimplement this in a javalike way, transliterating LINQ is dirty.
-
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotterImpl.class);
 
+  /** The computation target resolver */
   private final ComputationTargetResolver _resolver;
+  /** The historical time series source */
   private final HistoricalTimeSeriesSource _htsSource;
-  private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
+  /** Snapshots yield curves */
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
+  /** Snapshots curves */
   private final CurveSnapper _curveSnapper = new CurveSnapper();
+  /** Snapshots volatility surfaces */
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
-  private final VolatilityCubeSnapper _volatilityCubeSnapper;
+  /** Snapshots volatility cubes */
+  private final VolatilityCubeSnapper _volatilityCubeSnapper = new VolatilityCubeSnapper();
   @SuppressWarnings("rawtypes")
+  /** Array of structured market data snappers */
   private final StructuredSnapper[] _structuredSnappers;
+  /** The snapshot mode */
+  private final Mode _mode;
 
-  private Mode _mode;
-  
   /**
    * Constructs a instance which produces structured market data snapshots.
-   * 
+   *
    * @param resolver the target resolver, not null
-   * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    * @param htsSource Must be specified if market data is inputted via HTS, may be null
    */
-  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource, final HistoricalTimeSeriesSource htsSource) {
-    this(resolver, cubeDefinitionSource, htsSource, Mode.STRUCTURED);
+  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final HistoricalTimeSeriesSource htsSource) {
+    this(resolver, htsSource, Mode.STRUCTURED);
   }
-  
+
   /**
    * @param resolver the target resolver, not null
-   * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    * @param htsSource Must be specified if market data is inputted via HTS, may be null
    * @param mode whether to create a structured or flattened snapshot
    */
-  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource, final HistoricalTimeSeriesSource htsSource, final Mode mode) {
+  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final HistoricalTimeSeriesSource htsSource, final Mode mode) {
     ArgumentChecker.notNull(resolver, "resolver");
     _resolver = resolver;
     _htsSource = htsSource;
-    _cubeDefinitionSource = cubeDefinitionSource;
-    _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
     _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _curveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
     _mode = mode;
   }
@@ -148,7 +149,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
       final DependencyGraph graph = graphEntry.getValue();
       final Collection<ComputedValue> marketData = results.getAllMarketData();
       final Map<ValueSpecification, ComputedValue> resolvedValues = Maps.newHashMapWithExpectedSize(marketData.size());
-      for (ComputedValue computedValue : marketData) {
+      for (final ComputedValue computedValue : marketData) {
         resolvedValues.put(computedValue.getSpecification(), computedValue);
       }
       final int roots = graph.getRootCount();
@@ -196,7 +197,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     }
   }
 
-  private ExternalIdBundle resolveExternalIdBundle(final ExternalIdBundleResolver resolver, ValueSpecification valueSpec) {
+  private ExternalIdBundle resolveExternalIdBundle(final ExternalIdBundleResolver resolver, final ValueSpecification valueSpec) {
     ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(valueSpec.getTargetSpecification());
     // if reading live data from hts, we need to lookup the externalIdBundle via the hts unique id
     if (identifiers == null && _htsSource != null && valueSpec.getTargetSpecification().getUniqueId() != null) {

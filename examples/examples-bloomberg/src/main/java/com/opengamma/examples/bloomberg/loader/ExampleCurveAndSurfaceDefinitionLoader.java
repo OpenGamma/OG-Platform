@@ -11,7 +11,6 @@ import java.util.Map;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.tool.ToolContext;
@@ -54,7 +53,6 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
     FXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, fxSurfaces);
     SwaptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, swaptionSurfaces);
     FXForwardCurveConfigPopulator.populateFXForwardCurveConfigMaster(configMaster, fxForward);
-    new VolatilityCubeConfigPopulator(configMaster);
     new ExampleFXImpliedMultiCurveCalculationConfigPopulator(configMaster);
   }
 

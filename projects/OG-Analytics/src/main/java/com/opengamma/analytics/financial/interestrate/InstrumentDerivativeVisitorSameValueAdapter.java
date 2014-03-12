@@ -25,6 +25,8 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.Equity;
+import com.opengamma.analytics.financial.equity.EquityTotalReturnSwap;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
@@ -56,6 +58,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSe
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -119,6 +122,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.TotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -1335,4 +1339,43 @@ public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
     return _value;
   }
 
+  @Override
+  public RESULT_TYPE visitTotalReturnSwap(final TotalReturnSwap totalReturnSwap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitTotalReturnSwap(final TotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondTotalReturnSwap(final BondTotalReturnSwap totalReturnSwap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondTotalReturnSwap(final BondTotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityTotalReturnSwap(final EquityTotalReturnSwap totalReturnSwap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityTotalReturnSwap(final EquityTotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitEquity(final Equity equity) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitEquity(final Equity equity, final DATA_TYPE data) {
+    return _value;
+  }
 }

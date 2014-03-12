@@ -27,24 +27,37 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * Builder for converting VolatilitySurfaceData instances to/from Fudge messages.
+ * Builder for converting {@link VolatilitySurfaceData} instances to/from Fudge messages.
  */
 @FudgeBuilderFor(VolatilitySurfaceData.class)
 public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<VolatilitySurfaceData<?, ?>> {
+  /** The target field */
   private static final String TARGET_FIELD = "target";
+  /** The definition field */
   private static final String DEFINITION_FIELD = "definitionName";
+  /** The specification field */
   private static final String SPECIFICATION_FIELD = "specificationName";
+  /** The xs field */
   private static final String XS_FIELD = "xs";
+  /** The x sub-message field */
   private static final String XS_SUBMESSAGE_FIELD = "xsSubMessage";
+  /** The ys field */
   private static final String YS_FIELD = "ys";
+  /** The y sub-message field */
   private static final String YS_SUBMESSAGE_FIELD = "ysSubMessage";
+  /** The x field */
   private static final String X_FIELD = "x";
+  /** The y field */
   private static final String Y_FIELD = "y";
+  /** The value field */
   private static final String VALUE_FIELD = "value";
+  /** The values field */
   private static final String VALUES_FIELD = "values";
+  /** The x labels field */
   private static final String X_LABEL_FIELD = "xLabel";
+  /** The y labels field */
   private static final String Y_LABEL_FIELD = "yLabel";
-  
+
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilitySurfaceData<?, ?> object) {
     final MutableFudgeMsg message = serializer.newMessage();
@@ -53,14 +66,14 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
     serializer.addToMessage(message, TARGET_FIELD, null, object.getTarget());
     message.add(DEFINITION_FIELD, object.getDefinitionName());
     message.add(SPECIFICATION_FIELD, object.getSpecificationName());
-    MutableFudgeMsg xsSubMsg = message.addSubMessage(XS_SUBMESSAGE_FIELD, null);
+    final MutableFudgeMsg xsSubMsg = message.addSubMessage(XS_SUBMESSAGE_FIELD, null);
     FudgeSerializer.addClassHeader(xsSubMsg, object.getXs().getClass().getComponentType());
     for (final Object x : object.getXs()) {
       if (x != null) {
         xsSubMsg.add(XS_FIELD, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(x), x.getClass()));
       }
     }
-    MutableFudgeMsg ysSubMsg = message.addSubMessage(YS_SUBMESSAGE_FIELD, null);
+    final MutableFudgeMsg ysSubMsg = message.addSubMessage(YS_SUBMESSAGE_FIELD, null);
     FudgeSerializer.addClassHeader(ysSubMsg, object.getYs().getClass().getComponentType());
     for (final Object y : object.getYs()) {
       if (y != null) {
@@ -68,7 +81,6 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
       }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
-      @SuppressWarnings("unchecked")
       final Pair<Object, Object> pair = (Pair<Object, Object>) entry.getKey();
       final MutableFudgeMsg subMessage = serializer.newMessage();
       if (pair.getFirst() != null && pair.getSecond() != null) {
@@ -93,10 +105,10 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
     Object[] ysArray;
     if (message.hasField(XS_SUBMESSAGE_FIELD)) {
       try {
-        FudgeMsg xsSubMsg = message.getMessage(XS_SUBMESSAGE_FIELD);
-        String xClassName = xsSubMsg.getString(0);
-        Class<?> xClass = xClassName != null ? Class.forName(xClassName) : Object.class;
-        final List<FudgeField> xsFields = xsSubMsg.getAllByName(XS_FIELD);        
+        final FudgeMsg xsSubMsg = message.getMessage(XS_SUBMESSAGE_FIELD);
+        final String xClassName = xsSubMsg.getString(0);
+        final Class<?> xClass = xClassName != null ? Class.forName(xClassName) : Object.class;
+        final List<FudgeField> xsFields = xsSubMsg.getAllByName(XS_FIELD);
         xsArray = (Object[]) Array.newInstance(xClass, xsFields.size());
         int i = 0;
         for (final FudgeField xField : xsFields) {
@@ -104,10 +116,10 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
           xsArray[i] = x;
           i++;
         }
-        FudgeMsg ysSubMsg = message.getMessage(YS_SUBMESSAGE_FIELD);
-        String yClassName = ysSubMsg.getString(0);
-        Class<?> yClass = yClassName != null ? Class.forName(yClassName) : Object.class;
-        final List<FudgeField> ysFields = ysSubMsg.getAllByName(YS_FIELD);        
+        final FudgeMsg ysSubMsg = message.getMessage(YS_SUBMESSAGE_FIELD);
+        final String yClassName = ysSubMsg.getString(0);
+        final Class<?> yClass = yClassName != null ? Class.forName(yClassName) : Object.class;
+        final List<FudgeField> ysFields = ysSubMsg.getAllByName(YS_FIELD);
         ysArray = (Object[]) Array.newInstance(yClass, ysFields.size());
         int j = 0;
         for (final FudgeField yField : ysFields) {
@@ -115,9 +127,9 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
           ysArray[j] = y;
           j++;
         }
-      } catch (ClassNotFoundException ex) {
+      } catch (final ClassNotFoundException ex) {
         throw new OpenGammaRuntimeException("Cannot find class, probably refactoring", ex);
-      } 
+      }
     } else { // old format, should still support
       final List<FudgeField> xsFields = message.getAllByName(XS_FIELD);
       if (xsFields.size() > 0) {
@@ -161,7 +173,7 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
     if (xsArray.length > 0 && ysArray.length > 0) {
       final Class<?> xClazz = xsArray[0].getClass();
       final Class<?> yClazz = ysArray[0].getClass();
-      final Map<Pair<Object, Object>, Double> values = new HashMap<Pair<Object, Object>, Double>();
+      final Map<Pair<Object, Object>, Double> values = new HashMap<>();
       final List<FudgeField> valuesFields = message.getAllByName(VALUES_FIELD);
       for (final FudgeField valueField : valuesFields) {
         final FudgeMsg subMessage = (FudgeMsg) valueField.getValue();
@@ -170,9 +182,9 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
         final Double value = subMessage.getDouble(VALUE_FIELD);
         values.put(Pairs.of(x, y), value);
       }
-      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xsArray, xLabel, ysArray, yLabel, values);
+      return new VolatilitySurfaceData<>(definitionName, specificationName, target, xsArray, xLabel, ysArray, yLabel, values);
     }
-    return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xsArray, xLabel, ysArray, yLabel, Collections.<Pair<Object, Object>, Double>emptyMap());
+    return new VolatilitySurfaceData<>(definitionName, specificationName, target, xsArray, xLabel, ysArray, yLabel, Collections.<Pair<Object, Object>, Double>emptyMap());
   }
 
 }

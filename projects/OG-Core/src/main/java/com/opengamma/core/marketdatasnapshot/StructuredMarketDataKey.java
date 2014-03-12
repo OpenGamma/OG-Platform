@@ -12,6 +12,7 @@ package com.opengamma.core.marketdatasnapshot;
 public interface StructuredMarketDataKey {
   /**
    * Visitor interface for working with the different key implementations
+   * @param <T> The return type of the visitor
    */
   public interface Visitor<T> {
 
@@ -22,6 +23,8 @@ public interface StructuredMarketDataKey {
     T visitVolatilityCubeKey(VolatilityCubeKey key);
 
     T visitCurveKey(CurveKey curveKey);
+
+    T visitSurfaceKey(SurfaceKey surfaceKey);
   }
 
   /**

@@ -180,7 +180,6 @@ public class DataViewProcessorResource extends AbstractDataResource {
   @Path(PATH_SNAPSHOTTER + "/{mode}")
   public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl(@PathParam("mode") final String mode) {
     final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver,
-                                                                    _volatilityCubeDefinitionSource,
                                                                     _htsSource,
                                                                     Mode.valueOf(Mode.class, mode));
     return new DataMarketDataSnapshotterResource(getViewProcessor(), snp);

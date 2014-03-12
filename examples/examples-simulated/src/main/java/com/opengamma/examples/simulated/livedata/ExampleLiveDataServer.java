@@ -20,6 +20,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -28,6 +30,8 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,9 +43,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-
-import au.com.bytecode.opencsv.CSVReader;
-import net.sf.ehcache.CacheManager;
 
 /**
  * An ultra-simple market data simulator, we load the initial values from a CSV file (with a header row)
@@ -83,8 +84,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
       reader = new CSVReader(new BufferedReader(new InputStreamReader(initialValuesFile.getInputStream())));
       // Read header row
       @SuppressWarnings("unused")
-      final
-      String[] headers = reader.readNext();
+      final String[] headers = reader.readNext();
       String[] line;
       int lineNum = 1;
       while ((line = reader.readNext()) != null) {
@@ -180,7 +180,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
   protected Map<String, Object> doSubscribe(final Collection<String> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "Subscriptions");
     s_logger.debug("doSubscribe on {}", uniqueIds);
-    
+
     final Map<String, Object> result = Maps.newHashMap();
     final List<String> missingSubscriptions = Lists.newArrayList();
     for (final String uniqueId : uniqueIds) {
@@ -233,7 +233,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
       _executorService.shutdownNow();
       try {
         _executorService.awaitTermination(1, TimeUnit.SECONDS);
-      } catch (InterruptedException ex) {
+      } catch (final InterruptedException ex) {
         Thread.interrupted();
       }
     }
@@ -247,16 +247,16 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
   private class SimulatedMarketDataJob extends TerminatableJob {
 
     private final Random _random = new Random();
-   
+
     private double wiggleValue(final double value, final double centre) {
       return (9 * value + centre) / 10 + (_random.nextGaussian() * (value * _scalingFactor));
     }
 
     @Override
     protected void runOneCycle() {
-      Set<String> activeSubscriptionIds = getActiveSubscriptionIds();
+      final Set<String> activeSubscriptionIds = getActiveSubscriptionIds();
       if (!activeSubscriptionIds.isEmpty()) {
-        for (String identifier : activeSubscriptionIds) {
+        for (final String identifier : activeSubscriptionIds) {
           final FudgeMsg lastValues = _marketValues.get(identifier);
           final FudgeMsg baseValues = _baseValues.get(identifier);
           final MutableFudgeMsg nextValues = s_fudgeConext.newMessage();
@@ -274,9 +274,9 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
       try {
         Thread.sleep(_random.nextInt(_maxMillisBetweenTicks));
       } catch (final InterruptedException e) {
-         s_logger.error("Sleep interrupted, finishing");
-         Thread.interrupted();
-     }
+        s_logger.error("Sleep interrupted, finishing");
+        Thread.interrupted();
+      }
     }
   }
 }
