@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
+import com.opengamma.longdog.exceptions.MathsExceptionNativeComputation;
 import com.opengamma.longdog.helpers.FuzzyEquals;
 import com.opengamma.util.test.TestGroup;
 
@@ -255,17 +256,17 @@ public class MatrixAlgebraImplementationTest {
     OG.multiply(M5, M3);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = MathsExceptionNativeComputation.class)
   public void testOGMultiply2() {
     OG.multiply(new DoubleMatrix1D(new double[] { 1, 2, 3 }), M3);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = MathsExceptionNativeComputation.class)
   public void testOGMultiply3() {
     OG.multiply(M3, new DoubleMatrix1D(new double[] { 1, 2, 3 }));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = MathsExceptionNativeComputation.class)
   public void testOGMultiply4() {
     OG.multiply(new DoubleMatrix2D(new double[][] { new double[] { 1, 2, 3 }, new double[] { 4, 5, 6 } }), M3);
   }
