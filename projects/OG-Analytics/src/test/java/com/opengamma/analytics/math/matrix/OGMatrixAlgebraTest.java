@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.longdog.exceptions.MathsExceptionNativeComputation;
 import com.opengamma.longdog.helpers.FuzzyEquals;
 import com.opengamma.util.test.TestGroup;
 
@@ -30,7 +31,7 @@ public class OGMatrixAlgebraTest {
   private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] { -1, 2, 3 });
   private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] { 2, -2, 1 });
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = MathsExceptionNativeComputation.class)
   public void testMatrixSizeMismatch() {
     ALGEBRA.multiply(B, A);
   }

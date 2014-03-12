@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.longdog.helpers.FuzzyEquals;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -62,7 +63,22 @@ public class DoubleMatrix1DTest {
       assertEquals(x[i], d.getEntry(i), 0);
     }
   }
+  
+  @Test
+  public void testAsDoubleArray() {
+    double[] primitives = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    DoubleMatrix1D mat = new DoubleMatrix1D(primitives);
+    assertTrue(FuzzyEquals.ArrayFuzzyEquals(primitives,mat.asDoubleArray()));
+  }
 
+  @Test // returns column major
+  public void testAsDoubleAoA() {
+    double[] primitives = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    double[][] primitivesColVect = new double[][] {{1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}};
+    DoubleMatrix1D mat = new DoubleMatrix1D(primitives);
+    assertTrue(FuzzyEquals.ArrayFuzzyEquals(primitivesColVect,mat.asDoubleAoA()));
+  }
+  
   @Test
   public void testEqualsAndHashCode() {
     double[] primitives = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};

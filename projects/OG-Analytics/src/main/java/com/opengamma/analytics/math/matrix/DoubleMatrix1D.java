@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 /**
  * A minimal implementation of a vector (in the mathematical sense) that contains doubles.
  */
-public class DoubleMatrix1D implements Matrix<Double> {
+public class DoubleMatrix1D implements DoubleMatrix {
   private final double[] _data;
   private final int _elements;
   /** Empty vector */
@@ -121,5 +121,20 @@ public class DoubleMatrix1D implements Matrix<Double> {
     }
     sb.append(_data[n - 1] + ") ");
     return sb.toString();
+  }
+
+  @Override
+  public double[][] asDoubleAoA() {
+    int rows = this.getData().length;
+    double[][] ret = new double[rows][1];
+    for (int k = 0; k < rows; k++) {
+      ret[k][0] = this.getData()[k];
+    }
+    return ret;
+  }
+
+  @Override
+  public double[] asDoubleArray() {
+    return this.getData();
   }
 }

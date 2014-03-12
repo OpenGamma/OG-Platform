@@ -10,8 +10,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.longdog.datacontainers.OGNumeric;
+import com.opengamma.longdog.datacontainers.OGTerminal;
 import com.opengamma.longdog.datacontainers.matrix.OGRealDenseMatrix;
 import com.opengamma.longdog.materialisers.Materialisers;
+import com.opengamma.longdog.nodes.MTIMES;
 import com.opengamma.longdog.nodes.NORM2;
 
 /**
@@ -199,15 +201,35 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       return multiply((TridiagonalMatrix) m1, (DoubleMatrix1D) m2);
     } else if (m1 instanceof DoubleMatrix1D && m2 instanceof TridiagonalMatrix) {
       return multiply((DoubleMatrix1D) m1, (TridiagonalMatrix) m2);
-    } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      return multiply((DoubleMatrix2D) m1, (DoubleMatrix2D) m2);
-    } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix1D) {
-      return multiply((DoubleMatrix2D) m1, (DoubleMatrix1D) m2);
-    } else if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix2D) {
-      return multiply((DoubleMatrix1D) m1, (DoubleMatrix2D) m2);
+    } else {
+      MTIMES node;
+      OGRealDenseMatrix mat1 = null;
+      OGRealDenseMatrix mat2 = null;
+      // NOTE: DoubleMatrix1D has no notion of orientation it is chosen by context!
+      if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
+        mat1 = new OGRealDenseMatrix(((DoubleMatrix2D) m1).asDoubleAoA());
+        mat2 = new OGRealDenseMatrix(((DoubleMatrix2D) m2).asDoubleAoA());
+        node = new MTIMES(mat1, mat2);
+        return new DoubleMatrix2D(Materialisers.toDoubleArrayOfArrays(node));
+      } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix1D) {
+        mat1 = new OGRealDenseMatrix(((DoubleMatrix2D) m1).asDoubleAoA());
+        mat2 = new OGRealDenseMatrix(((DoubleMatrix1D) m2).asDoubleAoA());
+        node = new MTIMES(mat1, mat2);
+        OGTerminal term = Materialisers.toOGTerminal(node);
+        return new DoubleMatrix1D(term.getData());
+      } else if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix2D) {
+        DoubleMatrix1D conc = (DoubleMatrix1D) m1;
+        mat1 = new OGRealDenseMatrix(conc.asDoubleArray(), conc.getData().length, 1);
+        mat2 = new OGRealDenseMatrix(((DoubleMatrix2D) m2).asDoubleAoA());
+        node = new MTIMES(mat1, mat2);
+        OGTerminal term = Materialisers.toOGTerminal(node);
+        return new DoubleMatrix1D(term.getData());
+      } else {
+        throw new IllegalArgumentException("Cannot compute due to lack of implementation for " + m1.getClass() + " and "
+            + m2.getClass());
+      }
     }
-    throw new IllegalArgumentException("Can only multiply two DoubleMatrix2D; a DoubleMatrix2D and a DoubleMatrix1D; or a DoubleMatrix1D and a DoubleMatrix2D. have " + m1.getClass() + " and "
-        + m2.getClass());
+
   }
 
   /**
