@@ -37,6 +37,7 @@ import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.security.index.Index;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
@@ -170,18 +171,23 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     }
     ValidationNode validationNode = new ValidationNode();
     validationNode.setName(node.getConvention().getValue());
-//    if (_configValidationUtils.conventionExists(node.getConvention())) {
-//      ManageableConvention convention = _configValidationUtils.getConvention(node.getConvention());
-//      validationNode.setType(convention.getClass());
-//      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
-//      validator.followConvention(convention, validationNode);
-    if (_configValidationUtils.indexExists(node.getConvention())) {
+    if (_configValidationUtils.conventionExists(node.getConvention())) {
+      ManageableConvention convention = _configValidationUtils.getConvention(node.getConvention());
+      validationNode.setType(convention.getClass());
+      ConventionValidator validator = new ConventionValidator(_configValidationUtils);
+      if (!convention.getConventionType().equals(DepositConvention.TYPE)) {
+        validationNode.getErrors().add("Cash node convention id points to a convention that isn't a deposit convention");
+        validationNode.setError(true);
+      } else {
+        validator.followConvention(convention, validationNode);
+      }
+    } else if (_configValidationUtils.indexExists(node.getConvention())) {
       Index index = _configValidationUtils.getIndex(node.getConvention());
       validationNode.setType(index.getClass());
       _configValidationUtils.checkIndex(index, validationNode);
     } else {
       validationNode.setType(Index.class);
-      validationNode.getErrors().add("Can't find index using ID " + node.getConvention());
+      validationNode.getErrors().add("Can't find index or convention using ID " + node.getConvention());
       validationNode.setError(true);
     }
     cashNodeValidationNode.getSubNodes().add(validationNode);

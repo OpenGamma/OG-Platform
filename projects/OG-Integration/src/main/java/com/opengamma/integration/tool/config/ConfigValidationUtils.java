@@ -76,7 +76,7 @@ public class ConfigValidationUtils {
   public boolean indexExists(ExternalId externalId) {
     try {
       Security security = _securitySource.getSingle(externalId.toBundle());
-      if (security instanceof IborIndex || security instanceof OvernightIndex) { // implicit null check
+      if (security instanceof Index) { // implicit null check
         return true;
       }
     } catch (Exception e) {
@@ -87,7 +87,7 @@ public class ConfigValidationUtils {
   public Index getIndex(ExternalId externalId) {
     try {
       Security security = _securitySource.getSingle(externalId.toBundle());
-      if (security instanceof IborIndex || security instanceof OvernightIndex) { // implicit null check
+      if (security instanceof Index) { // implicit null check
         return (Index) security;
       }
     } catch (Exception e) {
