@@ -10,9 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -33,8 +31,11 @@ import org.springframework.core.io.Resource;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.server.StandardLiveDataServer;
@@ -116,7 +117,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
    * @return the marketValues
    */
   public Map<String, FudgeMsg> getMarketValues() {
-    return Collections.unmodifiableMap(_marketValues);
+    return ImmutableMap.copyOf(_marketValues);
   }
 
   /**
@@ -181,18 +182,20 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
     ArgumentChecker.notNull(uniqueIds, "Subscriptions");
     s_logger.debug("doSubscribe on {}", uniqueIds);
 
-    final Map<String, Object> result = Maps.newHashMap();
-    final List<String> missingSubscriptions = Lists.newArrayList();
-    for (final String uniqueId : uniqueIds) {
-      if (!_marketValues.containsKey(uniqueId)) {
-        missingSubscriptions.add(uniqueId);
+    final Set<String> requestSubcriptions = Sets.newTreeSet(uniqueIds);
+    final Set<String> validSubscriptions = Maps.filterKeys(_marketValues, Predicates.in(requestSubcriptions)).keySet();
+    Map<String, Object> subscriptionHandles = Maps.asMap(validSubscriptions, new Function<String, Object>() {
+      @Override
+      public Object apply(String uniqueId) {
+        return new AtomicReference<String>(uniqueId);
       }
-      result.put(uniqueId, new AtomicReference<String>(uniqueId));
+    });
+
+    requestSubcriptions.removeAll(validSubscriptions);
+    if (!requestSubcriptions.isEmpty()) {
+      s_logger.warn("Could not subscribe for {}", requestSubcriptions);
     }
-    if (!missingSubscriptions.isEmpty()) {
-      s_logger.error("Could not subscribe to {}", missingSubscriptions);
-    }
-    return result;
+    return subscriptionHandles;
   }
 
   @Override
@@ -205,15 +208,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
   protected Map<String, FudgeMsg> doSnapshot(final Collection<String> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "Unique IDs");
     s_logger.debug("doSnapshot on {}", uniqueIds);
-    if (uniqueIds.isEmpty()) {
-      return Collections.emptyMap();
-    }
-    final Map<String, FudgeMsg> returnValue = new HashMap<String, FudgeMsg>();
-    for (final String securityUniqueId : uniqueIds) {
-      final FudgeMsg fieldData = _marketValues.get(securityUniqueId);
-      returnValue.put(securityUniqueId, fieldData);
-    }
-    return returnValue;
+    return new HashMap<>(Maps.filterKeys(_marketValues, Predicates.in(uniqueIds)));
   }
 
   @Override
@@ -259,16 +254,20 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
         for (final String identifier : activeSubscriptionIds) {
           final FudgeMsg lastValues = _marketValues.get(identifier);
           final FudgeMsg baseValues = _baseValues.get(identifier);
-          final MutableFudgeMsg nextValues = s_fudgeConext.newMessage();
-          for (final FudgeField field : lastValues) {
-            final double lastValue = (Double) field.getValue();
-            final double baseValue = baseValues.getDouble(field.getName());
-            final double value = wiggleValue(lastValue, baseValue);
-            nextValues.add(field.getName(), value);
+          if (lastValues != null && baseValues != null) {
+            final MutableFudgeMsg nextValues = s_fudgeConext.newMessage();
+            for (final FudgeField field : lastValues) {
+              final double lastValue = (Double) field.getValue();
+              final double baseValue = baseValues.getDouble(field.getName());
+              final double value = wiggleValue(lastValue, baseValue);
+              nextValues.add(field.getName(), value);
+            }
+            _marketValues.put(identifier, nextValues);
+            liveDataReceived(identifier, nextValues);
+            s_logger.debug("{} lastValues: {} nextValues: {}", identifier, lastValues, nextValues);
+          } else {
+            s_logger.error("Active subscription for {} is missing in example market data server initial database", identifier);
           }
-          _marketValues.put(identifier, nextValues);
-          liveDataReceived(identifier, nextValues);
-          s_logger.debug("{} lastValues: {} nextValues: {}", identifier, lastValues, nextValues);
         }
       }
       try {
