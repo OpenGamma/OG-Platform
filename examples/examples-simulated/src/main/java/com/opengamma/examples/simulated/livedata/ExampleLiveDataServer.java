@@ -184,7 +184,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
 
     final Set<String> requestSubcriptions = Sets.newTreeSet(uniqueIds);
     final Set<String> validSubscriptions = Maps.filterKeys(_marketValues, Predicates.in(requestSubcriptions)).keySet();
-    Map<String, Object> subscriptionHandles = Maps.asMap(validSubscriptions, new Function<String, Object>() {
+    Map<String, Object> subscriptionHandles = Maps.toMap(validSubscriptions, new Function<String, Object>() {
       @Override
       public Object apply(String uniqueId) {
         return new AtomicReference<String>(uniqueId);
