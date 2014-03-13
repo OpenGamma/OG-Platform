@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.annuity;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -156,13 +155,14 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
         paymentYearFractions[i] = getDayCount().getDayCountFraction(accrualStartDates[i], accrualEndDates[i], accrualCalendar);
       }
       
- //      coupons = new CouponDefinition[1];
+      final ZonedDateTime adjustedEndDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
+          getAccrualPeriodAdjustmentParameters().getCalendar(), getEndDate());
       coupons[0] = CouponFixedCompoundingDefinition.from(
           getCurrency(),
-          getEndDate(), // pmt
+          adjustedEndDate, // pmt
           getStartDate(), // acc start
-          getEndDate(), // acc end
-          getDayCount().getDayCountFraction(getStartDate(), getEndDate(), getPaymentDateAdjustmentParameters().getCalendar()), // pmt yf
+          adjustedEndDate, // acc end
+          getDayCount().getDayCountFraction(getStartDate(), adjustedEndDate, getPaymentDateAdjustmentParameters().getCalendar()), // pmt yf
           (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
           _rate,
           accrualStartDates,
