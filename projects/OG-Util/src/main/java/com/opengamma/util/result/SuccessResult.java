@@ -5,7 +5,7 @@
  */
 package com.opengamma.util.result;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -85,7 +85,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   }
 
   @Override
-  public List<Failure> getFailures() {
+  public Collection<Failure> getFailures() {
     throw new IllegalStateException("Unable to get failures from a success result");
   }
 

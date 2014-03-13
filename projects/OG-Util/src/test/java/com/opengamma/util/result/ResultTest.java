@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -38,7 +39,7 @@ public class ResultTest {
     Result<Object> failure1 = Result.failure(FailureStatus.MISSING_DATA, "failure 1");
     Result<Object> failure2 = Result.failure(FailureStatus.ERROR, "failure 2");
     Result<Object> composite1 = Result.failure(success1, success2, failure1, failure2);
-    List<Failure> failures = composite1.getFailures();
+    Collection<Failure> failures = composite1.getFailures();
     List<Failure> expected = new ArrayList<>();
     expected.addAll(failure1.getFailures());
     expected.addAll(failure2.getFailures());

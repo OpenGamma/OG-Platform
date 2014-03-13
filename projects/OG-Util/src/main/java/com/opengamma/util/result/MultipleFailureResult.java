@@ -6,6 +6,7 @@
 package com.opengamma.util.result;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -44,7 +46,7 @@ import com.opengamma.util.ArgumentChecker;
 public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean {
 
   @PropertyDefinition(validate = "notNull", get = "manual")
-  private final List<Failure> _failures;
+  private final Collection<Failure> _failures;
 
   @PropertyDefinition(validate = "notNull", get = "manual")
   private final FailureStatus _status;
@@ -79,8 +81,8 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
   }
 
   @ImmutableConstructor
-  private MultipleFailureResult(List<Failure> failures, FailureStatus status, String message) {
-    _failures = ArgumentChecker.notEmpty(failures, "failures");
+  private MultipleFailureResult(Collection<Failure> failures, FailureStatus status, String message) {
+    _failures = ImmutableList.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
     _status = ArgumentChecker.notNull(status, "status");
     _message = ArgumentChecker.notEmpty(message, "message");
   }
@@ -129,7 +131,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
     return _message;
   }
 
-  public List<Failure> getFailures() {
+  public Collection<Failure> getFailures() {
     return _failures;
   }
 
@@ -264,8 +266,8 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
      * The meta-property for the {@code failures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Failure>> _failures = DirectMetaProperty.ofImmutable(
-        this, "failures", MultipleFailureResult.class, (Class) List.class);
+    private final MetaProperty<Collection<Failure>> _failures = DirectMetaProperty.ofImmutable(
+        this, "failures", MultipleFailureResult.class, (Class) Collection.class);
     /**
      * The meta-property for the {@code status} property.
      */
@@ -325,7 +327,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
      * The meta-property for the {@code failures} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Failure>> failures() {
+    public final MetaProperty<Collection<Failure>> failures() {
       return _failures;
     }
 
@@ -376,7 +378,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
    */
   public static class Builder<T> extends DirectFieldsBeanBuilder<MultipleFailureResult<T>> {
 
-    private List<Failure> _failures = new ArrayList<Failure>();
+    private Collection<Failure> _failures = new ArrayList<Failure>();
     private FailureStatus _status;
     private String _message;
 
@@ -416,7 +418,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 675938345:  // failures
-          this._failures = (List<Failure>) newValue;
+          this._failures = (Collection<Failure>) newValue;
           break;
         case -892481550:  // status
           this._status = (FailureStatus) newValue;
@@ -468,7 +470,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
      * @param failures  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> failures(List<Failure> failures) {
+    public Builder<T> failures(Collection<Failure> failures) {
       JodaBeanUtils.notNull(failures, "failures");
       this._failures = failures;
       return this;

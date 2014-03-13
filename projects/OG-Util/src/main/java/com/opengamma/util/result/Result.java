@@ -6,6 +6,7 @@
 package com.opengamma.util.result;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.helpers.MessageFormatter;
@@ -33,7 +34,7 @@ public abstract class Result<T> {
    * Return the actual result value if calculated successfully.
    * <p>
    * If it has not been calculated then an IllegalStateException will be thrown.
-   * To avoid this, check the result status using {@link #isValueAvailable()} or
+   * To avoid this, check the result status using {@link #isSuccess()} or
    * {@link #getStatus()} first.
    *
    * @return the value if calculated successfully, not null
@@ -45,7 +46,7 @@ public abstract class Result<T> {
    * Indicates the status of this result.
    * <p>
    * It is up to the client to decide if it is able to handle the status or
-   * decline to handle. In general it is easier to call {@link #isValueAvailable()}.
+   * decline to handle. In general it is easier to call {@link #isSuccess()}.
    *
    * @return the status of this function result
    */
@@ -55,7 +56,7 @@ public abstract class Result<T> {
    * Return the message associated with a failure event.
    * <p>
    * If the calculation was actually successful then an an IllegalStateException will be thrown.
-   * To avoid this, check the result status using {@link #isValueAvailable()}
+   * To avoid this, check the result status using {@link #isSuccess()}
    * or {@link #getStatus()} first.
    *
    * @return the failure message if calculation was unsuccessful, not null
@@ -67,7 +68,7 @@ public abstract class Result<T> {
    * @return the failures assocaited with a failure result
    * @throws IllegalStateException if called on a success result
    */
-  public abstract List<Failure> getFailures();
+  public abstract Collection<Failure> getFailures();
 
   /**
    * Applies a function to a result's value if the result is a success.
