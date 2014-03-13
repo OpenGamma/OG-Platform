@@ -5,6 +5,10 @@
  */
 package com.opengamma.util.result;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -12,6 +16,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -21,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.base.Function;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,64 +36,50 @@ import com.opengamma.util.ArgumentChecker;
  * for allowing method signatures to match
  */
 @BeanDefinition
-public final class FailureResult<T> implements Result<T>, ImmutableBean {
+public final class FailureResult<T> extends Result<T> implements ImmutableBean {
 
-  /** The status associated with the failure. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "manual")
+  private final List<Failure> _failures;
+
+  @PropertyDefinition(validate = "notNull", get = "manual")
   private final FailureStatus _status;
 
-  /** The error message associated with the failure. */
-  @PropertyDefinition(validate = "notNull")
-  private final String _errorMessage;
+  @PropertyDefinition(validate = "notNull", get = "private")
+  private final String _message;
 
-  /** @deprecated  always returns null, use {@link #getCauseDetails()} */
-  @Deprecated
-  @PropertyDefinition
-  private final Exception _cause;
-
-  /** Details of the cause of the failure, possibly null */
-  @PropertyDefinition
-  private final ThrowableDetails _causeDetails;
-
-  /**
-   * Creates an instance.
-   * 
-   * @param failureStatus  the failure status
-   * @param message  the message
-   */
-  /* package */ FailureResult(FailureStatus failureStatus, String message) {
-    this(failureStatus, message, null);
+  @ImmutableConstructor
+  private FailureResult(List<Failure> failures, FailureStatus status, String message) {
+    _failures = ArgumentChecker.notEmpty(failures, "failures");
+    _status = ArgumentChecker.notNull(status, "status");
+    _message = ArgumentChecker.notEmpty(message, "message");
   }
 
-  /* package */ FailureResult(String message, Exception cause) {
-    this(FailureStatus.ERROR, message, ArgumentChecker.notNull(cause, "cause"));
-  }
-
-  /* package */ FailureResult(Exception cause) {
-    this(FailureStatus.ERROR, getMessage(ArgumentChecker.notNull(cause, "cause")), cause);
+  /* package */ static <U> Result<U> of(Failure failure) {
+    ArgumentChecker.notNull(failure, "failure");
+    return new FailureResult<>(Collections.singletonList(failure), failure.getStatus(), failure.getMessage());
   }
 
   /**
-   * Creates an instance.
-   *
-   * @param failureStatus  the failure status
-   * @param message  the message
-   * @param cause The cause of the failure, possibly null
+   * @param failures the failures, not empty
    */
-  /* package */ FailureResult(FailureStatus failureStatus, String message, Exception cause) {
-    _status = ArgumentChecker.notNull(failureStatus, "failureStatus");
-    _errorMessage = ArgumentChecker.notNull(message, "message");
-    _cause = null;
-    if (cause != null) {
-      _causeDetails = ThrowableDetails.of(cause);
-    } else {
-      _causeDetails = null;
+  /* package */ static <U> Result<U> of(List<Failure> failures) {
+    ArgumentChecker.notEmpty(failures, "failures");
+    ResultStatus status = failures.get(0).getStatus();
+    StringBuilder builder = new StringBuilder();
+
+    for (Iterator<Failure> itr = failures.iterator(); itr.hasNext(); ) {
+      Failure failure = itr.next();
+      builder.append(failure.getMessage());
+
+      if (itr.hasNext()) {
+        builder.append("\n");
+      }
+      if (!status.equals(failure.getStatus())) {
+        status = FailureStatus.MULTIPLE;
+      }
     }
-  }
-
-  private static String getMessage(Exception cause) {
-    String message = cause.getMessage();
-    return message != null ? message : cause.getClass().getSimpleName();
+    Result<?> result = new FailureResult<>(failures, (FailureStatus) status, builder.toString());
+    return Result.failure(result);
   }
 
   //-------------------------------------------------------------------------
@@ -96,25 +88,64 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     throw new IllegalStateException("Unable to get a value from a failure result");
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <U> Result<U> propagateFailure() {
-    return (Result<U>) this;
+  public <U> Result<U> ifSuccess(Function<T, Result<U>> function) {
+    return Result.failure(this);
   }
 
   @Override
-  public <U> Result<U> map(ResultMapper<T, U> mapper) {
-    return propagateFailure();
+  public <U, V> Result<V> combineWith(Result<U> other, Function2<T, U, Result<V>> function) {
+    return Result.failure(this, other);
   }
 
   @Override
   public String getFailureMessage() {
-    return _errorMessage;
+    return _message;
   }
 
   @Override
-  public boolean isValueAvailable() {
-    return _status.isResultAvailable();
+  public List<Failure> getFailures() {
+    return _failures;
+  }
+
+  @Override
+  public boolean isSuccess() {
+    return false;
+  }
+
+  public FailureStatus getStatus() {
+    return _status;
+  }
+
+  // deprecated methods --------------------------------------------------------------------
+
+  /**
+   * @return null
+   * @deprecated use {@link #getFailures()} to find the cause of the failure
+   */
+  @Deprecated
+  public ThrowableDetails getCauseDetails() {
+    return null;
+  }
+
+  /**
+   * Gets the error message associated with the failure.
+   *
+   * @return the value of the property, not null
+   * @deprecated use {@link #getFailureMessage()}
+   */
+  @Deprecated
+  public String getErrorMessage() {
+    return getFailureMessage();
+  }
+
+  /**
+   * @return the value of the property
+   * @deprecated  always returns null, use {@link #getFailures()} to find the cause of the failure
+   */
+  @Deprecated
+  public Exception getCause() {
+    return null;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -152,19 +183,6 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     return new FailureResult.Builder<T>();
   }
 
-  private FailureResult(
-      FailureStatus status,
-      String errorMessage,
-      Exception cause,
-      ThrowableDetails causeDetails) {
-    JodaBeanUtils.notNull(status, "status");
-    JodaBeanUtils.notNull(errorMessage, "errorMessage");
-    this._status = status;
-    this._errorMessage = errorMessage;
-    this._cause = cause;
-    this._causeDetails = causeDetails;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public FailureResult.Meta<T> metaBean() {
@@ -183,39 +201,11 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the status associated with the failure.
+   * Gets the message.
    * @return the value of the property, not null
    */
-  public FailureStatus getStatus() {
-    return _status;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the error message associated with the failure.
-   * @return the value of the property, not null
-   */
-  public String getErrorMessage() {
-    return _errorMessage;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets @deprecated  always returns null, use {@link #getCauseDetails()}
-   * @return the value of the property
-   */
-  @Deprecated
-  public Exception getCause() {
-    return _cause;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets details of the cause of the failure, possibly null
-   * @return the value of the property
-   */
-  public ThrowableDetails getCauseDetails() {
-    return _causeDetails;
+  private String getMessage() {
+    return _message;
   }
 
   //-----------------------------------------------------------------------
@@ -239,10 +229,9 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FailureResult<?> other = (FailureResult<?>) obj;
-      return JodaBeanUtils.equal(getStatus(), other.getStatus()) &&
-          JodaBeanUtils.equal(getErrorMessage(), other.getErrorMessage()) &&
-          JodaBeanUtils.equal(getCause(), other.getCause()) &&
-          JodaBeanUtils.equal(getCauseDetails(), other.getCauseDetails());
+      return JodaBeanUtils.equal(getFailures(), other.getFailures()) &&
+          JodaBeanUtils.equal(getStatus(), other.getStatus()) &&
+          JodaBeanUtils.equal(getMessage(), other.getMessage());
     }
     return false;
   }
@@ -250,21 +239,19 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFailures());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorMessage());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCause());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCauseDetails());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("FailureResult{");
+    buf.append("failures").append('=').append(getFailures()).append(',').append(' ');
     buf.append("status").append('=').append(getStatus()).append(',').append(' ');
-    buf.append("errorMessage").append('=').append(getErrorMessage()).append(',').append(' ');
-    buf.append("cause").append('=').append(getCause()).append(',').append(' ');
-    buf.append("causeDetails").append('=').append(JodaBeanUtils.toString(getCauseDetails()));
+    buf.append("message").append('=').append(JodaBeanUtils.toString(getMessage()));
     buf.append('}');
     return buf.toString();
   }
@@ -281,34 +268,29 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code failures} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Failure>> _failures = DirectMetaProperty.ofImmutable(
+        this, "failures", FailureResult.class, (Class) List.class);
+    /**
      * The meta-property for the {@code status} property.
      */
     private final MetaProperty<FailureStatus> _status = DirectMetaProperty.ofImmutable(
         this, "status", FailureResult.class, FailureStatus.class);
     /**
-     * The meta-property for the {@code errorMessage} property.
+     * The meta-property for the {@code message} property.
      */
-    private final MetaProperty<String> _errorMessage = DirectMetaProperty.ofImmutable(
-        this, "errorMessage", FailureResult.class, String.class);
-    /**
-     * The meta-property for the {@code cause} property.
-     */
-    private final MetaProperty<Exception> _cause = DirectMetaProperty.ofImmutable(
-        this, "cause", FailureResult.class, Exception.class);
-    /**
-     * The meta-property for the {@code causeDetails} property.
-     */
-    private final MetaProperty<ThrowableDetails> _causeDetails = DirectMetaProperty.ofImmutable(
-        this, "causeDetails", FailureResult.class, ThrowableDetails.class);
+    private final MetaProperty<String> _message = DirectMetaProperty.ofImmutable(
+        this, "message", FailureResult.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "failures",
         "status",
-        "errorMessage",
-        "cause",
-        "causeDetails");
+        "message");
 
     /**
      * Restricted constructor.
@@ -319,14 +301,12 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 675938345:  // failures
+          return _failures;
         case -892481550:  // status
           return _status;
-        case 1203236063:  // errorMessage
-          return _errorMessage;
-        case 94434409:  // cause
-          return _cause;
-        case 1620147609:  // causeDetails
-          return _causeDetails;
+        case 954925063:  // message
+          return _message;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -349,6 +329,14 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code failures} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<List<Failure>> failures() {
+      return _failures;
+    }
+
+    /**
      * The meta-property for the {@code status} property.
      * @return the meta-property, not null
      */
@@ -357,42 +345,23 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code errorMessage} property.
+     * The meta-property for the {@code message} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> errorMessage() {
-      return _errorMessage;
-    }
-
-    /**
-     * The meta-property for the {@code cause} property.
-     * @return the meta-property, not null
-     */
-    @Deprecated
-    public MetaProperty<Exception> cause() {
-      return _cause;
-    }
-
-    /**
-     * The meta-property for the {@code causeDetails} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ThrowableDetails> causeDetails() {
-      return _causeDetails;
+    public MetaProperty<String> message() {
+      return _message;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 675938345:  // failures
+          return ((FailureResult<?>) bean).getFailures();
         case -892481550:  // status
           return ((FailureResult<?>) bean).getStatus();
-        case 1203236063:  // errorMessage
-          return ((FailureResult<?>) bean).getErrorMessage();
-        case 94434409:  // cause
-          return ((FailureResult<?>) bean).getCause();
-        case 1620147609:  // causeDetails
-          return ((FailureResult<?>) bean).getCauseDetails();
+        case 954925063:  // message
+          return ((FailureResult<?>) bean).getMessage();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -414,10 +383,9 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
    */
   public static final class Builder<T> extends DirectFieldsBeanBuilder<FailureResult<T>> {
 
+    private List<Failure> _failures = new ArrayList<Failure>();
     private FailureStatus _status;
-    private String _errorMessage;
-    private Exception _cause;
-    private ThrowableDetails _causeDetails;
+    private String _message;
 
     /**
      * Restricted constructor.
@@ -430,43 +398,38 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FailureResult<T> beanToCopy) {
+      this._failures = new ArrayList<Failure>(beanToCopy.getFailures());
       this._status = beanToCopy.getStatus();
-      this._errorMessage = beanToCopy.getErrorMessage();
-      this._cause = beanToCopy.getCause();
-      this._causeDetails = beanToCopy.getCauseDetails();
+      this._message = beanToCopy.getMessage();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 675938345:  // failures
+          return _failures;
         case -892481550:  // status
           return _status;
-        case 1203236063:  // errorMessage
-          return _errorMessage;
-        case 94434409:  // cause
-          return _cause;
-        case 1620147609:  // causeDetails
-          return _causeDetails;
+        case 954925063:  // message
+          return _message;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 675938345:  // failures
+          this._failures = (List<Failure>) newValue;
+          break;
         case -892481550:  // status
           this._status = (FailureStatus) newValue;
           break;
-        case 1203236063:  // errorMessage
-          this._errorMessage = (String) newValue;
-          break;
-        case 94434409:  // cause
-          this._cause = (Exception) newValue;
-          break;
-        case 1620147609:  // causeDetails
-          this._causeDetails = (ThrowableDetails) newValue;
+        case 954925063:  // message
+          this._message = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -501,13 +464,23 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     @Override
     public FailureResult<T> build() {
       return new FailureResult<T>(
+          _failures,
           _status,
-          _errorMessage,
-          _cause,
-          _causeDetails);
+          _message);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code failures} property in the builder.
+     * @param failures  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder<T> failures(List<Failure> failures) {
+      JodaBeanUtils.notNull(failures, "failures");
+      this._failures = failures;
+      return this;
+    }
+
     /**
      * Sets the {@code status} property in the builder.
      * @param status  the new value, not null
@@ -520,46 +493,24 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     }
 
     /**
-     * Sets the {@code errorMessage} property in the builder.
-     * @param errorMessage  the new value, not null
+     * Sets the {@code message} property in the builder.
+     * @param message  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> errorMessage(String errorMessage) {
-      JodaBeanUtils.notNull(errorMessage, "errorMessage");
-      this._errorMessage = errorMessage;
-      return this;
-    }
-
-    /**
-     * Sets the {@code cause} property in the builder.
-     * @param cause  the new value
-     * @return this, for chaining, not null
-     */
-    @Deprecated
-    public Builder<T> cause(Exception cause) {
-      this._cause = cause;
-      return this;
-    }
-
-    /**
-     * Sets the {@code causeDetails} property in the builder.
-     * @param causeDetails  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder<T> causeDetails(ThrowableDetails causeDetails) {
-      this._causeDetails = causeDetails;
+    public Builder<T> message(String message) {
+      JodaBeanUtils.notNull(message, "message");
+      this._message = message;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("FailureResult.Builder{");
+      buf.append("failures").append('=').append(JodaBeanUtils.toString(_failures)).append(',').append(' ');
       buf.append("status").append('=').append(JodaBeanUtils.toString(_status)).append(',').append(' ');
-      buf.append("errorMessage").append('=').append(JodaBeanUtils.toString(_errorMessage)).append(',').append(' ');
-      buf.append("cause").append('=').append(JodaBeanUtils.toString(_cause)).append(',').append(' ');
-      buf.append("causeDetails").append('=').append(JodaBeanUtils.toString(_causeDetails));
+      buf.append("message").append('=').append(JodaBeanUtils.toString(_message));
       buf.append('}');
       return buf.toString();
     }

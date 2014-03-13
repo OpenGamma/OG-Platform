@@ -6,15 +6,16 @@
 package com.opengamma.util.result;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -24,8 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -37,46 +37,52 @@ import com.opengamma.util.ArgumentChecker;
  * If they have different statues the status of this result will be {@link FailureStatus#MULTIPLE}.
  *
  * @param <T> the type of the underlying result for a successful invocation
+ * @deprecated {@link FailureResult} can deal with multiple failures
  */
+@Deprecated
 @BeanDefinition
-public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
+public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean {
 
-  /**
-   * The failures.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final List<Result<?>> _failures;
-  /**
-   * The failed messages.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final String _failureMessage;
-  /**
-   * The status.
-   */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "manual")
+  private final List<Failure> _failures;
+
+  @PropertyDefinition(validate = "notNull", get = "manual")
   private final FailureStatus _status;
 
+  @PropertyDefinition(validate = "notNull", get = "private")
+  private final String _message;
+
   /**
-   * Creates an instance.
-   * 
-   * @param failures  the failures, not null
+   * @param failures the failures, must contain at least two elements
    */
-  /* package */ MultipleFailureResult(List<Result<?>> failures) {
-    _failures = ImmutableList.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
-    List<String> messages = Lists.newArrayListWithCapacity(failures.size());
-    FailureStatus compositeStatus = null;
-    for (Result<?> failure : failures) {
-      FailureStatus status = (FailureStatus) failure.getStatus();
-      if (compositeStatus == null) {
-        compositeStatus = status;
-      } else if (compositeStatus != status) {
-        compositeStatus = FailureStatus.MULTIPLE;
-      }
-      messages.add(failure.getFailureMessage());
+  /* package */ static <U> Result<U> of(List<Failure> failures) {
+    ArgumentChecker.notNull(failures, "failures");
+    
+    if (failures.size() < 2) {
+      throw new IllegalArgumentException("At least two failures are required");
     }
-    _status = compositeStatus;
-    _failureMessage = StringUtils.join(messages, "\n");
+    ResultStatus status = failures.get(0).getStatus();
+    StringBuilder builder = new StringBuilder();
+
+    for (Iterator<Failure> itr = failures.iterator(); itr.hasNext(); ) {
+      Failure failure = itr.next();
+      builder.append(failure.getMessage());
+
+      if (itr.hasNext()) {
+        builder.append("\n");
+      }
+      if (!status.equals(failure.getStatus())) {
+        status = FailureStatus.MULTIPLE;
+      }
+    }
+    return new MultipleFailureResult<>(failures, (FailureStatus) status, builder.toString()).propagateFailure();
+  }
+
+  @ImmutableConstructor
+  private MultipleFailureResult(List<Failure> failures, FailureStatus status, String message) {
+    _failures = ArgumentChecker.notEmpty(failures, "failures");
+    _status = ArgumentChecker.notNull(status, "status");
+    _message = ArgumentChecker.notEmpty(message, "message");
   }
 
   @SuppressWarnings("unchecked")
@@ -86,8 +92,25 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
   }
 
   @Override
-  public <U> Result<U> map(ResultMapper<T, U> mapper) {
-    return propagateFailure();
+  public <U> Result<U> ifSuccess(Function<T, Result<U>> function) {
+    return this.propagateFailure();
+  }
+
+  @Override
+  public <U, V> Result<V> combineWith(Result<U> other, Function2<T, U, Result<V>> function) {
+    if (other.isSuccess()) {
+      return Result.failure(this);
+    } else {
+      return Result.failure(this, other);
+    }
+  }
+
+  /**
+   * @return false
+   */
+  @Override
+  public boolean isSuccess() {
+    return false;
   }
 
   //-------------------------------------------------------------------------
@@ -97,8 +120,17 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
   }
 
   @Override
-  public boolean isValueAvailable() {
-    return false;
+  public FailureStatus getStatus() {
+    return _status;
+  }
+
+  @Override
+  public String getFailureMessage() {
+    return _message;
+  }
+
+  public List<Failure> getFailures() {
+    return _failures;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -136,19 +168,6 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     return new MultipleFailureResult.Builder<T>();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected MultipleFailureResult(MultipleFailureResult.Builder<T> builder) {
-    JodaBeanUtils.notNull(builder._failures, "failures");
-    JodaBeanUtils.notNull(builder._failureMessage, "failureMessage");
-    JodaBeanUtils.notNull(builder._status, "status");
-    this._failures = ImmutableList.copyOf(builder._failures);
-    this._failureMessage = builder._failureMessage;
-    this._status = builder._status;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public MultipleFailureResult.Meta<T> metaBean() {
@@ -167,29 +186,11 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the failures.
+   * Gets the message.
    * @return the value of the property, not null
    */
-  public List<Result<?>> getFailures() {
-    return _failures;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the failed messages.
-   * @return the value of the property, not null
-   */
-  public String getFailureMessage() {
-    return _failureMessage;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the status.
-   * @return the value of the property, not null
-   */
-  public FailureStatus getStatus() {
-    return _status;
+  private String getMessage() {
+    return _message;
   }
 
   //-----------------------------------------------------------------------
@@ -214,8 +215,8 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       MultipleFailureResult<?> other = (MultipleFailureResult<?>) obj;
       return JodaBeanUtils.equal(getFailures(), other.getFailures()) &&
-          JodaBeanUtils.equal(getFailureMessage(), other.getFailureMessage()) &&
-          JodaBeanUtils.equal(getStatus(), other.getStatus());
+          JodaBeanUtils.equal(getStatus(), other.getStatus()) &&
+          JodaBeanUtils.equal(getMessage(), other.getMessage());
     }
     return false;
   }
@@ -224,8 +225,8 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getFailures());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFailureMessage());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
     return hash;
   }
 
@@ -244,8 +245,8 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
 
   protected void toString(StringBuilder buf) {
     buf.append("failures").append('=').append(JodaBeanUtils.toString(getFailures())).append(',').append(' ');
-    buf.append("failureMessage").append('=').append(JodaBeanUtils.toString(getFailureMessage())).append(',').append(' ');
     buf.append("status").append('=').append(JodaBeanUtils.toString(getStatus())).append(',').append(' ');
+    buf.append("message").append('=').append(JodaBeanUtils.toString(getMessage())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -263,26 +264,26 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
      * The meta-property for the {@code failures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Result<?>>> _failures = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<List<Failure>> _failures = DirectMetaProperty.ofImmutable(
         this, "failures", MultipleFailureResult.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code failureMessage} property.
-     */
-    private final MetaProperty<String> _failureMessage = DirectMetaProperty.ofImmutable(
-        this, "failureMessage", MultipleFailureResult.class, String.class);
     /**
      * The meta-property for the {@code status} property.
      */
     private final MetaProperty<FailureStatus> _status = DirectMetaProperty.ofImmutable(
         this, "status", MultipleFailureResult.class, FailureStatus.class);
     /**
+     * The meta-property for the {@code message} property.
+     */
+    private final MetaProperty<String> _message = DirectMetaProperty.ofImmutable(
+        this, "message", MultipleFailureResult.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "failures",
-        "failureMessage",
-        "status");
+        "status",
+        "message");
 
     /**
      * Restricted constructor.
@@ -295,10 +296,10 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
       switch (propertyName.hashCode()) {
         case 675938345:  // failures
           return _failures;
-        case -1704954083:  // failureMessage
-          return _failureMessage;
         case -892481550:  // status
           return _status;
+        case 954925063:  // message
+          return _message;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -324,16 +325,8 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
      * The meta-property for the {@code failures} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Result<?>>> failures() {
+    public final MetaProperty<List<Failure>> failures() {
       return _failures;
-    }
-
-    /**
-     * The meta-property for the {@code failureMessage} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> failureMessage() {
-      return _failureMessage;
     }
 
     /**
@@ -344,16 +337,24 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
       return _status;
     }
 
+    /**
+     * The meta-property for the {@code message} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> message() {
+      return _message;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 675938345:  // failures
           return ((MultipleFailureResult<?>) bean).getFailures();
-        case -1704954083:  // failureMessage
-          return ((MultipleFailureResult<?>) bean).getFailureMessage();
         case -892481550:  // status
           return ((MultipleFailureResult<?>) bean).getStatus();
+        case 954925063:  // message
+          return ((MultipleFailureResult<?>) bean).getMessage();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -375,9 +376,9 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
    */
   public static class Builder<T> extends DirectFieldsBeanBuilder<MultipleFailureResult<T>> {
 
-    private List<Result<?>> _failures = new ArrayList<Result<?>>();
-    private String _failureMessage;
+    private List<Failure> _failures = new ArrayList<Failure>();
     private FailureStatus _status;
+    private String _message;
 
     /**
      * Restricted constructor.
@@ -390,9 +391,9 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     protected Builder(MultipleFailureResult<T> beanToCopy) {
-      this._failures = new ArrayList<Result<?>>(beanToCopy.getFailures());
-      this._failureMessage = beanToCopy.getFailureMessage();
+      this._failures = new ArrayList<Failure>(beanToCopy.getFailures());
       this._status = beanToCopy.getStatus();
+      this._message = beanToCopy.getMessage();
     }
 
     //-----------------------------------------------------------------------
@@ -401,10 +402,10 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
       switch (propertyName.hashCode()) {
         case 675938345:  // failures
           return _failures;
-        case -1704954083:  // failureMessage
-          return _failureMessage;
         case -892481550:  // status
           return _status;
+        case 954925063:  // message
+          return _message;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -415,13 +416,13 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 675938345:  // failures
-          this._failures = (List<Result<?>>) newValue;
-          break;
-        case -1704954083:  // failureMessage
-          this._failureMessage = (String) newValue;
+          this._failures = (List<Failure>) newValue;
           break;
         case -892481550:  // status
           this._status = (FailureStatus) newValue;
+          break;
+        case 954925063:  // message
+          this._message = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -455,7 +456,10 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
 
     @Override
     public MultipleFailureResult<T> build() {
-      return new MultipleFailureResult<T>(this);
+      return new MultipleFailureResult<T>(
+          _failures,
+          _status,
+          _message);
     }
 
     //-----------------------------------------------------------------------
@@ -464,20 +468,9 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
      * @param failures  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> failures(List<Result<?>> failures) {
+    public Builder<T> failures(List<Failure> failures) {
       JodaBeanUtils.notNull(failures, "failures");
       this._failures = failures;
-      return this;
-    }
-
-    /**
-     * Sets the {@code failureMessage} property in the builder.
-     * @param failureMessage  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder<T> failureMessage(String failureMessage) {
-      JodaBeanUtils.notNull(failureMessage, "failureMessage");
-      this._failureMessage = failureMessage;
       return this;
     }
 
@@ -489,6 +482,17 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
     public Builder<T> status(FailureStatus status) {
       JodaBeanUtils.notNull(status, "status");
       this._status = status;
+      return this;
+    }
+
+    /**
+     * Sets the {@code message} property in the builder.
+     * @param message  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder<T> message(String message) {
+      JodaBeanUtils.notNull(message, "message");
+      this._message = message;
       return this;
     }
 
@@ -508,8 +512,8 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
 
     protected void toString(StringBuilder buf) {
       buf.append("failures").append('=').append(JodaBeanUtils.toString(_failures)).append(',').append(' ');
-      buf.append("failureMessage").append('=').append(JodaBeanUtils.toString(_failureMessage)).append(',').append(' ');
       buf.append("status").append('=').append(JodaBeanUtils.toString(_status)).append(',').append(' ');
+      buf.append("message").append('=').append(JodaBeanUtils.toString(_message)).append(',').append(' ');
     }
 
   }

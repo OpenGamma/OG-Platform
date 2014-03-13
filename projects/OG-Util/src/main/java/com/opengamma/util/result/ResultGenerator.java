@@ -5,15 +5,9 @@
  */
 package com.opengamma.util.result;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
-import org.slf4j.helpers.MessageFormatter;
-
-import com.google.common.collect.Lists;
-import com.opengamma.util.ArgumentChecker;
+import com.google.common.base.Function;
 
 /**
  * Factory class for {@link Result} objects.
@@ -49,7 +43,9 @@ import com.opengamma.util.ArgumentChecker;
  * }
  *
  * </pre>
+ * @deprecated use the static methods on {@link Result}
  */
+@Deprecated
 public class ResultGenerator {
 
   /**
@@ -59,9 +55,11 @@ public class ResultGenerator {
    * @param <T> the type of the value to be returned
    * @param value  the value that the invoked function returned
    * @return a result object wrapping the actual function invocation result, not null
+   * @deprecated use {@link Result#success(Object)}
    */
+  @Deprecated
   public static <T> Result<T> success(T value) {
-    return new SuccessResult<>(value);
+    return Result.success(value);
   }
 
   /**
@@ -74,9 +72,11 @@ public class ResultGenerator {
    * @param messageArgs  the arguments to be used for the formatted message, not null
    * @param <T> the type of the value which would have been returned if successful
    * @return a result object wrapping the failure details, not null
+   * @deprecated use {@link Result#failure(FailureStatus, String, Object...)}
    */
+  @Deprecated
   public static <T> Result<T> failure(FailureStatus status, String message, Object... messageArgs) {
-    return new FailureResult<>(status, MessageFormatter.arrayFormat(message, messageArgs).getMessage());
+    return Result.failure(status, message, messageArgs);
   }
 
   /**
@@ -87,9 +87,11 @@ public class ResultGenerator {
    * @param cause the cause of the failure, not null
    * @param <T> the type of the value which would have been returned if successful
    * @return a result object wrapping the failure details, not null
+   * @deprecated use {@link Result#failure(Exception, String, Object...)}
    */
+  @Deprecated
   public static <T> Result<T> failure(String message, Exception cause) {
-    return new FailureResult<>(message, cause);
+    return Result.failure(cause, message);
   }
 
   /**
@@ -99,10 +101,11 @@ public class ResultGenerator {
    * @param cause The cause of the failure, not null
    * @param <T> the type of the value which would have been returned if successful
    * @return a result object wrapping the failure details, not null
+   * @deprecated use {@link Result#failure(Exception)}
    */
+  @Deprecated
   public static <T> Result<T> failure(Exception cause) {
-    ArgumentChecker.notNull(cause, "cause");
-    return new FailureResult<>(cause);
+    return Result.failure(cause);
   }
 
   /**
@@ -112,35 +115,33 @@ public class ResultGenerator {
    * @param <T>  the required type of the new result object
    * @param result  the failure to be propagated, not null
    * @return the new function result object, not null
-   * @deprecated use {@link Result#propagateFailure()}
+   * @deprecated use {@link Result#failure(Result)}
    */
   @Deprecated
   @SuppressWarnings("unchecked")
   public static <T> Result<T> propagateFailure(Result<?> result) {
-    if (result instanceof SuccessResult<?>) {
-      throw new IllegalArgumentException("propagateFailure can only be invoked with a failed result");
-    }
-    return (Result<T>) result;
+    return Result.failure(result);
   }
 
   /**
    * Transforms a result containing a type R into one containing a type T.
    * If the passed result is a failure then the original object will be passed through unaltered.
    *
-   * @param <R>  the type of the result object to be transformed
-   * @param <T>  the required type of the new result object
+   * @param <T>  the type of the result object to be transformed
+   * @param <U>  the required type of the new result object
    * @param result  the result to be transformed, not null
    * @param mapper  the mapper object to transform the value with, not null
    * @return the new function result object, not null
-   * @deprecated use {@link Result#map}
+   * @deprecated use {@link Result#ifSuccess(Function)}
    */
   @Deprecated
-  public static <R, T> Result<T> map(Result<R> result, ResultMapper<R, T> mapper) {
-    if (result.isValueAvailable()) {
-      return mapper.map(result.getValue());
-    } else {
-      return propagateFailure(result);
-    }
+  public static <T, U> Result<U> map(final Result<T> result, final ResultMapper<T, U> mapper) {
+    return result.flatMap(new Function<T, Result<U>>() {
+      @Override
+      public Result<U> apply(T input) {
+        return mapper.map(input);
+      }
+    });
   }
 
   /**
@@ -148,14 +149,11 @@ public class ResultGenerator {
    *
    * @param results  the set of results to be checked, not null
    * @return true if the set of results contains at least one failure
+   * @deprecated use {@link Result#anyFailures(Result[])}
    */
+  @Deprecated
   public static boolean anyFailures(Result<?>... results) {
-    for (Result<?> result : results) {
-      if (!result.isValueAvailable()) {
-        return true;
-      }
-    }
-    return false;
+    return Result.anyFailures(results);
   }
 
   /**
@@ -169,33 +167,18 @@ public class ResultGenerator {
    * @param results  results to be included in the combined result, not null
    * @return the new function result object
    * @throws IllegalArgumentException if there are no failures in the results set
+   * @deprecated use {@link Result#failure(Result, Result, Result[])}
    */
-  // results can include successes which are ignored
+  @Deprecated
   public static <T> Result<T> propagateFailures(Result<?> result1, Result<?> result2, Result<?>... results) {
-    // TODO - what if one of the results was itself a MultipleFailureResult?
-    List<Result<?>> resultList = Lists.newArrayListWithCapacity(results.length + 2);
-    resultList.add(result1);
-    resultList.add(result2);
-    resultList.addAll(Arrays.asList(results));
-    return propagateFailures(resultList);
+    return Result.failure(result1, result2, results);
   }
 
-
-
+  /**
+   * @deprecated use {@link Result#failure(Iterable)}
+   */
+  @Deprecated
   public static <T> Result<T> propagateFailures(Collection<Result<?>> results) {
-    // TODO - what if one of the results was itself a MultipleFailureResult?
-    List<Result<?>> failures = new ArrayList<>();
-    for (Result<?> result : results) {
-      if (result instanceof FailureResult) {
-        failures.add(result);
-      }
-    }
-    if (failures.isEmpty()) {
-      throw new IllegalArgumentException("No failures found in " + failures);
-    }
-    return new MultipleFailureResult<>(failures);
+    return Result.failure(results);
   }
-
-  //-------------------------------------------------------------------------
-
 }

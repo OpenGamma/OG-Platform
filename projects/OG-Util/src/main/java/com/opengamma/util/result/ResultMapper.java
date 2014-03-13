@@ -5,12 +5,17 @@
  */
 package com.opengamma.util.result;
 
+import com.google.common.base.Function;
+
 /**
  * Functional interface that can transform a result.
  *
  * @param <R> the result type
  * @param <T> the type of the transformed result
+ * @deprecated use a general purpose function type and {@link Result#ifSuccess(Function)} or
+ * {@link Result#flatMap(Function)}
  */
+@Deprecated
 public interface ResultMapper<R, T> {
 
   /**
