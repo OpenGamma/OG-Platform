@@ -328,7 +328,7 @@ public class CDXNAHYTest extends ISDABaseTest {
       if (PRINT) {
         System.out.println(STRIKES[i] + "\t" + deltaPayer + "\t" + deltaRec);
       }
-      assertEquals(expDelta[i], deltaPayer, 1e-12);
+      assertEquals(expDelta[i], deltaPayer, 1e-11);
     }
   }
 
@@ -407,7 +407,7 @@ public class CDXNAHYTest extends ISDABaseTest {
       if (PRINT) {
         System.out.println(STRIKES[i] + "\t" + gammaPayer + "\t" + gammaRec);
       }
-      assertEquals(expGamma[i], gammaPayer, 1e-12);
+      assertEquals(expGamma[i], gammaPayer, 1e-11);
     }
   }
 
