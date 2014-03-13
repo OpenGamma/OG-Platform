@@ -45,6 +45,8 @@ public class IndexOptionPricer {
   private final ISDACompliantYieldCurve _fwdYieldCurve;
   private final double _coupon;
   private final double _df;
+  private final double _minExercisePrice;
+  private final double _maxExercisePrice;
 
   public IndexOptionPricer(final CDSAnalytic fwdCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve, final double coupon) {
     this(fwdCDS, timeToExpiry, yieldCurve, coupon, false);
@@ -60,6 +62,9 @@ public class IndexOptionPricer {
    * @param useExactAnnuityCal if true the ISDA model (up-front) is use to compute the annuity, otherwise a credit triangle approximation is used. 
    */
   public IndexOptionPricer(final CDSAnalytic fwdCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve, final double coupon, final boolean useExactAnnuityCal) {
+    ArgumentChecker.notNull(fwdCDS, "fwdCDS");
+    ArgumentChecker.isTrue(fwdCDS.getEffectiveProtectionStart() == 0.0, "fwdCDS should be a Forward CDS - set Java docs");
+
     _fwdYieldCurve = yieldCurve.withOffset(timeToExpiry);
 
     _annuityFunc = new AnnuityForSpreadISDAFunction(fwdCDS, _fwdYieldCurve);
@@ -73,7 +78,10 @@ public class IndexOptionPricer {
     _yieldCurve = yieldCurve;
     _expiry = timeToExpiry;
     _coupon = coupon;
-    _df = yieldCurve.getDiscountFactor(timeToExpiry);
+    _df = yieldCurve.getDiscountFactor(timeToExpiry + fwdCDS.getCashSettleTime());
+
+    _minExercisePrice = -coupon * _annuityFunc.evaluate(0.);
+    _maxExercisePrice = fwdCDS.getLGD();
   }
 
   /**
@@ -97,9 +105,9 @@ public class IndexOptionPricer {
   }
 
   public double getOptionPriceForSpreadQuotedIndex(final double defaultAdjIndexValue, final double vol, final double strike, final boolean isPayer) {
-    final double accrued = _fwdCDS.getAccruedPremium(_coupon);
+    ArgumentChecker.isTrue(strike >= 0.0, "strike cannot be negative");
     final double x0 = calibrateX0(defaultAdjIndexValue, vol); //mean of pseudo-spread 
-    final double gK = (strike - _coupon) * _annuityFunc.evaluate(strike) - accrued; //the excise price 
+    final double gK = (strike - _coupon) * _annuityFunc.evaluate(strike); //the excise price 
     return optionPrice(defaultAdjIndexValue, x0, vol, gK, isPayer);
   }
 
@@ -112,6 +120,11 @@ public class IndexOptionPricer {
    * @return The option price 
    */
   public double getOptionPriceForPriceQuotedIndex(final double defaultAdjIndexValue, final double vol, final double gK, final boolean isPayer) {
+    ArgumentChecker.isTrue(defaultAdjIndexValue >= _minExercisePrice && defaultAdjIndexValue < _maxExercisePrice,
+        "The defaulted adjusted forward index price must be in the range {} to {} - value of {} is outside this", _minExercisePrice, _maxExercisePrice, defaultAdjIndexValue);
+    ArgumentChecker.isTrue(gK >= _minExercisePrice && gK < _maxExercisePrice, "The exercise price must be in the range {} to {} - value of {} is outside this", _minExercisePrice, _maxExercisePrice,
+        gK);
+
     final double x0 = calibrateX0(defaultAdjIndexValue, vol); //mean of pseudo-spread 
     return optionPrice(defaultAdjIndexValue, x0, vol, gK, isPayer);
   }

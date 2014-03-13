@@ -32,74 +32,94 @@ public class PortfolioSwapAdjustment {
   /**
    * Adjust the hazard rates of the credit curves of the individual single names in a index so that the index is priced exactly.  The hazard rates are adjusted on
    * a percentage rather than a absolute bases (e.g. all hazard rates are increased by 1%) 
+   * @param indexPUF The clean price of the index for unit current notional (i.e. divide the actual clean price by the current notional) 
    * @param indexCDS analytic description of a CDS traded at a certain time
    * @param indexCoupon The coupon of the index (as a fraction)
    * @param yieldCurve The yield curve
    * @param creditCurves The credit curves of the (undefaulted) individual single names making up the index 
    * @param recoveryRates The recovery rates for in individual single names. 
-   * @param indexPUF The clean price of the index for unit current notional (i.e. divide the actual clean price by the current notional) 
    * @return credit curve adjusted so they will exactly reprice the index.
    */
-  public ISDACompliantCreditCurve[] adjustCurves(final CDSAnalytic indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve[] creditCurves,
-      final double[] recoveryRates, final double indexPUF) {
-    final Function1D<Double, Double> func = getHazardRateAdjFunction(indexCDS, indexCoupon, yieldCurve, creditCurves, recoveryRates, indexPUF);
+  public IntrinsicIndexDataBundle adjustCurves(final double indexPUF, final CDSAnalytic indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
+      final IntrinsicIndexDataBundle intrinsicData) {
+    ArgumentChecker.isTrue(indexPUF <= 1.0, "indexPUF must be given as a fraction. Value of {} is too high.", indexPUF);
+    ArgumentChecker.notNull(indexCDS, "indexCDS");
+    ArgumentChecker.isTrue(indexCoupon >= 0, "indexCoupon cannot be negative");
+    ArgumentChecker.isTrue(indexCoupon < 10, "indexCoupon should be a fraction. The value of {} would be a coupon of {}", indexCoupon, indexCoupon * 1e4);
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(intrinsicData, "intrinsicData");
+
+    final Function1D<Double, Double> func = getHazardRateAdjFunction(indexPUF, indexCDS, indexCoupon, yieldCurve, intrinsicData);
     final double x = ROOTFINDER.getRoot(func, 1.0);
-    return adjustCurves(creditCurves, x);
+    final ISDACompliantCreditCurve[] adjCC = adjustCurves(intrinsicData.getCreditCurves(), x);
+    return intrinsicData.withCreditCurves(adjCC);
   }
 
   /**
    * Adjust the hazard rates of the credit curves of the individual single names in a index so that the index is priced exactly at multiple terms. The
    * hazard rates are multiplied by a piecewise constant adjuster (e.g. all hazard rates between two index terms are increased by the same percentage). 
    * When required extra knots are added to the credit curves, so the adjusted curves returned may contain more knots than the original curves.
+   * @param indexPUF The clean prices of the index for unit current notional.
    * @param indexCDS analytic descriptions of the index for different terms 
    * @param indexCoupon The coupon of the index (as a fraction)
    * @param yieldCurve The yield curve
    * @param creditCurves The credit curves of the (undefaulted) individual single names making up the index 
    * @param recoveryRates The recovery rates for in individual single names. 
-   * @param indexPUF The clean prices of the index for unit current notional.
    * @return credit curve adjusted so they will exactly reprice the index at the different terms.
    */
-  public ISDACompliantCreditCurve[] adjustCurves(final CDSAnalytic[] indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve[] creditCurves,
-      final double[] recoveryRates, final double[] indexPUF) {
+  public IntrinsicIndexDataBundle adjustCurves(final double[] indexPUF, final CDSAnalytic[] indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
+      final IntrinsicIndexDataBundle intrinsicData) {
+
+    ArgumentChecker.notEmpty(indexPUF, "indexPUF");
     ArgumentChecker.noNulls(indexCDS, "indexCDS");
-    ArgumentChecker.noNulls(creditCurves, "creditCurves");
     final int nIndexTerms = indexCDS.length;
     ArgumentChecker.isTrue(nIndexTerms == indexPUF.length, "number of indexCDS ({}) does not match number of indexPUF ({})", nIndexTerms, indexPUF.length);
     if (nIndexTerms == 1) {
-      return adjustCurves(indexCDS[0], indexCoupon, yieldCurve, creditCurves, recoveryRates, indexPUF[0]);
+      return adjustCurves(indexPUF[0], indexCDS[0], indexCoupon, yieldCurve, intrinsicData);
     }
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(intrinsicData, "intrinsicData");
+    ArgumentChecker.isTrue(indexCoupon >= 0, "indexCoupon cannot be negative");
+    ArgumentChecker.isTrue(indexCoupon < 10, "indexCoupon should be a fraction. The value of {} would be a coupon of {}", indexCoupon, indexCoupon * 1e4);
 
     final double[] indexKnots = new double[nIndexTerms];
     for (int i = 0; i < nIndexTerms; i++) {
+      ArgumentChecker.isTrue(indexPUF[i] <= 1.0, "indexPUF must be given as a fraction. Value of {} is too high.", indexPUF);
       indexKnots[i] = indexCDS[i].getProtectionEnd();
       if (i > 0) {
         ArgumentChecker.isTrue(indexKnots[i] > indexKnots[i - 1], "indexCDS must be in assending order of maturity");
       }
     }
+
+    final ISDACompliantCreditCurve[] creditCurves = intrinsicData.getCreditCurves();
     final int nCurves = creditCurves.length;
     //we cannot assume that all the credit curves have knots at the same times or that the terms of the indices fall on these knots.
     ISDACompliantCreditCurve[] modCreditCurves = new ISDACompliantCreditCurve[nCurves];
     final int[][] indexMap = new int[nCurves][nIndexTerms];
     for (int i = 0; i < nCurves; i++) {
-      final double[] ccKnots = creditCurves[i].getKnotTimes();
-      final double[] comKnots = combineSets(ccKnots, indexKnots);
-      final int nKnots = comKnots.length;
-      if (nKnots == ccKnots.length) {
-        modCreditCurves[i] = creditCurves[i];
+      if (creditCurves[i] == null) {
+        modCreditCurves[i] = null; //null credit curves correspond to defaulted names, so are ignored 
       } else {
-        final double[] rt = new double[nKnots];
-        for (int j = 0; j < nKnots; j++) {
-          rt[j] = creditCurves[i].getRT(comKnots[j]);
+        final double[] ccKnots = creditCurves[i].getKnotTimes();
+        final double[] comKnots = combineSets(ccKnots, indexKnots);
+        final int nKnots = comKnots.length;
+        if (nKnots == ccKnots.length) {
+          modCreditCurves[i] = creditCurves[i];
+        } else {
+          final double[] rt = new double[nKnots];
+          for (int j = 0; j < nKnots; j++) {
+            rt[j] = creditCurves[i].getRT(comKnots[j]);
+          }
+          modCreditCurves[i] = ISDACompliantCreditCurve.makeFromRT(comKnots, rt);
         }
-        modCreditCurves[i] = ISDACompliantCreditCurve.makeFromRT(comKnots, rt);
-      }
 
-      for (int j = 0; j < nIndexTerms; j++) {
-        final int index = Arrays.binarySearch(modCreditCurves[i].getKnotTimes(), indexKnots[j]);
-        if (index < 0) {
-          throw new MathException("This should not happen. There is a bug in the logic");
+        for (int j = 0; j < nIndexTerms; j++) {
+          final int index = Arrays.binarySearch(modCreditCurves[i].getKnotTimes(), indexKnots[j]);
+          if (index < 0) {
+            throw new MathException("This should not happen. There is a bug in the logic");
+          }
+          indexMap[i][j] = index;
         }
-        indexMap[i][j] = index;
       }
     }
 
@@ -109,43 +129,52 @@ public class PortfolioSwapAdjustment {
     for (int i = 0; i < nIndexTerms; i++) {
       if (i == (nIndexTerms - 1)) {
         for (int jj = 0; jj < nCurves; jj++) {
-          endKnots[jj] = modCreditCurves[jj].getNumberOfKnots();
+          if (modCreditCurves[jj] != null) {
+            endKnots[jj] = modCreditCurves[jj].getNumberOfKnots();
+          }
         }
       } else {
         for (int jj = 0; jj < nCurves; jj++) {
-          endKnots[jj] = indexMap[jj][i] + 1;
+          if (modCreditCurves[jj] != null) {
+            endKnots[jj] = indexMap[jj][i] + 1;
+          }
         }
       }
 
-      final Function1D<Double, Double> func = getHazardRateAdjFunction(indexCDS[i], indexCoupon, yieldCurve, modCreditCurves, recoveryRates, indexPUF[i], startKnots, endKnots);
+      final IntrinsicIndexDataBundle modIntrinsicData = intrinsicData.withCreditCurves(modCreditCurves);
+      final Function1D<Double, Double> func = getHazardRateAdjFunction(indexPUF[i], indexCDS[i], indexCoupon, yieldCurve, modIntrinsicData, startKnots, endKnots);
       alpha = ROOTFINDER.getRoot(func, alpha);
       modCreditCurves = adjustCurves(modCreditCurves, alpha, startKnots, endKnots);
       startKnots = endKnots.clone();
     }
 
-    return modCreditCurves;
+    return intrinsicData.withCreditCurves(modCreditCurves);
   }
 
-  private Function1D<Double, Double> getHazardRateAdjFunction(final CDSAnalytic indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
-      final ISDACompliantCreditCurve[] creditCurve, final double[] recoveryRates, final double indexPUF) {
+  private Function1D<Double, Double> getHazardRateAdjFunction(final double indexPUF, final CDSAnalytic indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
+      final IntrinsicIndexDataBundle intrinsicData) {
 
+    final ISDACompliantCreditCurve[] creditCurves = intrinsicData.getCreditCurves();
+    final double clean = intrinsicData.getIndexFactor() * indexPUF;
     return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double x) {
-        final ISDACompliantCreditCurve[] adjCurves = adjustCurves(creditCurve, x);
-        return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, adjCurves, recoveryRates) - indexPUF;
+        final ISDACompliantCreditCurve[] adjCurves = adjustCurves(creditCurves, x);
+        return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData.withCreditCurves(adjCurves)) - clean;
       }
     };
   }
 
-  private Function1D<Double, Double> getHazardRateAdjFunction(final CDSAnalytic indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
-      final ISDACompliantCreditCurve[] creditCurve, final double[] recoveryRates, final double indexPUF, final int[] firstKnots, final int[] lastKnots) {
+  private Function1D<Double, Double> getHazardRateAdjFunction(final double indexPUF, final CDSAnalytic indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
+      final IntrinsicIndexDataBundle intrinsicData, final int[] firstKnots, final int[] lastKnots) {
 
+    final ISDACompliantCreditCurve[] creditCurves = intrinsicData.getCreditCurves();
+    final double clean = intrinsicData.getIndexFactor() * indexPUF;
     return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double x) {
-        final ISDACompliantCreditCurve[] adjCurves = adjustCurves(creditCurve, x, firstKnots, lastKnots);
-        return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, adjCurves, recoveryRates) - indexPUF;
+        final ISDACompliantCreditCurve[] adjCurves = adjustCurves(creditCurves, x, firstKnots, lastKnots);
+        return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData.withCreditCurves(adjCurves)) - clean;
       }
     };
   }
@@ -160,6 +189,9 @@ public class PortfolioSwapAdjustment {
   }
 
   private ISDACompliantCreditCurve adjustCreditCurve(final ISDACompliantCreditCurve creditCurve, final double amount) {
+    if (creditCurve == null) {
+      return creditCurve;
+    }
     final int nKnots = creditCurve.getNumberOfKnots();
     final double[] rt = creditCurve.getRt();
     final double[] rtAdj = new double[nKnots];

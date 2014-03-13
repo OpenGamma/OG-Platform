@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.CDSCoupon.makeCoupons;
 
+import java.util.Arrays;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.temporal.JulianFields;
@@ -297,4 +299,90 @@ public class CDSAnalytic {
     ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
     return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, _protectionEnd, _cashSettlementTime, _payAccOnDefault, _accrued, _accruedDays);
   }
+
+  /**
+   * Generate a CDS with a time offset. The main use is to produce a forward starting CDS from a forward CDS. A forward CDS is a CDS with a future trade date viewed 
+   * from that date (i.e. it is a spot CDS view from the future trade date). A forward starting CDS is a CDS (seen today) that starts on some future date. The effect
+   * of this operation is to shift all time-to based numbers by offset. 
+   * @param offset The offset (in years) - must be positive 
+   * @return an offset (i.e. forward starting) CDS 
+   */
+  public CDSAnalytic withOffset(final double offset) {
+    ArgumentChecker.isTrue(offset >= 0, "offset must be positive");
+    if (offset == 0.0) {
+      return this;
+    }
+    final int n = getNumPayments();
+    final CDSCoupon[] coupons = new CDSCoupon[n];
+    for (int i = 0; i < n; i++) {
+      coupons[i] = _coupons[i].withOffset(offset);
+    }
+    return new CDSAnalytic(_lgd, coupons, _accStart + offset, _effectiveProtectionStart + offset, _protectionEnd + offset, _cashSettlementTime + offset, _payAccOnDefault, _accrued, _accruedDays);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_accStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_accrued);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _accruedDays;
+    temp = Double.doubleToLongBits(_cashSettlementTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_coupons);
+    temp = Double.doubleToLongBits(_effectiveProtectionStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_lgd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_payAccOnDefault ? 1231 : 1237);
+    temp = Double.doubleToLongBits(_protectionEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final CDSAnalytic other = (CDSAnalytic) obj;
+    if (Double.doubleToLongBits(_accStart) != Double.doubleToLongBits(other._accStart)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_accrued) != Double.doubleToLongBits(other._accrued)) {
+      return false;
+    }
+    if (_accruedDays != other._accruedDays) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_cashSettlementTime) != Double.doubleToLongBits(other._cashSettlementTime)) {
+      return false;
+    }
+    if (!Arrays.equals(_coupons, other._coupons)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_effectiveProtectionStart) != Double.doubleToLongBits(other._effectiveProtectionStart)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_lgd) != Double.doubleToLongBits(other._lgd)) {
+      return false;
+    }
+    if (_payAccOnDefault != other._payAccOnDefault) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_protectionEnd) != Double.doubleToLongBits(other._protectionEnd)) {
+      return false;
+    }
+    return true;
+  }
+
 }

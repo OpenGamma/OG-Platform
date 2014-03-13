@@ -53,17 +53,16 @@ public class ISDABaseTest {
   protected static final boolean PROCTECTION_START = true;
   protected static final double RECOVERY_RATE = 0.4;
 
-  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
-      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval) {
-    return makeYieldCurve(today, spotDate, maturities, type, rates, moneyMarketDCC, swapDCC, swapInterval, DEFAULT_CALENDAR);
+  protected static ISDACompliantYieldCurveBuild makeYieldCurveBuilder(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final DayCount moneyMarketDCC,
+      final DayCount swapDCC, final Period swapInterval) {
+    return makeYieldCurveBuilder(today, spotDate, maturities, type, moneyMarketDCC, swapDCC, swapInterval, DEFAULT_CALENDAR);
   }
 
-  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
-      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval, final Calendar calendar) {
+  protected static ISDACompliantYieldCurveBuild makeYieldCurveBuilder(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final DayCount moneyMarketDCC,
+      final DayCount swapDCC, final Period swapInterval, final Calendar calendar) {
     final DayCount curveDCC = ACT365F;
     final int nInstruments = maturities.length;
     ArgumentChecker.isTrue(nInstruments == type.length, "type length {} does not match maturities length {}", type.length, nInstruments);
-    ArgumentChecker.isTrue(nInstruments == rates.length, "rates length {} does not match  maturities length {}", rates.length, nInstruments);
     final Period[] tenors = new Period[nInstruments];
     final ISDAInstrumentTypes[] types = new ISDAInstrumentTypes[nInstruments];
     for (int i = 0; i < nInstruments; i++) {
@@ -89,6 +88,18 @@ public class ISDABaseTest {
     }
     // return ISDACompliantYieldCurveBuild.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
     final ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(today, spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING, calendar);
+    return builder;
+  }
+
+  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval) {
+    return makeYieldCurve(today, spotDate, maturities, type, rates, moneyMarketDCC, swapDCC, swapInterval, DEFAULT_CALENDAR);
+  }
+
+  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval, final Calendar calendar) {
+
+    final ISDACompliantYieldCurveBuild builder = makeYieldCurveBuilder(today, spotDate, maturities, type, moneyMarketDCC, swapDCC, swapInterval, calendar);
     return builder.build(rates);
   }
 

@@ -36,6 +36,49 @@ public class CDSCoupon {
     return res;
   }
 
+  public static CDSCoupon[] makeCoupons(final LocalDate tradeDate, final CDSCouponDes[] couponsDes, final boolean protectionFromStartOfDay, final DayCount curveDCC) {
+    ArgumentChecker.noNulls(couponsDes, "couponsDes");
+    final int n = couponsDes.length;
+    ArgumentChecker.isTrue(couponsDes[n - 1].getPaymentDate().isAfter(tradeDate), "all coupons have expired");
+    int count = 0;
+    while (tradeDate.isAfter(couponsDes[count].getPaymentDate())) {
+      count++;
+    }
+    final int nCoupons = n - count;
+    final CDSCoupon[] coupons = new CDSCoupon[nCoupons];
+    for (int i = 0; i < nCoupons; i++) {
+      coupons[i] = new CDSCoupon(tradeDate, couponsDes[i + count], protectionFromStartOfDay, curveDCC);
+    }
+    return coupons;
+  }
+
+  public CDSCoupon(final LocalDate tradeDate, final CDSCouponDes coupon) {
+    this(tradeDate, coupon, PROTECTION_FROM_START, ACT_360);
+  }
+
+  public CDSCoupon(final LocalDate tradeDate, final CDSCouponDes coupon, final DayCount curveDCC) {
+    this(tradeDate, coupon, PROTECTION_FROM_START, curveDCC);
+  }
+
+  public CDSCoupon(final LocalDate tradeDate, final CDSCouponDes coupon, final boolean protectionFromStartOfDay) {
+    this(tradeDate, coupon, protectionFromStartOfDay, ACT_360);
+  }
+
+  public CDSCoupon(final LocalDate tradeDate, final CDSCouponDes coupon, final boolean protectionFromStartOfDay, final DayCount curveDCC) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(curveDCC, "curveDCC");
+    ArgumentChecker.isFalse(tradeDate.isAfter(coupon.getPaymentDate()), "coupon payment is in the past");
+
+    final LocalDate effStart = protectionFromStartOfDay ? coupon.getAccStart().minusDays(1) : coupon.getAccStart();
+    final LocalDate effEnd = protectionFromStartOfDay ? coupon.getAccEnd().minusDays(1) : coupon.getAccEnd();
+
+    _effStart = effStart.isBefore(tradeDate) ? -curveDCC.getDayCountFraction(effStart, tradeDate) : curveDCC.getDayCountFraction(tradeDate, effStart);
+    _effEnd = curveDCC.getDayCountFraction(tradeDate, effEnd);
+    _paymentTime = curveDCC.getDayCountFraction(tradeDate, coupon.getPaymentDate());
+    _yearFrac = coupon.getYearFrac();
+    _ycRatio = _yearFrac / curveDCC.getDayCountFraction(coupon.getAccStart(), coupon.getAccEnd());
+  }
+
   /**
    * Setup a analytic description (i.e. involving only doubles) of a single CDS premium payment period seen from a particular trade
    * date. Protection is taken from start of day; ACT/360 is used for the accrual DCC and ACT/365F for the curve DCC  
@@ -170,6 +213,16 @@ public class CDSCoupon {
    */
   public double getYFRatio() {
     return _ycRatio;
+  }
+
+  /**
+   * Produce a coupon with payments and accrual start/end offset by a given amount. For example if an offset of 0.5 was applied to a coupon with 
+   * effStart, effEnd and payment time of 0, 0.25 and 0.25,  the new coupon would have 0.5, 0.75, 0.75 (effStart, effEnd, payment time)
+   * @param offset amount of offset (in years)
+   * @return offset coupon 
+   */
+  public CDSCoupon withOffset(final double offset) {
+    return new CDSCoupon(_effStart + offset, _effEnd + offset, _paymentTime + offset, _yearFrac, _ycRatio);
   }
 
   @Override

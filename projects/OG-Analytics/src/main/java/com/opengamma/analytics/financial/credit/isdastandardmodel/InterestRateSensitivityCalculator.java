@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -12,6 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class InterestRateSensitivityCalculator {
 
+  private static final MarketQuoteConverter CONVERTER = new MarketQuoteConverter();
   private static final double ONE_BPS = 1e-4;
 
   private final AnalyticCDSPricer _pricer;
@@ -25,8 +28,78 @@ public class InterestRateSensitivityCalculator {
   }
 
   /**
+   *  The IR01 (Interest-Rate 01) is by definition the change in the price of a CDS when the market interest rates (these are 
+   * money-market and swap rates) all increased by 1bps. This assumes that the quoted (or flat) spread is invariant to a change in the yield curve 
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param quote This can be a QuotedSpread or PointsUpFront. For quoted spread this is taken as invariant; for PUF this is converted to a quoted spread (which is
+   * then invariant). ParSpread is not supported 
+   * @param yieldCurveBuilder yield curve builder 
+   * @param marketRates the money-market and swap rates (in the correct order for the yield curve builder, i.e. in ascending order of
+   * maturity)
+   * @return the parallel IR01 
+   */
+  public double parallelIR01(final CDSAnalytic cds, final CDSQuoteConvention quote, final ISDACompliantYieldCurveBuild yieldCurveBuilder, final double[] marketRates) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(quote, "quote");
+    ArgumentChecker.notNull(yieldCurveBuilder, "yieldCurveBuilder");
+    ArgumentChecker.notEmpty(marketRates, "marketRates");
+    final ISDACompliantYieldCurve ycUP = bumpYieldCurve(yieldCurveBuilder, marketRates, ONE_BPS);
+    final ISDACompliantYieldCurve yc = yieldCurveBuilder.build(marketRates);
+
+    if (quote instanceof QuotedSpread) {
+      final QuotedSpread qs = (QuotedSpread) quote;
+      final double puf = CONVERTER.quotedSpreadToPUF(cds, qs.getCoupon(), yc, qs.getQuotedSpread());
+      final double pufUp = CONVERTER.quotedSpreadToPUF(cds, qs.getCoupon(), ycUP, qs.getQuotedSpread());
+      return pufUp - puf;
+    } else if (quote instanceof PointsUpFront) {
+      final QuotedSpread qs = CONVERTER.convert(cds, (PointsUpFront) quote, yc);
+      final PointsUpFront pufUp = CONVERTER.convert(cds, qs, ycUP);
+      return pufUp.getPointsUpFront() - ((PointsUpFront) quote).getPointsUpFront();
+    } else if (quote instanceof ParSpread) {
+      throw new NotImplementedException("This type of claculation don't make sense for par spreads. Use a fixed credit curve method.");
+    } else {
+      throw new IllegalArgumentException("Unknown quote type: " + quote.getClass());
+    }
+  }
+
+  /**
+   *  The IR01 (Interest-Rate 01) is by definition the change in the price of a CDS when the market interest rates (these are 
+   * money-market and swap rates) all increased by 1bps. This assumes that the quoted (or flat) spread is invariant to a change in the yield curve. In addition
+   * the bumps are applied directly to the yield curve and NOT the instruments.  
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param quote This can be a QuotedSpread or PointsUpFront. For quoted spread this is taken as invariant; for PUF this is converted to a quoted spread (which is
+   * then invariant). ParSpread is not supported 
+   * @param yieldCurve yield curve 
+   * @param marketRates the money-market and swap rates (in the correct order for the yield curve builder, i.e. in ascending order of
+   * maturity)
+   * @return the parallel IR01 
+   */
+  public double parallelIR01(final CDSAnalytic cds, final CDSQuoteConvention quote, final ISDACompliantYieldCurve yieldCurve, final double[] marketRates) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(quote, "quote");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notEmpty(marketRates, "marketRates");
+    final ISDACompliantYieldCurve ycUP = bumpYieldCurve(yieldCurve, ONE_BPS);
+
+    if (quote instanceof QuotedSpread) {
+      final QuotedSpread qs = (QuotedSpread) quote;
+      final double puf = CONVERTER.quotedSpreadToPUF(cds, qs.getCoupon(), yieldCurve, qs.getQuotedSpread());
+      final double pufUp = CONVERTER.quotedSpreadToPUF(cds, qs.getCoupon(), ycUP, qs.getQuotedSpread());
+      return pufUp - puf;
+    } else if (quote instanceof PointsUpFront) {
+      final QuotedSpread qs = CONVERTER.convert(cds, (PointsUpFront) quote, yieldCurve);
+      final PointsUpFront pufUp = CONVERTER.convert(cds, qs, ycUP);
+      return pufUp.getPointsUpFront() - ((PointsUpFront) quote).getPointsUpFront();
+    } else if (quote instanceof ParSpread) {
+      throw new NotImplementedException("This type of claculation don't make sense for par spreads. Use a fixed credit curve method.");
+    } else {
+      throw new IllegalArgumentException("Unknown quote type: " + quote.getClass());
+    }
+  }
+
+  /**
    * The IR01 (Interest-Rate 01) is by definition the change in the price of a CDS when the market interest rates (these are 
-   * money-market and swap rates) all increased by 1bps 
+   * money-market and swap rates) all increased by 1bps. This assumes that the credit curve is invariant  
    * @param cds analytic description of a CDS traded at a certain time 
    * @param coupon The cds's coupon (as a fraction)
    * @param creditCurve the credit (or survival) curve 

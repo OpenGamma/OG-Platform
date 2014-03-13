@@ -89,31 +89,33 @@ public class ItraxxXoverTest extends ISDABaseTest {
   /**
    * Should be given by P(t,T_E)E[V + D - G(k)], where V is the index value at expiry, D is the default settlement value and  G(K) = (k-C)A(K) is the excise price 
    */
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void putCallTest() {
+    if (PRINT) {
+      final double tE = ACT365F.getDayCountFraction(TRADE_DATE, EXPIRY);
+      final double tES = ACT365F.getDayCountFraction(TRADE_DATE, EXERCISE_SETTLE);
+      //build an index curve treating the index spreads and single name par spreads 
+      final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_PAR_SPREADS, YIELD_CURVE);
+      final double indexPV = PRICER.pv(SPOT_CDX, YIELD_CURVE, cc, COUPON, PriceType.CLEAN, 0.0);
+      final double df = YIELD_CURVE.getDiscountFactor(tES);
+      final double q = cc.getSurvivalProbability(tE);
+      final double defaultSettlePV = df * (1 - q) * (1 - RECOVERY_RATE);
+      System.out.println("discount fact: " + df);
 
-    final double tE = ACT365F.getDayCountFraction(TRADE_DATE, EXPIRY);
-    final double tES = ACT365F.getDayCountFraction(TRADE_DATE, EXERCISE_SETTLE);
-    //build an index curve treating the index spreads and single name par spreads 
-    final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_PAR_SPREADS, YIELD_CURVE);
-    final double indexPV = PRICER.pv(SPOT_CDX, YIELD_CURVE, cc, COUPON, PriceType.CLEAN, 0.0);
-    final double df = YIELD_CURVE.getDiscountFactor(tES);
-    final double q = cc.getSurvivalProbability(tE);
-    final double defaultSettlePV = df * (1 - q) * (1 - RECOVERY_RATE);
-    System.out.println("discount fact: " + df);
+      final ISDACompliantYieldCurve fwdYC = YIELD_CURVE.withOffset(tES);
 
-    final ISDACompliantYieldCurve fwdYC = YIELD_CURVE.withOffset(tES);
-
-    System.out.println(indexPV * NOTIONAL + "\t" + defaultSettlePV * NOTIONAL);
-    final AnnuityForSpreadFunction annuity = new AnnuityForSpreadApproxFunction(FWD_CDX, fwdYC);
-    final int n = STRIKES.length;
-    for (int i = 0; i < n; i++) {
-      final double exPrice = NOTIONAL * CONVERTER.quotedSpreadToPUF(FWD_CDX, COUPON, fwdYC, STRIKES[i] * ONE_BP);
-      final double exPrice2 = NOTIONAL * (STRIKES[i] * ONE_BP - COUPON) * annuity.evaluate(STRIKES[i] * ONE_BP);
-      final double putCall = df * (DEFAULT_ADJ_INDEX - exPrice2);
-      final double error = putCall - (CALLPRICE[i] - PUTPRICE[i]);
-      // System.out.println(STRIKES[i] + "\t" + exPrice * NOTIONAL + "\t" + (indexPV + defaultSettlePV - exPrice) * NOTIONAL);
-      System.out.println(STRIKES[i] + "\t" + exPrice + "\t" + exPrice2 + "\t" + putCall + "\t" + error);
+      System.out.println(indexPV * NOTIONAL + "\t" + defaultSettlePV * NOTIONAL);
+      final AnnuityForSpreadFunction annuity = new AnnuityForSpreadApproxFunction(FWD_CDX, fwdYC);
+      final int n = STRIKES.length;
+      for (int i = 0; i < n; i++) {
+        final double exPrice = NOTIONAL * CONVERTER.quotedSpreadToPUF(FWD_CDX, COUPON, fwdYC, STRIKES[i] * ONE_BP);
+        final double exPrice2 = NOTIONAL * (STRIKES[i] * ONE_BP - COUPON) * annuity.evaluate(STRIKES[i] * ONE_BP);
+        final double putCall = df * (DEFAULT_ADJ_INDEX - exPrice2);
+        final double error = putCall - (CALLPRICE[i] - PUTPRICE[i]);
+        // System.out.println(STRIKES[i] + "\t" + exPrice * NOTIONAL + "\t" + (indexPV + defaultSettlePV - exPrice) * NOTIONAL);
+        System.out.println(STRIKES[i] + "\t" + exPrice + "\t" + exPrice2 + "\t" + putCall + "\t" + error);
+      }
     }
   }
 
@@ -132,7 +134,7 @@ public class ItraxxXoverTest extends ISDABaseTest {
     final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_QUOTED_SPREADS, YIELD_CURVE);
 
     final double fwdIndexVal = INDEX_CAL.defaultAdjustedForwardIndexValue(FWD_START_CDX, tE, YIELD_CURVE, COUPON, cc);
-    final double fwdSpread = INDEX_CAL.forwardSpread(FWD_START_CDX, tE, YIELD_CURVE, cc);
+    final double fwdSpread = INDEX_CAL.defaultAdjustedForwardSpread(FWD_START_CDX, tE, YIELD_CURVE, cc);
     final ISDACompliantYieldCurve fwdYC = YIELD_CURVE.withOffset(tE);
     final double atmFwdSpread = CONVERTER.pufToQuotedSpread(FWD_CDX, COUPON, fwdYC, fwdIndexVal);
 
@@ -151,8 +153,8 @@ public class ItraxxXoverTest extends ISDABaseTest {
     final double expX0a = 327.91390602255956 * ONE_BP;
     final double expX0b = 327.7699441941618 * ONE_BP;
 
-    final double[] expOTMprices = new double[] {6.132973792158627E-231, 5647.7333910783245, 38557.49213982678, 158657.82017158883, 443972.3292873599, 583273.0296738589, 479516.9975947235,
-      343564.1912267558, 135716.5713893605, 45671.910118624655, 13236.711960342996, 3349.027609451418, 750.3415020462705, 4.650337443540369, 7.929922685394342E-14 };
+    final double[] expOTMprices = new double[] {6.1327369003985E-231, 5647.51524217555, 38556.0028211884, 158651.691867189, 443955.180447323, 583250.500215998, 479498.475809142, 343550.920743509,
+      135711.32921182, 45670.1459990407, 13236.2006801549, 3348.89825017615, 750.312519414825, 4.65015781997449, 7.92961638482859E-14 };
 
     final double tE = ACT365F.getDayCountFraction(TRADE_DATE, EXPIRY);
     final double tES = ACT365F.getDayCountFraction(TRADE_DATE, EXERCISE_SETTLE);

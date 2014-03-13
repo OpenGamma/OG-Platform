@@ -35,6 +35,7 @@ public class PortfolioSwapAdjustmentTest extends ISDABaseTest {
   private static final double INDEX_RR = CDX_NA_HY_21_RECOVERY_RATE;
   private static final ISDACompliantCreditCurve[] CREDIT_CURVES = getCDX_NA_HY_20140213_CreditCurves();
   private static final double[] RECOVERY_RATES = CDX_NA_HY_20140213_RECOVERY_RATES;
+  private static final IntrinsicIndexDataBundle INTRINSIC_DATA = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES);
   private static ISDACompliantYieldCurve YIELD_CURVE = ISDA_USD_20140213;
   private static double[] PRICES = CDX_NA_HY_20140213_PRICES;
 
@@ -49,8 +50,23 @@ public class PortfolioSwapAdjustmentTest extends ISDABaseTest {
 
     for (int i = 0; i < n; i++) {
       final double puf = 1 - PRICES[i];
-      final ISDACompliantCreditCurve[] adjCurves = PSA.adjustCurves(cdx[i], INDEX_COUPON, YIELD_CURVE, CREDIT_CURVES, RECOVERY_RATES, puf);
-      final double puf2 = INDEX_CAL.indexPV(cdx[i], INDEX_COUPON, YIELD_CURVE, adjCurves, RECOVERY_RATES);
+      final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(puf, cdx[i], INDEX_COUPON, YIELD_CURVE, INTRINSIC_DATA);
+      final double puf2 = INDEX_CAL.indexPUF(cdx[i], INDEX_COUPON, YIELD_CURVE, adjCurves);
+      assertEquals(puf, puf2, 1e-14);
+    }
+  }
+
+  @Test
+  public void singleTermAdjustmentWithDefaultsTest() {
+    final CDSAnalytic[] cdx = FACTORY.makeCDX(TRADE_DATE, INDEX_PILLARS);
+    final int n = cdx.length;
+
+    final IntrinsicIndexDataBundle data = INTRINSIC_DATA.withDefault(7);
+
+    for (int i = 0; i < n; i++) {
+      final double puf = 1 - PRICES[i];
+      final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(puf, cdx[i], INDEX_COUPON, YIELD_CURVE, data);
+      final double puf2 = INDEX_CAL.indexPUF(cdx[i], INDEX_COUPON, YIELD_CURVE, adjCurves);
       assertEquals(puf, puf2, 1e-14);
     }
   }
@@ -64,9 +80,25 @@ public class PortfolioSwapAdjustmentTest extends ISDABaseTest {
     for (int i = 0; i < n; i++) {
       puf[i] = 1 - PRICES[i];
     }
-    final ISDACompliantCreditCurve[] adjCurves = PSA.adjustCurves(cdx, INDEX_COUPON, YIELD_CURVE, CREDIT_CURVES, RECOVERY_RATES, puf);
+    final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(puf, cdx, INDEX_COUPON, YIELD_CURVE, INTRINSIC_DATA);
     for (int i = 0; i < n; i++) {
-      final double puf2 = INDEX_CAL.indexPV(cdx[i], INDEX_COUPON, YIELD_CURVE, adjCurves, RECOVERY_RATES);
+      final double puf2 = INDEX_CAL.indexPUF(cdx[i], INDEX_COUPON, YIELD_CURVE, adjCurves);
+      assertEquals(puf[i], puf2, 1e-14);
+    }
+  }
+
+  @Test
+  public void multiTermAdjustmentWithDefaultTest() {
+    final CDSAnalytic[] cdx = FACTORY.makeCDX(TRADE_DATE, INDEX_PILLARS);
+    final int n = cdx.length;
+    final IntrinsicIndexDataBundle data = INTRINSIC_DATA.withDefault(0, 4, 78);
+    final double[] puf = new double[n];
+    for (int i = 0; i < n; i++) {
+      puf[i] = 1 - PRICES[i];
+    }
+    final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(puf, cdx, INDEX_COUPON, YIELD_CURVE, data);
+    for (int i = 0; i < n; i++) {
+      final double puf2 = INDEX_CAL.indexPUF(cdx[i], INDEX_COUPON, YIELD_CURVE, adjCurves);
       assertEquals(puf[i], puf2, 1e-14);
     }
   }
