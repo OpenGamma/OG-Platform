@@ -223,9 +223,9 @@ public class CDXNAHYTest extends ISDABaseTest {
       if (PRINT) {
         System.out.println(STRIKES[i] + "\t" + payer1 * NOTIONAL + "\t" + recevier1 * NOTIONAL + "\t" + payer2 * NOTIONAL + "\t" + recevier2 * NOTIONAL + "\t" + vol1 + "\t" + vol2);
       }
-      assertEquals("Regression test for payer option", expPayer[i] / NOTIONAL, payer1, 1e-15);
-      assertEquals("Regression test for reciver option", expRec[i] / NOTIONAL, recevier1, 1e-15);
-      assertEquals("Regression test for implied vol", expVol[i], vol1, 1e-15);
+      assertEquals("Regression test for payer option", expPayer[i] / NOTIONAL, payer1, 1e-12);
+      assertEquals("Regression test for reciver option", expRec[i] / NOTIONAL, recevier1, 1e-12);
+      assertEquals("Regression test for implied vol", expVol[i], vol1, 1e-12);
     }
   }
 
@@ -328,7 +328,7 @@ public class CDXNAHYTest extends ISDABaseTest {
       if (PRINT) {
         System.out.println(STRIKES[i] + "\t" + deltaPayer + "\t" + deltaRec);
       }
-      assertEquals(expDelta[i], deltaPayer, 1e-15);
+      assertEquals(expDelta[i], deltaPayer, 1e-12);
     }
   }
 
@@ -377,7 +377,7 @@ public class CDXNAHYTest extends ISDABaseTest {
       if (PRINT) {
         System.out.println(STRIKES[i] + "\t" + deltaPayer + "\t" + deltaRec);
       }
-      assertEquals(expDelta[i], deltaPayer, 1e-15);
+      assertEquals(expDelta[i], deltaPayer, 1e-12);
     }
   }
 
@@ -407,7 +407,7 @@ public class CDXNAHYTest extends ISDABaseTest {
       if (PRINT) {
         System.out.println(STRIKES[i] + "\t" + gammaPayer + "\t" + gammaRec);
       }
-      assertEquals(expGamma[i], gammaPayer, 1e-13);
+      assertEquals(expGamma[i], gammaPayer, 1e-12);
     }
   }
 
