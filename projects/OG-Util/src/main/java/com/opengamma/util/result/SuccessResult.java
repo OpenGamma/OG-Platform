@@ -48,7 +48,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
    */
   @ImmutableConstructor
   /* package */ SuccessResult(T value) {
-    _value = value;
+    _value = ArgumentChecker.notNull(value, "value");
   }
 
   /**
