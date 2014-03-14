@@ -6,24 +6,24 @@
     Welcome to OpenGamma risk analytics.
   </p>
   <p>
-    Please choose one of the following options:
+    Please choose one of the following items to view and manage:
     <ul>
       <#macro link text uriObj>
         <#if uriObj?has_content>
           <li><a href="${uriObj.base()}">${text}</a></li>
         </#if>
       </#macro>
-      <@link text="View and Manage portfolios" uriObj=portfolioUris!""/>
-      <@link text="View and Manage positions" uriObj=positionUris!""/>
-      <@link text="View and Manage securities" uriObj=securityUris!""/>
-      <@link text="View and Manage conventions" uriObj=conventionUris!""/>
-      <@link text="View and Manage legal entities" uriObj=legalEntityUris!""/>
-      <@link text="View and Manage exchanges" uriObj=exchangeUris!""/>
-      <@link text="View and Manage holidays" uriObj=holidayUris!""/>
-      <@link text="View and Manage regions" uriObj=regionUris!""/>
-      <@link text="View and Manage time series" uriObj=timeseriesUris!""/>
-      <@link text="View and Manage configuration" uriObj=configUris!""/>
-      <@link text="View and Manage functions" uriObj=functionUris!""/>
+      <@link text="Configuration" uriObj=configUris!""/>
+      <@link text="Conventions" uriObj=conventionUris!""/>
+      <@link text="Exchanges" uriObj=exchangeUris!""/>
+      <@link text="Functions" uriObj=functionUris!""/>
+      <@link text="Holidays" uriObj=holidayUris!""/>
+      <@link text="Legal Entities" uriObj=legalEntityUris!""/>
+      <@link text="Portfolios" uriObj=portfolioUris!""/>
+      <@link text="Positions" uriObj=positionUris!""/>
+      <@link text="Regions" uriObj=regionUris!""/>
+      <@link text="Securities" uriObj=securityUris!""/>
+      <@link text="Time Series" uriObj=timeseriesUris!""/>
     </ul>
   </p>
 </@section>
