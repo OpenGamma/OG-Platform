@@ -79,7 +79,10 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
    * @return The accrual factor.
    */
   private static double getAccrualFactor(final Period period) {
-    final long nMonths = period.toTotalMonths();
+    long nMonths = period.toTotalMonths();
+    if (nMonths == 0) {
+      nMonths = Math.round(period.getDays() / 30.0d);
+    }
     return nMonths / 12.0d;
   }
 
