@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
@@ -597,6 +598,103 @@ public class ISDACompliantCurveTest {
       res[i] = (up - down) / 2 / EPS;
     }
     return res;
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
+  @Test
+  public void buildTest() {
+    final double tol = 1.e-13;
+
+    final double[] time = new double[] {0.1, 0.3, 0.5, 1., 3. };
+    final double[] forward = new double[] {0.06, 0.1, 0.05, 0.08, 0.11 };
+    final int num = time.length;
+
+    final double[] r = new double[num];
+    final double[] rt = new double[num];
+
+    final ISDACompliantCurve cv1 = ISDACompliantCurve.makeFromForwardRates(time, forward);
+    assertEquals(num, cv1.size());
+
+    rt[0] = forward[0] * time[0];
+    r[0] = forward[0];
+    final Double[] xData = cv1.getXData();
+    final Double[] yData = cv1.getYData();
+    for (int i = 1; i < num; ++i) {
+      rt[i] = rt[i - 1] + forward[i] * (time[i] - time[i - 1]);
+      r[i] = rt[i] / time[i];
+      assertEquals(r[i], cv1.getZeroRate(time[i]), EPS);
+      assertEquals(Math.exp(-rt[i]), cv1.getDiscountFactor(time[i]), EPS);
+    }
+
+    final ISDACompliantCurve cv2 = ISDACompliantCurve.makeFromRT(time, rt);
+    final ISDACompliantCurve cv3 = new ISDACompliantCurve(time, r);
+    assertEquals(cv1, cv2);
+    for (int i = 0; i < num; ++i) {
+      assertEquals(r[i], cv1.getZeroRate(time[i]), EPS);
+      assertEquals(Math.exp(-rt[i]), cv1.getDiscountFactor(time[i]), EPS);
+      assertEquals(time[i], xData[i]);
+      assertEquals(r[i], yData[i], EPS);
+
+      assertEquals(cv1.getTimeAtIndex(i), cv3.getTimeAtIndex(i), tol);
+      assertEquals(cv1.getRTAtIndex(i), cv3.getRTAtIndex(i), tol);
+    }
+
+    final double[] T = new double[] {-0.3, -0.1, -0. };
+    final double[] RT = new double[] {0.06, 0.1, 0. };
+    final ISDACompliantCurve cv11 = ISDACompliantCurve.makeFromRT(T, RT);
+    final double[] sen = cv11.getRTandSensitivity(0., 0);
+
+    assertEquals(cv11.getRT(0.), sen[0], tol);
+    assertEquals(0., sen[1], tol);
+
+    assertEquals(cv11.getForwardRate(0. - tol), cv11.getForwardRate(0.));
+    assertEquals(cv11.getForwardRate(T[1]), cv11.getForwardRate(T[1]));
+
+    cv1.getYValueParameterSensitivity(0.33);
+
+    /*
+     * Error returned
+     */
+    try {
+      final double[] shotTime = Arrays.copyOf(time, num - 1);
+      ISDACompliantCurve.makeFromForwardRates(shotTime, forward);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      final double[] shotTime = Arrays.copyOf(time, num - 1);
+      ISDACompliantCurve.makeFromRT(shotTime, rt);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      final double[] shotTime = Arrays.copyOf(time, num - 1);
+      new ISDACompliantCurve(shotTime, rt);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      final double[] negativeTime = Arrays.copyOf(time, num);
+      negativeTime[0] *= -1.;
+      new ISDACompliantCurve(negativeTime, rt);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      final double[] notSortTime = Arrays.copyOf(time, num);
+      notSortTime[2] *= 10.;
+      new ISDACompliantCurve(notSortTime, rt);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
   }
 
 }
