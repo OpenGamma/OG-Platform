@@ -68,6 +68,7 @@ public class ISDACompliantYieldCurveTest {
      * Forward rate curve shifted
      */
     assertEquals(cv1.getForwardRate(0.32), cv1.withOffset(base).getForwardRate(0.32 - base), EPS);
+    assertEquals(cv1.getDiscountFactor(0.32) / cv1.getDiscountFactor(base), cv1.withOffset(base).getDiscountFactor(0.32 - base), EPS);
 
     for (int i = 0; i < num; ++i) {
       assertEquals(cv1.getKnotTimes()[i], cv2.getKnotTimes()[i], EPS);

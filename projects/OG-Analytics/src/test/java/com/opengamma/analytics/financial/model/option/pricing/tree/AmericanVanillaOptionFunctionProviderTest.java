@@ -62,12 +62,12 @@ public class AmericanVanillaOptionFunctionProviderTest {
               /*
                * Both of acceralation and truncation applied
                */
-              final OptionFunctionProvider1D functionTrAc = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4., true);
-              final OptionFunctionProvider1D functionTrAcCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true, VOLS[l], INTERESTS[j], DIVIDENDS[m], 4., true);
+              final OptionFunctionProvider1D functionTrAc = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false, VOLS[l], INTERESTS[j], DIVIDENDS[m], 10., true);
+              final OptionFunctionProvider1D functionTrAcCall = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, true, VOLS[l], INTERESTS[j], DIVIDENDS[m], 10., true);
               final double pricePTrAc = _model.getPrice(lattice, functionTrAc, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
-              assertEquals(pricePS, pricePTrAc, Math.max(0.1, pricePS) / steps);
+              assertEquals(pricePS, pricePTrAc, Math.max(.1, pricePS) / Math.sqrt(steps));
               final double priceTrAcCall = _model.getPrice(lattice, functionTrAcCall, SPOT, VOLS[l], INTERESTS[j], DIVIDENDS[m]);
-              assertEquals(priceSCall, priceTrAcCall, Math.max(0.1, priceSCall) / steps);
+              assertEquals(priceSCall, priceTrAcCall, Math.max(.1, priceSCall) / Math.sqrt(steps));
             }
           }
         }

@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -300,6 +302,7 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
       }
       return res;
     }
+
   }
 
   private class AcceleratedTruncationCalculator extends Calculator {
@@ -308,6 +311,7 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
     private final double _dividend;
     private final double _stdDiv;
     private final double _dt;
+    private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
     public AcceleratedTruncationCalculator(final double volatility, final double interestRate, final double dividend, final double stdDiv) {
       ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
@@ -323,21 +327,9 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
 
     @Override
     public double[] payoffsAtExpiry(final double assetPrice, final double downFactor, final double upOverDown) {
-      final int nSteps = getNumberOfSteps();
-      final int nStepsP = nSteps + 1;
-      final double strike = getStrike();
-      final double sign = getSign();
-
-      double assetPriceLowest = assetPrice * Math.pow(downFactor, nSteps);
-      final int ref = (int) (Math.log(strike / assetPriceLowest) / Math.log(upOverDown));
+      final int nStepsP = getNumberOfSteps() + 1;
       final double[] values = new double[nStepsP];
-
       Arrays.fill(values, 0.);
-      double tmpValue = assetPriceLowest * Math.pow(upOverDown, ref - 3);
-      for (int i = 0; i < 6; ++i) {
-        values[ref - 3 + i] = Math.max(sign * (tmpValue - strike), 0.);
-        tmpValue *= upOverDown;
-      }
       return values;
     }
 
@@ -350,46 +342,50 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
       final int nStepsP = steps + 1;
       final double assetPriceLowest = baseAssetPrice * Math.pow(downFactor, steps);
       final double[] res = new double[nStepsP];
-      Arrays.fill(res, 0.);
 
-      final double time = getTimeToExpiry() - steps * getTimeToExpiry() / getNumberOfSteps();
+      final double time = getTimeToExpiry() - steps * _dt;
       final double part1 = Math.log(strike / assetPriceLowest) - (_interestRate - _dividend) * time;
       final double part2 = _stdDiv * _volatility * Math.sqrt(time);
-      int jmax = (int) ((part1 + part2) / Math.log(upOverDown));
-      int jmin = (int) ((part1 - part2) / Math.log(upOverDown)) + 1;
+      final double logFactorInv = 1. / Math.log(upOverDown);
+      int jmax = (int) ((part1 + part2) * logFactorInv);
+      int jmin = (int) ((part1 - part2) * logFactorInv) + 1;
 
-      jmax = jmax > steps ? steps : jmax;
-      jmin = jmin < 0 ? 0 : jmin;
-      final boolean isCall = sign == 1.;
-      double tmpValue = assetPriceLowest * Math.pow(upOverDown, jmin - 3);
-      if (jmin > 2) {
-        res[jmin - 3] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
+      jmax = Math.min(jmax, steps);
+      jmin = Math.max(jmin, 0);
+      if (jmax == steps && jmin == 0) {
+        double assetPrice = assetPriceLowest;
+        for (int j = 0; j < nStepsP; ++j) {
+          res[j] = Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (assetPrice + sumCashDiv - strike));
+          assetPrice *= upOverDown;
+        }
+        return res;
       }
-      tmpValue *= upOverDown;
-      if (jmin > 1) {
-        res[jmin - 2] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
-      }
-      tmpValue *= upOverDown;
-      if (jmin > 0) {
-        res[jmin - 1] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
-      }
-      tmpValue *= upOverDown;
+
+      Arrays.fill(res, 0.);
+      jmax = jmax < steps - 1 ? jmax + 2 : (jmax < steps ? jmax - 1 : jmax);
+      jmin = jmin > 1 ? jmin - 2 : (jmin > 0 ? jmin - 1 : jmin);
+      double tmpValue = assetPriceLowest * Math.pow(upOverDown, jmin);
       for (int j = jmin; j < jmax + 1; ++j) {
         if (getNumberOfSteps() - 1 == steps) {
-          res[j] = BlackScholesFormulaRepository.price(tmpValue, strike, _dt, _volatility, _interestRate, _interestRate - _dividend, isCall);
+          res[j] = blackScholesPrice(tmpValue, strike, _dt, _volatility, _interestRate, _dividend, sign);
         } else {
           res[j] = Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (tmpValue + sumCashDiv - strike));
         }
         tmpValue *= upOverDown;
       }
-      if (jmax < steps) {
-        res[jmax + 1] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
-      }
-      tmpValue *= upOverDown;
-      if (jmax < steps - 1) {
-        res[jmax + 2] = BlackScholesFormulaRepository.price(tmpValue, strike, time, _volatility, _interestRate, _interestRate - _dividend, isCall);
-      }
+
       return res;
+    }
+
+    private double blackScholesPrice(final double spot, final double strike, final double time, final double vol, final double interestRate, final double dividend, final double sign) {
+      final double factor1 = Math.exp(-dividend * time);
+      final double factor2 = Math.exp(-interestRate * time);
+      final double sigRootT = vol * Math.sqrt(time);
+      final double part = (Math.log(spot / strike) + (interestRate - dividend) * time) / sigRootT;
+      final double d1 = part + 0.5 * sigRootT;
+      final double d2 = part - 0.5 * sigRootT;
+
+      return sign * (spot * factor1 * _normal.getCDF(sign * d1) - factor2 * strike * _normal.getCDF(sign * d2));
     }
   }
 
