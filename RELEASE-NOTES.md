@@ -8,6 +8,61 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M14
+------------
+- PLAT-5866.
+  Volatility cubes have been refactored.
+  Configuration for VolatilityCubeDefinitionSourceComponentFactory needs to remove "bloomberg=..." line.
+
+* Bug
+    * [PLAT-5325] - Custom Fudge builder needed for FunctionResult implementations
+    * [PLAT-6109] - Swaps PV01 not working as requirements insufficient to build the derivative
+    * [PLAT-6110] - JACOBIAN_BUNDLE removed from MultiCurvePricingFunction
+    * [PLAT-6125] - regression-toolcontext.ini uses old security master
+    * [PLAT-6126] - Golden copy capture tool assumes a reference data provider exists
+    * [PLAT-6146] - Fix pricing bond futures with expiry after bond effective date
+    * [PLAT-6155] - ExampleLiveDataServer breaks when subscriptions are missing in market-data.csv
+    * [PLAT-6158] - Accrual period end date not adjusted in fixed annuity zero coupon
+    * [PLAT-6162] - Binary installation resources use absolute paths
+    * [PLAT-6163] - Accrual period of 0 calculated for 90 day STIR future
+* Improvement
+    * [PLAT-5808] - Handling of nulls in SuccessResult
+    * [PLAT-5864] - Make volatility cube data snapshots beans
+    * [PLAT-5865] - Make volatility cube definitions beans
+    * [PLAT-5866] - Make volatility cube specifications beans
+    * [PLAT-6117] - AnnuityDefinitionBuilder.couponIborSpreadWithNotional add a version with annuity convention
+    * [PLAT-6135] - Add validation for dual stubs inputs
+    * [PLAT-6141] - Create fudge builders for new volatility cube objects
+    * [PLAT-6142] - Create named instances of cube quote type and volatility quote units
+    * [PLAT-6143] - Add fudge builders for surface data
+    * [PLAT-6145] - WebsiteBasicsComponentFactory should not mandate that all components are supplied
+    * [PLAT-6147] - Implement hashCode() and equals() for links
+    * [PLAT-6165] - Use intrinsic values for truncation
+* New Feature
+    * [PLAT-6061] - Create example volatility cube configurations in examples-simulated
+    * [PLAT-6062] - Add a generic surface specification
+    * [PLAT-6063] - Add a generic surface definition
+    * [PLAT-6064] - Add a generic surface snapshot data object
+    * [PLAT-6065] - Create a function that manipulates expiry / maturity / relative strike cubes into the form expected by the analytics library
+    * [PLAT-6066] - Create a function that manipulates expiry / maturity / moneyness cubes into the form expected by the analytics library
+    * [PLAT-6067] - Add a forward swap rate surface function and surface instrument provider
+    * [PLAT-6068] - Add forward swap rate configurations to examples-simulated
+    * [PLAT-6069] - Update non-linear SABR function to use new volatility cube and forward swap rate surface configurations
+    * [PLAT-6103] - Create a data provider for the Carr-Lee model
+    * [PLAT-6104] - Write Carr-Lee calculators that are in the same hierarchy as other pricing models.
+    * [PLAT-6129] - Create bond trs analytics objects
+    * [PLAT-6130] - Create equity TRS analytics objects
+    * [PLAT-6131] - Add new objects to visitors
+* Task
+    * [PLAT-6075] - More tests for CDSCoupon
+    * [PLAT-6077] - More tests for SimpleCreditCurveBuilder
+    * [PLAT-6078] - More tests for ISDACompliantYieldCurve
+    * [PLAT-6120] - More tests for ISDACompliantCreditCurve
+    * [PLAT-6121] - More tests for AnnuityForSpreadFunction
+* Sub-task
+    * [PLAT-6048] - Configure WebPositionResources to use combined PositionMaster
+
+
 To 2.2.0-M13
 ------------
 - PLAT-6049 - CombinedPositionMasterComponentFactory to use arbitrary number of masters
