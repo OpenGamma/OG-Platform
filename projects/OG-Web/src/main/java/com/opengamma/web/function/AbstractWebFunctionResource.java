@@ -10,7 +10,6 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
 import com.opengamma.web.region.WebRegionData;
@@ -53,9 +52,9 @@ public abstract class AbstractWebFunctionResource
    * 
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebFunctionUris(data()));
     WebExchangeData exchangeData = new WebExchangeData(data().getUriInfo());
     out.put("exchangeUris", new WebExchangeUris(exchangeData));

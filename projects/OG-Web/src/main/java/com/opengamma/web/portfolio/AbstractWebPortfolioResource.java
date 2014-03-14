@@ -23,7 +23,6 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.position.WebPositionsData;
 import com.opengamma.web.position.WebPositionsUris;
 import com.opengamma.web.security.WebSecuritiesData;
@@ -87,9 +86,9 @@ public abstract class AbstractWebPortfolioResource
    * 
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebPortfoliosUris(data()));
     WebSecuritiesData secData = new WebSecuritiesData(data().getUriInfo());
     out.put("securityUris", new WebSecuritiesUris(secData));

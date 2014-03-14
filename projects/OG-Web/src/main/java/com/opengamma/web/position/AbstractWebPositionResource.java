@@ -22,7 +22,6 @@ import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
 
@@ -84,9 +83,9 @@ public abstract class AbstractWebPositionResource
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebPositionsUris(data()));
     WebSecuritiesData secData = new WebSecuritiesData(data().getUriInfo());
     out.put("securityUris", new WebSecuritiesUris(secData));

@@ -10,7 +10,6 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful exchange resources.
@@ -53,9 +52,9 @@ public abstract class AbstractWebExchangeResource
    * 
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebExchangeUris(data()));
     return out;
   }

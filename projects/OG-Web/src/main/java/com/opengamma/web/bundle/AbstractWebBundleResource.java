@@ -76,7 +76,7 @@ public abstract class AbstractWebBundleResource
    * @return the output root data, not null
    */
   protected FlexiBean createRootData(String userName) {
-    FlexiBean out = getFreemarker().createRootData();
+    FlexiBean out = super.createRootData();
     out.put("ogStyle", new StyleTag(data()));
     out.put("ogScript", new ScriptTag(data()));
     out.put("ogUserName", userName);

@@ -21,7 +21,6 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpe
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
 import com.opengamma.web.json.FXForwardCurveDefinitionJSONBuilder;
 import com.opengamma.web.json.FXForwardCurveSpecificationJSONBuilder;
@@ -102,9 +101,9 @@ public abstract class AbstractWebConfigResource
    * 
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebConfigUris(data()));
     return out;
   }

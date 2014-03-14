@@ -9,6 +9,8 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.impl.flexi.FlexiBean;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -116,6 +118,17 @@ public abstract class AbstractPerRequestWebResource<T extends WebPerRequestData>
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * 
+   * @return the output root data, not null
+   */
+  protected FlexiBean createRootData() {
+    FlexiBean out = getFreemarker().createRootData();
+    out.put("homeUris", new WebHomeUris(getUriInfo()));
+    return out;
+  }
+
   /**
    * Gets the Freemarker outputer.
    * 
