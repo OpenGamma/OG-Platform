@@ -72,15 +72,33 @@ $.register_module({
                     })[window.location.pathname.split('/').reverse()[0].toLowerCase()] || $.noop)();
                     // check if the parent's document is the same as the window's (instead of just comparing
                     // window.parent to window, we use document because IE8 doesn't know true from false)
-                    is_child = (window.parent.document !== window.document) || window.opener;
-                    parent_api = ((opener_og = window.opener && window.opener.og) && window.opener.og.api.rest) ||
-                        window.parent.og.api.rest;
-                    parent_data = (opener_og && window.opener.og.analytics && window.opener.og.analytics.Data) ||
-                        window.parent.og.analytics && window.parent.og.analytics.Data;
-                    if (is_child && parent_api)
-                        (og.api.rest = parent_api).on('abandon', function () {document.location.reload();});
-                    else if (og.api.rest) api.subscribe();
-                    if (is_child && parent_data && og.analytics) // the admin pages do not need og.analytics
+
+		    is_child = (window.parent.document !== window.document) ||
+			window.opener;
+		    // try-catch so that permission denied error is caught
+		    // if opengamma is called from external web page.
+		    try {
+			parent_api = ((opener_og = window.opener &&
+				       window.opener.og) &&
+				      window.opener.og.api.rest) ||
+                            window.parent.og.api.rest;
+			parent_data = (opener_og &&
+				       window.opener.og.analytics &&
+				       window.opener.og.analytics.Data) ||
+                            window.parent.og.analytics &&
+			    window.parent.og.analytics.Data;
+		    } catch (e) {
+			    parent_api = null;
+			    parent_data = null;
+		    }
+
+		    if (is_child && parent_api)
+                        (og.api.rest = parent_api).on('abandon',
+						      function () {
+							  document.location.reload();});
+		    else if (og.api.rest) api.subscribe();
+		    // the admin pages do not need og.analytics
+		    if (is_child && parent_data && og.analytics)
                         og.analytics.Data = parent_data;
                     routes.set_title(routes.title || (routes.get() || ''));
                     routes.handler();
