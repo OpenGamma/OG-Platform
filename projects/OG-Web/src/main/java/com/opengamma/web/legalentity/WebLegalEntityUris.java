@@ -27,6 +27,15 @@ public class WebLegalEntityUris {
   //-------------------------------------------------------------------------
 
   /**
+   * Gets the base URI.
+   *
+   * @return the URI
+   */
+  public URI base() {
+    return legalEntities();
+  }
+
+  /**
    * Gets the URI.
    *
    * @return the URI

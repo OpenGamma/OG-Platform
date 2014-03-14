@@ -31,6 +31,14 @@ public class WebPortfoliosUris {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the base URI.
+   * @return the URI
+   */
+  public URI base() {
+    return portfolios();
+  }
+
+  /**
    * Gets the URI.
    * @return the URI
    */

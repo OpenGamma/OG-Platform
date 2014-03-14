@@ -7,7 +7,10 @@ package com.opengamma.component.factory.web;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,6 +25,11 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
@@ -85,87 +93,87 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   /**
    * The exchange master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ExchangeMaster _exchangeMaster;
   /**
    * The holiday master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private HolidayMaster _holidayMaster;
   /**
    * The underlying master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private RegionMaster _regionMaster;
   /**
    * The security master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private SecurityMaster _securityMaster;
   /**
    * The security source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private SecuritySource _securitySource;
   /**
    * The security loader.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private SecurityLoader _securityLoader;
   /**
    * The convention master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ConventionMaster _conventionMaster;
   /**
    * The legal entity master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private LegalEntityMaster _legalEntityMaster;
   /**
    * The position master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private PositionMaster _positionMaster;
   /**
    * The portfolio master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private PortfolioMaster _portfolioMaster;
   /**
    * The time-series master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
   /**
    * The time-series source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   /**
    * The time-series loader.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private HistoricalTimeSeriesLoader _historicalTimeSeriesLoader;
   /**
    * The scheduler.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ScheduledExecutorService _scheduler;
   /**
    * The available computation target types.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ComputationTargetTypeProvider _targetTypes = new DefaultComputationTargetTypeProvider();
   /**
    * The market data snapshot master.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private MarketDataSnapshotMaster _marketDataSnapshotMaster;
   /**
    * The function configuration source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private FunctionConfigurationSource _functionConfigurationSource;
   /**
    * The batch master.
@@ -188,17 +196,17 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   /**
    * The view processor.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ViewProcessor _viewProcessor;
   /**
    * The computation target resolver.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ComputationTargetResolver _computationTargetResolver;
   /**
    * The volatility (for market data snapshots).
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
 
   /**
@@ -211,8 +219,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    initBasics(repo);
-    initMasters(repo, getExternalSchemesMap());
+    Set<Class<?>> publishedTypes = initMasters(repo, getExternalSchemesMap());
+    initBasics(repo, publishedTypes);
     initValueRequirementNames(repo, configuration);
   }
 
@@ -249,44 +257,75 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     return externalSchemes;
   }
 
-  protected void initBasics(ComponentRepository repo) {
-    repo.getRestComponents().publishResource(new WebHomeResource());
+  protected void initBasics(ComponentRepository repo, Set<Class<?>> publishedTypes) {
+    repo.getRestComponents().publishResource(new WebHomeResource(publishedTypes));
     repo.getRestComponents().publishResource(new WebAboutResource());
   }
 
-  protected void initMasters(ComponentRepository repo, Map<ExternalScheme, String> externalSchemes) {
-    JerseyRestResourceFactory resource;
-    resource = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebExchangesResource.class, getExchangeMaster());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebHolidaysResource.class, getHolidayMaster());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebRegionsResource.class, getRegionMaster());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebConventionsResource.class, getConventionMaster());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebLegalEntitiesResource.class, getLegalEntityMaster(), getSecurityMaster());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getLegalEntityMaster());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebPositionsResource.class, getPositionMaster(), getSecurityLoader(), 
-        getSecuritySource(), getHistoricalTimeSeriesSource(), externalSchemes);
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster(), getSecuritySource(), getScheduler());
-    repo.getRestComponents().publishResource(resource);
-    final MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
-    resource = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class, getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), configSource);
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebComputationTargetTypeResource.class, getTargetTypes());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, 
-        getMarketDataSnapshotMaster(), getConfigMaster(), getLiveMarketDataProviderFactory(), getMarketDataSpecificationRepository(),
-        configSource, getComputationTargetResolver(), getViewProcessor(), getHistoricalTimeSeriesSource(), getVolatilityCubeDefinitionSource());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebFunctionsResource.class, getFunctionConfigurationSource());
-    repo.getRestComponents().publishResource(resource);
+  protected Set<Class<?>> initMasters(ComponentRepository repo, Map<ExternalScheme, String> externalSchemes) {
     
+    final MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
+    
+    Map<Class<?>, List<Object>> resourceParameters = extractResourceParams(externalSchemes, configSource);
+    
+    Set<Class<?>> publishedTypes = Sets.newHashSet();
+    for (Class<?> clazz : resourceParameters.keySet()) {
+      List<Object> params = resourceParameters.get(clazz);
+      JerseyRestResourceFactory resource = createRestFactory(clazz, params);
+      if (resource != null) {
+        repo.getRestComponents().publishResource(resource);
+        publishedTypes.add(clazz);
+      }
+    }
+    
+    return publishedTypes;
+    
+  }
+
+  //builds a map of type -> constructor params
+  private Map<Class<?>, List<Object>> extractResourceParams(Map<ExternalScheme, String> externalSchemes, final MasterConfigSource configSource) {
+    Map<Class<?>, List<Object>> resourceParameters = Maps.newHashMap();
+    
+    resourceParameters.put(WebConfigsResource.class,   params(getConfigMaster()));
+    resourceParameters.put(WebExchangesResource.class, params(getExchangeMaster()));
+    resourceParameters.put(WebHolidaysResource.class,  params(getHolidayMaster()));
+    resourceParameters.put(WebRegionsResource.class,   params(getRegionMaster()));
+    resourceParameters.put(WebConventionsResource.class, params(getConventionMaster()));
+    resourceParameters.put(WebLegalEntitiesResource.class, params(getLegalEntityMaster(), getSecurityMaster()));
+    resourceParameters.put(WebSecuritiesResource.class, params(getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getLegalEntityMaster()));
+    resourceParameters.put(WebPositionsResource.class, params(getPositionMaster(), getSecurityLoader(), 
+        getSecuritySource(), getHistoricalTimeSeriesSource(), externalSchemes));
+    resourceParameters.put(WebPortfoliosResource.class, params(getPortfolioMaster(), getPositionMaster(), getSecuritySource(), getScheduler()));
+    resourceParameters.put(WebAllHistoricalTimeSeriesResource.class, params(getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), configSource));
+    resourceParameters.put(WebComputationTargetTypeResource.class, params(getTargetTypes()));
+    resourceParameters.put(WebMarketDataSnapshotsResource.class, params(getMarketDataSnapshotMaster(), getConfigMaster(), Optional.fromNullable(getLiveMarketDataProviderFactory()), 
+        Optional.fromNullable(getMarketDataSpecificationRepository()), configSource, getComputationTargetResolver(), 
+        getViewProcessor(), getHistoricalTimeSeriesSource(), getVolatilityCubeDefinitionSource()));
+    resourceParameters.put(WebFunctionsResource.class, params(getFunctionConfigurationSource()));
+    
+    return resourceParameters;
+  }
+  
+  private List<Object> params(Object... params) {
+    return Lists.newArrayList(params);
+  }
+  
+  
+  private JerseyRestResourceFactory createRestFactory(Class<?> type, List<Object> arguments) {
+    
+    for (ListIterator<Object> it = arguments.listIterator(); it.hasNext(); ) {
+      Object obj = it.next();
+      if (obj instanceof Optional) {
+        Object wrappedObj = ((Optional<?>) obj).orNull();
+        it.set(wrappedObj);
+      }
+    }
+    
+    if (Iterables.contains(arguments, null)) {
+      return null;
+    } else {
+      return new JerseyRestResourceFactory(type, arguments.toArray(new Object[arguments.size()]));
+    }
   }
   
   protected void initValueRequirementNames(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -351,7 +390,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the exchange master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ExchangeMaster getExchangeMaster() {
     return _exchangeMaster;
@@ -359,10 +398,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the exchange master.
-   * @param exchangeMaster  the new value of the property, not null
+   * @param exchangeMaster  the new value of the property
    */
   public void setExchangeMaster(ExchangeMaster exchangeMaster) {
-    JodaBeanUtils.notNull(exchangeMaster, "exchangeMaster");
     this._exchangeMaster = exchangeMaster;
   }
 
@@ -377,7 +415,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the holiday master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public HolidayMaster getHolidayMaster() {
     return _holidayMaster;
@@ -385,10 +423,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the holiday master.
-   * @param holidayMaster  the new value of the property, not null
+   * @param holidayMaster  the new value of the property
    */
   public void setHolidayMaster(HolidayMaster holidayMaster) {
-    JodaBeanUtils.notNull(holidayMaster, "holidayMaster");
     this._holidayMaster = holidayMaster;
   }
 
@@ -403,7 +440,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public RegionMaster getRegionMaster() {
     return _regionMaster;
@@ -411,10 +448,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the underlying master.
-   * @param regionMaster  the new value of the property, not null
+   * @param regionMaster  the new value of the property
    */
   public void setRegionMaster(RegionMaster regionMaster) {
-    JodaBeanUtils.notNull(regionMaster, "regionMaster");
     this._regionMaster = regionMaster;
   }
 
@@ -429,7 +465,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the security master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
@@ -437,10 +473,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the security master.
-   * @param securityMaster  the new value of the property, not null
+   * @param securityMaster  the new value of the property
    */
   public void setSecurityMaster(SecurityMaster securityMaster) {
-    JodaBeanUtils.notNull(securityMaster, "securityMaster");
     this._securityMaster = securityMaster;
   }
 
@@ -455,7 +490,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the security source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public SecuritySource getSecuritySource() {
     return _securitySource;
@@ -463,10 +498,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the security source.
-   * @param securitySource  the new value of the property, not null
+   * @param securitySource  the new value of the property
    */
   public void setSecuritySource(SecuritySource securitySource) {
-    JodaBeanUtils.notNull(securitySource, "securitySource");
     this._securitySource = securitySource;
   }
 
@@ -481,7 +515,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the security loader.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public SecurityLoader getSecurityLoader() {
     return _securityLoader;
@@ -489,10 +523,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the security loader.
-   * @param securityLoader  the new value of the property, not null
+   * @param securityLoader  the new value of the property
    */
   public void setSecurityLoader(SecurityLoader securityLoader) {
-    JodaBeanUtils.notNull(securityLoader, "securityLoader");
     this._securityLoader = securityLoader;
   }
 
@@ -507,7 +540,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the convention master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ConventionMaster getConventionMaster() {
     return _conventionMaster;
@@ -515,10 +548,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the convention master.
-   * @param conventionMaster  the new value of the property, not null
+   * @param conventionMaster  the new value of the property
    */
   public void setConventionMaster(ConventionMaster conventionMaster) {
-    JodaBeanUtils.notNull(conventionMaster, "conventionMaster");
     this._conventionMaster = conventionMaster;
   }
 
@@ -533,7 +565,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the legal entity master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public LegalEntityMaster getLegalEntityMaster() {
     return _legalEntityMaster;
@@ -541,10 +573,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the legal entity master.
-   * @param legalEntityMaster  the new value of the property, not null
+   * @param legalEntityMaster  the new value of the property
    */
   public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
-    JodaBeanUtils.notNull(legalEntityMaster, "legalEntityMaster");
     this._legalEntityMaster = legalEntityMaster;
   }
 
@@ -559,7 +590,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the position master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public PositionMaster getPositionMaster() {
     return _positionMaster;
@@ -567,10 +598,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the position master.
-   * @param positionMaster  the new value of the property, not null
+   * @param positionMaster  the new value of the property
    */
   public void setPositionMaster(PositionMaster positionMaster) {
-    JodaBeanUtils.notNull(positionMaster, "positionMaster");
     this._positionMaster = positionMaster;
   }
 
@@ -585,7 +615,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public PortfolioMaster getPortfolioMaster() {
     return _portfolioMaster;
@@ -593,10 +623,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the portfolio master.
-   * @param portfolioMaster  the new value of the property, not null
+   * @param portfolioMaster  the new value of the property
    */
   public void setPortfolioMaster(PortfolioMaster portfolioMaster) {
-    JodaBeanUtils.notNull(portfolioMaster, "portfolioMaster");
     this._portfolioMaster = portfolioMaster;
   }
 
@@ -611,7 +640,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the time-series master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
     return _historicalTimeSeriesMaster;
@@ -619,10 +648,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the time-series master.
-   * @param historicalTimeSeriesMaster  the new value of the property, not null
+   * @param historicalTimeSeriesMaster  the new value of the property
    */
   public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster historicalTimeSeriesMaster) {
-    JodaBeanUtils.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     this._historicalTimeSeriesMaster = historicalTimeSeriesMaster;
   }
 
@@ -637,7 +665,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the time-series source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return _historicalTimeSeriesSource;
@@ -645,10 +673,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the time-series source.
-   * @param historicalTimeSeriesSource  the new value of the property, not null
+   * @param historicalTimeSeriesSource  the new value of the property
    */
   public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    JodaBeanUtils.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     this._historicalTimeSeriesSource = historicalTimeSeriesSource;
   }
 
@@ -663,7 +690,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the time-series loader.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public HistoricalTimeSeriesLoader getHistoricalTimeSeriesLoader() {
     return _historicalTimeSeriesLoader;
@@ -671,10 +698,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the time-series loader.
-   * @param historicalTimeSeriesLoader  the new value of the property, not null
+   * @param historicalTimeSeriesLoader  the new value of the property
    */
   public void setHistoricalTimeSeriesLoader(HistoricalTimeSeriesLoader historicalTimeSeriesLoader) {
-    JodaBeanUtils.notNull(historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
     this._historicalTimeSeriesLoader = historicalTimeSeriesLoader;
   }
 
@@ -689,7 +715,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the scheduler.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ScheduledExecutorService getScheduler() {
     return _scheduler;
@@ -697,10 +723,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the scheduler.
-   * @param scheduler  the new value of the property, not null
+   * @param scheduler  the new value of the property
    */
   public void setScheduler(ScheduledExecutorService scheduler) {
-    JodaBeanUtils.notNull(scheduler, "scheduler");
     this._scheduler = scheduler;
   }
 
@@ -715,7 +740,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the available computation target types.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ComputationTargetTypeProvider getTargetTypes() {
     return _targetTypes;
@@ -723,10 +748,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the available computation target types.
-   * @param targetTypes  the new value of the property, not null
+   * @param targetTypes  the new value of the property
    */
   public void setTargetTypes(ComputationTargetTypeProvider targetTypes) {
-    JodaBeanUtils.notNull(targetTypes, "targetTypes");
     this._targetTypes = targetTypes;
   }
 
@@ -741,7 +765,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the market data snapshot master.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
     return _marketDataSnapshotMaster;
@@ -749,10 +773,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the market data snapshot master.
-   * @param marketDataSnapshotMaster  the new value of the property, not null
+   * @param marketDataSnapshotMaster  the new value of the property
    */
   public void setMarketDataSnapshotMaster(MarketDataSnapshotMaster marketDataSnapshotMaster) {
-    JodaBeanUtils.notNull(marketDataSnapshotMaster, "marketDataSnapshotMaster");
     this._marketDataSnapshotMaster = marketDataSnapshotMaster;
   }
 
@@ -767,7 +790,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the function configuration source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public FunctionConfigurationSource getFunctionConfigurationSource() {
     return _functionConfigurationSource;
@@ -775,10 +798,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the function configuration source.
-   * @param functionConfigurationSource  the new value of the property, not null
+   * @param functionConfigurationSource  the new value of the property
    */
   public void setFunctionConfigurationSource(FunctionConfigurationSource functionConfigurationSource) {
-    JodaBeanUtils.notNull(functionConfigurationSource, "functionConfigurationSource");
     this._functionConfigurationSource = functionConfigurationSource;
   }
 
@@ -877,7 +899,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the view processor.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
@@ -885,10 +907,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the view processor.
-   * @param viewProcessor  the new value of the property, not null
+   * @param viewProcessor  the new value of the property
    */
   public void setViewProcessor(ViewProcessor viewProcessor) {
-    JodaBeanUtils.notNull(viewProcessor, "viewProcessor");
     this._viewProcessor = viewProcessor;
   }
 
@@ -903,7 +924,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the computation target resolver.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
@@ -911,10 +932,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the computation target resolver.
-   * @param computationTargetResolver  the new value of the property, not null
+   * @param computationTargetResolver  the new value of the property
    */
   public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
-    JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
     this._computationTargetResolver = computationTargetResolver;
   }
 
@@ -929,7 +949,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the volatility (for market data snapshots).
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
     return _volatilityCubeDefinitionSource;
@@ -937,10 +957,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the volatility (for market data snapshots).
-   * @param volatilityCubeDefinitionSource  the new value of the property, not null
+   * @param volatilityCubeDefinitionSource  the new value of the property
    */
   public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
-    JodaBeanUtils.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
 
@@ -1687,26 +1706,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._configMaster, "configMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._exchangeMaster, "exchangeMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._holidayMaster, "holidayMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._regionMaster, "regionMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securityMaster, "securityMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securitySource, "securitySource");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securityLoader, "securityLoader");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._conventionMaster, "conventionMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._legalEntityMaster, "legalEntityMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._positionMaster, "positionMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._portfolioMaster, "portfolioMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesSource, "historicalTimeSeriesSource");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._scheduler, "scheduler");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._targetTypes, "targetTypes");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSnapshotMaster, "marketDataSnapshotMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._functionConfigurationSource, "functionConfigurationSource");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._viewProcessor, "viewProcessor");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
       super.validate(bean);
     }
 

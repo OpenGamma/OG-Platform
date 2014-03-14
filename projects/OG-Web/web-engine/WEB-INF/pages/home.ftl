@@ -8,19 +8,22 @@
   <p>
     Please choose one of the following options:
     <ul>
-      <li><a href="/analytics">View analytics</a></li>
-      <li><a href="${portfolioUris.portfolios()}">View and Manage portfolios</a></li>
-      <li><a href="${positionUris.positions()}">View and Manage positions</a></li>
-      <li><a href="${securityUris.securities()}">View and Manage securities</a></li>
-      <li><a href="${conventionUris.conventions()}">View and Manage conventions</a></li>
-      <li><a href="${legalEntityUris.legalEntities()}">View and Manage legal entities</a></li>
-      <li><a href="${exchangeUris.exchanges()}">View and Manage exchanges</a></li>
-      <li><a href="${holidayUris.holidays()}">View and Manage holidays</a></li>
-      <li><a href="${regionUris.regions()}">View and Manage regions</a></li>
-      <li><a href="${timeseriesUris.allTimeSeries()}">View and Manage time series</a></li>
-      <li><a href="${configUris.configs()}">View and Manage configuration</a></li>
-      <li><a href="${snapshotUris.snapshots()}">View and Manage market data snapshots</a></li>
-      <li><a href="${functionUris.functions()}">View and Manage functions</a></li>
+      <#macro link text uriObj>
+        <#if uriObj?has_content>
+          <li><a href="${uriObj.base()}">${text}</a></li>
+        </#if>
+      </#macro>
+      <@link text="View and Manage portfolios" uriObj=portfolioUris!""/>
+      <@link text="View and Manage positions" uriObj=positionUris!""/>
+      <@link text="View and Manage securities" uriObj=securityUris!""/>
+      <@link text="View and Manage conventions" uriObj=conventionUris!""/>
+      <@link text="View and Manage legal entities" uriObj=legalEntityUris!""/>
+      <@link text="View and Manage exchanges" uriObj=exchangeUris!""/>
+      <@link text="View and Manage holidays" uriObj=holidayUris!""/>
+      <@link text="View and Manage regions" uriObj=regionUris!""/>
+      <@link text="View and Manage time series" uriObj=timeseriesUris!""/>
+      <@link text="View and Manage configuration" uriObj=configUris!""/>
+      <@link text="View and Manage functions" uriObj=functionUris!""/>
     </ul>
   </p>
 </@section>

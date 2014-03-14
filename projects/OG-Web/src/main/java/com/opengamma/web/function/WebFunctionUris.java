@@ -27,6 +27,15 @@ public class WebFunctionUris {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the base URI.
+   * @return the URI
+   */
+  public URI base() {
+    return functions();
+  }
+
+  
+  /**
    * Gets the URI.
    * @return the URI
    */

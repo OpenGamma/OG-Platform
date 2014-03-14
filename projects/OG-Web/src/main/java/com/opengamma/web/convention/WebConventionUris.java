@@ -32,6 +32,14 @@ public class WebConventionUris {
    * Gets the URI.
    * @return the URI
    */
+  public URI base() {
+    return conventions();
+  }
+
+  /**
+   * Gets the URI.
+   * @return the URI
+   */
   public URI conventions() {
     return WebConventionsResource.uri(_data);
   }

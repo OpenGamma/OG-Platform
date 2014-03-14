@@ -29,6 +29,14 @@ public class WebConfigUris {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the base URI.
+   * @return the URI
+   */
+  public URI base() {
+    return configs();
+  }
+
+  /**
    * Gets the URI.
    * @return the URI
    */
