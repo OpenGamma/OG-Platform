@@ -62,7 +62,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * RESTful resource for the home page.
  */
 @Path("/")
-public class WebHomeResource extends AbstractWebResource {
+public class WebHomeResource extends AbstractSingletonWebResource {
 
   
   private final Set<Class<?>> _publishedTypes;
@@ -100,21 +100,20 @@ public class WebHomeResource extends AbstractWebResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String get(@Context ServletContext servletContext, @Context UriInfo uriInfo) {
-    FreemarkerOutputter freemarker = new FreemarkerOutputter(servletContext);
-    FlexiBean out = freemarker.createRootData();
-    out = createRootData(out, uriInfo);
-    return freemarker.build("home.ftl", out);
+    FlexiBean out = createRootData(uriInfo);
+    return getFreemarker(servletContext).build("home.ftl", out);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
    * 
-   * @param out  the root data to populate, not null
    * @param uriInfo  the URI information, not null
    * @return the output root data, not null
    */
-  protected FlexiBean createRootData(FlexiBean out, UriInfo uriInfo) {
+  @Override
+  protected FlexiBean createRootData(UriInfo uriInfo) {
+    FlexiBean out = super.createRootData(uriInfo);
     out.put("uris", new WebHomeUris(uriInfo));
     
     for (ResourceConfig config : s_resourceConfigs) {
