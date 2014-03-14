@@ -61,6 +61,7 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+import com.opengamma.util.tuple.Triple;
 
 /**
  *
@@ -107,35 +108,37 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
       for (final Tenor maturity : volatilityCubeData.getUniqueYValues()) {
         final double swapMaturity = getTime(maturity);
         final double forward = forwardSwapSurface.getValue(expiry, maturity);
-        final List<ObjectsPair<Double, Double>> strikeVol = volatilityCubeData.getZValuesForXandY(expiry, maturity);
-        final int nVols = strikeVol.size();
-        if (nVols < 5) {
-          s_logger.error("Smile had less than 5 points for expiry = {} and maturity = {}", expiry, maturity);
-          continue;
+        if (volatilityCubeData.asMap().containsKey(Triple.of(expiry, maturity, forward))) {
+          final List<ObjectsPair<Double, Double>> strikeVol = volatilityCubeData.getZValuesForXandY(expiry, maturity);
+          final int nVols = strikeVol.size();
+          if (nVols < 4) {
+            s_logger.info("Smile had less than 4 points for expiry = {} and maturity = {}", expiry, maturity);
+            continue;
+          }
+          final double[] strikes = new double[nVols];
+          final Double[] strikeCopy = new Double[nVols]; //TODO
+          final double[] blackVols = new double[nVols];
+          final double[] errors = new double[nVols];
+          int i = 0;
+          for (final ObjectsPair<Double, Double> sv : strikeVol) {
+            strikes[i] = sv.getFirst();
+            strikeCopy[i] = sv.getFirst();
+            blackVols[i] = sv.getSecond();
+            errors[i++] = ERROR;
+          }
+          final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(forward, strikes, swaptionExpiry, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
+          final DoubleMatrix1D parameters = fittedResult.getModelParameters();
+          swapMaturitiesList.add(swapMaturity);
+          swaptionExpiriesList.add(swaptionExpiry);
+          alphaList.add(parameters.getEntry(0));
+          betaList.add(parameters.getEntry(1));
+          rhoList.add(parameters.getEntry(2));
+          nuList.add(parameters.getEntry(3));
+          final DoublesPair expiryMaturityPair = DoublesPair.of(swaptionExpiry, swapMaturity);
+          inverseJacobians.put(expiryMaturityPair, fittedResult.getModelParameterSensitivityToData());
+          chiSqList.add(fittedResult.getChiSq());
+          fittedRelativeStrikes.put(Pairs.of(expiry, maturity), strikeCopy);
         }
-        final double[] strikes = new double[nVols];
-        final Double[] strikeCopy = new Double[nVols]; //TODO
-        final double[] blackVols = new double[nVols];
-        final double[] errors = new double[nVols];
-        int i = 0;
-        for (final ObjectsPair<Double, Double> sv : strikeVol) {
-          strikes[i] = sv.getFirst();
-          strikeCopy[i] = sv.getFirst();
-          blackVols[i] = sv.getSecond();
-          errors[i++] = ERROR;
-        }
-        final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(forward, strikes, swaptionExpiry, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
-        final DoubleMatrix1D parameters = fittedResult.getModelParameters();
-        swapMaturitiesList.add(swapMaturity);
-        swaptionExpiriesList.add(swaptionExpiry);
-        alphaList.add(parameters.getEntry(0));
-        betaList.add(parameters.getEntry(1));
-        rhoList.add(parameters.getEntry(2));
-        nuList.add(parameters.getEntry(3));
-        final DoublesPair expiryMaturityPair = DoublesPair.of(swaptionExpiry, swapMaturity);
-        inverseJacobians.put(expiryMaturityPair, fittedResult.getModelParameterSensitivityToData());
-        chiSqList.add(fittedResult.getChiSq());
-        fittedRelativeStrikes.put(Pairs.of(expiry, maturity), strikeCopy);
       }
     }
     if (swapMaturitiesList.size() < 5) { //don't have sufficient fits to construct a surface

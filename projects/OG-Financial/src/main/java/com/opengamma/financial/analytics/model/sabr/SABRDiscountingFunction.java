@@ -5,6 +5,15 @@
  */
 package com.opengamma.financial.analytics.model.sabr;
 
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_DEFINITION;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_SPECIFICATION;
+import static com.opengamma.engine.value.ValueRequirementNames.SABR_SURFACES;
+import static com.opengamma.engine.value.ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA;
+import static com.opengamma.engine.value.ValueRequirementNames.SURFACE_DATA;
+import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS;
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CUBE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
@@ -118,7 +127,10 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
       final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
           .with(PROPERTY_VOLATILITY_MODEL, SABR)
-          .withAny(CUBE)
+          .withAny(PROPERTY_CUBE_DEFINITION)
+          .withAny(PROPERTY_CUBE_SPECIFICATION)
+          .withAny(PROPERTY_SURFACE_DEFINITION)
+          .withAny(PROPERTY_SURFACE_SPECIFICATION)
           .with(CALCULATION_METHOD, getCalculationMethod())
           .withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
@@ -138,9 +150,15 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
       }
       final ValueProperties constraints = desiredValue.getConstraints();
       final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-      final Set<String> cube = constraints.getValues(CUBE);
+      final Set<String> cubeDefinition = constraints.getValues(PROPERTY_CUBE_DEFINITION);
+      final Set<String> cubeSpecification = constraints.getValues(PROPERTY_CUBE_SPECIFICATION);
+      final Set<String> surfaceDefinition = constraints.getValues(PROPERTY_SURFACE_DEFINITION);
+      final Set<String> surfaceSpecification = constraints.getValues(PROPERTY_SURFACE_SPECIFICATION);
       final ValueProperties properties = ValueProperties.builder()
-          .with(CUBE, cube)
+          .with(PROPERTY_CUBE_DEFINITION, cubeDefinition)
+          .with(PROPERTY_CUBE_SPECIFICATION, cubeSpecification)
+          .with(PROPERTY_SURFACE_DEFINITION, surfaceDefinition)
+          .with(PROPERTY_SURFACE_SPECIFICATION, surfaceSpecification)
           .with(CURRENCY, currency.getCode())
           .with(PROPERTY_VOLATILITY_MODEL, SABR)
           .get();
@@ -152,8 +170,20 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
 
     @Override
     protected boolean requirementsSet(final ValueProperties constraints) {
-      final Set<String> cubeNames = constraints.getValues(CUBE);
-      if (cubeNames == null) {
+      final Set<String> cubeDefinitionNames = constraints.getValues(PROPERTY_CUBE_DEFINITION);
+      if (cubeDefinitionNames == null) {
+        return false;
+      }
+      final Set<String> cubeSpecificationNames = constraints.getValues(PROPERTY_CUBE_SPECIFICATION);
+      if (cubeSpecificationNames == null) {
+        return false;
+      }
+      final Set<String> surfaceDefinitionNames = constraints.getValues(PROPERTY_SURFACE_DEFINITION);
+      if (surfaceDefinitionNames == null) {
+        return false;
+      }
+      final Set<String> surfaceSpecificationNames = constraints.getValues(PROPERTY_SURFACE_SPECIFICATION);
+      if (surfaceSpecificationNames == null) {
         return false;
       }
       return super.requirementsSet(constraints);

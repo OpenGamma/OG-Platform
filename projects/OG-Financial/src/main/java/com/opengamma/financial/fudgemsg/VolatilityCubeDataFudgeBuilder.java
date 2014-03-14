@@ -92,9 +92,9 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
       final Triple<Object, Object, Object> triple = (Triple<Object, Object, Object>) entry.getKey();
       final MutableFudgeMsg subMessage = serializer.newMessage();
       if (triple.getFirst() != null && triple.getSecond() != null) {
-        subMessage.add(X_FIELD, null, serializer.objectToFudgeMsg(triple.getFirst()));
-        subMessage.add(Y_FIELD, null, serializer.objectToFudgeMsg(triple.getSecond()));
-        subMessage.add(Z_FIELD, null, serializer.objectToFudgeMsg(triple.getThird()));
+        serializer.addToMessageWithClassHeaders(subMessage, X_FIELD, null, triple.getFirst());
+        serializer.addToMessageWithClassHeaders(subMessage, Y_FIELD, null, triple.getSecond());
+        serializer.addToMessageWithClassHeaders(subMessage, Z_FIELD, null, triple.getThird());
         subMessage.add(VALUE_FIELD, null, entry.getValue());
         message.add(VALUES_FIELD, null, subMessage);
       }

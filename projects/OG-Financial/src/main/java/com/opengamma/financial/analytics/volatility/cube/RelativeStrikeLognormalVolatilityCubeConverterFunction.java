@@ -46,24 +46,24 @@ public class RelativeStrikeLognormalVolatilityCubeConverterFunction extends Stan
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final VolatilityCubeData<Tenor, Tenor, Double> volatilityCubeData = (VolatilityCubeData<Tenor, Tenor, Double>) inputs.getValue(VOLATILITY_CUBE_MARKET_DATA);
-    final SurfaceData<Tenor, Tenor> forwardSurfaceData = (SurfaceData<Tenor, Tenor>) inputs.getValue(SURFACE_DATA);
-    final Map<Triple<Tenor, Tenor, Double>, Double> values = new HashMap<>();
-    for (final Tenor x : volatilityCubeData.getXs()) {
-      for (final Tenor y : volatilityCubeData.getYs()) {
-        final Double forward = forwardSurfaceData.getValue(x, y);
+    final VolatilityCubeData<Object, Object, Object> volatilityCubeData = (VolatilityCubeData<Object, Object, Object>) inputs.getValue(VOLATILITY_CUBE_MARKET_DATA);
+    final SurfaceData<Object, Object> forwardSurfaceData = (SurfaceData<Object, Object>) inputs.getValue(SURFACE_DATA);
+    final Map<Triple<Object, Object, Object>, Double> values = new HashMap<>();
+    for (final Object x : volatilityCubeData.getXs()) {
+      for (final Object y : volatilityCubeData.getYs()) {
+        final Double forward = forwardSurfaceData.getValue((Tenor) x, (Tenor) y);
         if (forward != null) {
-          for (final Double z : volatilityCubeData.getZs()) {
-            final Double data = volatilityCubeData.getVolatility(x, y, z);
+          for (final Object z : volatilityCubeData.getZs()) {
+            final Double data = volatilityCubeData.getVolatility((Tenor) x, (Tenor) y, (Double) z);
             if (data != null) {
-              final double strike = forward + z;
-              values.put(Triple.of(x, y, strike), data);
+              final double strike = forward + ((Double) z) / 10000.;
+              values.put(Triple.<Object, Object, Object>of((Tenor) x, (Tenor) y, strike), data);
             }
           }
         }
       }
     }
-    final VolatilityCubeData<Tenor, Tenor, Double> resultCube = new VolatilityCubeData<>(volatilityCubeData.getDefinitionName(),
+    final VolatilityCubeData<Object, Object, Object> resultCube = new VolatilityCubeData<>(volatilityCubeData.getDefinitionName(),
         volatilityCubeData.getSpecificationName(), values);
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
     final ValueSpecification spec = new ValueSpecification(STANDARD_VOLATILITY_CUBE_DATA, ComputationTargetSpecification.NULL, properties);
