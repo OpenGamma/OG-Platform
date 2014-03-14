@@ -155,7 +155,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     // Ibor Leg
     final Security sec = _securitySource.getSingle(iborLeg.getFloatingReferenceRateId().toBundle());
     if (sec == null) {
-      throw new OpenGammaRuntimeException("Ibor index with id " + iborLeg.getFloatingReferenceRateId() + " was null");
+      throw new OpenGammaRuntimeException("Ibor index with id " + iborLeg.getFloatingReferenceRateId() + " was null in swap " + swapSecurity.getName());
     }
     final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
     final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
@@ -239,7 +239,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final String currencyString = currency.getCode();
     final Integer publicationLag = indexConvention.getPublicationLag();
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
-    final int paymentLag = 0; // TODO: this should be pass trough the security [PLAT-5956]
+    final int paymentLag = 0; // TODO: this should be pass through the security [PLAT-5956]
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currencyString + "_OIS_Convention", index, paymentFrequency, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(),
         fixedLeg.isEom(), paymentLag, 1 - publicationLag, calendar);
     final double notionalFixed = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();

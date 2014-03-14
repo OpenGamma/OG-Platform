@@ -31,6 +31,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
@@ -52,6 +53,7 @@ public class AnnuityDefinitionBuilderTest {
   private static final IndexON FED_FUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final DayCount ACT_365 = DayCounts.ACT_365;
+  private static final ActualActualICMA ACT_ACT_ICMA = (ActualActualICMA) DayCounts.ACT_ACT_ICMA;
   private static final BusinessDayConvention PRECEDING = BusinessDayConventions.PRECEDING;
 
   private static final double NOTIONAL = 10000000; // 10m
@@ -176,6 +178,35 @@ public class AnnuityDefinitionBuilderTest {
     }
     for (int loopcpn = 1; loopcpn < leg.getNumberOfPayments(); loopcpn++) {
       assertEquals("AnnuityDefinitionBuilder: couponFixed", expectedPaymentDates[loopcpn - 1], leg.getNthPayment(loopcpn).getAccrualStartDate());
+    }
+  }
+
+  @Test
+  public void couponFixedShortFirstACTACTICMA() {
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 8, 20);
+    ZonedDateTime maturityDate = settlementDate.plusYears(2).plusMonths(1); // 2Y 1M
+    Period paymentPeriod = Period.ofMonths(6);
+    int couponPerYear = 2;
+    final StubType stub = StubType.SHORT_START;
+    AnnuityDefinition<CouponFixedDefinition> leg = AnnuityDefinitionBuilder.couponFixed(Currency.USD, settlementDate, maturityDate, paymentPeriod,
+        NYC, DayCounts.ACT_ACT_ICMA, USDLIBOR6M.getBusinessDayConvention(), USDLIBOR6M.isEndOfMonth(), NOTIONAL, RATE, true, stub, 0);
+    ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 9, 20), DateUtils.getUTCDate(2014, 3, 20),
+      DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2015, 3, 20), DateUtils.getUTCDate(2015, 9, 21) };
+    assertEquals("AnnuityDefinitionBuilder: couponFixed", expectedPaymentDates.length, leg.getNumberOfPayments());
+    assertEquals("AnnuityDefinitionBuilder: couponFixed", settlementDate, leg.getNthPayment(0).getAccrualStartDate());
+    assertEquals("AnnuityDefinitionBuilder: couponFixed",
+        ACT_ACT_ICMA.getAccruedInterest(settlementDate, expectedPaymentDates[0], expectedPaymentDates[0], 1.0d, couponPerYear, stub),
+        leg.getNthPayment(0).getPaymentYearFraction());
+    for (int loopcpn = 0; loopcpn < leg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("AnnuityDefinitionBuilder: couponFixed", expectedPaymentDates[loopcpn], leg.getNthPayment(loopcpn).getPaymentDate());
+      assertEquals("AnnuityDefinitionBuilder: couponFixed", expectedPaymentDates[loopcpn], leg.getNthPayment(loopcpn).getAccrualEndDate());
+      assertEquals("AnnuityDefinitionBuilder: couponFixed", NOTIONAL, -leg.getNthPayment(loopcpn).getNotional()); // Payer
+    }
+    for (int loopcpn = 1; loopcpn < leg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("AnnuityDefinitionBuilder: couponFixed", expectedPaymentDates[loopcpn - 1], leg.getNthPayment(loopcpn).getAccrualStartDate());
+      assertEquals("AnnuityDefinitionBuilder: couponFixed",
+          ACT_ACT_ICMA.getAccruedInterest(expectedPaymentDates[loopcpn - 1], expectedPaymentDates[loopcpn], expectedPaymentDates[loopcpn], 1.0d, couponPerYear, stub),
+          leg.getNthPayment(loopcpn).getPaymentYearFraction());
     }
   }
 
@@ -363,7 +394,7 @@ public class AnnuityDefinitionBuilderTest {
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", ((CouponIborDefinition) leg.getNthPayment(loopcpn + 1)).getFixingPeriodEndDate(),
           ScheduleCalculator.getAdjustedDate(((CouponIborDefinition) leg.getNthPayment(loopcpn + 1)).getFixingPeriodStartDate(), USDLIBOR6M, NYC));
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, -((CouponIborDefinition) leg.getNthPayment(loopcpn + 1)).getNotional()); // Payer
-      }
+    }
   }
 
   @Test
@@ -389,10 +420,10 @@ public class AnnuityDefinitionBuilderTest {
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", cpn.getFixingPeriodEndDate(),
           ScheduleCalculator.getAdjustedDate(cpn.getFixingPeriodStartDate(), USDLIBOR6M, NYC));
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", NOTIONAL, -cpn.getNotional()); // Payer
-      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", ACT_365.getDayCountFraction(cpn.getAccrualStartDate(),cpn.getAccrualEndDate()), cpn.getPaymentYearFraction());
-      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", USDLIBOR6M.getDayCount().getDayCountFraction(cpn.getFixingPeriodStartDate(),cpn.getFixingPeriodEndDate()), 
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", ACT_365.getDayCountFraction(cpn.getAccrualStartDate(), cpn.getAccrualEndDate()), cpn.getPaymentYearFraction());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", USDLIBOR6M.getDayCount().getDayCountFraction(cpn.getFixingPeriodStartDate(), cpn.getFixingPeriodEndDate()),
           cpn.getFixingPeriodAccrualFactor());
-      }
+    }
   }
 
   @Test
@@ -758,8 +789,8 @@ public class AnnuityDefinitionBuilderTest {
           ScheduleCalculator.getAdjustedDate(cpn.getFixingPeriodStartDate(), USDLIBOR6M, NYC));
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, -cpn.getNotional()); // Payer
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", SPREAD, cpn.getSpread());
-      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", ACT_365.getDayCountFraction(cpn.getAccrualStartDate(),cpn.getAccrualEndDate()), cpn.getPaymentYearFraction());
-      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", USDLIBOR6M.getDayCount().getDayCountFraction(cpn.getFixingPeriodStartDate(),cpn.getFixingPeriodEndDate()), 
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", ACT_365.getDayCountFraction(cpn.getAccrualStartDate(), cpn.getAccrualEndDate()), cpn.getPaymentYearFraction());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor", USDLIBOR6M.getDayCount().getDayCountFraction(cpn.getFixingPeriodStartDate(), cpn.getFixingPeriodEndDate()),
           cpn.getFixingPeriodAccrualFactor());
     }
   }

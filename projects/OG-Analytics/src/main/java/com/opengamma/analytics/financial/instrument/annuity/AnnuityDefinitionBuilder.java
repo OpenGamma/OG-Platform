@@ -27,7 +27,10 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.ActualActualICMA;
+import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.ThirtyEThreeSixtyISDA;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterUtils;
 import com.opengamma.util.ArgumentChecker;
@@ -79,11 +82,42 @@ public class AnnuityDefinitionBuilder {
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[adjustedEndAccrualDates.length];
     //First coupon uses settlement date
+    double accrualFactor;
+    if ((dayCount instanceof ActualActualICMA)) {
+      accrualFactor = ((ActualActualICMA) dayCount).getAccruedInterest(settlementDate, adjustedEndAccrualDates[0], adjustedEndAccrualDates[0], 1.0d, couponPerYear(paymentPeriod), stub);
+    } else {
+      if ((dayCount instanceof ActualActualICMANormal)) {
+        accrualFactor = ((ActualActualICMANormal) dayCount).getAccruedInterest(settlementDate, adjustedEndAccrualDates[0], adjustedEndAccrualDates[0], 1.0d, couponPerYear(paymentPeriod), stub);
+      } else {
+        if ((dayCount instanceof ThirtyEThreeSixtyISDA)) {
+          boolean isMaturity = (adjustedEndAccrualDates.length - 1 == 0);
+          accrualFactor = ((ThirtyEThreeSixtyISDA) dayCount).getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], isMaturity);
+        } else {
+          accrualFactor = dayCount.getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], calendar);
+        }
+      }
+    }
     coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, adjustedEndAccrualDates[0],
-        dayCount.getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], calendar), sign * notional, fixedRate);
+        accrualFactor, sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < adjustedEndAccrualDates.length; loopcpn++) {
+      if ((dayCount instanceof ActualActualICMA)) {
+        accrualFactor = ((ActualActualICMA) dayCount).getAccruedInterest(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], adjustedEndAccrualDates[loopcpn], 1.0d,
+            couponPerYear(paymentPeriod), stub);
+      } else {
+        if ((dayCount instanceof ActualActualICMANormal)) {
+          accrualFactor = ((ActualActualICMANormal) dayCount).getAccruedInterest(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], adjustedEndAccrualDates[loopcpn], 1.0d,
+              couponPerYear(paymentPeriod), stub);
+        } else {
+          if ((dayCount instanceof ThirtyEThreeSixtyISDA)) {
+            boolean isMaturity = (adjustedEndAccrualDates.length - 1 == loopcpn);
+            accrualFactor = ((ThirtyEThreeSixtyISDA) dayCount).getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], isMaturity);
+          } else {
+            accrualFactor = dayCount.getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], calendar);
+          }
+        }
+      }
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn],
-          dayCount.getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], calendar), sign * notional, fixedRate);
+          accrualFactor, sign * notional, fixedRate);
     }
     return new AnnuityCouponFixedDefinition(coupons, calendar);
   }
@@ -479,8 +513,8 @@ public class AnnuityDefinitionBuilder {
    * @return The annuity.
    */
   public static AnnuityDefinition<CouponDefinition> couponIborWithNotional(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional,
-      final IborIndex index, final DayCount dayCountAnnuity, final BusinessDayConvention bdcAnnuity, final boolean eomAnnuity, 
-      final Period paymentPeriod, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag, 
+      final IborIndex index, final DayCount dayCountAnnuity, final BusinessDayConvention bdcAnnuity, final boolean eomAnnuity,
+      final Period paymentPeriod, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag,
       final boolean notionalStart, final boolean notionalEnd) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "maturity date");
@@ -526,7 +560,7 @@ public class AnnuityDefinitionBuilder {
   public static AnnuityDefinition<CouponDefinition> couponIborWithNotional(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional,
       final IborIndex index, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag,
       final boolean notionalStart, final boolean notionalEnd) {
-    return couponIborWithNotional(settlementDate, maturityDate, notional, index, index.getDayCount(), index.getBusinessDayConvention(), 
+    return couponIborWithNotional(settlementDate, maturityDate, notional, index, index.getDayCount(), index.getBusinessDayConvention(),
         index.isEndOfMonth(), index.getTenor(), isPayer, calendar, stub, paymentLag, notionalStart, notionalEnd);
   }
 
@@ -761,7 +795,7 @@ public class AnnuityDefinitionBuilder {
    * @return The annuity.
    */
   public static AnnuityDefinition<CouponDefinition> couponIborSpreadWithNotional(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional,
-      final double spread, final IborIndex index, final DayCount dayCountAnnuity, final BusinessDayConvention bdcAnnuity, final boolean eomAnnuity, 
+      final double spread, final IborIndex index, final DayCount dayCountAnnuity, final BusinessDayConvention bdcAnnuity, final boolean eomAnnuity,
       final Period paymentPeriod, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag,
       final boolean notionalStart, final boolean notionalEnd) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
@@ -809,7 +843,7 @@ public class AnnuityDefinitionBuilder {
   public static AnnuityDefinition<CouponDefinition> couponIborSpreadWithNotional(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional,
       final double spread, final IborIndex index, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag,
       final boolean notionalStart, final boolean notionalEnd) {
-    return couponIborSpreadWithNotional(settlementDate, maturityDate, notional, spread, index, index.getDayCount(), 
+    return couponIborSpreadWithNotional(settlementDate, maturityDate, notional, spread, index, index.getDayCount(),
         index.getBusinessDayConvention(), index.isEndOfMonth(), index.getTenor(), isPayer, calendar, stub, paymentLag, notionalStart, notionalEnd);
   }
 
@@ -1353,6 +1387,15 @@ public class AnnuityDefinitionBuilder {
       }
     }
     return legDates;
+  }
+
+  /**
+   * Private method to compute the number of coupons per year from the payment period.
+   * @param period The period.
+   * @return The number of coupons per year.
+   */
+  private static long couponPerYear(Period period) {
+    return 12 / period.toTotalMonths();
   }
 
 }
