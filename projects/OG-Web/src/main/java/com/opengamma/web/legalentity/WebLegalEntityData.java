@@ -16,9 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -29,12 +27,15 @@ import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.legalentity.ManageableLegalEntity;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.web.WebPerRequestData;
 
 /** Data class for web-based legalEntity management. */
 @BeanDefinition
-public class WebLegalEntityData extends DirectBean {
+public class WebLegalEntityData extends WebPerRequestData {
 
-  /** The legalEntity master. */
+  /**
+   * The legalEntity master.
+   */
   @PropertyDefinition
   private LegalEntityMaster _legalEntityMaster;
   /**
@@ -42,9 +43,6 @@ public class WebLegalEntityData extends DirectBean {
    */
   @PropertyDefinition
   private SecurityMaster _securityMaster;
-  /** The JSR-311 URI information. */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /** The type of data being stored. */
   @PropertyDefinition
   private Class<?> _type;
@@ -159,31 +157,6 @@ public class WebLegalEntityData extends DirectBean {
    */
   public final Property<SecurityMaster> securityMaster() {
     return metaBean().securityMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -353,35 +326,34 @@ public class WebLegalEntityData extends DirectBean {
       WebLegalEntityData other = (WebLegalEntityData) obj;
       return JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getType(), other.getType()) &&
           JodaBeanUtils.equal(getUriLegalEntityId(), other.getUriLegalEntityId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getLegalEntity(), other.getLegalEntity()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getTypeMap(), other.getTypeMap());
+          JodaBeanUtils.equal(getTypeMap(), other.getTypeMap()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriLegalEntityId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("WebLegalEntityData{");
     int len = buf.length();
     toString(buf);
@@ -392,10 +364,11 @@ public class WebLegalEntityData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
     buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
     buf.append("uriLegalEntityId").append('=').append(JodaBeanUtils.toString(getUriLegalEntityId())).append(',').append(' ');
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
@@ -408,7 +381,7 @@ public class WebLegalEntityData extends DirectBean {
   /**
    * The meta-bean for {@code WebLegalEntityData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -424,11 +397,6 @@ public class WebLegalEntityData extends DirectBean {
      */
     private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
         this, "securityMaster", WebLegalEntityData.class, SecurityMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebLegalEntityData.class, UriInfo.class);
     /**
      * The meta-property for the {@code type} property.
      */
@@ -465,10 +433,9 @@ public class WebLegalEntityData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "legalEntityMaster",
         "securityMaster",
-        "uriInfo",
         "type",
         "uriLegalEntityId",
         "uriVersionId",
@@ -489,8 +456,6 @@ public class WebLegalEntityData extends DirectBean {
           return _legalEntityMaster;
         case -887218750:  // securityMaster
           return _securityMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 3575610:  // type
           return _type;
         case 580458539:  // uriLegalEntityId
@@ -537,14 +502,6 @@ public class WebLegalEntityData extends DirectBean {
      */
     public final MetaProperty<SecurityMaster> securityMaster() {
       return _securityMaster;
-    }
-
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
     }
 
     /**
@@ -603,8 +560,6 @@ public class WebLegalEntityData extends DirectBean {
           return ((WebLegalEntityData) bean).getLegalEntityMaster();
         case -887218750:  // securityMaster
           return ((WebLegalEntityData) bean).getSecurityMaster();
-        case -173275078:  // uriInfo
-          return ((WebLegalEntityData) bean).getUriInfo();
         case 3575610:  // type
           return ((WebLegalEntityData) bean).getType();
         case 580458539:  // uriLegalEntityId
@@ -631,9 +586,6 @@ public class WebLegalEntityData extends DirectBean {
         case -887218750:  // securityMaster
           ((WebLegalEntityData) bean).setSecurityMaster((SecurityMaster) newValue);
           return;
-        case -173275078:  // uriInfo
-          ((WebLegalEntityData) bean).setUriInfo((UriInfo) newValue);
-          return;
         case 3575610:  // type
           ((WebLegalEntityData) bean).setType((Class<?>) newValue);
           return;
@@ -659,6 +611,7 @@ public class WebLegalEntityData extends DirectBean {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((WebLegalEntityData) bean)._typeMap, "typeMap");
+      super.validate(bean);
     }
 
   }

@@ -16,7 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.ImmutableList;
@@ -128,29 +128,27 @@ public class WebHomeResource extends AbstractWebResource {
 
   private Object createUriObj(ResourceConfig resourceConfig, UriInfo uriInfo) {
     try {
-      DirectBean dataInstance = resourceConfig._dataClazz.newInstance();
+      Bean dataInstance = resourceConfig._dataClazz.newInstance();
       dataInstance.property("uriInfo").set(uriInfo);
       return resourceConfig._uris.getConstructor(resourceConfig._dataClazz).newInstance(dataInstance);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to create uri for resource " + resourceConfig._name);
     }
   }
-  
+
   private static class ResourceConfig {
     private final Class<?> _resourceType;
-    private final Class<? extends DirectBean> _dataClazz;
+    private final Class<? extends Bean> _dataClazz;
     private final Class<?> _uris;
     private final String _name;
     
-    public ResourceConfig(Class<?> resourceType, Class<? extends DirectBean> dataClazz, Class<?> uris, String name) {
+    public ResourceConfig(Class<?> resourceType, Class<? extends Bean> dataClazz, Class<?> uris, String name) {
       _resourceType = resourceType;
       _dataClazz = dataClazz;
       _uris = uris;
       _name = name;
     }
-    
   }
-  
 
   //-------------------------------------------------------------------------
   /**

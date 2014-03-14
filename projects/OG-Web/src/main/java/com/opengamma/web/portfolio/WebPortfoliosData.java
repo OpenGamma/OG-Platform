@@ -16,9 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -27,12 +25,13 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based portfolios.
  */
 @BeanDefinition
-public class WebPortfoliosData extends DirectBean {
+public class WebPortfoliosData extends WebPerRequestData {
 
   /**
    * The portfolio master.
@@ -44,11 +43,6 @@ public class WebPortfoliosData extends DirectBean {
    */
   @PropertyDefinition
   private PositionMaster _positionMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The portfolio id from the input URI.
    */
@@ -196,31 +190,6 @@ public class WebPortfoliosData extends DirectBean {
    */
   public final Property<PositionMaster> positionMaster() {
     return metaBean().positionMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -438,7 +407,6 @@ public class WebPortfoliosData extends DirectBean {
       WebPortfoliosData other = (WebPortfoliosData) obj;
       return JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriPortfolioId(), other.getUriPortfolioId()) &&
           JodaBeanUtils.equal(getUriNodeId(), other.getUriNodeId()) &&
           JodaBeanUtils.equal(getUriPositionId(), other.getUriPositionId()) &&
@@ -446,17 +414,17 @@ public class WebPortfoliosData extends DirectBean {
           JodaBeanUtils.equal(getPortfolio(), other.getPortfolio()) &&
           JodaBeanUtils.equal(getParentNode(), other.getParentNode()) &&
           JodaBeanUtils.equal(getNode(), other.getNode()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriPortfolioId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriNodeId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
@@ -465,12 +433,12 @@ public class WebPortfoliosData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getParentNode());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNode());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(384);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("WebPortfoliosData{");
     int len = buf.length();
     toString(buf);
@@ -481,10 +449,11 @@ public class WebPortfoliosData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("uriPortfolioId").append('=').append(JodaBeanUtils.toString(getUriPortfolioId())).append(',').append(' ');
     buf.append("uriNodeId").append('=').append(JodaBeanUtils.toString(getUriNodeId())).append(',').append(' ');
     buf.append("uriPositionId").append('=').append(JodaBeanUtils.toString(getUriPositionId())).append(',').append(' ');
@@ -499,7 +468,7 @@ public class WebPortfoliosData extends DirectBean {
   /**
    * The meta-bean for {@code WebPortfoliosData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -515,11 +484,6 @@ public class WebPortfoliosData extends DirectBean {
      */
     private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(
         this, "positionMaster", WebPortfoliosData.class, PositionMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebPortfoliosData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriPortfolioId} property.
      */
@@ -564,10 +528,9 @@ public class WebPortfoliosData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "portfolioMaster",
         "positionMaster",
-        "uriInfo",
         "uriPortfolioId",
         "uriNodeId",
         "uriPositionId",
@@ -590,8 +553,6 @@ public class WebPortfoliosData extends DirectBean {
           return _portfolioMaster;
         case -1840419605:  // positionMaster
           return _positionMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case -72522889:  // uriPortfolioId
           return _uriPortfolioId;
         case 1130377033:  // uriNodeId
@@ -642,14 +603,6 @@ public class WebPortfoliosData extends DirectBean {
      */
     public final MetaProperty<PositionMaster> positionMaster() {
       return _positionMaster;
-    }
-
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
     }
 
     /**
@@ -724,8 +677,6 @@ public class WebPortfoliosData extends DirectBean {
           return ((WebPortfoliosData) bean).getPortfolioMaster();
         case -1840419605:  // positionMaster
           return ((WebPortfoliosData) bean).getPositionMaster();
-        case -173275078:  // uriInfo
-          return ((WebPortfoliosData) bean).getUriInfo();
         case -72522889:  // uriPortfolioId
           return ((WebPortfoliosData) bean).getUriPortfolioId();
         case 1130377033:  // uriNodeId
@@ -754,9 +705,6 @@ public class WebPortfoliosData extends DirectBean {
           return;
         case -1840419605:  // positionMaster
           ((WebPortfoliosData) bean).setPositionMaster((PositionMaster) newValue);
-          return;
-        case -173275078:  // uriInfo
-          ((WebPortfoliosData) bean).setUriInfo((UriInfo) newValue);
           return;
         case -72522889:  // uriPortfolioId
           ((WebPortfoliosData) bean).setUriPortfolioId((String) newValue);

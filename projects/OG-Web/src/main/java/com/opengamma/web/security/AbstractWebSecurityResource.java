@@ -10,9 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -46,7 +43,7 @@ import com.opengamma.web.WebHomeUris;
  * Abstract base class for RESTful security resources.
  */
 public abstract class AbstractWebSecurityResource
-    extends AbstractPerRequestWebResource {
+    extends AbstractPerRequestWebResource<WebSecuritiesData> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
@@ -64,10 +61,6 @@ public abstract class AbstractWebSecurityResource
   protected static final String JSON_DIR = "securities/json/";
 
   /**
-   * The backing bean.
-   */
-  private final WebSecuritiesData _data;
-  /**
    * The template name provider
    */
   private final SecurityTemplateNameProvider _templateNameProvider = new SecurityTemplateNameProvider();
@@ -82,11 +75,11 @@ public abstract class AbstractWebSecurityResource
    */
   protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, 
       final LegalEntityMaster legalEntityMaster) {
+    super(new WebSecuritiesData());
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
-    _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);
     data().setHistoricalTimeSeriesMaster(htsMaster);
@@ -100,18 +93,6 @@ public abstract class AbstractWebSecurityResource
    */
   protected AbstractWebSecurityResource(final AbstractWebSecurityResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
@@ -127,15 +108,6 @@ public abstract class AbstractWebSecurityResource
   }
 
   //-------------------------------------------------------------------------
-
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebSecuritiesData data() {
-    return _data;
-  }
-  
   /**
    * Gets the security template provider.
    * 

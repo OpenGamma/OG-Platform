@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.function;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
@@ -23,7 +20,7 @@ import com.opengamma.web.region.WebRegionUris;
  * Abstract base class for RESTful function resources.
  */
 public abstract class AbstractWebFunctionResource
-    extends AbstractPerRequestWebResource {
+    extends AbstractPerRequestWebResource<WebFunctionData> {
 
   /**
    * HTML ftl directory
@@ -31,18 +28,13 @@ public abstract class AbstractWebFunctionResource
   protected static final String HTML_DIR = "functions/html/";
 
   /**
-   * The backing bean.
-   */
-  private final WebFunctionData _data;
-  
-  /**
    * Creates the resource.
    * 
    * @param functionConfigurationSource  the function master, not null
    */
   protected AbstractWebFunctionResource(final FunctionConfigurationSource functionConfigurationSource) {
+    super(new WebFunctionData());
     ArgumentChecker.notNull(functionConfigurationSource, "functionConfigurationSource");
-    _data = new WebFunctionData();
     data().setFunctionSource(functionConfigurationSource);
   }
 
@@ -53,18 +45,6 @@ public abstract class AbstractWebFunctionResource
    */
   protected AbstractWebFunctionResource(final AbstractWebFunctionResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
@@ -84,13 +64,4 @@ public abstract class AbstractWebFunctionResource
     return out;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebFunctionData data() {
-    return _data;
-  }
-  
 }

@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.marketdatasnapshot;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.fudgemsg.FudgeContext;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -30,7 +27,7 @@ import com.opengamma.web.WebHomeUris;
  */
 @SuppressWarnings("deprecation")
 public abstract class AbstractWebMarketDataSnapshotResource
-    extends AbstractPerRequestWebResource {
+    extends AbstractPerRequestWebResource<WebMarketDataSnapshotData> {
 
   /**
    * HTML ftl directory
@@ -45,10 +42,6 @@ public abstract class AbstractWebMarketDataSnapshotResource
    * The Fudge context.
    */
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-  /**
-   * The backing bean.
-   */
-  private final WebMarketDataSnapshotData _data;
 
   /**
    * Creates the resource.
@@ -63,10 +56,11 @@ public abstract class AbstractWebMarketDataSnapshotResource
    * @param htsSource  the historical timeseries source, not null
    * @param volatilityCubeDefinitionSource  the volatility cube definition source, not null
    */
-  protected AbstractWebMarketDataSnapshotResource(final MarketDataSnapshotMaster marketdataSnapshotMaster, final ConfigMaster configMaster, 
+  protected AbstractWebMarketDataSnapshotResource(final MarketDataSnapshotMaster marketdataSnapshotMaster, final ConfigMaster configMaster,
       final LiveMarketDataProviderFactory liveMarketDataProviderFactory, final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
       final ComputationTargetResolver targetResolver, final ViewProcessor viewProcessor, final HistoricalTimeSeriesSource htsSource,
       final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    super(new WebMarketDataSnapshotData());
     ArgumentChecker.notNull(marketdataSnapshotMaster, "marketdataSnapshotMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(configSource, "configSource");
@@ -76,7 +70,6 @@ public abstract class AbstractWebMarketDataSnapshotResource
     ArgumentChecker.isFalse(liveMarketDataProviderFactory == null && marketDataSpecificationRepository == null, "liveMarketDataProviderFactory or marketDataSpecificationRepository must be set");
     ArgumentChecker.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     
-    _data = new WebMarketDataSnapshotData();
     data().setMarketDataSnapshotMaster(marketdataSnapshotMaster);
     data().setConfigMaster(configMaster);
     data().setMarketDataSpecificationRepository(marketDataSpecificationRepository);
@@ -96,18 +89,6 @@ public abstract class AbstractWebMarketDataSnapshotResource
    */
   protected AbstractWebMarketDataSnapshotResource(final AbstractWebMarketDataSnapshotResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-  
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
@@ -123,14 +104,6 @@ public abstract class AbstractWebMarketDataSnapshotResource
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebMarketDataSnapshotData data() {
-    return _data;
-  }
-  
   /**
    * Gets the fudgeContext.
    * @return the fudgeContext

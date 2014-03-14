@@ -7,9 +7,6 @@ package com.opengamma.web.convention;
 
 import java.util.Map.Entry;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.convention.ConventionMaster;
@@ -22,7 +19,7 @@ import com.opengamma.web.WebHomeUris;
  * Abstract base class for RESTful convention resources.
  */
 public abstract class AbstractWebConventionResource
-    extends AbstractPerRequestWebResource {
+    extends AbstractPerRequestWebResource<WebConventionData> {
 
   /**
    * HTML ftl directory
@@ -39,18 +36,13 @@ public abstract class AbstractWebConventionResource
   private final ConventionTypesProvider _conventionTypesProvider = ConventionTypesProvider.getInstance();
 
   /**
-   * The backing bean.
-   */
-  private final WebConventionData _data;
-
-  /**
    * Creates the resource.
    * 
    * @param conventionMaster  the convention master, not null
    */
   protected AbstractWebConventionResource(final ConventionMaster conventionMaster) {
+    super(new WebConventionData());
     ArgumentChecker.notNull(conventionMaster, "conventionMaster");
-    _data = new WebConventionData();
     data().setConventionMaster(conventionMaster);
     initializeMetaData();
   }
@@ -69,18 +61,6 @@ public abstract class AbstractWebConventionResource
    */
   protected AbstractWebConventionResource(final AbstractWebConventionResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
@@ -97,14 +77,6 @@ public abstract class AbstractWebConventionResource
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebConventionData data() {
-    return _data;
-  }
-
   /**
    * Gets the convention types provider.
    * 

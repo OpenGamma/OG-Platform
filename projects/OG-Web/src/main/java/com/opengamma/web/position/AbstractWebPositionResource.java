@@ -10,9 +10,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -33,7 +30,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * Abstract base class for RESTful position resources.
  */
 public abstract class AbstractWebPositionResource
-    extends AbstractPerRequestWebResource {
+    extends AbstractPerRequestWebResource<WebPositionsData> {
 
   /**
    * Position XML parameter name
@@ -47,10 +44,6 @@ public abstract class AbstractWebPositionResource
    * JSON ftl directory
    */
   protected static final String JSON_DIR = "positions/json/";
-  /**
-   * The backing bean.
-   */
-  private final WebPositionsData _data;
 
   /**
    * Creates the resource.
@@ -64,13 +57,12 @@ public abstract class AbstractWebPositionResource
   protected AbstractWebPositionResource(
       final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
       final HistoricalTimeSeriesSource htsSource, final Map<ExternalScheme, String> externalSchemes) {
+    super(new WebPositionsData());
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(htsSource, "htsSource");
     ArgumentChecker.notEmpty(externalSchemes, "externalSchemes");
-    
-    _data = new WebPositionsData();
     data().setPositionMaster(positionMaster);
     data().setSecurityLoader(securityLoader);
     data().setSecuritySource(securitySource);
@@ -85,18 +77,6 @@ public abstract class AbstractWebPositionResource
    */
   protected AbstractWebPositionResource(final AbstractWebPositionResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
@@ -123,14 +103,6 @@ public abstract class AbstractWebPositionResource
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebPositionsData data() {
-    return _data;
-  }
-
   protected Set<ManageableTrade> parseTrades(String tradesJson) {
     return TradeJsonConverter.fromJson(tradesJson);
   }

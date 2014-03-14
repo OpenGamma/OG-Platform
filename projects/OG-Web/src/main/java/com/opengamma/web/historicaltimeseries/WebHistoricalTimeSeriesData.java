@@ -7,8 +7,6 @@ package com.opengamma.web.historicaltimeseries;
 
 import java.util.Map;
 
-import javax.ws.rs.core.UriInfo;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -16,9 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -28,12 +24,13 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based historical time-series.
  */
 @BeanDefinition
-public class WebHistoricalTimeSeriesData extends DirectBean {
+public class WebHistoricalTimeSeriesData extends WebPerRequestData {
 
   /**
    * The historical time-series master.
@@ -50,11 +47,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
    */
   @PropertyDefinition
   private ConfigSource _configSource;
-  /**
-   * The JSR-311 URI information.
-   */ 
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The historical time-series id from the input URI.
    */
@@ -179,31 +171,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the historical time-series id from the input URI.
    * @return the value of the property
    */
@@ -293,30 +260,29 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
       return JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriHistoricalTimeSeriesId(), other.getUriHistoricalTimeSeriesId()) &&
           JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriHistoricalTimeSeriesId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("WebHistoricalTimeSeriesData{");
     int len = buf.length();
     toString(buf);
@@ -327,11 +293,12 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
     buf.append("historicalTimeSeriesLoader").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesLoader())).append(',').append(' ');
     buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("uriHistoricalTimeSeriesId").append('=').append(JodaBeanUtils.toString(getUriHistoricalTimeSeriesId())).append(',').append(' ');
     buf.append("info").append('=').append(JodaBeanUtils.toString(getInfo())).append(',').append(' ');
     buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
@@ -341,7 +308,7 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   /**
    * The meta-bean for {@code WebHistoricalTimeSeriesData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -363,11 +330,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", WebHistoricalTimeSeriesData.class, ConfigSource.class);
     /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebHistoricalTimeSeriesData.class, UriInfo.class);
-    /**
      * The meta-property for the {@code uriHistoricalTimeSeriesId} property.
      */
     private final MetaProperty<String> _uriHistoricalTimeSeriesId = DirectMetaProperty.ofReadWrite(
@@ -386,11 +348,10 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "historicalTimeSeriesMaster",
         "historicalTimeSeriesLoader",
         "configSource",
-        "uriInfo",
         "uriHistoricalTimeSeriesId",
         "info",
         "timeSeries");
@@ -410,8 +371,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
           return _historicalTimeSeriesLoader;
         case 195157501:  // configSource
           return _configSource;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 1609878101:  // uriHistoricalTimeSeriesId
           return _uriHistoricalTimeSeriesId;
         case 3237038:  // info
@@ -463,14 +422,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code uriHistoricalTimeSeriesId} property.
      * @return the meta-property, not null
      */
@@ -504,8 +455,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
           return ((WebHistoricalTimeSeriesData) bean).getHistoricalTimeSeriesLoader();
         case 195157501:  // configSource
           return ((WebHistoricalTimeSeriesData) bean).getConfigSource();
-        case -173275078:  // uriInfo
-          return ((WebHistoricalTimeSeriesData) bean).getUriInfo();
         case 1609878101:  // uriHistoricalTimeSeriesId
           return ((WebHistoricalTimeSeriesData) bean).getUriHistoricalTimeSeriesId();
         case 3237038:  // info
@@ -527,9 +476,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
           return;
         case 195157501:  // configSource
           ((WebHistoricalTimeSeriesData) bean).setConfigSource((ConfigSource) newValue);
-          return;
-        case -173275078:  // uriInfo
-          ((WebHistoricalTimeSeriesData) bean).setUriInfo((UriInfo) newValue);
           return;
         case 1609878101:  // uriHistoricalTimeSeriesId
           ((WebHistoricalTimeSeriesData) bean).setUriHistoricalTimeSeriesId((String) newValue);

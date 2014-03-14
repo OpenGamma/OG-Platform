@@ -16,9 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -28,23 +26,19 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.convention.ConventionDocument;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ManageableConvention;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based convention management.
  */
 @BeanDefinition
-public class WebConventionData extends DirectBean {
+public class WebConventionData extends WebPerRequestData {
 
   /**
    * The convention master.
    */
   @PropertyDefinition
   private ConventionMaster _conventionMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The type of data being stored.
    */
@@ -145,31 +139,6 @@ public class WebConventionData extends DirectBean {
    */
   public final Property<ConventionMaster> conventionMaster() {
     return metaBean().conventionMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -338,34 +307,33 @@ public class WebConventionData extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       WebConventionData other = (WebConventionData) obj;
       return JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getType(), other.getType()) &&
           JodaBeanUtils.equal(getUriConventionId(), other.getUriConventionId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getTypeMap(), other.getTypeMap());
+          JodaBeanUtils.equal(getTypeMap(), other.getTypeMap()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriConventionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("WebConventionData{");
     int len = buf.length();
     toString(buf);
@@ -376,9 +344,10 @@ public class WebConventionData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
     buf.append("uriConventionId").append('=').append(JodaBeanUtils.toString(getUriConventionId())).append(',').append(' ');
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
@@ -391,7 +360,7 @@ public class WebConventionData extends DirectBean {
   /**
    * The meta-bean for {@code WebConventionData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -402,11 +371,6 @@ public class WebConventionData extends DirectBean {
      */
     private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
         this, "conventionMaster", WebConventionData.class, ConventionMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebConventionData.class, UriInfo.class);
     /**
      * The meta-property for the {@code type} property.
      */
@@ -443,9 +407,8 @@ public class WebConventionData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "conventionMaster",
-        "uriInfo",
         "type",
         "uriConventionId",
         "uriVersionId",
@@ -464,8 +427,6 @@ public class WebConventionData extends DirectBean {
       switch (propertyName.hashCode()) {
         case 41113907:  // conventionMaster
           return _conventionMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 3575610:  // type
           return _type;
         case -566451208:  // uriConventionId
@@ -504,14 +465,6 @@ public class WebConventionData extends DirectBean {
      */
     public final MetaProperty<ConventionMaster> conventionMaster() {
       return _conventionMaster;
-    }
-
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
     }
 
     /**
@@ -568,8 +521,6 @@ public class WebConventionData extends DirectBean {
       switch (propertyName.hashCode()) {
         case 41113907:  // conventionMaster
           return ((WebConventionData) bean).getConventionMaster();
-        case -173275078:  // uriInfo
-          return ((WebConventionData) bean).getUriInfo();
         case 3575610:  // type
           return ((WebConventionData) bean).getType();
         case -566451208:  // uriConventionId
@@ -592,9 +543,6 @@ public class WebConventionData extends DirectBean {
       switch (propertyName.hashCode()) {
         case 41113907:  // conventionMaster
           ((WebConventionData) bean).setConventionMaster((ConventionMaster) newValue);
-          return;
-        case -173275078:  // uriInfo
-          ((WebConventionData) bean).setUriInfo((UriInfo) newValue);
           return;
         case 3575610:  // type
           ((WebConventionData) bean).setType((Class<?>) newValue);
@@ -621,6 +569,7 @@ public class WebConventionData extends DirectBean {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((WebConventionData) bean)._typeMap, "typeMap");
+      super.validate(bean);
     }
 
   }

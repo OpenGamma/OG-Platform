@@ -10,7 +10,6 @@ import java.util.List;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -22,12 +21,7 @@ import com.opengamma.web.AbstractPerRequestWebResource;
  * Abstract base class for RESTful bundle resources.
  */
 public abstract class AbstractWebBundleResource
-    extends AbstractPerRequestWebResource {
-
-  /**
-   * The backing bean.
-   */
-  private final WebBundlesData _data;
+    extends AbstractPerRequestWebResource<WebBundlesData> {
 
   /**
    * Creates the resource.
@@ -38,10 +32,10 @@ public abstract class AbstractWebBundleResource
    */
   protected AbstractWebBundleResource(
       final BundleManagerFactory bundleManagerFactory, final BundleCompressor compressor, final DeployMode mode) {
+    super(new WebBundlesData());
     ArgumentChecker.notNull(bundleManagerFactory, "bundleManagerFactory");
     ArgumentChecker.notNull(compressor, "compressedBundleSource");
     ArgumentChecker.notNull(mode, "mode");
-    _data = new WebBundlesData();
     
     data().setBundleManagerFactory(bundleManagerFactory);
     data().setCompressor(compressor);
@@ -55,28 +49,16 @@ public abstract class AbstractWebBundleResource
    */
   protected AbstractWebBundleResource(final AbstractWebBundleResource parent) {
     super(parent);
-    _data = parent.data();
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
-  }
-
   @Override
   @Context
   public void setServletContext(ServletContext servletContext) {
     super.setServletContext(servletContext);
     
     // initialise the manager now that we have the servlet context
-    BundleManager bundleManager = _data.getBundleManagerFactory().get(servletContext);
+    BundleManager bundleManager = data().getBundleManagerFactory().get(servletContext);
     data().setBundleManager(bundleManager);
     data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
   }
@@ -109,16 +91,6 @@ public abstract class AbstractWebBundleResource
     }
     out.put("openfin", openfin.toLowerCase());
     return out;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * 
-   * @return the backing bean, not null
-   */
-  protected WebBundlesData data() {
-    return _data;
   }
 
 }

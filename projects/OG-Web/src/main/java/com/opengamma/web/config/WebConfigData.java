@@ -16,9 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -28,24 +26,20 @@ import com.google.common.collect.Maps;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.web.WebPerRequestData;
 import com.opengamma.web.json.JSONBuilder;
 
 /**
  * Data class for web-based configuration management.
  */
 @BeanDefinition
-public class WebConfigData extends DirectBean {
+public class WebConfigData extends WebPerRequestData {
 
   /**
    * The config master.
    */
   @PropertyDefinition
   private ConfigMaster _configMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The type of data being stored.
    */
@@ -156,31 +150,6 @@ public class WebConfigData extends DirectBean {
    */
   public final Property<ConfigMaster> configMaster() {
     return metaBean().configMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -382,23 +351,22 @@ public class WebConfigData extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       WebConfigData other = (WebConfigData) obj;
       return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getType(), other.getType()) &&
           JodaBeanUtils.equal(getUriConfigId(), other.getUriConfigId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getConfig(), other.getConfig()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
           JodaBeanUtils.equal(getTypeMap(), other.getTypeMap()) &&
-          JodaBeanUtils.equal(getJsonBuilderMap(), other.getJsonBuilderMap());
+          JodaBeanUtils.equal(getJsonBuilderMap(), other.getJsonBuilderMap()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriConfigId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
@@ -406,12 +374,12 @@ public class WebConfigData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJsonBuilderMap());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("WebConfigData{");
     int len = buf.length();
     toString(buf);
@@ -422,9 +390,10 @@ public class WebConfigData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
     buf.append("uriConfigId").append('=').append(JodaBeanUtils.toString(getUriConfigId())).append(',').append(' ');
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
@@ -438,7 +407,7 @@ public class WebConfigData extends DirectBean {
   /**
    * The meta-bean for {@code WebConfigData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -449,11 +418,6 @@ public class WebConfigData extends DirectBean {
      */
     private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
         this, "configMaster", WebConfigData.class, ConfigMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebConfigData.class, UriInfo.class);
     /**
      * The meta-property for the {@code type} property.
      */
@@ -496,9 +460,8 @@ public class WebConfigData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "configMaster",
-        "uriInfo",
         "type",
         "uriConfigId",
         "uriVersionId",
@@ -518,8 +481,6 @@ public class WebConfigData extends DirectBean {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           return _configMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 3575610:  // type
           return _type;
         case -2037268087:  // uriConfigId
@@ -560,14 +521,6 @@ public class WebConfigData extends DirectBean {
      */
     public final MetaProperty<ConfigMaster> configMaster() {
       return _configMaster;
-    }
-
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
     }
 
     /**
@@ -632,8 +585,6 @@ public class WebConfigData extends DirectBean {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           return ((WebConfigData) bean).getConfigMaster();
-        case -173275078:  // uriInfo
-          return ((WebConfigData) bean).getUriInfo();
         case 3575610:  // type
           return ((WebConfigData) bean).getType();
         case -2037268087:  // uriConfigId
@@ -658,9 +609,6 @@ public class WebConfigData extends DirectBean {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           ((WebConfigData) bean).setConfigMaster((ConfigMaster) newValue);
-          return;
-        case -173275078:  // uriInfo
-          ((WebConfigData) bean).setUriInfo((UriInfo) newValue);
           return;
         case 3575610:  // type
           ((WebConfigData) bean).setType((Class<?>) newValue);
@@ -691,6 +639,7 @@ public class WebConfigData extends DirectBean {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((WebConfigData) bean)._typeMap, "typeMap");
       JodaBeanUtils.notNull(((WebConfigData) bean)._jsonBuilderMap, "jsonBuilderMap");
+      super.validate(bean);
     }
 
   }

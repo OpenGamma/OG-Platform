@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.holiday;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.holiday.HolidayMaster;
@@ -23,7 +20,7 @@ import com.opengamma.web.region.WebRegionUris;
  * Abstract base class for RESTful holiday resources.
  */
 public abstract class AbstractWebHolidayResource
-    extends AbstractPerRequestWebResource {
+    extends AbstractPerRequestWebResource<WebHolidayData> {
 
   /**
    * HTML ftl directory
@@ -35,18 +32,13 @@ public abstract class AbstractWebHolidayResource
   protected static final String JSON_DIR = "holidays/json/";
 
   /**
-   * The backing bean.
-   */
-  private final WebHolidayData _data;
-  
-  /**
    * Creates the resource.
    * 
    * @param holidayMaster  the holiday master, not null
    */
   protected AbstractWebHolidayResource(final HolidayMaster holidayMaster) {
+    super(new WebHolidayData());
     ArgumentChecker.notNull(holidayMaster, "holidayMaster");
-    _data = new WebHolidayData();
     data().setHolidayMaster(holidayMaster);
   }
 
@@ -57,18 +49,6 @@ public abstract class AbstractWebHolidayResource
    */
   protected AbstractWebHolidayResource(final AbstractWebHolidayResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
@@ -88,13 +68,4 @@ public abstract class AbstractWebHolidayResource
     return out;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebHolidayData data() {
-    return _data;
-  }
-  
 }

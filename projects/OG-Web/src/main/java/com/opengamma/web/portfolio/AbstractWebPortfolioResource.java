@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +33,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * Abstract base class for RESTful portfolio resources.
  */
 public abstract class AbstractWebPortfolioResource
-    extends AbstractPerRequestWebResource {
+    extends AbstractPerRequestWebResource<WebPortfoliosData> {
 
   /**
    * HTML ftl directory
@@ -51,10 +48,6 @@ public abstract class AbstractWebPortfolioResource
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebPortfolioResource.class);
 
   /**
-   * The backing bean.
-   */
-  private final WebPortfoliosData _data;
-  /**
    * The security link resolver.
    */
   private SecurityLinkResolver _securityLinkResolver;
@@ -68,11 +61,11 @@ public abstract class AbstractWebPortfolioResource
    * @param executor  the executor service, not null
    */
   protected AbstractWebPortfolioResource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster, final SecuritySource securitySource, final ExecutorService executor) {
+    super(new WebPortfoliosData());
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(executor, "executor");
-    _data = new WebPortfoliosData();
     data().setPortfolioMaster(portfolioMaster);
     data().setPositionMaster(positionMaster);
     _securityLinkResolver = new SecurityLinkResolver(executor, securitySource, VersionCorrection.LATEST);
@@ -85,19 +78,7 @@ public abstract class AbstractWebPortfolioResource
    */
   protected AbstractWebPortfolioResource(final AbstractWebPortfolioResource parent) {
     super(parent);
-    _data = parent._data;
     _securityLinkResolver = parent._securityLinkResolver;
-  }
-
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
@@ -130,15 +111,6 @@ public abstract class AbstractWebPortfolioResource
         s_logger.warn("Problem resolving securities in a position", ex);
       }
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebPortfoliosData data() {
-    return _data;
   }
 
 }
