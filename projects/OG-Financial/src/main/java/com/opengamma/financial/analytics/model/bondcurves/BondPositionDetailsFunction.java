@@ -5,12 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.bondcurves;
 
+import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.aldwych.engine.value.AldwychValueRequirementNames;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -34,9 +35,9 @@ import com.opengamma.util.money.CurrencyAmount;
 public class BondPositionDetailsFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
-    final FixedSwapLegDetails details = (FixedSwapLegDetails) inputs.getValue(AldwychValueRequirementNames.BOND_DETAILS);
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final FixedSwapLegDetails details = (FixedSwapLegDetails) inputs.getValue(BOND_DETAILS);
     final double quantity = target.getPosition().getQuantity().doubleValue();
     final CurrencyAmount[] paymentAmounts = details.getPaymentAmounts();
     final CurrencyAmount[] notionals = details.getNotionals();
@@ -50,7 +51,7 @@ public class BondPositionDetailsFunction extends AbstractFunction.NonCompiledInv
     final FixedSwapLegDetails scaledDetails = new FixedSwapLegDetails(details.getAccrualStart(), details.getAccrualEnd(), details.getDiscountFactors(), details.getPaymentTimes(),
         details.getPaymentFractions(), scaledPaymentAmounts, scaledNotionals, details.getFixedRates());
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
-    return Collections.singleton(new ComputedValue(new ValueSpecification(AldwychValueRequirementNames.BOND_DETAILS, target.toSpecification(), properties), scaledDetails));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(BOND_DETAILS, target.toSpecification(), properties), scaledDetails));
   }
 
   @Override
@@ -69,14 +70,14 @@ public class BondPositionDetailsFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(AldwychValueRequirementNames.BOND_DETAILS, target.toSpecification(), ValueProperties.all()));
+    return Collections.singleton(new ValueSpecification(BOND_DETAILS, target.toSpecification(), ValueProperties.all()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Trade trade = Iterables.getOnlyElement(target.getPosition().getTrades());
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
-    return Collections.singleton(new ValueRequirement(AldwychValueRequirementNames.BOND_DETAILS, ComputationTargetSpecification.of(trade), properties));
+    return Collections.singleton(new ValueRequirement(BOND_DETAILS, ComputationTargetSpecification.of(trade), properties));
   }
 
 }

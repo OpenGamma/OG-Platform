@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.bondcurves;
 
+import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 
 import java.util.Collections;
@@ -14,7 +15,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.aldwych.engine.value.AldwychValueRequirementNames;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
@@ -39,6 +39,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails;
@@ -52,10 +53,10 @@ import com.opengamma.util.tuple.Pair;
 public class BondDetailsFunction extends BondAndBondFutureFromCurvesFunction<IssuerProviderInterface, Void> {
 
   /**
-   * Sets the value requirement name to {@link AldwychValueRequirementNames#BOND_DETAILS}.
+   * Sets the value requirement name to {@link ValueRequirementNames#BOND_DETAILS}.
    */
   public BondDetailsFunction() {
-    super(AldwychValueRequirementNames.BOND_DETAILS, null);
+    super(BOND_DETAILS, null);
   }
 
   @Override
@@ -68,12 +69,11 @@ public class BondDetailsFunction extends BondAndBondFutureFromCurvesFunction<Iss
         (BondTransactionDefinition<? extends PaymentDefinition, ? extends CouponDefinition>) BondAndBondFutureFunctionUtils.getDefinition(executionContext, target, now);
     final BondSecurity<? extends Payment, ? extends Coupon> derivative = definition.toDerivative(now).getBondTransaction();
     final IssuerProviderInterface issuerCurves = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
-    final ValueSpecification spec = new ValueSpecification(AldwychValueRequirementNames.BOND_DETAILS, target.toSpecification(), properties);
-    final LocalDate localDate = now.toLocalDate();
+    final ValueSpecification spec = new ValueSpecification(BOND_DETAILS, target.toSpecification(), properties);
     final AnnuityDefinition<? extends CouponDefinition> couponDefinitions = definition.getUnderlyingBond().getCoupons();
     final Annuity<? extends Coupon> couponDerivatives = derivative.getCoupon();
-    final CurrencyAmount[] notionals = couponDefinitions.accept(AnnuityNotionalsVisitor.getInstance(), localDate);
-    final Pair<LocalDate[], LocalDate[]> accrualDates = couponDefinitions.accept(AnnuityAccrualDatesVisitor.getInstance(), localDate);
+    final CurrencyAmount[] notionals = couponDefinitions.accept(AnnuityNotionalsVisitor.getInstance(), now);
+    final Pair<LocalDate[], LocalDate[]> accrualDates = couponDefinitions.accept(AnnuityAccrualDatesVisitor.getInstance(), now);
     final double[] paymentTimes = couponDerivatives.accept(AnnuityPaymentTimesVisitor.getInstance());
     final double[] paymentFractions = couponDerivatives.accept(AnnuityPaymentFractionsVisitor.getInstance());
     final CurrencyAmount[] paymentAmounts = couponDerivatives.accept(AnnuityPaymentAmountsVisitor.getInstance());
