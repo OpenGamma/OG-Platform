@@ -50,11 +50,11 @@ public class ListedEquityOptionBjerksundStenslandImpliedVolFunction extends List
   public ListedEquityOptionBjerksundStenslandImpliedVolFunction() {
     super(ValueRequirementNames.IMPLIED_VOLATILITY);
   }
-  
+
   @Override
-  protected Set<ComputedValue> computeValues(InstrumentDerivative derivative, StaticReplicationDataBundle market, FunctionInputs inputs, Set<ValueRequirement> desiredValues,
-      ComputationTargetSpecification targetSpec, ValueProperties resultProperties) {
-    
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs, final Set<ValueRequirement> desiredValues,
+      final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+
     // Get market price
     Double marketPrice = null;
     final ComputedValue mktPriceObj = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
@@ -106,7 +106,7 @@ public class ListedEquityOptionBjerksundStenslandImpliedVolFunction extends List
 
     final double volatility = market.getVolatilitySurface().getVolatility(timeToExpiry, strike);
     Double impliedVol = null;
-    
+
     if (derivative instanceof EquityOption) {
       final double spot = market.getForwardCurve().getSpot();
       final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
@@ -135,19 +135,34 @@ public class ListedEquityOptionBjerksundStenslandImpliedVolFunction extends List
         }
       } catch (final IllegalArgumentException e) {
         if (inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE) == null) {
-          impliedVol =  null;
+          impliedVol = null;
         } else {
           s_logger.warn(MarketDataRequirementNames.IMPLIED_VOLATILITY + " undefined" + targetSpec);
           impliedVol = 0.;
         }
       }
     } else {
-      impliedVol = volatility;      
+      impliedVol = volatility;
     }
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
   }
-  
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+    if (requirements == null) {
+      return null;
+    }
+    // Add live market_value of the option
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final ComputationTargetReference securityTarget = new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId());
+    final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
+    requirements.add(securityValueReq);
+
+    return requirements;
+  }
+
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ListedEquityOptionBjerksundStenslandImpliedVolFunction.class);
 
