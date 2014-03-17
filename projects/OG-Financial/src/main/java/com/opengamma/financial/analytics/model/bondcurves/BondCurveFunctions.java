@@ -41,6 +41,9 @@ public class BondCurveFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondAndBondFutureYCNSFunction.class));
     functions.add(functionConfiguration(BondYieldFromCurvesFunction.class));
 
+    functions.add(functionConfiguration(BondDetailsFunction.class));
+    functions.add(functionConfiguration(BondPositionDetailsFunction.class));
+
     functions.add(functionConfiguration(BondAndBondFutureConstantSpreadThetaFunction.class));
     functions.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
     functions.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
