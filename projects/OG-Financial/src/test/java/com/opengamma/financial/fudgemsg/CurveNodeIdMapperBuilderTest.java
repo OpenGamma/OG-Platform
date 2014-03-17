@@ -67,6 +67,11 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
     continuouslyCompoundedRateIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("x")));
     continuouslyCompoundedRateIds.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("c")));
     continuouslyCompoundedRateIds.put(Tenor.FOUR_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("v")));
+    final Map<Tenor, CurveInstrumentProvider> periodicallyCompoundedRateIds = new HashMap<>();
+    periodicallyCompoundedRateIds.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("z")));
+    periodicallyCompoundedRateIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("x")));
+    periodicallyCompoundedRateIds.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("c")));
+    periodicallyCompoundedRateIds.put(Tenor.FOUR_MONTHS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("v")));
     final Map<Tenor, CurveInstrumentProvider> discountFactorIds = new HashMap<>();
     discountFactorIds.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("m")));
     discountFactorIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("n")));
@@ -108,6 +113,7 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
         .bondNodeIds(bondIds)
         .cashNodeIds(cashIds)
         .continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateIds)
+        .periodicallyCompoundedRateNodeIds(periodicallyCompoundedRateIds)
         .creditSpreadNodeIds(creditSpreadIds)
         .deliverableSwapFutureNodeIds(deliverableSwapFutureNodeIds)
         .discountFactorNodeIds(discountFactorIds)

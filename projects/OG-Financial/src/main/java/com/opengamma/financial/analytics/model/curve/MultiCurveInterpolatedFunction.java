@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldPeriodicCurve;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
@@ -61,11 +62,12 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveSpecification;
-import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
+import com.opengamma.financial.analytics.ircurve.strips .ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
+import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -195,6 +197,7 @@ public class MultiCurveInterpolatedFunction extends
           final double[][] jacobian = new double[n][n];
           boolean isYield = false;
           int i = 0;
+          int compoundPeriodsPerYear = 0;
           final int nNodesForCurve = specification.getNodes().size();
           for (final CurveNodeWithIdentifier node: specification.getNodes()) {
             final CurveNode curveNode = node.getCurveNode();
@@ -212,6 +215,15 @@ public class MultiCurveInterpolatedFunction extends
               } else {
                 if (isYield) {
                   throw new OpenGammaRuntimeException("Was expecting only discount factor nodes; have " + curveNode);
+                }
+              }
+            } else if (curveNode instanceof PeriodicallyCompoundedRateNode) {
+              if (i == 0) {
+                compoundPeriodsPerYear = ((PeriodicallyCompoundedRateNode) curveNode).getCompoundingPeriodsPerYear();
+                isYield = true;
+              } else {
+                if (!isYield) {
+                  throw new OpenGammaRuntimeException("Was expecting only periodically compounded nodes; have " + curveNode);
                 }
               }
             } else {
@@ -232,8 +244,14 @@ public class MultiCurveInterpolatedFunction extends
           final String leftExtrapolatorName = specification.getLeftExtrapolatorName();
           final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
           final InterpolatedDoublesCurve rawCurve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
-          final YieldAndDiscountCurve discountCurve = isYield ? new YieldCurve(curveName, rawCurve) : new DiscountCurve(curveName, rawCurve);
-
+          final YieldAndDiscountCurve discountCurve;
+          if (compoundPeriodsPerYear != 0 && isYield) {
+            discountCurve = YieldPeriodicCurve.from(compoundPeriodsPerYear, rawCurve);
+          } else if (isYield) {
+            discountCurve = new YieldCurve(curveName, rawCurve);
+          } else {
+            discountCurve = new DiscountCurve(curveName, rawCurve);
+          }
           for (final CurveTypeConfiguration type: types) {
             if (type instanceof DiscountingCurveTypeConfiguration) {
               final Currency currency = Currency.parse(((DiscountingCurveTypeConfiguration) type).getReference());

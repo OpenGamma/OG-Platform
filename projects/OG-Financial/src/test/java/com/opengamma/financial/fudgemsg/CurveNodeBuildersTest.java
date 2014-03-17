@@ -23,6 +23,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
+import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
@@ -74,6 +75,16 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
     assertEquals(node, cycleObject(ContinuouslyCompoundedRateNode.class, node));
     node = new ContinuouslyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS, "Name");
     assertEquals(node, cycleObject(ContinuouslyCompoundedRateNode.class, node));
+  }
+
+  @Test
+  public void testPeriodicallyCompoundedRateNodeBuilder() {
+    PeriodicallyCompoundedRateNode node = new PeriodicallyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS, 4);
+    assertEquals(node, cycleObject(PeriodicallyCompoundedRateNode.class, node));
+    node = new PeriodicallyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS, null, 2);
+    assertEquals(node, cycleObject(PeriodicallyCompoundedRateNode.class, node));
+    node = new PeriodicallyCompoundedRateNode("TEST", Tenor.EIGHT_MONTHS, "Name", 1);
+    assertEquals(node, cycleObject(PeriodicallyCompoundedRateNode.class, node));
   }
 
   @Test

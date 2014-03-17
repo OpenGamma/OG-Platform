@@ -30,6 +30,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
@@ -186,6 +187,24 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
       continuouslyCompoundedRateNodeId = null;
     }
     if (continuouslyCompoundedRateNodeId == null) {
+      // the node get's attached to parent inside this call.
+      createInvalidCurveNodeValidationNode(node.getResolvedMaturity(), CashNode.class, _validationNode, "No curve node id mapper entry for " + node.getResolvedMaturity());
+    } else {
+      // the node get's attached to parent inside this call.
+      createInvalidCurveNodeValidationNode(node.getResolvedMaturity(), CashNode.class, _validationNode, null);
+    }
+    return null;
+  }
+
+  @Override
+  public Void visitPeriodicallyCompoundedRateNode(PeriodicallyCompoundedRateNode node) {
+    ExternalId id;
+    try {
+      id = _curveNodeIdMapper.getContinuouslyCompoundedRateNodeId(_curveDate, node.getTenor());
+    } catch (OpenGammaRuntimeException ogre) {
+      id = null;
+    }
+    if (id == null) {
       // the node get's attached to parent inside this call.
       createInvalidCurveNodeValidationNode(node.getResolvedMaturity(), CashNode.class, _validationNode, "No curve node id mapper entry for " + node.getResolvedMaturity());
     } else {

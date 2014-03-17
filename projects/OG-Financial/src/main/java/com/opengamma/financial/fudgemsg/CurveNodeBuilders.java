@@ -25,6 +25,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
+import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
@@ -220,6 +221,43 @@ import com.opengamma.util.time.Tenor;
         return new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor, name);
       }
       return new ContinuouslyCompoundedRateNode(curveNodeIdMapperName, tenor);
+    }
+  }
+
+  /**
+   * Fudge builder for {@link PeriodicallyCompoundedRateNode}
+   */
+  @FudgeBuilderFor(PeriodicallyCompoundedRateNode.class)
+  public static class PeriodicallyCompoundedRateNodeBuilder implements FudgeBuilder<PeriodicallyCompoundedRateNode> {
+    /** The tenor field */
+    private static final String TENOR_FIELD = "tenor";
+    /** The periods per year field */
+    private static final String PERIODS_PER_YEAR_FIELD = "nPerYear";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final PeriodicallyCompoundedRateNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(TENOR_FIELD, object.getTenor());
+      message.add(PERIODS_PER_YEAR_FIELD, object.getCompoundingPeriodsPerYear());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
+      return message;
+    }
+
+    @Override
+    public PeriodicallyCompoundedRateNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      //TODO should just use Tenor string for these objects
+      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR_FIELD));
+      final int periodsPerYear = message.getInt(PERIODS_PER_YEAR_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new PeriodicallyCompoundedRateNode(curveNodeIdMapperName, tenor, name, periodsPerYear);
+      }
+      return new PeriodicallyCompoundedRateNode(curveNodeIdMapperName, tenor, periodsPerYear);
     }
   }
 

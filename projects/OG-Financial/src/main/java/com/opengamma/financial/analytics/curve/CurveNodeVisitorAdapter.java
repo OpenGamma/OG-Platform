@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
@@ -75,6 +76,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
 
   @Override
   public T visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
+  public T visitPeriodicallyCompoundedRateNode(final PeriodicallyCompoundedRateNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
@@ -230,6 +236,22 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
         @Override
         public T visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
           return visitor.visitContinuouslyCompoundedRateNode(node);
+        }
+      };
+      return this;
+    }
+
+    /**
+     * Adds a visitor for {@link PeriodicallyCompoundedRateNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle periodically compounded rate nodes
+     */
+    public Builder<T> periodicallyCompoundedRateNode(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitPeriodicallyCompoundedRateNode(final PeriodicallyCompoundedRateNode node) {
+          return visitor.visitPeriodicallyCompoundedRateNode(node);
         }
       };
       return this;

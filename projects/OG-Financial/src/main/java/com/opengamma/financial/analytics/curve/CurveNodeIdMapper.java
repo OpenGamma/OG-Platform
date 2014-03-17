@@ -51,6 +51,8 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _cashNodeIds;
   /** Curve instrument providers for continuously-compounded rate nodes */
   private final Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
+  /** Curve instrument providers for periodically-compounded rate nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _periodicallyCompoundedRateNodeIds;
   /** Curve instrument providers for credit spread nodes */
   private final Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
   /** Curve instrument providers for deliverable swap future nodes */
@@ -91,6 +93,8 @@ public class CurveNodeIdMapper {
     private Map<Tenor, CurveInstrumentProvider> _cashNodeIds;
     /** Curve instrument providers for continuously-compounded rate nodes */
     private Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
+    /** Curve instrument providers for periodically-compounded rate nodes */
+    private Map<Tenor, CurveInstrumentProvider> _periodicallyCompoundedRateNodeIds;
     /** Curve instrument providers for credit spread nodes */
     private Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
     /** Curve instrument providers for deliverable swap future nodes */
@@ -176,6 +180,16 @@ public class CurveNodeIdMapper {
      */
     public Builder continuouslyCompoundedRateNodeIds(final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds) {
       _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateNodeIds;
+      return this;
+    }
+
+    /**
+     * Curve instrument providers for periodically-compounded rate nodes
+     * @param periodicallyCompoundedRateNodeIds the periodicallyCompoundedRateNodeIds
+     * @return this
+     */
+    public Builder periodicallyCompoundedRateNodeIds(final Map<Tenor, CurveInstrumentProvider> periodicallyCompoundedRateNodeIds) {
+      _periodicallyCompoundedRateNodeIds = periodicallyCompoundedRateNodeIds;
       return this;
     }
 
@@ -308,7 +322,8 @@ public class CurveNodeIdMapper {
           _rateFutureNodeIds,
           _swapNodeIds,
           _threeLegBasisSwapNodeIds,
-          _zeroCouponInflationNodeIds);
+          _zeroCouponInflationNodeIds,
+          _periodicallyCompoundedRateNodeIds);
     }
 
   }
@@ -355,7 +370,8 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
+      final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> periodicallyCompoundedRateIds) {
     _name = name;
     _billNodeIds = billNodeIds;
     _bondNodeIds = bondNodeIds;
@@ -373,6 +389,7 @@ public class CurveNodeIdMapper {
     _swapNodeIds = swapNodeIds;
     _threeLegBasisSwapNodeIds = threeLegBasisSwapNodeIds;
     _zeroCouponInflationNodeIds = zeroCouponInflationNodeIds;
+    _periodicallyCompoundedRateNodeIds = periodicallyCompoundedRateIds;
   }
 
   /**
@@ -454,6 +471,17 @@ public class CurveNodeIdMapper {
   public Map<Tenor, CurveInstrumentProvider> getContinuouslyCompoundedRateNodeIds() {
     if (_continuouslyCompoundedRateNodeIds != null) {
       return Collections.unmodifiableMap(_continuouslyCompoundedRateNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the periodically-compounded rate node ids.
+   * @return The periodically-compounded rate node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getPeriodicallyCompoundedRateNodeIds() {
+    if (_periodicallyCompoundedRateNodeIds != null) {
+      return Collections.unmodifiableMap(_periodicallyCompoundedRateNodeIds);
     }
     return null;
   }
@@ -784,6 +812,46 @@ public class CurveNodeIdMapper {
       throw new OpenGammaRuntimeException("Cannot get continuously-compounded rate node id provider for curve node id mapper called " + _name);
     }
     return getDataFieldType(_continuouslyCompoundedRateNodeIds, tenor);
+  }
+
+  /**
+   * Gets the external id of the periodically-compounded rate node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id of the node
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getPeriodicallyCompoundedRateNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_periodicallyCompoundedRateNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get periodically-compounded rate node id provider for curve node id mapper called " + _name);
+    }
+    return getId(_periodicallyCompoundedRateNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the periodically-compounded rate node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getPeriodicallyCompoundedRateNodeDataField(final Tenor tenor) {
+    if (_periodicallyCompoundedRateNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get periodically-compounded rate node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_periodicallyCompoundedRateNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the continuously-compounded rate node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getPeriodicallyCompoundedRateDataFieldType(final Tenor tenor) {
+    if (_periodicallyCompoundedRateNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get periodically-compounded rate node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_periodicallyCompoundedRateNodeIds, tenor);
   }
 
   /**
@@ -1272,6 +1340,9 @@ public class CurveNodeIdMapper {
     if (_continuouslyCompoundedRateNodeIds != null) {
       allTenors.addAll(_continuouslyCompoundedRateNodeIds.keySet());
     }
+    if (_periodicallyCompoundedRateNodeIds != null) {
+      allTenors.addAll(_periodicallyCompoundedRateNodeIds.keySet());
+    }
     if (_creditSpreadNodeIds != null) {
       allTenors.addAll(_creditSpreadNodeIds.keySet());
     }
@@ -1365,6 +1436,7 @@ public class CurveNodeIdMapper {
         ObjectUtils.equals(_bondNodeIds, other._bondNodeIds) &&
         ObjectUtils.equals(_cashNodeIds, other._cashNodeIds) &&
         ObjectUtils.equals(_continuouslyCompoundedRateNodeIds, other._continuouslyCompoundedRateNodeIds) &&
+        ObjectUtils.equals(_periodicallyCompoundedRateNodeIds, other._periodicallyCompoundedRateNodeIds) &&
         ObjectUtils.equals(_creditSpreadNodeIds, other._creditSpreadNodeIds) &&
         ObjectUtils.equals(_deliverableSwapFutureNodeIds, other._deliverableSwapFutureNodeIds) &&
         ObjectUtils.equals(_discountFactorNodeIds, other._discountFactorNodeIds) &&
@@ -1387,6 +1459,7 @@ public class CurveNodeIdMapper {
     result = prime * result + ((_bondNodeIds == null) ? 0 : _bondNodeIds.hashCode());
     result = prime * result + ((_cashNodeIds == null) ? 0 : _cashNodeIds.hashCode());
     result = prime * result + ((_continuouslyCompoundedRateNodeIds == null) ? 0 : _continuouslyCompoundedRateNodeIds.hashCode());
+    result = prime * result + ((_periodicallyCompoundedRateNodeIds == null) ? 0 : _periodicallyCompoundedRateNodeIds.hashCode());
     result = prime * result + ((_creditSpreadNodeIds == null) ? 0 : _creditSpreadNodeIds.hashCode());
     result = prime * result + ((_deliverableSwapFutureNodeIds == null) ? 0 : _deliverableSwapFutureNodeIds.hashCode());
     result = prime * result + ((_discountFactorNodeIds == null) ? 0 : _discountFactorNodeIds.hashCode());

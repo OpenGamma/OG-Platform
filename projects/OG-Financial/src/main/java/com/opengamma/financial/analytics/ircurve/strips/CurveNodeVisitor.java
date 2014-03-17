@@ -47,6 +47,13 @@ public interface CurveNodeVisitor<T> {
   T visitContinuouslyCompoundedRateNode(ContinuouslyCompoundedRateNode node);
 
   /**
+   * Visits a {@link PeriodicallyCompoundedRateNode}.
+   * @param node A periodically compounded rate node
+   * @return The return value
+   */
+  T visitPeriodicallyCompoundedRateNode(PeriodicallyCompoundedRateNode node);
+
+  /**
    * Visits a {@link CreditSpreadNode}.
    * @param node A credit spread node
    * @return The return value
