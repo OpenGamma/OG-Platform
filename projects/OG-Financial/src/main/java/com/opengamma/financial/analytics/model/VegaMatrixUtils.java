@@ -205,30 +205,30 @@ public class VegaMatrixUtils {
     final List<Double> yKeysList = new ArrayList<>();
     final List<Double> yLabelsList = new ArrayList<>();
     for (final Entry<DoublesPair, Double> entry : vegaMap.entrySet()) {
-      final double swapMaturity = entry.getKey().getFirst();
-      if (!xKeysList.contains(swapMaturity)) {
-        xKeysList.add(swapMaturity);
-        xLabelsList.add(swapMaturity);
+      final double swapExpiry = entry.getKey().getFirst();
+      if (!xKeysList.contains(swapExpiry)) {
+        xKeysList.add(swapExpiry);
+        xLabelsList.add(swapExpiry);
       }
-      final double swaptionExpiry = entry.getKey().getSecond();
-      if (!yKeysList.contains(swaptionExpiry)) {
-        yKeysList.add(swaptionExpiry);
-        yLabelsList.add(swaptionExpiry);
+      final double swaptionMaturity = entry.getKey().getSecond();
+      if (!yKeysList.contains(swaptionMaturity)) {
+        yKeysList.add(swaptionMaturity);
+        yLabelsList.add(swaptionMaturity);
       }
     }
     final Double[] xKeys = xKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Double[] xLabels = xLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final int nMaturities = xLabels.length;
+    final int nExpiries = xLabels.length;
     final Double[] yKeys = yKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Double[] yLabels = yLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final int nExpiries = yLabels.length;
+    final int nMaturities = yLabels.length;
     final double[][] values = new double[nMaturities][nExpiries];
     
-    for (int i = 0; i < nMaturities; i++) {
-      for (int j = 0; j < nExpiries; j++) {
+    for (int i = 0; i < nExpiries; i++) {
+      for (int j = 0; j < nMaturities; j++) {
         DoublesPair key = DoublesPair.of(xKeys[i].doubleValue(), yKeys[j].doubleValue());
         Double value = vegaMap.get(key);
-        values[i][j] = value == null ? 0.0 : value;
+        values[j][i] = value == null ? 0.0 : value;
       }
     }
     
