@@ -20,6 +20,8 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.portfolio.PortfolioCopier;
@@ -44,10 +46,8 @@ import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.test.TestGroup;
 
-import au.com.bytecode.opencsv.CSVReader;
-
 @Test(groups = TestGroup.UNIT)
-public class PortfolioCopierTest {
+public class PortfolioWithTradesCopierTest {
 
 // TODO Improve portfolio copier test coverage:
 // MasterPortfolioReader, SingleSheetSimplePortfolioReader, ZippedPortfolioReader
@@ -55,8 +55,8 @@ public class PortfolioCopierTest {
 // SimplePortfolioCopier, ResolvingPortfolioCopier
   
   private static final String PORTFOLIO_NAME = "test";
-  private static final String PORTFOLIO_FILE = "src/test/java/com/opengamma/integration/copier/TestPortfolio.csv";
-  private static final String SECURITY_TYPE = "Equity";
+  private static final String PORTFOLIO_FILE = "src/test/java/com/opengamma/integration/copier/TestPortfolioWithTrades.csv";
+  private static final String SECURITY_TYPE = "StandardVanillaCDS";
   
   @Test
   public void testCsvToMastersToCsv() throws Exception {

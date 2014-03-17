@@ -17,6 +17,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
@@ -25,6 +26,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetPortfolioWriter;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -56,6 +58,7 @@ public class ExchangeTradedRowParser extends RowParser {
   private static final Logger s_logger = LoggerFactory.getLogger(ExchangeTradedRowParser.class);
   
   private static final String TICKER = "ticker";
+  private static final String ATTRIBUTES = "attributes";
   private static final String QUANTITY = "quantity";
   private static final String TRADE_DATE = "trade date";
   private static final String PREMIUM = "premium";
@@ -63,7 +66,7 @@ public class ExchangeTradedRowParser extends RowParser {
   private static final String PREMIUM_DATE = "premiumdate";
   private static final String COUNTERPARTY = "counterparty";
   
-  private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY };
+  private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY, ATTRIBUTES};
   
   private SecurityProvider _securityProvider;
 
@@ -200,7 +203,11 @@ public class ExchangeTradedRowParser extends RowParser {
     }
     String ticker = securities[0].getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
     if (ticker != null) {
-      return Collections.singletonMap(TICKER, ticker);
+      String attributes = SingleSheetPortfolioWriter.attributesToString(securities[0].getAttributes());
+      return ImmutableMap.of(
+          TICKER, ticker,
+          ATTRIBUTES, attributes
+      );
     }
     return null;
   }

@@ -52,6 +52,7 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.VarianceSwapLeg;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetPortfolioWriter;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -71,12 +72,10 @@ public class JodaBeanRowParser extends RowParser {
    */
   private static final String[] IGNORE_METAPROPERTIES = {
     "securityType",
-    "attributes",
     "uniqueid",
     "objectid",
     "securitylink",
     "trades",
-    "attributes",
     "gicscode",
     "parentpositionid",
     "providerid",
@@ -89,6 +88,7 @@ public class JodaBeanRowParser extends RowParser {
   private static final String POSITION_PREFIX = "position";
   private static final String TRADE_PREFIX = "trade";
   private static final String UNDERLYING_PREFIX = "underlying";
+  private static final String ATTRIBUTES = "attributes";
 
   /**
    * Every security class name ends with this
@@ -155,9 +155,13 @@ public class JodaBeanRowParser extends RowParser {
     _columns = recursiveGetColumnMap(_securityClass, "");
     for (final Class<?> securityClass : _underlyingSecurityClasses) {
       _columns.putAll(recursiveGetColumnMap(securityClass, UNDERLYING_PREFIX + securityClass.getSimpleName() + ":"));
+      _columns.put(UNDERLYING_PREFIX + securityClass.getSimpleName() + ":" + ATTRIBUTES, String.class);
     }
     _columns.putAll(recursiveGetColumnMap(ManageablePosition.class, POSITION_PREFIX + ":"));
     _columns.putAll(recursiveGetColumnMap(ManageableTrade.class, TRADE_PREFIX + ":"));
+    _columns.put(POSITION_PREFIX + ":" + ATTRIBUTES, String.class);
+    _columns.put(TRADE_PREFIX + ":" + ATTRIBUTES, String.class);
+    _columns.put(ATTRIBUTES, String.class);
   }
 
   private List<Class<?>> getUnderlyingSecurityClasses(final Class<? extends Bean> securityClass) {
@@ -397,6 +401,9 @@ public class JodaBeanRowParser extends RowParser {
             } else if (List.class.isAssignableFrom(metaProperty.propertyType()) &&
                 isConvertible(JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType()))) {
               builder.set(metaProperty.name(), stringToList(rawValue, JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType())));
+            } else if (Map.class.isAssignableFrom(metaProperty.propertyType()) && metaProperty.name().equalsIgnoreCase("attributes")) {
+
+              builder.set(metaProperty.name(), SingleSheetPortfolioWriter.attributesToMap(rawValue));
             } else {
               throw new OpenGammaRuntimeException("Property '" + prefix + metaProperty.name() + "' (" + metaProperty.propertyType() + ") cannot be populated from a string");
             }
@@ -448,7 +455,8 @@ public class JodaBeanRowParser extends RowParser {
             } else if (List.class.isAssignableFrom(metaProperty.propertyType()) &&
                 isConvertible(JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType()))) {
               result.put(prefix + metaProperty.name(), listToString((List<?>) metaProperty.get(bean)));
-              // Cannot convert :(
+            } else if (Map.class.isAssignableFrom(metaProperty.propertyType()) && metaProperty.name().equalsIgnoreCase("attributes")) {
+              result.put(prefix + metaProperty.name(), SingleSheetPortfolioWriter.attributesToString((Map<String, String>) metaProperty.get(bean)));
             } else {
               throw new OpenGammaRuntimeException("Property '" + prefix + metaProperty.name() + "' (" + metaProperty.propertyType() + ") cannot be converted to a string");
             }
