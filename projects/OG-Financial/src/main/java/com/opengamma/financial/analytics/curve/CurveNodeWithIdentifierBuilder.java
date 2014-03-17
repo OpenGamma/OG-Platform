@@ -121,9 +121,9 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
   @Override
   public CurveNodeWithIdentifier visitPeriodicallyCompoundedRateNode(final PeriodicallyCompoundedRateNode node) {
     final Tenor tenor = node.getTenor();
-    final ExternalId identifier = _nodeIdMapper.getContinuouslyCompoundedRateNodeId(_curveDate, tenor);
-    final String dataField = _nodeIdMapper.getContinuouslyCompoundedRateNodeDataField(tenor);
-    final DataFieldType fieldType = _nodeIdMapper.getContinuouslyCompoundedRateDataFieldType(tenor);
+    final ExternalId identifier = _nodeIdMapper.getPeriodicallyCompoundedRateNodeId(_curveDate, tenor);
+    final String dataField = _nodeIdMapper.getPeriodicallyCompoundedRateNodeDataField(tenor);
+    final DataFieldType fieldType = _nodeIdMapper.getPeriodicallyCompoundedRateDataFieldType(tenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 
