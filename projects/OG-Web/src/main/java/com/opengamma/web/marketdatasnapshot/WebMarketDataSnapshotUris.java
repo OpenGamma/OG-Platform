@@ -29,6 +29,14 @@ public class WebMarketDataSnapshotUris {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the base URI.
+   * @return the URI
+   */
+  public URI base() {
+    return snapshots();
+  }
+
+  /**
    * Gets the URI.
    * @return the URI
    */
