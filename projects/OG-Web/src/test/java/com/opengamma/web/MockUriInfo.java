@@ -6,6 +6,7 @@
 package com.opengamma.web;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -19,33 +20,44 @@ import javax.ws.rs.core.UriInfo;
  */
 public class MockUriInfo implements UriInfo {
   
+  public static final URI SAMPLE_URI = URI.create("http://localhost:8080/");
+
   private final MultivaluedMap<String, String> _pathParameters = new MultivaluedMapImpl();
   private final MultivaluedMap<String, String> _queryParameters = new MultivaluedMapImpl();
+  private final boolean _withData;
   private final UriBuilder _uriBuilder = new MockUriBuilder();
+
+  public MockUriInfo() {
+    this(false);
+  }
+
+  public MockUriInfo(boolean withData) {
+    _withData = withData;
+  }
 
   @Override
   public String getPath() {
-    return null;
+    return (_withData ? "" : null);
   }
 
   @Override
   public String getPath(boolean decode) {
-    return null;
+    return (_withData ? "" : null);
   }
 
   @Override
   public List<PathSegment> getPathSegments() {
-    return null;
+    return (_withData ? Collections.<PathSegment>emptyList() : null);
   }
 
   @Override
   public List<PathSegment> getPathSegments(boolean decode) {
-    return null;
+    return (_withData ? Collections.<PathSegment> emptyList() : null);
   }
 
   @Override
   public URI getRequestUri() {
-    return null;
+    return (_withData ? SAMPLE_URI : null);
   }
 
   @Override
@@ -55,7 +67,7 @@ public class MockUriInfo implements UriInfo {
 
   @Override
   public URI getAbsolutePath() {
-    return null;
+    return (_withData ? SAMPLE_URI : null);
   }
 
   @Override
@@ -65,7 +77,7 @@ public class MockUriInfo implements UriInfo {
 
   @Override
   public URI getBaseUri() {
-    return null;
+    return (_withData ? SAMPLE_URI : null);
   }
 
   @Override
@@ -95,17 +107,17 @@ public class MockUriInfo implements UriInfo {
 
   @Override
   public List<String> getMatchedURIs() {
-    return null;
+    return (_withData ? Collections.<String> emptyList() : null);
   }
 
   @Override
   public List<String> getMatchedURIs(boolean decode) {
-    return null;
+    return (_withData ? Collections.<String> emptyList() : null);
   }
 
   @Override
   public List<Object> getMatchedResources() {
-    return null;
+    return (_withData ? Collections.<Object> emptyList() : null);
   }
 
 }

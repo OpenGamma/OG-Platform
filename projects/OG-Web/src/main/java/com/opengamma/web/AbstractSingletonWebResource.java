@@ -9,10 +9,6 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-
-import com.opengamma.util.OpenGammaClock;
 
 /**
  * Abstract base class for RESTful resources intended for websites.
@@ -40,14 +36,7 @@ public abstract class AbstractSingletonWebResource extends AbstractWebResource {
    * @return the output root data, not null
    */
   protected FlexiBean createRootData(UriInfo uriInfo) {
-    // inline FreemarkerOutputter.createRootData() to avoid extra ServletContext parameter
-    FlexiBean out = new FlexiBean();
-    out.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
-    out.put("timeFormatter", DateTimeFormatter.ofPattern("HH:mm:ss"));
-    out.put("offsetFormatter", DateTimeFormatter.ofPattern("Z"));
-    out.put("homeUris", new WebHomeUris(uriInfo));
-    out.put("baseUri", uriInfo.getBaseUri().toString());
-    return out;
+    return FreemarkerOutputter.createRootData(uriInfo);
   }
 
   /**

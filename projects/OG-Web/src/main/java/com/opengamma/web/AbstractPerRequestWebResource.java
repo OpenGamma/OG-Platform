@@ -124,9 +124,7 @@ public abstract class AbstractPerRequestWebResource<T extends WebPerRequestData>
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(getUriInfo()));
-    return out;
+    return FreemarkerOutputter.createRootData(getUriInfo());
   }
 
   /**

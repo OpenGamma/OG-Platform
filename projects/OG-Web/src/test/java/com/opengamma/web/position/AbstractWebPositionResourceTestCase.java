@@ -90,7 +90,7 @@ public abstract class AbstractWebPositionResourceTestCase {
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
-    _uriInfo = new MockUriInfo();
+    _uriInfo = new MockUriInfo(true);
     _trades = getTrades();
     _secMaster = new InMemorySecurityMaster(new ObjectIdSupplier("Mock"));
     _positionMaster = new InMemoryPositionMaster();
