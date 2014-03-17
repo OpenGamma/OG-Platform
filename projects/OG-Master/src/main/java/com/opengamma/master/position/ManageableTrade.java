@@ -68,7 +68,7 @@ public class ManageableTrade extends DirectBean
   /**
    * The quantity. This field must not be null for the object to be valid.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private BigDecimal _quantity;
   /**
    * The link referencing the security, not null.
@@ -84,7 +84,7 @@ public class ManageableTrade extends DirectBean
   /**
    * The trade date.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private LocalDate _tradeDate;
   /**
    * The trade time with offset, null if not known.
@@ -302,7 +302,7 @@ public class ManageableTrade extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the quantity. This field must not be null for the object to be valid.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public BigDecimal getQuantity() {
     return _quantity;
@@ -310,9 +310,10 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Sets the quantity. This field must not be null for the object to be valid.
-   * @param quantity  the new value of the property
+   * @param quantity  the new value of the property, not null
    */
   public void setQuantity(BigDecimal quantity) {
+    JodaBeanUtils.notNull(quantity, "quantity");
     this._quantity = quantity;
   }
 
@@ -382,7 +383,7 @@ public class ManageableTrade extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the trade date.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public LocalDate getTradeDate() {
     return _tradeDate;
@@ -390,9 +391,10 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Sets the trade date.
-   * @param tradeDate  the new value of the property
+   * @param tradeDate  the new value of the property, not null
    */
   public void setTradeDate(LocalDate tradeDate) {
+    JodaBeanUtils.notNull(tradeDate, "tradeDate");
     this._tradeDate = tradeDate;
   }
 
@@ -1066,8 +1068,10 @@ public class ManageableTrade extends DirectBean
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableTrade) bean)._quantity, "quantity");
       JodaBeanUtils.notNull(((ManageableTrade) bean)._securityLink, "securityLink");
       JodaBeanUtils.notNull(((ManageableTrade) bean)._counterpartyExternalId, "counterpartyExternalId");
+      JodaBeanUtils.notNull(((ManageableTrade) bean)._tradeDate, "tradeDate");
       JodaBeanUtils.notNull(((ManageableTrade) bean)._attributes, "attributes");
     }
 

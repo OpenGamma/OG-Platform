@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.copier.portfolio.rowparser;
 
+import static com.opengamma.lambdava.streams.Lambdava.functional;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,6 +55,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.VarianceSwapLeg;
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetPortfolioWriter;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -104,7 +107,6 @@ public class JodaBeanRowParser extends RowParser {
    * The underlying security class(es) for the security class above
    */
   private final List<Class<?>> _underlyingSecurityClasses;
-
 
   /**
    *  Map from column name to the field's Java type
@@ -249,19 +251,27 @@ public class JodaBeanRowParser extends RowParser {
     ArgumentChecker.notNull(row, "row");
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(position, "position");
-    if (!row.containsKey("trade:securitylink")) {
-      if (row.containsKey("externalidbundle")) {
-        row.put("trade:securitylink", row.get("externalidbundle"));
+    if (functional(row.keySet()).any(new Function1<String, Boolean>() {
+      @Override
+      public Boolean execute(String columnName) {
+        return columnName.startsWith("trade:");
       }
-    }
-    final ManageableTrade result = (ManageableTrade) recursiveConstructBean(row, ManageableTrade.class, "trade:");
-    if (result != null) {
-      if (result.getTradeDate() == null) {
-        return null;
+    })) {
+      if (!row.containsKey("trade:securitylink")) {
+        if (row.containsKey("externalidbundle")) {
+          row.put("trade:securitylink", row.get("externalidbundle"));
+        }
       }
-      result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
+      final ManageableTrade result = (ManageableTrade) recursiveConstructBean(row, ManageableTrade.class, "trade:");
+      if (result != null) {
+        result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
+      } else {
+        throw new IllegalStateException("The trade was not constructed despite of trade data present in a row.");
+      }
+      return result;
+    } else {
+      return null;
     }
-    return result;
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

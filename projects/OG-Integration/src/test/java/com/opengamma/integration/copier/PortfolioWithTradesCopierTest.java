@@ -99,13 +99,6 @@ public class PortfolioWithTradesCopierTest {
     portfolioReader.close();
     portfolioWriter.close();
 
-    portfolioReader = new MasterPortfolioReader(PORTFOLIO_NAME, portfolioMaster, positionMaster, securitySource);
-    FileOutputStream fos = new FileOutputStream("out.csv");
-    portfolioWriter = new SingleSheetSimplePortfolioWriter(SheetFormat.CSV, fos, SECURITY_TYPE);
-    portfolioCopier.copy(portfolioReader, portfolioWriter);
-    portfolioReader.close();
-    portfolioWriter.close();
-
     // Compare source and destination
     try (CSVReader sourceReader = new CSVReader(new InputStreamReader(new FileInputStream(PORTFOLIO_FILE)))) {
       try (CSVReader destReader = new CSVReader(new InputStreamReader(new ByteArrayInputStream(outputStream.toByteArray())))) {
