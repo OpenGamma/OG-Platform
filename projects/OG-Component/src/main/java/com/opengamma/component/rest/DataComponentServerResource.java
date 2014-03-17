@@ -129,7 +129,7 @@ public class DataComponentServerResource extends AbstractDataResource {
       byType.put(info.getType(), info);
     }
     FreemarkerOutputter freemarker = new FreemarkerOutputter(servletContext);
-    FlexiBean out = freemarker.createRootData();
+    FlexiBean out = FreemarkerOutputter.createRootData(uriInfo);
     out.put("componentServer", server);
     out.put("infosByType", byType);
     out.put("uris", new WebHomeUris(uriInfo));

@@ -16,32 +16,26 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based exchanges.
  */
 @BeanDefinition
-public class WebExchangeData extends DirectBean {
+public class WebExchangeData extends WebPerRequestData {
 
   /**
    * The exchange master.
    */
   @PropertyDefinition
   private ExchangeMaster _exchangeMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The exchange id from the input URI.
    */
@@ -132,31 +126,6 @@ public class WebExchangeData extends DirectBean {
    */
   public final Property<ExchangeMaster> exchangeMaster() {
     return metaBean().exchangeMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -273,30 +242,29 @@ public class WebExchangeData extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       WebExchangeData other = (WebExchangeData) obj;
       return JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriExchangeId(), other.getUriExchangeId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriExchangeId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("WebExchangeData{");
     int len = buf.length();
     toString(buf);
@@ -307,9 +275,10 @@ public class WebExchangeData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("exchangeMaster").append('=').append(JodaBeanUtils.toString(getExchangeMaster())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("uriExchangeId").append('=').append(JodaBeanUtils.toString(getUriExchangeId())).append(',').append(' ');
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
     buf.append("exchange").append('=').append(JodaBeanUtils.toString(getExchange())).append(',').append(' ');
@@ -320,7 +289,7 @@ public class WebExchangeData extends DirectBean {
   /**
    * The meta-bean for {@code WebExchangeData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -331,11 +300,6 @@ public class WebExchangeData extends DirectBean {
      */
     private final MetaProperty<ExchangeMaster> _exchangeMaster = DirectMetaProperty.ofReadWrite(
         this, "exchangeMaster", WebExchangeData.class, ExchangeMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebExchangeData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriExchangeId} property.
      */
@@ -360,9 +324,8 @@ public class WebExchangeData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "exchangeMaster",
-        "uriInfo",
         "uriExchangeId",
         "uriVersionId",
         "exchange",
@@ -379,8 +342,6 @@ public class WebExchangeData extends DirectBean {
       switch (propertyName.hashCode()) {
         case -652001691:  // exchangeMaster
           return _exchangeMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 772498730:  // uriExchangeId
           return _uriExchangeId;
         case 666567687:  // uriVersionId
@@ -415,14 +376,6 @@ public class WebExchangeData extends DirectBean {
      */
     public final MetaProperty<ExchangeMaster> exchangeMaster() {
       return _exchangeMaster;
-    }
-
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
     }
 
     /**
@@ -463,8 +416,6 @@ public class WebExchangeData extends DirectBean {
       switch (propertyName.hashCode()) {
         case -652001691:  // exchangeMaster
           return ((WebExchangeData) bean).getExchangeMaster();
-        case -173275078:  // uriInfo
-          return ((WebExchangeData) bean).getUriInfo();
         case 772498730:  // uriExchangeId
           return ((WebExchangeData) bean).getUriExchangeId();
         case 666567687:  // uriVersionId
@@ -482,9 +433,6 @@ public class WebExchangeData extends DirectBean {
       switch (propertyName.hashCode()) {
         case -652001691:  // exchangeMaster
           ((WebExchangeData) bean).setExchangeMaster((ExchangeMaster) newValue);
-          return;
-        case -173275078:  // uriInfo
-          ((WebExchangeData) bean).setUriInfo((UriInfo) newValue);
           return;
         case 772498730:  // uriExchangeId
           ((WebExchangeData) bean).setUriExchangeId((String) newValue);

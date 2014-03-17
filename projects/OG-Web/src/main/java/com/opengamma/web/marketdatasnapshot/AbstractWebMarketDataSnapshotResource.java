@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.marketdatasnapshot;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.fudgemsg.FudgeContext;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -23,15 +20,14 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful market data snapshot resources.
- * 
  */
 @SuppressWarnings("deprecation")
-public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerRequestWebResource {
-    
+public abstract class AbstractWebMarketDataSnapshotResource
+    extends AbstractPerRequestWebResource<WebMarketDataSnapshotData> {
+
   /**
    * HTML ftl directory
    */
@@ -40,32 +36,30 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
    * JSON ftl directory
    */
   protected static final String JSON_DIR = "marketdatasnapshots/json/";
-  
+
   /**
    * The Fudge context.
    */
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-  /**
-   * The backing bean.
-   */
-  private final WebMarketDataSnapshotData _data;
 
   /**
    * Creates the resource.
+   * 
    * @param marketdataSnapshotMaster  the market data snapshot master, not null
    * @param configMaster  the config master, not null
-   * @param liveMarketDataProviderFactory the live market data provider factory, Either this or marketDataSpecificationRepository must be set
-   * @param marketDataSpecificationRepository the market data specification repository, not null
-   * @param configSource the config source, not null
-   * @param targetResolver the computation target resolver, not null
-   * @param viewProcessor the view processor, not null
-   * @param htsSource the historical timeseries source, not null
-   * @param volatilityCubeDefinitionSource the volatility cube definition source, not null
+   * @param liveMarketDataProviderFactory  the live market data provider factory, Either this or marketDataSpecificationRepository must be set
+   * @param marketDataSpecificationRepository  the market data specification repository, not null
+   * @param configSource  the config source, not null
+   * @param targetResolver  the computation target resolver, not null
+   * @param viewProcessor  the view processor, not null
+   * @param htsSource  the historical timeseries source, not null
+   * @param volatilityCubeDefinitionSource  the volatility cube definition source, not null
    */
-  protected AbstractWebMarketDataSnapshotResource(final MarketDataSnapshotMaster marketdataSnapshotMaster, final ConfigMaster configMaster, 
+  protected AbstractWebMarketDataSnapshotResource(final MarketDataSnapshotMaster marketdataSnapshotMaster, final ConfigMaster configMaster,
       final LiveMarketDataProviderFactory liveMarketDataProviderFactory, final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
       final ComputationTargetResolver targetResolver, final ViewProcessor viewProcessor, final HistoricalTimeSeriesSource htsSource,
       final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    super(new WebMarketDataSnapshotData());
     ArgumentChecker.notNull(marketdataSnapshotMaster, "marketdataSnapshotMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(configSource, "configSource");
@@ -75,7 +69,6 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
     ArgumentChecker.isFalse(liveMarketDataProviderFactory == null && marketDataSpecificationRepository == null, "liveMarketDataProviderFactory or marketDataSpecificationRepository must be set");
     ArgumentChecker.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     
-    _data = new WebMarketDataSnapshotData();
     data().setMarketDataSnapshotMaster(marketdataSnapshotMaster);
     data().setConfigMaster(configMaster);
     data().setMarketDataSpecificationRepository(marketDataSpecificationRepository);
@@ -90,45 +83,27 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebMarketDataSnapshotResource(final AbstractWebMarketDataSnapshotResource parent) {
     super(parent);
-    _data = parent._data;
   }
-  
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
-  }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebMarketDataSnapshotUris(data()));
     return out;
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebMarketDataSnapshotData data() {
-    return _data;
-  }
-  
   /**
    * Gets the fudgeContext.
    * @return the fudgeContext
@@ -136,5 +111,5 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
+
 }

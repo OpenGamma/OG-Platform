@@ -17,8 +17,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
@@ -44,6 +42,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -93,6 +92,12 @@ public class DiscountingInterpolatedPV01Function extends DiscountingInterpolated
         final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
         results.add(new ComputedValue(spec, 0.));
         return results;
+      }
+
+      @Override
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+                                        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+        return getValues(executionContext, inputs, target, desiredValues, null, null);
       }
 
       @Override

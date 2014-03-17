@@ -7,6 +7,9 @@ package com.opengamma.web;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
+
+import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -20,8 +23,10 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * Websites and web-services are related but different RESTful elements.
  * This is because a website needs to bend the RESTful rules in order to be usable.
+ * 
+ * @param <T>  the data subclass
  */
-public abstract class AbstractPerRequestWebResource extends AbstractWebResource {
+public abstract class AbstractPerRequestWebResource<T extends WebPerRequestData> extends AbstractWebResource {
 
   /**
    * The servlet context.
@@ -31,12 +36,19 @@ public abstract class AbstractPerRequestWebResource extends AbstractWebResource 
    * The Freemarker outputter.
    */
   private FreemarkerOutputter _freemarker;
-  
+  /**
+   * The data.
+   */
+  private T _data;
+
   /**
    * Creates the resource, used by the root resource.
+   * 
+   * @param data  the per-request data, not null
    */
-  protected AbstractPerRequestWebResource() {
+  protected AbstractPerRequestWebResource(T data) {
     // see setServletContext()
+    _data = ArgumentChecker.notNull(data, "data");
   }
 
   /**
@@ -44,10 +56,11 @@ public abstract class AbstractPerRequestWebResource extends AbstractWebResource 
    * 
    * @param parent  the parent resource, not null
    */
-  protected AbstractPerRequestWebResource(final AbstractPerRequestWebResource parent) {
+  protected AbstractPerRequestWebResource(final AbstractPerRequestWebResource<T> parent) {
     ArgumentChecker.notNull(parent, "parent");
     _servletContext = parent._servletContext;
     _freemarker = parent._freemarker;
+    _data = parent._data;
   }
 
   //-------------------------------------------------------------------------
@@ -74,6 +87,46 @@ public abstract class AbstractPerRequestWebResource extends AbstractWebResource 
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the URI info.
+   * 
+   * @return the URI info, not null
+   */
+  public UriInfo getUriInfo() {
+    return _data.getUriInfo();
+  }
+
+  /**
+   * Setter used to inject the URIInfo.
+   * This is a roundabout approach, because Spring and JSR-311 injection clash.
+   * DO NOT CALL THIS METHOD DIRECTLY.
+   * @param uriInfo  the URI info, not null
+   */
+  @Context
+  public final void setUriInfo(final UriInfo uriInfo) {
+    _data.setUriInfo(uriInfo);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the data.
+   * 
+   * @return the data, not null
+   */
+  public T data() {
+    return _data;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * 
+   * @return the output root data, not null
+   */
+  protected FlexiBean createRootData() {
+    return FreemarkerOutputter.createRootData(getUriInfo());
+  }
+
   /**
    * Gets the Freemarker outputer.
    * 

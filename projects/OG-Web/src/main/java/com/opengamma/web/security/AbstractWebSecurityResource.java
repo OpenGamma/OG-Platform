@@ -10,9 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -40,12 +37,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful security resources.
  */
-public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebSecurityResource
+    extends AbstractPerRequestWebResource<WebSecuritiesData> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
@@ -63,16 +60,13 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   protected static final String JSON_DIR = "securities/json/";
 
   /**
-   * The backing bean.
-   */
-  private final WebSecuritiesData _data;
-  /**
    * The template name provider
    */
   private final SecurityTemplateNameProvider _templateNameProvider = new SecurityTemplateNameProvider();
 
   /**
    * Creates the resource.
+   * 
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
@@ -80,11 +74,11 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
    */
   protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, 
       final LegalEntityMaster legalEntityMaster) {
+    super(new WebSecuritiesData());
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
-    _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);
     data().setHistoricalTimeSeriesMaster(htsMaster);
@@ -93,49 +87,29 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebSecurityResource(final AbstractWebSecurityResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebSecuritiesUris(data()));
     return out;
   }
 
   //-------------------------------------------------------------------------
-
   /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebSecuritiesData data() {
-    return _data;
-  }
-  
-  /**
-   * Gets the security template provider
+   * Gets the security template provider.
+   * 
    * @return the template provider, not null
    */
   protected SecurityTemplateNameProvider getTemplateProvider() {

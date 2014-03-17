@@ -9,9 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -40,7 +40,7 @@ public class ResultTest {
     Result<Object> failure2 = Result.failure(FailureStatus.ERROR, "failure 2");
     Result<Object> composite1 = Result.failure(success1, success2, failure1, failure2);
     Collection<Failure> failures = composite1.getFailures();
-    List<Failure> expected = new ArrayList<>();
+    Set<Failure> expected = new HashSet<>();
     expected.addAll(failure1.getFailures());
     expected.addAll(failure2.getFailures());
     assertEquals(expected, failures);

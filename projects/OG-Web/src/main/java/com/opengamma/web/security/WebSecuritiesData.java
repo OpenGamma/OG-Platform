@@ -16,9 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -28,12 +26,13 @@ import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based securities.
  */
 @BeanDefinition
-public class WebSecuritiesData extends DirectBean {
+public class WebSecuritiesData extends WebPerRequestData {
 
   /**
    * The security master.
@@ -50,11 +49,6 @@ public class WebSecuritiesData extends DirectBean {
    */
   @PropertyDefinition
   private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The security id from the input URI.
    */
@@ -204,31 +198,6 @@ public class WebSecuritiesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the security id from the input URI.
    * @return the value of the property
    */
@@ -368,34 +337,33 @@ public class WebSecuritiesData extends DirectBean {
       return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster());
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriSecurityId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("WebSecuritiesData{");
     int len = buf.length();
     toString(buf);
@@ -406,11 +374,12 @@ public class WebSecuritiesData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
     buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
     buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("uriSecurityId").append('=').append(JodaBeanUtils.toString(getUriSecurityId())).append(',').append(' ');
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
     buf.append("security").append('=').append(JodaBeanUtils.toString(getSecurity())).append(',').append(' ');
@@ -422,7 +391,7 @@ public class WebSecuritiesData extends DirectBean {
   /**
    * The meta-bean for {@code WebSecuritiesData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -443,11 +412,6 @@ public class WebSecuritiesData extends DirectBean {
      */
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesMaster", WebSecuritiesData.class, HistoricalTimeSeriesMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebSecuritiesData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriSecurityId} property.
      */
@@ -477,11 +441,10 @@ public class WebSecuritiesData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "securityMaster",
         "securityLoader",
         "historicalTimeSeriesMaster",
-        "uriInfo",
         "uriSecurityId",
         "uriVersionId",
         "security",
@@ -503,8 +466,6 @@ public class WebSecuritiesData extends DirectBean {
           return _securityLoader;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 1433303815:  // uriSecurityId
           return _uriSecurityId;
         case 666567687:  // uriVersionId
@@ -560,14 +521,6 @@ public class WebSecuritiesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code uriSecurityId} property.
      * @return the meta-property, not null
      */
@@ -617,8 +570,6 @@ public class WebSecuritiesData extends DirectBean {
           return ((WebSecuritiesData) bean).getSecurityLoader();
         case 173967376:  // historicalTimeSeriesMaster
           return ((WebSecuritiesData) bean).getHistoricalTimeSeriesMaster();
-        case -173275078:  // uriInfo
-          return ((WebSecuritiesData) bean).getUriInfo();
         case 1433303815:  // uriSecurityId
           return ((WebSecuritiesData) bean).getUriSecurityId();
         case 666567687:  // uriVersionId
@@ -644,9 +595,6 @@ public class WebSecuritiesData extends DirectBean {
           return;
         case 173967376:  // historicalTimeSeriesMaster
           ((WebSecuritiesData) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-          return;
-        case -173275078:  // uriInfo
-          ((WebSecuritiesData) bean).setUriInfo((UriInfo) newValue);
           return;
         case 1433303815:  // uriSecurityId
           ((WebSecuritiesData) bean).setUriSecurityId((String) newValue);

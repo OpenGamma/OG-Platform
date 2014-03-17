@@ -53,7 +53,7 @@ public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecuri
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
-    _uriInfo = new MockUriInfo();
+    _uriInfo = new MockUriInfo(true);
     _secMaster = new InMemorySecurityMaster();
     _secLoader = new AbstractSecurityLoader() {
       @Override

@@ -313,9 +313,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     if (volReq == null) {
       return null;
     }
-    final ValueRequirement marketValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification());
     // Return the set
-    return Sets.newHashSet(discountingReq, volReq, forwardCurveReq, marketValueRequirement);
+    return Sets.newHashSet(discountingReq, volReq, forwardCurveReq);
   }
 
   /**

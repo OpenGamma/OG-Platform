@@ -7,9 +7,6 @@ package com.opengamma.web.config;
 
 import java.util.Map.Entry;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.view.ViewDefinition;
@@ -24,7 +21,6 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpe
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
 import com.opengamma.web.json.FXForwardCurveDefinitionJSONBuilder;
 import com.opengamma.web.json.FXForwardCurveSpecificationJSONBuilder;
@@ -37,14 +33,14 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
 /**
  * Abstract base class for RESTful config resources.
- * 
  */
-public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
+public abstract class AbstractWebConfigResource
+    extends AbstractPerRequestWebResource<WebConfigData> {
+
   /**
    * Config xml form parameter name 
    */
   protected static final String CONFIG_XML = "configXML";
-    
   /**
    * HTML ftl directory
    */
@@ -57,19 +53,15 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
    * The Config Types provider
    */
   private final ConfigTypesProvider _configTypesProvider = ConfigTypesProvider.getInstance();
-  
-  /**
-   * The backing bean.
-   */
-  private final WebConfigData _data;
 
   /**
    * Creates the resource.
+   * 
    * @param configMaster  the config master, not null
    */
   protected AbstractWebConfigResource(final ConfigMaster configMaster) {
+    super(new WebConfigData());
     ArgumentChecker.notNull(configMaster, "configMaster");
-    _data = new WebConfigData();
     data().setConfigMaster(configMaster);
     initializeMetaData();
     initializeJSONBuilders();
@@ -81,7 +73,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
       data().getTypeMap().put(entry.getKey(), entry.getValue());
     }
   }
-  
+
   private void initializeJSONBuilders() {
     data().getJsonBuilderMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.INSTANCE);
@@ -96,51 +88,34 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
 
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   protected AbstractWebConfigResource(final AbstractWebConfigResource parent) {
     super(parent);
-    _data = parent._data;
-  }
-  
-  /**
-   * Setter used to inject the URIInfo.
-   * This is a roundabout approach, because Spring and JSR-311 injection clash.
-   * DO NOT CALL THIS METHOD DIRECTLY.
-   * @param uriInfo  the URI info, not null
-   */
-  @Context
-  public void setUriInfo(final UriInfo uriInfo) {
-    data().setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
-    FlexiBean out = getFreemarker().createRootData();
-    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    FlexiBean out = super.createRootData();
     out.put("uris", new WebConfigUris(data()));
     return out;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the backing bean.
-   * @return the backing bean, not null
-   */
-  protected WebConfigData data() {
-    return _data;
-  }
-
-  /**
    * Gets the configTypesProvider.
+   * 
    * @return the configTypesProvider
    */
   public ConfigTypesProvider getConfigTypesProvider() {
     return _configTypesProvider;
   }
-  
+
 }

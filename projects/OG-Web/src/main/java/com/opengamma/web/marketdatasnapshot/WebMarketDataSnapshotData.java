@@ -16,9 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -33,13 +31,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based market data snapshot management.
  */
 @SuppressWarnings("deprecation")
 @BeanDefinition
-public class WebMarketDataSnapshotData extends DirectBean {
+public class WebMarketDataSnapshotData extends WebPerRequestData {
   /**
    * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
    */
@@ -78,11 +77,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
    */
   @PropertyDefinition
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The snapshot id from the input URI.
    */
@@ -346,31 +340,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the snapshot id from the input URI.
    * @return the value of the property
    */
@@ -539,20 +508,20 @@ public class WebMarketDataSnapshotData extends DirectBean {
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriSnapshotId(), other.getUriSnapshotId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getSnapshot(), other.getSnapshot()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
@@ -560,19 +529,18 @@ public class WebMarketDataSnapshotData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriSnapshotId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshot());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(480);
+    StringBuilder buf = new StringBuilder(448);
     buf.append("WebMarketDataSnapshotData{");
     int len = buf.length();
     toString(buf);
@@ -583,7 +551,9 @@ public class WebMarketDataSnapshotData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("marketDataSpecificationRepository").append('=').append(JodaBeanUtils.toString(getMarketDataSpecificationRepository())).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
@@ -591,7 +561,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
     buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
     buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
     buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("uriSnapshotId").append('=').append(JodaBeanUtils.toString(getUriSnapshotId())).append(',').append(' ');
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
     buf.append("snapshot").append('=').append(JodaBeanUtils.toString(getSnapshot())).append(',').append(' ');
@@ -604,7 +573,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   /**
    * The meta-bean for {@code WebMarketDataSnapshotData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -646,11 +615,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
     private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesSource", WebMarketDataSnapshotData.class, HistoricalTimeSeriesSource.class);
     /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebMarketDataSnapshotData.class, UriInfo.class);
-    /**
      * The meta-property for the {@code uriSnapshotId} property.
      */
     private final MetaProperty<String> _uriSnapshotId = DirectMetaProperty.ofReadWrite(
@@ -684,7 +648,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository",
         "marketDataSnapshotMaster",
@@ -692,7 +656,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
         "viewProcessor",
         "computationTargetResolver",
         "historicalTimeSeriesSource",
-        "uriInfo",
         "uriSnapshotId",
         "uriVersionId",
         "snapshot",
@@ -723,8 +686,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
           return _computationTargetResolver;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case -1254537077:  // uriSnapshotId
           return _uriSnapshotId;
         case 666567687:  // uriVersionId
@@ -816,14 +777,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code uriSnapshotId} property.
      * @return the meta-property, not null
      */
@@ -889,8 +842,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
           return ((WebMarketDataSnapshotData) bean).getComputationTargetResolver();
         case 358729161:  // historicalTimeSeriesSource
           return ((WebMarketDataSnapshotData) bean).getHistoricalTimeSeriesSource();
-        case -173275078:  // uriInfo
-          return ((WebMarketDataSnapshotData) bean).getUriInfo();
         case -1254537077:  // uriSnapshotId
           return ((WebMarketDataSnapshotData) bean).getUriSnapshotId();
         case 666567687:  // uriVersionId
@@ -930,9 +881,6 @@ public class WebMarketDataSnapshotData extends DirectBean {
           return;
         case 358729161:  // historicalTimeSeriesSource
           ((WebMarketDataSnapshotData) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-          return;
-        case -173275078:  // uriInfo
-          ((WebMarketDataSnapshotData) bean).setUriInfo((UriInfo) newValue);
           return;
         case -1254537077:  // uriSnapshotId
           ((WebMarketDataSnapshotData) bean).setUriSnapshotId((String) newValue);

@@ -263,11 +263,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected Set<Class<?>> initMasters(ComponentRepository repo, Map<ExternalScheme, String> externalSchemes) {
-    
     final MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
-    
     Map<Class<?>, List<Object>> resourceParameters = extractResourceParams(externalSchemes, configSource);
-    
     Set<Class<?>> publishedTypes = Sets.newHashSet();
     for (Class<?> clazz : resourceParameters.keySet()) {
       List<Object> params = resourceParameters.get(clazz);
@@ -277,15 +274,12 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         publishedTypes.add(clazz);
       }
     }
-    
     return publishedTypes;
-    
   }
 
   //builds a map of type -> constructor params
   private Map<Class<?>, List<Object>> extractResourceParams(Map<ExternalScheme, String> externalSchemes, final MasterConfigSource configSource) {
     Map<Class<?>, List<Object>> resourceParameters = Maps.newHashMap();
-    
     resourceParameters.put(WebConfigsResource.class,   params(getConfigMaster()));
     resourceParameters.put(WebExchangesResource.class, params(getExchangeMaster()));
     resourceParameters.put(WebHolidaysResource.class,  params(getHolidayMaster()));
@@ -302,17 +296,20 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         Optional.fromNullable(getMarketDataSpecificationRepository()), configSource, getComputationTargetResolver(), 
         getViewProcessor(), getHistoricalTimeSeriesSource(), getVolatilityCubeDefinitionSource()));
     resourceParameters.put(WebFunctionsResource.class, params(getFunctionConfigurationSource()));
-    
     return resourceParameters;
   }
-  
+
+  // needed to get generics right
   private List<Object> params(Object... params) {
     return Lists.newArrayList(params);
   }
-  
-  
+
   private JerseyRestResourceFactory createRestFactory(Class<?> type, List<Object> arguments) {
-    
+    // if data not available do not build
+    if (Iterables.contains(arguments, null)) {
+      return null;
+    }
+    // unbox optional and build
     for (ListIterator<Object> it = arguments.listIterator(); it.hasNext(); ) {
       Object obj = it.next();
       if (obj instanceof Optional) {
@@ -320,14 +317,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         it.set(wrappedObj);
       }
     }
-    
-    if (Iterables.contains(arguments, null)) {
-      return null;
-    } else {
-      return new JerseyRestResourceFactory(type, arguments.toArray(new Object[arguments.size()]));
-    }
+    return new JerseyRestResourceFactory(type, arguments.toArray(new Object[arguments.size()]));
   }
-  
+
   protected void initValueRequirementNames(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     String valueRequirementNameClasses = configuration.get(WebValueRequirementNamesResource.VALUE_REQUIREMENT_NAME_CLASSES);
     configuration.remove(WebValueRequirementNamesResource.VALUE_REQUIREMENT_NAME_CLASSES);

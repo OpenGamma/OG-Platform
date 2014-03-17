@@ -65,6 +65,14 @@ To 2.2.0-M14
 
 To 2.2.0-M13
 ------------
+- PLAT-6137 - AbstractPerRequestWebResource has been refactored to extract common code requiring changes in subclasses.
+      If you have your own web resource class, you need to remove setUriInfo(), remove data(), create an empty
+      data object in the constructor and pass it to the superclass, remove the instance variable for data, and
+      make all data classes extend WebPerRequestData.
+
+
+To 2.2.0-M13
+------------
 - PLAT-6049 - CombinedPositionMasterComponentFactory to use arbitrary number of masters
       This change will require modifications to server configuration files(.ini). It requires a default position master and a list of other masters that will be combined into a single positionmaster
       e.g

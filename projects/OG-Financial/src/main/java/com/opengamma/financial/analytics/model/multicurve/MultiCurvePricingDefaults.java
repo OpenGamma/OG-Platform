@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.multicurve;
 import static com.opengamma.engine.value.ValueRequirementNames.ACCRUED_INTEREST;
 import static com.opengamma.engine.value.ValueRequirementNames.ALL_PV01S;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
+import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.CONVEXITY;
@@ -48,6 +49,7 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
     ACCRUED_INTEREST,
     ALL_PV01S,
     BLOCK_CURVE_SENSITIVITIES,
+    BOND_DETAILS,
     BUCKETED_PV01,
     CLEAN_PRICE,
     CONVEXITY,
@@ -100,7 +102,7 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    switch(propertyName) {
+    switch (propertyName) {
       case PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE:
         return _absoluteTolerance;
       case PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE:

@@ -33,7 +33,7 @@ public class WebHomeUris {
   //-------------------------------------------------------------------------
   /**
    * Gets the URI of the home page.
-   * @return the URI
+   * @return the URI, not null
    */
   public URI home() {
     return WebHomeResource.uri(_uriInfo);
@@ -41,7 +41,7 @@ public class WebHomeUris {
 
   /**
    * Gets the URI of the about page.
-   * @return the URI
+   * @return the URI, not null
    */
   public URI about() {
     return WebAboutResource.uri(_uriInfo);

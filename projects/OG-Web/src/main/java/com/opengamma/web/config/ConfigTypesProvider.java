@@ -59,7 +59,7 @@ public final class ConfigTypesProvider {
    * Restricted constructor
    */
   private ConfigTypesProvider() {
-    _configGroupMap = new TreeMap();
+    _configGroupMap = new TreeMap<>();
     Map<String, Class<?>> result = Maps.newHashMap();
     ImmutableSortedMap.Builder<String, String> descriptions = ImmutableSortedMap.naturalOrder();
     AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();

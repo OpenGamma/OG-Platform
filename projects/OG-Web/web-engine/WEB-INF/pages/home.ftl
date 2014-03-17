@@ -23,6 +23,7 @@
       <@link text="Positions" uriObj=positionUris!""/>
       <@link text="Regions" uriObj=regionUris!""/>
       <@link text="Securities" uriObj=securityUris!""/>
+      <@link text="Snapshots" uriObj=snapshotUris!""/>
       <@link text="Time Series" uriObj=timeseriesUris!""/>
     </ul>
   </p>

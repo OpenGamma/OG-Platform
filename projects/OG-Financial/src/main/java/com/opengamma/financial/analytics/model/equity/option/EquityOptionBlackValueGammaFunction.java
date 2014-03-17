@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -56,7 +57,10 @@ public class EquityOptionBlackValueGammaFunction extends EquityOptionBlackFuncti
     if (requirements == null) {
       return null;
     }
-    requirements.add(new ValueRequirement(ValueRequirementNames.GAMMA, target.toSpecification(), desiredValue.getConstraints()));
+    final ValueProperties properties = desiredValue.getConstraints().copy()
+        .withoutAny(ValuePropertyNames.CURRENCY)
+        .get();
+    requirements.add(new ValueRequirement(ValueRequirementNames.GAMMA, target.toSpecification(), properties));
     return requirements;
   }
 

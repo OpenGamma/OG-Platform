@@ -16,7 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.ImmutableList;
@@ -62,7 +62,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * RESTful resource for the home page.
  */
 @Path("/")
-public class WebHomeResource extends AbstractWebResource {
+public class WebHomeResource extends AbstractSingletonWebResource {
 
   
   private final Set<Class<?>> _publishedTypes;
@@ -100,21 +100,20 @@ public class WebHomeResource extends AbstractWebResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String get(@Context ServletContext servletContext, @Context UriInfo uriInfo) {
-    FreemarkerOutputter freemarker = new FreemarkerOutputter(servletContext);
-    FlexiBean out = freemarker.createRootData();
-    out = createRootData(out, uriInfo);
-    return freemarker.build("home.ftl", out);
+    FlexiBean out = createRootData(uriInfo);
+    return getFreemarker(servletContext).build("home.ftl", out);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
    * 
-   * @param out  the root data to populate, not null
    * @param uriInfo  the URI information, not null
    * @return the output root data, not null
    */
-  protected FlexiBean createRootData(FlexiBean out, UriInfo uriInfo) {
+  @Override
+  protected FlexiBean createRootData(UriInfo uriInfo) {
+    FlexiBean out = super.createRootData(uriInfo);
     out.put("uris", new WebHomeUris(uriInfo));
     
     for (ResourceConfig config : s_resourceConfigs) {
@@ -128,29 +127,27 @@ public class WebHomeResource extends AbstractWebResource {
 
   private Object createUriObj(ResourceConfig resourceConfig, UriInfo uriInfo) {
     try {
-      DirectBean dataInstance = resourceConfig._dataClazz.newInstance();
+      Bean dataInstance = resourceConfig._dataClazz.newInstance();
       dataInstance.property("uriInfo").set(uriInfo);
       return resourceConfig._uris.getConstructor(resourceConfig._dataClazz).newInstance(dataInstance);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to create uri for resource " + resourceConfig._name);
     }
   }
-  
+
   private static class ResourceConfig {
     private final Class<?> _resourceType;
-    private final Class<? extends DirectBean> _dataClazz;
+    private final Class<? extends Bean> _dataClazz;
     private final Class<?> _uris;
     private final String _name;
     
-    public ResourceConfig(Class<?> resourceType, Class<? extends DirectBean> dataClazz, Class<?> uris, String name) {
+    public ResourceConfig(Class<?> resourceType, Class<? extends Bean> dataClazz, Class<?> uris, String name) {
       _resourceType = resourceType;
       _dataClazz = dataClazz;
       _uris = uris;
       _name = name;
     }
-    
   }
-  
 
   //-------------------------------------------------------------------------
   /**

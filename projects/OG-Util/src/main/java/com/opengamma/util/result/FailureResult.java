@@ -5,9 +5,9 @@
  */
 package com.opengamma.util.result;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,7 +41,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class FailureResult<T> extends Result<T> implements ImmutableBean {
 
   @PropertyDefinition(validate = "notNull", get = "manual")
-  private final List<Failure> _failures;
+  private final Set<Failure> _failures;
 
   @PropertyDefinition(validate = "notNull", get = "manual")
   private final FailureStatus _status;
@@ -51,7 +51,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
 
   @ImmutableConstructor
   private FailureResult(Collection<Failure> failures, FailureStatus status, String message) {
-    _failures = ImmutableList.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
+    _failures = ImmutableSet.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
     _status = ArgumentChecker.notNull(status, "status");
     _message = ArgumentChecker.notEmpty(message, "message");
   }
@@ -106,7 +106,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
   }
 
   @Override
-  public Collection<Failure> getFailures() {
+  public Set<Failure> getFailures() {
     return _failures;
   }
 
@@ -274,8 +274,8 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
      * The meta-property for the {@code failures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Failure>> _failures = DirectMetaProperty.ofImmutable(
-        this, "failures", FailureResult.class, (Class) List.class);
+    private final MetaProperty<Set<Failure>> _failures = DirectMetaProperty.ofImmutable(
+        this, "failures", FailureResult.class, (Class) Set.class);
     /**
      * The meta-property for the {@code status} property.
      */
@@ -335,7 +335,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
      * The meta-property for the {@code failures} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<Failure>> failures() {
+    public MetaProperty<Set<Failure>> failures() {
       return _failures;
     }
 
@@ -386,7 +386,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
    */
   public static final class Builder<T> extends DirectFieldsBeanBuilder<FailureResult<T>> {
 
-    private List<Failure> _failures = new ArrayList<Failure>();
+    private Set<Failure> _failures = new HashSet<Failure>();
     private FailureStatus _status;
     private String _message;
 
@@ -401,7 +401,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FailureResult<T> beanToCopy) {
-      this._failures = new ArrayList<Failure>(beanToCopy.getFailures());
+      this._failures = new HashSet<Failure>(beanToCopy.getFailures());
       this._status = beanToCopy.getStatus();
       this._message = beanToCopy.getMessage();
     }
@@ -426,7 +426,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 675938345:  // failures
-          this._failures = (List<Failure>) newValue;
+          this._failures = (Set<Failure>) newValue;
           break;
         case -892481550:  // status
           this._status = (FailureStatus) newValue;
@@ -478,7 +478,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
      * @param failures  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> failures(List<Failure> failures) {
+    public Builder<T> failures(Set<Failure> failures) {
       JodaBeanUtils.notNull(failures, "failures");
       this._failures = failures;
       return this;

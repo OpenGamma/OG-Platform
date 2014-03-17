@@ -11,8 +11,7 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.riskfactor.ValueDeltaCalculator;
-import com.opengamma.analytics.financial.riskfactor.ValueGreekCalculator;
+import com.opengamma.analytics.financial.riskfactor.ValueVegaCalculator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -25,30 +24,30 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the value delta of an equity index or equity option using the Black delta.
+ * Calculates the value theta of an equity index or equity option using the Black theta.
  */
-public class EquityOptionBlackValueDeltaFunction extends EquityOptionBlackFunction {
-  /** Value delta calculator */
-  private static final ValueGreekCalculator CALCULATOR = ValueDeltaCalculator.getInstance();
+public class EquityOptionBlackValueThetaFunction extends EquityOptionBlackFunction {
+  /** Value theta calculator */
+  private static final ValueVegaCalculator CALCULATOR = ValueVegaCalculator.getInstance();
 
   /**
-   * Default constructor
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_THETA}
    */
-  public EquityOptionBlackValueDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+  public EquityOptionBlackValueThetaFunction() {
+    super(ValueRequirementNames.VALUE_THETA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final Object deltaObject = inputs.getValue(ValueRequirementNames.DELTA);
-    if (deltaObject == null) {
-      throw new OpenGammaRuntimeException("Could not get delta");
+    final Object thetaObject = inputs.getValue(ValueRequirementNames.THETA);
+    if (thetaObject == null) {
+      throw new OpenGammaRuntimeException("Could not get theta");
     }
-    final double delta = (Double) deltaObject;
-    final double valueDelta = CALCULATOR.valueGreek(derivative, market, delta);
-    return Collections.singleton(new ComputedValue(resultSpec, valueDelta));
+    final double theta = (Double) thetaObject;
+    final double valueTheta = CALCULATOR.valueGreek(derivative, market, theta);
+    return Collections.singleton(new ComputedValue(resultSpec, valueTheta));
   }
 
   @Override
@@ -60,7 +59,7 @@ public class EquityOptionBlackValueDeltaFunction extends EquityOptionBlackFuncti
     final ValueProperties properties = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.CURRENCY)
         .get();
-    requirements.add(new ValueRequirement(ValueRequirementNames.DELTA, target.toSpecification(), properties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.THETA, target.toSpecification(), properties));
     return requirements;
   }
 

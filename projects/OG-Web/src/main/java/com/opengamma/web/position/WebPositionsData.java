@@ -16,9 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -30,12 +28,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based positions.
  */
 @BeanDefinition
-public class WebPositionsData extends DirectBean {
+public class WebPositionsData extends WebPerRequestData {
   /**
    * The position master.
    */
@@ -56,11 +55,6 @@ public class WebPositionsData extends DirectBean {
    */
   @PropertyDefinition
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The position id from the input URI.
    */
@@ -86,6 +80,7 @@ public class WebPositionsData extends DirectBean {
    */
   @PropertyDefinition
   private final Map<ExternalScheme, String> _externalSchemes = Maps.newHashMap();
+
   /**
    * Creates an instance.
    */
@@ -234,31 +229,6 @@ public class WebPositionsData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the position id from the input URI.
    * @return the value of the property
    */
@@ -401,35 +371,34 @@ public class WebPositionsData extends DirectBean {
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriPositionId(), other.getUriPositionId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getPosition(), other.getPosition()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getExternalSchemes(), other.getExternalSchemes());
+          JodaBeanUtils.equal(getExternalSchemes(), other.getExternalSchemes()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPosition());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSchemes());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("WebPositionsData{");
     int len = buf.length();
     toString(buf);
@@ -440,12 +409,13 @@ public class WebPositionsData extends DirectBean {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
     buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
     buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
     buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("uriPositionId").append('=').append(JodaBeanUtils.toString(getUriPositionId())).append(',').append(' ');
     buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
     buf.append("position").append('=').append(JodaBeanUtils.toString(getPosition())).append(',').append(' ');
@@ -457,7 +427,7 @@ public class WebPositionsData extends DirectBean {
   /**
    * The meta-bean for {@code WebPositionsData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -483,11 +453,6 @@ public class WebPositionsData extends DirectBean {
      */
     private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesSource", WebPositionsData.class, HistoricalTimeSeriesSource.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebPositionsData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriPositionId} property.
      */
@@ -518,12 +483,11 @@ public class WebPositionsData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "positionMaster",
         "securityLoader",
         "securitySource",
         "historicalTimeSeriesSource",
-        "uriInfo",
         "uriPositionId",
         "uriVersionId",
         "position",
@@ -547,8 +511,6 @@ public class WebPositionsData extends DirectBean {
           return _securitySource;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 1240319664:  // uriPositionId
           return _uriPositionId;
         case 666567687:  // uriVersionId
@@ -612,14 +574,6 @@ public class WebPositionsData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code uriPositionId} property.
      * @return the meta-property, not null
      */
@@ -671,8 +625,6 @@ public class WebPositionsData extends DirectBean {
           return ((WebPositionsData) bean).getSecuritySource();
         case 358729161:  // historicalTimeSeriesSource
           return ((WebPositionsData) bean).getHistoricalTimeSeriesSource();
-        case -173275078:  // uriInfo
-          return ((WebPositionsData) bean).getUriInfo();
         case 1240319664:  // uriPositionId
           return ((WebPositionsData) bean).getUriPositionId();
         case 666567687:  // uriVersionId
@@ -703,9 +655,6 @@ public class WebPositionsData extends DirectBean {
         case 358729161:  // historicalTimeSeriesSource
           ((WebPositionsData) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
           return;
-        case -173275078:  // uriInfo
-          ((WebPositionsData) bean).setUriInfo((UriInfo) newValue);
-          return;
         case 1240319664:  // uriPositionId
           ((WebPositionsData) bean).setUriPositionId((String) newValue);
           return;
@@ -728,6 +677,7 @@ public class WebPositionsData extends DirectBean {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((WebPositionsData) bean)._externalSchemes, "externalSchemes");
+      super.validate(bean);
     }
 
   }
