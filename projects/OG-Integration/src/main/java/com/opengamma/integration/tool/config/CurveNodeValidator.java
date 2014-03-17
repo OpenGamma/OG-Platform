@@ -5,14 +5,12 @@
  */
 package com.opengamma.integration.tool.config;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.convention.Convention;
-import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
@@ -39,8 +37,6 @@ import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.convention.ManageableConvention;
-import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -200,7 +196,7 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
   public Void visitPeriodicallyCompoundedRateNode(PeriodicallyCompoundedRateNode node) {
     ExternalId id;
     try {
-      id = _curveNodeIdMapper.getContinuouslyCompoundedRateNodeId(_curveDate, node.getTenor());
+      id = _curveNodeIdMapper.getPeriodicallyCompoundedRateNodeId(_curveDate, node.getTenor());
     } catch (OpenGammaRuntimeException ogre) {
       id = null;
     }
