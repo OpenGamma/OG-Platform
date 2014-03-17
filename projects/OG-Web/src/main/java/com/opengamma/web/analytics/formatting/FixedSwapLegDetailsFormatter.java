@@ -82,8 +82,8 @@ import com.opengamma.util.money.CurrencyAmount;
     results.put(Y_LABELS, yLabels);
     Object[][] values = new Object[rowCount][COLUMN_COUNT];
     for (int i = 0; i < rowCount; i++) {
-      values[i][0] = value.getAccrualStart()[i].toString();
-      values[i][1] = value.getAccrualEnd()[i].toString();
+      values[i][0] = value.getAccrualStart()[i] == null ? "-" : value.getAccrualStart()[i].toString();
+      values[i][1] = value.getAccrualEnd()[i] == null ? "-" : value.getAccrualEnd()[i].toString();
       values[i][2] = value.getDiscountFactors()[i];
       values[i][3] = value.getPaymentTimes()[i];
       values[i][4] = value.getPaymentFractions()[i];
