@@ -176,8 +176,8 @@ public class XlsSheetReader extends SheetReader {
     }
     switch (cell.getCellType()) {
       case Cell.CELL_TYPE_NUMERIC:
-        //return Double.toString(cell.getNumericCellValue());
-        return (new DecimalFormat("#.##")).format(cell.getNumericCellValue());
+        return Double.toString(cell.getNumericCellValue());
+        //return (new DecimalFormat("#.##")).format(cell.getNumericCellValue());
       case Cell.CELL_TYPE_STRING:
         return cell.getStringCellValue();
       case Cell.CELL_TYPE_BOOLEAN:
@@ -216,7 +216,7 @@ public class XlsSheetReader extends SheetReader {
     while (row != null) {
       Cell keyCell = row.getCell(startCol);
       Cell valueCell = row.getCell(startCol + 1);
-      keyValueMap.put(keyCell.getStringCellValue(), valueCell.getStringCellValue());
+      keyValueMap.put(getCellAsString(keyCell), getCellAsString(valueCell));
       _currentRowIndex++;
       row = _sheet.getRow(_currentRowIndex);
     }
@@ -237,8 +237,15 @@ public class XlsSheetReader extends SheetReader {
       Cell keyCell = row.getCell(startCol);
       Cell firstValueCell = row.getCell(startCol + 1);
       Cell secondValueCell = row.getCell(startCol + 2);
-      keyPairMap.put(keyCell.getStringCellValue(),
-                     ObjectsPair.of(firstValueCell.getStringCellValue(), secondValueCell.getStringCellValue()));
+      try {
+        String stringCellValue = getCellAsString(keyCell);
+        String stringFirstCellValue = getCellAsString(firstValueCell);
+        String stringSecondCellValue = getCellAsString(secondValueCell);
+        keyPairMap.put(stringCellValue,
+                       ObjectsPair.of(stringFirstCellValue, stringSecondCellValue));
+      } catch (IllegalStateException ise) {
+        s_logger.error("Could not extract String value from cell col={} row={} sheet={}", startCol, _currentRowIndex, _sheet.getSheetName(), ise);
+      }
       _currentRowIndex++;
       row = _sheet.getRow(_currentRowIndex);
     }
