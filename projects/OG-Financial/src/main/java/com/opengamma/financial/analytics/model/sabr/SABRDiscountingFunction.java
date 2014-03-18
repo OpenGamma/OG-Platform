@@ -48,6 +48,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -159,11 +160,12 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
           .with(PROPERTY_CUBE_SPECIFICATION, cubeSpecification)
           .with(PROPERTY_SURFACE_DEFINITION, surfaceDefinition)
           .with(PROPERTY_SURFACE_SPECIFICATION, surfaceSpecification)
-          .with(CURRENCY, currency.getCode())
+//          .with(CURRENCY, currency.getCode())
           .with(PROPERTY_VOLATILITY_MODEL, SABR)
           .get();
-      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES,
-          ComputationTargetSpecification.of(currency), properties);
+//      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES,
+//          ComputationTargetSpecification.of(currency), properties);
+      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.NULL, properties);
       requirements.add(surfacesRequirement);
       return requirements;
     }
