@@ -19,8 +19,8 @@
     <@rowin label="Type">
       <select name="type">
         <option value="" <#if searchRequest.securityType = ''>selected</#if>></option>
-        <#list securityTypes as secType>
-        <option value="${secType}" <#if searchRequest.securityType = '${secType}'>selected</#if>>${secType}</option>
+        <#list description2type?keys as key>
+        <option value="${description2type[key]}" <#if searchRequest.securityType = '${description2type[key]}'>selected</#if>>${key}</option>
         </#list>
       </select>
     </@rowin>

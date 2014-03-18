@@ -58,7 +58,6 @@ public abstract class AbstractWebSecurityResource
    * JSON ftl directory
    */
   protected static final String JSON_DIR = "securities/json/";
-
   /**
    * The template name provider
    */
@@ -83,6 +82,7 @@ public abstract class AbstractWebSecurityResource
     data().setSecurityLoader(securityLoader);
     data().setHistoricalTimeSeriesMaster(htsMaster);
     data().setLegalEntityMaster(legalEntityMaster);
+    data().setSecurityTypes(SecurityTypesDescriptionProvider.getInstance().getDescription2Type());
   }
 
   /**

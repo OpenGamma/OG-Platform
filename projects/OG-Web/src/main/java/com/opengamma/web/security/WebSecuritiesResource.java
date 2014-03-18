@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -343,27 +341,20 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getMetaDataJSON(@QueryParam("uniqueIdScheme") String uniqueIdScheme) {
     uniqueIdScheme = StringUtils.trimToNull(uniqueIdScheme);
+    FlexiBean out = super.createRootData();
+    out.put("schemaVersion", getSecurityMasterSchemaVersion(uniqueIdScheme));
+    out.put("securityTypes", data().getSecurityTypes().values());
+    out.put("description2type", data().getSecurityTypes());
+    return getFreemarker().build(JSON_DIR + "metadata.ftl", out);
+  }
+
+  private String getSecurityMasterSchemaVersion(String uniqueIdScheme) {
     final SecurityMetaDataRequest request = new SecurityMetaDataRequest();
     request.setUniqueIdScheme(uniqueIdScheme);
     request.setSchemaVersion(true);
-    FlexiBean out = createRootData(request);
-    return getFreemarker().build(JSON_DIR + "metadata.ftl", out);
-  }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Creates the output root data.
-   * @param request the meta data request, not null
-   * @return the output root data, not null
-   */
-  protected FlexiBean createRootData(SecurityMetaDataRequest request) {
-    FlexiBean out = super.createRootData();
-    Set<String> secTypes = new TreeSet<>();
+    request.setSecurityTypes(false);
     SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
-    secTypes.addAll(metaData.getSecurityTypes());
-    out.put("schemaVersion", metaData.getSchemaVersion());
-    out.put("securityTypes", secTypes);
-    return out;
+    return metaData.getSchemaVersion();
   }
 
   //-------------------------------------------------------------------------
@@ -395,10 +386,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     out.put("searchRequest", searchRequest);
+
     final SecurityMetaDataRequest request = new SecurityMetaDataRequest();
     request.setSchemaVersion(true);
+    request.setSecurityTypes(false);
     
-    Set<String> secTypes = new TreeSet<>();
     if (data().getSecurityMaster() instanceof DelegatingSecurityMaster) {
       Map<String, String> schemaVersionByScheme = new HashMap<>();
       
@@ -407,17 +399,15 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       for (Entry<String, SecurityMaster> entry : delegates.entrySet()) {
         SecurityMaster securityMaster = entry.getValue();
         SecurityMetaDataResult metaData = securityMaster.metaData(request);
-        secTypes.addAll(metaData.getSecurityTypes());
         schemaVersionByScheme.put(entry.getKey(), metaData.getSchemaVersion());
       }
       out.put("schemaVersionByScheme", schemaVersionByScheme);
       out.put("uniqueIdSchemes", schemaVersionByScheme.keySet());
     } else {
       SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
-      secTypes.addAll(metaData.getSecurityTypes());
       out.put("schemaVersion", metaData.getSchemaVersion());
     }
-    out.put("securityTypes", secTypes);
+    out.put("description2type", data().getSecurityTypes());
     return out;
   }
   

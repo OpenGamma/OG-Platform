@@ -5,20 +5,12 @@
  */
 package com.opengamma.web.security;
 
-import java.util.Map;
+import java.util.SortedMap;
 
 import javax.ws.rs.core.UriInfo;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -27,6 +19,15 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.web.WebPerRequestData;
+import java.util.Map;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Data class for web-based securities.
@@ -74,6 +75,11 @@ public class WebSecuritiesData extends WebPerRequestData {
    */
   @PropertyDefinition
   private LegalEntityMaster _legalEntityMaster;
+  /**
+   * The security description to type mappings.
+   */
+  @PropertyDefinition
+  private SortedMap<String, String> _securityTypes;
 
   /**
    * Creates an instance.
@@ -322,6 +328,31 @@ public class WebSecuritiesData extends WebPerRequestData {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the security description to type mappings.
+   * @return the value of the property
+   */
+  public SortedMap<String, String> getSecurityTypes() {
+    return _securityTypes;
+  }
+
+  /**
+   * Sets the security description to type mappings.
+   * @param securityTypes  the new value of the property
+   */
+  public void setSecurityTypes(SortedMap<String, String> securityTypes) {
+    this._securityTypes = securityTypes;
+  }
+
+  /**
+   * Gets the the {@code securityTypes} property.
+   * @return the property, not null
+   */
+  public final Property<SortedMap<String, String>> securityTypes() {
+    return metaBean().securityTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public WebSecuritiesData clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -342,6 +373,7 @@ public class WebSecuritiesData extends WebPerRequestData {
           JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
           JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
+          JodaBeanUtils.equal(getSecurityTypes(), other.getSecurityTypes()) &&
           super.equals(obj);
     }
     return false;
@@ -358,12 +390,13 @@ public class WebSecuritiesData extends WebPerRequestData {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("WebSecuritiesData{");
     int len = buf.length();
     toString(buf);
@@ -385,6 +418,7 @@ public class WebSecuritiesData extends WebPerRequestData {
     buf.append("security").append('=').append(JodaBeanUtils.toString(getSecurity())).append(',').append(' ');
     buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
     buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
+    buf.append("securityTypes").append('=').append(JodaBeanUtils.toString(getSecurityTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -438,6 +472,12 @@ public class WebSecuritiesData extends WebPerRequestData {
     private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
         this, "legalEntityMaster", WebSecuritiesData.class, LegalEntityMaster.class);
     /**
+     * The meta-property for the {@code securityTypes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<SortedMap<String, String>> _securityTypes = DirectMetaProperty.ofReadWrite(
+        this, "securityTypes", WebSecuritiesData.class, (Class) SortedMap.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -449,7 +489,8 @@ public class WebSecuritiesData extends WebPerRequestData {
         "uriVersionId",
         "security",
         "versioned",
-        "legalEntityMaster");
+        "legalEntityMaster",
+        "securityTypes");
 
     /**
      * Restricted constructor.
@@ -476,6 +517,8 @@ public class WebSecuritiesData extends WebPerRequestData {
           return _versioned;
         case -1944474242:  // legalEntityMaster
           return _legalEntityMaster;
+        case -714180327:  // securityTypes
+          return _securityTypes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -560,6 +603,14 @@ public class WebSecuritiesData extends WebPerRequestData {
       return _legalEntityMaster;
     }
 
+    /**
+     * The meta-property for the {@code securityTypes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SortedMap<String, String>> securityTypes() {
+      return _securityTypes;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -580,10 +631,13 @@ public class WebSecuritiesData extends WebPerRequestData {
           return ((WebSecuritiesData) bean).getVersioned();
         case -1944474242:  // legalEntityMaster
           return ((WebSecuritiesData) bean).getLegalEntityMaster();
+        case -714180327:  // securityTypes
+          return ((WebSecuritiesData) bean).getSecurityTypes();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -610,6 +664,9 @@ public class WebSecuritiesData extends WebPerRequestData {
           return;
         case -1944474242:  // legalEntityMaster
           ((WebSecuritiesData) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
+          return;
+        case -714180327:  // securityTypes
+          ((WebSecuritiesData) bean).setSecurityTypes((SortedMap<String, String>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
