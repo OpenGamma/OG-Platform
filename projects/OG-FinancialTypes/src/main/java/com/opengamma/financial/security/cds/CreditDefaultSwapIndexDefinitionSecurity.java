@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -27,6 +28,7 @@ import com.opengamma.util.money.Currency;
  * the "underlying" security for individual Credit Default Swap Index securities.
  */
 @BeanDefinition
+@SecurityDescription(type = CreditDefaultSwapIndexDefinitionSecurity.SECURITY_TYPE, description = "Cds index definition")
 public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity {
   
   /** Serialization version. */

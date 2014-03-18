@@ -27,12 +27,14 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for FRAs.
  */
 @BeanDefinition
+@SecurityDescription(type = ForwardRateAgreementSecurity.SECURITY_TYPE, description = "Forward rate agreement")
 public class ForwardRateAgreementSecurity extends FinancialSecurity {
 
   /** Serialization version. */

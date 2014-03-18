@@ -26,12 +26,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  * A credit security based on a underlying CDS Index rather than a reference
  * entity for a standard CDS trade.
  */
 @BeanDefinition
+@SecurityDescription(type = CreditDefaultSwapIndexSecurity.SECURITY_TYPE, description = "Cds index")
 public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSecurity {
 
   /** Serialization version */

@@ -28,11 +28,13 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  *
  */
 @BeanDefinition
+@SecurityDescription(type = StandardRecoveryLockCDSSecurity.SECURITY_TYPE, description = "Standard recovery lock cds")
 public class StandardRecoveryLockCDSSecurity  extends StandardCDSSecurity {
 
   /** Serialization version */

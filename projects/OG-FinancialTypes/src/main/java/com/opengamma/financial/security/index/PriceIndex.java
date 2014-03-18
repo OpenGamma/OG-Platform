@@ -19,11 +19,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  * Class representing an overnight interest rate index.
  */
 @BeanDefinition
+@SecurityDescription(type = PriceIndex.INDEX_TYPE, description = "Price index")
 public class PriceIndex extends Index {
 
   /** Serialization version */

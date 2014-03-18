@@ -23,6 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -30,6 +31,7 @@ import com.opengamma.util.time.Expiry;
  * An abstract base class for bond securities.
  */
 @BeanDefinition
+@SecurityDescription(type = BondSecurity.SECURITY_TYPE, description = "Bond")
 public abstract class BondSecurity extends FinancialSecurity {
 
   /** Serialization version. */

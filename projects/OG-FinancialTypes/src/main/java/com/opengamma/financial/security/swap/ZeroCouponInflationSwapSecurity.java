@@ -16,12 +16,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A security for a zero-coupon inflation swap.
  */
 @BeanDefinition
+@SecurityDescription(type = ZeroCouponInflationSwapSecurity.SECURITY_TYPE, description = "Zero coupon inflation swap")
 public class ZeroCouponInflationSwapSecurity extends SwapSecurity {
 
   /** Serialization version */

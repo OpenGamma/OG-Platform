@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
@@ -27,6 +28,7 @@ import com.opengamma.util.time.Tenor;
  * A security for a zero-coupon inflation swap.
  */
 @BeanDefinition
+@SecurityDescription(type = YearOnYearInflationSwapSecurity.SECURITY_TYPE, description = "Year on year inflation swap")
 public class YearOnYearInflationSwapSecurity extends SwapSecurity {
 
   /** Serialization version */

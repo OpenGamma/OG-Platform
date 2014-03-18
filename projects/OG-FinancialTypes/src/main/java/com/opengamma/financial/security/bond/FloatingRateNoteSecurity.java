@@ -5,8 +5,18 @@
  */
 package com.opengamma.financial.security.bond;
 
+import java.util.Map;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -14,22 +24,15 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
-import java.util.Map;
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A security for floating rate notes.
  */
 @BeanDefinition
+@SecurityDescription(type = FloatingRateNoteSecurity.SECURITY_TYPE, description = "Floating rate note")
 public class FloatingRateNoteSecurity extends FinancialSecurity {
 
   /** Serialization version */

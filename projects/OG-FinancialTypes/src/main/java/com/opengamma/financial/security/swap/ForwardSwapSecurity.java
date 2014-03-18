@@ -20,11 +20,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  * A security for a forward swap.
  */
 @BeanDefinition
+@SecurityDescription(type = ForwardSwapSecurity.SECURITY_TYPE, description = "Swap")
 public class ForwardSwapSecurity extends SwapSecurity {
 
   /** Serialization version. */

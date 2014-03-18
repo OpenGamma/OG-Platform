@@ -22,12 +22,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 @BeanDefinition
+@SecurityDescription(type = PeriodicZeroDepositSecurity.SECURITY_TYPE, description = "Periodic zero deposit")
 public class PeriodicZeroDepositSecurity extends FinancialSecurity {
   /** Serialization version */
   private static final long serialVersionUID = 1L;

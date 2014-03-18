@@ -23,6 +23,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.LongShort;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -30,6 +31,7 @@ import com.opengamma.util.time.Expiry;
  * A security for equity options.
  */
 @BeanDefinition
+@SecurityDescription(type = SwaptionSecurity.SECURITY_TYPE, description = "Swaption")
 public class SwaptionSecurity extends FinancialSecurity {
 
   /** Serialization version. */

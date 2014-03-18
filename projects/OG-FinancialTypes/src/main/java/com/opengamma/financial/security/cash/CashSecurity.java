@@ -23,12 +23,14 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for cash.
  */
 @BeanDefinition
+@SecurityDescription(type = CashSecurity.SECURITY_TYPE, description = "Cash")
 public class CashSecurity extends FinancialSecurity {
 
   /** Serialization version. */

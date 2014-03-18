@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -25,6 +26,7 @@ import com.opengamma.util.time.Expiry;
  * An abstract base class for future securities.
  */
 @BeanDefinition
+@SecurityDescription(type = FutureSecurity.SECURITY_TYPE, description = "Future")
 public abstract class FutureSecurity extends FinancialSecurity {
 
   /** Serialization version. */

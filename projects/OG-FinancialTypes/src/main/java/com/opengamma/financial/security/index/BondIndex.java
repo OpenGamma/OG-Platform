@@ -19,12 +19,14 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class representing a bond index.
  */
 @BeanDefinition
+@SecurityDescription(type = BondIndex.INDEX_TYPE, description = "Bond index")
 public class BondIndex extends Index {
 
   /** Serialization version */

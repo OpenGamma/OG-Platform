@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 
@@ -28,6 +29,7 @@ import com.opengamma.util.money.Currency;
  * A class representing an American depositary receipt security.
  */
 @BeanDefinition
+@SecurityDescription(type = AmericanDepositaryReceiptSecurity.SECURITY_TYPE, description = "Adr")
 public class AmericanDepositaryReceiptSecurity extends FinancialSecurity {
 
   /** Serialization version */

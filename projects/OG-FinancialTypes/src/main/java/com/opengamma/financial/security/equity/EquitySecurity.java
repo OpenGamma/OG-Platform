@@ -20,12 +20,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for equities.
  */
 @BeanDefinition
+@SecurityDescription(type = EquitySecurity.SECURITY_TYPE, description = "Equity")
 public class EquitySecurity extends FinancialSecurity {
 
   /** Serialization version. */

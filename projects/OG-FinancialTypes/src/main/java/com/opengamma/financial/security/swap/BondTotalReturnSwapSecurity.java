@@ -25,6 +25,7 @@ import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -32,6 +33,7 @@ import com.opengamma.util.money.Currency;
  * Bond total return swap security.
  */
 @BeanDefinition
+@SecurityDescription(type = BondTotalReturnSwapSecurity.SECURITY_TYPE, description = "Bond total return swap")
 public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
 
   /** Serialization version */

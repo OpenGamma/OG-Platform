@@ -19,12 +19,14 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class representing an equity index.
  */
 @BeanDefinition
+@SecurityDescription(type = EquityIndex.INDEX_TYPE, description = "Equity index")
 public class EquityIndex extends Index {
 
   /** Serialization version */

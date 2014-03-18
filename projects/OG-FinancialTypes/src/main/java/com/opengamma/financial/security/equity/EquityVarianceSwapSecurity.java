@@ -23,12 +23,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for equity variance swaps.
  */
 @BeanDefinition
+@SecurityDescription(type = EquityVarianceSwapSecurity.SECURITY_TYPE, description = "Equity variance swap")
 public class EquityVarianceSwapSecurity extends FinancialSecurity {
 
   /** Serialization version. */

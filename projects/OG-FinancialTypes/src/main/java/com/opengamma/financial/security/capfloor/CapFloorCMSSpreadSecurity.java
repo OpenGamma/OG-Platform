@@ -24,12 +24,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for a cap/floor CMS spread.
  */
 @BeanDefinition
+@SecurityDescription(type = CapFloorCMSSpreadSecurity.SECURITY_TYPE, description = "Cap floor cms spread")
 public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
 
   /** Serialization version. */

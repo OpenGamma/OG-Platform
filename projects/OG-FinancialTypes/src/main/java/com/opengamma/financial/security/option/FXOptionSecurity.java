@@ -22,6 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.LongShort;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -29,6 +30,7 @@ import com.opengamma.util.time.Expiry;
  * A security for FX options.
  */
 @BeanDefinition
+@SecurityDescription(type = FXOptionSecurity.SECURITY_TYPE, description = "Fx option")
 public class FXOptionSecurity extends FinancialSecurity {
 
   /** Serialization version. */

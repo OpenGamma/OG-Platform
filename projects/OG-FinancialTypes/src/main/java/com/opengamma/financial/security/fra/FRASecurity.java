@@ -22,12 +22,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for FRAs.
  */
 @BeanDefinition
+@SecurityDescription(type = FRASecurity.SECURITY_TYPE, description = "Fra")
 public class FRASecurity extends FinancialSecurity {
 
   /** Serialization version. */

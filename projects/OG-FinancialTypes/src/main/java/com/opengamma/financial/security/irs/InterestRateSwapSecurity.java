@@ -27,11 +27,13 @@ import com.google.common.collect.Lists;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  * A security for a swap.
  */
 @BeanDefinition
+@SecurityDescription(type = InterestRateSwapSecurity.SECURITY_TYPE, description = "Interest rate swap")
 public final class InterestRateSwapSecurity extends FinancialSecurity {
 
   /** Serialization version. */

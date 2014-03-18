@@ -19,12 +19,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.time.Tenor;
 
 /**
  * Class representing an Swap index (e.g. USISDA10 Index).
  */
 @BeanDefinition
+@SecurityDescription(type = SwapIndex.INDEX_TYPE, description = "Swap index")
 public class SwapIndex extends Index {
 
   /** Serialization version */

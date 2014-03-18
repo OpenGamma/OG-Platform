@@ -22,12 +22,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.time.Tenor;
 
 /**
  * Meta-data linking tenors to indices.
  */
 @BeanDefinition
+@SecurityDescription(type = IndexFamily.METADATA_TYPE, description = "Index family")
 public class IndexFamily extends ManageableSecurity {
   private static final long serialVersionUID = 1L;
   /**

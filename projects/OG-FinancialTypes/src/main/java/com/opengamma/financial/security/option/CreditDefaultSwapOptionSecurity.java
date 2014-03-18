@@ -22,12 +22,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 @BeanDefinition
+@SecurityDescription(type = CreditDefaultSwapOptionSecurity.SECURITY_TYPE, description = "Credit default swap option")
 public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
 
   /** Serialization version. */

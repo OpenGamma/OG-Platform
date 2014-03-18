@@ -21,12 +21,14 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for cash payments.
  */
 @BeanDefinition
+@SecurityDescription(type = CashFlowSecurity.SECURITY_TYPE, description = "Cash flow")
 public class CashFlowSecurity extends FinancialSecurity {
 
   /** Serialization version. */

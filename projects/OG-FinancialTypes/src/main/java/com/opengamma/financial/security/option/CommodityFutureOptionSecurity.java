@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -28,6 +29,7 @@ import com.opengamma.util.time.Expiry;
  * A security for commodity future options.
  */
 @BeanDefinition
+@SecurityDescription(type = CommodityFutureOptionSecurity.SECURITY_TYPE, description = "Commodity future option")
 public class CommodityFutureOptionSecurity extends FinancialSecurity {
 
   /** Serialization version. */

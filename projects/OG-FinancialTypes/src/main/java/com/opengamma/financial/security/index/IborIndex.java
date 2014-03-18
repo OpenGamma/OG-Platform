@@ -19,12 +19,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.time.Tenor;
 
 /**
  * Class representing an *ibor interest rate index (e.g. LIBOR, TIBOR).
  */
 @BeanDefinition
+@SecurityDescription(type = IborIndex.INDEX_TYPE, description = "Ibor index")
 public class IborIndex extends Index {
 
   /** Serialization version */

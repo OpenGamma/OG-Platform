@@ -20,12 +20,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for cash balances.
  */
 @BeanDefinition
+@SecurityDescription(type = CashBalanceSecurity.SECURITY_TYPE, description = "Cash balance")
 public class CashBalanceSecurity extends FinancialSecurity {
 
   /** Serialization version */

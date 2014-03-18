@@ -23,12 +23,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.VolatilitySwapSecurity;
 import com.opengamma.financial.security.swap.VolatilitySwapType;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class representing a FX volatility swap.
  */
 @BeanDefinition
+@SecurityDescription(type = FXVolatilitySwapSecurity.SECURITY_TYPE, description = "Fx volatility swap")
 public class FXVolatilitySwapSecurity extends VolatilitySwapSecurity {
 
   /** Serialization version */

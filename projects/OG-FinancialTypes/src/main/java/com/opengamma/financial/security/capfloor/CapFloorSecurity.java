@@ -24,12 +24,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for cap/floor.
  */
 @BeanDefinition
+@SecurityDescription(type = CapFloorSecurity.SECURITY_TYPE, description = "Cap floor")
 public class CapFloorSecurity extends FinancialSecurity {
 
   /** Serialization version. */

@@ -22,12 +22,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for FX forwards.
  */
 @BeanDefinition
+@SecurityDescription(type = FXForwardSecurity.SECURITY_TYPE, description = "Fx forward")
 public class FXForwardSecurity extends FinancialSecurity {
 
   /** Serialization version. */

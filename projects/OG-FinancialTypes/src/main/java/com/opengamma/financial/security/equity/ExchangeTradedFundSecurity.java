@@ -21,11 +21,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  * A class representing an exchange-traded fund.
  */
 @BeanDefinition
+@SecurityDescription(type = ExchangeTradedFundSecurity.SECURITY_TYPE, description = "Etf")
 public class ExchangeTradedFundSecurity extends FinancialSecurity {
 
   /** Serialization version */

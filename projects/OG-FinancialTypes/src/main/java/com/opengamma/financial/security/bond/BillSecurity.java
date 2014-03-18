@@ -24,6 +24,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -31,6 +32,7 @@ import com.opengamma.util.time.Expiry;
  * A security for bills.
  */
 @BeanDefinition
+@SecurityDescription(type = BillSecurity.SECURITY_TYPE, description = "Bill")
 public class BillSecurity extends FinancialSecurity {
 
   /** Serialization version. */

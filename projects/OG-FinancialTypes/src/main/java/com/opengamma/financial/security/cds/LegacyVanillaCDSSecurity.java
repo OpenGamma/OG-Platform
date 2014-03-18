@@ -28,11 +28,13 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  *
  */
 @BeanDefinition
+@SecurityDescription(type = LegacyVanillaCDSSecurity.SECURITY_TYPE, description = "Legacy vanilla cds")
 public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
 
   /** Serialization version. */
