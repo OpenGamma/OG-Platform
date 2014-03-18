@@ -57,8 +57,14 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
 
   private static final FudgeContext s_fudgeConext = OpenGammaFudgeContext.getInstance();
   private static final int NUM_FIELDS = 3;
-  private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
-  private static final int MAX_MILLIS_BETWEEN_TICKS = 500;
+  /**
+   * Default scaling factor
+   */
+  public static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
+  /**
+   * Default max millis between ticks
+   */
+  public static final int MAX_MILLIS_BETWEEN_TICKS = 500;
 
   private final Map<String, FudgeMsg> _marketValues = Maps.newConcurrentMap();
   private final Map<String, FudgeMsg> _baseValues = Maps.newConcurrentMap();
