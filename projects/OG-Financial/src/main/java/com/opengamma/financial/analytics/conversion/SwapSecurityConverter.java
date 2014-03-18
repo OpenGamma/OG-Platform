@@ -166,6 +166,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final int paymentLag = 0; // TODO: this should be pass trough the security [PLAT-5956]
     final Currency currencyIbor = ((InterestRateNotional) iborLeg.getNotional()).getCurrency();
     final Frequency freqIborLeg = iborLeg.getFrequency();
+    final Period iborLegTenorPayment = getTenor(freqIborLeg);
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
     final AnnuityDefinition<? extends CouponDefinition> iborLegDefinition;
     if (Frequency.NEVER_NAME.equals(freqIborLeg.getName())) { // If NEVER, then treated as a compounded Ibor coupon over the annuity length
@@ -184,12 +185,13 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     } else {
       if (swapSecurity.isExchangeInitialNotional() || swapSecurity.isExchangeFinalNotional() || hasSpread) {
         iborLegDefinition = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, iborLegNotional, spread, indexIbor,
+            iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), iborLegTenorPayment,
             !payFixed, calendarIbor, stub, paymentLag, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
       } else {
         iborLegDefinition = AnnuityDefinitionBuilder.couponIbor(effectiveDate, maturityDate, indexIbor.getTenor(), iborLegNotional, indexIbor,
             !payFixed, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), calendarIbor, stub, paymentLag);
       }
-    }
+    }    
     // Fixed Leg
     final ExternalId regionIdFixed = fixedLeg.getRegionId();
     final Calendar calendarFixed = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionIdFixed);
@@ -377,12 +379,10 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final Period tenorPayment = getTenor(swapLeg.getFrequency());
         if (swapLeg instanceof FloatingSpreadIRLeg) {
           final FloatingSpreadIRLeg spread = (FloatingSpreadIRLeg) swapLeg;
-          // TODO : stub and payment lag
           return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, notional, spread.getSpread(), iborIndex, 
               swapLeg.getDayCount(), swapLeg.getBusinessDayConvention(), swapLeg.isEom(), tenorPayment, isPayer, calendar, stub, paymentLag,
               isInitialNotionalExchange, isFinalNotionalExchange);
         }
-        // TODO : stub and payment lag
         return AnnuityDefinitionBuilder.couponIborWithNotional(effectiveDate, maturityDate, notional, iborIndex, 
             swapLeg.getDayCount(), swapLeg.getBusinessDayConvention(), swapLeg.isEom(), tenorPayment, isPayer, calendar, stub, paymentLag, isInitialNotionalExchange,
             isFinalNotionalExchange);
