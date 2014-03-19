@@ -79,6 +79,11 @@ public class DbSecurityMaster
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbSec";
 
   /**
+   * Permission key prefix
+   */
+  private static final String PERMISSION_KEY_PREFIX = "Permission~";
+
+  /**
    * SQL order by.
    */
   protected static final EnumMap<SecuritySearchSortOrder, String> ORDER_BY_MAP = new EnumMap<SecuritySearchSortOrder, String>(SecuritySearchSortOrder.class);
@@ -407,6 +412,18 @@ public class DbSecurityMaster
             .addValue("value", entry.getValue());
         securityAttributeList.add(attributeArgs);
       }
+      // store permissions as attributes
+      int count = 0;
+      for (String permission : document.getSecurity().getPermissions()) {
+        final long securityAttrId = nextId("sec_security_attr_seq");
+        final DbMapSqlParameterSource attributeArgs = createParameterSource()
+            .addValue("attr_id", securityAttrId)
+            .addValue("security_id", docId)
+            .addValue("security_oid", docOid)
+            .addValue("key", PERMISSION_KEY_PREFIX + count++)
+            .addValue("value", permission);
+        securityAttributeList.add(attributeArgs);
+      }
       final String sqlAttributes = getElSqlBundle().getSql("InsertAttributes");
       getJdbcTemplate().batchUpdate(sqlAttributes, securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
       return document;
@@ -452,7 +469,11 @@ public class DbSecurityMaster
         final String securityAttrKey = rs.getString("SECURITY_ATTR_KEY");
         final String securityAttrValue = rs.getString("SECURITY_ATTR_VALUE");
         if (securityAttrKey != null && securityAttrValue != null) {
-          _security.addAttribute(securityAttrKey, securityAttrValue);
+          if (securityAttrKey.startsWith(PERMISSION_KEY_PREFIX)) {
+            _security.getPermissions().add(securityAttrValue);
+          } else {
+            _security.addAttribute(securityAttrKey, securityAttrValue);
+          }
         }
       }
       return _documents;
