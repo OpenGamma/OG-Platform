@@ -496,10 +496,10 @@ public class CDSPaperExamples extends ISDABaseTest {
       final double qs = puf_con.pufToQuotedSpread(cds[i], COUPON, YIELD_CURVE, puf);
       final double[] spreads = new double[nPillars];
       Arrays.fill(spreads, qs);
-      //      final double[] bCS01 = SPREAD_SENCE_CAL.bucketedCS01FromParSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP, BumpType.ADDITIVE);
-      //      final double pCS01 = SPREAD_SENCE_CAL.parallelCS01FromParSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP, BumpType.ADDITIVE);
-      final double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromQuotedSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, SPREADS, ONE_BP, BumpType.ADDITIVE);
-      final double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromQuotedSpread(cds[i], COUPON, YIELD_CURVE, cds[i], qs, ONE_BP, BumpType.ADDITIVE);
+      final double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromParSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP, BumpType.ADDITIVE);
+      final double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromParSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP, BumpType.ADDITIVE);
+      //      final double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromQuotedSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, SPREADS, ONE_BP, BumpType.ADDITIVE);
+      //      final double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromQuotedSpread(cds[i], COUPON, YIELD_CURVE, cds[i], qs, ONE_BP, BumpType.ADDITIVE);
       System.out.print(MATURITIES_1Y_STEP[i]);
       double sum = 0;
       for (int j = 0; j < nPillars; j++) {
