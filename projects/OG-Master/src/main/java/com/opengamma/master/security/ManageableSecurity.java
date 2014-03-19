@@ -8,6 +8,8 @@ package com.opengamma.master.security;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -78,6 +80,13 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
    */
   @PropertyDefinition
   private final Map<String, String> _attributes = new HashMap<String, String>();
+
+  /**
+   * Set of permissions
+   * This is a set of permissions that a user needs to be able to view a security.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Set<String> _permissions = new TreeSet<>();
 
   /**
    * Creates an empty instance.
@@ -289,6 +298,36 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets set of permissions
+   * This is a set of permissions that a user needs to be able to view a security.
+   * @return the value of the property, not null
+   */
+  public Set<String> getPermissions() {
+    return _permissions;
+  }
+
+  /**
+   * Sets set of permissions
+   * This is a set of permissions that a user needs to be able to view a security.
+   * @param permissions  the new value of the property, not null
+   */
+  public void setPermissions(Set<String> permissions) {
+    JodaBeanUtils.notNull(permissions, "permissions");
+    this._permissions.clear();
+    this._permissions.addAll(permissions);
+  }
+
+  /**
+   * Gets the the {@code permissions} property.
+   * This is a set of permissions that a user needs to be able to view a security.
+   * @return the property, not null
+   */
+  public final Property<Set<String>> permissions() {
+    return metaBean().permissions().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public ManageableSecurity clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -305,7 +344,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
+          JodaBeanUtils.equal(getPermissions(), other.getPermissions());
     }
     return false;
   }
@@ -318,12 +358,13 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissions());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("ManageableSecurity{");
     int len = buf.length();
     toString(buf);
@@ -340,6 +381,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
+    buf.append("permissions").append('=').append(JodaBeanUtils.toString(getPermissions())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -379,6 +421,12 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
         this, "attributes", ManageableSecurity.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code permissions} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<String>> _permissions = DirectMetaProperty.ofReadWrite(
+        this, "permissions", ManageableSecurity.class, (Class) Set.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -387,7 +435,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
         "externalIdBundle",
         "name",
         "securityType",
-        "attributes");
+        "attributes",
+        "permissions");
 
     /**
      * Restricted constructor.
@@ -408,6 +457,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           return _securityType;
         case 405645655:  // attributes
           return _attributes;
+        case 1133704324:  // permissions
+          return _permissions;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -468,6 +519,14 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
       return _attributes;
     }
 
+    /**
+     * The meta-property for the {@code permissions} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<String>> permissions() {
+      return _permissions;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -482,6 +541,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           return ((ManageableSecurity) bean).getSecurityType();
         case 405645655:  // attributes
           return ((ManageableSecurity) bean).getAttributes();
+        case 1133704324:  // permissions
+          return ((ManageableSecurity) bean).getPermissions();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -505,6 +566,9 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
         case 405645655:  // attributes
           ((ManageableSecurity) bean).setAttributes((Map<String, String>) newValue);
           return;
+        case 1133704324:  // permissions
+          ((ManageableSecurity) bean).setPermissions((Set<String>) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -515,6 +579,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._name, "name");
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._securityType, "securityType");
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._attributes, "attributes");
+      JodaBeanUtils.notNull(((ManageableSecurity) bean)._permissions, "permissions");
     }
 
   }
