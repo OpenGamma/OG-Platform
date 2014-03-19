@@ -41,6 +41,7 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
@@ -234,7 +235,7 @@ public class MultiCurveInterpolatedFunction extends
               throw new OpenGammaRuntimeException("Could not get market value for " + node);
             }
             final Tenor maturity = curveNode.getResolvedMaturity();
-            times[i] = DateUtils.estimatedDuration(maturity.getPeriod()).toDays() / 365.0; //TODO check if this is correct
+            times[i] = TimeCalculator.getTimeBetween(now, now.plus(maturity.getPeriod()));
             yields[i] = marketValue;
             jacobian[i][i] = 1;
             i++;
