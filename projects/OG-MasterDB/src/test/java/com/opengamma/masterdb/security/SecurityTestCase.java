@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -37,6 +38,8 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
@@ -338,6 +341,15 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
           qty--;
         }
         values.add(new TreeMap<Tenor, ExternalId>());
+      }
+    });
+    s_dataProviders.put(Set.class, new TestDataProvider<Set<String>>() {
+
+      @Override
+      public void getValues(Collection<Set<String>> values) {
+        values.add(Sets.newHashSet(getRandomPermissions()));
+        values.add(Sets.newHashSet(getRandomPermissions()));
+        values.add(Sets.newHashSet(getRandomPermissions()));
       }
     });
     s_dataProviders.put(Double.class, provider = new TestDataProvider<Double>() {
@@ -643,6 +655,13 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     return objects;
   }
 
+  @SuppressWarnings("rawtypes")
+  private static List getRandomPermissions() {
+    final List permissions = Lists.newArrayList();
+    s_dataProviders.get(String.class).getValues(permissions);
+    return permissions;
+  }
+
   private static <T> Constructor<T> getBiggestConstructor(final Class<T> clazz) {
     final Constructor<T>[] constructors = (Constructor<T>[]) clazz.getConstructors();
     int max = -1, bestIndex = -1;
@@ -712,7 +731,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     final List<?>[] parameterValues = new List<?>[mps.size()];
     int longest = 0;
     for (int i = 0; i < mps.size(); i++) {
-      parameterValues[i] = getTestObjects(mps.get(i).propertyType(), clazz);
+      MetaProperty<?> metaProperty = mps.get(i);
+      if (metaProperty.style().isSerializable() && "permissions".equals(metaProperty.name())) {
+        parameterValues[i] = getTestObjects(metaProperty.propertyType(), null);
+      } else {
+        parameterValues[i] = getTestObjects(metaProperty.propertyType(), clazz);
+      }
       if (parameterValues[i].size() > longest) {
         longest = parameterValues[i].size();
       }
