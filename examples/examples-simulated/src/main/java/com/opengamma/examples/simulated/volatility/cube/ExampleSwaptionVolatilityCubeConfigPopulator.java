@@ -11,6 +11,7 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.financial.analytics.volatility.CubeQuoteType;
 import com.opengamma.financial.analytics.volatility.VolatilityQuoteUnits;
 import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.cube.ExampleSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
 import com.opengamma.master.config.ConfigMaster;

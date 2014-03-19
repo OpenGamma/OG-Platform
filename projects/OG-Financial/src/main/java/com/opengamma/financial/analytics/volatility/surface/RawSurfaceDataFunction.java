@@ -132,30 +132,31 @@ public class RawSurfaceDataFunction extends AbstractFunction.NonCompiledInvoker 
     final SurfaceDefinition<Object, Object> definition = (SurfaceDefinition<Object, Object>) definitionObject;
     final SurfaceSpecification specification = (SurfaceSpecification) specificationObject;
     final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) specification.getSurfaceInstrumentProvider();
-    final Map<Pair<Object, Object>, Double> data = new HashMap<>();
+    final Map<Pair<Tenor, Tenor>, Double> data = new HashMap<>();
     for (final Object x : definition.getXs()) {
       for (final Object y : definition.getYs()) {
-        ExternalId identifier;
         try {
           //TODO the type is not picked up successfully
-          final Tenor xTenor = Tenor.parse((String) x);
-          final Tenor yTenor = Tenor.parse((String) y);
-          identifier = provider.getInstrument(xTenor, yTenor);
+          final Tenor xTenor = (x instanceof Tenor) ? (Tenor) x : Tenor.parse((String) x);
+          final Tenor yTenor = (y instanceof Tenor) ? (Tenor) y : Tenor.parse((String) y);
+          final ExternalId identifier = provider.getInstrument(xTenor, yTenor);
+
+          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
+          final Object volatilityObject = inputs.getValue(requirement);
+          if (volatilityObject != null) {
+            final Double volatility = (Double) volatilityObject;
+            final Pair<Tenor, Tenor> coordinate = Pairs.<Tenor, Tenor>of(xTenor, yTenor);
+            data.put(coordinate, volatility);
+          } else {
+            s_logger.info("Could not get market data for {}", identifier);
+          }
         } catch (final Exception e) {
-          identifier = provider.getInstrument(x, y);
-        }
-        final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
-        final Object volatilityObject = inputs.getValue(requirement);
-        if (volatilityObject != null) {
-          final Double volatility = (Double) volatilityObject;
-          final Pair<Object, Object> coordinate = Pairs.<Object, Object>of(x, y);
-          data.put(coordinate, volatility);
-        } else {
-          s_logger.info("Could not get market data for {}", identifier);
+          final ExternalId identifier = provider.getInstrument(x, y);
+          s_logger.warn("Could not get market data for ticker {}. expiry = {}, maturity = {}", identifier, x, y);
         }
       }
     }
-    final SurfaceData<Object, Object> surfaceData = new SurfaceData<>(definitionName + "_" + specificationName, data);
+    final SurfaceData<Tenor, Tenor> surfaceData = new SurfaceData<>(definitionName + "_" + specificationName, data);
     final ValueProperties properties = createValueProperties()
         .with(PROPERTY_SURFACE_DEFINITION, definitionName)
         .with(PROPERTY_SURFACE_SPECIFICATION, specificationName)

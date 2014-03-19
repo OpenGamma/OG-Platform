@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.simulated.volatility.cube;
+package com.opengamma.financial.analytics.volatility.cube;
 
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 

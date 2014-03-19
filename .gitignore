@@ -1,3 +1,4 @@
+projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/volatility/cube/CaseysSabrSurfacePrototypeFunction.java
 /db/
 *.log
 .project

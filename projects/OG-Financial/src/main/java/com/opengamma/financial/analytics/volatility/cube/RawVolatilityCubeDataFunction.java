@@ -99,7 +99,8 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
               //TODO the type is not picked up successfully
               final Tenor xTenor = Tenor.parse((String) x);
               final Tenor yTenor = Tenor.parse((String) y);
-              final ExternalId identifier = provider.getInstrument((X) xTenor, (Y) yTenor, z);
+              final Double zDouble = Double.parseDouble((String) z);
+              final ExternalId identifier = provider.getInstrument((X) xTenor, (Y) yTenor, (Z) zDouble);
               result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
             } catch (final DateTimeParseException e) {
               final ExternalId identifier = provider.getInstrument(x, y, z);
@@ -134,9 +135,12 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
     final VolatilityCubeSpecification specification = (VolatilityCubeSpecification) specificationObject;
     final CubeInstrumentProvider<Tenor, Tenor, Double> provider = (CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
     final Map<Triple<Tenor, Tenor, Double>, Double> data = new HashMap<>();
-    for (final Tenor x : definition.getXs()) {
-      for (final Tenor y : definition.getYs()) {
-        for (final Double z : definition.getZs()) {
+    for (final Object xObj : definition.getXs()) {
+      for (final Object yObj : definition.getYs()) {
+        for (final Object zObj : definition.getZs()) { 
+          final Tenor x = (xObj instanceof Tenor) ? (Tenor) xObj : Tenor.parse((String) xObj);
+          final Tenor y = (yObj instanceof Tenor) ? (Tenor) yObj : Tenor.parse((String) yObj);
+          final Double z = (zObj instanceof Double) ? (Double) zObj : Double.parseDouble((String) zObj);
           final ExternalId identifier = provider.getInstrument(x, y, z);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           final Object volatilityObject = inputs.getValue(requirement);

@@ -12,6 +12,7 @@ import com.opengamma.financial.analytics.surface.SurfaceDefinition;
 import com.opengamma.financial.analytics.surface.SurfaceSpecification;
 import com.opengamma.financial.analytics.volatility.SurfaceQuoteType;
 import com.opengamma.financial.analytics.volatility.VolatilityQuoteUnits;
+import com.opengamma.financial.analytics.volatility.surface.ExampleForwardSwapSurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;

@@ -18,6 +18,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_M
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +37,8 @@ import com.opengamma.financial.analytics.volatility.CubeQuoteType;
 import com.opengamma.financial.analytics.volatility.VolatilityQuoteUnits;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**

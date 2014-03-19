@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.simulated.volatility.surface;
+package com.opengamma.financial.analytics.volatility.surface;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
