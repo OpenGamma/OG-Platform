@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingPricingFunc
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondcleanprice.BondCleanPriceFunctions;
 import com.opengamma.financial.analytics.model.bondcurves.BondCurveFunctions;
+import com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves.InflationBondCurveFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.bondyield.BondYieldFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
@@ -64,6 +65,8 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(MarginPriceFunction.class));
     functions.add(functionConfiguration(PVCashBalanceFunction.class));
     functions.add(functionConfiguration(FXCurrencyExposureFunction.class));
+    /*functions.add(functionConfiguration(InflationBondFromCurvesFunction.class));*/
+
   }
 
   /**
@@ -100,6 +103,14 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
    */
   protected FunctionConfigurationSource bondCurveFunctionConfiguration() {
     return BondCurveFunctions.instance();
+  }
+
+  /**
+   * Adds functions that produce bond analytics from yield curves.
+   * @return A configuration source containing bond functions
+   */
+  protected FunctionConfigurationSource inflationbondCurveFunctionConfiguration() {
+    return InflationBondCurveFunctions.instance();
   }
 
   /**
@@ -297,6 +308,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         bondFutureOptionFunctionConfiguration(),
         bondCleanPriceFunctionConfiguration(),
         bondCurveFunctionConfiguration(),
+        inflationbondCurveFunctionConfiguration(),
         bondYieldFunctionConfiguration(),
         cdsFunctionConfiguration(),
         creditFunctionConfiguration(),

@@ -98,7 +98,7 @@ import com.opengamma.util.tuple.Pairs;
  * Produces yield curves using the discounting method.
  */
 public class MultiCurveDiscountingFunction extends
-  MultiCurveFunction<MulticurveProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
+    MultiCurveFunction<MulticurveProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(MultiCurveDiscountingFunction.class);
   /** The calculator */
@@ -217,7 +217,7 @@ public class MultiCurveDiscountingFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final Security sec = securitySource.getSingle(ibor.getConvention().toBundle()); 
+              final Security sec = securitySource.getSingle(ibor.getConvention().toBundle());
               if (sec == null) {
                 throw new OpenGammaRuntimeException("Cannot find Ibor index " + ibor.getConvention());
               }

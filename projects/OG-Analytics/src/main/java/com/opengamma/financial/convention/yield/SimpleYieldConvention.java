@@ -32,6 +32,11 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention US_IL_REAL = new SimpleYieldConvention("US I/L real");
   /**
+   * The US real yield convention. Used for TIPS (see Federal Register Vol. 69, N0. 170, p 53623).
+   */
+  public static final YieldConvention UK_IL_REAL = new SimpleYieldConvention("index-linked float");
+
+  /**
    * The US street yield convention.
    */
   public static final YieldConvention US_STREET = new SimpleYieldConvention("US street");

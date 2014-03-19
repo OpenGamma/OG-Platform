@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,7 +13,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
@@ -25,20 +24,20 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Pricing method for inflation bond. The price is computed by index estimation and discounting.
+ * TODO : remove when inflation curves with issuer are integrated 
  */
-public final class BondCapitalIndexedSecurityDiscountingMethod {
+public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
 
   /**
    * The unique instance of the class.
    */
-  private static final BondCapitalIndexedSecurityDiscountingMethod INSTANCE = new BondCapitalIndexedSecurityDiscountingMethod();
+  private static final BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer INSTANCE = new BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer();
 
   /**
    * Return the class instance.
    * @return The instance.
    */
-  public static BondCapitalIndexedSecurityDiscountingMethod getInstance() {
+  public static BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer getInstance() {
     return INSTANCE;
   }
 
@@ -64,11 +63,10 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param provider The provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
+  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), bond.getIssuerEntity());
-    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, creditDiscounting);
-    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, creditDiscounting);
+    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, provider);
+    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, provider);
     return pvNominal.plus(pvCoupon);
   }
 
@@ -80,7 +78,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final InflationProviderInterface market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
@@ -106,7 +104,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The clean price.
    */
-  public double cleanRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
+  public double cleanRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface issuerMulticurves) {
     final double dirtyPrice = dirtyRealPriceFromCurves(bond, issuerMulticurves);
     return cleanRealPriceFromDirtyRealPrice(bond, dirtyPrice);
   }
@@ -117,7 +115,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The dirty price.
    */
-  public double dirtyRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
+  public double dirtyRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final MultipleCurrencyAmount pv = presentValue(bond, issuerMulticurves);
@@ -144,7 +142,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param cleanPriceReal The clean real price.
    * @return The net amount.
    */
-  public MultipleCurrencyAmount netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final InflationProviderInterface market, final double cleanPriceReal) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     final double netAmountRealByUnit = cleanPriceReal + bond.getAccruedInterest() / notional;
     final MultipleCurrencyAmount netAmount = bond.getSettlement().accept(NAIC, market.getInflationProvider());
@@ -173,32 +171,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       }
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
-    if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_IL_REAL)) {
-      // Coupon period rate to next coupon and simple rate from next coupon to settlement.
-      double pvAtFirstCoupon;
-      if (Math.abs(yield) > 1.0E-8) {
-        final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
-        final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
-      } else {
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;
-      }
-      return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
-    }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
-  }
-
-  /**
-   * Computes the clean real price from the conventional real yield.
-   * @param bond  The bond security.
-   * @param yield The bond yield.
-   * @return The clean price.
-   */
-  public double cleanRealPriceFromYieldReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
-    Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
-    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
-    final double dirtyPrice = dirtyRealPriceFromYieldReal(bond, yield);
-    return cleanRealPriceFromDirtyRealPrice(bond, dirtyPrice);
   }
 
   /**
@@ -228,11 +201,10 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param provider The provider.
    * @return The present value.
    */
-  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), bond.getIssuerEntity());
-    final MultipleCurrencyInflationSensitivity sensitivityNominal = bond.getNominal().accept(PVCSIC, creditDiscounting);
-    final MultipleCurrencyInflationSensitivity sensitivityCoupon = bond.getCoupon().accept(PVCSIC, creditDiscounting);
+    final MultipleCurrencyInflationSensitivity sensitivityNominal = bond.getNominal().accept(PVCSIC, provider);
+    final MultipleCurrencyInflationSensitivity sensitivityCoupon = bond.getCoupon().accept(PVCSIC, provider);
     return sensitivityNominal.plus(sensitivityCoupon);
   }
 

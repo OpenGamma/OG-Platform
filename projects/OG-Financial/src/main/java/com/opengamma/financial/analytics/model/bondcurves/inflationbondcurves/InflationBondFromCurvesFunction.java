@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bondcurves;
+package com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
@@ -27,7 +27,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -55,9 +55,9 @@ import com.opengamma.util.async.AsynchronousExecution;
  * @param <S> The type of the curves required by the calculator
  * @param <T> The type of the result
  */
-public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIssuerProviderInterface, T> extends AbstractFunction.NonCompiledInvoker {
+public abstract class InflationBondFromCurvesFunction<S extends ParameterInflationProviderInterface, T> extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BondAndBondFutureFromCurvesFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationBondFromCurvesFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
   /** The calculator */
@@ -69,7 +69,7 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
    * @param valueRequirementName The value requirement name, not null
    * @param calculator The calculator
    */
-  public BondAndBondFutureFromCurvesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<S, T> calculator) {
+  public InflationBondFromCurvesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<S, T> calculator) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement");
     _valueRequirementName = valueRequirementName;
     _calculator = calculator;
@@ -101,7 +101,7 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return BondSupportUtils.isSupported(security);
+    return InflationBondSupportUtils.isSupported(security);
   }
 
   @Override
