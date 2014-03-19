@@ -160,14 +160,15 @@ public class FiniteDifferenceGreekCalculator {
 
     final double f = intrinsicData.getIndexFactor();
     final double puf = INDEX_CAL.indexPV(indexCDX, indexCoupon, yieldCurve, intrinsicData) / f;
+    final double dPUF = bumpAmount / f;
     //TODO don't have a test for this
     final CDSAnalytic fwdStartingCDS = fwdCDS.withOffset(timeToExpiry);
     final IndexOptionPricer pricer = new IndexOptionPricer(fwdCDS, timeToExpiry, yieldCurve, indexCoupon);
 
-    final double downPrice = optPrice(timeToExpiry, indexCDX, indexCoupon, yieldCurve, intrinsicData, strike, vol, isPayer, puf - bumpAmount, fwdStartingCDS, pricer);
-    final double upPrice = optPrice(timeToExpiry, indexCDX, indexCoupon, yieldCurve, intrinsicData, strike, vol, isPayer, puf + bumpAmount, fwdStartingCDS, pricer);
+    final double downPrice = optPrice(timeToExpiry, indexCDX, indexCoupon, yieldCurve, intrinsicData, strike, vol, isPayer, puf - dPUF, fwdStartingCDS, pricer);
+    final double upPrice = optPrice(timeToExpiry, indexCDX, indexCoupon, yieldCurve, intrinsicData, strike, vol, isPayer, puf + dPUF, fwdStartingCDS, pricer);
     final double basePrice = optPrice(timeToExpiry, indexCDX, indexCoupon, yieldCurve, intrinsicData, strike, vol, isPayer, puf, fwdStartingCDS, pricer);
-    return f * f * (upPrice + downPrice - 2 * basePrice) / bumpAmount / bumpAmount;
+    return (upPrice + downPrice - 2 * basePrice) / bumpAmount / bumpAmount;
   }
 
   /**
