@@ -55,7 +55,7 @@ public final class CurveSpecificationBuilders {
       serializer.addToMessage(message, CURVE_DATE_FIELD, null, object.getCurveDate());
       message.add(NAME_FIELD, object.getName());
       for (final CurveNodeWithIdentifier resolvedStrip : object.getNodes()) {
-        serializer.addToMessage(message, RESOLVED_STRIPS_FIELD, null, resolvedStrip);
+        serializer.addToMessageWithClassHeaders(message, RESOLVED_STRIPS_FIELD, null, resolvedStrip, CurveNodeWithIdentifier.class);
       }
       return message;
     }
