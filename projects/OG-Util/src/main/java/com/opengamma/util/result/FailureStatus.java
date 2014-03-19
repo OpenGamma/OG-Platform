@@ -33,7 +33,11 @@ public enum FailureStatus implements ResultStatus {
    * Some data required for the function has been requested but not received and therefore the function
    * could not be successfully completed.
    */
-  PENDING_DATA;
+  PENDING_DATA,
+  /**
+   * No value was provided for a non-nullable argument.
+   */
+  MISSING_ARGUMENT;
 
   //-------------------------------------------------------------------------
   /**

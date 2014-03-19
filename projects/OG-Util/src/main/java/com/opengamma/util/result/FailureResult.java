@@ -87,7 +87,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
   //-------------------------------------------------------------------------
   @Override
   public T getValue() {
-    throw new IllegalStateException("Unable to get a value from a failure result");
+    throw new IllegalStateException("Unable to get a value from a failure result. Message: " + getFailureMessage());
   }
 
   @Override
