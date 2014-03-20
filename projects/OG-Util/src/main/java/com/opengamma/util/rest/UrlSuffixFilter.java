@@ -7,7 +7,6 @@ package com.opengamma.util.rest;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -15,7 +14,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.joda.beans.ser.JodaBeanMimeType;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.sun.jersey.core.header.InBoundHeaders;
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -34,15 +33,17 @@ public class UrlSuffixFilter implements ContainerRequestFilter {
   /**
    * Map of suffix to mime type.
    */
-  private static final Map<String, String> SUFFIXES = Maps.newHashMap();
+  private static final ImmutableMap<String, String> SUFFIXES;
   static {
-    SUFFIXES.put(".csv", RestUtils.TEXT_CSV);
-    SUFFIXES.put(".json", MediaType.APPLICATION_JSON);
-    SUFFIXES.put(".xml", MediaType.APPLICATION_XML);
-    SUFFIXES.put(".fudge", FudgeRest.MEDIA);
-    SUFFIXES.put(".html", MediaType.TEXT_HTML);
-    SUFFIXES.put(".jbxml", JodaBeanMimeType.XML);
-    SUFFIXES.put(".jbbin", JodaBeanMimeType.BINARY);
+    SUFFIXES = ImmutableMap.<String, String>builder()
+        .put(".csv", RestUtils.TEXT_CSV)
+        .put(".json", MediaType.APPLICATION_JSON)
+        .put(".xml", MediaType.APPLICATION_XML)
+        .put(".fudge", FudgeRest.MEDIA)
+        .put(".html", MediaType.TEXT_HTML)
+        .put(".jbxml", JodaBeanMimeType.XML)
+        .put(".jbbin", JodaBeanMimeType.BINARY)
+        .build();
   }
 
   @Override
