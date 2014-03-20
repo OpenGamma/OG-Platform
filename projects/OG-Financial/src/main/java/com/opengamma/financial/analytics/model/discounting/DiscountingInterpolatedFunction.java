@@ -23,7 +23,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * Base function for all pricing and risk functions that use the discounting construction method.
+ * Base function for all pricing and risk functions that use the interpolated construction method.
  */
 public abstract class DiscountingInterpolatedFunction extends DiscountingFunction {
 
