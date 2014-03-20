@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -33,7 +36,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * A cache decorating a {@code FinancialSecuritySource}.
+ * A cache decorating a {@link SourceWithExternalBundle}.
  * <p>
  * The cache is implemented using {@code EHCache}.
  * 
@@ -63,6 +66,17 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     super(underlying, cacheManager);
     EHCacheUtils.addCache(cacheManager, this.getClass().getName() + EID_TO_UID_CACHE);
     _eidToUidCache = EHCacheUtils.getCacheFromManager(cacheManager, this.getClass().getName() + EID_TO_UID_CACHE);
+
+    // this is crude but it allows caching of lookups that use VersionCorrection.LATEST.
+    // VersionCorrection.LATEST can refer to different versions of the same object, but by clearing the caches
+    // when anything in the underlying source changes we ensure we never see stale data.
+    // this won't work well if the data changes frequently.
+    getUnderlying().changeManager().addChangeListener(new ChangeListener() {
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        _eidToUidCache.flush();
+      }
+    });
   }
 
   @Override
@@ -160,7 +174,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
         if ((result == null) || result.isEmpty()) {
           cacheIdentifiers(Collections.<UniqueId>emptyList(), key);
         } else {
-          final List<UniqueId> uids = new ArrayList<UniqueId>(result.size());
+          final List<UniqueId> uids = new ArrayList<>(result.size());
           for (final V item : result) {
             uids.add(item.getUniqueId());
           }
@@ -176,11 +190,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
 
   @Override
   public V getSingle(final ExternalIdBundle bundle) {
-    final V result = getUnderlying().getSingle(bundle);
-    if (result != null) {
-      cacheItem(result);
-    }
-    return result;
+    return getSingle(bundle, VersionCorrection.LATEST);
   }
 
   @SuppressWarnings("unchecked")
@@ -188,9 +198,6 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
   public V getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    if (versionCorrection.containsLatest()) {
-      return getUnderlying().getSingle(bundle, versionCorrection);
-    }
     final Pair<ExternalIdBundle, VersionCorrection> key = Pairs.of(bundle, versionCorrection);
     final Element e = _eidToUidCache.get(key);
     if (e != null) {
