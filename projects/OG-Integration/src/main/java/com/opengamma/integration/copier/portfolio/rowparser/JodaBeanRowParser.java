@@ -73,17 +73,7 @@ public class JodaBeanRowParser extends RowParser {
   /**
    * Security properties to ignore when scanning
    */
-  private static final String[] IGNORE_METAPROPERTIES = {
-    "securityType",
-    "uniqueid",
-    "objectid",
-    "securitylink",
-    "trades",
-    "gicscode",
-    "parentpositionid",
-    "providerid",
-    "deal"
-  };
+  private static final String[] IGNORE_METAPROPERTIES = {"securityType", "uniqueid", "objectid", "securitylink", "trades", "gicscode", "parentpositionid", "providerid", "deal", "permissions" };
 
   /**
    * Column prefixes
