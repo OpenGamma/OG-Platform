@@ -31,14 +31,14 @@ public class JsonBeanStructureVisitorTest {
     JodaBeanConverters.getInstance();
   }
 
-  @Test
+  @Test(enabled = false)
   public void fxForward() {
     Set<MetaBean> metaBeans = ImmutableSet.<MetaBean>of(FXForwardSecurity.meta(), ExternalIdBundle.meta());
     JsonBeanStructureVisitor visitor = new JsonBeanStructureVisitor(metaBeans);
     System.out.println(new BeanTraverser().traverse(FXForwardSecurity.meta(), visitor));
   }
 
-  @Test
+  @Test(enabled = false)
   public void swap() {
     Set<MetaBean> metaBeans = ImmutableSet.<MetaBean>of(
         SwapSecurity.meta(),
