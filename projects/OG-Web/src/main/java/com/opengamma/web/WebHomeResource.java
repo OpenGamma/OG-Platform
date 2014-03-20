@@ -71,18 +71,18 @@ public class WebHomeResource extends AbstractSingletonWebResource {
   
   static {
     Builder<ResourceConfig> builder = ImmutableList.builder();
+    builder.add(new ResourceConfig(WebConfigsResource.class, WebConfigData.class, WebConfigUris.class, "configUris"));
+    builder.add(new ResourceConfig(WebConventionsResource.class, WebConventionData.class, WebConventionUris.class, "conventionUris"));
+    builder.add(new ResourceConfig(WebExchangesResource.class, WebExchangeData.class, WebExchangeUris.class, "exchangeUris"));
+    builder.add(new ResourceConfig(WebFunctionsResource.class, WebFunctionData.class, WebFunctionUris.class, "functionUris"));
+    builder.add(new ResourceConfig(WebAllHistoricalTimeSeriesResource.class, WebHistoricalTimeSeriesData.class, WebHistoricalTimeSeriesUris.class, "timeseriesUris"));
+    builder.add(new ResourceConfig(WebHolidaysResource.class, WebHolidayData.class, WebHolidayUris.class, "holidayUris"));
+    builder.add(new ResourceConfig(WebLegalEntitiesResource.class, WebLegalEntityData.class, WebLegalEntityUris.class, "legalEntityUris"));
     builder.add(new ResourceConfig(WebPortfoliosResource.class, WebPortfoliosData.class, WebPortfoliosUris.class, "portfolioUris"));
     builder.add(new ResourceConfig(WebPositionsResource.class, WebPositionsData.class, WebPositionsUris.class, "positionUris"));
-    builder.add(new ResourceConfig(WebSecuritiesResource.class, WebSecuritiesData.class, WebSecuritiesUris.class, "securityUris"));
-    builder.add(new ResourceConfig(WebConventionsResource.class, WebConventionData.class, WebConventionUris.class, "conventionUris"));
-    builder.add(new ResourceConfig(WebLegalEntitiesResource.class, WebLegalEntityData.class, WebLegalEntityUris.class, "legalEntityUris"));
-    builder.add(new ResourceConfig(WebExchangesResource.class, WebExchangeData.class, WebExchangeUris.class, "exchangeUris"));
-    builder.add(new ResourceConfig(WebHolidaysResource.class, WebHolidayData.class, WebHolidayUris.class, "holidayUris"));
     builder.add(new ResourceConfig(WebRegionsResource.class, WebRegionData.class, WebRegionUris.class, "regionUris"));
-    builder.add(new ResourceConfig(WebAllHistoricalTimeSeriesResource.class, WebHistoricalTimeSeriesData.class, WebHistoricalTimeSeriesUris.class, "timeseriesUris"));
-    builder.add(new ResourceConfig(WebConfigsResource.class, WebConfigData.class, WebConfigUris.class, "configUris"));
+    builder.add(new ResourceConfig(WebSecuritiesResource.class, WebSecuritiesData.class, WebSecuritiesUris.class, "securityUris"));
     builder.add(new ResourceConfig(WebMarketDataSnapshotsResource.class, WebMarketDataSnapshotData.class, WebMarketDataSnapshotUris.class, "snapshotUris"));
-    builder.add(new ResourceConfig(WebFunctionsResource.class, WebFunctionData.class, WebFunctionUris.class, "functionUris"));
     
     s_resourceConfigs = builder.build();
   }
