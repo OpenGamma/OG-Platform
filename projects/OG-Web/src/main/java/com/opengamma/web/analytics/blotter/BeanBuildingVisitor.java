@@ -62,7 +62,7 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
     // TODO implement visitSetProperty()
-    throw new UnsupportedOperationException("visitSetProperty not implemented");
+    // throw new UnsupportedOperationException("visitSetProperty not implemented");
   }
 
   @Override
