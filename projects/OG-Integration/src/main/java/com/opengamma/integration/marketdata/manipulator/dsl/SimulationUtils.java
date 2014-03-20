@@ -190,7 +190,7 @@ public final class SimulationUtils {
    * @param glob The glob string
    * @return A pattern for matching the glob
    */
-  /* package */static Pattern patternForGlob(String glob) {
+  public static Pattern patternForGlob(String glob) {
     Map<Character, String> replacements = ImmutableMap.of('?', ".", '*', ".*?", '%', ".*?");
     StringBuilder builder = new StringBuilder();
     StringBuilder tokenBuilder = new StringBuilder();
