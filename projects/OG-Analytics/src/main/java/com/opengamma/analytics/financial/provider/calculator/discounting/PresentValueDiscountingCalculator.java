@@ -70,7 +70,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculator of the present value as a multiple currency amount.
+ * Calculator of the present value as a multiple currency amount using cash-flow discounting and forward estimation.
  */
 public final class PresentValueDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MultipleCurrencyAmount> {
 
@@ -159,12 +159,12 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
       final MulticurveProviderInterface data) {
     return payment.getFullCoupon().accept(METHOD_CPN_INTERP_STUB, InterpolatedStubData.of(data, payment));
   }
-  
+
   @Override
   public MultipleCurrencyAmount visitCouponIbor(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR.presentValue(coupon, multicurve);
   }
-  
+
   @Override
   public MultipleCurrencyAmount visitCouponIborAverage(final CouponIborAverage coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR_AVERAGE.presentValue(coupon, multicurve);
@@ -209,7 +209,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   public MultipleCurrencyAmount visitCouponONArithmeticAverage(final CouponONArithmeticAverage coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_AAON_APPROX.presentValue(coupon, multicurve);
   }
-  
+
   @Override
   public MultipleCurrencyAmount visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread coupon, MulticurveProviderInterface multicurve) {
     return METHOD_CPN_AAON_SPREAD.presentValue(coupon, multicurve);

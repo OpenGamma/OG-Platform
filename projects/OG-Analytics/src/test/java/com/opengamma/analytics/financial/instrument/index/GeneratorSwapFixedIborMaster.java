@@ -50,6 +50,8 @@ public final class GeneratorSwapFixedIborMaster {
     _iborIndexMaster = IndexIborMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _generatorSwap = new HashMap<>();
+    _generatorSwap.put("USD6MLIBOR1M",
+        new GeneratorSwapFixedIbor("USD6MLIBOR1M", Period.ofMonths(6), DayCounts.THIRTY_U_360, _iborIndexMaster.getIndex("USDLIBOR1M"), baseCalendar));
     _generatorSwap.put("USD6MLIBOR3M",
         new GeneratorSwapFixedIbor("USD6MLIBOR3M", Period.ofMonths(6), DayCounts.THIRTY_U_360, _iborIndexMaster.getIndex("USDLIBOR3M"), baseCalendar));
     _generatorSwap.put("USD1YLIBOR3M",

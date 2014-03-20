@@ -354,7 +354,7 @@ public class StandardDataSetsUSD {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0);
   }
 
-  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL3L1L6() {
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6() {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(1);
   }
 
@@ -364,6 +364,14 @@ public class StandardDataSetsUSD {
    */
   public static IborIndex[] indexIborArrayUSDOisL3() {
     return new IborIndex[] {USDLIBOR3M };
+  }
+
+  /**
+   * Returns the array of Ibor index used in the curve data set. 
+   * @return The array: USDLIBOR1M, USDLIBOR3M, USDLIBOR6M
+   */
+  public static IborIndex[] indexIborArrayUSDOisL1L3L6() {
+    return new IborIndex[] {USDLIBOR1M, USDLIBOR3M, USDLIBOR6M };
   }
 
   /**
