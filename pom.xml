@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.6</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
@@ -1048,7 +1048,7 @@
               <dependency>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>extra-enforcer-rules</artifactId>
-                <version>1.0-alpha-5</version>
+                <version>1.6</version>
               </dependency>
             </dependencies>
           </plugin>
