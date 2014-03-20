@@ -13,11 +13,9 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.GammaPV
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.bond.BillSecurity;
 
 /**
  * Calculates the gamma PV01 of a bond or bond future from yield curves.
@@ -33,11 +31,6 @@ public class BondAndBondFutureGammaPV01FromCurvesFunction extends BondAndBondFut
    */
   public BondAndBondFutureGammaPV01FromCurvesFunction() {
     super(GAMMA_PV01, CALCULATOR);
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
   }
 
   @Override

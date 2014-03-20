@@ -176,6 +176,50 @@ public class GBConventions {
   }
 
   /**
+   * Adds conventions for GBP corporate inflation bonds issued in NL.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addNLInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("NL_INFLATION_BOND_CONVENTION")), "NL_INFLATION_BOND_CONVENTION", false,
+        true, 6, 0, true);
+  }
+
+  /**
+   * Adds conventions for GBP corporate inflation bonds issued in JE.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addJEInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JE_INFLATION_BOND_CONVENTION")), "JE_INFLATION_BOND_CONVENTION", false,
+        true, 6, 0, true);
+  }
+
+  /**
+   * Adds conventions for GBP corporate inflation bonds issued in KY.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addKYInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("KY_INFLATION_BOND_CONVENTION")), "KY_INFLATION_BOND_CONVENTION", false,
+        true, 6, 0, true);
+  }
+
+  /**
+   * Adds conventions for GBP corporate inflation bonds issued in US.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addUSInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_INFLATION_BOND_CONVENTION")), "uS_INFLATION_BOND_CONVENTION", false,
+        true, 6, 0, true);
+  }
+
+  /**
    * Adds conventions for GBP-denominated corporate bonds.
    * @param conventionMaster The convention master, not null
    */

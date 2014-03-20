@@ -92,11 +92,6 @@ public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFu
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<String> curveNames = desiredValue.getConstraints().getValues(CURVE);
     if (curveNames == null || curveNames.size() != 1) {

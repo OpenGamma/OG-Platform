@@ -65,11 +65,6 @@ public class BondAndBondFuturePresentValueFromCurvesFunction extends BondAndBond
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
-  }
-
-  @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     return super.getResultProperties(target)

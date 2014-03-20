@@ -183,7 +183,7 @@ public class USConventions {
         null, 2, false, usgb);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_BASIS_SWAP")), "USD_BASIS_SWAP", act360, modified, quarterly, 2,
         null, usgb, act360, modified, quarterly, 2, null, usgb);
-    
+
     // Inflation
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CPURNSA Index"), simpleNameSecurityId("USD CPI")),
         "USD CPI", act360, modified, Period.ofMonths(1), 2, false, us);
@@ -243,6 +243,17 @@ public class USConventions {
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_CORPORATE_BOND_CONVENTION")), "US_CORPORATE_BOND_CONVENTION", true, true, 0, 1,
         true);
+  }
+
+  /**
+   * Adds conventions for GBP government bonds.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_INFLATION_BOND_CONVENTION")), "US_INFLATION_BOND_CONVENTION", false,
+        true, 6, 0, true);
   }
 
   /**

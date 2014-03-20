@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -32,7 +31,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
-import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
@@ -63,7 +61,6 @@ public class BondAndBondFutureBCSFunction extends BondAndBondFutureFromCurvesFun
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(context.getValuationClock());
     final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(context, target, now, inputs);
-    Object temp = target.getTrade().getSecurity();
     final ParameterIssuerProviderInterface issuerCurves = (ParameterIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final CurveBuildingBlockBundle blocks = (CurveBuildingBlockBundle) inputs.getValue(JACOBIAN_BUNDLE);
     final Set<ComputedValue> result = new HashSet<>();
@@ -75,8 +72,4 @@ public class BondAndBondFutureBCSFunction extends BondAndBondFutureFromCurvesFun
     return result;
   }
 
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
-  }
 }

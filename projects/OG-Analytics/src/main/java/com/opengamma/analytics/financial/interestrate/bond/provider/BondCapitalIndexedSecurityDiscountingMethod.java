@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.provider;
 
+import static com.opengamma.financial.convention.yield.SimpleYieldConvention.INDEX_LINKED_FLOAT;
+import static com.opengamma.financial.convention.yield.SimpleYieldConvention.UK_IL_BOND;
+import static com.opengamma.financial.convention.yield.SimpleYieldConvention.US_IL_REAL;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
@@ -20,7 +24,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -87,6 +91,18 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     final double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
     final MultipleCurrencyAmount pv = bond.getSettlement().accept(PVIC, market.getInflationProvider());
     return pv.multipliedBy(dirtyPriceReal);
+  }
+
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the clean price. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param cleanPrice The clean price
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCleanRealPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
+    ArgumentChecker.notNull(bond, "bond");
+    return dirtyRealPriceFromCleanRealPrice(bond, cleanPrice) - cleanPrice;
   }
 
   /**
@@ -161,7 +177,8 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   public double dirtyRealPriceFromYieldReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
-    if (bond.getYieldConvention().equals(SimpleYieldConvention.US_IL_REAL)) {
+    final YieldConvention yieldConvention = bond.getYieldConvention();
+    if (yieldConvention.equals(US_IL_REAL)) {
       // Coupon period rate to next coupon and simple rate from next coupon to settlement.
       double pvAtFirstCoupon;
       if (Math.abs(yield) > 1.0E-8) {
@@ -173,12 +190,28 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       }
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
-    if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_IL_REAL)) {
+    if (yieldConvention.getName().equals(INDEX_LINKED_FLOAT.getName())) {
       // Coupon period rate to next coupon and simple rate from next coupon to settlement.
       double pvAtFirstCoupon;
       if (Math.abs(yield) > 1.0E-8) {
         final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
         final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
+        final double rpibase = bond.getIndexStartValue();
+        final double rpiLast = bond.getIndexStartValue();
+        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
+      } else {
+        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;
+      }
+      return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+    }
+    if (yieldConvention.getName().equals(UK_IL_BOND.getName())) {
+      // Coupon period rate to next coupon and simple rate from next coupon to settlement.
+      double pvAtFirstCoupon;
+      if (Math.abs(yield) > 1.0E-8) {
+        final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+        final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
+        final double rpibase = bond.getIndexStartValue();
+        final double rpiLast = bond.getIndexStartValue();
         pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
       } else {
         pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;
@@ -189,12 +222,12 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the clean real price from the conventional real yield.
+   * Computes the clean price (real or nominal depending on the convention) from the conventional real yield.
    * @param bond  The bond security.
    * @param yield The bond yield.
    * @return The clean price.
    */
-  public double cleanRealPriceFromYieldReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+  public double cleanPriceFromReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double dirtyPrice = dirtyRealPriceFromYieldReal(bond, yield);

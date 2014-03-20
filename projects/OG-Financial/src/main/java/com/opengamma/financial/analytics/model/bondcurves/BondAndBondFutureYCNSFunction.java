@@ -37,7 +37,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
-import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -84,11 +83,6 @@ public class BondAndBondFutureYCNSFunction extends BondAndBondFutureFromCurvesFu
     }
     s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
     return Collections.emptySet();
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return super.canApplyTo(context, target) || target.getTrade().getSecurity() instanceof BillSecurity;
   }
 
   @Override

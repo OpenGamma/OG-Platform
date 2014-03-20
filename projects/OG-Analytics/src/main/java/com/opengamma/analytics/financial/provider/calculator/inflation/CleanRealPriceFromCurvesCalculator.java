@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -40,9 +40,9 @@ public final class CleanRealPriceFromCurvesCalculator extends InstrumentDerivati
   private static final BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer METHOD_BOND_SECURITY = BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer.getInstance();
 
   @Override
-  public Double visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity bond, final InflationProviderInterface issuer) {
+  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond, issuer) * 100;
+    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondTransaction(), issuer) * 100;
   }
 }
