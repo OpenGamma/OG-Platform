@@ -14,6 +14,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.exchange.impl.SimpleExchange;
@@ -57,6 +58,7 @@ public class EHCachingExchangeSourceTest {
         return simpleExchange;
       }
     });
+    Mockito.when(underlying.changeManager()).thenReturn(Mockito.mock(ChangeManager.class));
     EHCachingExchangeSource source = new EHCachingExchangeSource(underlying, _cacheManager);
     assertEquals(0, getCount.get());
     ExternalScheme scheme = ExternalScheme.of("Scheme");
