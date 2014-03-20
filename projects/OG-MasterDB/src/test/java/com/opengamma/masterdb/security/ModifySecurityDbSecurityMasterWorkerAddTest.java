@@ -163,4 +163,40 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     assertEquals(added, searchResult.getDocuments().get(0));
   }
 
+  @Test
+  public void test_addWithPermission_add() {
+    Instant now = Instant.now(_secMaster.getClock());
+
+    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
+    security.getPermissions().add("A");
+    security.getPermissions().add("B");
+    SecurityDocument doc = new SecurityDocument();
+    doc.setSecurity(security);
+    SecurityDocument test = _secMaster.add(doc);
+
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbSec", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageableSecurity testSecurity = test.getSecurity();
+    assertNotNull(testSecurity);
+    assertEquals(uniqueId, testSecurity.getUniqueId());
+    assertEquals("TestSecurity", security.getName());
+    assertEquals("EQUITY", security.getSecurityType());
+    ExternalIdBundle idKey = security.getExternalIdBundle();
+    assertNotNull(idKey);
+    assertEquals(1, idKey.size());
+    assertEquals(ExternalId.of("A", "B"), idKey.getExternalIds().iterator().next());
+    assertNotNull(security.getPermissions());
+    assertEquals(2, security.getPermissions().size());
+    assertTrue(security.getPermissions().contains("A"));
+    assertTrue(security.getPermissions().contains("B"));
+  }
+
 }

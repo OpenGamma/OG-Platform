@@ -29,6 +29,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
@@ -101,6 +102,36 @@ public class DbSecurityMasterTest extends AbstractDbSecurityTest {
     SecurityDocument added = _secMaster.add(addDoc);
     
     SecurityDocument loaded = _secMaster.get(added.getUniqueId());
+    assertEquals(added, loaded);
+  }
+
+  @Test
+  public void test_equity_with_attribute_permission() throws Exception {
+    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
+    sec.setName("OpenGamma");
+    sec.setGicsCode(GICSCode.of("20102010"));
+    sec.setShortName("OG");
+    sec.setExternalIdBundle(ExternalIdBundle.of("Test", "OG"));
+    sec.addAttribute("1", "One");
+    sec.addAttribute("2", "Two");
+    sec.getPermissions().add("A");
+    sec.getPermissions().add("B");
+    SecurityDocument addDoc = new SecurityDocument(sec);
+
+    SecurityDocument added = _secMaster.add(addDoc);
+    assertNotNull(added);
+    assertNotNull(added.getSecurity());
+
+    assertNotNull(added.getSecurity().getUniqueId());
+    final UniqueId addedUniqueId = UniqueId.of(added.getSecurity().getUniqueId().getScheme(),
+        added.getSecurity().getUniqueId().getValue(),
+        added.getSecurity().getUniqueId().getVersion());
+    added.getSecurity().setUniqueId(null);
+    assertEquals(sec, added.getSecurity());
+
+    SecurityDocument loaded = _secMaster.get(addedUniqueId);
+    assertEquals(addedUniqueId, loaded.getUniqueId());
+    added.getSecurity().setUniqueId(addedUniqueId);
     assertEquals(added, loaded);
   }
 

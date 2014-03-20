@@ -104,6 +104,24 @@ public class DbSecurityBeanMasterTest extends AbstractDbTest {
     assertEquals(added, loaded);
   }
 
+  @Test
+  public void test_equity_with_attribute_permission() throws Exception {
+    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
+    sec.setName("OpenGamma");
+    sec.setGicsCode(GICSCode.of("20102010"));
+    sec.setShortName("OG");
+    sec.setExternalIdBundle(ExternalIdBundle.of("Test", "OG"));
+    sec.addAttribute("1", "One");
+    sec.addAttribute("2", "Two");
+    sec.getPermissions().add("A");
+    sec.getPermissions().add("B");
+    SecurityDocument addDoc = new SecurityDocument(sec);
+    SecurityDocument added = _secMaster.add(addDoc);
+
+    SecurityDocument loaded = _secMaster.get(added.getUniqueId());
+    assertEquals(added, loaded);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_bond_withSearchByIssuer() throws Exception {

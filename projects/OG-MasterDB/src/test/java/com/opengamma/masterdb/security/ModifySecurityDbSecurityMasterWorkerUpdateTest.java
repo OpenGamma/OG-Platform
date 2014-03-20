@@ -6,6 +6,8 @@
 package com.opengamma.masterdb.security;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
@@ -24,6 +27,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -109,6 +113,61 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     search.setFullDetail(false);
     SecurityHistoryResult searchResult = _secMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
+  }
+
+  @Test
+  public void test_updatePermissions() throws Exception {
+    _secMaster.setClock(OpenGammaClock.getInstance());
+
+    UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
+    SecurityDocument baseDoc = _secMaster.get(uniqueId);
+    assertNotNull(baseDoc);
+    ManageableSecurity baseSecurity = baseDoc.getSecurity();
+    assertNotNull(baseSecurity);
+    assertNotNull(baseSecurity.getPermissions());
+    assertTrue(baseSecurity.getPermissions().isEmpty());
+
+    SecurityDocument input = new SecurityDocument(baseSecurity.clone());
+    input.getSecurity().getPermissions().add("A");
+    input.getSecurity().getPermissions().add("B");
+    baseDoc.getSecurity().setPermissions(Sets.newHashSet("A", "B"));
+
+    Thread.sleep(100);
+    SecurityDocument updated = _secMaster.update(baseDoc);
+    assertNotNull(updated);
+    ManageableSecurity updatedSecurity = updated.getSecurity();
+    assertNotNull(updatedSecurity);
+    assertNotNull(updatedSecurity.getPermissions());
+    assertEquals(2, updatedSecurity.getPermissions().size());
+    assertTrue(updatedSecurity.getPermissions().contains("A"));
+    assertTrue(updatedSecurity.getPermissions().contains("B"));
+    assertEquals(baseSecurity.getName(), updatedSecurity.getName());
+    assertEquals(baseSecurity.getSecurityType(), updatedSecurity.getSecurityType());
+    assertEquals(baseSecurity.getExternalIdBundle(), updatedSecurity.getExternalIdBundle());
+
+    assertEquals(updatedSecurity, _secMaster.get(updated.getUniqueId()).getSecurity());
+
+    updated.getSecurity().setPermissions(Sets.newHashSet("C", "D", "E"));
+    Thread.sleep(100);
+    updated = _secMaster.update(updated);
+    assertNotNull(updated);
+    updatedSecurity = updated.getSecurity();
+    assertNotNull(updatedSecurity);
+    assertNotNull(updatedSecurity.getPermissions());
+    assertEquals(3, updatedSecurity.getPermissions().size());
+    assertTrue(updatedSecurity.getPermissions().contains("C"));
+    assertTrue(updatedSecurity.getPermissions().contains("D"));
+    assertTrue(updatedSecurity.getPermissions().contains("E"));
+    assertEquals(baseSecurity.getName(), updatedSecurity.getName());
+    assertEquals(baseSecurity.getSecurityType(), updatedSecurity.getSecurityType());
+    assertEquals(baseSecurity.getExternalIdBundle(), updatedSecurity.getExternalIdBundle());
+
+    assertEquals(updatedSecurity, _secMaster.get(updated.getUniqueId()).getSecurity());
+
+    SecurityHistoryRequest search = new SecurityHistoryRequest(baseSecurity.getUniqueId(), null, Instant.now(_secMaster.getClock()));
+    search.setFullDetail(false);
+    SecurityHistoryResult searchResult = _secMaster.history(search);
+    assertEquals(3, searchResult.getDocuments().size());
   }
 
   @Test
