@@ -8,6 +8,45 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+
+To 2.2.0-M15
+------------
+
+* Bug
+    * [PLAT-2277] - Automatic view update does not work always
+    * [PLAT-4872] - ExampleLiveDataServer not properly validating return values
+    * [PLAT-6084] - Act/Act ICMA throws error when used in a swap
+    * [PLAT-6118] - SwapSecurityConverter does not use IborLeg convention
+    * [PLAT-6172] - NPE in SwapLegDetailFormatter
+    * [PLAT-6174] - Joda bean / Fudge encoding can't handle Collection<Failure> in FailureResult
+    * [PLAT-6177] - Snapshot not appearing in 'green screens'
+    * [PLAT-6178] - DiscountingInterpolatedPV01Function should override parents execute()
+    * [PLAT-6180] - MarketSnapshotImportTool does not load xls snapshots properly
+    * [PLAT-6197] - SABR Surfaces requirement in SABRDiscountingFunction need not have currency
+    * [PLAT-6203] - CurveSpecification fudge builder not handling certain FXForwardNodes
+    * [PLAT-6208] - Pillar year fractions are not relative to curve date in interpolated curves
+* Improvement
+    * [PLAT-4532] - OG-Financial: Interest Rate Security converter using hardcoded conventions
+    * [PLAT-5978] - PresentValueMarketQuoteSensitivityDiscountingCalculator: Improve method for CompoundingFlat
+    * [PLAT-6137] - Extract common data from web resources
+    * [PLAT-6171] - ExampleLiveDataServer to read scalingFactor and maxMillisBetweenTicks values from config property file
+    * [PLAT-6191] - FXMatrixFunction: return null exception is currency pair not available
+    * [PLAT-6198] - Platform extremely slow of simple portoflios
+    * [PLAT-6199] - FailureStatus value indicating a missing value for a non-nullable parameter
+    * [PLAT-6209] - Cache latest versions in AbstractEHCachingSourceWithExternalBundle
+    * [PLAT-6230] - Improve support for payment lags (mainly for OIS swaps)
+* New Feature
+    * [PLAT-5988] - Currency Exposure result should be available for all instruments
+    * [PLAT-6164] - Add DiscountingInterpolatedParRateFunction
+    * [PLAT-6168] - Add PeriodicallyCompoundedRateNode curve node
+    * [PLAT-6193] - Adding support for CouponONArithmeticAverageSpread
+    * [PLAT-6206] - Implement SABR Pricing from Swaption VolCube and FwdSurface with(out) Snapshots
+* Task
+    * [PLAT-5642] - Create CAD standard curves
+    * [PLAT-5677] - OG-Analytics: Create standard set of data for test - USD rates
+    * [PLAT-6169] - Anotate ManageableSecurity with type information 
+
+
 To 2.2.0-M14
 ------------
 - PLAT-5866.
