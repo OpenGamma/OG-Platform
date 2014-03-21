@@ -131,9 +131,9 @@ public class RawVolatilityCubeDataFunction extends AbstractFunction.NonCompiledI
     if (specificationObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility cube specification called " + specificationName);
     }
-    final VolatilityCubeDefinition<Tenor, Tenor, Double> definition = (VolatilityCubeDefinition<Tenor, Tenor, Double>) definitionObject;
+    final VolatilityCubeDefinition<Object, Object, Object> definition = (VolatilityCubeDefinition<Object, Object, Object>) definitionObject;
     final VolatilityCubeSpecification specification = (VolatilityCubeSpecification) specificationObject;
-    final CubeInstrumentProvider<Tenor, Tenor, Double> provider = (CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
+    final CubeInstrumentProvider<Object, Object, Object> provider = (CubeInstrumentProvider<Object, Object, Object>) specification.getCubeInstrumentProvider();
     final Map<Triple<Tenor, Tenor, Double>, Double> data = new HashMap<>();
     for (final Object xObj : definition.getXs()) {
       for (final Object yObj : definition.getYs()) {
