@@ -289,7 +289,8 @@ public class FiniteDifferenceGreekCalculator {
    */
   public double thetaWithDefault(final CDSAnalytic fwdCDS, final double timeToExpiry, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve, final IntrinsicIndexDataBundle intrinsicData,
       final IndexOptionStrike strike, final double vol, final boolean isPayer, final double timeStep) {
-    final double atmFwd = INDEX_CAL.defaultAdjustedForwardIndexValue(fwdCDS, timeToExpiry, yieldCurve, indexCoupon, intrinsicData);
+    final CDSAnalytic fwdStartingCDS = fwdCDS.withOffset(timeToExpiry);
+    final double atmFwd = INDEX_CAL.defaultAdjustedForwardIndexValue(fwdStartingCDS, timeToExpiry, yieldCurve, indexCoupon, intrinsicData);
     return thetaWithDefault(atmFwd, fwdCDS, timeToExpiry, indexCoupon, yieldCurve, strike, vol, isPayer, timeStep);
   }
 

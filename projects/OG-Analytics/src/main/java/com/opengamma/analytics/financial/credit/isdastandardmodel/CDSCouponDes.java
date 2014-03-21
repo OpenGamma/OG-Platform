@@ -12,7 +12,7 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * A date based description of a CDS accrual period 
  */
 public class CDSCouponDes {
 
@@ -23,10 +23,21 @@ public class CDSCouponDes {
   private final LocalDate _paymentDate;
   private final double _yearFrac;
 
+  /**
+  * Make a set of CDSCouponDes. 
+   * @param leg schedule of the accrual periods
+   * @return A set of CDSCouponDes
+   */
   public static CDSCouponDes[] makeCoupons(final ISDAPremiumLegSchedule leg) {
     return makeCoupons(leg, DEFAULT_ACCURAL_DCC);
   }
 
+  /**
+   * Make a set of CDSCouponDes. 
+   * @param leg schedule of the accrual periods
+   * @param accrualDCC The day count used for the accrual 
+   * @return A set of CDSCouponDes
+   */
   public static CDSCouponDes[] makeCoupons(final ISDAPremiumLegSchedule leg, final DayCount accrualDCC) {
     ArgumentChecker.notNull(leg, "leg");
     final int n = leg.getNumPayments();
@@ -37,10 +48,23 @@ public class CDSCouponDes {
     return coupons;
   }
 
+  /**
+   * A date based description of a CDS accrual period.  The day count used for the accrual is ACT/360
+   * @param accStart The start date of the period 
+   * @param accEnd The end date of the period 
+   * @param paymentDate The payment date for the period 
+   */
   public CDSCouponDes(final LocalDate accStart, final LocalDate accEnd, final LocalDate paymentDate) {
     this(accStart, accEnd, paymentDate, DEFAULT_ACCURAL_DCC);
   }
 
+  /**
+   * A date based description of a CDS accrual period 
+   * @param accStart The start date of the period 
+   * @param accEnd The end date of the period 
+   * @param paymentDate The payment date for the period 
+   * @param accrualDCC The day count used for the accrual 
+   */
   public CDSCouponDes(final LocalDate accStart, final LocalDate accEnd, final LocalDate paymentDate, final DayCount accrualDCC) {
     ArgumentChecker.notNull(accStart, "accStart");
     ArgumentChecker.notNull(accEnd, "accEnd");
