@@ -177,7 +177,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
   
   /**
    * Returns the fixing dates relative to the specified set of accrual dates, which are either start or end dates.
-   * @param accrualDates either accrual start or accrual end dates.
+   * @param fixingDates either accrual start or accrual end dates.
    * @return the fixing dates
    */
   private ZonedDateTime[] getResetDates(ZonedDateTime[] fixingDates) {
@@ -381,11 +381,11 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     
     ZonedDateTime paymentDate;
     if (DateRelativeTo.START == getPaymentDateRelativeTo()) {
-      paymentDate = accrualStartDate;
+      paymentDate = getPaymentDates(new ZonedDateTime[] {accrualStartDate})[0];
     } else {
-      paymentDate = accrualEndDate;
+      paymentDate = getPaymentDates(new ZonedDateTime[] {accrualEndDate})[0];
     }
-    
+
     double notional = (isPayer() ? -1 : 1) * getNotional().getAmount(accrualStartDate.toLocalDate());
     
     // Check if we need to handle an interpolated stub

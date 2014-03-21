@@ -92,6 +92,11 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    */
   @PropertyDefinition(validate = "notNull")
   private DateRelativeTo _resetRelativeTo = DateRelativeTo.START;
+  /**
+   * The payment lag in days.
+   */
+  @PropertyDefinition
+  private int _paymentLag;
 
   /**
    * Creates an instance.
@@ -115,6 +120,74 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
   /**
    * Creates an instance.
    * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param paymentCalendars  the payment calendars, not null
+   * @param calculationCalendars  the calculation calendars, not null
+   * @param maturityCalendars  the maturity calendars, not null
+   * @param paymentDayConvention  the payment day convention, not null
+   * @param calculationBusinessDayConvention  the calculation day convention, not null
+   * @param maturityBusinessDayConvention  the maturity day convention, not null
+   * @param dayCountConvention  the day count frequency, not null
+   * @param paymentFrequency  the payment frequency, not null
+   * @param calculationFrequency  the calculation frequency, not null
+   * @param paymentRelativeTo  the payment is relative to the beginning or end of the period, not null
+   * @param adjustedAccrual  whether the accrual should be adjusted
+   * @param settlementDays  the number of settlement days
+   * @param rollConvention  the roll convention, not null
+   * @param compoundingMethod  the compounding, not null
+   * @param rateType  the rate type, not null
+   * @param fixingCalendars  the fixing calendars, not null
+   * @param fixingBusinessDayConvention  the fixing day convention, not null
+   * @param settlementDayType  the settlement date type, not null
+   * @param resetFrequency  the reset frequency, not null
+   * @param resetCalendars  the reset calendars, not null
+   * @param resetBusinessDayConvention  the reset day convention, not null
+   * @param resetRelativeTo  the reset relative to, not null
+   * @param paymentLag the payment lag in days
+   */
+  public FloatingInterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle,  // CSIGNORE
+      Set<ExternalId> paymentCalendars,
+      Set<ExternalId> calculationCalendars,
+      Set<ExternalId> maturityCalendars,
+      BusinessDayConvention paymentDayConvention,
+      BusinessDayConvention calculationBusinessDayConvention,
+      BusinessDayConvention maturityBusinessDayConvention,
+      DayCount dayCountConvention,
+      Frequency paymentFrequency,
+      Frequency calculationFrequency,
+      DateRelativeTo paymentRelativeTo,
+      boolean adjustedAccrual,
+      int settlementDays,
+      RollConvention rollConvention,
+      CompoundingMethod compoundingMethod,
+      FloatingRateType rateType,
+      Set<ExternalId> fixingCalendars,
+      BusinessDayConvention fixingBusinessDayConvention,
+      OffsetType settlementDayType,
+      Frequency resetFrequency,
+      Set<ExternalId> resetCalendars,
+      BusinessDayConvention resetBusinessDayConvention,
+      DateRelativeTo resetRelativeTo,
+      int paymentLag) {
+    super(name, externalIdBundle, paymentCalendars, calculationCalendars, maturityCalendars,
+        paymentDayConvention, calculationBusinessDayConvention, maturityBusinessDayConvention,
+        dayCountConvention, paymentFrequency, calculationFrequency, paymentRelativeTo,
+        adjustedAccrual, settlementDays, rollConvention, compoundingMethod);
+    setRateType(rateType);
+    setFixingCalendars(fixingCalendars);
+    setFixingBusinessDayConvention(fixingBusinessDayConvention);
+    setSettlementDayType(settlementDayType);
+    setResetFrequency(resetFrequency);
+    setResetCalendars(resetCalendars);
+    setResetBusinessDayConvention(resetBusinessDayConvention);
+    setResetRelativeTo(resetRelativeTo);
+    setPaymentLag(paymentLag);
+  }
+
+  /**
+   * Creates an instance.
+   *
    * @param name  the convention name, not null
    * @param externalIdBundle  the external identifiers for this convention, not null
    * @param paymentCalendars  the payment calendars, not null
@@ -226,6 +299,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     leg.setPaymentDateBusinessDayConvention(getPaymentDayConvention());
     leg.setPaymentDateCalendars(getPaymentCalendars());
     leg.setPaymentDateFrequency(getPaymentFrequency());
+    leg.setPaymentOffset(-_paymentLag);
     leg.setPaymentDateRelativeTo(getPaymentRelativeTo());
     // accrual period parameters
     leg.setAccrualPeriodBusinessDayConvention(getCalculationBusinessDayConvention());
@@ -500,6 +574,31 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the payment lag in days.
+   * @return the value of the property
+   */
+  public int getPaymentLag() {
+    return _paymentLag;
+  }
+
+  /**
+   * Sets the payment lag in days.
+   * @param paymentLag  the new value of the property
+   */
+  public void setPaymentLag(int paymentLag) {
+    this._paymentLag = paymentLag;
+  }
+
+  /**
+   * Gets the the {@code paymentLag} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> paymentLag() {
+    return metaBean().paymentLag().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public FloatingInterestRateSwapLegConvention clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -520,6 +619,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           JodaBeanUtils.equal(getResetCalendars(), other.getResetCalendars()) &&
           JodaBeanUtils.equal(getResetBusinessDayConvention(), other.getResetBusinessDayConvention()) &&
           JodaBeanUtils.equal(getResetRelativeTo(), other.getResetRelativeTo()) &&
+          (getPaymentLag() == other.getPaymentLag()) &&
           super.equals(obj);
     }
     return false;
@@ -536,12 +636,13 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetCalendars());
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetRelativeTo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("FloatingInterestRateSwapLegConvention{");
     int len = buf.length();
     toString(buf);
@@ -563,6 +664,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     buf.append("resetCalendars").append('=').append(JodaBeanUtils.toString(getResetCalendars())).append(',').append(' ');
     buf.append("resetBusinessDayConvention").append('=').append(JodaBeanUtils.toString(getResetBusinessDayConvention())).append(',').append(' ');
     buf.append("resetRelativeTo").append('=').append(JodaBeanUtils.toString(getResetRelativeTo())).append(',').append(' ');
+    buf.append("paymentLag").append('=').append(JodaBeanUtils.toString(getPaymentLag())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -618,6 +720,11 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     private final MetaProperty<DateRelativeTo> _resetRelativeTo = DirectMetaProperty.ofReadWrite(
         this, "resetRelativeTo", FloatingInterestRateSwapLegConvention.class, DateRelativeTo.class);
     /**
+     * The meta-property for the {@code paymentLag} property.
+     */
+    private final MetaProperty<Integer> _paymentLag = DirectMetaProperty.ofReadWrite(
+        this, "paymentLag", FloatingInterestRateSwapLegConvention.class, Integer.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -629,7 +736,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
         "resetFrequency",
         "resetCalendars",
         "resetBusinessDayConvention",
-        "resetRelativeTo");
+        "resetRelativeTo",
+        "paymentLag");
 
     /**
      * Restricted constructor.
@@ -656,6 +764,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           return _resetBusinessDayConvention;
         case 779838742:  // resetRelativeTo
           return _resetRelativeTo;
+        case 1612870060:  // paymentLag
+          return _paymentLag;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -740,6 +850,14 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
       return _resetRelativeTo;
     }
 
+    /**
+     * The meta-property for the {@code paymentLag} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> paymentLag() {
+      return _paymentLag;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -760,6 +878,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           return ((FloatingInterestRateSwapLegConvention) bean).getResetBusinessDayConvention();
         case 779838742:  // resetRelativeTo
           return ((FloatingInterestRateSwapLegConvention) bean).getResetRelativeTo();
+        case 1612870060:  // paymentLag
+          return ((FloatingInterestRateSwapLegConvention) bean).getPaymentLag();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -791,6 +911,9 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           return;
         case 779838742:  // resetRelativeTo
           ((FloatingInterestRateSwapLegConvention) bean).setResetRelativeTo((DateRelativeTo) newValue);
+          return;
+        case 1612870060:  // paymentLag
+          ((FloatingInterestRateSwapLegConvention) bean).setPaymentLag((Integer) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

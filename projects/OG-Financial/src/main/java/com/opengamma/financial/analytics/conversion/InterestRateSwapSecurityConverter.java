@@ -135,7 +135,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       spread = floatLeg.getSpreadSchedule().getInitialRate();
     }
 
-    int paymentOffset = 0;
+    final int paymentOffset = floatLeg.getPaymentOffset();
     
     final IndexDeposit index;
     if (FloatingRateType.IBOR == floatLeg.getFloatingRateType()) {
@@ -148,7 +148,6 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           RollConvention.EOM == leg.getRollConvention(),
           floatLeg.getFloatingReferenceRateId().getValue());
       
-      paymentOffset = 0; // TODO handle payment lag properly
     } else if (FloatingRateType.OIS == floatLeg.getFloatingRateType()) {
       Convention convention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
       if (convention == null) {
@@ -164,7 +163,6 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           floatLeg.getDayCountConvention(),
           onIndexConvention.getPublicationLag());
       
-      paymentOffset = 0;
     } else {
       throw new OpenGammaRuntimeException("Unsupported floating rate type " + floatLeg.getFloatingRateType());
     }
@@ -172,8 +170,6 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     OffsetAdjustedDateParameters paymentDateParameters = null;
     if (leg.getPaymentDateCalendars() != null && leg.getPaymentDateBusinessDayConvention() != null) {
       Calendar paymentDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getPaymentDateCalendars().toArray(new ExternalId[leg.getPaymentDateCalendars().size()]));
-      // TODO move payment lag to base leg convention
-//        paymentDateParameters = new OffsetAdjustedDateParameters(legConvention.getPaymentLag(), OffsetType.BUSINESS, paymentDateCalendar, legConvention.getPaymentDayConvention());
       paymentDateParameters = new OffsetAdjustedDateParameters(paymentOffset, OffsetType.BUSINESS, paymentDateCalendar, leg.getPaymentDateBusinessDayConvention());
     }
     

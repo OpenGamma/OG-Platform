@@ -99,7 +99,7 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           paymentDates[c],
           accrualStartDates[c],
           accrualEndDates[c],
-          getDayCount().getDayCountFraction(accrualStartDates[c], paymentDates[c], accrualCalendar),
+          getDayCount().getDayCountFraction(accrualStartDates[c], accrualEndDates[c], accrualCalendar),
           (isPayer() ? -1 : 1) * getNotional().getAmount(accrualStartDates[c].toLocalDate()),
           _rate);
     }
@@ -157,9 +157,11 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
       
       final ZonedDateTime adjustedEndDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
           getAccrualPeriodAdjustmentParameters().getCalendar(), getEndDate());
+      ZonedDateTime paymentDate = getPaymentDates(new ZonedDateTime[] {adjustedEndDate})[0];
+
       coupons[0] = CouponFixedCompoundingDefinition.from(
           getCurrency(),
-          adjustedEndDate, // pmt
+          paymentDate, // pmt
           getStartDate(), // acc start
           adjustedEndDate, // acc end
           getDayCount().getDayCountFraction(getStartDate(), adjustedEndDate, getPaymentDateAdjustmentParameters().getCalendar()), // pmt yf
