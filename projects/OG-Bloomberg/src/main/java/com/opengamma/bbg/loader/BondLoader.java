@@ -53,6 +53,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_BASE_CPI;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
@@ -133,6 +134,7 @@ public class BondLoader extends SecurityLoader {
       FIELD_CALLABLE,
       FIELD_IS_PERPETUAL,
       FIELD_BULLET,
+      FIELD_BASE_CPI,
       FIELD_RTG_FITCH,
       FIELD_RTG_MOODY,
       FIELD_RTG_SP,
@@ -328,6 +330,7 @@ public class BondLoader extends SecurityLoader {
       final Double minimumIncrement = validateAndGetDoubleField(fieldData, FIELD_MIN_INCREMENT);
       final Double parAmount = validateAndGetDoubleField(fieldData, FIELD_PAR_AMT);
       final Double redemptionValue = validateAndGetDoubleField(fieldData, FIELD_REDEMP_VAL);
+      final String baseCPI = validateAndGetStringField(fieldData, FIELD_BASE_CPI); // keep as string becauase going into attributes
 
       //String bbgUnique = validateAndGetStringField(fieldData, FIELD_ID_BBG_UNIQUE);
       final String marketSector = validateAndGetStringField(fieldData, FIELD_MARKET_SECTOR_DES);
@@ -343,6 +346,7 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+	((BondSecurity) bondSecurity).addAttribute("BaseCPI", baseCPI);
       } else if (isFloater) {
         // six character stub of CUSIP to link to legal entity.
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?
