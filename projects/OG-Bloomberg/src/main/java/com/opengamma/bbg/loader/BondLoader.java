@@ -330,7 +330,7 @@ public class BondLoader extends SecurityLoader {
       final Double minimumIncrement = validateAndGetDoubleField(fieldData, FIELD_MIN_INCREMENT);
       final Double parAmount = validateAndGetDoubleField(fieldData, FIELD_PAR_AMT);
       final Double redemptionValue = validateAndGetDoubleField(fieldData, FIELD_REDEMP_VAL);
-      final String baseCPI = validateAndGetStringField(fieldData, FIELD_BASE_CPI); // keep as string becauase going into attributes
+      final String baseCPI = validateAndGetStringField(fieldData, FIELD_BASE_CPI); // keep as string because going into attributes
 
       //String bbgUnique = validateAndGetStringField(fieldData, FIELD_ID_BBG_UNIQUE);
       final String marketSector = validateAndGetStringField(fieldData, FIELD_MARKET_SECTOR_DES);
@@ -346,7 +346,11 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+<<<<<<< Updated upstream
         ((BondSecurity) bondSecurity).addAttribute("BaseCPI", baseCPI);
+=======
+	      ((BondSecurity) bondSecurity).addAttribute("BaseCPI",baseCPI);
+>>>>>>> Stashed changes
       } else if (isFloater) {
         // six character stub of CUSIP to link to legal entity.
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?

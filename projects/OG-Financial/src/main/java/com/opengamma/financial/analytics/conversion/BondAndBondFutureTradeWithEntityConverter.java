@@ -455,8 +455,9 @@ public class BondAndBondFutureTradeWithEntityConverter {
         }
         final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
         final Period paymentPeriod = getTenor(bond.getCouponFrequency());
+        final double baseCPI = Double.parseDouble(bond.attributes().get().get("BaseCPI"));
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
-        return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, 300.0, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
+        return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
             calendar, dayCount, yieldConvention, isEOM, legalEntity);
       }
     });
