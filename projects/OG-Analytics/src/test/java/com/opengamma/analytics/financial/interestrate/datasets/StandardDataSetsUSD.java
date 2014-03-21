@@ -14,6 +14,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.datasets.CalendarUSD;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
@@ -65,8 +66,11 @@ import com.opengamma.util.tuple.Pair;
  */
 public class StandardDataSetsUSD {
 
-  private static final ZonedDateTime REFERENCE_DATE_20140122 = DateUtils.getUTCDate(2014, 1, 22);
-  private static final ZonedDateTime REFERENCE_DATE_20140218 = DateUtils.getUTCDate(2014, 2, 18); // Date to be corrected
+  private static final ZonedDateTime[] REFERENCE_DATE = new ZonedDateTime[2];
+  static {
+    REFERENCE_DATE[0] = DateUtils.getUTCDate(2014, 1, 22);
+    REFERENCE_DATE[1] = DateUtils.getUTCDate(2014, 1, 22);
+  }
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -75,7 +79,7 @@ public class StandardDataSetsUSD {
   private static final double TOLERANCE_ROOT = 1.0E-10;
   private static final int STEP_MAX = 100;
 
-  private static final Calendar NYC = new MondayToFridayCalendar("NYC");
+  private static final Calendar NYC = new CalendarUSD("NYC");
   private static final Currency USD = Currency.USD;
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD);
 
@@ -290,12 +294,12 @@ public class StandardDataSetsUSD {
   private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<>();
 
   static {
-    DEFINITIONS_DSC_1_USD = getDefinitions(DSC_1_USD_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR, REFERENCE_DATE_20140122);
-    DEFINITIONS_FWD3_1_USD = getDefinitions(FWD3_1_USD_MARKET_QUOTES, FWD3_1_USD_GENERATORS, FWD3_1_USD_ATTR, REFERENCE_DATE_20140122);
-    DEFINITIONS_DSC_2_USD = getDefinitions(DSC_2_USD_MARKET_QUOTES, DSC_2_USD_GENERATORS, DSC_2_USD_ATTR, REFERENCE_DATE_20140218);
-    DEFINITIONS_FWD3_2_USD = getDefinitions(FWD3_2_USD_MARKET_QUOTES, FWD3_2_USD_GENERATORS, FWD3_2_USD_ATTR, REFERENCE_DATE_20140218);
-    DEFINITIONS_FWD1_2_USD = getDefinitions(FWD1_2_USD_MARKET_QUOTES, FWD1_2_USD_GENERATORS, FWD1_2_USD_ATTR, REFERENCE_DATE_20140218);
-    DEFINITIONS_FWD6_2_USD = getDefinitions(FWD6_2_USD_MARKET_QUOTES, FWD6_2_USD_GENERATORS, FWD6_2_USD_ATTR, REFERENCE_DATE_20140218);
+    DEFINITIONS_DSC_1_USD = getDefinitions(DSC_1_USD_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR, REFERENCE_DATE[0]);
+    DEFINITIONS_FWD3_1_USD = getDefinitions(FWD3_1_USD_MARKET_QUOTES, FWD3_1_USD_GENERATORS, FWD3_1_USD_ATTR, REFERENCE_DATE[0]);
+    DEFINITIONS_DSC_2_USD = getDefinitions(DSC_2_USD_MARKET_QUOTES, DSC_2_USD_GENERATORS, DSC_2_USD_ATTR, REFERENCE_DATE[1]);
+    DEFINITIONS_FWD3_2_USD = getDefinitions(FWD3_2_USD_MARKET_QUOTES, FWD3_2_USD_GENERATORS, FWD3_2_USD_ATTR, REFERENCE_DATE[1]);
+    DEFINITIONS_FWD1_2_USD = getDefinitions(FWD1_2_USD_MARKET_QUOTES, FWD1_2_USD_GENERATORS, FWD1_2_USD_ATTR, REFERENCE_DATE[1]);
+    DEFINITIONS_FWD6_2_USD = getDefinitions(FWD6_2_USD_MARKET_QUOTES, FWD6_2_USD_GENERATORS, FWD6_2_USD_ATTR, REFERENCE_DATE[1]);
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       DEFINITIONS_UNITS[loopblock] = new InstrumentDefinition<?>[NB_UNITS[loopblock]][][];
       GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
@@ -346,7 +350,7 @@ public class StandardDataSetsUSD {
   private static final List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<>();
   static {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQC, PSMQCSC, false));
+      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], REFERENCE_DATE[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQC, PSMQCSC, false));
     }
   }
 
@@ -391,7 +395,8 @@ public class StandardDataSetsUSD {
   }
 
   @SuppressWarnings("unchecked")
-  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
+  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, 
+      final ZonedDateTime calibrationDate, final GeneratorYDCurve[][] curveGenerators,
       final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
     final int nbUnits = curveGenerators.length;
@@ -404,7 +409,7 @@ public class StandardDataSetsUSD {
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
         final double[] initialGuess = new double[nInstruments];
         for (int k = 0; k < nInstruments; k++) {
-          derivatives[k] = convert(definitions[i][j][k], i, withToday);
+          derivatives[k] = convert(definitions[i][j][k], calibrationDate, i, withToday);
           initialGuess[k] = initialGuess(definitions[i][j][k]);
         }
         final GeneratorYDCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
@@ -416,15 +421,15 @@ public class StandardDataSetsUSD {
         sensitivityCalculator);
   }
 
-  private static InstrumentDerivative convert(final InstrumentDefinition<?> definition, final int unit, final boolean withToday) {
+  private static InstrumentDerivative convert(final InstrumentDefinition<?> definition, final ZonedDateTime date, final int unit, final boolean withToday) {
     InstrumentDerivative ird;
     if (definition instanceof SwapFixedONDefinition) {
-      ird = ((SwapFixedONDefinition) definition).toDerivative(REFERENCE_DATE_20140122, getTSSwapFixedON(withToday, unit));
+      ird = ((SwapFixedONDefinition) definition).toDerivative(date, getTSSwapFixedON(withToday, unit));
     } else {
       if (definition instanceof SwapFixedIborDefinition) {
-        ird = ((SwapFixedIborDefinition) definition).toDerivative(REFERENCE_DATE_20140122, getTSSwapFixedIbor(withToday, unit));
+        ird = ((SwapFixedIborDefinition) definition).toDerivative(date, getTSSwapFixedIbor(withToday, unit));
       } else {
-        ird = definition.toDerivative(REFERENCE_DATE_20140122);
+        ird = definition.toDerivative(date);
       }
     }
     return ird;

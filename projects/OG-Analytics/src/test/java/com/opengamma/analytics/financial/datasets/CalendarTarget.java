@@ -7,7 +7,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 public class CalendarTarget extends MondayToFridayCalendar {
 
   /**
-   * 
+   * Calendar for Target non-good business days. Only for test purposes, is not accurate enough for production.
    */
   private static final long serialVersionUID = 1L;
 

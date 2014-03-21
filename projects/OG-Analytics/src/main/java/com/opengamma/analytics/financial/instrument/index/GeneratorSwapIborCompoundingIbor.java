@@ -188,7 +188,7 @@ public class GeneratorSwapIborCompoundingIbor extends GeneratorInstrument<Genera
     ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar1);
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex1, _calendar1);
-    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(startDate, attribute.getEndPeriod(), _iborIndex1, _calendar1);
+    final ZonedDateTime maturityDate = startDate.plus(attribute.getEndPeriod());
     final AnnuityDefinition<CouponIborCompoundingFlatSpreadDefinition> leg1 = AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate,
         _compoundingPeriod1, notional, spread, _iborIndex1, StubType.SHORT_START, true, _businessDayConvention, _endOfMonth, _calendar1, StubType.SHORT_START);
     final AnnuityDefinition<CouponIborDefinition> leg2 = AnnuityDefinitionBuilder.couponIbor(startDate, maturityDate, _iborIndex2.getTenor(), notional, _iborIndex2, false,
