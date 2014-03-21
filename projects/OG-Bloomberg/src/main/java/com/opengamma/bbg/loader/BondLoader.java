@@ -346,7 +346,7 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
-	((BondSecurity) bondSecurity).addAttribute("BaseCPI", baseCPI);
+        ((BondSecurity) bondSecurity).addAttribute("BaseCPI", baseCPI);
       } else if (isFloater) {
         // six character stub of CUSIP to link to legal entity.
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?
