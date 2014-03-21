@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -16,6 +18,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -91,6 +94,50 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
   }
 
   @Test
+  public void test_add_addWithPermission() {
+    Instant now = Instant.now(_htsMaster.getClock());
+
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Added");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    info.setPermissions(Sets.newHashSet("A", "B", "C"));
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument test = _htsMaster.add(doc);
+
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbHts", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageableHistoricalTimeSeriesInfo testInfo = test.getInfo();
+    assertNotNull(testInfo);
+    assertEquals(uniqueId, testInfo.getUniqueId());
+    assertEquals("Added", testInfo.getName());
+    assertEquals("DF", testInfo.getDataField());
+    assertEquals("DS", testInfo.getDataSource());
+    assertEquals("DP", testInfo.getDataProvider());
+    assertEquals("OT", testInfo.getObservationTime());
+    assertEquals(1, testInfo.getExternalIdBundle().size());
+    assertTrue(testInfo.getExternalIdBundle().getExternalIds().contains(id));
+    assertNotNull(testInfo.getPermissions());
+    assertEquals(3, testInfo.getPermissions().size());
+    assertTrue(testInfo.getPermissions().contains("A"));
+    assertTrue(testInfo.getPermissions().contains("B"));
+    assertTrue(testInfo.getPermissions().contains("C"));
+  }
+
+  @Test
   public void test_add_addThenGet() {
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
     info.setName("Added");
@@ -104,6 +151,40 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
     
+    HistoricalTimeSeriesInfoDocument test = _htsMaster.get(added.getUniqueId());
+    assertEquals(added, test);
+  }
+
+  @Test
+  public void test_add_addThenGetWithPermission() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Added");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    info.setPermissions(Sets.newHashSet("A", "B", "C"));
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getValue());
+    assertNotNull(added.getUniqueId());
+    assertEquals("Added", added.getValue().getName());
+    assertEquals("DF", added.getValue().getDataField());
+    assertEquals("DS", added.getValue().getDataSource());
+    assertEquals("DP", added.getValue().getDataProvider());
+    assertEquals("OT", added.getValue().getObservationTime());
+    assertEquals(bundle, added.getValue().getExternalIdBundle());
+    Set<String> permissions = added.getValue().getPermissions();
+    assertNotNull(permissions);
+    assertEquals(3, permissions.size());
+    assertTrue(permissions.contains("A"));
+    assertTrue(permissions.contains("B"));
+    assertTrue(permissions.contains("C"));
+
     HistoricalTimeSeriesInfoDocument test = _htsMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }

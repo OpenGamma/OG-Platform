@@ -7,6 +7,8 @@ package com.opengamma.master.historicaltimeseries;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -83,6 +85,12 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    */
   @PropertyDefinition
   private ObjectId _timeSeriesObjectId;
+  /**
+   * Set of permissions
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Set<String> _permissions = new TreeSet<>();
 
   /**
    * Creates an instance.
@@ -310,6 +318,36 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets set of permissions
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   * @return the value of the property, not null
+   */
+  public Set<String> getPermissions() {
+    return _permissions;
+  }
+
+  /**
+   * Sets set of permissions
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   * @param permissions  the new value of the property, not null
+   */
+  public void setPermissions(Set<String> permissions) {
+    JodaBeanUtils.notNull(permissions, "permissions");
+    this._permissions.clear();
+    this._permissions.addAll(permissions);
+  }
+
+  /**
+   * Gets the the {@code permissions} property.
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   * @return the property, not null
+   */
+  public final Property<Set<String>> permissions() {
+    return metaBean().permissions().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public ManageableHistoricalTimeSeriesInfo clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -329,7 +367,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(getTimeSeriesObjectId(), other.getTimeSeriesObjectId());
+          JodaBeanUtils.equal(getTimeSeriesObjectId(), other.getTimeSeriesObjectId()) &&
+          JodaBeanUtils.equal(getPermissions(), other.getPermissions());
     }
     return false;
   }
@@ -345,12 +384,13 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesObjectId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissions());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("ManageableHistoricalTimeSeriesInfo{");
     int len = buf.length();
     toString(buf);
@@ -370,6 +410,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
     buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
     buf.append("timeSeriesObjectId").append('=').append(JodaBeanUtils.toString(getTimeSeriesObjectId())).append(',').append(' ');
+    buf.append("permissions").append('=').append(JodaBeanUtils.toString(getPermissions())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -423,6 +464,12 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     private final MetaProperty<ObjectId> _timeSeriesObjectId = DirectMetaProperty.ofReadWrite(
         this, "timeSeriesObjectId", ManageableHistoricalTimeSeriesInfo.class, ObjectId.class);
     /**
+     * The meta-property for the {@code permissions} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<String>> _permissions = DirectMetaProperty.ofReadWrite(
+        this, "permissions", ManageableHistoricalTimeSeriesInfo.class, (Class) Set.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -434,7 +481,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
         "dataSource",
         "dataProvider",
         "observationTime",
-        "timeSeriesObjectId");
+        "timeSeriesObjectId",
+        "permissions");
 
     /**
      * Restricted constructor.
@@ -461,6 +509,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
           return _observationTime;
         case 2129430654:  // timeSeriesObjectId
           return _timeSeriesObjectId;
+        case 1133704324:  // permissions
+          return _permissions;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -545,6 +595,14 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
       return _timeSeriesObjectId;
     }
 
+    /**
+     * The meta-property for the {@code permissions} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<String>> permissions() {
+      return _permissions;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -565,10 +623,13 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
           return ((ManageableHistoricalTimeSeriesInfo) bean).getObservationTime();
         case 2129430654:  // timeSeriesObjectId
           return ((ManageableHistoricalTimeSeriesInfo) bean).getTimeSeriesObjectId();
+        case 1133704324:  // permissions
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getPermissions();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -596,8 +657,16 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
         case 2129430654:  // timeSeriesObjectId
           ((ManageableHistoricalTimeSeriesInfo) bean).setTimeSeriesObjectId((ObjectId) newValue);
           return;
+        case 1133704324:  // permissions
+          ((ManageableHistoricalTimeSeriesInfo) bean).setPermissions((Set<String>) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableHistoricalTimeSeriesInfo) bean)._permissions, "permissions");
     }
 
   }

@@ -415,6 +415,12 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
           idKeyList.add(idkeyArgs);
         }
       }
+      // the arguments for inserting into permission table
+      final List<DbMapSqlParameterSource> permissionList = new ArrayList<DbMapSqlParameterSource>();
+      for (String permission : info.getPermissions()) {
+        final DbMapSqlParameterSource permissionArgs = createParameterSource().addValue("doc_id", docId).addValue("permission", permission);
+        permissionList.add(permissionArgs);
+      }
 
       // insert
       final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
@@ -423,6 +429,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       getJdbcTemplate().update(sqlDoc, docArgs);
       getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
       getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+      if (!info.getPermissions().isEmpty()) {
+        final String sqlPermission = getElSqlBundle().getSql("InsertPermission");
+        getJdbcTemplate().batchUpdate(sqlPermission, permissionList.toArray(new DbMapSqlParameterSource[permissionList.size()]));
+      }
 
       // set the uniqueId
       final UniqueId uniqueId = createUniqueId(docOid, docId);
@@ -560,6 +570,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
           final LocalDate validTo = DbDateUtils.fromSqlDateNullFarFuture(rs.getDate("KEY_VALID_TO"));
           ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of(idScheme, idValue), validFrom, validTo);
           _info.setExternalIdBundle(_info.getExternalIdBundle().withExternalId(id));
+        }
+        final String permission = rs.getString("PERMISSION");
+        if (permission != null) {
+          _info.getPermissions().add(permission);
         }
       }
       return _documents;
