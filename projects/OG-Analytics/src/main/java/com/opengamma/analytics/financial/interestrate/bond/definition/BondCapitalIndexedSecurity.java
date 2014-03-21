@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -47,6 +45,15 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * The index value at the start of the bond.
    */
   private final double _indexStartValue;
+  /**
+   * The last known fixing of the price index.
+   */
+  private final double _lastIndexKnownFixing;
+
+  /**
+   * The fixing time last known fixing of the price index.
+   */
+  private final double _lastKnownFixingTime;
 
   /**
    * Constructor of the Capital inflation indexed bond.
@@ -59,11 +66,15 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param couponPerYear Number of coupon per year.
    * @param settlement The description of the bond settlement.
    * @param indexStartValue The index value at the start of the bond.
+   * @param lastIndexKnownFixing The last index known fixing.
+   * @param lastKnownFixingTime TODO
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final String issuer) {
-    this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, yieldConvention, couponPerYear, settlement, indexStartValue, new LegalEntity(null, issuer, null, null, null));
+      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final double lastIndexKnownFixing,
+      final double lastKnownFixingTime, final String issuer) {
+    this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, yieldConvention, couponPerYear, settlement, indexStartValue, lastIndexKnownFixing, lastKnownFixingTime, new LegalEntity(
+        null, issuer, null, null, null));
   }
 
   /**
@@ -77,10 +88,13 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param couponPerYear Number of coupon per year.
    * @param settlement The description of the bond settlement.
    * @param indexStartValue The index value at the start of the bond.
+   * @param lastIndexKnownFixing The last index known fixing.
+   * @param lastKnownFixingTime TODO
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final LegalEntity issuer) {
+      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final double lastIndexKnownFixing,
+      final double lastKnownFixingTime, final LegalEntity issuer) {
     super(nominal, coupon, settlementTime, issuer);
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
     ArgumentChecker.notNull(settlement, "Settlement");
@@ -90,6 +104,8 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     _factorToNextCoupon = factorToNextCoupon;
     _settlement = settlement;
     _indexStartValue = indexStartValue;
+    _lastIndexKnownFixing = lastIndexKnownFixing;
+    _lastKnownFixingTime = lastKnownFixingTime;
   }
 
   /**
@@ -144,17 +160,33 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * Gets the index value at the start of the bond.
    * @return The index value.
    */
+  public double getLastIndexKnownFixing() {
+    return _lastIndexKnownFixing;
+  }
+
+  /**
+   * Gets the index value at the start of the bond.
+   * @return The index value.
+   */
+  public double getLastKnownFixingTime() {
+    return _lastKnownFixingTime;
+  }
+
+  /**
+   * Gets the index value at the start of the bond.
+   * @return The index value.
+   */
   public CouponInflation getSettlement() {
     return _settlement;
   }
 
-//  /**
-//   * Returns the issuer/currency pair for the bond.
-//   * @return The pair.
-//   */
-//  public Pair<String, Currency> getIssuerCurrency() {
-//    return ObjectsPair.of(getIssuer(), getCurrency());
-//  }
+  //  /**
+  //   * Returns the issuer/currency pair for the bond.
+  //   * @return The pair.
+  //   */
+  //  public Pair<String, Currency> getIssuerCurrency() {
+  //    return ObjectsPair.of(getIssuer(), getCurrency());
+  //  }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
@@ -168,6 +200,9 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     return visitor.visitBondCapitalIndexedSecurity(this);
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -180,11 +215,18 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _settlement.hashCode();
-    result = prime * result + _yieldConvention.hashCode();
+    temp = Double.doubleToLongBits(_lastIndexKnownFixing);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_lastKnownFixingTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_settlement == null) ? 0 : _settlement.hashCode());
+    result = prime * result + ((_yieldConvention == null) ? 0 : _yieldConvention.hashCode());
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -196,7 +238,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondCapitalIndexedSecurity<?> other = (BondCapitalIndexedSecurity<?>) obj;
+    final BondCapitalIndexedSecurity other = (BondCapitalIndexedSecurity) obj;
     if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
       return false;
     }
@@ -209,10 +251,24 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
     }
-    if (!ObjectUtils.equals(_settlement, other._settlement)) {
+    if (Double.doubleToLongBits(_lastIndexKnownFixing) != Double.doubleToLongBits(other._lastIndexKnownFixing)) {
       return false;
     }
-    if (!ObjectUtils.equals(_yieldConvention, other._yieldConvention)) {
+    if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime)) {
+      return false;
+    }
+    if (_settlement == null) {
+      if (other._settlement != null) {
+        return false;
+      }
+    } else if (!_settlement.equals(other._settlement)) {
+      return false;
+    }
+    if (_yieldConvention == null) {
+      if (other._yieldConvention != null) {
+        return false;
+      }
+    } else if (!_yieldConvention.equals(other._yieldConvention)) {
       return false;
     }
     return true;

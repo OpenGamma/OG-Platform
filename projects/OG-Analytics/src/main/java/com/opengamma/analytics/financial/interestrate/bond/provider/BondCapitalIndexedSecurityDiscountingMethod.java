@@ -206,21 +206,23 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     }
 
     if (yieldConvention.getName().equals(INDEX_LINKED_FLOAT.getName())) {
-      double firstYearFraction = 0.0;
+
       final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      double firstYearFraction = 0.0;
+      double firstCouponEndFixingTime = 0.0;
       if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {
         firstYearFraction = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(0)).getPaymentYearFraction();
+        firstCouponEndFixingTime = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(0)).getReferenceEndTime()[1];
       } else if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyGearing) {
         firstYearFraction = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(0)).getPaymentYearFraction();
+        firstCouponEndFixingTime = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(0)).getReferenceEndTime();
       }
       final double firstCashFlow = firstYearFraction * realRate;
       final double v = 1 / (1 + yield / bond.getCouponPerYear());
-      final double rpibase = 135.1;
-
-      final double nbMonth = 0;
+      final double rpibase = bond.getIndexStartValue();
+      final double rpiLast = bond.getLastIndexKnownFixing();
+      final int nbMonth = (int) (firstCouponEndFixingTime - bond.getLastIndexKnownFixing());
       final double u = Math.pow(1 / (1 + .03), .5);
-      final double rpiLast = 252.6;
-
       final double a = rpiLast / rpibase * Math.pow(u, 2 * nbMonth / 12);
       if (bond.getCoupon().getNumberOfPayments() == 1) {
         return Math.pow(u * v, bond.getAccrualFactorToNextCoupon()) * (firstCashFlow + 1) * a / u;

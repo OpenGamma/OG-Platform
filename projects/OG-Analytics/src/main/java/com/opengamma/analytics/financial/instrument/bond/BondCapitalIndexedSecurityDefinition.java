@@ -532,6 +532,13 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     } else {
       settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     }
+    double lasKnownFixingTime = 0;
+    double lasKnownIndexFixing = 100;
+    if (!data.isEmpty()) {
+      lasKnownFixingTime = TimeCalculator.getTimeBetween(date, data.getLatestTime());
+      lasKnownIndexFixing = data.getLatestValue();
+    }
+
     final Annuity<Coupon> nominal = (Annuity<Coupon>) getNominal().toDerivative(date, data);
     final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) getCoupons().trimBefore(settlementDate);
     final CouponDefinition[] couponExPeriodArray = new CouponDefinition[couponDefinition.getNumberOfPayments()];
@@ -558,7 +565,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
     final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date);
     return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
-        getIssuerEntity());
+        lasKnownIndexFixing, lasKnownFixingTime, getIssuerEntity());
   }
 
   /**
