@@ -284,8 +284,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param dirtyPrice The bond dirty price.
    * @return The yield.
    */
-  public double 
-(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
+  public double yieldRealFromDirtyRealPrice(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
     /**
      * Inner function used to find the yield.
      */

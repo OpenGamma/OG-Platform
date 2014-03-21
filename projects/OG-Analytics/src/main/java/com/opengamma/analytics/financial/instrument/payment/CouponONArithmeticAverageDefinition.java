@@ -244,7 +244,8 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
   }
 
   /**
-   * Builder with the rate cut off (the last n=rateCutoff fixings are the same) from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one of the index.
+   * Builder with the rate cut off (the last n=rateCutoff fixings are the same) from financial details. 
+   * The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one of the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
    * @param fixingPeriodStartDate The coupon settlement date and start of the fixing period.
