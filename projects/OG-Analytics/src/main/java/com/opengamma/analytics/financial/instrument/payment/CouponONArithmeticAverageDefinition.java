@@ -129,7 +129,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
   }
 
   /**
-   * Constructor with the rate cut off (the last two fixings are the same) from all the coupon details.
+   * Constructor with the rate cut off (the last n=rateCutoff fixings are the same) from all the coupon details.
    * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -140,7 +140,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param fixingPeriodStartDate The start date of the fixing period.
    * @param fixingPeriodEndDate The end date of the fixing period.
    * @param calendar The holiday calendar for the overnight leg.
-   * @param  rateCutoff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
+   * @param  rateCutoff The rate cut off should be bigger than 1,and smaller than the number of period (which is the number of open days between the two fixing periods). 1 is for the normal case.
    * @return The OIS coupon.
    */
   public static CouponONArithmeticAverageDefinition withRateCutOff(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
@@ -150,7 +150,11 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     ArgumentChecker.notNull(fixingPeriodStartDate, "CouponArithmeticAverageONDefinition: fixingPeriodStartDate");
     ArgumentChecker.notNull(fixingPeriodEndDate, "CouponArithmeticAverageONDefinition: fixingPeriodEndDate");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
-    ArgumentChecker.isTrue(rateCutoff >= 2, "");
+    ArgumentChecker.isTrue(rateCutoff >= 1, "");
+    if (rateCutoff == 1) {
+      return new CouponONArithmeticAverageDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index, fixingPeriodStartDate, fixingPeriodEndDate,
+          calendar);
+    }
     final List<ZonedDateTime> fixingStartDateList = new ArrayList<>();
     final List<ZonedDateTime> fixingEndDateList = new ArrayList<>();
     final List<Double> fixingAccrualFactorList = new ArrayList<>();
@@ -219,7 +223,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
   }
 
   /**
-   * Builder with the rate cut off from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
+   * Builder with the rate cut off (the last n=rateCutoff fixings are the same) from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
    * @param fixingPeriodStartDate The coupon settlement date and start of the fixing period.
@@ -229,7 +233,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @param calendar The holiday calendar for the overnight index.
-   * @param  rateCutOff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
+   * @param  rateCutOff The rate cut off should be bigger than 1,and smaller than the number of period (which is the number of open days between the two fixing periods)
    * @return The OIS coupon.
    */
   public static CouponONArithmeticAverageDefinition withRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional, final int paymentLag,
@@ -240,7 +244,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
   }
 
   /**
-   * Builder with the rate cut off from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one of the index.
+   * Builder with the rate cut off (the last n=rateCutoff fixings are the same) from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one of the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
    * @param fixingPeriodStartDate The coupon settlement date and start of the fixing period.
@@ -248,7 +252,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param notional The notional.
    * @param paymentLag The number of days between last fixing and the payment (also called payment delay).
    * @param calendar The holiday calendar for the overnight index.
-   * @param rateCutOff The rate cut off should be bigger than 2,and smaller than the number of period (which the number of open days between the two fixing periods)
+   * @param rateCutOff The rate cut off should be bigger than 1 ,and smaller than the number of period (which is the number of open days between the two fixing periods)
    * @return The OIS coupon.
    */
   public static CouponONArithmeticAverageDefinition withRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,

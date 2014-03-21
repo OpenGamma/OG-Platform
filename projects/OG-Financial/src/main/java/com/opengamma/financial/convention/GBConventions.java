@@ -172,7 +172,7 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GB_INFLATION_BOND_CONVENTION")), "GB_INFLATION_BOND_CONVENTION", false,
-        true, 6, 0, true);
+        true, 6, 2, true);
   }
 
   /**
@@ -183,7 +183,7 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("NL_INFLATION_BOND_CONVENTION")), "NL_INFLATION_BOND_CONVENTION", false,
-        true, 6, 0, true);
+        true, 6, 2, true);
   }
 
   /**
@@ -194,7 +194,7 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JE_INFLATION_BOND_CONVENTION")), "JE_INFLATION_BOND_CONVENTION", false,
-        true, 6, 0, true);
+        true, 6, 2, true);
   }
 
   /**
@@ -205,7 +205,7 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("KY_INFLATION_BOND_CONVENTION")), "KY_INFLATION_BOND_CONVENTION", false,
-        true, 6, 0, true);
+        true, 6, 2, true);
   }
 
   /**
@@ -216,7 +216,7 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_INFLATION_BOND_CONVENTION")), "uS_INFLATION_BOND_CONVENTION", false,
-        true, 6, 0, true);
+        true, 6, 3, true);
   }
 
   /**

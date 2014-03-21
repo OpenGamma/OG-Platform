@@ -13,6 +13,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
@@ -106,6 +108,18 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   }
 
   /**
+   * Calculates the accrued interest for a fixed-coupon bond using the clean price. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param yield The yield
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCleanYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.notNull(bond, "bond");
+    return dirtyRealPriceFromYieldReal(bond, yield) - cleanPriceFromYield(bond, yield);
+  }
+
+  /**
    * Computes the clean real price of a bond security from a dirty real price.
    * @param bond The bond security.
    * @param dirtyPrice The dirty price.
@@ -190,33 +204,63 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       }
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
+
     if (yieldConvention.getName().equals(INDEX_LINKED_FLOAT.getName())) {
-      // Coupon period rate to next coupon and simple rate from next coupon to settlement.
-      double pvAtFirstCoupon;
-      if (Math.abs(yield) > 1.0E-8) {
-        final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
-        final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
-        final double rpibase = bond.getIndexStartValue();
-        final double rpiLast = bond.getIndexStartValue();
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
-      } else {
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;
+      double firstYearFraction = 0.0;
+      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {
+        firstYearFraction = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(0)).getPaymentYearFraction();
+      } else if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyGearing) {
+        firstYearFraction = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(0)).getPaymentYearFraction();
       }
-      return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+      final double firstCashFlow = firstYearFraction * realRate;
+      final double v = 1 / (1 + yield / bond.getCouponPerYear());
+      final double rpibase = 135.1;
+
+      final double nbMonth = 0;
+      final double u = Math.pow(1 / (1 + .03), .5);
+      final double rpiLast = 252.6;
+
+      final double a = rpiLast / rpibase * Math.pow(u, 2 * nbMonth / 12);
+      if (bond.getCoupon().getNumberOfPayments() == 1) {
+        return Math.pow(u * v, bond.getAccrualFactorToNextCoupon()) * (firstCashFlow + 1) * a / u;
+      } else {
+        double secondYearFraction = 0.0;
+        if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationZeroCouponInterpolationGearing) {
+          secondYearFraction = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(1)).getPaymentYearFraction();
+        } else if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationZeroCouponMonthlyGearing) {
+          secondYearFraction = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(1)).getPaymentYearFraction();
+        }
+        final double secondCashFlow = secondYearFraction * realRate;
+        final double vn = Math.pow(v, nbCoupon - 1);
+        final double pvAtFirstCoupon = firstCashFlow + secondCashFlow * u * v + a * realRate * v * v * (1 - vn / v) / (1 - v) + a * vn;
+        return pvAtFirstCoupon * Math.pow(u * v, bond.getAccrualFactorToNextCoupon());
+      }
     }
     if (yieldConvention.getName().equals(UK_IL_BOND.getName())) {
-      // Coupon period rate to next coupon and simple rate from next coupon to settlement.
-      double pvAtFirstCoupon;
-      if (Math.abs(yield) > 1.0E-8) {
-        final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
-        final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
-        final double rpibase = bond.getIndexStartValue();
-        final double rpiLast = bond.getIndexStartValue();
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
-      } else {
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;
+      double firstYearFraction = 0.0;
+      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {
+        firstYearFraction = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(0)).getPaymentYearFraction();
+      } else if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyGearing) {
+        firstYearFraction = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(0)).getPaymentYearFraction();
       }
-      return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+      final double firstCashFlow = firstYearFraction * realRate;
+      final double v = 1 / (1 + yield / bond.getCouponPerYear());
+      if (bond.getCoupon().getNumberOfPayments() == 1) {
+        return Math.pow(v, bond.getAccrualFactorToNextCoupon()) * (firstCashFlow + 1);
+      } else {
+        double secondYearFraction = 0.0;
+        if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationZeroCouponInterpolationGearing) {
+          secondYearFraction = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(1)).getPaymentYearFraction();
+        } else if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationZeroCouponMonthlyGearing) {
+          secondYearFraction = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(1)).getPaymentYearFraction();
+        }
+        final double secondCashFlow = secondYearFraction * realRate;
+        final double vn = Math.pow(v, nbCoupon - 1);
+        final double pvAtFirstCoupon = firstCashFlow + secondCashFlow * v + realRate * v * v * (1 - vn / v) / (1 - v) + vn;
+        return pvAtFirstCoupon * Math.pow(v, bond.getAccrualFactorToNextCoupon());
+      }
     }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
   }
@@ -227,7 +271,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param yield The bond yield.
    * @return The clean price.
    */
-  public double cleanPriceFromReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+  public double cleanPriceFromYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double dirtyPrice = dirtyRealPriceFromYieldReal(bond, yield);
@@ -240,7 +284,8 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param dirtyPrice The bond dirty price.
    * @return The yield.
    */
-  public double yieldRealFromDirtyRealPrice(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
+  public double 
+(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
     /**
      * Inner function used to find the yield.
      */
