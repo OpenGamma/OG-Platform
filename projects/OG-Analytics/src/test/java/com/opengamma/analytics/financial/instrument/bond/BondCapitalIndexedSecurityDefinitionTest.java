@@ -197,7 +197,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
     final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(pricingDate);
     final BondCapitalIndexedSecurity<Coupon> bondSecurityExpected = new BondCapitalIndexedSecurity<>(nominal, coupon, settleTime, accruedInterest,
-        factorToNextCoupon, YIELD_CONVENTION_GILT_1, COUPON_PER_YEAR_GILT_1, settlement, INDEX_START_GILT_1, ISSUER_UK_NAME);
+        factorToNextCoupon, YIELD_CONVENTION_GILT_1, COUPON_PER_YEAR_GILT_1, settlement, INDEX_START_GILT_1, 100, 100, ISSUER_UK_NAME);
     assertEquals("Capital Index Bond: toDerivative", bondSecurityExpected, bond);
   }
 
