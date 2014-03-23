@@ -161,7 +161,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  @Test
+  @Test (enabled = false)
   public void toDerivative1Coupon() {
     final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed

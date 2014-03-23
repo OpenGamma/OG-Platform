@@ -211,6 +211,7 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
           VolatilityFunctionFactory.HAGAN_FORMULA);
       final MulticurveProviderDiscount curves = getMergedProviders(inputs, fxMatrix);
       final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = SwaptionUtils.getSwapGenerator(security, definition, securitySource);
+      // TODO: [PLAT-6237]
       if (!(generatorSwap instanceof GeneratorSwapFixedIbor)) {
         throw new OpenGammaRuntimeException("Cannot handle swap generators of type " + generatorSwap.getClass());
       }
