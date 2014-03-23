@@ -60,7 +60,7 @@ public class NoExtrapolationSABRDiscountingPVFunction extends SABRDiscountingFun
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final DayCount dayCount = DayCounts.ACT_360; //TODO
+        final DayCount dayCount = DayCounts.ACT_360; //TODO [PLAT-6236] 
         final SABRSwaptionProvider sabrData = getSABRSurfaces(executionContext, inputs, target, fxMatrix, dayCount);
         final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, sabrData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
