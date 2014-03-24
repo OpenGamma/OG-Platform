@@ -155,8 +155,8 @@ public class BondAndBondFutureFunctionUtils {
       return getBondDerivative(context, target, date);
     }
     if (security instanceof InflationBondSecurity) {
-      final HistoricalTimeSeries futurePriceSeries = (HistoricalTimeSeries) inputs.getValue(HISTORICAL_TIME_SERIES);
-      final LocalDateDoubleTimeSeries ts = futurePriceSeries.getTimeSeries();
+      final HistoricalTimeSeries indexPriceSeries = (HistoricalTimeSeries) inputs.getValue(HISTORICAL_TIME_SERIES);
+      final LocalDateDoubleTimeSeries ts = indexPriceSeries.getTimeSeries();
       final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(date.getZone(), ts.multiply(100.0));
       return getBondInflationDerivative(context, target, date, indexTS);
     }
