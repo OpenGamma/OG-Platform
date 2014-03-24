@@ -7,6 +7,27 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+
+To 2.2.0-M10p04
+---------------
+
+Configuration compatibility
+- No upgrade required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No changes
+
+Analytics compatibility
+- No expected differences
+
+Bug fixes
+* Removed quantity in pv calculation in IRFut; Removed multiplication by quantity as the quantity is applied twice.
+* [PLAT-6252] Added handling so missing market data is tracked in SingleComputationCycle; added null handling to ComputedValue deserialization logic.
+* [PLAT-5933] Add market data source command line option to MarketDataSnapshotTool
+
 To 2.2.0-M10p03
 ---------------
 
