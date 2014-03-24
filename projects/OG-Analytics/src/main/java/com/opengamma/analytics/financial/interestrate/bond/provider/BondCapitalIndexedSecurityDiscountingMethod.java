@@ -116,7 +116,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double accruedInterestFromCleanYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     ArgumentChecker.notNull(bond, "bond");
-    return dirtyRealPriceFromYieldReal(bond, yield) - cleanPriceFromYield(bond, yield);
+    return dirtyPriceFromRealYield(bond, yield) - cleanPriceFromYield(bond, yield);
   }
 
   /**
@@ -183,12 +183,12 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the dirty real price from the conventional real yield.
+   * Computes the dirty (real or nominal depending of the convention) price from the conventional real yield.
    * @param bond  The bond security.
    * @param yield The bond yield.
    * @return The dirty price.
    */
-  public double dirtyRealPriceFromYieldReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+  public double dirtyPriceFromRealYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final YieldConvention yieldConvention = bond.getYieldConvention();
@@ -221,7 +221,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       final double v = 1 / (1 + yield / bond.getCouponPerYear());
       final double rpibase = bond.getIndexStartValue();
       final double rpiLast = bond.getLastIndexKnownFixing();
-      final int nbMonth = (int) (firstCouponEndFixingTime - bond.getLastIndexKnownFixing());
+      final int nbMonth = (int) ((firstCouponEndFixingTime - bond.getLastKnownFixingTime()) * 12);
       final double u = Math.pow(1 / (1 + .03), .5);
       final double a = rpiLast / rpibase * Math.pow(u, 2 * nbMonth / 12);
       if (bond.getCoupon().getNumberOfPayments() == 1) {
@@ -276,7 +276,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   public double cleanPriceFromYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
-    final double dirtyPrice = dirtyRealPriceFromYieldReal(bond, yield);
+    final double dirtyPrice = dirtyPriceFromRealYield(bond, yield);
     return cleanRealPriceFromDirtyRealPrice(bond, dirtyPrice);
   }
 
@@ -293,7 +293,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     final Function1D<Double, Double> priceResidual = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double y) {
-        return dirtyRealPriceFromYieldReal(bond, y) - dirtyPrice;
+        return dirtyPriceFromRealYield(bond, y) - dirtyPrice;
       }
     };
     final double[] range = BRACKETER.getBracketedPoints(priceResidual, -0.05, 0.10);

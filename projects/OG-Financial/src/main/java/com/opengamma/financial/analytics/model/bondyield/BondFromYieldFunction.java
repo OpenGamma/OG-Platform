@@ -10,6 +10,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.MARKET_YTM;
 import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.YIELD_METHOD;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
@@ -29,8 +30,11 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -61,7 +65,7 @@ public abstract class BondFromYieldFunction<T> extends AbstractFunction.NonCompi
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final Double yield = (Double) inputs.getValue(MARKET_YTM);
-    final InstrumentDerivative bond = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, null);
+    final InstrumentDerivative bond = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final T result = bond.accept(_calculator, yield);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), getResultProperties());
     return Collections.singleton(new ComputedValue(spec, result));
@@ -86,7 +90,12 @@ public abstract class BondFromYieldFunction<T> extends AbstractFunction.NonCompi
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Security security = target.getTrade().getSecurity();
-    return Collections.singleton(new ValueRequirement(MARKET_YTM, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
+    final FinancialSecurity financialSecurity = (FinancialSecurity) target.getTrade().getSecurity();
+    final Set<ValueRequirement> requirements = new HashSet<>();
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    requirements.addAll(BondAndBondFutureFunctionUtils.getConversionRequirements(financialSecurity, timeSeriesResolver));
+    requirements.add(new ValueRequirement(MARKET_YTM, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
+    return requirements;
   }
 
   /**

@@ -91,7 +91,7 @@ public class CurveNodeConverter {
         if (length == 0) {
           throw new OpenGammaRuntimeException("Price time series for " + priceIndexId + " was empty");
         }
-        // the timeseies is multiply by 100 because bloomberg do not provide the right one
+        // the timeseries is multiply by 100 because Bloomberg do not provide the right one
         final ZonedDateTimeDoubleTimeSeries multiply = convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
         return ((InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]>) definition).toDerivative(
             now,

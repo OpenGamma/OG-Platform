@@ -12,11 +12,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.convention.ConventionSource;
@@ -41,11 +44,16 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -68,6 +76,18 @@ public class BondAndBondFutureFunctionUtils {
     if (security instanceof BondFutureSecurity) {
       ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
       final ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
+      final HistoricalTimeSeriesResolutionResult timeSeries = timeSeriesResolver.resolve(externalIdBundle, null, null, null,
+          MarketDataRequirementNames.MARKET_VALUE, null);
+      if (timeSeries == null) {
+        s_logger.error("Could not resolve time series for {}", externalIdBundle);
+        return Collections.emptySet();
+      }
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
+    }
+    if (security instanceof InflationBondSecurity) {
+      ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
+      final ExternalIdBundle externalIdBundle = ((InflationBondSecurity) security).getExternalIdBundle();
       final HistoricalTimeSeriesResolutionResult timeSeries = timeSeriesResolver.resolve(externalIdBundle, null, null, null,
           MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
@@ -105,6 +125,17 @@ public class BondAndBondFutureFunctionUtils {
     return converter.convert(trade);
   }
 
+  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
+    // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
+    final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
+    for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext();) {
+      final LocalDate date = it.nextTime();
+      final ZonedDateTime zdt = date.atStartOfDay(timeZone);
+      bld.put(zdt, it.currentValueFast());
+    }
+    return bld.build();
+  }
+
   /**
    * Converts a bond or bond future trade into the {@link InstrumentDerivative} form that is used in
    * pricing functions in the analytics library.
@@ -120,8 +151,14 @@ public class BondAndBondFutureFunctionUtils {
     ArgumentChecker.isTrue(target.getType() == ComputationTargetType.TRADE, "Computation target must be a trade");
     final Trade trade = target.getTrade();
     final Security security = trade.getSecurity();
-    if (security instanceof BondSecurity) {
+    if (security instanceof BondSecurity & !(security instanceof InflationBondSecurity)) {
       return getBondDerivative(context, target, date);
+    }
+    if (security instanceof InflationBondSecurity) {
+      final HistoricalTimeSeries futurePriceSeries = (HistoricalTimeSeries) inputs.getValue(HISTORICAL_TIME_SERIES);
+      final LocalDateDoubleTimeSeries ts = futurePriceSeries.getTimeSeries();
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(date.getZone(), ts.multiply(100.0));
+      return getBondInflationDerivative(context, target, date, indexTS);
     }
     if (security instanceof BillSecurity) {
       return getBillDerivative(context, target, date);
@@ -145,6 +182,20 @@ public class BondAndBondFutureFunctionUtils {
   private static InstrumentDerivative getBondDerivative(final FunctionExecutionContext context, final ComputationTarget target, final ZonedDateTime date) {
     final InstrumentDefinition<?> definition = getDefinition(context, target, date);
     return definition.toDerivative(date);
+  }
+
+  /**
+   * Converts a bond trade into the {@link InstrumentDerivative} form that is used in pricing
+   * functions in the the analytics library.
+   * @param context The execution context, not null
+   * @param target The computation target, not null
+   * @param date The valuation date / time, not null
+   * @return The derivative form of a bond security
+   */
+  private static InstrumentDerivative getBondInflationDerivative(final FunctionExecutionContext context, final ComputationTarget target, final ZonedDateTime date,
+      final ZonedDateTimeDoubleTimeSeries ts) {
+    final InstrumentDefinition<?> definition = getDefinition(context, target, date);
+    return ((BondCapitalIndexedTransactionDefinition<?>) definition).toDerivative(date, ts);
   }
 
   /**

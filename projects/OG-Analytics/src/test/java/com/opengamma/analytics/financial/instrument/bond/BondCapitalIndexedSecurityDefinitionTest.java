@@ -91,7 +91,8 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   /** The issuer name */
   private static final String ISSUER_UK_NAME = "UK GOVT";
   /** The issuer */
-  private static final LegalEntity ISSUER_UK = new LegalEntity(ISSUER_UK_NAME, ISSUER_UK_NAME, Collections.singleton(CreditRating.of("A", ISSUER_UK_NAME, false)), Sector.of("Government"), Region.of("UK", Country.GB, Currency.GBP));
+  private static final LegalEntity ISSUER_UK = new LegalEntity(ISSUER_UK_NAME, ISSUER_UK_NAME, Collections.singleton(CreditRating.of("A", ISSUER_UK_NAME, false)), Sector.of("Government"), Region.of(
+      "UK", Country.GB, Currency.GBP));
   /** A security definition */
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_GILT_1_SECURITY_DEFINITION1 = BondCapitalIndexedSecurityDefinition
       .fromMonthly(PRICE_INDEX_UKRPI, MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1,
@@ -161,7 +162,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  @Test (enabled = false)
+  @Test(enabled = true)
   public void toDerivative1Coupon() {
     final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
@@ -197,7 +198,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
     final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(pricingDate);
     final BondCapitalIndexedSecurity<Coupon> bondSecurityExpected = new BondCapitalIndexedSecurity<>(nominal, coupon, settleTime, accruedInterest,
-        factorToNextCoupon, YIELD_CONVENTION_GILT_1, COUPON_PER_YEAR_GILT_1, settlement, INDEX_START_GILT_1, 100, 100, ISSUER_UK_NAME);
+        factorToNextCoupon, YIELD_CONVENTION_GILT_1, COUPON_PER_YEAR_GILT_1, settlement, INDEX_START_GILT_1, 245.8, 1.410966389699828, ISSUER_UK_NAME);
     assertEquals("Capital Index Bond: toDerivative", bondSecurityExpected, bond);
   }
 

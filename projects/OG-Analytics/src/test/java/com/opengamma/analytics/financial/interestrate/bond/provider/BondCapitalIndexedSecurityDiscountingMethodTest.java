@@ -302,7 +302,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final double[] dirtyRealPrice = new double[yield.length];
     final double[] dirtyRealPriceExpected = new double[yield.length];
     for (int loopyield = 0; loopyield < yield.length; loopyield++) {
-      dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyRealPriceFromYieldReal(BOND_SECURITY_TIPS_1, yield[loopyield]);
+      dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyPriceFromRealYield(BOND_SECURITY_TIPS_1, yield[loopyield]);
 
       final double factorOnPeriod = 1 + yield[loopyield] / BOND_SECURITY_TIPS_1.getCouponPerYear();
       double pvAtFirstCoupon = 0;
@@ -325,7 +325,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final double[] dirtyRealPrice = new double[yield.length];
     final double[] yieldComputed = new double[yield.length];
     for (int loopyield = 0; loopyield < yield.length; loopyield++) {
-      dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyRealPriceFromYieldReal(BOND_SECURITY_TIPS_1, yield[loopyield]);
+      dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyPriceFromRealYield(BOND_SECURITY_TIPS_1, yield[loopyield]);
       yieldComputed[loopyield] = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(BOND_SECURITY_TIPS_1, dirtyRealPrice[loopyield]);
       assertEquals("Inflation Capital Indexed bond: yield " + loopyield, yield[loopyield], yieldComputed[loopyield], 1.0E-8);
     }
@@ -439,7 +439,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       for (int loopyield = 0; loopyield < yield.length; loopyield++) {
-        dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyRealPriceFromYieldReal(BOND_SECURITY_TIPS_1, yield[loopyield]);
+        dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyPriceFromRealYield(BOND_SECURITY_TIPS_1, yield[loopyield]);
       }
     }
     endTime = System.currentTimeMillis();
