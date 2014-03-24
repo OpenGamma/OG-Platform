@@ -61,9 +61,8 @@ public final class ModifiedDurationFromYieldCalculator extends InstrumentDerivat
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(yield, "yield");
     ArgumentChecker.notNull(bond.getBondStandard() instanceof BondCapitalIndexedSecurity<?>, "the bond should be a BondCapitalIndexedSecurity");
-
     final BondCapitalIndexedSecurity<?> bondSecurity = bond.getBondStandard();
-    return METHOD_INFLATION_BOND_SECURITY.modifiedDurationFromYieldStandard(bondSecurity, yield);
+    return METHOD_INFLATION_BOND_SECURITY.modifiedDurationFromYieldFiniteDifference(bondSecurity, yield);
   }
 
   @Override
@@ -71,6 +70,6 @@ public final class ModifiedDurationFromYieldCalculator extends InstrumentDerivat
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(yield, "yield");
     ArgumentChecker.notNull(bond instanceof BondCapitalIndexedSecurity<?>, "the bond should be a BondCapitalIndexedSecurity");
-    return METHOD_INFLATION_BOND_SECURITY.modifiedDurationFromYieldStandard(bond, yield);
+    return METHOD_INFLATION_BOND_SECURITY.modifiedDurationFromYieldFiniteDifference(bond, yield);
   }
 }

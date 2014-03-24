@@ -363,6 +363,35 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   }
 
   /**
+   * Calculates the modified duration from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The modified duration
+   */
+  public double modifiedDurationFromYieldFiniteDifference(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final double price = cleanPriceFromYield(bond, yield);
+    final double priceplus = cleanPriceFromYield(bond, yield + 10e-6);
+    final double priceminus = cleanPriceFromYield(bond, yield - 10e-6);
+    return -(priceplus - priceminus) / (2 * price * 10e-6);
+  }
+
+  /**
+   * Calculates the modified duration from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The modified duration
+   */
+  public double convexityFromYieldFiniteDifference(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final double price = cleanPriceFromYield(bond, yield);
+    final double priceplus = cleanPriceFromYield(bond, yield + 10e-6);
+    final double priceminus = cleanPriceFromYield(bond, yield - 10e-6);
+    return (priceplus - 2 * price + priceminus) / (price * 10e-6 * 10e-6);
+  }
+
+  /**
    * Computes the bill yield from the curves. The yield is in the bill yield convention.
    * @param bond The bond.
    * @param provider The inflation and multi-curves provider.
@@ -384,7 +413,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double modifiedDurationFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
     final double yield = yieldRealFromCurves(bond, issuerMulticurves);
-    return modifiedDurationFromYieldStandard(bond, yield);
+    return modifiedDurationFromYieldFiniteDifference(bond, yield);
   }
 
   /**
@@ -407,7 +436,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double modifiedDurationFromCleanPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
     final double yield = yieldRealFromCleanPrice(bond, cleanPrice);
-    return modifiedDurationFromYieldStandard(bond, yield);
+    return modifiedDurationFromYieldFiniteDifference(bond, yield);
   }
 
   /**
@@ -444,7 +473,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double convexityFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
     final double yield = yieldRealFromCurves(bond, issuerMulticurves);
-    return convexityFromYieldStandard(bond, yield);
+    return convexityFromYieldFiniteDifference(bond, yield);
   }
 
   /**
@@ -455,7 +484,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double convexityFromCleanPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
     final double yield = yieldRealFromCleanPrice(bond, cleanPrice);
-    return convexityFromYieldStandard(bond, yield);
+    return convexityFromYieldFiniteDifference(bond, yield);
   }
 
 }

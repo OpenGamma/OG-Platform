@@ -242,6 +242,19 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
   }
 
   /**
+   * Computes the clean price (real or nominal depending on the convention) from the conventional real yield.
+   * @param bond  The bond security.
+   * @param yield The bond yield.
+   * @return The clean price.
+   */
+  public double cleanPriceFromYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
+    final double dirtyPrice = dirtyPriceFromRealYield(bond, yield);
+    return cleanRealPriceFromDirtyRealPrice(bond, dirtyPrice);
+  }
+
+  /**
    * Compute the conventional yield from the dirty price.
    * @param bond The bond security.
    * @param dirtyPrice The bond dirty price.
@@ -381,7 +394,36 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
    */
   public double convexityFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface issuerMulticurves) {
     final double yield = yieldRealFromCurves(bond, issuerMulticurves);
-    return convexityFromYieldStandard(bond, yield);
+    return convexityFromYieldFiniteDifference(bond, yield);
+  }
+
+  /**
+   * Calculates the modified duration from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The modified duration
+   */
+  public double modifiedDurationFromYieldFiniteDifference(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final double price = cleanPriceFromYield(bond, yield);
+    final double priceplus = cleanPriceFromYield(bond, yield + 10e-6);
+    final double priceminus = cleanPriceFromYield(bond, yield - 10e-6);
+    return -(priceplus - priceminus) / (2 * price * 10e-6);
+  }
+
+  /**
+   * Calculates the modified duration from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The modified duration
+   */
+  public double convexityFromYieldFiniteDifference(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final double price = cleanPriceFromYield(bond, yield);
+    final double priceplus = cleanPriceFromYield(bond, yield + 10e-6);
+    final double priceminus = cleanPriceFromYield(bond, yield - 10e-6);
+    return (priceplus - 2 * price + priceminus) / (price * 10e-6 * 10e-6);
   }
 
 }
