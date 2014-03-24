@@ -558,6 +558,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
         _couponPerYear);
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
+    ;
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
     final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;

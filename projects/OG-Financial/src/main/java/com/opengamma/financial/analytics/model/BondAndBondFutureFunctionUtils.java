@@ -46,6 +46,7 @@ import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
@@ -87,15 +88,14 @@ public class BondAndBondFutureFunctionUtils {
     }
     if (security instanceof InflationBondSecurity) {
       ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
-      final ExternalIdBundle externalIdBundle = ((InflationBondSecurity) security).getExternalIdBundle();
-      final HistoricalTimeSeriesResolutionResult timeSeries = timeSeriesResolver.resolve(externalIdBundle, null, null, null,
-          MarketDataRequirementNames.MARKET_VALUE, null);
+      final ExternalIdBundle externalIdBundle = ExternalIdBundle.of(ExternalId.parse(((InflationBondSecurity) security).attributes().get().get("ReferenceIndexId")));
+      final HistoricalTimeSeriesResolutionResult timeSeries = timeSeriesResolver.resolve(externalIdBundle, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         s_logger.error("Could not resolve time series for {}", externalIdBundle);
         return Collections.emptySet();
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
+          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(12)), true, DateConstraint.VALUATION_TIME, true));
     }
     return Collections.emptySet();
   }

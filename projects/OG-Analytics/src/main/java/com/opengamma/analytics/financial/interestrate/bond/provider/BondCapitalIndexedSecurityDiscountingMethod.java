@@ -127,7 +127,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double cleanRealPriceFromDirtyRealPrice(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    return dirtyPrice - bond.getAccruedInterest() / notional;
+    return dirtyPrice + bond.getAccruedInterest() / notional;
   }
 
   /**
@@ -313,6 +313,149 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     final MultipleCurrencyInflationSensitivity sensitivityNominal = bond.getNominal().accept(PVCSIC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity sensitivityCoupon = bond.getCoupon().accept(PVCSIC, creditDiscounting);
     return sensitivityNominal.plus(sensitivityCoupon);
+  }
+
+  /**
+   * Compute the conventional yield from the clean price.
+   * @param bond The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The yield.
+   */
+  public double yieldRealFromCleanPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
+    /**
+     * Inner function used to find the yield.
+     */
+    final Function1D<Double, Double> priceResidual = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double y) {
+        return cleanPriceFromYield(bond, y) - cleanPrice;
+      }
+    };
+    final double[] range = BRACKETER.getBracketedPoints(priceResidual, -0.05, 0.10);
+    final double yield = ROOT_FINDER.getRoot(priceResidual, range[0], range[1]);
+    double clean = cleanPriceFromYield(bond, yield);
+    clean = clean + 1;
+    return yield;
+  }
+
+  /**
+   * Calculates the modified duration from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The modified duration
+   */
+  public double modifiedDurationFromYieldStandard(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
+    final double nominal = bond.getNominal().getNthPayment(0).getNotional();
+    final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+    double mdAtFirstCoupon = 0;
+    double pvAtFirstCoupon = 0;
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      mdAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getNotional() / Math.pow(factorOnPeriod, loopcpn + 1) * (loopcpn + bond.getAccrualFactorToNextCoupon()) / bond.getCouponPerYear();
+      pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getNotional() / Math.pow(factorOnPeriod, loopcpn);
+    }
+    mdAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon) * (nbCoupon - 1 + bond.getAccrualFactorToNextCoupon()) / bond.getCouponPerYear();
+    pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
+    final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
+    final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
+    return md;
+  }
+
+  /**
+   * Computes the bill yield from the curves. The yield is in the bill yield convention.
+   * @param bond The bond.
+   * @param provider The inflation and multi-curves provider.
+   * @return The yield.
+   */
+  public double yieldRealFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
+    ArgumentChecker.notNull(bond, "Bond");
+    ArgumentChecker.notNull(provider, "inflation and multi-curves provider");
+    final double dirtyPrice = dirtyRealPriceFromCurves(bond, provider);
+    final double yield = yieldRealFromDirtyRealPrice(bond, dirtyPrice);
+    return yield;
+  }
+
+  /**
+   * Computes the modified duration of a bond from the curves.
+   * @param bond  The bond security.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The modified duration.
+   */
+  public double modifiedDurationFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
+    final double yield = yieldRealFromCurves(bond, issuerMulticurves);
+    return modifiedDurationFromYieldStandard(bond, yield);
+  }
+
+  /**
+   * Compute the conventional yield from the clean price.
+   * @param bond The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The yield.
+   */
+  public double yieldRealFromCleanRealPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
+    final double dirtyPrice = dirtyRealPriceFromCleanRealPrice(bond, cleanPrice);
+    final double yield = yieldRealFromDirtyRealPrice(bond, dirtyPrice);
+    return yield;
+  }
+
+  /**
+   * Computes the modified duration of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The modified duration.
+   */
+  public double modifiedDurationFromCleanPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
+    final double yield = yieldRealFromCleanPrice(bond, cleanPrice);
+    return modifiedDurationFromYieldStandard(bond, yield);
+  }
+
+  /**
+   * Calculates the convexity from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The convexity
+   */
+  public double convexityFromYieldStandard(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
+    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getNotional();
+    final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+    double cvAtFirstCoupon = 0;
+    double pvAtFirstCoupon = 0;
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      cvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getNotional() / Math.pow(factorOnPeriod, loopcpn + 2) * (loopcpn + bond.getAccrualFactorToNextCoupon())
+          * (loopcpn + bond.getAccrualFactorToNextCoupon() + 1) / (bond.getCouponPerYear() * bond.getCouponPerYear());
+      pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getNotional() / Math.pow(factorOnPeriod, loopcpn);
+    }
+    cvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon + 1) * (nbCoupon - 1 + bond.getAccrualFactorToNextCoupon()) * (nbCoupon + bond.getAccrualFactorToNextCoupon())
+        / (bond.getCouponPerYear() * bond.getCouponPerYear());
+    pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
+    final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
+    final double cv = cvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
+    return cv;
+  }
+
+  /**
+   * Computes the convexity of a bond from the curves.
+   * @param bond  The bond security.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The convexity.
+   */
+  public double convexityFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
+    final double yield = yieldRealFromCurves(bond, issuerMulticurves);
+    return convexityFromYieldStandard(bond, yield);
+  }
+
+  /**
+   * Computes the convexity of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The convexity.
+   */
+  public double convexityFromCleanPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
+    final double yield = yieldRealFromCleanPrice(bond, cleanPrice);
+    return convexityFromYieldStandard(bond, yield);
   }
 
 }

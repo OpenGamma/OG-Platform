@@ -44,14 +44,14 @@ public final class ConvexityFromCurvesCalculator extends InstrumentDerivativeVis
   public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondTransaction(), issuer) * 100;
+    return METHOD_BOND_SECURITY.convexityFromCurves(bond.getBondTransaction(), issuer) / 100;
   }
 
   @Override
   public Double visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond, issuer) * 100;
+    return METHOD_BOND_SECURITY.convexityFromCurves(bond, issuer) / 100;
   }
 
 }

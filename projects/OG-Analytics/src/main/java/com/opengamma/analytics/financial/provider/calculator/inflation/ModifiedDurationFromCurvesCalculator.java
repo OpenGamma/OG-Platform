@@ -44,14 +44,14 @@ public final class ModifiedDurationFromCurvesCalculator extends InstrumentDeriva
   public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondTransaction(), issuer) * 100;
+    return METHOD_BOND_SECURITY.modifiedDurationFromCurves(bond.getBondTransaction(), issuer);
   }
 
   @Override
   public Double visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond, issuer) * 100;
+    return METHOD_BOND_SECURITY.modifiedDurationFromCurves(bond, issuer);
   }
 
 }
