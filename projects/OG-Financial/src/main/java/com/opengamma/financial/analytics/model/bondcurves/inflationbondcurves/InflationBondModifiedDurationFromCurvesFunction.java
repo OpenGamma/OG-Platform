@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
 
 import com.opengamma.analytics.financial.provider.calculator.inflation.ModifiedDurationFromCurvesCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflation.YieldFromCurvesCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.engine.value.ValueRequirementNames;
 
@@ -19,7 +18,7 @@ public class InflationBondModifiedDurationFromCurvesFunction extends InflationBo
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#MODIFIED_DURATION} and
-   * the calculator to {@link YieldFromCurvesCalculator}.
+   * the calculator to {@link ModifiedDurationFromCurvesCalculator}.
    */
   public InflationBondModifiedDurationFromCurvesFunction() {
     super(MODIFIED_DURATION, ModifiedDurationFromCurvesCalculator.getInstance());

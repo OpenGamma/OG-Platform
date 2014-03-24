@@ -28,6 +28,9 @@ public class InflationBondCurveFunctions extends AbstractFunctionConfigurationBe
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(InflationBondCleanPriceFromCurvesFunction.class));
+    functions.add(functionConfiguration(InflationBondConvexityFromCurvesFunction.class));
+    functions.add(functionConfiguration(InflationBondModifiedDurationFromCurvesFunction.class));
+    functions.add(functionConfiguration(InflationBondYieldFromCurvesFunction.class));
   }
 
 }
