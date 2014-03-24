@@ -117,7 +117,7 @@ import com.opengamma.util.money.CurrencyAmount;
       values[i][15] = value.getGearings()[i];
       values[i][16] = value.getIndexTenors()[i].toFormattedString();
       values[i][17] = value.getDiscountedPaymentAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedPaymentAmounts()[i], valueSpec, null);
-      values[i][18] = value.getDiscountedProjectedtAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedProjectedtAmounts()[i], valueSpec, null);
+      values[i][18] = value.getDiscountedProjectedAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedProjectedAmounts()[i], valueSpec, null);
     }
     results.put(MATRIX, values);
     return results;

@@ -333,7 +333,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * @return the discounted cashflows
    */
   @DerivedProperty
-  public CurrencyAmount[] getDiscountedProjectedtAmounts() {
+  public CurrencyAmount[] getDiscountedProjectedAmounts() {
     final CurrencyAmount[] cashflows = new CurrencyAmount[getNumberOfCashFlows()];
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
       final CurrencyAmount payment = getProjectedAmounts()[i];
@@ -886,7 +886,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
           (getNumberOfFixedCashFlows() == other.getNumberOfFixedCashFlows()) &&
           (getNumberOfFloatingCashFlows() == other.getNumberOfFloatingCashFlows()) &&
           JodaBeanUtils.equal(getDiscountedPaymentAmounts(), other.getDiscountedPaymentAmounts()) &&
-          JodaBeanUtils.equal(getDiscountedProjectedtAmounts(), other.getDiscountedProjectedtAmounts());
+          JodaBeanUtils.equal(getDiscountedProjectedAmounts(), other.getDiscountedProjectedAmounts());
     }
     return false;
   }
@@ -915,7 +915,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfFixedCashFlows());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfFloatingCashFlows());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedPaymentAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedProjectedtAmounts());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedProjectedAmounts());
     return hash;
   }
 
@@ -954,7 +954,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     buf.append("numberOfFixedCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfFixedCashFlows())).append(',').append(' ');
     buf.append("numberOfFloatingCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfFloatingCashFlows())).append(',').append(' ');
     buf.append("discountedPaymentAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedPaymentAmounts())).append(',').append(' ');
-    buf.append("discountedProjectedtAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedProjectedtAmounts())).append(',').append(' ');
+    buf.append("discountedProjectedtAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedProjectedAmounts())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -1401,7 +1401,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
         case 178231285:  // discountedPaymentAmounts
           return ((FloatingSwapLegDetails) bean).getDiscountedPaymentAmounts();
         case 713794495:  // discountedProjectedtAmounts
-          return ((FloatingSwapLegDetails) bean).getDiscountedProjectedtAmounts();
+          return ((FloatingSwapLegDetails) bean).getDiscountedProjectedAmounts();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
