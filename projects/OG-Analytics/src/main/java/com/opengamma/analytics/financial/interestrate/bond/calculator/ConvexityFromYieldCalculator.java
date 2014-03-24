@@ -6,8 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,6 +27,7 @@ public final class ConvexityFromYieldCalculator extends InstrumentDerivativeVisi
    * The fixed coupon bond method.
    */
   private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
+  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_INFLATION_BOND_SECURITY = BondCapitalIndexedSecurityDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.
@@ -51,5 +55,15 @@ public final class ConvexityFromYieldCalculator extends InstrumentDerivativeVisi
     ArgumentChecker.notNull(yield, "curves");
     ArgumentChecker.notNull(bond, "yield");
     return METHOD_BOND.convexityFromYield(bond.getBondTransaction(), yield) / 100;
+  }
+
+  @Override
+  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction bond, final Double yield) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(yield, "yield");
+    ArgumentChecker.notNull(bond.getBondStandard() instanceof BondCapitalIndexedSecurity<?>, "the bond should be a BondCapitalIndexedSecurity");
+
+    final BondCapitalIndexedSecurity<?> bondSecurity = (BondCapitalIndexedSecurity<?>) bond.getBondStandard();
+    return METHOD_INFLATION_BOND_SECURITY.cleanPriceFromYield(bondSecurity, yield) * 100.0;
   }
 }

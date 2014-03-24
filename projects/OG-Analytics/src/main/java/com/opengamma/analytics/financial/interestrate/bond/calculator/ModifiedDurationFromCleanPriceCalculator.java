@@ -6,9 +6,13 @@
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculate modified duration from price.
@@ -38,6 +42,10 @@ public final class ModifiedDurationFromCleanPriceCalculator extends InstrumentDe
    * The method used for different instruments.
    */
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
+  /**
+   * The method used for different inflation instruments.
+   */
+  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_INFLATION_BOND_SECURITY = BondCapitalIndexedSecurityDiscountingMethod.getInstance();
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double price) {
@@ -47,5 +55,15 @@ public final class ModifiedDurationFromCleanPriceCalculator extends InstrumentDe
   @Override
   public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double price) {
     return METHOD_BOND_SECURITY.modifiedDurationFromCleanPrice(bond.getBondTransaction(), price);
+  }
+
+  @Override
+  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction bond, final Double yield) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(yield, "yield");
+    ArgumentChecker.notNull(bond.getBondStandard() instanceof BondCapitalIndexedSecurity<?>, "the bond should be a BondCapitalIndexedSecurity");
+
+    final BondCapitalIndexedSecurity<?> bondSecurity = (BondCapitalIndexedSecurity<?>) bond.getBondStandard();
+    return METHOD_INFLATION_BOND_SECURITY.cleanPriceFromYield(bondSecurity, yield) * 100.0;
   }
 }

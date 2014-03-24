@@ -10,6 +10,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.CLEAN_PRICE_METHOD;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
@@ -29,9 +30,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.analytics.model.bondcurves.BondSupportUtils;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -62,7 +67,7 @@ public abstract class BondFromCleanPriceFunction<T> extends AbstractFunction.Non
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final Double cleanPrice = (Double) inputs.getValue(MARKET_VALUE);
-    final InstrumentDerivative bond = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, null);
+    final InstrumentDerivative bond = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final T result = bond.accept(_calculator, cleanPrice);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), getResultProperties());
     return Collections.singleton(new ComputedValue(spec, result));
@@ -76,7 +81,7 @@ public abstract class BondFromCleanPriceFunction<T> extends AbstractFunction.Non
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    return security instanceof BondSecurity && BondSupportUtils.isSupported(security);
+    return (security instanceof BondSecurity && BondSupportUtils.isSupported(security)) || (security instanceof InflationBondSecurity);
   }
 
   @Override
@@ -88,7 +93,12 @@ public abstract class BondFromCleanPriceFunction<T> extends AbstractFunction.Non
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Security security = target.getTrade().getSecurity();
-    return Collections.singleton(new ValueRequirement(MARKET_VALUE, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
+    final FinancialSecurity financialSecurity = (FinancialSecurity) target.getTrade().getSecurity();
+    final Set<ValueRequirement> requirements = new HashSet<>();
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    requirements.addAll(BondAndBondFutureFunctionUtils.getConversionRequirements(financialSecurity, timeSeriesResolver));
+    requirements.add(new ValueRequirement(MARKET_VALUE, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
+    return requirements;
   }
 
   /**
