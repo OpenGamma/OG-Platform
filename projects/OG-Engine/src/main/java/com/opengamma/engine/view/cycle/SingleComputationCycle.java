@@ -490,6 +490,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           missingMarketData++;
           // TODO provide elevated logs if requested from market data providers
           computedValueResult = new ComputedValueResult(marketDataSpec, MissingInput.MISSING_MARKET_DATA, MARKET_DATA_LOG);
+          ComputedValueResult resultModelValueResult = new ComputedValueResult(marketDataSpec, null, AggregatedExecutionLog.EMPTY);
+          fragmentResultModel.addMarketData(resultModelValueResult);
+          fullResultModel.addMarketData(resultModelValueResult);
         } else {
           computedValueResult = new ComputedValueResult(marketDataSpec, marketDataValue, AggregatedExecutionLog.EMPTY);
           fragmentResultModel.addMarketData(computedValueResult);
