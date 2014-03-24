@@ -9,6 +9,9 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
@@ -57,4 +60,21 @@ public final class CouponFixingDatesVisitor extends InstrumentDefinitionVisitorA
     return Pairs.of(payment.getFixingPeriodStartDate().toLocalDate(), payment.getFixingPeriodEndDate().toLocalDate());
   }
 
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingDefinition(CouponIborCompoundingDefinition payment) {
+    return Pairs.of(payment.getFixingPeriodStartDates()[0].toLocalDate(),
+                    payment.getFixingPeriodEndDates()[payment.getFixingPeriodEndDates().length - 1].toLocalDate());
+  }
+  
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingFlatSpreadDefinition(CouponIborCompoundingFlatSpreadDefinition payment) {
+    return Pairs.of(payment.getFixingSubperiodStartDates()[0].toLocalDate(),
+                    payment.getFixingSubperiodEndDates()[payment.getFixingSubperiodEndDates().length - 1].toLocalDate());
+  }
+  
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment) {
+    return Pairs.of(payment.getFixingPeriodStartDates()[0].toLocalDate(),
+                    payment.getFixingPeriodEndDates()[payment.getFixingPeriodEndDates().length - 1].toLocalDate());
+  }
 }
