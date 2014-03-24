@@ -54,6 +54,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_BASE_CPI;
+import static com.opengamma.bbg.BloombergConstants.FIELD_REFERENCE_INDEX;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
@@ -131,6 +132,7 @@ public class BondLoader extends SecurityLoader {
       FIELD_REDEMP_VAL,
       FIELD_FLOATER,
       FIELD_INFLATION_LINKED_INDICATOR,
+      FIELD_REFERENCE_INDEX,
       FIELD_CALLABLE,
       FIELD_IS_PERPETUAL,
       FIELD_BULLET,
@@ -339,6 +341,9 @@ public class BondLoader extends SecurityLoader {
       ManageableSecurity bondSecurity;
       final ExternalId legalEntityId = ExternalId.of(ExternalSchemes.CUSIP_ENTITY_STUB, cusip.substring(0, 6));
       if ((inflationIndicator != null) && (inflationIndicator.trim().toUpperCase().startsWith("Y"))) {
+        // six character stub of CUSIP to link to legal entity.
+        final String referenceIndexStr = validateAndGetStringField(fieldData, FIELD_REFERENCE_INDEX);
+        final ExternalId referenceIndex = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, referenceIndexStr);
         bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
             couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
@@ -347,6 +352,7 @@ public class BondLoader extends SecurityLoader {
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
         ((BondSecurity) bondSecurity).addAttribute("BaseCPI", baseCPI);
+        ((BondSecurity) bondSecurity).addAttribute("ReferenceIndexId", referenceIndex.toString());
       } else if (isFloater) {
         // six character stub of CUSIP to link to legal entity.
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?
