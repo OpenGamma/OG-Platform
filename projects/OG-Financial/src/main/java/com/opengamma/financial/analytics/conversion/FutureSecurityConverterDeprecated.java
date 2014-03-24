@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
@@ -31,6 +32,7 @@ import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -164,5 +166,15 @@ public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorA
   @Override
   public InstrumentDefinitionWithData<?, Double> visitBondFutureSecurity(final BondFutureSecurity security) {
     return (BondFutureDefinition) security.accept(_bondFutureConverter);
+  }
+
+  @Override
+  public InstrumentDefinitionWithData<?, Double> visitInterestRateSwapSecurity(InterestRateSwapSecurity security, Double data) {
+    throw new UnsupportedOperationException("Swaps not supported by this visitor");
+  }
+
+  @Override
+  public InstrumentDefinitionWithData<?, Double> visitForwardRateAgreementSecurity(ForwardRateAgreementSecurity security, Double data) {
+    throw new UnsupportedOperationException("FRA not supported by this visitor");
   }
 }
