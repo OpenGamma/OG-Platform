@@ -332,7 +332,6 @@ public class BondLoader extends SecurityLoader {
       final Double minimumIncrement = validateAndGetDoubleField(fieldData, FIELD_MIN_INCREMENT);
       final Double parAmount = validateAndGetDoubleField(fieldData, FIELD_PAR_AMT);
       final Double redemptionValue = validateAndGetDoubleField(fieldData, FIELD_REDEMP_VAL);
-      final String baseCPI = validateAndGetStringField(fieldData, FIELD_BASE_CPI); // keep as string because going into attributes
 
       //String bbgUnique = validateAndGetStringField(fieldData, FIELD_ID_BBG_UNIQUE);
       final String marketSector = validateAndGetStringField(fieldData, FIELD_MARKET_SECTOR_DES);
@@ -343,6 +342,7 @@ public class BondLoader extends SecurityLoader {
       if ((inflationIndicator != null) && (inflationIndicator.trim().toUpperCase().startsWith("Y"))) {
         // six character stub of CUSIP to link to legal entity.
         final String referenceIndexStr = validateAndGetStringField(fieldData, FIELD_REFERENCE_INDEX);
+        final String baseCPI = validateAndGetStringField(fieldData, FIELD_BASE_CPI); // keep as string because going into attributes
         final ExternalId referenceIndex = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, referenceIndexStr);
         bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
