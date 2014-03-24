@@ -6,10 +6,12 @@
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
+import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
@@ -617,6 +619,8 @@ public class ISDACompliantCurveTest {
 
     final ISDACompliantCurve cv1 = ISDACompliantCurve.makeFromForwardRates(time, forward);
     assertEquals(num, cv1.size());
+    final double[] clonedTime = cv1.getKnotTimes();
+    assertNotSame(time, clonedTime);
 
     rt[0] = forward[0] * time[0];
     r[0] = forward[0];
@@ -627,7 +631,17 @@ public class ISDACompliantCurveTest {
       r[i] = rt[i] / time[i];
       assertEquals(r[i], cv1.getZeroRate(time[i]), EPS);
       assertEquals(Math.exp(-rt[i]), cv1.getDiscountFactor(time[i]), EPS);
+      assertEquals(time[i], clonedTime[i]);
     }
+
+    final ISDACompliantCurve cv1Clone = cv1.clone();
+    assertEquals(cv1.toString(), cv1Clone.toString());
+
+    final double offset = 0.34;
+    final ISDACompliantCurve cv1Offset = cv1.withOffset(offset);
+    assertEquals(cv1.getDiscountFactor(0.75) / cv1.getDiscountFactor(offset), cv1Offset.getDiscountFactor(0.75 - offset), 1.e-14);
+    assertEquals(cv1.getDiscountFactor(1.) / cv1.getDiscountFactor(offset), cv1Offset.getDiscountFactor(1. - offset), 1.e-14);
+    assertEquals(cv1.getDiscountFactor(4.) / cv1.getDiscountFactor(offset), cv1Offset.getDiscountFactor(4. - offset), 1.e-14);
 
     final ISDACompliantCurve cv2 = ISDACompliantCurve.makeFromRT(time, rt);
     final ISDACompliantCurve cv3 = new ISDACompliantCurve(time, r);
@@ -642,6 +656,9 @@ public class ISDACompliantCurveTest {
       assertEquals(cv1.getRTAtIndex(i), cv3.getRTAtIndex(i), tol);
     }
 
+    final double senseRT1 = cv1.getSingleNodeRTSensitivity(0.05, 0);
+    final double senseRT2 = cv1.getSingleNodeRTSensitivity(0.05, 1);
+
     final double[] T = new double[] {-0.3, -0.1, -0. };
     final double[] RT = new double[] {0.06, 0.1, 0. };
     final ISDACompliantCurve cv11 = ISDACompliantCurve.makeFromRT(T, RT);
@@ -653,7 +670,55 @@ public class ISDACompliantCurveTest {
     assertEquals(cv11.getForwardRate(0. - tol), cv11.getForwardRate(0.));
     assertEquals(cv11.getForwardRate(T[1]), cv11.getForwardRate(T[1]));
 
-    cv1.getYValueParameterSensitivity(0.33);
+    final Double[] rtSense = cv1.getYValueParameterSensitivity(0.33);
+    for (int i = 0; i < num; ++i) {
+      assertEquals(cv1.getSingleNodeSensitivity(0.33, i), rtSense[i]);
+    }
+
+    final double[] refs = new double[] {0.04, 0.74, 2. };
+    final double eps = 1.e-6;
+    final double[] dydx = new double[] {cv1.getDyDx(refs[0]), cv1.getDyDx(refs[1]), cv1.getDyDx(refs[2]) };
+    for (int i = 0; i < refs.length; ++i) {
+      final double res = 0.5 * (cv1.getYValue(refs[i] * (1. + eps)) - cv1.getYValue(refs[i] * (1. - eps))) / refs[i] / eps;
+      assertEquals(res, dydx[i], Math.abs(dydx[i] * eps));
+    }
+
+    /*
+     * Meta
+     */
+    final ISDACompliantCurve.Meta meta = cv1.metaBean();
+    final BeanBuilder<?> builder = meta.builder();
+    builder.set(meta.metaPropertyGet("name"), "");
+    builder.set(meta.metaPropertyGet("t"), time);
+    builder.set(meta.metaPropertyGet("rt"), rt);
+    ISDACompliantCurve builtCurve = (ISDACompliantCurve) builder.build();
+    assertEquals(cv1, builtCurve);
+    assertEquals(meta.t(), meta.metaPropertyGet("t"));
+    assertEquals(meta.rt(), meta.metaPropertyGet("rt"));
+
+    final ISDACompliantCurve.Meta meta1 = ISDACompliantCurve.meta();
+    assertEquals(meta, meta1);
+
+    /*
+     * hashCode and equals
+     */
+    final ISDACompliantCurve cv4 = ISDACompliantCurve.makeFromRT(new double[] {0.1, 0.2, 0.5, 1., 3. }, rt);
+    final ISDACompliantCurve cv5 = ISDACompliantCurve.makeFromRT(new double[] {0.1, 0.3, 0.5, 1., 3. }, rt);
+    rt[1] *= 1.05;
+    final ISDACompliantCurve cv6 = ISDACompliantCurve.makeFromRT(new double[] {0.1, 0.3, 0.5, 1., 3. }, rt);
+
+    assertTrue(cv1.equals(cv1));
+
+    assertTrue(!(cv5.equals(ISDACompliantYieldCurve.makeFromRT(time, rt))));
+
+    assertTrue(cv1.hashCode() != cv6.hashCode());
+    assertTrue(!(cv1.equals(cv6)));
+
+    assertTrue(cv1.equals(cv5));
+    assertTrue(cv1.hashCode() == cv5.hashCode());
+
+    assertTrue(cv4.hashCode() != cv5.hashCode());
+    assertTrue(!(cv4.equals(cv5)));
 
     /*
      * Error returned
@@ -695,6 +760,101 @@ public class ISDACompliantCurveTest {
     } catch (final Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
+    try {
+      cv1.getZeroRate(-2.);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getRTandSensitivity(-2., 1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getRTandSensitivity(2., -1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getRTandSensitivity(2., num + 2);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getSingleNodeSensitivity(-2., 1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getSingleNodeSensitivity(2., -1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getSingleNodeSensitivity(2., num + 2);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getSingleNodeRTSensitivity(-2., 1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getSingleNodeRTSensitivity(2., -1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.getSingleNodeRTSensitivity(2., num + 2);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.withRate(2., -1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.withRate(2., num + 2);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.setRate(2., -1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.setRate(2., num + 2);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.withDiscountFactor(2., -1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      cv1.withDiscountFactor(2., num + 2);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
   }
-
 }
