@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -146,10 +148,15 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
               if (value instanceof FudgeMsg) {
                 value = buildObjectList(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
               }
+            } else if (SortedSet.class.isAssignableFrom(mp.propertyType())) {
+              value = field.getValue();
+              if (value instanceof FudgeMsg) {
+                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new TreeSet<Object>());
+              }
             } else if (Set.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
+                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new LinkedHashSet<Object>());
               }
             } else if (Map.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
@@ -193,9 +200,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     return list;
   }
 
-  private Set<Object> buildObjectSet(FudgeDeserializer deserializer, MetaProperty<?> prop, Class<?> type, FudgeMsg msg) {
+  private Set<Object> buildObjectSet(FudgeDeserializer deserializer, MetaProperty<?> prop, Class<?> type, FudgeMsg msg, Set<Object> set) {
     Class<?> contentType = JodaBeanUtils.collectionType(prop, type);
-    Set<Object> set = new LinkedHashSet<Object>();  // should be Set<contentType>
     for (FudgeField field : msg) {
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
         throw new IllegalArgumentException("Sub-message doesn't contain a set (bad field " + field + ")");
