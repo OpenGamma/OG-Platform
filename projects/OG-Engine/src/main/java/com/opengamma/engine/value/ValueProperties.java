@@ -147,6 +147,13 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      */
     public abstract ValueProperties get();
 
+    /**
+     * Creates a deep copy of the builder.
+     * 
+     * @return a copy of the builder
+     */
+    public abstract Builder copy();
+
   }
 
   private static String escape(Pattern p, String s) {

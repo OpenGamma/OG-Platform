@@ -31,6 +31,19 @@ public class SubtractivePropertiesBuilder extends ValueProperties.Builder {
     _copied = false;
   }
 
+  /**
+   * Creates an instance as a deep copy of another.
+   * <p>
+   * A full copy is performed rather than taking an unowned reference. The latter approach works when referencing the immutable content of an existing value property set, but not when the owner is a
+   * builder as that may continue to modify the structure.
+   * 
+   * @param copyFrom the builder to copy from
+   */
+  private SubtractivePropertiesBuilder(final SubtractivePropertiesBuilder copyFrom) {
+    _properties = new HashSet<String>(copyFrom._properties);
+    _copied = true;
+  }
+
   @Override
   public Builder with(final String propertyName, final String propertyValue) {
     if (_properties.contains(propertyName)) {
@@ -94,6 +107,11 @@ public class SubtractivePropertiesBuilder extends ValueProperties.Builder {
       _copied = false;
       return createSubtractive(_properties);
     }
+  }
+
+  @Override
+  public Builder copy() {
+    return new SubtractivePropertiesBuilder(this);
   }
 
 }

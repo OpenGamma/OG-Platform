@@ -353,4 +353,18 @@ public class ValuePropertiesTest {
     assertEquals(original, parsed);
   }
 
+  public void testBuilderCopy() {
+    final ValueProperties.Builder builder1 = ValueProperties.with("Foo", "Bar");
+    final ValueProperties.Builder builder2 = builder1.copy();
+    builder1.with("A", "B");
+    builder2.with("X", "Y");
+    assertEquals(builder1.get(), ValueProperties.with("Foo", "Bar").with("A", "B").get());
+    assertEquals(builder2.get(), ValueProperties.with("Foo", "Bar").with("X", "Y").get());
+    builder1.withoutAny("Foo");
+    assertEquals(builder1.get(), ValueProperties.with("A", "B").get());
+    assertEquals(builder2.get(), ValueProperties.with("Foo", "Bar").with("X", "Y").get());
+    builder2.withoutAny("Foo");
+    assertEquals(builder2.get(), ValueProperties.with("X", "Y").get());
+  }
+
 }

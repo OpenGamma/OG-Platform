@@ -46,6 +46,32 @@ public class AdditivePropertiesBuilder extends ValueProperties.Builder {
   }
 
   /**
+   * Creates an instance as a deep copy of another.
+   * <p>
+   * A full copy is performed rather than taking an unowned reference. The latter approach works when referencing the immutable content of an existing value property set, but not when the owner is a
+   * builder as that may continue to modify the structure.
+   * 
+   * @param copyFrom the builder to copy from
+   */
+  private AdditivePropertiesBuilder(final AdditivePropertiesBuilder copyFrom) {
+    if (copyFrom._properties != null) {
+      final int l = copyFrom._properties.length;
+      _properties = new AbstractValueProperty[l];
+      _copies = new boolean[l];
+      for (int i = 0; i < l; i++) {
+        if (copyFrom._properties[i] != null) {
+          _properties[i] = copyFrom._properties[i].copy();
+          _copies[i] = true;
+        }
+      }
+    } else {
+      _properties = null;
+      _copies = null;
+    }
+    _numEntries = copyFrom._numEntries;
+  }
+
+  /**
    * Creates an instance with default properties owned by something else.
    * 
    * @param properties the properties to populate with, not null. The array (and its contents) will not be modified - a copy will be taken when needed
@@ -513,6 +539,11 @@ public class AdditivePropertiesBuilder extends ValueProperties.Builder {
       _copies = null;
       return createAdditive(_properties);
     }
+  }
+
+  @Override
+  public Builder copy() {
+    return new AdditivePropertiesBuilder(this);
   }
 
 }
