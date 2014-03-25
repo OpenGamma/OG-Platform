@@ -28,9 +28,26 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
    * @param beta The beta parameters.
    * @param rho The rho parameters.
    * @param nu The nu parameters.
-   * @param dayCount The standard day count for which the parameter surfaces are valid.
    * @param correlation The correlation function.
    */
+  public SABRInterestRateCorrelationParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho,
+      final InterpolatedDoublesSurface nu, final DoubleFunction1D correlation) {
+    super(alpha, beta, rho, nu);
+    ArgumentChecker.notNull(correlation, "Correlation");
+    _correlation = correlation;
+  }
+
+  /**
+   * Constructor from the parameter surfaces and correlation function. The SABR volatility formula is HaganVolatilityFunction.
+   * @param alpha The alpha parameters.
+   * @param beta The beta parameters.
+   * @param rho The rho parameters.
+   * @param nu The nu parameters.
+   * @param dayCount The standard day count for which the parameter surfaces are valid.
+   * @param correlation The correlation function.
+   * @deprecated Used the constructor without day count.
+   */
+  @Deprecated
   public SABRInterestRateCorrelationParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho,
       final InterpolatedDoublesSurface nu, final DayCount dayCount, final DoubleFunction1D correlation) {
     super(alpha, beta, rho, nu, dayCount);
@@ -44,10 +61,9 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
    * @param correlation The correlation function.
    * @return The SABR with correlation object.
    */
-  @SuppressWarnings("deprecation")
   public static SABRInterestRateCorrelationParameters from(final SABRInterestRateParameters sabr, final DoubleFunction1D correlation) {
     ArgumentChecker.notNull(sabr, "SABR parameters");
-    return new SABRInterestRateCorrelationParameters(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), sabr.getDayCount(), correlation);
+    return new SABRInterestRateCorrelationParameters(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), correlation);
   }
 
   /**

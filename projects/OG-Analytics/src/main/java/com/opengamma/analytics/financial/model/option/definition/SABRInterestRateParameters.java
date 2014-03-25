@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -49,6 +50,42 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
   /** @deprecated [PLAT-6236] Should be removed from here as it is available at the provider level. **/
   @Deprecated
   private final DayCount _dayCount;
+  /** Default day count used while deprecating the _dayCount field **/
+  private static final DayCount DAY_COUNT_DEFAULT = DayCounts.ACT_360;
+
+  /**
+   * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
+   * @param alpha The alpha parameters.  The first dimension is the expiration and the second the tenor.
+   * @param beta The beta parameters.
+   * @param rho The rho parameters.
+   * @param nu The nu parameters.
+   */
+  public SABRInterestRateParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho, final InterpolatedDoublesSurface nu) {
+    this(alpha, beta, rho, nu, new SABRHaganVolatilityFunction());
+  }
+
+  /**
+   * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
+   * @param alpha The alpha parameters. The first dimension is the expiration and the second the tenor.
+   * @param beta The beta parameters.
+   * @param rho The rho parameters.
+   * @param nu The nu parameters.
+   * @param sabrFormula The SABR formula provider.
+   */
+  public SABRInterestRateParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho, final InterpolatedDoublesSurface nu,
+      final VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
+    ArgumentChecker.notNull(alpha, "alpha surface");
+    ArgumentChecker.notNull(beta, "beta surface");
+    ArgumentChecker.notNull(rho, "rho surface");
+    ArgumentChecker.notNull(nu, "nu surface");
+    ArgumentChecker.notNull(sabrFormula, "SABR formula");
+    _alphaSurface = alpha;
+    _betaSurface = beta;
+    _rhoSurface = rho;
+    _nuSurface = nu;
+    _dayCount = DAY_COUNT_DEFAULT;
+    _sabrFunction = sabrFormula;
+  }
 
   /**
    * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
@@ -57,7 +94,9 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @param rho The rho parameters.
    * @param nu The nu parameters.
    * @param dayCount The standard day count for which the parameter surfaces are valid.
+   * @deprecated Used the constructor without day count.
    */
+  @Deprecated
   public SABRInterestRateParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho, final InterpolatedDoublesSurface nu,
       final DayCount dayCount) {
     this(alpha, beta, rho, nu, dayCount, new SABRHaganVolatilityFunction());
@@ -71,7 +110,9 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @param nu The nu parameters.
    * @param dayCount The standard day count for which the parameter surfaces are valid.
    * @param sabrFormula The SABR formula provider.
+   * @deprecated Used the constructor without day count.
    */
+  @Deprecated
   public SABRInterestRateParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho, final InterpolatedDoublesSurface nu,
       final DayCount dayCount, final VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
     ArgumentChecker.notNull(alpha, "alpha surface");
@@ -227,7 +268,6 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
     int result = 1;
     result = prime * result + _alphaSurface.hashCode();
     result = prime * result + _betaSurface.hashCode();
-    result = prime * result + _dayCount.hashCode();
     result = prime * result + _nuSurface.hashCode();
     result = prime * result + _rhoSurface.hashCode();
     result = prime * result + _sabrFunction.hashCode();
@@ -256,9 +296,6 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
       return false;
     }
     if (!ObjectUtils.equals(_nuSurface, other._nuSurface)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
       return false;
     }
     return ObjectUtils.equals(_sabrFunction, other._sabrFunction);

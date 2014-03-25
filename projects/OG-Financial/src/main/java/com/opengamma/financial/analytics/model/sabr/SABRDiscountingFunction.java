@@ -7,15 +7,9 @@ package com.opengamma.financial.analytics.model.sabr;
 
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION;
-import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_DEFINITION;
 import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_SPECIFICATION;
-import static com.opengamma.engine.value.ValueRequirementNames.SABR_SURFACES;
-import static com.opengamma.engine.value.ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA;
-import static com.opengamma.engine.value.ValueRequirementNames.SURFACE_DATA;
-import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS;
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
-import static com.opengamma.engine.value.ValuePropertyNames.CUBE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.SABR_SURFACES;
@@ -48,7 +42,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -207,7 +200,7 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
       final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
       final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
       final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
-      final SABRInterestRateParameters modelParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount,
+      final SABRInterestRateParameters modelParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, 
           VolatilityFunctionFactory.HAGAN_FORMULA);
       final MulticurveProviderDiscount curves = getMergedProviders(inputs, fxMatrix);
       final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = SwaptionUtils.getSwapGenerator(security, definition, securitySource);
