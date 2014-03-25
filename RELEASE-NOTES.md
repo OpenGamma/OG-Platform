@@ -24,6 +24,7 @@ Analytics compatibility
 - No expected differences
 
 Bug fixes
+* [PLAT-6263] Fix for quantity overflow issue
 * Removed quantity in pv calculation in IRFut; Removed multiplication by quantity as the quantity is applied twice.
 * [PLAT-6252] Added handling so missing market data is tracked in SingleComputationCycle; added null handling to ComputedValue deserialization logic.
 * [PLAT-5933] Add market data source command line option to MarketDataSnapshotTool
