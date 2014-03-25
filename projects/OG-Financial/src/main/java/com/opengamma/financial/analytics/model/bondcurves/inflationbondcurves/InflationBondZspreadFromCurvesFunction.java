@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bondcleanprice;
+package com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
@@ -20,13 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -43,16 +40,16 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.money.Currency;
 
 /**
- * Calculates the z-spread of a bond from the clean price.
+ * 
  */
-public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurvesFunction {
+public class InflationBondZspreadFromCurvesFunction extends InflationBondFromCleanPriceAndCurvesFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BondZSpreadFromCleanPriceFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationBondZspreadFromCurvesFunction.class);
   /** The z-spread calculator */
-  private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
+  private static final BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer CALCULATOR = BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer.getInstance();
   /** The curve construction configuration source */
   private ConfigDBCurveConstructionConfigurationSource _curveConstructionConfigurationSource;
   /** The instrument exposures provider */
@@ -61,7 +58,7 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#Z_SPREAD}
    */
-  public BondZSpreadFromCleanPriceFunction() {
+  public InflationBondZspreadFromCurvesFunction() {
     super(Z_SPREAD);
   }
 
@@ -73,23 +70,12 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final FunctionInputs inputs, final BondFixedTransaction bond, final IssuerProvider issuerCurves,
+  protected Set<ComputedValue> getResult(final FunctionInputs inputs, final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface issuerCurves,
       final double cleanPrice, final ValueSpecification spec) {
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) inputs.getValue(YIELD_CURVE);
-    final LegalEntity legalEntity = bond.getBondTransaction().getIssuerEntity();
-    final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> keys = issuerCurves.getIssuers();
-    Pair<Object, LegalEntityFilter<LegalEntity>> keyOfCurveToReplace = null;
-    for (final Pair<Object, LegalEntityFilter<LegalEntity>> key : keys) {
-      if (key.getFirst().equals(key.getSecond().getFilteredData(legalEntity))) {
-        keyOfCurveToReplace = key;
-        break;
-      }
-    }
-    if (keyOfCurveToReplace == null) {
-      throw new OpenGammaRuntimeException("Could not find key for " + legalEntity);
-    }
-    final IssuerProvider curvesWithReplacement = issuerCurves.withIssuerCurve(keyOfCurveToReplace, curve);
-    final double zSpread = 10000 * CALCULATOR.zSpreadFromCurvesAndClean(bond.getBondStandard(), curvesWithReplacement, cleanPrice);
+    final Currency ccy = bond.getBondStandard().getCurrency();
+    final InflationProviderInterface curvesWithReplacement = issuerCurves.withDiscountFactor(ccy, curve);
+    final double zSpread = 10000 * CALCULATOR.zSpreadFromCurvesAndCleanRealPriceDirect(bond.getBondStandard(), curvesWithReplacement, cleanPrice);
     return Collections.singleton(new ComputedValue(spec, zSpread));
   }
 
@@ -157,5 +143,4 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
     return super.getResultProperties(target)
         .withAny(CURVE);
   }
-
 }

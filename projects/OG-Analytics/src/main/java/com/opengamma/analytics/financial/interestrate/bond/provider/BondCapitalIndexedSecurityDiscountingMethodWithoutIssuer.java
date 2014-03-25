@@ -251,7 +251,6 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
    */
   public double cleanPriceFromYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
-    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double dirtyPrice = dirtyPriceFromRealYield(bond, yield);
     return cleanRealPriceFromDirtyRealPrice(bond, dirtyPrice);
   }
@@ -442,6 +441,41 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
   }
 
   /**
+   * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity).
+   * The parallel shift is done in the curve convention.
+   * @param bond The bond security.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param zSpread The z-spread.
+   * @return The present value.
+   */
+  public double cleanPriceFromZSpread(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface issuerMulticurves, final double zSpread) {
+    final InflationProviderInterface issuerShifted = new InflationProviderDecorated(issuerMulticurves, zSpread);
+    return cleanRealPriceFromCurves(bond, issuerShifted);
+  }
+
+  /**
+   * Computes a bond z-spread from the curves and a present value.
+   * The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity) to match the present value.
+   * @param bond The bond.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param cleanRealPrice The target clean real price.
+   * @return The z-spread.
+   */
+  public double zSpreadFromCurvesAndCleanRealPriceDirect(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface issuerMulticurves, final double cleanRealPrice) {
+    ArgumentChecker.notNull(bond, "Bond");
+    ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
+    final Function1D<Double, Double> residual = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double z) {
+        return cleanPriceFromZSpread(bond, issuerMulticurves, z) - cleanRealPrice;
+      }
+    };
+
+    final double[] range = BRACKETER.getBracketedPoints(residual, -0.5, 0.5); // Starting range is [-1%, 1%]
+    return ROOT_FINDER.getRoot(residual, range[0], range[1]);
+  }
+
+  /**
    * Computes a bond z-spread from the curves and a present value.
    * The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity) to match the present value.
    * @param bond The bond.
@@ -461,7 +495,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
       }
     };
 
-    final double[] range = BRACKETER.getBracketedPoints(residual, -0.01, 0.01); // Starting range is [-1%, 1%]
+    final double[] range = BRACKETER.getBracketedPoints(residual, -0.5, 0.5); // Starting range is [-1%, 1%]
     return ROOT_FINDER.getRoot(residual, range[0], range[1]);
   }
 
@@ -473,7 +507,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
    * @param cleanPrice The target clean price.
    * @return The z-spread.
    */
-  public double zSpreadFromCurvesAndClean(final BondCapitalIndexedSecurity<Coupon> bond, final InflationProviderInterface issuerMulticurves, final double cleanPrice) {
+  public double zSpreadFromCurvesAndCleanPrice(final BondCapitalIndexedSecurity<Coupon> bond, final InflationProviderInterface issuerMulticurves, final double cleanPrice) {
     return zSpreadFromCurvesAndPV(bond, issuerMulticurves, presentValueFromCleanPriceReal(bond, issuerMulticurves, cleanPrice));
   }
 

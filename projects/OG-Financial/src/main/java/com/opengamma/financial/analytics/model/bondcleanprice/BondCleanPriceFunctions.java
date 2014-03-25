@@ -10,6 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves.InflationBondZspreadFromCurvesFunction;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -35,5 +36,6 @@ public class BondCleanPriceFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondYieldFromCleanPriceFunction.class));
     functions.add(functionConfiguration(BondZSpreadFromCleanPriceFunction.class));
     functions.add(functionConfiguration(BondNetMarketValueFromCleanPriceFunction.class));
+    functions.add(functionConfiguration(InflationBondZspreadFromCurvesFunction.class));
   }
 }

@@ -36,6 +36,11 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * The real accrual factor to the first coupon. Used for yield computation.
    */
   private final double _factorToNextCoupon;
+
+  /**
+   * The real accrual factor to the first coupon. Used for yield computation.
+   */
+  private final double _ratioPeriodToNextCoupon;
   /**
    * The description of the bond settlement. It is used only for the dates and inflation calculation.
    * The notional is 0 if the settlement is in the past and 1 if not.
@@ -62,6 +67,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param settlementTime The time (in years) to settlement date.
    * @param accruedInterest The real accrued interest at the settlement date.
    * @param factorToNextCoupon The real accrual factor to the first coupon.
+   * @param ratioPeriodToNextCoupon TODO
    * @param yieldConvention The bond yield convention.
    * @param couponPerYear Number of coupon per year.
    * @param settlement The description of the bond settlement.
@@ -71,10 +77,11 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final double lastIndexKnownFixing,
-      final double lastKnownFixingTime, final String issuer) {
-    this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, yieldConvention, couponPerYear, settlement, indexStartValue, lastIndexKnownFixing, lastKnownFixingTime, new LegalEntity(
-        null, issuer, null, null, null));
+      final double ratioPeriodToNextCoupon, final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue,
+      final double lastIndexKnownFixing, final double lastKnownFixingTime, final String issuer) {
+    this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, ratioPeriodToNextCoupon, yieldConvention, couponPerYear, settlement, indexStartValue, lastIndexKnownFixing,
+        lastKnownFixingTime, new LegalEntity(
+            null, issuer, null, null, null));
   }
 
   /**
@@ -84,6 +91,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param settlementTime The time (in years) to settlement date.
    * @param accruedInterest The real accrued interest at the settlement date.
    * @param factorToNextCoupon The real accrual factor to the first coupon.
+   * @param ratioPeriodToNextCoupon TODO
    * @param yieldConvention The bond yield convention.
    * @param couponPerYear Number of coupon per year.
    * @param settlement The description of the bond settlement.
@@ -93,8 +101,8 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final double lastIndexKnownFixing,
-      final double lastKnownFixingTime, final LegalEntity issuer) {
+      final double ratioPeriodToNextCoupon, final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue,
+      final double lastIndexKnownFixing, final double lastKnownFixingTime, final LegalEntity issuer) {
     super(nominal, coupon, settlementTime, issuer);
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
     ArgumentChecker.notNull(settlement, "Settlement");
@@ -102,6 +110,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     _accruedInterest = accruedInterest;
     _couponPerYear = couponPerYear;
     _factorToNextCoupon = factorToNextCoupon;
+    _ratioPeriodToNextCoupon = ratioPeriodToNextCoupon;
     _settlement = settlement;
     _indexStartValue = indexStartValue;
     _lastIndexKnownFixing = lastIndexKnownFixing;
@@ -138,6 +147,14 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    */
   public double getAccrualFactorToNextCoupon() {
     return _factorToNextCoupon;
+  }
+
+  /**
+   * Gets the real accrual factor to the first coupon.
+   * @return The accrual factor to the first coupon.
+   */
+  public double getRatioPeriodToNextCoupon() {
+    return _ratioPeriodToNextCoupon;
   }
 
   /**
@@ -219,6 +236,8 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_lastKnownFixingTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_ratioPeriodToNextCoupon);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + ((_settlement == null) ? 0 : _settlement.hashCode());
     result = prime * result + ((_yieldConvention == null) ? 0 : _yieldConvention.hashCode());
     return result;
@@ -255,6 +274,9 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
       return false;
     }
     if (Double.doubleToLongBits(_lastKnownFixingTime) != Double.doubleToLongBits(other._lastKnownFixingTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_ratioPeriodToNextCoupon) != Double.doubleToLongBits(other._ratioPeriodToNextCoupon)) {
       return false;
     }
     if (_settlement == null) {

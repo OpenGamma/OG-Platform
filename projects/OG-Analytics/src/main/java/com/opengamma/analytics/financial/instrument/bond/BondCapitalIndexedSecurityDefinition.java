@@ -558,15 +558,17 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
         _couponPerYear);
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
-    ;
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
+    final double nbDayToSpot = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - settlementDate.minusDays(getSettlementDays()).getDayOfYear();
+    final double nbDaysPeriod = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - couponDefinition.getNthPayment(0).getAccrualStartDate().getDayOfYear();
+    final double ratioPeriodToNextCoupon = nbDayToSpot / nbDaysPeriod;
     final CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
     final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
     final double notional = nominalLast.getNotional() * (settlementDate.isBefore(date) ? 0.0 : 1.0);
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
     final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date);
-    return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
-        lasKnownIndexFixing, lasKnownFixingTime, getIssuerEntity());
+    return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, ratioPeriodToNextCoupon, _yieldConvention, _couponPerYear,
+        settlement, _indexStartValue, lasKnownIndexFixing, lasKnownFixingTime, getIssuerEntity());
   }
 
   /**

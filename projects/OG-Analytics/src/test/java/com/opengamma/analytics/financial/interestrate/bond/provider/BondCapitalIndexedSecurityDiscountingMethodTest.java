@@ -288,7 +288,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void cleanRealFromDirtyRealTips1() {
     final double dirtyReal = 1.01;
     final double cleanReal = METHOD_BOND_INFLATION.cleanRealPriceFromDirtyRealPrice(BOND_SECURITY_TIPS_1, dirtyReal);
-    final double cleanRealExpected = dirtyReal + BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
+    final double cleanRealExpected = dirtyReal - BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
     assertEquals("Inflation Capital Indexed bond: clean from dirty", cleanRealExpected, cleanReal, 1.0E-8);
   }
 
