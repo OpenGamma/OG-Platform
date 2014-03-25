@@ -46,7 +46,8 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
   /**
    * The standard day count for which the parameter surfaces are valid.
    */
-  // TODO: [PLAT-6236] Should be removed from here as it is available at the provider level.
+  /** @deprecated [PLAT-6236] Should be removed from here as it is available at the provider level. **/
+  @Deprecated
   private final DayCount _dayCount;
 
   /**
