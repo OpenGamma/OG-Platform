@@ -110,7 +110,7 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
         .with(cds.getStubType()).withAccrualDCC(cds.getDayCountFractionConvention());
 
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), cds.getMaturityDate().toLocalDate());
-    double spread = 0;
+    Double spread = null;
     final CDSAnalytic[] creditAnalytics = new CDSAnalytic[n];
     final double[] marketSpreads = new double[n];
     for (int i = 0; i < n; i++) {
@@ -120,6 +120,13 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
       if (!nextIMM.isAfter(cds.getMaturityDate().withHour(0).withMinute(0).withSecond(0).withNano(0))) {
         spread = marketSpreads[i];
       }
+    }
+    if (spread == null && n == 1) {
+      // Next IMM date is after curve maturity date but there is only one point on the curve
+      // i.e. the intention is to use a constant spread curve
+      spread = marketSpreads[0];
+    } else {
+      throw new OpenGammaRuntimeException("Curve contained more than one spread tenor but the spread was not set");
     }
     final ValueProperties properties = desiredValue.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
     final ISDACompliantCreditCurve curve;
