@@ -155,4 +155,30 @@ public class IMMDateLogicTest {
     assertEquals(LocalDate.of(2012, Month.DECEMBER, 20), prevIMM);
 
   }
+
+  /**
+   * 
+   */
+  @Test
+  public void isIndexRollDateTest() {
+    LocalDate date0 = LocalDate.of(2013, 3, 14);
+    LocalDate date1 = LocalDate.of(2013, 6, 20);
+    LocalDate date2 = LocalDate.of(2013, 3, 20);
+    LocalDate date3 = LocalDate.of(2013, 9, 20);
+
+    assertFalse(IMMDateLogic.isIndexRollDate(date0));
+    assertFalse(IMMDateLogic.isIndexRollDate(date1));
+    assertTrue(IMMDateLogic.isIndexRollDate(date2));
+    assertTrue(IMMDateLogic.isIndexRollDate(date3));
+  }
+
+  //TODO PLAT-6139
+  //  @Test
+  //  public void getNextIndexRollDateTest() {
+  //    LocalDate date0 = LocalDate.of(2013, 3, 14);
+  //    LocalDate date1 = LocalDate.of(2013, 6, 20);
+  //    LocalDate date2 = LocalDate.of(2013, 3, 20);
+  //    LocalDate date3 = LocalDate.of(2013, 9, 20);
+  //
+  //  }
 }
