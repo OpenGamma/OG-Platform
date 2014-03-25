@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.Set;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -38,13 +40,12 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the PV01 of FX options using a Black surface and curves constructed
- * using the discounting method.
+ * Calculates the PV01 of FX options using a Black surface and curves constructed using the discounting method.
  */
 public class BlackDiscountingPV01FXOptionFunction extends BlackDiscountingFXOptionFunction {
   /** The PV01 calculator */
-  private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
-      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityForexBlackSmileCalculator.getInstance());
+  private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR = new PV01CurveParametersCalculator<>(
+      PresentValueCurveSensitivityForexBlackSmileCalculator.getInstance());
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PV01}
@@ -58,9 +59,8 @@ public class BlackDiscountingPV01FXOptionFunction extends BlackDiscountingFXOpti
     return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final BlackForexSmileProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
@@ -73,10 +73,7 @@ public class BlackDiscountingPV01FXOptionFunction extends BlackDiscountingFXOpti
           if (desiredCurveName.equals(curveName)) {
             curveNameFound = true;
           }
-          final ValueProperties curveSpecificProperties = properties.copy()
-              .withoutAny(CURVE)
-              .with(CURVE, curveName)
-              .get();
+          final ValueProperties curveSpecificProperties = properties.copy().withoutAny(CURVE).with(CURVE, curveName).get();
           final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
           results.add(new ComputedValue(spec, entry.getValue()));
         }
@@ -87,9 +84,12 @@ public class BlackDiscountingPV01FXOptionFunction extends BlackDiscountingFXOpti
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.withAny(CURVE);
+        }
+        return properties;
       }
 
       @Override
@@ -105,9 +105,7 @@ public class BlackDiscountingPV01FXOptionFunction extends BlackDiscountingFXOpti
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target,
-          final Map<ValueSpecification, ValueRequirement> inputs) {
-        final ValueProperties.Builder commonProperties = super.getResultProperties(compilationContext, target).withoutAny(CURVE);
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
         Set<String> curveNames = null;
         for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
           final ValueSpecification key = entry.getKey();
@@ -119,10 +117,13 @@ public class BlackDiscountingPV01FXOptionFunction extends BlackDiscountingFXOpti
         if (curveNames == null) {
           return null;
         }
-        final Set<ValueSpecification> results = new HashSet<>();
+        final Collection<ValueProperties.Builder> commonPropertiesSet = super.getResultProperties(compilationContext, target);
+        final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(commonPropertiesSet.size() * curveNames.size());
         for (final String curveName : curveNames) {
-          final ValueProperties properties = commonProperties.get().copy().with(CURVE, curveName).get();
-          results.add(new ValueSpecification(PV01, target.toSpecification(), properties));
+          for (ValueProperties.Builder commonProperties : commonPropertiesSet) {
+            final ValueProperties properties = commonProperties.withoutAny(CURVE).with(CURVE, curveName).get();
+            results.add(new ValueSpecification(PV01, target.toSpecification(), properties));
+          }
         }
         return results;
       }

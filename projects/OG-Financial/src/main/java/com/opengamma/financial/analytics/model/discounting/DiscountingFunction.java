@@ -13,6 +13,7 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -84,7 +85,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).withAny(CURVE_EXPOSURES);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
@@ -94,15 +95,16 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
             properties.with(CURRENCY, currency);
-            return properties;
+            return Collections.singleton(properties);
           }
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
         }
+        // TODO: Handle the multiple currency case (SWAP_CROSS_CURRENCY) by returning a collection with more than one element
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
@@ -115,7 +117,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
     }
 
     @Override
-    protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
+    protected Builder getCurveConstraints(final ComputationTarget target, final ValueProperties constraints) {
       return ValueProperties.with(PROPERTY_CURVE_TYPE, DISCOUNTING);
     }
 

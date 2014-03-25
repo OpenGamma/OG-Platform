@@ -20,6 +20,8 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.threeten.bp.Period;
@@ -67,8 +69,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base function for all cap/floor pricing and risk functions that use a Black surface
- * and curves constructed using the discounting method.
+ * Base function for all cap/floor pricing and risk functions that use a Black surface and curves constructed using the discounting method.
  */
 public abstract class ShiftedLognormalDiscountingCapFloorFunction extends DiscountingFunction {
 
@@ -87,17 +88,13 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CapFloorSecurityConverter converter = new CapFloorSecurityConverter(holidaySource, conventionSource, regionSource);
-    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .capFloorVisitor(converter)
-        .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
+    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().capFloorVisitor(converter).create();
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
     return new TradeConverter(futureTradeConverter, securityConverter);
   }
 
   /**
-   * Base compiled function for all pricing and risk functions that use a shifted lognormal surface
-   * and curves constructed using the discounting method.
+   * Base compiled function for all pricing and risk functions that use a shifted lognormal surface and curves constructed using the discounting method.
    */
   protected abstract class ShiftedLognormalDiscountingCompiledFunction extends DiscountingCompiledFunction {
 
@@ -106,8 +103,8 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property.
      */
-    protected ShiftedLognormalDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected ShiftedLognormalDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+        final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }
 
@@ -118,20 +115,16 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-          .with(PROPERTY_VOLATILITY_MODEL, SHIFTED_LOGNORMAL)
-          .with(LognormalVolatilityShiftFunction.SHIFT_CURVE, LognormalVolatilityShiftFunction.TEST)
-          .withAny(SURFACE)
-          .withAny(CURVE_EXPOSURES);
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(PROPERTY_VOLATILITY_MODEL, SHIFTED_LOGNORMAL)
+          .with(LognormalVolatilityShiftFunction.SHIFT_CURVE, LognormalVolatilityShiftFunction.TEST).withAny(SURFACE).withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
         final Security security = target.getTrade().getSecurity();
         final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
         properties.with(CURRENCY, currency);
-        return properties;
+        return Collections.singleton(properties);
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
@@ -143,18 +136,12 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
       final ValueProperties constraints = desiredValue.getConstraints();
       final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
       final Set<String> surface = constraints.getValues(SURFACE);
-      final ValueProperties properties = ValueProperties.builder()
-          .with(SURFACE, surface)
-          .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, CAP_FLOOR).get();
-      final ValueRequirement surfaceRequirement = new ValueRequirement(INTERPOLATED_VOLATILITY_SURFACE,
-          ComputationTargetSpecification.of(currency), properties);
+      final ValueProperties properties = ValueProperties.builder().with(SURFACE, surface).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, CAP_FLOOR).get();
+      final ValueRequirement surfaceRequirement = new ValueRequirement(INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
       requirements.add(surfaceRequirement);
       final Set<String> shiftCurve = constraints.getValues(LognormalVolatilityShiftFunction.SHIFT_CURVE);
-      final ValueProperties shiftProperties = ValueProperties.builder()
-          .with(LognormalVolatilityShiftFunction.SHIFT_CURVE, shiftCurve)
-          .get();
-      final ValueRequirement lognormalShiftRequirement = new ValueRequirement(LOGNORMAL_SURFACE_SHIFTS,
-          ComputationTargetSpecification.NULL, shiftProperties);
+      final ValueProperties shiftProperties = ValueProperties.builder().with(LognormalVolatilityShiftFunction.SHIFT_CURVE, shiftCurve).get();
+      final ValueRequirement lognormalShiftRequirement = new ValueRequirement(LOGNORMAL_SURFACE_SHIFTS, ComputationTargetSpecification.NULL, shiftProperties);
       requirements.add(lognormalShiftRequirement);
       return requirements;
     }
@@ -170,14 +157,15 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
 
     /**
      * Gets the Black surface and curve data.
+     * 
      * @param executionContext The execution context, not null
      * @param inputs The function inputs, not null
      * @param target The computation target, not null
      * @param fxMatrix The FX matrix, not null
      * @return The Black surface and curve data
      */
-    protected BlackSmileShiftCapProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-        final ComputationTarget target, final FXMatrix fxMatrix) {
+    protected BlackSmileShiftCapProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final FXMatrix fxMatrix) {
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final CapFloorSecurity security = (CapFloorSecurity) target.getTrade().getSecurity();
       final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -186,8 +174,8 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
       final Frequency freqIbor = security.getFrequency();
       final Period tenorIbor = getTenor(freqIbor);
       final int spotLag = iborIndexConvention.getSettlementDays();
-      final IborIndex iborIndex = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(),
-          iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
+      final IborIndex iborIndex = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(), iborIndexConvention.getBusinessDayConvention(),
+          iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(INTERPOLATED_VOLATILITY_SURFACE);
       final DoublesCurve shiftCurve = (DoublesCurve) inputs.getValue(LOGNORMAL_SURFACE_SHIFTS);
@@ -198,6 +186,7 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
 
     /**
      * Gets a tenor from a frequency.
+     * 
      * @param freq The frequency
      * @return The tenor, not null
      */

@@ -15,6 +15,7 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,20 +70,19 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * Base function for all pricing and risk functions that use curves constructed using
- * the Hull-White discounting method. Produces results for trades with
- * following underlying securities: <p>
+ * Base function for all pricing and risk functions that use curves constructed using the Hull-White discounting method. Produces results for trades with following underlying securities:
+ * <p>
  * <ul>
- *   <li> {@link CashSecurity}
- *   <li> {@link CashFlowSecurity}
- *   <li> {@link FRASecurity}
- *   <li> {@link SwapSecurity}
- *   <li> {@link SwaptionSecurity}
- *   <li> {@link InterestRateFutureSecurity}
- *   <li> {@link FXForwardSecurity}
- *   <li> {@link NonDeliverableFXForwardSecurity}
- *   <li> {@link DeliverableSwapFutureSecurity}
- *   <li> {@link FederalFundsFutureSecurity}
+ * <li> {@link CashSecurity}
+ * <li> {@link CashFlowSecurity}
+ * <li> {@link FRASecurity}
+ * <li> {@link SwapSecurity}
+ * <li> {@link SwaptionSecurity}
+ * <li> {@link InterestRateFutureSecurity}
+ * <li> {@link FXForwardSecurity}
+ * <li> {@link NonDeliverableFXForwardSecurity}
+ * <li> {@link DeliverableSwapFutureSecurity}
+ * <li> {@link FederalFundsFutureSecurity}
  * </ul>
  */
 public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunction {
@@ -110,24 +110,15 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
-    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashSecurityVisitor(cashConverter)
-        .cashFlowSecurityVisitor(cashFlowConverter)
-        .deliverableSwapFutureSecurityVisitor(dsfConverter)
-        .fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter)
-        .fxForwardVisitor(fxForwardSecurityConverter)
-        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter)
-        .swaptionVisitor(swaptionConverter)
-        .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
+    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter)
+        .cashFlowSecurityVisitor(cashFlowConverter).deliverableSwapFutureSecurityVisitor(dsfConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .fxForwardVisitor(fxForwardSecurityConverter).nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).swaptionVisitor(swaptionConverter).create();
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
     return new TradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, securityConverter);
   }
 
   /**
-   * Base compiled function for all pricing and risk functions that use the Hull-White one-factor
-   * curve construction method.
+   * Base compiled function for all pricing and risk functions that use the Hull-White one-factor curve construction method.
    */
   protected abstract class HullWhiteCompiledFunction extends MultiCurveCompiledFunction {
     /** True if the result properties set the {@link ValuePropertyNames#CURRENCY} property */
@@ -138,8 +129,7 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property
      */
-    protected HullWhiteCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected HullWhiteCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter);
       _withCurrency = withCurrency;
     }
@@ -148,41 +138,34 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       boolean canApplyTo = super.canApplyTo(context, target);
       final Security security = target.getTrade().getSecurity();
-      if (security instanceof SwapSecurity
-          && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+      if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
         canApplyTo &= InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
       }
-      return canApplyTo
-          || security instanceof SwaptionSecurity
-          || security instanceof DeliverableSwapFutureSecurity
-          || security instanceof FederalFundsFutureSecurity;
+      return canApplyTo || security instanceof SwaptionSecurity || security instanceof DeliverableSwapFutureSecurity || security instanceof FederalFundsFutureSecurity;
     }
 
     @SuppressWarnings("synthetic-access")
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
-          .withAny(CURVE_EXPOSURES)
-          .withAny(PROPERTY_HULL_WHITE_PARAMETERS);
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING).withAny(CURVE_EXPOSURES).withAny(PROPERTY_HULL_WHITE_PARAMETERS);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity
-            && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)
-            && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+        if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security) &&
+            (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           final SwapSecurity swapSecurity = (SwapSecurity) security;
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
             properties.with(CURRENCY, currency);
-            return properties;
+            return Collections.singleton(properties);
           }
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
         }
+        // TODO: Handle the multiple currency case (SWAP_CROSS_CURRENCY) by returning a collection with more than one element
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
@@ -199,18 +182,16 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
     }
 
     @Override
-    protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
+    protected Builder getCurveConstraints(final ComputationTarget target, final ValueProperties constraints) {
       final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
       final Set<String> hullWhiteParameters = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
-      return ValueProperties.builder()
-          .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)
-          .with(PROPERTY_HULL_WHITE_CURRENCY, currency);
+      return ValueProperties.builder().with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters).with(PROPERTY_HULL_WHITE_CURRENCY, currency);
     }
 
-
     /**
-     * Merges any {@link HullWhiteOneFactorProviderDiscount} curve bundles and FX matrices that are present in
-     * the inputs and creates a curve bundle with information for pricing using the Hull-White one factor model.
+     * Merges any {@link HullWhiteOneFactorProviderDiscount} curve bundles and FX matrices that are present in the inputs and creates a curve bundle with information for pricing using the Hull-White
+     * one factor model.
+     * 
      * @param inputs The function inputs
      * @param matrix The FX matrix
      * @return A curve bundle that can be used in Hull-White one factor model pricing functions
@@ -229,9 +210,9 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
 
     /**
      * Merges any {@link CurveBuildingBlockBundle}s in the function inputs.
+     * 
      * @param inputs The function inputs
-     * @return A curve building block bundle that contains all of the information used to construct
-     * the curves used in pricing
+     * @return A curve building block bundle that contains all of the information used to construct the curves used in pricing
      */
     protected CurveBuildingBlockBundle getMergedCurveBuildingBlocks(final FunctionInputs inputs) {
       final CurveBuildingBlockBundle result = new CurveBuildingBlockBundle();

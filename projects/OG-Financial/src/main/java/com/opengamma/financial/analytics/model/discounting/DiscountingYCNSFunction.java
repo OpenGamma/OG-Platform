@@ -14,6 +14,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,8 +55,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the yield curve node sensitivities of instruments using
- * curves constructed using the discounting method.
+ * Calculates the yield curve node sensitivities of instruments using curves constructed using the discounting method.
  */
 public class DiscountingYCNSFunction extends DiscountingFunction {
 
@@ -71,30 +71,26 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final MultipleCurrencyParameterSensitivity sensitivities = (MultipleCurrencyParameterSensitivity) inputs.getValue(BLOCK_CURVE_SENSITIVITIES);
+        // TODO: Iterate through the desired values - there may be more than one!
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(CURVE);
         final Map<Pair<String, Currency>, DoubleMatrix1D> entries = sensitivities.getSensitivities();
         for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : entries.entrySet()) {
           if (curveName.equals(entry.getKey().getFirst())) {
-            final ValueProperties properties = desiredValue.getConstraints().copy()
-                .with(CURVE, curveName)
-                .get();
-            final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
-                ValueProperties.builder().with(CURVE, curveName).get()));
+            final ValueProperties properties = desiredValue.getConstraints().copy().with(CURVE, curveName).get();
+            final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, ValueProperties.builder()
+                .with(CURVE, curveName).get()));
             final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
             final DoubleLabelledMatrix1D ycns = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
             return Collections.singleton(new ComputedValue(spec, ycns));
           }
         }
-        final ValueProperties properties = desiredValue.getConstraints().copy()
-            .with(CURVE, curveName)
-            .get();
-        final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
-            ValueProperties.builder().with(CURVE, curveName).get()));
+        final ValueProperties properties = desiredValue.getConstraints().copy().with(CURVE, curveName).get();
+        final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, ValueProperties.builder()
+            .with(CURVE, curveName).get()));
         final double[] zeroes = new double[curveDefinition.getNodes().size()];
         final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
         final DoubleLabelledMatrix1D ycns = MultiCurveUtils.getLabelledMatrix(new DoubleMatrix1D(zeroes), curveDefinition);
@@ -112,13 +108,8 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
         if (curveExposureConfigs == null) {
           return null;
         }
-        final ValueProperties properties = ValueProperties
-            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-            .with(CURVE_EXPOSURES, curveExposureConfigs)
-            .get();
-        final ValueProperties curveProperties = ValueProperties
-            .with(CURVE, curveNames)
-            .get();
+        final ValueProperties properties = ValueProperties.with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(CURVE_EXPOSURES, curveExposureConfigs).get();
+        final ValueProperties curveProperties = ValueProperties.with(CURVE, curveNames).get();
         final Set<ValueRequirement> requirements = new HashSet<>();
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
@@ -135,11 +126,8 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = createValueProperties()
-            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-            .withAny(CURVE_EXPOSURES)
-            .withAny(CURVE);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).withAny(CURVE_EXPOSURES).withAny(CURVE);
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
           if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
@@ -147,17 +135,18 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
             if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
               final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
               properties.with(CURRENCY, currency);
-              return properties;
+              return Collections.singleton(properties);
             }
           }
           properties.withAny(CURRENCY);
-          return properties;
+          return Collections.singleton(properties);
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
         }
-        return properties;
+        // TODO: Handle instruments with multiple currencies correctly
+        return Collections.singleton(properties);
       }
 
     };

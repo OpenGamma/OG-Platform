@@ -19,6 +19,8 @@ import static com.opengamma.financial.analytics.model.InterpolatedDataProperties
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
@@ -42,8 +44,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- * Base function for all volatility swap pricing and risk function that use the
- * Carr-Lee method.
+ * Base function for all volatility swap pricing and risk function that use the Carr-Lee method.
  */
 public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction {
   /** The calculation method */
@@ -76,26 +77,22 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property.
      */
-    protected CarrLeeVolatilitySwapCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected CarrLeeVolatilitySwapCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+        final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }
 
     @SuppressWarnings("synthetic-access")
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-          .with(CALCULATION_METHOD, CARR_LEE)
-          .withAny(SURFACE)
-          .withAny(CURVE_EXPOSURES);
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(CALCULATION_METHOD, CARR_LEE).withAny(SURFACE).withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
         properties.with(CURRENCY, currency);
-        return properties;
+        return Collections.singleton(properties);
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
@@ -148,6 +145,7 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
 
     /**
      * Gets the volatility surface requirement.
+     * 
      * @param desiredValue The desired value
      * @param target The target
      * @return The volatility surface requirement
@@ -156,6 +154,7 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
 
     /**
      * Gets the spot requirement.
+     * 
      * @param target The target
      * @return The spot requirement
      */
@@ -163,15 +162,16 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
 
     /**
      * Gets the realized variance requirement.
+     * 
      * @param desiredValue The desired vale
      * @param target The target
      * @return The realized variance requirement
      */
     protected abstract ValueRequirement getRealizedVarianceRequirement(ValueRequirement desiredValue, ComputationTarget target);
 
-
     /**
      * Gets the Carr-Lee data.
+     * 
      * @param executionContext The execution context, not null
      * @param inputs The function inputs, not null
      * @param target The computation target, not null

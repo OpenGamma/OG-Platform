@@ -19,6 +19,7 @@ import static com.opengamma.financial.analytics.model.sabr.SABRPropertyValues.PR
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.SABR;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,8 +55,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the yield curve node sensitivities of instruments using
- * curves constructed using the discounting method.
+ * Calculates the yield curve node sensitivities of instruments using curves constructed using the discounting method.
  */
 public class RightExtrapolationSABRDiscountingYCNSFunction extends RightExtrapolationSABRDiscountingFunction {
   /** The logger */
@@ -73,20 +73,17 @@ public class RightExtrapolationSABRDiscountingYCNSFunction extends RightExtrapol
     return new RightExtrapolationSABRDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final MultipleCurrencyParameterSensitivity sensitivities = (MultipleCurrencyParameterSensitivity) inputs.getValue(BLOCK_CURVE_SENSITIVITIES);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String curveName = desiredValue.getConstraint(CURVE);
         final Map<Pair<String, Currency>, DoubleMatrix1D> entries = sensitivities.getSensitivities();
         for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : entries.entrySet()) {
           if (curveName.equals(entry.getKey().getFirst())) {
-            final ValueProperties properties = desiredValue.getConstraints().copy()
-                .with(CURVE, curveName)
-                .get();
-            final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
-                ValueProperties.builder().with(CURVE, curveName).get()));
+            final ValueProperties properties = desiredValue.getConstraints().copy().with(CURVE, curveName).get();
+            final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, ValueProperties.builder()
+                .with(CURVE, curveName).get()));
             final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
             final DoubleLabelledMatrix1D ycns = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
             return Collections.singleton(new ComputedValue(spec, ycns));
@@ -119,18 +116,9 @@ public class RightExtrapolationSABRDiscountingYCNSFunction extends RightExtrapol
         if (mus == null || mus.size() != 1) {
           return null;
         }
-        final ValueProperties properties = ValueProperties
-            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-            .with(PROPERTY_VOLATILITY_MODEL, SABR)
-            .with(PROPERTY_STRIKE_CUTOFF, strikeCutoffs)
-            .with(PROPERTY_MU, mus)
-            .with(CUBE, cubeNames)
-            .with(CALCULATION_METHOD, getCalculationMethod())
-            .with(CURVE_EXPOSURES, curveExposureConfigs)
-            .get();
-        final ValueProperties curveProperties = ValueProperties
-            .with(CURVE, curveNames)
-            .get();
+        final ValueProperties properties = ValueProperties.with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(PROPERTY_VOLATILITY_MODEL, SABR).with(PROPERTY_STRIKE_CUTOFF, strikeCutoffs)
+            .with(PROPERTY_MU, mus).with(CUBE, cubeNames).with(CALCULATION_METHOD, getCalculationMethod()).with(CURVE_EXPOSURES, curveExposureConfigs).get();
+        final ValueProperties curveProperties = ValueProperties.with(CURVE, curveNames).get();
         final Set<ValueRequirement> requirements = new HashSet<>();
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
@@ -146,9 +134,12 @@ public class RightExtrapolationSABRDiscountingYCNSFunction extends RightExtrapol
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.withAny(CURVE);
+        }
+        return properties;
       }
 
     };

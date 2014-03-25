@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.black;
 import static com.opengamma.engine.value.ValueRequirementNames.POSITION_VEGA;
 import static com.opengamma.engine.value.ValueRequirementNames.POSITION_WEIGHTED_VEGA;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -35,8 +36,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
- * Calculates the weighted position vega of interest rate future options using a Black surface and
- * curves constructed using the discounting method.
+ * Calculates the weighted position vega of interest rate future options using a Black surface and curves constructed using the discounting method.
  */
 public class BlackDiscountingWeightedVegaIRFutureOptionFunction extends BlackDiscountingIRFutureOptionFunction {
   /** Property name for the number of base days */
@@ -56,9 +56,8 @@ public class BlackDiscountingWeightedVegaIRFutureOptionFunction extends BlackDis
     return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties constraints = desiredValue.getConstraints();
         final Set<String> baseDayProperty = constraints.getValues(PROPERTY_BASE_DAYS);
@@ -86,8 +85,7 @@ public class BlackDiscountingWeightedVegaIRFutureOptionFunction extends BlackDis
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target,
-          final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (super.getRequirements(compilationContext, target, desiredValue) == null) {
           return null;
         }
@@ -96,9 +94,12 @@ public class BlackDiscountingWeightedVegaIRFutureOptionFunction extends BlackDis
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(PROPERTY_BASE_DAYS);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.withAny(PROPERTY_BASE_DAYS);
+        }
+        return properties;
       }
     };
   }

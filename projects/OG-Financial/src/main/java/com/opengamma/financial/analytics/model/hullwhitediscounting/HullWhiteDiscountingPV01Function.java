@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.hullwhitediscounting;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,15 +40,14 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the PV01 of instruments using curves constructed using
- * the Hull-White one factor discounting method.
+ * Calculates the PV01 of instruments using curves constructed using the Hull-White one factor discounting method.
  */
 public class HullWhiteDiscountingPV01Function extends HullWhiteDiscountingFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(HullWhiteDiscountingPV01Function.class);
   /** The PV01 calculator */
-  private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
-      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityHullWhiteCalculator.getInstance());
+  private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR = new PV01CurveParametersCalculator<>(
+      PresentValueCurveSensitivityHullWhiteCalculator.getInstance());
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PV01}
@@ -61,9 +61,8 @@ public class HullWhiteDiscountingPV01Function extends HullWhiteDiscountingFuncti
     return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final HullWhiteOneFactorProviderInterface data = getMergedProviders(inputs, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
@@ -76,10 +75,7 @@ public class HullWhiteDiscountingPV01Function extends HullWhiteDiscountingFuncti
           if (desiredCurveName.equals(curveName)) {
             curveNameFound = true;
           }
-          final ValueProperties curveSpecificProperties = properties.copy()
-              .withoutAny(CURVE)
-              .with(CURVE, curveName)
-              .get();
+          final ValueProperties curveSpecificProperties = properties.copy().withoutAny(CURVE).with(CURVE, curveName).get();
           final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
           results.add(new ComputedValue(spec, entry.getValue()));
         }
@@ -91,9 +87,12 @@ public class HullWhiteDiscountingPV01Function extends HullWhiteDiscountingFuncti
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.withAny(CURVE);
+        }
+        return properties;
       }
 
       @Override

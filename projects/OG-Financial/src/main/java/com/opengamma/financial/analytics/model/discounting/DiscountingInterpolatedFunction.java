@@ -4,6 +4,9 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -33,7 +36,10 @@ public abstract class DiscountingInterpolatedFunction extends DiscountingFunctio
   public DiscountingInterpolatedFunction(final String... valueRequirements) {
     super(valueRequirements);
   }
-  
+
+  /**
+   * 
+   */
   protected abstract class DiscountingInterpolatedCompiledFunction extends DiscountingCompiledFunction {
 
     /**
@@ -41,16 +47,15 @@ public abstract class DiscountingInterpolatedFunction extends DiscountingFunctio
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property
      */
-    protected DiscountingInterpolatedCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected DiscountingInterpolatedCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+        final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }
 
     @SuppressWarnings("synthetic-access")
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, InterpolatedDataProperties.CALCULATION_METHOD_NAME)
-          .withAny(CURVE_EXPOSURES);
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, InterpolatedDataProperties.CALCULATION_METHOD_NAME).withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security) &&
@@ -59,19 +64,20 @@ public abstract class DiscountingInterpolatedFunction extends DiscountingFunctio
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
             properties.with(CURRENCY, currency);
-            return properties;
+            return Collections.singleton(properties);
           }
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
         }
+        // TODO: Handle instruments with multiple currencies by returning a set with more items
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
-    protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
+    protected Builder getCurveConstraints(final ComputationTarget target, final ValueProperties constraints) {
       return ValueProperties.with(PROPERTY_CURVE_TYPE, InterpolatedDataProperties.CALCULATION_METHOD_NAME); //DISCOUNTING);
     }
   }

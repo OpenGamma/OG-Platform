@@ -12,6 +12,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.ALL_PV01S;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,8 +48,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Gets the PV01 of an instrument to a named curve using curves constructed with
- * the interpolated construction method.
+ * Gets the PV01 of an instrument to a named curve using curves constructed with the interpolated construction method.
  */
 public class DiscountingInterpolatedPV01Function extends DiscountingInterpolatedFunction {
 
@@ -65,9 +65,8 @@ public class DiscountingInterpolatedPV01Function extends DiscountingInterpolated
 
       @SuppressWarnings("synthetic-access")
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints();
@@ -76,19 +75,13 @@ public class DiscountingInterpolatedPV01Function extends DiscountingInterpolated
         for (final Map.Entry<Pair<String, Currency>, Double> entry : pv01s.entrySet()) {
           final String curveName = entry.getKey().getFirst();
           if (desiredCurveName.equals(curveName)) {
-            final ValueProperties curveSpecificProperties = properties.copy()
-                .withoutAny(CURVE)
-                .with(CURVE, curveName)
-                .get();
+            final ValueProperties curveSpecificProperties = properties.copy().withoutAny(CURVE).with(CURVE, curveName).get();
             final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
             results.add(new ComputedValue(spec, entry.getValue()));
             return results;
           }
         }
-        final ValueProperties curveSpecificProperties = properties.copy()
-            .withoutAny(CURVE)
-            .with(CURVE, desiredCurveName)
-            .get();
+        final ValueProperties curveSpecificProperties = properties.copy().withoutAny(CURVE).with(CURVE, desiredCurveName).get();
         final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
         results.add(new ComputedValue(spec, 0.));
         return results;
@@ -96,7 +89,7 @@ public class DiscountingInterpolatedPV01Function extends DiscountingInterpolated
 
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-                                        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+          final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         return getValues(executionContext, inputs, target, desiredValues, null, null);
       }
 
@@ -111,19 +104,14 @@ public class DiscountingInterpolatedPV01Function extends DiscountingInterpolated
         if (curveExposureConfigs == null) {
           return null;
         }
-        final ValueProperties properties = ValueProperties
-            .with(PROPERTY_CURVE_TYPE, InterpolatedDataProperties.CALCULATION_METHOD_NAME)
-            .with(CURVE_EXPOSURES, curveExposureConfigs)
-            .get();
+        final ValueProperties properties = ValueProperties.with(PROPERTY_CURVE_TYPE, InterpolatedDataProperties.CALCULATION_METHOD_NAME).with(CURVE_EXPOSURES, curveExposureConfigs).get();
         return Collections.singleton(new ValueRequirement(ALL_PV01S, target.toSpecification(), properties));
       }
 
       @SuppressWarnings("synthetic-access")
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = createValueProperties()
-            .with(PROPERTY_CURVE_TYPE, InterpolatedDataProperties.CALCULATION_METHOD_NAME)
-            .withAny(CURVE_EXPOSURES)
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, InterpolatedDataProperties.CALCULATION_METHOD_NAME).withAny(CURVE_EXPOSURES)
             .withAny(CURVE);
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
@@ -132,17 +120,18 @@ public class DiscountingInterpolatedPV01Function extends DiscountingInterpolated
             if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
               final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
               properties.with(CURRENCY, currency);
-              return properties;
+              return Collections.singleton(properties);
             }
           }
           properties.withAny(CURRENCY);
-          return properties;
+          return Collections.singleton(properties);
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
         }
-        return properties;
+        // TODO: Handle instruments with multiple currencies correctly
+        return Collections.singleton(properties);
       }
     };
   }

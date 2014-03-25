@@ -18,6 +18,8 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.SABR;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -65,8 +67,7 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base function for all pricing and risk functions that use SABR parameter surfaces
- * and curves constructed using the discounting method.
+ * Base function for all pricing and risk functions that use SABR parameter surfaces and curves constructed using the discounting method.
  */
 public abstract class SABRDiscountingFunction extends DiscountingFunction {
 
@@ -86,17 +87,14 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(securitySource, swapConverter);
-    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .swaptionVisitor(swaptionConverter)
+    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swaptionVisitor(swaptionConverter)
         .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
     return new TradeConverter(futureTradeConverter, securityConverter);
   }
 
   /**
-   * Base compiled function for all pricing and risk functions that use SABR parameter surfaces
-   * and curves constructed using the discounting method.
+   * Base compiled function for all pricing and risk functions that use SABR parameter surfaces and curves constructed using the discounting method.
    */
   protected abstract class SABRDiscountingCompiledFunction extends DiscountingCompiledFunction {
 
@@ -105,8 +103,8 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property.
      */
-    protected SABRDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected SABRDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+        final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }
 
@@ -117,23 +115,17 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-          .with(PROPERTY_VOLATILITY_MODEL, SABR)
-          .withAny(PROPERTY_CUBE_DEFINITION)
-          .withAny(PROPERTY_CUBE_SPECIFICATION)
-          .withAny(PROPERTY_SURFACE_DEFINITION)
-          .withAny(PROPERTY_SURFACE_SPECIFICATION)
-          .with(CALCULATION_METHOD, getCalculationMethod())
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(PROPERTY_VOLATILITY_MODEL, SABR).withAny(PROPERTY_CUBE_DEFINITION)
+          .withAny(PROPERTY_CUBE_SPECIFICATION).withAny(PROPERTY_SURFACE_DEFINITION).withAny(PROPERTY_SURFACE_SPECIFICATION).with(CALCULATION_METHOD, getCalculationMethod())
           .withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
         final Security security = target.getTrade().getSecurity();
         final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
         properties.with(CURRENCY, currency);
-        return properties;
+        return Collections.singleton(properties);
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
@@ -148,16 +140,12 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
       final Set<String> cubeSpecification = constraints.getValues(PROPERTY_CUBE_SPECIFICATION);
       final Set<String> surfaceDefinition = constraints.getValues(PROPERTY_SURFACE_DEFINITION);
       final Set<String> surfaceSpecification = constraints.getValues(PROPERTY_SURFACE_SPECIFICATION);
-      final ValueProperties properties = ValueProperties.builder()
-          .with(PROPERTY_CUBE_DEFINITION, cubeDefinition)
-          .with(PROPERTY_CUBE_SPECIFICATION, cubeSpecification)
-          .with(PROPERTY_SURFACE_DEFINITION, surfaceDefinition)
-          .with(PROPERTY_SURFACE_SPECIFICATION, surfaceSpecification)
-//          .with(CURRENCY, currency.getCode())
-          .with(PROPERTY_VOLATILITY_MODEL, SABR)
-          .get();
-//      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES,
-//          ComputationTargetSpecification.of(currency), properties);
+      final ValueProperties properties = ValueProperties.builder().with(PROPERTY_CUBE_DEFINITION, cubeDefinition).with(PROPERTY_CUBE_SPECIFICATION, cubeSpecification)
+          .with(PROPERTY_SURFACE_DEFINITION, surfaceDefinition).with(PROPERTY_SURFACE_SPECIFICATION, surfaceSpecification)
+          //          .with(CURRENCY, currency.getCode())
+          .with(PROPERTY_VOLATILITY_MODEL, SABR).get();
+      //      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES,
+      //          ComputationTargetSpecification.of(currency), properties);
       final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.NULL, properties);
       requirements.add(surfacesRequirement);
       return requirements;
@@ -186,12 +174,13 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
 
     /**
      * Gets the calculation method.
+     * 
      * @return The calculation method
      */
     protected abstract String getCalculationMethod();
 
-    protected SABRSwaptionProvider getSABRSurfaces(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final FXMatrix fxMatrix, final DayCount dayCount) {
+    protected SABRSwaptionProvider getSABRSurfaces(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final FXMatrix fxMatrix,
+        final DayCount dayCount) {
       final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
       final SwaptionSecurity security = (SwaptionSecurity) target.getTrade().getSecurity();
       final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
@@ -200,8 +189,7 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
       final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
       final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
       final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
-      final SABRInterestRateParameters modelParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, 
-          VolatilityFunctionFactory.HAGAN_FORMULA);
+      final SABRInterestRateParameters modelParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, VolatilityFunctionFactory.HAGAN_FORMULA);
       final MulticurveProviderDiscount curves = getMergedProviders(inputs, fxMatrix);
       final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = SwaptionUtils.getSwapGenerator(security, definition, securitySource);
       // TODO: [PLAT-6237]
