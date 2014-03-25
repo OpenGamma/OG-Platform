@@ -144,7 +144,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
     }
-    final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
+    final double quantity = trade.getQuantity().doubleValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
     if (trade.getPremium() == null) {
       throw new OpenGammaRuntimeException("Trade premium should not be null.");
     }
@@ -157,7 +157,9 @@ public class BondAndBondFutureTradeWithEntityConverter {
       final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
-      return new BondFuturesTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
+      //FIXME - BondFuturesTransactionDefinition shouldn't take quantity as an int. This could overflow.
+      //should be a double, big decimal or long.
+      return new BondFuturesTransactionDefinition(bondFuture, Double.valueOf(quantity).intValue(), tradeDateTime, price);
     }
     OffsetTime settleTime = trade.getPremiumTime();
     if (settleTime == null) {

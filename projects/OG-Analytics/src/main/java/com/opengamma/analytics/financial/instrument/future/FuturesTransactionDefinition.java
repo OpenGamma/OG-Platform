@@ -21,8 +21,12 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
    * Underlying future security. Not null;
    */
   private final FS _underlyingFuture;
+
+  //FIXME - BondFuturesTransactionDefinition shouldn't take quantity as an int. This could overflow.
+  //should be a double, big decimal or long.
   /**
    * Quantity of future. Can be positive or negative.
+   * 
    */
   private final int _quantity;
   /**
