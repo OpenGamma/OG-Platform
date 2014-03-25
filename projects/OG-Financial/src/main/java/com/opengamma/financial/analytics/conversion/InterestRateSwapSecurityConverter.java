@@ -57,9 +57,8 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * @deprecated use {@link InterestRateSwapSecurityTradeConverter} instead.
+ *
  */
-@Deprecated
 public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** A holiday source */
   private final HolidaySource _holidaySource;

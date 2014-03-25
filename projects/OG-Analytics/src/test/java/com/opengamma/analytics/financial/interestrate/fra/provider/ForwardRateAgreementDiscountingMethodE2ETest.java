@@ -14,11 +14,15 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsUSD;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingMultipleInstrumentsCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -34,6 +38,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests the ForwardRateAgreement discounting method.
@@ -47,6 +52,7 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
   private static final Currency CUR = USDLIBOR3M.getCurrency();
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final PresentValueDiscountingMultipleInstrumentsCalculator PVMULTIDC = PresentValueDiscountingMultipleInstrumentsCalculator.getInstance();
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
@@ -82,6 +88,20 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
     final MultipleCurrencyAmount pvComputed = STD_FRA.accept(PVDC, MULTICURVE_STD);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 23182.5437);
     assertEquals("ForwardRateAgreementDiscountingMethod: present value from standard curves", pvExpected.getAmount(CUR), pvComputed.getAmount(CUR), STD_TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+  * Test different results with a standard set of data against hardcoded values. Can be used for platform testing or regression testing
+  */
+  public void presentValueAfterFee() {
+    // fee offsets PV
+    Annuity<?> fee = new Annuity<>(new CouponFixed[] {new CouponFixed(Currency.USD, 1. / 365, 1, -23182.647032590383, 1)});
+    // Present Value
+    Pair<InstrumentDerivative[], MulticurveProviderInterface> data = Pairs.of(new InstrumentDerivative[] {fee}, (MulticurveProviderInterface) MULTICURVE_STD);
+    final MultipleCurrencyAmount pvComputed = STD_FRA.accept(PVMULTIDC, data);
+    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 0);
+    assertEquals("ForwardRateAgreementDiscountingMethod: present value after fee from standard curves", pvExpected.getAmount(CUR), pvComputed.getAmount(CUR), STD_TOLERANCE_PV);
   }
 
   @Test
