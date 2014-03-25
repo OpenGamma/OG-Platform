@@ -25,11 +25,13 @@ import com.opengamma.analytics.financial.provider.description.volatilityswap.Car
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pairs;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class CarrLeeFXVolatilitySwapCalculatorTest {
 
   /**
@@ -67,6 +69,9 @@ public class CarrLeeFXVolatilitySwapCalculatorTest {
     final FXVolatilitySwap swap = new FXVolatilitySwap(-timeFromInception, timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
     assertEquals(6.861525317073218, swap.accept(cal, data).getFairValue(), 1e-10);
 
+    final FXVolatilitySwap swap1 = new FXVolatilitySwap(0., timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
+    final FXVolatilitySwap swap2 = new FXVolatilitySwap(1.e-4, timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
+    assertEquals(swap1.accept(cal, data).getFairValue(), swap2.accept(cal, data).getFairValue(), 1.e-6);
   }
 
   /**
@@ -102,9 +107,13 @@ public class CarrLeeFXVolatilitySwapCalculatorTest {
     final FXMatrix fxMatrix = new FXMatrix(base, counter, spot);
     final MulticurveProviderDiscount curves = new MulticurveProviderDiscount(discountingCurves, new LinkedHashMap<IborIndex, YieldAndDiscountCurve>(),
         new LinkedHashMap<IndexON, YieldAndDiscountCurve>(), fxMatrix);
-    final CarrLeeFXData data = new CarrLeeFXData(Pairs.of(base, counter), smile, curves);
-    final FXVolatilitySwap swap = new FXVolatilitySwap(timeFromInception, timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
+    final CarrLeeFXData data = new CarrLeeFXData(Pairs.of(base, counter), smile, curves, realizedVar);
+    final FXVolatilitySwap swap = new FXVolatilitySwap(-timeFromInception, timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
     assertEquals(6., swap.accept(cal, data).getFairValue(), eps);
+
+    final FXVolatilitySwap swap1 = new FXVolatilitySwap(0., timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
+    final FXVolatilitySwap swap2 = new FXVolatilitySwap(1.e-4, timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
+    assertEquals(swap1.accept(cal, data).getFairValue(), swap2.accept(cal, data).getFairValue(), 1.e-6);
 
     /*
      * Error test
@@ -140,43 +149,43 @@ public class CarrLeeFXVolatilitySwapCalculatorTest {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
-//    try {
-//      cal.fairValueSeasoned(spot, -timeToExpiry, timeFromInception, dr, fr, realizedVar, smile);
-//      throw new RuntimeException();
-//    } catch (final Exception e) {
-//      assertTrue(e instanceof IllegalArgumentException);
-//    }
-//    try {
-//      cal.fairValueSeasoned(spot, timeToExpiry, -timeFromInception, dr, fr, realizedVar, smile);
-//      throw new RuntimeException();
-//    } catch (final Exception e) {
-//      assertTrue(e instanceof IllegalArgumentException);
-//    }
-//    try {
-//      cal.fairValueSeasoned(-spot, timeToExpiry, timeFromInception, dr, fr, realizedVar, smile);
-//      throw new RuntimeException();
-//    } catch (final Exception e) {
-//      assertTrue(e instanceof IllegalArgumentException);
-//    }
-//    try {
-//      cal.fairValueSeasoned(spot, timeToExpiry, timeFromInception, dr, fr, -realizedVar, smile);
-//      throw new RuntimeException();
-//    } catch (final Exception e) {
-//      assertTrue(e instanceof IllegalArgumentException);
-//    }
+    //    try {
+    //      cal.fairValueSeasoned(spot, -timeToExpiry, timeFromInception, dr, fr, realizedVar, smile);
+    //      throw new RuntimeException();
+    //    } catch (final Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
+    //    try {
+    //      cal.fairValueSeasoned(spot, timeToExpiry, -timeFromInception, dr, fr, realizedVar, smile);
+    //      throw new RuntimeException();
+    //    } catch (final Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
+    //    try {
+    //      cal.fairValueSeasoned(-spot, timeToExpiry, timeFromInception, dr, fr, realizedVar, smile);
+    //      throw new RuntimeException();
+    //    } catch (final Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
+    //    try {
+    //      cal.fairValueSeasoned(spot, timeToExpiry, timeFromInception, dr, fr, -realizedVar, smile);
+    //      throw new RuntimeException();
+    //    } catch (final Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
 
-//    try {
-//      cal.fairValueNew(spot, -timeToExpiry, dr, fr, smile);
-//      throw new RuntimeException();
-//    } catch (final Exception e) {
-//      assertTrue(e instanceof IllegalArgumentException);
-//    }
-//    try {
-//      cal.fairValueNew(-spot, timeToExpiry, dr, fr, smile);
-//      throw new RuntimeException();
-//    } catch (final Exception e) {
-//      assertTrue(e instanceof IllegalArgumentException);
-//    }
+    //    try {
+    //      cal.fairValueNew(spot, -timeToExpiry, dr, fr, smile);
+    //      throw new RuntimeException();
+    //    } catch (final Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
+    //    try {
+    //      cal.fairValueNew(-spot, timeToExpiry, dr, fr, smile);
+    //      throw new RuntimeException();
+    //    } catch (final Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
   }
 
 }
