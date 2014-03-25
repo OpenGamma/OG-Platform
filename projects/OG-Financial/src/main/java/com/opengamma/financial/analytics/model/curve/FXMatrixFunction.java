@@ -150,15 +150,8 @@ public class FXMatrixFunction extends AbstractFunction {
         if (pair == null) {
           throw new OpenGammaRuntimeException("CurrencyPairs for currencies " + initialCurrency + " and " + otherCurrency + " not available");
         }
-        if (pair.getBase().equals(initialCurrency)) {
-          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency,
-              initialCurrency))));
-          matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
-        } else {
-          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency,
-              initialCurrency))));
-          matrix.addCurrency(otherCurrency, initialCurrency, 1 / spotRate);
-        }
+        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+        matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
       }
       return Collections.singleton(new ComputedValue(_spec, matrix));
     }
