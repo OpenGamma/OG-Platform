@@ -764,47 +764,6 @@ import com.opengamma.util.tuple.Pairs;
     return getOrCreateNodes(function, nodeInfo, targetSpecification);
   }
 
-  private static boolean mismatchUnionImpl(final ValueSpecification[] as, final ValueSpecification[] bs) {
-    int lengthB = bs.length;
-    nextA: for (final ValueSpecification a : as) { //CSIGNORE
-      final String aName = a.getValueName();
-      final ValueProperties aProperties = a.getProperties();
-      boolean mismatch = false;
-      for (int i = 0; i < lengthB; i++) {
-        final ValueSpecification b = bs[i];
-        if (aName == b.getValueName()) {
-          final ValueProperties bProperties = b.getProperties();
-          if (aProperties.isSatisfiedBy(bProperties) && bProperties.isSatisfiedBy(aProperties)) {
-            // Matched an entry from B to this; don't match it against anything else
-            bs[i] = bs[--lengthB];
-            bs[lengthB] = b;
-            continue nextA;
-          } else {
-            mismatch = true;
-          }
-        }
-      }
-      if (mismatch) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed. Given the intersection of common value names, the properties must be mutually
-   * compatible.
-   * 
-   * @param as the first set of values, not null
-   * @param bs the second set of values, not null
-   * @return true if the values can't be composed, false if they can
-   */
-  private static boolean mismatchUnion(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-    final ValueSpecification[] asCopy = as.toArray(new ValueSpecification[as.size()]);
-    final ValueSpecification[] bsCopy = bs.toArray(new ValueSpecification[bs.size()]);
-    return mismatchUnionImpl(asCopy, bsCopy);
-  }
-
   private void applyReplacementOutputs(final Map<ValueSpecification, ValueSpecification> replacementOutputs, final DependencyNode newNode) {
     for (Map.Entry<ValueSpecification, ValueSpecification> replacement : replacementOutputs.entrySet()) {
       final ValueSpecification oldValue = replacement.getKey();
@@ -848,48 +807,50 @@ import com.opengamma.util.tuple.Pairs;
   }
 
   private DependencyNode findExistingNode(final Set<DependencyNode> nodes, final ResolvedValue resolvedValue) {
-    for (final DependencyNode node : nodes) {
+    nextNode: for (final DependencyNode node : nodes) { //CSIGNORE
       // TODO: Measure, and if necessary improve, the efficiency of this operation
       if (INTRINSICS.contains(node.getFunction().getFunctionId())) {
-        continue;
-      }
-      final Set<ValueSpecification> outputValues = DependencyNodeImpl.getOutputValues(node);
-      if (mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
         continue;
       }
       s_logger.debug("Considering {} for {}", node, resolvedValue);
       // Update the output values for the node with the union. The input values will be dealt with by the caller.
       Map<ValueSpecification, ValueSpecification> replacementOutputs = null;
       List<ValueSpecification> additionalOutputs = null;
+      final ValueSpecification[] outputValues = DependencyNodeImpl.getOutputValueArray(node);
+      int outputValuesLength = outputValues.length;
       resolvedOutput: for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) { //CSIGNORE
-        if (outputValues.contains(output)) {
-          // Exact match found
-          continue;
-        }
         final String outputName = output.getValueName();
         final ValueProperties outputProperties = output.getProperties();
-        for (final ValueSpecification outputValue : outputValues) {
+        boolean mismatch = false;
+        for (int i = 0; i < outputValuesLength; i++) {
+          final ValueSpecification outputValue = outputValues[i];
           if (outputName == outputValue.getValueName()) {
-            if ((replacementOutputs != null) && replacementOutputs.containsKey(outputValue)) {
-              // The candidate output has already been re-written to match another of the resolved outputs
-              continue;
-            }
-            if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
+            if (outputValue.getProperties().isSatisfiedBy(outputProperties) && outputProperties.isSatisfiedBy(outputValue.getProperties())) {
               // Found suitable match; check whether it needs rewriting
               final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
               if (!composedProperties.equals(outputValue.getProperties())) {
                 final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
                 if (replacementOutputs == null) {
-                  replacementOutputs = Maps.newHashMapWithExpectedSize(outputValues.size());
+                  replacementOutputs = Maps.newHashMapWithExpectedSize(outputValues.length);
                 }
                 replacementOutputs.put(outputValue, newOutputValue);
+                // Don't consider this output to match anything else now that it's been rewritten
+                outputValues[i] = outputValues[--outputValuesLength];
+                outputValues[outputValuesLength] = outputValue;
               }
               continue resolvedOutput;
+            } else {
+              // Found a mismatching value that can't be composed; reject the whole lot unless there was an exact match
+              mismatch = true;
             }
           }
         }
-        // This output was not matched. The "mismatchUnion" test means it is in addition to what the node was previously producing
-        // and should be able to produce once its got any extra inputs it needs.
+        if (mismatch) {
+          // The two sets of outputs can't be composed. Try the next candidate node.
+          continue nextNode;
+        }
+        // This output was not matched, and the absence of a "mismatch" means it is in addition to what the node was
+        // previously producing and should be able to produce once its got any extra inputs it needs.
         if (_spec2Node.containsKey(output)) {
           // Another node already produces this
           s_logger.debug("Discarding output {} - already produced elsewhere in the graph", output);
@@ -908,11 +869,13 @@ import com.opengamma.util.tuple.Pairs;
       ValueSpecification[] newOutputs;
       int i = 0;
       if (additionalOutputs != null) {
-        newOutputs = new ValueSpecification[outputValues.size() + additionalOutputs.size()];
+        newOutputs = new ValueSpecification[outputValues.length + additionalOutputs.size()];
         additionalOutputs.toArray(newOutputs);
         i = additionalOutputs.size();
       } else {
-        newOutputs = new ValueSpecification[outputValues.size()];
+        // We own the copy and are only going to replace entries which have a record in the replacementOutputs map so don't
+        // bother allocating a new array.
+        newOutputs = outputValues;
       }
       for (ValueSpecification originalOutput : outputValues) {
         if (replacementOutputs != null) {
