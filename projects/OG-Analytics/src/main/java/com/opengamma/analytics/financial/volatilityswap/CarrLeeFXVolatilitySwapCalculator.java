@@ -52,7 +52,7 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
   }
 
   @Override
-  public VolatilitySwapCalculatorResult visitFXVolatilitySwap(final FXVolatilitySwap swap, final CarrLeeFXData data) {
+  public VolatilitySwapCalculatorResultWithStrikes visitFXVolatilitySwap(final FXVolatilitySwap swap, final CarrLeeFXData data) {
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(data, "data");
     final double spot = data.getSpot();
@@ -62,12 +62,12 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "spot should be finite");
     ArgumentChecker.isTrue(spot > 0., "spot should be positive");
     final double domesticDF = data.getMulticurveProvider().getDiscountFactor(swap.getBaseCurrency(), timeToExpiry);
-    final double foreignDF = data.getMulticurveProvider().getDiscountFactor(swap.getBaseCurrency(), timeToExpiry);
+    final double foreignDF = data.getMulticurveProvider().getDiscountFactor(swap.getCounterCurrency(), timeToExpiry);
     final double domesticRate = -Math.log(domesticDF) / timeToExpiry;
     final double foreignRate = -Math.log(foreignDF) / timeToExpiry;
     ArgumentChecker.isTrue(Doubles.isFinite(domesticRate), "domestic rate should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(foreignRate), "foreign rate should be finite");
-    final double forward = spot * Math.exp((domesticRate - foreignRate) * timeToExpiry);
+    final double forward = spot * foreignDF / domesticDF;
     final double timeFromInception = swap.getTimeToObservationStart() < 0 ? Math.abs(swap.getTimeToObservationStart()) : 0;
     final double[] strikeRange;
     if (swap.getTimeToObservationStart() < 0) {
@@ -101,11 +101,11 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
       callVols[i] = data.getVolatilityData().getVolatility(Triple.of(timeToExpiry, callStrikes[i], forward));
     }
     if (swap.getTimeToObservationStart() < 0) {
-      return SEASONED_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeFromInception, domesticRate,
-          foreignRate, putVols, callVols, data.getRealizedVariance());
+      return (SEASONED_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, timeFromInception, domesticRate,
+          foreignRate, putVols, callVols, data.getRealizedVariance()).withStrikes(putStrikes, callStrikes));
     }
     final double strdVol = data.getVolatilityData().getVolatility(Triple.of(timeToExpiry, forward, forward));
-    return NEW_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, domesticRate, foreignRate, putVols, strdVol, callVols);
+    return (NEW_CALCULATOR.evaluate(spot, putStrikes, callStrikes, timeToExpiry, domesticRate, foreignRate, putVols, strdVol, callVols)).withStrikes(putStrikes, callStrikes);
   }
 
   private double[] getStrikeRange(final double timeToExpiry, final SmileDeltaTermStructureParameters smile, final double forward, final double reference) {

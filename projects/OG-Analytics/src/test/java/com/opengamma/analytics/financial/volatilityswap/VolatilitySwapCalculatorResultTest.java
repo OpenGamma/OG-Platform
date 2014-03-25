@@ -13,9 +13,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilitySwapCalculatorResultTest {
 
   private static final double[] putWeights = new double[] {0., -1., 1.5, };
@@ -26,6 +29,9 @@ public class VolatilitySwapCalculatorResultTest {
   private static final double[] callPrices = new double[] {33. };
   private static final double cash = 11.3;
 
+  private static final double[] putStrikes = new double[] {1.1, 1.3, 1.4 };
+  private static final double[] callStrikes = new double[] {1.6 };
+
   /**
    * 
    */
@@ -33,6 +39,8 @@ public class VolatilitySwapCalculatorResultTest {
   public void accessTest() {
 
     final VolatilitySwapCalculatorResult res = new VolatilitySwapCalculatorResult(putWeights, straddleWeight, callWeights, putPrices, straddlePrice, callPrices, cash);
+    final VolatilitySwapCalculatorResultWithStrikes resStrikes = new VolatilitySwapCalculatorResultWithStrikes(putStrikes, callStrikes, putWeights, straddleWeight, callWeights, putPrices,
+        straddlePrice, callPrices, cash);
     final int nPuts = putWeights.length;
     final int nCalls = callWeights.length;
 
@@ -40,6 +48,7 @@ public class VolatilitySwapCalculatorResultTest {
     for (int i = 0; i < nPuts; ++i) {
       assertEquals(putWeights[i], res.getPutWeights()[i]);
       assertEquals(putPrices[i], res.getPutPrices()[i]);
+      assertEquals(putStrikes[i], resStrikes.getPutStrikes()[i]);
       optionTotal += putWeights[i] * putPrices[i];
     }
     assertEquals(straddleWeight, res.getStraddleWeight());
@@ -47,12 +56,17 @@ public class VolatilitySwapCalculatorResultTest {
     for (int i = 0; i < nCalls; ++i) {
       assertEquals(callWeights[i], res.getCallWeights()[i]);
       assertEquals(callPrices[i], res.getCallPrices()[i]);
+      assertEquals(callStrikes[i], resStrikes.getCallStrikes()[i]);
       optionTotal += callWeights[i] * callPrices[i];
     }
 
     assertEquals(cash, res.getCash());
     assertEquals(optionTotal, res.getOptionTotal());
     assertEquals(optionTotal + cash, res.getFairValue());
+
+    final VolatilitySwapCalculatorResultWithStrikes resStrikesFrom = res.withStrikes(putStrikes, callStrikes);
+    assertEquals(resStrikes.hashCode(), resStrikesFrom.hashCode());
+    assertEquals(resStrikes, resStrikesFrom);
   }
 
   /**
@@ -119,5 +133,18 @@ public class VolatilitySwapCalculatorResultTest {
         assertTrue(!(res1.equals(list.get(i))));
       }
     }
+
+    final VolatilitySwapCalculatorResultWithStrikes resStrikesFrom1 = res1.withStrikes(putStrikes, callStrikes);
+    final VolatilitySwapCalculatorResultWithStrikes resStrikesFrom3 = res3.withStrikes(putStrikes, callStrikes);
+    final VolatilitySwapCalculatorResultWithStrikes resStrikesFrom11 = res1.withStrikes(putStrikes, callWeights);
+    final VolatilitySwapCalculatorResultWithStrikes resStrikesFrom12 = res1.withStrikes(putWeights, callStrikes);
+
+    assertTrue(resStrikesFrom1.equals(resStrikesFrom1));
+    assertTrue(!(resStrikesFrom1.equals(null)));
+    assertTrue(!(resStrikesFrom1.equals(res1)));
+
+    assertTrue(!(resStrikesFrom1.equals(resStrikesFrom3)));
+    assertTrue(!(resStrikesFrom1.equals(resStrikesFrom11)));
+    assertTrue(!(resStrikesFrom1.equals(resStrikesFrom12)));
   }
 }

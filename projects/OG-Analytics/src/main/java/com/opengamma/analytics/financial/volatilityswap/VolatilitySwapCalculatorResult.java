@@ -34,8 +34,8 @@ public class VolatilitySwapCalculatorResult {
    * @param callPrices The call option prices
    * @param cash The cash amount
    */
-  public VolatilitySwapCalculatorResult(final double[] putWeights, final double straddleWeight, final double[] callWeights, final double[] putPrices,
-      final double straddlePrice, final double[] callPrices, final double cash) {
+  public VolatilitySwapCalculatorResult(final double[] putWeights, final double straddleWeight, final double[] callWeights, final double[] putPrices, final double straddlePrice,
+      final double[] callPrices, final double cash) {
     final int nPuts = putWeights.length;
     final int nCalls = callWeights.length;
 
@@ -61,6 +61,49 @@ public class VolatilitySwapCalculatorResult {
     }
     _optionTotal = sum;
     _fairValue = _optionTotal + _cash;
+  }
+
+  /**
+   * @param putWeights The weights of put options
+   * @param straddleWeight The weight of straddle
+   * @param callWeights The weights of call options
+   * @param putPrices The put option prices
+   * @param straddlePrice The straddle price
+   * @param callPrices The call option prices
+   * @param cash The cash amount
+   * @param optionTotal The total option value
+   * @param fairValue The fair value
+   */
+  public VolatilitySwapCalculatorResult(final double[] putWeights, final double straddleWeight, final double[] callWeights, final double[] putPrices, final double straddlePrice,
+      final double[] callPrices, final double cash, final double optionTotal, final double fairValue) {
+    final int nPuts = putWeights.length;
+    final int nCalls = callWeights.length;
+
+    _putWeights = new double[nPuts];
+    _callWeights = new double[nCalls];
+    _putPrices = new double[nPuts];
+    _callPrices = new double[nCalls];
+
+    System.arraycopy(putWeights, 0, _putWeights, 0, nPuts);
+    _straddleWeight = straddleWeight;
+    System.arraycopy(callWeights, 0, _callWeights, 0, nCalls);
+    System.arraycopy(putPrices, 0, _putPrices, 0, nPuts);
+    _straddlePrice = straddlePrice;
+    System.arraycopy(callPrices, 0, _callPrices, 0, nCalls);
+    _cash = cash;
+
+    _optionTotal = optionTotal;
+    _fairValue = fairValue;
+  }
+
+  /**
+   * Construct subclass with strikes
+   * @param putStrikes The put option strikes
+   * @param callStrikes The call option strike
+   * @return {@link VolatilitySwapCalculatorResultWithStrikes}
+   */
+  public VolatilitySwapCalculatorResultWithStrikes withStrikes(final double[] putStrikes, final double[] callStrikes) {
+    return new VolatilitySwapCalculatorResultWithStrikes(putStrikes, callStrikes, _putWeights, _straddleWeight, _callWeights, _putPrices, _straddlePrice, _callPrices, _cash, _optionTotal, _fairValue);
   }
 
   /**
