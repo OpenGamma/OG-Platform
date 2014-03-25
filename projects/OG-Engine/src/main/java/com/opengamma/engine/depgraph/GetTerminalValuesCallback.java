@@ -764,24 +764,28 @@ import com.opengamma.util.tuple.Pairs;
     return getOrCreateNodes(function, nodeInfo, targetSpecification);
   }
 
-  private static boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
+  private static boolean mismatchUnionImpl(final ValueSpecification[] as, final ValueSpecification[] bs) {
+    int lengthB = bs.length;
     nextA: for (final ValueSpecification a : as) { //CSIGNORE
-      if (bs.contains(a)) {
-        // Exact match
-        continue;
-      }
       final String aName = a.getValueName();
       final ValueProperties aProperties = a.getProperties();
-      for (final ValueSpecification b : bs) {
+      boolean mismatch = false;
+      for (int i = 0; i < lengthB; i++) {
+        final ValueSpecification b = bs[i];
         if (aName == b.getValueName()) {
-          // Match the name; check the constraints
-          if (aProperties.isSatisfiedBy(b.getProperties())) {
+          final ValueProperties bProperties = b.getProperties();
+          if (aProperties.isSatisfiedBy(bProperties) && bProperties.isSatisfiedBy(aProperties)) {
+            // Matched an entry from B to this; don't match it against anything else
+            bs[i] = bs[--lengthB];
+            bs[lengthB] = b;
             continue nextA;
           } else {
-            // Mismatch found
-            return true;
+            mismatch = true;
           }
         }
+      }
+      if (mismatch) {
+        return true;
       }
     }
     return false;
@@ -796,7 +800,9 @@ import com.opengamma.util.tuple.Pairs;
    * @return true if the values can't be composed, false if they can
    */
   private static boolean mismatchUnion(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-    return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
+    final ValueSpecification[] asCopy = as.toArray(new ValueSpecification[as.size()]);
+    final ValueSpecification[] bsCopy = bs.toArray(new ValueSpecification[bs.size()]);
+    return mismatchUnionImpl(asCopy, bsCopy);
   }
 
   private void applyReplacementOutputs(final Map<ValueSpecification, ValueSpecification> replacementOutputs, final DependencyNode newNode) {
