@@ -63,6 +63,8 @@ import com.opengamma.util.tuple.Pairs;
  * Calculates the yield curve node sensitivities of instruments using curves constructed using the discounting method.
  */
 public class DiscountingYCNSFunction extends DiscountingFunction {
+  
+  public static final String SENSITIVITY_CURRENCY_PROPERTY = "SensitivityCurrency";
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
@@ -85,7 +87,7 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
           final String curveName = desiredValue.getConstraint(CURVE);
           final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, ValueProperties.builder()
               .with(CURVE, curveName).get()));
-          final String currency = desiredValue.getConstraints().getSingleValue(CURRENCY);
+          final String currency = desiredValue.getConstraints().getSingleValue(SENSITIVITY_CURRENCY_PROPERTY);
           DoubleMatrix1D sensitivityMatrix = null;
           if (currency != null) {
             // Currency is specified - lookup directly
@@ -153,23 +155,25 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
           if (currencyPay != null) {
             if (currencyReceive != null) {
               final List<ValueProperties.Builder> result = new ArrayList<ValueProperties.Builder>();
-              result.add(properties.copy().with(CURRENCY, currencyPay));
-              result.add(properties.with(CURRENCY, currencyReceive));
+              result.add(properties.copy().with(SENSITIVITY_CURRENCY_PROPERTY, currencyPay).with(CURRENCY, currencyPay));
+              result.add(properties.with(SENSITIVITY_CURRENCY_PROPERTY, currencyReceive).with(CURRENCY, currencyReceive));
               return result;
             } else {
-              return Collections.singleton(properties.with(CURRENCY, currencyPay));
+              return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, currencyPay).with(CURRENCY, currencyPay));
             }
           } else {
             if (currencyReceive != null) {
-              return Collections.singleton(properties.with(CURRENCY, currencyReceive));
+              return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, currencyReceive).with(CURRENCY, currencyReceive));
             } else {
-              return Collections.singleton(properties.withAny(CURRENCY));
+              return Collections.singleton(properties.withAny(SENSITIVITY_CURRENCY_PROPERTY).withAny(CURRENCY));
             }
           }
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
-          return Collections.singleton(properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode()));
+          final String ccy = ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode();
+          return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, ccy).with(CURRENCY, ccy));
         } else {
-          return Collections.singleton(properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode()));
+          final String ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
+          return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, ccy).with(CURRENCY, ccy));
         }
       }
 
