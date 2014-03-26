@@ -32,6 +32,7 @@ public class InflationBondCurveFunctions extends AbstractFunctionConfigurationBe
     functions.add(functionConfiguration(InflationBondModifiedDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(InflationBondYieldFromCurvesFunction.class));
     functions.add(functionConfiguration(InflationBondZspreadFromCurvesFunction.class));
+    functions.add(functionConfiguration(InflationBondPresentValueFromCurvesFunction.class));
   }
 
 }
