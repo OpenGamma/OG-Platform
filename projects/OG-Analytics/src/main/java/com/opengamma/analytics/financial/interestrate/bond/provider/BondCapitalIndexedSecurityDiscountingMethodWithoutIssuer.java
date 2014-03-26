@@ -81,17 +81,17 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
   /**
    * Computes the security present value from a quoted clean real price. The real accrued are added to the clean real price,
    * the result is multiplied by the inflation index ratio and then discounted from settlement time to 0 with the discounting curve.
-   * @param bond The bond security.
+   * @param bondCapitalIndexedSecurity The bond security.
    * @param market The market.
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final InflationProviderInterface market, final double cleanPriceReal) {
-    Validate.notNull(bond, "Coupon");
+  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<?> bondCapitalIndexedSecurity, final InflationProviderInterface market, final double cleanPriceReal) {
+    Validate.notNull(bondCapitalIndexedSecurity, "Coupon");
     Validate.notNull(market, "Market");
-    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    final double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
-    final MultipleCurrencyAmount pv = bond.getSettlement().accept(PVIC, market.getInflationProvider());
+    final double notional = bondCapitalIndexedSecurity.getCoupon().getNthPayment(0).getNotional();
+    final double dirtyPriceReal = cleanPriceReal + bondCapitalIndexedSecurity.getAccruedInterest() / notional;
+    final MultipleCurrencyAmount pv = bondCapitalIndexedSecurity.getSettlement().accept(PVIC, market.getInflationProvider());
     return pv.multipliedBy(dirtyPriceReal);
   }
 
