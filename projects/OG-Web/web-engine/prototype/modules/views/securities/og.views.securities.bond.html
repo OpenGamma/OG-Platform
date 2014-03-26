@@ -40,7 +40,7 @@
             <tr><td><span>Announcement Date</span></td><td>${announcementDate}</td></tr>
             <tr>
               <td><span>Interest Accrual Date</span></td>
-              <td>${interestAccrualDate.date} - ${interestAccrualDate.zone}</td>
+              <td>{{if interestAccrualDate}}${interestAccrualDate.date} - ${interestAccrualDate.zone}{{else}}(no value){{endif}}</td>
             </tr>
             <tr><td><span>Settlement Date</span></td><td>${settlementDate.date} - ${settlementDate.zone}</td></tr>
             <tr><td><span>First Coupon Date</span></td><td>${firstCouponDate.date} - ${firstCouponDate.zone}</td></tr>
