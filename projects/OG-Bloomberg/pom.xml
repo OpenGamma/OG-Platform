@@ -29,7 +29,7 @@
     <dependency>
       <groupId>com.opengamma.external.blpapi</groupId>
       <artifactId>blpapi</artifactId>
-      <version>3.4.8.1</version>
+      <version>3.7.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.testng</groupId>
