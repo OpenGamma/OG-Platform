@@ -13,7 +13,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -22,9 +21,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.LocalDate;
-
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A rate, either constant or a complex schedule.
@@ -38,19 +34,19 @@ public final class Rate implements ImmutableBean {
    * If a period is looked for but is not present then
    * the value from the previous period will be used.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate[] _dates;
+  @PropertyDefinition
+  private final int[] _dates;
 
   /**
    * The custom rates.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double[] _rates;
 
   /**
    * The adjustment types for each step. Either Delta or absolute.
    */
-  @PropertyDefinition(validate = "outrightInitial")
+  @PropertyDefinition
   private final ShiftType[] _types;
 
   /**
@@ -59,18 +55,9 @@ public final class Rate implements ImmutableBean {
    * @param rate the rate
    */
   public Rate(final double rate) {
-    _dates = new LocalDate[] {LocalDate.MIN};
+    _dates = new int[] {0};
     _rates = new double[] {rate};
     _types = new ShiftType[] {ShiftType.OUTRIGHT};
-  }
-
-  /**
-   * A constant rate
-   *
-   * @param rate the rate
-   */
-  public static Rate of(final double rate) {
-    return new Rate(rate);
   }
 
   /**
@@ -79,53 +66,31 @@ public final class Rate implements ImmutableBean {
    * @return the initial rate
    */
   public double getInitialRate() {
-    return getRates()[0];
+    return getRate(0);
   }
 
   /**
    * Get the rate for the given period.
    *
-   * @param date the date
+   * @param period the period
    * @return the rate
    */
-  public double getRate(final LocalDate date) {
-    if (!date.isAfter(getDates()[0])) {
+  public double getRate(final int period) {
+    if (period == 0) {
       return _rates[0]; // first amount must be absolute.
     }
-    final int index = Arrays.binarySearch(_dates, date);
+    final int index = Arrays.binarySearch(_dates, period);
     if (index >= 0) {
       if (_types[index] == ShiftType.OUTRIGHT) {
         return _rates[index]; // short circuit if we don't need to adjust from previous
       }
       final int previousIndex = Math.max(0, index - 1);
-      return _types[index].getRate(getRate(getDates()[previousIndex]), _rates[index]);
+      return _types[index].getRate(getRate(previousIndex), _rates[index]);
     } else {
       // if value not explicitly set for this period, take from previous.
       // TODO: Calculate directly here to avoid recursive call
-      return getRate(getDates()[-(index + 2)]);
+      return getRate(-(index + 2));
     }
-  }
-
-  private static void outrightInitial(ShiftType[] shifts, String propertyName) {
-    ArgumentChecker.noNulls(shifts, "rate types");
-    ArgumentChecker.notEmpty(shifts, "At least one shift required");
-    ArgumentChecker.isTrue(ShiftType.OUTRIGHT.equals(shifts[0]), "First rate type must be outright");
-  }
-
-  private static void validateDates(LocalDate[] dates, String propertyName) {
-    ArgumentChecker.noNulls(dates, propertyName);
-  }
-
-  @ImmutableConstructor
-  private Rate(LocalDate[] dates, double[] rates, ShiftType[] types) {
-    JodaBeanUtils.notNull(dates, "dates");
-    JodaBeanUtils.notNull(rates, "rates");
-    outrightInitial(types, "types");
-    ArgumentChecker.isTrue(types.length == dates.length, "Need same number of dates & shift types");
-    ArgumentChecker.isTrue(types.length == rates.length, "Need same number of rates & shift types");
-    this._dates = dates;
-    this._rates = rates.clone();
-    this._types = types;
   }
 
   /**
@@ -134,7 +99,7 @@ public final class Rate implements ImmutableBean {
   public enum ShiftType {
     /**
      * Apply an adjustment to the previous amount.
-     * e.g. decrease by 10% (pass as 0.1) each step.
+     * e.g. decrease by 10% each step.
      */
     DELTA {
       @Override
@@ -145,7 +110,7 @@ public final class Rate implements ImmutableBean {
 
     /**
      * Apply an adjustment to the previous amount.
-     * e.g. decrease by 1 (pass as -1) each step.
+     * e.g. decrease by 1 each step.
      */
     ADDITIVE {
       @Override
@@ -189,6 +154,15 @@ public final class Rate implements ImmutableBean {
     return new Rate.Builder();
   }
 
+  private Rate(
+      int[] dates,
+      double[] rates,
+      ShiftType[] types) {
+    this._dates = (dates != null ? dates.clone() : null);
+    this._rates = (rates != null ? rates.clone() : null);
+    this._types = types;
+  }
+
   @Override
   public Rate.Meta metaBean() {
     return Rate.Meta.INSTANCE;
@@ -209,16 +183,16 @@ public final class Rate implements ImmutableBean {
    * Gets the periods for which custom spreads are required.
    * If a period is looked for but is not present then
    * the value from the previous period will be used.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
-  public LocalDate[] getDates() {
-    return _dates;
+  public int[] getDates() {
+    return (_dates != null ? _dates.clone() : null);
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the custom rates.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double[] getRates() {
     return (_rates != null ? _rates.clone() : null);
@@ -294,8 +268,8 @@ public final class Rate implements ImmutableBean {
     /**
      * The meta-property for the {@code dates} property.
      */
-    private final MetaProperty<LocalDate[]> _dates = DirectMetaProperty.ofImmutable(
-        this, "dates", Rate.class, LocalDate[].class);
+    private final MetaProperty<int[]> _dates = DirectMetaProperty.ofImmutable(
+        this, "dates", Rate.class, int[].class);
     /**
      * The meta-property for the {@code rates} property.
      */
@@ -354,7 +328,7 @@ public final class Rate implements ImmutableBean {
      * The meta-property for the {@code dates} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate[]> dates() {
+    public MetaProperty<int[]> dates() {
       return _dates;
     }
 
@@ -405,7 +379,7 @@ public final class Rate implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Rate> {
 
-    private LocalDate[] _dates;
+    private int[] _dates;
     private double[] _rates;
     private ShiftType[] _types;
 
@@ -420,8 +394,8 @@ public final class Rate implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Rate beanToCopy) {
-      this._dates = beanToCopy.getDates();
-      this._rates = beanToCopy.getRates().clone();
+      this._dates = (beanToCopy.getDates() != null ? beanToCopy.getDates().clone() : null);
+      this._rates = (beanToCopy.getRates() != null ? beanToCopy.getRates().clone() : null);
       this._types = beanToCopy.getTypes();
     }
 
@@ -444,7 +418,7 @@ public final class Rate implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 95356549:  // dates
-          this._dates = (LocalDate[]) newValue;
+          this._dates = (int[]) newValue;
           break;
         case 108285843:  // rates
           this._rates = (double[]) newValue;
@@ -493,22 +467,20 @@ public final class Rate implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code dates} property in the builder.
-     * @param dates  the new value, not null
+     * @param dates  the new value
      * @return this, for chaining, not null
      */
-    public Builder dates(LocalDate[] dates) {
-      JodaBeanUtils.notNull(dates, "dates");
+    public Builder dates(int[] dates) {
       this._dates = dates;
       return this;
     }
 
     /**
      * Sets the {@code rates} property in the builder.
-     * @param rates  the new value, not null
+     * @param rates  the new value
      * @return this, for chaining, not null
      */
     public Builder rates(double[] rates) {
-      JodaBeanUtils.notNull(rates, "rates");
       this._rates = rates;
       return this;
     }
@@ -519,7 +491,6 @@ public final class Rate implements ImmutableBean {
      * @return this, for chaining, not null
      */
     public Builder types(ShiftType[] types) {
-      outrightInitial(types, "types");
       this._types = types;
       return this;
     }
