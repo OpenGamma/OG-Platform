@@ -10,6 +10,7 @@ import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -96,6 +97,11 @@ public class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameVa
 
   @Override
   public String visitCorporateBondSecurity(final CorporateBondSecurity security) {
+    return getBond();
+  }
+
+  @Override
+  public String visitInflationBondSecurity(InflationBondSecurity security) {
     return getBond();
   }
 
