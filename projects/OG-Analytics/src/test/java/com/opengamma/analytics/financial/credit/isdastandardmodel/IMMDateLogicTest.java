@@ -172,13 +172,19 @@ public class IMMDateLogicTest {
     assertTrue(IMMDateLogic.isIndexRollDate(date3));
   }
 
-  //TODO PLAT-6139
-  //  @Test
-  //  public void getNextIndexRollDateTest() {
-  //    LocalDate date0 = LocalDate.of(2013, 3, 14);
-  //    LocalDate date1 = LocalDate.of(2013, 6, 20);
-  //    LocalDate date2 = LocalDate.of(2013, 3, 20);
-  //    LocalDate date3 = LocalDate.of(2013, 9, 20);
-  //
-  //  }
+  /**
+   * 
+   */
+  @Test
+  public void getNextIndexRollDateTest() {
+    final LocalDate[] dates = new LocalDate[] {LocalDate.of(2013, 3, 14), LocalDate.of(2013, 6, 20), LocalDate.of(2013, 3, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2013, 1, 21),
+        LocalDate.of(2013, 3, 21), LocalDate.of(2013, 9, 19), LocalDate.of(2013, 9, 21), LocalDate.of(2013, 11, 21) };
+
+    final LocalDate[] datesExp = new LocalDate[] {LocalDate.of(2013, 3, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2013, 3, 20),
+        LocalDate.of(2013, 9, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2014, 3, 20) };
+
+    for (int i = 0; i < dates.length; ++i) {
+      assertEquals(IMMDateLogic.getNextIndexRollDate(dates[i]), datesExp[i]);
+    }
+  }
 }
