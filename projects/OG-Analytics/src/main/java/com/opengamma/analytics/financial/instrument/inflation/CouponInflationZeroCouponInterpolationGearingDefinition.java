@@ -151,8 +151,8 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     ArgumentChecker.notNull(priceIndex, "Price index");
     final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
     final ZonedDateTime refInterpolatedStartDate = accrualStartDate.minusMonths(monthLag);
-    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth());
-    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
     return from(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag, monthLag, referenceStartDates, indexStartValue,
         referenceEndDate, payNotional, factor);
   }
@@ -179,8 +179,8 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
 
     final ZonedDateTime refInterpolatedEndDate = paymentDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceEndDates = new ZonedDateTime[2];
-    referenceEndDates[0] = refInterpolatedEndDate.with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDates[1] = referenceEndDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDates[0] = refInterpolatedEndDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    referenceEndDates[1] = referenceEndDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
     return from(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
         conventionalMonthLag, monthLag, referenceStartDates, indexStartValue, referenceEndDates, payNotional, factor);
   }
@@ -204,13 +204,13 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
       final int monthLag, final boolean payNotional, final double factor) {
     final ZonedDateTime refInterpolatedStartDate = accrualStartDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
-    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth());
-    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
 
     final ZonedDateTime refInterpolatedEndDate = paymentDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceEndDates = new ZonedDateTime[2];
-    referenceEndDates[0] = refInterpolatedEndDate.with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDates[1] = referenceEndDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDates[0] = refInterpolatedEndDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    referenceEndDates[1] = referenceEndDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
     return from(priceIndex.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, 1.0, notional,
         priceIndex, conventionalMonthLag, monthLag, referenceStartDates, indexStartValue, referenceEndDates, payNotional, factor);
   }

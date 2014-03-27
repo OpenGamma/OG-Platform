@@ -51,8 +51,8 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final double INDEX_MAY_2008 = 108.48129032258066; // May index: 108.23 - June Index = 108.64
   private static final ZonedDateTime[] REFERENCE_START_DATE = new ZonedDateTime[2];
   static {
-    REFERENCE_START_DATE[0] = START_DATE.minusMonths(MONTH_LAG).with(TemporalAdjusters.lastDayOfMonth());
-    REFERENCE_START_DATE[1] = START_DATE.minusMonths(MONTH_LAG - 1).with(TemporalAdjusters.lastDayOfMonth());
+    REFERENCE_START_DATE[0] = START_DATE.minusMonths(MONTH_LAG).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    REFERENCE_START_DATE[1] = START_DATE.minusMonths(MONTH_LAG - 1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
   }
   private static final ZonedDateTime[] REFERENCE_END_DATE = new ZonedDateTime[2];
   static {
