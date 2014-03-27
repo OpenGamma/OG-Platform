@@ -123,7 +123,6 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
 
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
-
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     final FixedInflationSwapLeg fixedLeg;

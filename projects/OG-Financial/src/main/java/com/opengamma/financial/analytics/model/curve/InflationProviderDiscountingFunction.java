@@ -72,7 +72,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
-import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -91,10 +90,10 @@ import com.opengamma.financial.analytics.curve.ZeroCouponInflationNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -232,11 +231,7 @@ public class InflationProviderDiscountingFunction extends
                     + " not of type PriceIndex");
               }
               final PriceIndex indexSecurity = (PriceIndex) sec;
-              final PriceIndexConvention priceIndexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), PriceIndexConvention.class);
-              if (priceIndexConvention == null) {
-                throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
-              }
-              inflation.add(ConverterUtils.indexPrice(priceIndexConvention.getName(), priceIndexConvention));
+              inflation.add(new IndexPrice(indexSecurity.getName(), Currency.of(inflationConfiguration.getReference())));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }

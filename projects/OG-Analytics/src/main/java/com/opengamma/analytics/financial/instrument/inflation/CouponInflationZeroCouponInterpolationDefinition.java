@@ -80,8 +80,15 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDates, "Reference start date");
     ArgumentChecker.notNull(referenceEndDates, "Reference end date");
-    _referenceStartDates = referenceStartDates;
-    _referenceEndDates = referenceEndDates;
+    final ZonedDateTime[] cleanReferenceStartDates = new ZonedDateTime[2];
+    cleanReferenceStartDates[0] = referenceStartDates[0].withHour(0).withMinute(0);
+    cleanReferenceStartDates[1] = referenceStartDates[1].withHour(0).withMinute(0);
+    final ZonedDateTime[] cleanReferenceEndDates = new ZonedDateTime[2];
+    cleanReferenceEndDates[0] = referenceEndDates[0].withHour(0).withMinute(0);
+    cleanReferenceEndDates[1] = referenceEndDates[1].withHour(0).withMinute(0);
+
+    _referenceStartDates = cleanReferenceStartDates;
+    _referenceEndDates = cleanReferenceEndDates;
     _weight = weight;
     _payNotional = payNotional;
     _conventionalMonthLag = conventionalMonthLag;

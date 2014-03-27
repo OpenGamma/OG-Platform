@@ -132,21 +132,20 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     final int conventionalMonthLag = inflationLegConvention.getMonthLag();
     final int monthLag = inflationLegConvention.getMonthLag();
 
-    final IndexPrice index = ConverterUtils.indexPrice(priceIndexConvention.getName(), priceIndexConvention);
+    final IndexPrice indexPrice = new IndexPrice(indexSecurity.getName(), currency);
     switch (inflationNode.getInflationNodeType()) {
       case INTERPOLATED: {
         final CouponInflationZeroCouponInterpolationDefinition inflationCoupon = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate,
-            -notional, index, conventionalMonthLag, monthLag, false);
+            -notional, indexPrice, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);
       }
       case MONTHLY: {
         final CouponInflationZeroCouponMonthlyDefinition inflationCoupon = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, -notional,
-            index, conventionalMonthLag, monthLag, false);
+            indexPrice, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);
       }
       default:
         throw new OpenGammaRuntimeException("Could not handle inflation nodes of type " + inflationNode.getInflationNodeType());
     }
   }
-
 }
