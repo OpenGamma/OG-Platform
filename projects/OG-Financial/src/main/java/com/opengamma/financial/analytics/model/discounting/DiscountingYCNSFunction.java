@@ -139,8 +139,25 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
         return requirements;
       }
 
-      private String getLegCurrency(final SwapLeg leg) {
-        return (leg.getNotional() instanceof InterestRateNotional) ? ((InterestRateNotional) leg.getNotional()).getCurrency().getCode() : null;
+      private Currency getLegCurrency(final SwapLeg leg) {
+        return (leg.getNotional() instanceof InterestRateNotional) ? ((InterestRateNotional) leg.getNotional()).getCurrency() : null;
+      }      private Collection<ValueProperties.Builder> addCurrencies(final ValueProperties.Builder properties, final Currency c1, final Currency c2) {
+        if (c1 != null) {
+          if (c2 != null) {
+            final List<ValueProperties.Builder> result = new ArrayList<ValueProperties.Builder>();
+            result.add(properties.copy().with(SENSITIVITY_CURRENCY_PROPERTY, c1.getCode()).with(CURRENCY, c1.getCode()));
+            result.add(properties.with(SENSITIVITY_CURRENCY_PROPERTY, c2.getCode()).with(CURRENCY, c2.getCode()));
+            return result;
+          } else {
+            return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, c1.getCode()).with(CURRENCY, c1.getCode()));
+          }
+        } else {
+          if (c2 != null) {
+            return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, c2.getCode()).with(CURRENCY, c2.getCode()));
+          } else {
+            return Collections.singleton(properties.withAny(SENSITIVITY_CURRENCY_PROPERTY).withAny(CURRENCY));
+          }
+        }
       }
 
       @SuppressWarnings("synthetic-access")
@@ -150,27 +167,13 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
           final SwapSecurity swapSecurity = (SwapSecurity) security;
-          final String currencyPay = getLegCurrency(swapSecurity.getPayLeg());
-          final String currencyReceive = getLegCurrency(swapSecurity.getReceiveLeg());
-          if (currencyPay != null) {
-            if (currencyReceive != null) {
-              final List<ValueProperties.Builder> result = new ArrayList<ValueProperties.Builder>();
-              result.add(properties.copy().with(SENSITIVITY_CURRENCY_PROPERTY, currencyPay).with(CURRENCY, currencyPay));
-              result.add(properties.with(SENSITIVITY_CURRENCY_PROPERTY, currencyReceive).with(CURRENCY, currencyReceive));
-              return result;
-            } else {
-              return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, currencyPay).with(CURRENCY, currencyPay));
-            }
-          } else {
-            if (currencyReceive != null) {
-              return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, currencyReceive).with(CURRENCY, currencyReceive));
-            } else {
-              return Collections.singleton(properties.withAny(SENSITIVITY_CURRENCY_PROPERTY).withAny(CURRENCY));
-            }
-          }
+          final Currency pay = getLegCurrency(swapSecurity.getPayLeg());
+          final Currency receive = getLegCurrency(swapSecurity.getReceiveLeg());
+          return addCurrencies(properties, pay, receive);
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
-          final String ccy = ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode();
-          return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, ccy).with(CURRENCY, ccy));
+          final Currency pay = ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor());
+          final Currency receive = ((FinancialSecurity) security).accept(ForexVisitors.getReceiveCurrencyVisitor());
+          return addCurrencies(properties, pay, receive);
         } else {
           final String ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
           return Collections.singleton(properties.with(SENSITIVITY_CURRENCY_PROPERTY, ccy).with(CURRENCY, ccy));
