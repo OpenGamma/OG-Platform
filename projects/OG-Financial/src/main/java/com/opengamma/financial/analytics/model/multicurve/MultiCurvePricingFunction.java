@@ -145,7 +145,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
-    final InflationSwapSecurityConverter inflationSwapConverter = new InflationSwapSecurityConverter(conventionSource, regionSource, holidaySource);
+    final InflationSwapSecurityConverter inflationSwapConverter = new InflationSwapSecurityConverter(securitySource, conventionSource, regionSource, holidaySource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter)
         .cashFlowSecurityVisitor(cashFlowSecurityConverter).deliverableSwapFutureSecurityVisitor(dsfConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .fxForwardVisitor(fxForwardSecurityConverter).nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).zeroCouponInflationSwapSecurityVisitor(inflationSwapConverter)
@@ -417,6 +417,6 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      */
     protected abstract Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
 
-    InstrumentDerivative derivative, FXMatrix fxMatrix);
+        InstrumentDerivative derivative, FXMatrix fxMatrix);
   }
 }

@@ -42,7 +42,7 @@ public abstract class DiscountingInflationFunction extends DiscountingFunction {
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final InflationSwapSecurityConverter swapConverter = new InflationSwapSecurityConverter(conventionSource, regionSource, holidaySource);
+    final InflationSwapSecurityConverter swapConverter = new InflationSwapSecurityConverter(securitySource, conventionSource, regionSource, holidaySource);
     final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
         regionSource);
     return new TradeConverter(futureTradeConverter, swapConverter);
