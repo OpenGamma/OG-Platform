@@ -208,6 +208,18 @@ public class GeneralizedLeastSquare {
       ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda));
     }
 
+    // Used for creating output suitable for testing e.g. cond() in other languages.
+    final boolean debug = false;
+    if (debug) { 
+      double[][] data = ma.asDoubleAoA();
+      for (int ii = 0; ii < data.length; ii++) {
+        for (int jj = 0; jj < data[0].length - 1; jj++) {
+          System.out.print(data[ii][jj] + ", ");
+        }
+        System.out.print(data[ii][data[0].length - 1] + "\n");
+      }
+    }
+
     final DecompositionResult decmp = _decomposition.evaluate(ma);
     final DoubleMatrix1D w = decmp.solve(mb);
     final DoubleMatrix2D covar = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(m));
