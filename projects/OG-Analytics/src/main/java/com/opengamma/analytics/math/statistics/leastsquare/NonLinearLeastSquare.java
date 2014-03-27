@@ -20,7 +20,7 @@ import com.opengamma.analytics.math.function.ParameterizedFunction;
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.linearalgebra.DecompositionResult;
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
+import com.opengamma.analytics.math.linearalgebra.SVDecompositionOG;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -384,7 +384,7 @@ public class NonLinearLeastSquare {
           return finish(alpha0, decmp, newChiSqr, jacobian, trialTheta, sigma);
         }
 
-        final SVDecompositionCommons svd = (SVDecompositionCommons) DecompositionFactory.SV_COMMONS;
+        final SVDecompositionOG svd = new SVDecompositionOG();
 
         //add the second derivative information to the Hessian matrix to check we are not at a local maximum or saddle point
         final VectorFieldSecondOrderDifferentiator diff = new VectorFieldSecondOrderDifferentiator();

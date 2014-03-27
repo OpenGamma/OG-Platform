@@ -12,7 +12,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.longdog.datacontainers.matrix.OGRealDenseMatrix;
 import com.opengamma.longdog.nodes.SVD;
 
-public class SVDDecompositionOG extends Decomposition<SVDecompositionResult> {
+public class SVDecompositionOG extends Decomposition<SVDecompositionResult> {
 
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {

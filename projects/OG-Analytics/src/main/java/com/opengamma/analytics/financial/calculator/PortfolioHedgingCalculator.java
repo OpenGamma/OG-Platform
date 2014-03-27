@@ -11,7 +11,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
+import com.opengamma.analytics.math.linearalgebra.SVDecompositionOG;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionResult;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -33,7 +33,7 @@ public class PortfolioHedgingCalculator {
   /**
    * The decomposition method used.
    */
-  private static final SVDecompositionCommons DECOMPOSITION = new SVDecompositionCommons();
+  private static final SVDecompositionOG DECOMPOSITION = new SVDecompositionOG();
 
   /**
    * Computes the quantity of each reference instrument that optimally hedge a given sensitivity.

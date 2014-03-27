@@ -7,7 +7,7 @@ package com.opengamma.analytics.math.rootfinding.newton;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
+import com.opengamma.analytics.math.linearalgebra.SVDecompositionOG;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -16,12 +16,12 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class ShermanMorrisonVectorRootFinderTest extends VectorRootFinderTest {
   private static final NewtonVectorRootFinder DEFAULT = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
-  private static final NewtonVectorRootFinder SV = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
+  private static final NewtonVectorRootFinder SV = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionOG());
   private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_2D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
   // private static final NewtonVectorRootFinder SV_JACOBIAN_2D =
   // new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN2D_CALCULATOR, new SVDecompositionCommons());
   private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_3D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
-  private static final NewtonVectorRootFinder SV_JACOBIAN_3D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
+  private static final NewtonVectorRootFinder SV_JACOBIAN_3D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionOG());
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingular1() {
