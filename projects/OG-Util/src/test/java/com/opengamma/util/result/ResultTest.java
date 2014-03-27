@@ -31,6 +31,17 @@ public class ResultTest {
     assertFalse(Result.anyFailures(success1, success2));
   }
 
+  @Test
+  public void allSuccess() {
+    Result<String> success1 = Result.success("success 1");
+    Result<String> success2 = Result.success("success 1");
+    Result<Object> failure1 = Result.failure(FailureStatus.MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(FailureStatus.ERROR, "failure 2");
+    assertFalse(Result.allSuccessful(failure1, failure2));
+    assertFalse(Result.allSuccessful(failure1, success1));
+    assertTrue(Result.allSuccessful(success1, success2));
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void propagateFailures() {

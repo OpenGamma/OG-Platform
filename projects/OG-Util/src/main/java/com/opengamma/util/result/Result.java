@@ -312,15 +312,36 @@ public abstract class Result<T> {
 
   /**
    * @param results some results
+   * @return true if all of the results are successes
+   */
+  public static boolean allSuccessful(Result<?>... results) {
+    for (Result<?> result : results) {
+      if (!result.isSuccess()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * @param results some results
+   * @return true if all of the results are successes
+   */
+  public static boolean allSuccessful(Iterable<Result<?>> results) {
+    for (Result<?> result : results) {
+      if (!result.isSuccess()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * @param results some results
    * @return true if any of the results are failures
    */
   public static boolean anyFailures(Result<?>... results) {
-    for (Result<?> result : results) {
-      if (!result.isSuccess()) {
-        return true;
-      }
-    }
-    return false;
+    return !allSuccessful(results);
   }
 
   /**
@@ -328,11 +349,6 @@ public abstract class Result<T> {
    * @return true if any of the results are failures
    */
   public static boolean anyFailures(Iterable<Result<?>> results) {
-    for (Result<?> result : results) {
-      if (!result.isSuccess()) {
-        return true;
-      }
-    }
-    return false;
+    return !allSuccessful(results);
   }
 }
