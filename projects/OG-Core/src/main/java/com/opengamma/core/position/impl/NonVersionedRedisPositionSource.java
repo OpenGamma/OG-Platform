@@ -62,7 +62,14 @@ import com.opengamma.util.metric.OpenGammaMetricRegistry;
  *        Hash[QTY] -> Quantity
  *        Hash[SEC] -> ExternalId for the security
  *        Hash["ATT-"AttributeName] -> Attribute Value
- * 
+ * Position contents:
+ *     Key["POSTRADES-"UniqueId] -> Set
+ *        Each item in the list is a UniqueId for a trade
+ * Trades:
+ *        Key["TRADE-"UniqueId] -> Hash
+ *        Hash[QTY] -> Quantity
+ *        Hash[SEC] -> ExternalId for the security
+ *        Hash["ATT-"AttributeName] -> Attribute Value
  */
 
 /**
@@ -77,7 +84,11 @@ public class NonVersionedRedisPositionSource implements PositionSource {
    * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "RedisPos";
-  
+  /**
+   * The default scheme for trade unique identifiers.
+   */
+  public static final String TRADE_IDENTIFIER_SCHEME_DEFAULT = "RedisTrade";
+
   private static final String PORTFOLIOS_HASH_KEY_NAME = "PORTFOLIOS";
   
   private final JedisPool _jedisPool;
@@ -133,6 +144,9 @@ public class NonVersionedRedisPositionSource implements PositionSource {
     return UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
   }
 
+  protected static UniqueId generateTradeUniqueId() {
+    return UniqueId.of(TRADE_IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
+  }
 
   // ---------------------------------------------------------------------------------------
   // REDIS KEY MANAGEMENT
@@ -165,7 +179,15 @@ public class NonVersionedRedisPositionSource implements PositionSource {
   protected final String toPositionRedisKey(UniqueId uniqueId) {
     return toRedisKey(uniqueId, "POS-");
   }
-  
+
+  protected final String toTradeRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, "TRADE-");
+  }
+
+  protected final String toPositionTradesRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, "POSTRADE-");
+  }
+
   protected final String constructallPortfoliosRedisKey() {
     return toRedisKey(PORTFOLIOS_HASH_KEY_NAME, "");
   }
@@ -374,11 +396,41 @@ public class NonVersionedRedisPositionSource implements PositionSource {
     for (Map.Entry<String, String> attribute : position.getAttributes().entrySet()) {
       jedis.hset(redisKey, "ATT-" + attribute.getKey(), attribute.getValue());
     }
-    
-    if ((position.getTrades() != null) && !position.getTrades().isEmpty()) {
-      s_logger.warn("Position has trades. This source does not support trades. Possible misuse.");
+
+    if (position.getTrades() != null) {
+      Set<String> tradeUniqueIds = new HashSet<>();
+      for (Trade trade : position.getTrades()) {
+        UniqueId tradeId = storeTrade(jedis, trade);
+        tradeUniqueIds.add(tradeId.toString());
+      }
+      jedis.sadd(toPositionTradesRedisKey(uniqueId), tradeUniqueIds.toArray(new String[tradeUniqueIds.size()]));
     }
-    
+
+    return uniqueId;
+  }
+
+  protected UniqueId storeTrade(Jedis jedis, Trade trade) {
+    UniqueId uniqueId = trade.getUniqueId();
+    if (uniqueId == null) {
+      uniqueId = generateTradeUniqueId();
+    }
+
+    String redisKey = toTradeRedisKey(uniqueId);
+    jedis.hset(redisKey, "QTY", trade.getQuantity().toPlainString());
+    ExternalIdBundle securityBundle = trade.getSecurityLink().getExternalId();
+    if (securityBundle == null) {
+      throw new OpenGammaRuntimeException("Can only store positions with a link to an ExternalId");
+    }
+    if (securityBundle.size() != 1) {
+      s_logger.warn("Bundle {} not exactly one. Possible misuse of this source.", securityBundle);
+    }
+    ExternalId securityId = securityBundle.iterator().next();
+    jedis.hset(redisKey, "SEC", securityId.toString());
+
+    for (Map.Entry<String, String> attribute : trade.getAttributes().entrySet()) {
+      jedis.hset(redisKey, "ATT-" + attribute.getKey(), attribute.getValue());
+    }
+
     return uniqueId;
   }
   
@@ -554,7 +606,7 @@ public class NonVersionedRedisPositionSource implements PositionSource {
     SimpleSecurityLink secLink = new SimpleSecurityLink();
     secLink.addExternalId(secId);
     position.setSecurityLink(secLink);
-    
+
     for (Map.Entry<String, String> field : hashFields.entrySet()) {
       if (!field.getKey().startsWith("ATT-")) {
         continue;
@@ -562,9 +614,45 @@ public class NonVersionedRedisPositionSource implements PositionSource {
       String attributeName = field.getKey().substring(4);
       position.addAttribute(attributeName, field.getValue());
     }
+
+    // trades
+    String tradesKey = toPositionTradesRedisKey(position.getUniqueId());
+    Set<String> tradesUniqueIds = jedis.smembers(tradesKey);
+    for (String tradesUniqueId : tradesUniqueIds) {
+      Trade trade = getTrade(jedis, UniqueId.parse(tradesUniqueId));
+      if (trade != null) {
+        position.addTrade(trade);
+      }
+    }
+
     return position;
   }
-  
+
+  protected SimpleTrade getTrade(Jedis jedis, UniqueId uniqueId) {
+    String redisKey = toTradeRedisKey(uniqueId);
+    if (!jedis.exists(redisKey)) {
+      return null;
+    }
+    SimpleTrade trade = new SimpleTrade();
+    trade.setUniqueId(uniqueId);
+    Map<String, String> hashFields = jedis.hgetAll(redisKey);
+    trade.setQuantity(new BigDecimal(hashFields.get("QTY")));
+    ExternalId secId = ExternalId.parse(hashFields.get("SEC"));
+    SimpleSecurityLink secLink = new SimpleSecurityLink();
+    secLink.addExternalId(secId);
+    trade.setSecurityLink(secLink);
+
+    for (Map.Entry<String, String> field : hashFields.entrySet()) {
+      if (!field.getKey().startsWith("ATT-")) {
+        continue;
+      }
+      String attributeName = field.getKey().substring(4);
+      trade.addAttribute(attributeName, field.getValue());
+    }
+
+    return trade;
+  }
+
   @Override
   public Position getPosition(ObjectId objectId, VersionCorrection versionCorrection) {
     return getPosition(UniqueId.of(objectId, null));
@@ -572,7 +660,31 @@ public class NonVersionedRedisPositionSource implements PositionSource {
 
   @Override
   public Trade getTrade(UniqueId uniqueId) {
-    throw new UnsupportedOperationException("Trades not supported.");
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+
+    SimpleTrade trade = null;
+
+    try (Timer.Context context = _getPositionTimer.time()) {
+
+      Jedis jedis = getJedisPool().getResource();
+      try {
+
+        trade = getTrade(jedis, uniqueId);
+
+        getJedisPool().returnResource(jedis);
+      } catch (Exception e) {
+        s_logger.error("Unable to get position " + uniqueId, e);
+        getJedisPool().returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to get trade " + uniqueId, e);
+      }
+
+    }
+
+    if (trade == null) {
+      throw new DataNotFoundException("Unable to find position with UniqueId " + uniqueId);
+    }
+
+    return trade;
   }
 
 }
