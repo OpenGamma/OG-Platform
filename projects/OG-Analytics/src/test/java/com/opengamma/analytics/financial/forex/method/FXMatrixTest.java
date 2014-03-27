@@ -175,21 +175,21 @@ public class FXMatrixTest {
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
     fxMatrix.addCurrency(KRW, USD, 1.0 / USD_KRW);
-    assertEquals("FXMatrix - update", EUR_USD, fxMatrix.getFxRate(EUR, USD), 1.0E-10);
-    assertEquals("FXMatrix - update", GBP_EUR, fxMatrix.getFxRate(GBP, EUR), 1.0E-10);
-    assertEquals("FXMatrix - update", GBP_EUR * EUR_USD, fxMatrix.getFxRate(GBP, USD), 1.0E-10);
-    assertEquals("FXMatrix - update", USD_KRW, fxMatrix.getFxRate(USD, KRW), 1.0E-10);
+    assertEquals("FXMatrix - update", EUR_USD, fxMatrix.getFxRate(EUR, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", GBP_EUR, fxMatrix.getFxRate(GBP, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", GBP_EUR * EUR_USD, fxMatrix.getFxRate(GBP, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", USD_KRW, fxMatrix.getFxRate(USD, KRW), TOLERANCE_RATE);
     final double newGBPEUR = 1.10;
     fxMatrix.updateRates(GBP, EUR, newGBPEUR);
-    assertEquals("FXMatrix - update", EUR_USD, fxMatrix.getFxRate(EUR, USD), 1.0E-10);
-    assertEquals("FXMatrix - update", newGBPEUR, fxMatrix.getFxRate(GBP, EUR), 1.0E-10);
-    assertEquals("FXMatrix - update", newGBPEUR * EUR_USD, fxMatrix.getFxRate(GBP, USD), 1.0E-10);
-    assertEquals("FXMatrix - update", USD_KRW, fxMatrix.getFxRate(USD, KRW), 1.0E-10);
-    assertEquals("FXMatrix - update", 1.0 / EUR_USD, fxMatrix.getFxRate(USD, EUR), 1.0E-10);
-    assertEquals("FXMatrix - update", 1.0 / newGBPEUR, fxMatrix.getFxRate(EUR, GBP), 1.0E-10);
-    assertEquals("FXMatrix - update", 1.0 / (newGBPEUR * EUR_USD), fxMatrix.getFxRate(USD, GBP), 1.0E-10);
-    assertEquals("FXMatrix - update", 1.0 / USD_KRW, fxMatrix.getFxRate(KRW, USD), 1.0E-10);
-    assertEquals("FXMatrix - update", newGBPEUR * EUR_USD * USD_KRW, fxMatrix.getFxRate(GBP, KRW), 1.0E-10);
+    assertEquals("FXMatrix - update", EUR_USD, fxMatrix.getFxRate(EUR, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", newGBPEUR, fxMatrix.getFxRate(GBP, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", newGBPEUR * EUR_USD, fxMatrix.getFxRate(GBP, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", USD_KRW, fxMatrix.getFxRate(USD, KRW), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", 1.0 / EUR_USD, fxMatrix.getFxRate(USD, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", 1.0 / newGBPEUR, fxMatrix.getFxRate(EUR, GBP), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", 1.0 / (newGBPEUR * EUR_USD), fxMatrix.getFxRate(USD, GBP), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", 1.0 / USD_KRW, fxMatrix.getFxRate(KRW, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - update", newGBPEUR * EUR_USD * USD_KRW, fxMatrix.getFxRate(GBP, KRW), TOLERANCE_RATE);
   }
 
   @Test
@@ -209,4 +209,55 @@ public class FXMatrixTest {
     other.addCurrency(GBP, EUR, GBP_EUR);
     assertFalse(fxMatrix.equals(other));
   }
+
+  @Test
+  /**
+   * Tests that a matrix merged with itself is equal with itself.
+   */
+  public void mergeWithItself() {
+    final FXMatrix fxMatrix = new FXMatrix();
+    fxMatrix.addCurrency(EUR, USD, EUR_USD);
+    fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
+    final FXMatrix merged = FXMatrixUtils.merge(fxMatrix, fxMatrix);
+    assertEquals("FXMatrixUtils - merge", fxMatrix, merged);
+  }
+
+  @Test
+  /**
+   * Tests that a matrix constructed by adding currencies one by one or by merging by blocks returns the same result.
+   */
+  public void merge1() {
+    final FXMatrix fxMatrixEURUSD = new FXMatrix();
+    fxMatrixEURUSD.addCurrency(EUR, USD, EUR_USD);
+    final FXMatrix fxMatrixGBPEUR = new FXMatrix();
+    fxMatrixGBPEUR.addCurrency(GBP, EUR, GBP_EUR);
+    final FXMatrix fxMatrixEURUSDGBP = new FXMatrix();
+    fxMatrixEURUSDGBP.addCurrency(EUR, USD, EUR_USD);
+    fxMatrixEURUSDGBP.addCurrency(GBP, EUR, GBP_EUR);
+    final FXMatrix merged = FXMatrixUtils.merge(fxMatrixEURUSD, fxMatrixGBPEUR);
+    assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, EUR), fxMatrixEURUSDGBP.getFxRate(USD, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, GBP), fxMatrixEURUSDGBP.getFxRate(USD, GBP), TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Tests that a matrix constructed by adding currencies one by one or by merging by blocks returns the same result.
+   */
+  public void merge2() {
+    final FXMatrix fxMatrix1 = new FXMatrix();
+    fxMatrix1.addCurrency(EUR, USD, EUR_USD);
+    fxMatrix1.addCurrency(KRW, USD, 1.0 / USD_KRW);
+    final FXMatrix fxMatrix2 = new FXMatrix();
+    fxMatrix2.addCurrency(EUR, USD, EUR_USD);
+    fxMatrix2.addCurrency(GBP, EUR, GBP_EUR);
+    final FXMatrix fxMatrixMergeExpected = new FXMatrix();
+    fxMatrixMergeExpected.addCurrency(EUR, USD, EUR_USD);
+    fxMatrixMergeExpected.addCurrency(GBP, EUR, GBP_EUR);
+    fxMatrixMergeExpected.addCurrency(KRW, USD, 1.0 / USD_KRW);
+    final FXMatrix merged = FXMatrixUtils.merge(fxMatrix1, fxMatrix2);
+    assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, EUR), fxMatrixMergeExpected.getFxRate(USD, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, GBP), fxMatrixMergeExpected.getFxRate(USD, GBP), TOLERANCE_RATE);
+    assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, KRW), fxMatrixMergeExpected.getFxRate(USD, KRW), TOLERANCE_RATE);
+  }
+
 }
