@@ -227,6 +227,14 @@ public class FXMatrix {
     return _fxRates;
   }
 
+  /**
+   * Returns the number of currencies in the matrix.
+   * @return The number of currencies.
+   */
+  public int getNumberOfCurrencies() {
+    return _nbCurrencies;
+  }
+
   @Override
   public String toString() {
     return _currencies.keySet().toString() + " - " + ArrayUtils.toString(_fxRates);

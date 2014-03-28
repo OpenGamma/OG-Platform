@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.forex.datasets.StandardDataSetsEURUSDForex;
 import com.opengamma.analytics.financial.forex.method.FXMatrixUtils;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsUSD;
+import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -25,13 +25,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ProviderUtilsTest {
 
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR_USD136 = StandardDataSetsUSD.getCurvesUSDOisL1L3L6();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR_USD136 = StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6();
   private static final MulticurveProviderDiscount MULTICURVE_USD136 = MULTICURVE_PAIR_USD136.getFirst();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR_USDEUR_FX = StandardDataSetsEURUSDForex.getCurvesUSDOisEURFx();
   private static final MulticurveProviderDiscount MULTICURVE_USDEUR_FX = MULTICURVE_PAIR_USDEUR_FX.getFirst();
   private static final Currency USD = Currency.USD;
   private static final Currency EUR = Currency.EUR;
-  private static final IborIndex[] INDEX_USD136 = StandardDataSetsUSD.indexIborArrayUSDOisL3();
+  private static final IborIndex[] INDEX_USD136 = StandardDataSetsMulticurveUSD.indexIborArrayUSDOisL3();
 
   private static final double TOLERANCE_FX_RATE = 1.0E-10;
 

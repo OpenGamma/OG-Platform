@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
 public class FXMatrixUtils {
 
   /**
-   * Merges two FXMatrix. The two matrix should have at least one currency in common. 
+   * Merges two FXMatrix. The two matrix should have at least one currency in common. The matrix return is a new matrix.
    * The merged matrix will contain the data in the initial matrix1 and all the currencies of the two matrices.
    * The missing currencies from matrix2 are added one by one and the exchange rate data created is coherent with some data in the initial matrices.
    * If the data in the initial matrices are not coherent between them, there is no guarantee which data will be used and the final result may be incoherent.
@@ -30,6 +30,13 @@ public class FXMatrixUtils {
   public static FXMatrix merge(final FXMatrix matrix1, final FXMatrix matrix2) {
     ArgumentChecker.notNull(matrix1, "first FX matrix");
     ArgumentChecker.notNull(matrix2, "second FX matrix");
+    // Implementation note: Check is one matrix is empty
+    if (matrix1.getNumberOfCurrencies() == 0) {
+      return new FXMatrix(matrix2);
+    }
+    if (matrix2.getNumberOfCurrencies() == 0) {
+      return new FXMatrix(matrix1);
+    }
     // Implementation note: Finding a common currency
     final Set<Currency> set1 = matrix1.getCurrencies().keySet();
     final Set<Currency> set2 = matrix2.getCurrencies().keySet();

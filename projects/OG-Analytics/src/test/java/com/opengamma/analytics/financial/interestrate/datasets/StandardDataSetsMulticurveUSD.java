@@ -64,7 +64,7 @@ import com.opengamma.util.tuple.Pair;
  * 0) ONDSC-OIS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
  * Data stored in snapshots for comparison with platform.
  */
-public class StandardDataSetsUSD {
+public class StandardDataSetsMulticurveUSD {
 
   private static final ZonedDateTime[] REFERENCE_DATE = new ZonedDateTime[2];
   static {
