@@ -8,6 +8,41 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M16
+------------
+
+* Bug
+    * [PLAT-1665] - The order of SABR parameters should always be: alpha, beta, rho, nu
+    * [PLAT-5989] - Swap leg details throw error when Frequency is set to Never
+    * [PLAT-6002] - YCNS returns only one sensitivity by curve.
+    * [PLAT-6221] - Currency order incorrect in FXMatrixFunction
+    * [PLAT-6226] - OG-Financial: RawVolatilityCubeDataFunction throws cast error
+    * [PLAT-6252] - Certain values fail to persist in snapshot if they are missing
+    * [PLAT-6254] - YCNS on a cross-currency swap only includes sensitivities in one currency
+    * [PLAT-6256] - fix test for capital index bond
+    * [PLAT-6262] - Multiple nodes in graph instead of single node with multiple outputs
+    * [PLAT-6263] - BondAndBondFutureTradeWithEntityConverter uses int field for quantity
+    * [PLAT-6264] - FXMatrixFunction should delegate FX rate manipulation to CurrencyMatrixFunctions
+    * [PLAT-6284] - When opening twice the same view with sligtly different settings, the view blink
+* Improvement
+    * [PLAT-6136] - Improve AbstractTool option parsing printout
+    * [PLAT-6250] - Add swap converter that takes fees into account
+    * [PLAT-6260] - Add configuration object to represent an adjustment to apply over a date range
+    * [PLAT-6261] - Configuration object to represent a set of dates
+    * [PLAT-6277] - Swap leg details - typo
+    * [PLAT-6289] - Add target uniqueid to logging MDC on function invocation
+ New Feature
+    * [PLAT-6251] - Greeks for volatility swap
+    * [PLAT-6270] - Add allSuccessful(...) method to Result
+    * [PLAT-6274] - OG-Analytics: FXMatrix: create a semi-smart merge tool
+* Task
+    * [PLAT-5882] - Wire up cashflow visitors for new coupon types & add curve provider capable visitors
+    * [PLAT-6074] - More tests for ISDACompliantCurve
+    * [PLAT-6138] - More tests for DoublesScheduleGenerator
+    * [PLAT-6213] - SimulationUtils.patternForGlob needs to be public
+    * [PLAT-6259] - Newly issued volatility swap needs to be covered
+    * [PLAT-6269] - Refactor variable rate object to key from date rather than period.
+
 
 To 2.2.0-M15
 ------------
