@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
@@ -85,6 +86,25 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     _inflationProvider = inflation;
     _issuerCurves = issuerCurves;
+  }
+
+  /**
+   * Constructor from exiting multicurveProvider and inflation map. The given provider and map are used for the new provider (the same maps are used, not copied).
+   * @param inflation The inflation provider.
+   * @param issuerProvider A map with issuer discounting curves.
+   */
+  public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final IssuerProviderDiscount issuerProvider) {
+    _inflationProvider = inflation;
+    _issuerCurves = issuerProvider.getIssuerCurves();
+  }
+
+  /**
+   * Constructor from exiting issuerProvider. The given provider and map are used for the new provider (the same maps are used, not copied).
+   * @param issuerProvider A map with issuer discounting curves.
+   */
+  public InflationIssuerProviderDiscount(final IssuerProviderDiscount issuerProvider) {
+    _inflationProvider = new InflationProviderDiscount();
+    _issuerCurves = issuerProvider.getIssuerCurves();
   }
 
   @Override
