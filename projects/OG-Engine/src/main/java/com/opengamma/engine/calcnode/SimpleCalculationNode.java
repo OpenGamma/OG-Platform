@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Sets;
@@ -671,6 +672,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     statistics.endInvocation();
     statistics.setExpectedDataOutputSamples(results.size());
+    removeInvocationLoggingInfo();
     // store results
     missing.clear();
     for (ValueSpecification output : outputs) {
@@ -808,6 +810,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     // Execute
     statistics.beginInvocation();
+    recordInvocationLoggingInfo(target);
     Set<ComputedValue> result;
     try {
       result = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));
@@ -848,6 +851,24 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       return;
     }
     invokeResult(invoker, statistics, missing, outputs, result, resultItemBuilder);
+  }
+
+  private void recordInvocationLoggingInfo(ComputationTarget target) {
+    if (target != null) {
+      try {      // make target available to logging
+        MDC.put("targetUID", target.getUniqueId().toString());
+      } catch (Throwable ex) {
+        // pass
+      }
+    }
+  }
+
+  private void removeInvocationLoggingInfo() {
+    try {
+      MDC.remove("targetUID");
+    } catch (Throwable ex) {
+      // pass
+    }
   }
 
 }
