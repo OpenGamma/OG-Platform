@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.forex.datasets.DataSetsEURUSD20140310Forex;
+import com.opengamma.analytics.financial.forex.datasets.StandardDataSetsEURUSDForex;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CurrencyExposureDiscountingCalculator;
@@ -42,7 +42,7 @@ import com.opengamma.util.tuple.Pair;
 public class ForexDiscountingMethodE2ETest {
   
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_OIS_BLOCK = 
-      DataSetsEURUSD20140310Forex.getCurvesEUROisUSDOis(); // EUR and USD built with OIS
+      StandardDataSetsEURUSDForex.getCurvesEUROisUSDOis(); // EUR and USD built with OIS
 //  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EURFX_BLOCK = 
 //      DataSetsEURUSD20140310Forex.getCurvesEUROisUSDOis(); // USD built with OIS, EUR with FX
 //  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USDFX_BLOCK = 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -24,7 +25,7 @@ public class FXMatrixUtils {
    * If the data in the initial matrices are not coherent between them, there is no guarantee which data will be used and the final result may be incoherent.
    * @param matrix1 The first matrix.
    * @param matrix2 The second matrix.
-   * @return Themerged matrix.
+   * @return The merged matrix.
    */
   public static FXMatrix merge(final FXMatrix matrix1, final FXMatrix matrix2) {
     ArgumentChecker.notNull(matrix1, "first FX matrix");
@@ -46,6 +47,36 @@ public class FXMatrixUtils {
       }
     }
     return result;
+  }
+
+  /**
+   * Compares two FX Matrix within a given tolerance. The comparison is done only on one secondary diagonal. 
+   * Other rates will also be correct if the input matrices are coherent
+   * @param matrix1 The first matrix.
+   * @param matrix2 The second matrix.
+   * @param tolerance The tolerance.
+   * @return The comparison result. Will be true if for each element in the diagonal tested, the two matrix have a difference in exchange rate lower thatn the tolerance.
+   */
+  public static boolean compare(final FXMatrix matrix1, final FXMatrix matrix2, final double tolerance) {
+    // Implementation note: Compare currency set
+    final Set<Currency> set1 = matrix1.getCurrencies().keySet();
+    final Set<Currency> set2 = matrix2.getCurrencies().keySet();
+    if (!set1.equals(set2)) {
+      return false;
+    }
+    // Implementation note: Compare one diagonal (other will be correct also if matrices are coherent).
+    final Iterator<Currency> iterator = set1.iterator();
+    if (set1.size() > 0) {
+      final Currency initialCurrency = iterator.next();
+      while (iterator.hasNext()) {
+        final Currency otherCurrency = iterator.next();
+        final boolean correct = Math.abs(matrix1.getFxRate(initialCurrency, otherCurrency) - matrix2.getFxRate(initialCurrency, otherCurrency)) < tolerance;
+        if (!correct) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
 }

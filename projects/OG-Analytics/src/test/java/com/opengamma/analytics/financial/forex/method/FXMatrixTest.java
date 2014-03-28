@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -229,14 +230,19 @@ public class FXMatrixTest {
   public void merge1() {
     final FXMatrix fxMatrixEURUSD = new FXMatrix();
     fxMatrixEURUSD.addCurrency(EUR, USD, EUR_USD);
+    //    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrixEURUSD, FXMatrixUtils.merge(fxMatrixEURUSD, new FXMatrix()), TOLERANCE_RATE));
+    //    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrixEURUSD, FXMatrixUtils.merge(new FXMatrix(), fxMatrixEURUSD), TOLERANCE_RATE));
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrixEURUSD, FXMatrixUtils.merge(fxMatrixEURUSD, new FXMatrix(USD)), TOLERANCE_RATE));
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrixEURUSD, FXMatrixUtils.merge(fxMatrixEURUSD, new FXMatrix(EUR)), TOLERANCE_RATE));
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrixEURUSD, FXMatrixUtils.merge(new FXMatrix(USD), fxMatrixEURUSD), TOLERANCE_RATE));
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrixEURUSD, FXMatrixUtils.merge(new FXMatrix(EUR), fxMatrixEURUSD), TOLERANCE_RATE));
     final FXMatrix fxMatrixGBPEUR = new FXMatrix();
     fxMatrixGBPEUR.addCurrency(GBP, EUR, GBP_EUR);
     final FXMatrix fxMatrixEURUSDGBP = new FXMatrix();
     fxMatrixEURUSDGBP.addCurrency(EUR, USD, EUR_USD);
     fxMatrixEURUSDGBP.addCurrency(GBP, EUR, GBP_EUR);
     final FXMatrix merged = FXMatrixUtils.merge(fxMatrixEURUSD, fxMatrixGBPEUR);
-    assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, EUR), fxMatrixEURUSDGBP.getFxRate(USD, EUR), TOLERANCE_RATE);
-    assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, GBP), fxMatrixEURUSDGBP.getFxRate(USD, GBP), TOLERANCE_RATE);
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(merged, fxMatrixEURUSDGBP, TOLERANCE_RATE));
   }
 
   @Test
@@ -258,6 +264,34 @@ public class FXMatrixTest {
     assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, EUR), fxMatrixMergeExpected.getFxRate(USD, EUR), TOLERANCE_RATE);
     assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, GBP), fxMatrixMergeExpected.getFxRate(USD, GBP), TOLERANCE_RATE);
     assertEquals("FXMatrixUtils - merge", merged.getFxRate(USD, KRW), fxMatrixMergeExpected.getFxRate(USD, KRW), TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Tests the comparison tool.
+   */
+  public void compare() {
+    // Matrix with itself
+    final FXMatrix fxMatrix1 = new FXMatrix();
+    fxMatrix1.addCurrency(GBP, EUR, GBP_EUR);
+    fxMatrix1.addCurrency(USD, EUR, 1.0d / EUR_USD);
+    assertTrue("FXMatrixUtils - compare", FXMatrixUtils.compare(fxMatrix1, fxMatrix1, TOLERANCE_RATE));
+    // Matrix in a different order
+    final FXMatrix fxMatrix2 = new FXMatrix();
+    fxMatrix2.addCurrency(EUR, USD, EUR_USD);
+    fxMatrix2.addCurrency(GBP, EUR, GBP_EUR);
+    assertTrue("FXMatrixUtils - compare", FXMatrixUtils.compare(fxMatrix1, fxMatrix2, TOLERANCE_RATE));
+    // Matrix with different order rate
+    final FXMatrix fxMatrix3 = new FXMatrix();
+    fxMatrix3.addCurrency(EUR, USD, EUR_USD + 1.0E-5);
+    fxMatrix3.addCurrency(GBP, EUR, GBP_EUR);
+    assertFalse("FXMatrixUtils - compare", FXMatrixUtils.compare(fxMatrix1, fxMatrix3, TOLERANCE_RATE));
+    // Matrix with different currencies
+    final FXMatrix fxMatrix4 = new FXMatrix();
+    fxMatrix4.addCurrency(GBP, EUR, GBP_EUR);
+    fxMatrix4.addCurrency(USD, EUR, 1.0d / EUR_USD);
+    fxMatrix4.addCurrency(KRW, USD, 1.0 / USD_KRW);
+    assertFalse("FXMatrixUtils - compare", FXMatrixUtils.compare(fxMatrix1, fxMatrix4, TOLERANCE_RATE));
   }
 
 }

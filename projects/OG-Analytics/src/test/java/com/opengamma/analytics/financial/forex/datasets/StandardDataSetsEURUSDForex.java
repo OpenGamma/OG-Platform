@@ -60,7 +60,7 @@ import com.opengamma.util.tuple.Pair;
  * EUR: discounting/ON forward; USD: discounting/ON forward.
  * Standard test data set: 2014-03-10
  */
-public class DataSetsEURUSD20140310Forex {
+public class StandardDataSetsEURUSDForex {
   
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2014, 3, 10);
 
