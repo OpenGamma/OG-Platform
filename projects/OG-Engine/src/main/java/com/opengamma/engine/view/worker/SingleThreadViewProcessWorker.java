@@ -1596,14 +1596,34 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         if (cached != null) {
           // Only update ours if the one from the cache has a better validity
           if (resolverVersionCorrection.equals(cached.getResolverVersionCorrection())) {
-            _latestCompiledViewDefinition = cached;
+            // View from the cache is for the correct V/C
+            if (CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
+              // View from the cache is for the correct valuation time
+              _latestCompiledViewDefinition = cached;
+            } else {
+              // View from the cache is not the correct valuation time ...
+              if (resolverMatch) {
+                // ... caching is no better than the one we used last time
+                cached = _latestCompiledViewDefinition;
+              } else {
+                // ... but is at least the correct resolution time
+                _latestCompiledViewDefinition = cached;
+              }
+            }
           } else {
             if (!resolverMatch) {
               if (_targetResolverChanges != null) {
                 if (!cached.getResolverVersionCorrection().getVersionAsOf().isBefore(lastResolution.getVersionAsOf()) &&
                     !cached.getResolverVersionCorrection().getCorrectedTo().isBefore(lastResolution.getCorrectedTo())) {
-                  // Cached form was created while we were change subscribed so we can verify it
-                  _latestCompiledViewDefinition = cached;
+                  // Cached form was created while we were change subscribed so we can verify it ...
+                  if (!valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
+                    // ... and then use it for the valuation time
+                    _latestCompiledViewDefinition = cached;
+                  } else {
+                    // ... but it's no better than the one we used last time
+                    cached = _latestCompiledViewDefinition;
+                    //_latestCompiledViewDefinition = cached;
+                  }
                 } else {
                   // Cached form is outside of our change subscription window so verifying changes we've heard about won't help
                   cached = _latestCompiledViewDefinition;
@@ -1617,6 +1637,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                   cached = _latestCompiledViewDefinition;
                 }
               }
+            } else {
+              // Cached form is no better than the one we used last time
+              cached = _latestCompiledViewDefinition;
             }
           }
         } else {
