@@ -20,7 +20,7 @@ import com.opengamma.maths.nodes.SVD;
 public class SVDecompositionOGResult implements SVDecompositionResult {
   private final double _condition;
   private final double _norm;
-  private int _rank;
+  private final int _rank;
   private final DoubleMatrix2D _s;
   private final double[] _singularValues;
   private final DoubleMatrix2D _u;
@@ -47,14 +47,14 @@ public class SVDecompositionOGResult implements SVDecompositionResult {
     _singularValues = s;
     //TODO: something more sensible than this: tol = max(rows,cols) of A, * max(singular value) * eps
     double tol = Math.max(_v.getNumberOfRows(), _u.getNumberOfRows()) * _singularValues[0] * FuzzyEquals.getEps();
-    _rank = 0;
+    int rank = 0;
     for (int k = 0; k < _singularValues.length; k++) {
       if (_singularValues[k] < tol) {
         break;
       }
-      _rank++;
+      rank++;
     }
-
+    _rank = rank;
   }
 
   /**
