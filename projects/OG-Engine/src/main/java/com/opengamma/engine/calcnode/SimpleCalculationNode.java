@@ -854,9 +854,9 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   private void recordInvocationLoggingInfo(ComputationTarget target) {
-    if (target != null) {
+    if (target != null && target.getUniqueId() != null) {
       try {      // make target available to logging
-        MDC.put("targetUID", target.getUniqueId().toString());
+        MDC.put("target", target.getUniqueId().toString());
       } catch (Throwable ex) {
         // pass
       }
@@ -865,7 +865,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   private void removeInvocationLoggingInfo() {
     try {
-      MDC.remove("targetUID");
+      MDC.remove("target");
     } catch (Throwable ex) {
       // pass
     }
