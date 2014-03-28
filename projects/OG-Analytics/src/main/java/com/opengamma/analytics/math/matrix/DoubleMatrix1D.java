@@ -135,6 +135,6 @@ public class DoubleMatrix1D implements DoubleMatrix {
 
   @Override
   public double[] asDoubleArray() {
-    return this.getData();
+    return Arrays.copyOf(_data, _data.length);
   }
 }

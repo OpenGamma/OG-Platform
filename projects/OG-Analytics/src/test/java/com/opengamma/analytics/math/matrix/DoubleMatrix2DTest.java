@@ -94,6 +94,11 @@ public class DoubleMatrix2DTest {
     double[][] data = new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 }, { 10, 11, 12 } };
     DoubleMatrix2D mat = new DoubleMatrix2D(data);
     assertTrue(FuzzyEquals.ArrayFuzzyEquals(data, mat.asDoubleAoA()));
+    // Ensure base pointers are unique. PR#13: method must return copy
+    assertFalse(mat.asDoubleAoA() == mat.getData());
+    for (int i = 0; i < mat.getNumberOfRows(); i++) {
+      assertFalse(mat.asDoubleAoA()[i] == mat.getData()[i]);
+    }
   }
 
   @Test

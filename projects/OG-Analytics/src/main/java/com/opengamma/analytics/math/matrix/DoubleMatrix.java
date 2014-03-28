@@ -11,15 +11,15 @@ package com.opengamma.analytics.math.matrix;
 public interface DoubleMatrix extends Matrix<Double> {
 
   /**
-   * Gets the underlying data as an array of arrays 
-   * @return the underlying data as an array of arrays 
+   * Returns a copy of the underlying data as an array of arrays.
+   * @return a copy of the underlying data as an array of arrays.
    */
-  public double [][] asDoubleAoA();
+  double[][] asDoubleAoA();
 
   /**
-   * Gets the underlying data as a column major vector
-   * @return the underlying data as a column major vector
+   * Returns a copy of the underlying data as a column major vector.
+   * @return a copy of the underlying data as a column major vector.
    */
-   public double [] asDoubleArray();
-  
+  double[] asDoubleArray();
+
 }

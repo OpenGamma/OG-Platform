@@ -21,8 +21,8 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class DoubleMatrix1DTest {
-  private static final DoubleMatrix1D PRIMITIVES = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-  private static final DoubleMatrix1D OBJECTS = new DoubleMatrix1D(new Double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.});
+  private static final DoubleMatrix1D PRIMITIVES = new DoubleMatrix1D(new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+  private static final DoubleMatrix1D OBJECTS = new DoubleMatrix1D(new Double[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. });
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPrimitiveArray() {
@@ -63,34 +63,37 @@ public class DoubleMatrix1DTest {
       assertEquals(x[i], d.getEntry(i), 0);
     }
   }
-  
+
   @Test
   public void testAsDoubleArray() {
-    double[] primitives = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    double[] primitives = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     DoubleMatrix1D mat = new DoubleMatrix1D(primitives);
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(primitives,mat.asDoubleArray()));
+    assertTrue(FuzzyEquals.ArrayFuzzyEquals(primitives, mat.asDoubleArray()));
+    // Ensure base pointers are unique. PR#13: method must return copy
+    assertFalse(mat.asDoubleArray() == mat.getData());
   }
 
-  @Test // returns column major
+  @Test
+  // returns column major
   public void testAsDoubleAoA() {
-    double[] primitives = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    double[][] primitivesColVect = new double[][] {{1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}};
+    double[] primitives = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    double[][] primitivesColVect = new double[][] { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 } };
     DoubleMatrix1D mat = new DoubleMatrix1D(primitives);
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(primitivesColVect,mat.asDoubleAoA()));
+    assertTrue(FuzzyEquals.ArrayFuzzyEquals(primitivesColVect, mat.asDoubleAoA()));
   }
-  
+
   @Test
   public void testEqualsAndHashCode() {
-    double[] primitives = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    Double[] objects = new Double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.};
+    double[] primitives = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    Double[] objects = new Double[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
     assertEquals(PRIMITIVES, new DoubleMatrix1D(primitives));
     assertEquals(PRIMITIVES, new DoubleMatrix1D(objects));
     assertEquals(OBJECTS, OBJECTS);
     assertEquals(PRIMITIVES.hashCode(), new DoubleMatrix1D(primitives).hashCode());
     assertEquals(PRIMITIVES.hashCode(), new DoubleMatrix1D(objects).hashCode());
     assertEquals(OBJECTS.hashCode(), OBJECTS.hashCode());
-    primitives = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 11};
-    objects = new Double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 11.};
+    primitives = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 };
+    objects = new Double[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 11. };
     assertFalse(PRIMITIVES.equals(new DoubleMatrix1D(primitives)));
     assertFalse(OBJECTS.equals(new DoubleMatrix1D(objects)));
   }

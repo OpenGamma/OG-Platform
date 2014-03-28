@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.matrix;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -240,7 +242,11 @@ public class DoubleMatrix2D implements DoubleMatrix {
 
   @Override
   public double[][] asDoubleAoA() {
-    return this.getData();
+    double[][] tmp = new double[_rows][];
+    for (int i = 0; i < _rows; i++) {
+      tmp[i] = Arrays.copyOf(_data[i], _columns);
+    }
+    return tmp;
   }
 
   @Override
