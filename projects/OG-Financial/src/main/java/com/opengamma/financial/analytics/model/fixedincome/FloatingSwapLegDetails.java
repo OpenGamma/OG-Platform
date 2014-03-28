@@ -845,11 +845,11 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the the {@code discountedProjectedtAmounts} property.
+   * Gets the the {@code discountedProjectedAmounts} property.
    * @return the property, not null
    */
-  public final Property<CurrencyAmount[]> discountedProjectedtAmounts() {
-    return metaBean().discountedProjectedtAmounts().createProperty(this);
+  public final Property<CurrencyAmount[]> discountedProjectedAmounts() {
+    return metaBean().discountedProjectedAmounts().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -954,7 +954,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     buf.append("numberOfFixedCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfFixedCashFlows())).append(',').append(' ');
     buf.append("numberOfFloatingCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfFloatingCashFlows())).append(',').append(' ');
     buf.append("discountedPaymentAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedPaymentAmounts())).append(',').append(' ');
-    buf.append("discountedProjectedtAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedProjectedAmounts())).append(',').append(' ');
+    buf.append("discountedProjectedAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedProjectedAmounts())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -1073,10 +1073,10 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     private final MetaProperty<CurrencyAmount[]> _discountedPaymentAmounts = DirectMetaProperty.ofDerived(
         this, "discountedPaymentAmounts", FloatingSwapLegDetails.class, CurrencyAmount[].class);
     /**
-     * The meta-property for the {@code discountedProjectedtAmounts} property.
+     * The meta-property for the {@code discountedProjectedAmounts} property.
      */
-    private final MetaProperty<CurrencyAmount[]> _discountedProjectedtAmounts = DirectMetaProperty.ofDerived(
-        this, "discountedProjectedtAmounts", FloatingSwapLegDetails.class, CurrencyAmount[].class);
+    private final MetaProperty<CurrencyAmount[]> _discountedProjectedAmounts = DirectMetaProperty.ofDerived(
+        this, "discountedProjectedAmounts", FloatingSwapLegDetails.class, CurrencyAmount[].class);
     /**
      * The meta-properties.
      */
@@ -1103,7 +1103,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
         "numberOfFixedCashFlows",
         "numberOfFloatingCashFlows",
         "discountedPaymentAmounts",
-        "discountedProjectedtAmounts");
+        "discountedProjectedAmounts");
 
     /**
      * Restricted constructor.
@@ -1156,8 +1156,8 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
           return _numberOfFloatingCashFlows;
         case 178231285:  // discountedPaymentAmounts
           return _discountedPaymentAmounts;
-        case 713794495:  // discountedProjectedtAmounts
-          return _discountedProjectedtAmounts;
+        case 2019754051:  // discountedProjectedAmounts
+          return _discountedProjectedAmounts;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1347,11 +1347,11 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     }
 
     /**
-     * The meta-property for the {@code discountedProjectedtAmounts} property.
+     * The meta-property for the {@code discountedProjectedAmounts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount[]> discountedProjectedtAmounts() {
-      return _discountedProjectedtAmounts;
+    public final MetaProperty<CurrencyAmount[]> discountedProjectedAmounts() {
+      return _discountedProjectedAmounts;
     }
 
     //-----------------------------------------------------------------------
@@ -1400,7 +1400,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
           return ((FloatingSwapLegDetails) bean).getNumberOfFloatingCashFlows();
         case 178231285:  // discountedPaymentAmounts
           return ((FloatingSwapLegDetails) bean).getDiscountedPaymentAmounts();
-        case 713794495:  // discountedProjectedtAmounts
+        case 2019754051:  // discountedProjectedAmounts
           return ((FloatingSwapLegDetails) bean).getDiscountedProjectedAmounts();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -1480,11 +1480,11 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
             return;
           }
           throw new UnsupportedOperationException("Property cannot be written: discountedPaymentAmounts");
-        case 713794495:  // discountedProjectedtAmounts
+        case 2019754051:  // discountedProjectedAmounts
           if (quiet) {
             return;
           }
-          throw new UnsupportedOperationException("Property cannot be written: discountedProjectedtAmounts");
+          throw new UnsupportedOperationException("Property cannot be written: discountedProjectedAmounts");
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
