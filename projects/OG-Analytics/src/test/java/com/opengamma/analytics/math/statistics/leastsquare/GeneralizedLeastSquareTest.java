@@ -30,7 +30,7 @@ import com.opengamma.analytics.math.interpolation.PSplineFitter;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.longdog.helpers.FuzzyEquals;
+import com.opengamma.maths.helpers.FuzzyEquals;
 import com.opengamma.util.test.TestGroup;
 
 /**

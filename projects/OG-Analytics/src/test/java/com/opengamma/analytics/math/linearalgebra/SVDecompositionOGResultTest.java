@@ -11,10 +11,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.longdog.datacontainers.matrix.OGRealDenseMatrix;
-import com.opengamma.longdog.helpers.FuzzyEquals;
-import com.opengamma.longdog.materialisers.Materialisers;
-import com.opengamma.longdog.nodes.SVD;
+import com.opengamma.maths.datacontainers.matrix.OGRealDenseMatrix;
+import com.opengamma.maths.helpers.FuzzyEquals;
+import com.opengamma.maths.materialisers.Materialisers;
+import com.opengamma.maths.nodes.SVD;
 import com.opengamma.util.test.TestGroup;
 
 /**

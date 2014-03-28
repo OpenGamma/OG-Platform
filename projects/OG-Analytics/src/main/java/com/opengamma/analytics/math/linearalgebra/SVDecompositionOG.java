@@ -9,8 +9,8 @@ package com.opengamma.analytics.math.linearalgebra;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.longdog.datacontainers.matrix.OGRealDenseMatrix;
-import com.opengamma.longdog.nodes.SVD;
+import com.opengamma.maths.datacontainers.matrix.OGRealDenseMatrix;
+import com.opengamma.maths.nodes.SVD;
 
 public class SVDecompositionOG extends Decomposition<SVDecompositionResult> {
 

@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.longdog.helpers.FuzzyEquals;
+import com.opengamma.maths.helpers.FuzzyEquals;
 import com.opengamma.util.test.TestGroup;
 
 /**
