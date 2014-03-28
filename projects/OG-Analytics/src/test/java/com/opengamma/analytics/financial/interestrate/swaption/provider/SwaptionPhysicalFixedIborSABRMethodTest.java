@@ -137,6 +137,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final double maturity = SWAP_PAYER.getFirstLeg().getNthPayment(SWAP_PAYER.getFirstLeg().getNumberOfPayments() - 1).getPaymentTime() - SWAPTION_LONG_PAYER.getSettlementTime();
     assertEquals(maturity, ANNUITY_TENOR_YEAR, 1E-2);
     final double volatility = SABR_PARAMETER.getVolatility(SWAPTION_LONG_PAYER.getTimeToExpiry(), maturity, RATE, forward);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: implied volatility", volatility, METHOD_SWPT_SABR.impliedVolatility(SWAPTION_LONG_PAYER, SABR_MULTICURVES), TOLERANCE_PV);
     final BlackFunctionData data = new BlackFunctionData(forward, pvbp, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
     final double expectedPrice = func.evaluate(data);
