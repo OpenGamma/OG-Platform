@@ -5,12 +5,27 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Set;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePositionReader;
+import com.opengamma.integration.copier.portfolio.reader.ZippedPositionReader;
+import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
+import com.opengamma.integration.tool.portfolio.xml.XmlFileReader;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.scripts.Scriptable;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The portfolio loader tool
@@ -24,18 +39,9 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   private static final String PORTFOLIO_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
-  /** Verbose option flag */
-  private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
-  /** Try to merge positions in the same security type within a portfolio node (sum quantities and add trades from both) */
-  private static final String MERGE_POSITIONS_OPT = "m";
-  /** Keep existing positions in the previous version of the portfolio and add the newly loaded positions */
-  private static final String KEEP_CURRENT_POSITIONS_OPT = "k";
-  /** Structure by attributes option */
-  private static final String STRUCTURE_OPT = "t";
 
-  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 
@@ -45,34 +51,79 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
     new PortfolioLoaderTool().invokeAndTerminate(args);
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Loads the portfolio into the position master.
    */
   @Override
   protected void doRun() {
 
-    String portfolioName = getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT);
+    String suggestedPortfolioName = getOptionValue(PORTFOLIO_NAME_OPT);
     boolean write = getCommandLine().hasOption(WRITE_OPT);
 
     if (write) {
-      System.out.println("Write option specified, will persist to portfolio '" + portfolioName + "'");
+      System.out.println("Write option specified, will persist to portfolio '" + suggestedPortfolioName + "'");
     } else {
       System.out.println("Write option not specified, not persisting to OpenGamma masters");
     }
 
-    new PortfolioLoader(getToolContext(), portfolioName,
-                        getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
-                        getCommandLine().getOptionValue(FILE_NAME_OPT),
-                        write,
-                        getCommandLine().hasOption(VERBOSE_OPT),
-                        getCommandLine().hasOption(MERGE_POSITIONS_OPT),
-                        getCommandLine().hasOption(KEEP_CURRENT_POSITIONS_OPT),
-                        true,
-                        true,
-                        getCommandLine().getOptionValues(STRUCTURE_OPT)).execute();
+    PortfolioWriter persister = new PortfolioWriter(write,
+                                                          getToolContext().getPortfolioMaster(),
+                                                          getToolContext().getPositionMaster(),
+                                                          getToolContext().getSecurityMaster());
+
+
+    final String filename = getOptionValue(FILE_NAME_OPT);
+    final String securityType = getOptionValue(SECURITY_TYPE_OPT);
+
+    for (PositionReader positionReader : constructPortfolioReaders(filename, securityType)) {
+
+      String name = positionReader.getPortfolioName();
+      String portfolioName = name != null ? name : suggestedPortfolioName;
+
+      PortfolioReader portfolioReader = new PortfolioReader(positionReader, portfolioName);
+
+      Pair<Portfolio, Set<ManageableSecurity>> pair = portfolioReader.createPortfolio();
+      persister.write(pair.getFirst(), pair.getSecond());
+    }
   }
 
+  private String getOptionValue(String opt) {
+    return getCommandLine().getOptionValue(opt);
+  }
+
+  private Iterable<? extends PositionReader> constructPortfolioReaders(String filename, String securityType) {
+
+    switch (SheetFormat.of(filename)) {
+
+      case CSV:
+        // Fallthrough to XLS processing
+      case XLS:
+        // Check that the asset class was specified on the command line
+        if (securityType == null) {
+          throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename);
+        } else {
+//          if (securityType.equalsIgnoreCase("exchangetraded")) {
+//            return new SingleSheetSimplePositionReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
+//          } else {
+          return ImmutableList.of(new SingleSheetSimplePositionReader(filename, securityType));
+//          }
+        }
+      case XML:
+        // XMl multi-asset portfolio
+        try {
+          return new XmlFileReader(new FileInputStream(filename), new SchemaRegister());
+        } catch (FileNotFoundException e) {
+          throw new OpenGammaRuntimeException("Cannot find file: " + filename, e);
+        }
+
+      case ZIP:
+        // Create zipped multi-asset class loader
+        return ImmutableList.of(new ZippedPositionReader(filename, true));
+
+      default:
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS, .XML or .ZIP");
+    }
+  }
 
   @Override
   protected Options createOptions(boolean contextProvided) {
@@ -97,24 +148,6 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
         SECURITY_TYPE_OPT, "security", true, 
         "The security type expected in the input CSV/XLS file (ignored if ZIP file is specified)");
     options.addOption(assetClassOption);
-
-    Option mergePositionsOption = new Option(MERGE_POSITIONS_OPT, "merge", false,
-        "Try to merge positions in the same security type within a portfolio node, adding trades from all");
-    options.addOption(mergePositionsOption);
-
-    Option keepCurrentPositionsOption = new Option(KEEP_CURRENT_POSITIONS_OPT, "keep", false,
-        "Keep existing positions in the previous version of the portfolio and add the newly loaded positions");
-    options.addOption(keepCurrentPositionsOption);
-
-    Option verboseOption = new Option(
-        VERBOSE_OPT, "verbose", false, 
-        "Displays progress messages on the terminal");
-    options.addOption(verboseOption);
-
-    Option structureOption = new Option(
-        STRUCTURE_OPT, "structure", true,
-        "A /-separated sequence of position attributes used to structure the portfolio(s) (e.g. trade-group/strategy");
-    options.addOption(structureOption);
 
     return options;
   }

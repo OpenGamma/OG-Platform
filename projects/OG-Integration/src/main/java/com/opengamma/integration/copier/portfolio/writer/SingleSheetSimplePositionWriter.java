@@ -28,9 +28,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 /**
  * Writes positions of a single security type to a single sheet
  */
-public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter {
+public class SingleSheetSimplePositionWriter extends SingleSheetPositionWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetSimplePortfolioWriter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetSimplePositionWriter.class);
 
   private RowParser _rowParser;
   
@@ -43,7 +43,7 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
   /** Generate one row per trade instead of one row per position */
   private boolean _includeTrades;
 
-  public SingleSheetSimplePortfolioWriter(SheetWriter sheet, RowParser rowParser, boolean includeTrades) {
+  public SingleSheetSimplePositionWriter(SheetWriter sheet, RowParser rowParser, boolean includeTrades) {
     super(sheet);
     
     ArgumentChecker.notNull(rowParser, "rowParser");
@@ -57,45 +57,45 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
     _includeTrades = includeTrades;
   }
 
-  public SingleSheetSimplePortfolioWriter(SheetWriter sheet, RowParser rowParser) {
+  public SingleSheetSimplePositionWriter(SheetWriter sheet, RowParser rowParser) {
     this(sheet, rowParser, false);
   }
 
-  public SingleSheetSimplePortfolioWriter(SheetWriter sheet, String securityType) {
+  public SingleSheetSimplePositionWriter(SheetWriter sheet, String securityType) {
     this(sheet, JodaBeanRowParser.newJodaBeanRowParser(securityType));    
   }
 
-  public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, RowParser rowParser) {
+  public SingleSheetSimplePositionWriter(SheetFormat sheetFormat, OutputStream outputStream, RowParser rowParser) {
     this(SheetWriter.newSheetWriter(sheetFormat, outputStream, rowParser.getColumns()), rowParser);
   }  
 
-  public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, RowParser rowParser,
-                                          boolean includeTrades) {
+  public SingleSheetSimplePositionWriter(SheetFormat sheetFormat, OutputStream outputStream, RowParser rowParser,
+                                         boolean includeTrades) {
     this(SheetWriter.newSheetWriter(sheetFormat, outputStream, rowParser.getColumns()), rowParser, includeTrades);
   }
 
-  public SingleSheetSimplePortfolioWriter(String filename, RowParser rowParser) {
+  public SingleSheetSimplePositionWriter(String filename, RowParser rowParser) {
     this(SheetWriter.newSheetWriter(filename, rowParser.getColumns()), rowParser);
   }
 
-  public SingleSheetSimplePortfolioWriter(String filename, RowParser rowParser, boolean includeTrades) {
+  public SingleSheetSimplePositionWriter(String filename, RowParser rowParser, boolean includeTrades) {
     this(SheetWriter.newSheetWriter(filename, rowParser.getColumns()), rowParser, includeTrades);
   }
 
-  public SingleSheetSimplePortfolioWriter(String filename, String securityType) {
+  public SingleSheetSimplePositionWriter(String filename, String securityType) {
     this(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
   }
 
-  public SingleSheetSimplePortfolioWriter(String filename, String securityType, boolean includeTrades) {
+  public SingleSheetSimplePositionWriter(String filename, String securityType, boolean includeTrades) {
     this(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType), includeTrades);
   }
 
-  public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType) {
+  public SingleSheetSimplePositionWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType) {
     this(sheetFormat, outputStream, JodaBeanRowParser.newJodaBeanRowParser(securityType));
   }
 
-  public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType,
-                                          boolean includeTrades) {
+  public SingleSheetSimplePositionWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType,
+                                         boolean includeTrades) {
     this(sheetFormat, outputStream, JodaBeanRowParser.newJodaBeanRowParser(securityType), includeTrades);
   }
 

@@ -14,7 +14,7 @@ import com.opengamma.util.tuple.ObjectsPair;
  * Interface for a portfolio writer, which is able to write positions and securities, and manipulate the portfolio's
  * tree structure.
  */
-public interface PortfolioWriter {
+public interface PositionWriter {
 
   /**
    * Adds a key-value pair to the set of portfolio attributes.

@@ -19,12 +19,12 @@ import com.opengamma.util.tuple.ObjectsPair;
 /**
  * A dummy portfolio writer, which pretty-prints information instead of persisting
  */
-public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
+public class PrettyPrintingPositionWriter implements PositionWriter {
 
   private String[] _currentPath = new String[] {};
   private boolean _prettyPrint;
   
-  public PrettyPrintingPortfolioWriter(boolean prettyPrint) {
+  public PrettyPrintingPositionWriter(boolean prettyPrint) {
     _prettyPrint = prettyPrint;
   }
   

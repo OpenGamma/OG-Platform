@@ -18,8 +18,8 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.integration.copier.portfolio.DeletingPortfolioCopier;
-import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.MasterPositionReader;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPositionWriter;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -86,12 +86,12 @@ public class PortfolioDeleteTool extends AbstractTool<ToolContext> {
               getCommandLine().hasOption(WRITE_OPT));
       
       deletingPortfolioCopier.copy(
-          new MasterPortfolioReader(
+          new MasterPositionReader(
               portfolioDocument.getPortfolio().getName(), 
               getToolContext().getPortfolioMaster(), 
               getToolContext().getPositionMaster(), 
               getToolContext().getSecuritySource()), 
-          new PrettyPrintingPortfolioWriter(false),
+          new PrettyPrintingPositionWriter(false),
           getCommandLine().hasOption(DELETE_POSITIONS_OPT),
           getCommandLine().hasOption(DELETE_SECURITIES_OPT));
       

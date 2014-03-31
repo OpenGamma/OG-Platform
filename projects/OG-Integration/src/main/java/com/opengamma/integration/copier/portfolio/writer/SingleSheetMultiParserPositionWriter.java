@@ -32,9 +32,9 @@ import com.opengamma.util.tuple.ObjectsPair;
  * This class writes a portfolio that might contain multiple security types into a single sheet. The columns are
  * established from the set of row parsers that are supplied to the constructor.
  */
-public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioWriter {
+public class SingleSheetMultiParserPositionWriter extends SingleSheetPositionWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetMultiParserPortfolioWriter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetMultiParserPositionWriter.class);
   
   private Map<String, RowParser> _parserMap = new HashMap<String, RowParser>();
   
@@ -48,7 +48,7 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
   /** Generate one row per trade instead of one row per position */
   private boolean _includeTrades;
 
-  public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, Map<String, RowParser> rowParsers) {
+  public SingleSheetMultiParserPositionWriter(SheetWriter sheet, Map<String, RowParser> rowParsers) {
     super(sheet);
     
     ArgumentChecker.notNull(rowParsers, "rowParsers");
@@ -62,60 +62,66 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
     _includeTrades = false;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, Map<String, RowParser> rowParsers, boolean includeTrades) {
+  public SingleSheetMultiParserPositionWriter(SheetWriter sheet,
+                                              Map<String, RowParser> rowParsers,
+                                              boolean includeTrades) {
     this(sheet, rowParsers);
     _includeTrades = includeTrades;
   }
     
-  public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, String[] securityTypes) {
+  public SingleSheetMultiParserPositionWriter(SheetWriter sheet, String[] securityTypes) {
     this(sheet, getParsers(securityTypes));
     _includeTrades = false;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, String[] securityTypes, boolean includeTrades) {
+  public SingleSheetMultiParserPositionWriter(SheetWriter sheet, String[] securityTypes, boolean includeTrades) {
     this(sheet, securityTypes);
     _includeTrades = includeTrades;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream,
-                                               Map<String, RowParser> rowParsers) {
+  public SingleSheetMultiParserPositionWriter(SheetFormat sheetFormat, OutputStream outputStream,
+                                              Map<String, RowParser> rowParsers) {
     this(SheetWriter.newSheetWriter(sheetFormat, outputStream, getColumns(rowParsers)), rowParsers);
     _includeTrades = false;
   }  
 
-  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream,
-                                               Map<String, RowParser> rowParsers, boolean includeTrades) {
+  public SingleSheetMultiParserPositionWriter(SheetFormat sheetFormat, OutputStream outputStream,
+                                              Map<String, RowParser> rowParsers, boolean includeTrades) {
     this(sheetFormat, outputStream, rowParsers);
     _includeTrades = includeTrades;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String[] securityTypes) {
+  public SingleSheetMultiParserPositionWriter(SheetFormat sheetFormat,
+                                              OutputStream outputStream,
+                                              String[] securityTypes) {
     this(SheetWriter.newSheetWriter(sheetFormat, outputStream, getColumns(getParsers(securityTypes))), getParsers(securityTypes));
     _includeTrades = false;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String[] securityTypes,
-                                               boolean includeTrades) {
+  public SingleSheetMultiParserPositionWriter(SheetFormat sheetFormat,
+                                              OutputStream outputStream,
+                                              String[] securityTypes,
+                                              boolean includeTrades) {
     this(sheetFormat, outputStream, securityTypes);
     _includeTrades = includeTrades;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(String filename, Map<String, RowParser> rowParsers) {
+  public SingleSheetMultiParserPositionWriter(String filename, Map<String, RowParser> rowParsers) {
     this(SheetWriter.newSheetWriter(filename, getColumns(rowParsers)), rowParsers);
     _includeTrades = false;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(String filename, Map<String, RowParser> rowParsers, boolean includeTrades) {
+  public SingleSheetMultiParserPositionWriter(String filename, Map<String, RowParser> rowParsers, boolean includeTrades) {
     this(filename, rowParsers);
     _includeTrades = includeTrades;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(String filename, String[] securityTypes) {
+  public SingleSheetMultiParserPositionWriter(String filename, String[] securityTypes) {
     this(filename, getParsers(securityTypes));
     _includeTrades = false;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(String filename, String[] securityTypes, boolean  includeTrades) {
+  public SingleSheetMultiParserPositionWriter(String filename, String[] securityTypes, boolean includeTrades) {
     this(filename, securityTypes);
     _includeTrades = includeTrades;
   }

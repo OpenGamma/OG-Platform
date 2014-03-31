@@ -9,8 +9,6 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newTreeSet;
 
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,11 +18,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Abstract class for a portfolio writer that writes to a single sheet
  */
-public abstract class SingleSheetPortfolioWriter implements PortfolioWriter {
+public abstract class SingleSheetPositionWriter implements PositionWriter {
 
   private SheetWriter _sheet;         // The spreadsheet to which to export
 
-  public SingleSheetPortfolioWriter(SheetWriter sheet) {
+  public SingleSheetPositionWriter(SheetWriter sheet) {
     ArgumentChecker.notNull(sheet, "sheet");
     _sheet = sheet;
   }

@@ -29,10 +29,10 @@ import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.ZippedPositionWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -69,10 +69,10 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
 
     List<ManageablePosition> positions = loadSomePositions(getCommandLine().hasOption(INCLUDE_TRADES_OPT));
     // Construct portfolio reader
-    PortfolioReader portfolioReader = new MyPortfolioReader(positions);
+    PositionReader positionReader = new MyPositionReader(positions);
 
     // Create portfolio writer
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(
+    PositionWriter positionWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(FILE_NAME_OPT),
         getCommandLine().hasOption(WRITE_OPT),
         getCommandLine().hasOption(INCLUDE_TRADES_OPT));
@@ -89,11 +89,11 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
     }
 
     // Call the portfolio loader with the supplied arguments
-    portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
+    portfolioCopier.copy(positionReader, positionWriter, portfolioCopierVisitor);
 
     // close stuff
-    portfolioReader.close();
-    portfolioWriter.close();
+    positionReader.close();
+    positionWriter.close();
   }
   
   private static final Set<String> UNSUPPORTED_SECURITY_TYPES = Sets.newHashSet("CDS_INDEX", "CDS_INDEX_DEFINITION", "CDS", "RAW", "XXX", "MANAGEABLE", 
@@ -134,12 +134,12 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
     return positions;
   }
 
-  private class MyPortfolioReader implements PortfolioReader {
+  private class MyPositionReader implements PositionReader {
 
     private List<ManageablePosition> _positions;
     private Iterator<ManageablePosition> _iterator;
 
-    public MyPortfolioReader(List<ManageablePosition> positions) {
+    public MyPositionReader(List<ManageablePosition> positions) {
       _positions = positions;
       _iterator = _positions.iterator();
     }
@@ -209,7 +209,7 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
     return position;
   }
 
-  private static PortfolioWriter constructPortfolioWriter(String filename, boolean write,
+  private static PositionWriter constructPortfolioWriter(String filename, boolean write,
       boolean includeTrades) {
     if (write) {
       // Check that the file name was specified on the command line
@@ -218,14 +218,14 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
       }
 
       if (SheetFormat.of(filename) == SheetFormat.ZIP) {
-        return new ZippedPortfolioWriter(filename, includeTrades);
+        return new ZippedPositionWriter(filename, includeTrades);
       } else {
         throw new OpenGammaRuntimeException("Input filename should end in .ZIP");
       }
 
     } else {
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new PrettyPrintingPortfolioWriter(true);
+      return new PrettyPrintingPositionWriter(true);
     }
   }
 

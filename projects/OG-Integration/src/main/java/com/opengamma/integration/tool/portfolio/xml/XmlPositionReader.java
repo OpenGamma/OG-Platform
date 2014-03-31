@@ -7,16 +7,16 @@ package com.opengamma.integration.tool.portfolio.xml;
 
 import java.util.Iterator;
 
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Portfolio reader for a single portfolio from the xml file format. Note that
- * as the class implements PortfolioReader, it is stateful and not thread safe.
+ * as the class implements PositionReader, it is stateful and not thread safe.
  */
-public class XmlPortfolioReader implements PortfolioReader {
+public class XmlPositionReader implements PositionReader {
 
   /**
    * The name of the portfolio being processed. May be null if no name is
@@ -40,7 +40,7 @@ public class XmlPortfolioReader implements PortfolioReader {
    *
    * @param vph the portfolio handler to create a reader for.
    */
-  public XmlPortfolioReader(VersionedPortfolioHandler vph) {
+  public XmlPositionReader(VersionedPortfolioHandler vph) {
     _portfolioName = vph.getPortfolioName();
     _positionIterator = vph.getPositions().iterator();
   }

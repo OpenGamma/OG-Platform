@@ -54,7 +54,7 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.VarianceSwapLeg;
-import com.opengamma.integration.copier.portfolio.writer.SingleSheetPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetPositionWriter;
 import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -403,7 +403,7 @@ public class JodaBeanRowParser extends RowParser {
               builder.set(metaProperty.name(), stringToList(rawValue, JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType())));
             } else if (Map.class.isAssignableFrom(metaProperty.propertyType()) && metaProperty.name().equalsIgnoreCase("attributes")) {
 
-              builder.set(metaProperty.name(), SingleSheetPortfolioWriter.attributesToMap(rawValue));
+              builder.set(metaProperty.name(), SingleSheetPositionWriter.attributesToMap(rawValue));
             } else {
               throw new OpenGammaRuntimeException("Property '" + prefix + metaProperty.name() + "' (" + metaProperty.propertyType() + ") cannot be populated from a string");
             }
@@ -415,7 +415,7 @@ public class JodaBeanRowParser extends RowParser {
       return builder.build();
 
     } catch (final Throwable ex) {
-      s_logger.info("Not creating a " + clazz.getSimpleName() + ": " + ex);
+      s_logger.warn("Not creating a " + clazz.getSimpleName(), ex);
       return null;
     }
   }
@@ -456,7 +456,8 @@ public class JodaBeanRowParser extends RowParser {
                 isConvertible(JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType()))) {
               result.put(prefix + metaProperty.name(), listToString((List<?>) metaProperty.get(bean)));
             } else if (Map.class.isAssignableFrom(metaProperty.propertyType()) && metaProperty.name().equalsIgnoreCase("attributes")) {
-              result.put(prefix + metaProperty.name(), SingleSheetPortfolioWriter.attributesToString((Map<String, String>) metaProperty.get(bean)));
+              result.put(prefix + metaProperty.name(), SingleSheetPositionWriter.attributesToString((Map<String, String>) metaProperty.get(
+                  bean)));
             } else {
               throw new OpenGammaRuntimeException("Property '" + prefix + metaProperty.name() + "' (" + metaProperty.propertyType() + ") cannot be converted to a string");
             }

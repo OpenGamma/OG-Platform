@@ -15,19 +15,19 @@ import java.util.Iterator;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
 
 /**
  * Parses an XML file and if the file is valid, generates a collection
  * of Portfolio readers (one for each portfolio in the file). Note that
  * as the class implements Iterable, it is stateful and not thread safe.
  */
-public class XmlFileReader implements Iterable<PortfolioReader> {
+public class XmlFileReader implements Iterable<PositionReader> {
 
   /**
    * The portfolio readers available after the file has been successfully parsed.
    */
-  private final Iterable<PortfolioReader> _readers;
+  private final Iterable<PositionReader> _readers;
 
   /**
    * Constructs the reader from the supplied location. The following validation
@@ -64,10 +64,10 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
 
     if (converter != null) {
       Iterable<VersionedPortfolioHandler> handlers = converter.convertPortfolio(bais);
-      _readers = Iterables.transform(handlers, new Function<VersionedPortfolioHandler, PortfolioReader>() {
+      _readers = Iterables.transform(handlers, new Function<VersionedPortfolioHandler, PositionReader>() {
         @Override
-        public PortfolioReader apply(final VersionedPortfolioHandler vph) {
-          return new XmlPortfolioReader(vph);
+        public PositionReader apply(final VersionedPortfolioHandler vph) {
+          return new XmlPositionReader(vph);
         }
       });
     } else {
@@ -76,7 +76,7 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
   }
 
   @Override
-  public Iterator<PortfolioReader> iterator() {
+  public Iterator<PositionReader> iterator() {
     return _readers.iterator();
   }
 

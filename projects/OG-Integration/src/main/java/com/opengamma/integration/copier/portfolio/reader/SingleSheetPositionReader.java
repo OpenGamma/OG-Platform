@@ -12,11 +12,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Abstract class for importing data from various 3rd party file formats
  */
-public abstract class SingleSheetPortfolioReader implements PortfolioReader {
+public abstract class SingleSheetPositionReader implements PositionReader {
  
   private SheetReader _sheet;         // The spreadsheet from which to import
      
-  public SingleSheetPortfolioReader(SheetReader sheet) {
+  public SingleSheetPositionReader(SheetReader sheet) {
     ArgumentChecker.notNull(sheet, "sheet");
     _sheet = sheet;
   }

@@ -34,9 +34,9 @@ import com.opengamma.util.tuple.ObjectsPair;
  * using the file name, and persists all loaded trades/entries using the specified portfolio writer. Folder structure
  * in the ZIP archive is replicated in the portfolio node structure.
  */
-public class ZippedPortfolioReader implements PortfolioReader {
+public class ZippedPositionReader implements PositionReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ZippedPortfolioReader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ZippedPositionReader.class);
 
   private static final String SHEET_EXTENSION = ".csv";
 
@@ -44,12 +44,12 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
 
   private Enumeration<ZipEntry> _zipEntries;
-  private PortfolioReader _currentReader;
+  private PositionReader _currentReader;
   private String[] _currentPath = new String[0];
   private boolean _ignoreVersion;
 
   @SuppressWarnings("unchecked")
-  public ZippedPortfolioReader(String filename, boolean ignoreVersion) {
+  public ZippedPositionReader(String filename, boolean ignoreVersion) {
     
     ArgumentChecker.notNull(filename, "filename");
     
@@ -93,7 +93,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
     }
   }
 
-  private PortfolioReader getReader(ZipEntry entry) {
+  private PositionReader getReader(ZipEntry entry) {
     
     if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
       try {
@@ -130,7 +130,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
         s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);
 
         // Create a simple portfolio reader for the current sheet
-        return new SingleSheetSimplePortfolioReader(sheet, parser);
+        return new SingleSheetSimplePositionReader(sheet, parser);
         
       } catch (Throwable ex) {
         s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");

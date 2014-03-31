@@ -25,9 +25,9 @@ import com.opengamma.util.tuple.ObjectsPair;
  * A simple portfolio reader assumes that the input sheet only contains one asset class, and may also be used as a base
  * class for specific asset class loaders that follow this rule.
  */
-public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader {
+public class SingleSheetSimplePositionReader extends SingleSheetPositionReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetSimplePortfolioReader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetSimplePositionReader.class);
 
   /*
    * Load one or more parsers for different types of securities/trades/whatever here
@@ -38,7 +38,7 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
    */
   private String[] _columns;
 
-  public SingleSheetSimplePortfolioReader(SheetReader sheet, RowParser rowParser) {   
+  public SingleSheetSimplePositionReader(SheetReader sheet, RowParser rowParser) {
     super(sheet);
     
     ArgumentChecker.notNull(rowParser, "rowParser");
@@ -47,23 +47,23 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
     _rowParser = rowParser;
   }
 
-  public SingleSheetSimplePortfolioReader(SheetReader sheet, String securityClass) {
+  public SingleSheetSimplePositionReader(SheetReader sheet, String securityClass) {
     this(sheet, JodaBeanRowParser.newJodaBeanRowParser(securityClass));    
   }
 
-  public SingleSheetSimplePortfolioReader(SheetFormat sheetFormat, InputStream inputStream, RowParser rowParser) {
+  public SingleSheetSimplePositionReader(SheetFormat sheetFormat, InputStream inputStream, RowParser rowParser) {
     this(SheetReader.newSheetReader(sheetFormat, inputStream), rowParser);
   }
 
-  public SingleSheetSimplePortfolioReader(SheetFormat sheetFormat, InputStream inputStream, String securityClass) {
+  public SingleSheetSimplePositionReader(SheetFormat sheetFormat, InputStream inputStream, String securityClass) {
     this(SheetReader.newSheetReader(sheetFormat, inputStream), securityClass);    
   }
 
-  public SingleSheetSimplePortfolioReader(String filename, RowParser rowParser) {
+  public SingleSheetSimplePositionReader(String filename, RowParser rowParser) {
     this(SheetReader.newSheetReader(filename), rowParser);
   }
 
-  public SingleSheetSimplePortfolioReader(String filename, String securityClass) {
+  public SingleSheetSimplePositionReader(String filename, String securityClass) {
     this(SheetReader.newSheetReader(filename), securityClass);
   }
   

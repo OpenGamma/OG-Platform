@@ -36,23 +36,23 @@ import com.opengamma.util.tuple.ObjectsPair;
  * This class writes positions/securities to a zip file, using the zip file's directory structure to represent the portfolio
  * node structure.
  */
-public class ZippedPortfolioWriter implements PortfolioWriter {
+public class ZippedPositionWriter implements PositionWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ZippedPortfolioWriter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ZippedPositionWriter.class);
 
   private static final String DIRECTORY_SEPARATOR = "/";
 
   private ZipOutputStream _zipFile;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
   private String[] _currentPath = new String[] {};
-  private SingleSheetMultiParserPortfolioWriter _currentWriter;
-  private Map<String, SingleSheetMultiParserPortfolioWriter> _writerMap = new HashMap<String, SingleSheetMultiParserPortfolioWriter>();
+  private SingleSheetMultiParserPositionWriter _currentWriter;
+  private Map<String, SingleSheetMultiParserPositionWriter> _writerMap = new HashMap<String, SingleSheetMultiParserPositionWriter>();
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
 
   /** Write multiple trades within a position as separate rows */
   private boolean _includeTrades;
 
-  public ZippedPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream) {
+  public ZippedPositionWriter(SheetFormat sheetFormat, OutputStream outputStream) {
   
     ArgumentChecker.notNull(sheetFormat, "sheetFormat");
     ArgumentChecker.notNull(outputStream, "outputStream");
@@ -63,12 +63,12 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     _includeTrades = false;
   }
 
-  public ZippedPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, boolean includeTrades) {
+  public ZippedPositionWriter(SheetFormat sheetFormat, OutputStream outputStream, boolean includeTrades) {
     this(sheetFormat, outputStream);
     _includeTrades = includeTrades;
   }
 
-  public ZippedPortfolioWriter(String filename) {
+  public ZippedPositionWriter(String filename) {
 
     ArgumentChecker.notEmpty(filename, "filename");
 
@@ -91,7 +91,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     _includeTrades = false;
   }
 
-  public ZippedPortfolioWriter(String filename, boolean includeTrades) {
+  public ZippedPositionWriter(String filename, boolean includeTrades) {
     this(filename);
     _includeTrades = includeTrades;
   }
@@ -207,10 +207,10 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     }
 
     _bufferMap = new HashMap<String, ByteArrayOutputStream>();
-    _writerMap = new HashMap<String, SingleSheetMultiParserPortfolioWriter>();
+    _writerMap = new HashMap<String, SingleSheetMultiParserPositionWriter>();
   }
 
-  private PortfolioWriter identifyOrCreatePortfolioWriter(ManageableSecurity security) {
+  private PositionWriter identifyOrCreatePortfolioWriter(ManageableSecurity security) {
     
     // Identify the correct portfolio writer for this security
     String className = security.getClass().toString();
@@ -233,7 +233,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       SheetWriter sheet = new CsvSheetWriter(out, parser.getColumns());
 
-      _currentWriter = new SingleSheetMultiParserPortfolioWriter(sheet, parserMap, _includeTrades);
+      _currentWriter = new SingleSheetMultiParserPositionWriter(sheet, parserMap, _includeTrades);
 
       _writerMap.put(className, _currentWriter);
       _bufferMap.put(className, out);

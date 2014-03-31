@@ -34,9 +34,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 /**
  * Portfolio reader.
  */
-public class MasterPortfolioReader implements PortfolioReader {
+public class MasterPositionReader implements PositionReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioReader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PositionReader.class);
 
   private PortfolioMaster _portfolioMaster;
   private PositionMaster _positionMaster;
@@ -50,8 +50,8 @@ public class MasterPortfolioReader implements PortfolioReader {
   private Iterator<ObjectId> _positionIdIterator;
   
   
-  public MasterPortfolioReader(String portfolioName, PortfolioMaster portfolioMaster, 
-      PositionMaster positionMaster, SecuritySource securitySource) {
+  public MasterPositionReader(String portfolioName, PortfolioMaster portfolioMaster,
+                              PositionMaster positionMaster, SecuritySource securitySource) {
     
     ArgumentChecker.notEmpty(portfolioName, "portfolioName");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");

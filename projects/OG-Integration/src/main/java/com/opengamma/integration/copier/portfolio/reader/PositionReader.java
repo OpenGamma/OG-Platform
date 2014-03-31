@@ -11,10 +11,10 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
- * Abstract portfolio loader class that merely specifies the ability to write imported trades/positions to a PortfolioWriter
+ * Abstract portfolio loader class that merely specifies the ability to write imported trades/positions to a PositionWriter
  * (This tight linkage between reader and writer might have to change)
  */
-public abstract interface PortfolioReader {
+public interface PositionReader {
 
   /**
    * Read the next row as a position, possibly containing trades, and one or more securities

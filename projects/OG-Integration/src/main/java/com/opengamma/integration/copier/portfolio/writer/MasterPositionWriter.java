@@ -62,9 +62,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 /**
  * A class that writes securities and portfolio positions and trades to the OG masters
  */
-public class MasterPortfolioWriter implements PortfolioWriter {
+public class MasterPositionWriter implements PositionWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(MasterPortfolioWriter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(MasterPositionWriter.class);
 
   private static final int NUMBER_OF_THREADS = 30;
 
@@ -109,25 +109,25 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    *                                  if false, the option will be created with a dangling reference to the underlying
    */
 
-  public MasterPortfolioWriter(String portfolioName,
-                               PortfolioMaster portfolioMaster,
-                               PositionMaster positionMaster,
-                               SecurityMaster securityMaster,
-                               boolean mergePositions,
-                               boolean keepCurrentPositions,
-                               boolean discardIncompleteOptions) {
+  public MasterPositionWriter(String portfolioName,
+                              PortfolioMaster portfolioMaster,
+                              PositionMaster positionMaster,
+                              SecurityMaster securityMaster,
+                              boolean mergePositions,
+                              boolean keepCurrentPositions,
+                              boolean discardIncompleteOptions) {
     this(portfolioName, portfolioMaster, positionMaster, securityMaster, mergePositions,
          keepCurrentPositions, discardIncompleteOptions, false);
   }
 
-  public MasterPortfolioWriter(String portfolioName,
-                               PortfolioMaster portfolioMaster,
-                               PositionMaster positionMaster,
-                               SecurityMaster securityMaster,
-                               boolean mergePositions,
-                               boolean keepCurrentPositions,
-                               boolean discardIncompleteOptions,
-                               boolean multithread) {
+  public MasterPositionWriter(String portfolioName,
+                              PortfolioMaster portfolioMaster,
+                              PositionMaster positionMaster,
+                              SecurityMaster securityMaster,
+                              boolean mergePositions,
+                              boolean keepCurrentPositions,
+                              boolean discardIncompleteOptions,
+                              boolean multithread) {
 
     ArgumentChecker.notEmpty(portfolioName, "portfolioName");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -180,7 +180,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * custom behaviour for different clients. For instance, in one case the sums of the quantities of all the trades
    * of both positions might be required, whereas in another case the preference might be to sum the quantities of
    * the positions themselves without regard to the quantities specified in their trades (this is the default behaviour).
-   * This is not featured in the PortfolioWriter interface, and as such is a hack.
+   * This is not featured in the PositionWriter interface, and as such is a hack.
    * @param position1 the first position
    * @param position2 the second position
    * @return the sum of the positions' quantities
