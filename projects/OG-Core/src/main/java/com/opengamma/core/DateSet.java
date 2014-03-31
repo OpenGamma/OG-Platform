@@ -39,7 +39,7 @@ public class DateSet implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final SortedSet<LocalDate> _dates;
   
-  public DateSet of(Set<LocalDate> dates) {
+  public static DateSet of(Set<LocalDate> dates) {
     return builder().dates(new TreeSet<LocalDate>(dates)).build();
   }
   

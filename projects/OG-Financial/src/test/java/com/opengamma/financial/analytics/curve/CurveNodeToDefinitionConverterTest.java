@@ -20,6 +20,8 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -54,8 +56,11 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.DateSet;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.Holiday;
@@ -82,6 +87,7 @@ import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.DeliverablePriceQuotedSwapFutureConvention;
 import com.opengamma.financial.convention.DepositConvention;
@@ -119,6 +125,10 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -320,6 +330,8 @@ public class CurveNodeToDefinitionConverterTest {
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final Map<ExternalIdBundle, Security> SECURITY_MAP = new HashMap<>();
   private static final SecuritySource SECURITY_SOURCE;
+  private static final ConfigSource CONFIG_SOURCE;
+  private static final ConfigMaster CONFIG_MASTER;
   private static final ConventionSource CONVENTION_SOURCE;
   private static final HolidaySource HOLIDAY_SOURCE;
   private static final RegionSource REGION_SOURCE;
@@ -378,7 +390,15 @@ public class CurveNodeToDefinitionConverterTest {
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
     HOLIDAY_SOURCE = new MyHolidaySource(new ExternalId[] {US, EU, GB}, new Calendar[] {CALENDAR, CALENDAR, CALENDAR});
     REGION_SOURCE = new MyRegionSource(new ExternalId[] {US, EU, GB}, new String[] {"US", "EU", "GB"});
-    
+    CONFIG_MASTER = new InMemoryConfigMaster();
+    CONFIG_SOURCE = new MasterConfigSource(CONFIG_MASTER);
+
+    DateSet ecbCalendar = DateSet.of(Sets.newTreeSet(Lists.newArrayList(LocalDate.of(2013, 5, 8), LocalDate.of(2013, 10, 9), LocalDate.of(2013, 11, 13), LocalDate.of(2013, 12, 11),
+                                                                        LocalDate.of(2014, 1, 15), LocalDate.of(2014, 2, 12), LocalDate.of(2014, 3, 12), LocalDate.of(2014, 4, 9),
+                                                                        LocalDate.of(2014, 5, 14), LocalDate.of(2014, 6, 11), LocalDate.of(2014, 7, 9), LocalDate.of(2014, 8, 13),
+                                                                        LocalDate.of(2014, 9, 10), LocalDate.of(2014, 10, 8), LocalDate.of(2014, 11, 12), LocalDate.of(2014, 12, 10),
+                                                                        LocalDate.of(2015, 1, 8), LocalDate.of(2015, 2, 11))));
+    CONFIG_MASTER.add(new ConfigDocument(ConfigItem.of(ecbCalendar, "ECB Settlement Calendar")));
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
@@ -992,19 +1012,21 @@ public class CurveNodeToDefinitionConverterTest {
     final int startNumber = 2;
     final int endNumber = 4;
     final Calendar ecb = new CalendarECBSettlements();
-    final ExternalId ecbId = ExternalId.of(SCHEME, "ECB Settlement Calendar");
-    final SimpleRegion region = new SimpleRegion();
-    region.addExternalId(ecbId);
-    region.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), ecbId.getValue()));
-    final Map<ExternalIdBundle, Region> regionMap = new HashMap<>();
-    regionMap.put(ecbId.toBundle(), region);
-    final Map<ExternalIdBundle, Calendar> calendarMap = new HashMap<>();
-    calendarMap.put(ecbId.toBundle(), ecb);
-    final RegionSource regionSource = new MyRegionSource(new ExternalId[] {US, EU, GB}, new String[] {"US", "EU", "GB"}, regionMap);
-    final HolidaySource holidaySource = new MyHolidaySource(new ExternalId[] {US, EU, GB}, new Calendar[] {CALENDAR, TARGET, CALENDAR}, calendarMap);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new CalendarSwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, holidaySource, regionSource, marketValues, marketDataId, now);
+    final String ecbName = "ECB Settlement Calendar";
+    //final ExternalId ecbId = ExternalId.of(SCHEME, ecbName);
+    //final SimpleRegion region = new SimpleRegion();
+    //region.addExternalId(ecbId);
+    //region.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), ecbId.getValue()));
+    //final Map<ExternalIdBundle, Region> regionMap = new HashMap<>();
+    //regionMap.put(ecbId.toBundle(), region);
+    //final Map<ExternalIdBundle, Calendar> calendarMap = new HashMap<>();
+    //calendarMap.put(ecbId.toBundle(), ecb);
+    final RegionSource regionSource = new MyRegionSource(new ExternalId[] {US, EU, GB}, new String[] {"US", "EU", "GB"}, new HashMap<ExternalIdBundle, Region>());
+    final HolidaySource holidaySource = new MyHolidaySource(new ExternalId[] {US, EU, GB}, new Calendar[] {CALENDAR, TARGET, CALENDAR}, new HashMap<ExternalIdBundle, Calendar>());
+    final ConfigSourceQuery<DateSet> calendarQuery = new ConfigSourceQuery<>(CONFIG_SOURCE, DateSet.class, VersionCorrection.LATEST);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new CalendarSwapNodeConverter(SECURITY_SOURCE, CONVENTION_SOURCE, holidaySource, regionSource, marketValues, marketDataId, now, calendarQuery);
     final Period startPeriod = Period.ofDays(1);
-    final CalendarSwapNode swapNode = new CalendarSwapNode(ecbId, Tenor.of(startPeriod), startNumber, endNumber, EUR_SWAP_1Y_ONCMP_ID, false, SCHEME, "CalendarSwapNode0204");
+    final CalendarSwapNode swapNode = new CalendarSwapNode(ecbName, Tenor.of(startPeriod), startNumber, endNumber, EUR_SWAP_1Y_ONCMP_ID, false, SCHEME, "CalendarSwapNode0204");
     final InstrumentDefinition<?> definition = swapNode.accept(converter);
     assertTrue("FixedONCalendarSwap: instance", definition instanceof SwapDefinition);
     final SwapDefinition swap = (SwapDefinition) definition;
@@ -1025,10 +1047,10 @@ public class CurveNodeToDefinitionConverterTest {
     assertEquals("FixedONCalendarSwap: effective date", effectiveDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(0)).getFixingPeriodStartDate().toLocalDate());
     assertEquals("FixedONCalendarSwap: effective date", maturityDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(nbCpnON-1)).getAccrualEndDate().toLocalDate());
     assertEquals("FixedONCalendarSwap: effective date", maturityDate, ((CouponONSpreadSimplifiedDefinition)onLeg.getNthPayment(nbCpnON-1)).getFixingPeriodEndDate().toLocalDate());
-    final int startNumber2 = 2;
-    final int endNumber2 = 16; // More than 1 Year: 2 cpn
+    final int startNumber2 = 1;
+    final int endNumber2 = 14; // More than 1 Year: 2 cpn
     final Period startPeriod2 = Period.ofMonths(1);
-    final CalendarSwapNode swapNode2 = new CalendarSwapNode(ecbId, Tenor.of(startPeriod2), startNumber2, endNumber2, EUR_SWAP_1Y_ONCMP_ID, false, SCHEME, "CalendarSwapNode0204");
+    final CalendarSwapNode swapNode2 = new CalendarSwapNode(ecbName, Tenor.of(startPeriod2), startNumber2, endNumber2, EUR_SWAP_1Y_ONCMP_ID, false, SCHEME, "CalendarSwapNode0204");
     final InstrumentDefinition<?> definition2 = swapNode2.accept(converter);
     assertTrue("FixedONCalendarSwap: instance", definition2 instanceof SwapDefinition);
     final SwapDefinition swap2 = (SwapDefinition) definition2;
@@ -1638,6 +1660,6 @@ public class CurveNodeToDefinitionConverterTest {
     public Region getHighestLevelRegion(final ExternalIdBundle bundle) {
       return _map.get(bundle);
     }
-
   }
+
 }

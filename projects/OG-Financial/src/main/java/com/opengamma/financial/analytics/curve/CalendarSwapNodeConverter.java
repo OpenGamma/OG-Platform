@@ -8,16 +8,16 @@ package com.opengamma.financial.analytics.curve;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.core.DateSet;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.SwapConvention;
-import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,6 +39,8 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
   private final ExternalId _dataId;
   /** The valuation time */
   private final ZonedDateTime _valuationTime;
+  /** The config query */
+  private final ConfigSourceQuery<DateSet> _calendarQuery;
 
   /**
    * @param securitySource The security source, not null
@@ -48,9 +50,10 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
    * @param marketData The market data, not null
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
+   * @param calendarQuery The calendar config query, not null.
    */
   public CalendarSwapNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
+      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final ConfigSourceQuery<DateSet> calendarQuery) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
@@ -58,6 +61,7 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
+    ArgumentChecker.notNull(calendarQuery, "config source");
     _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
@@ -65,6 +69,7 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
     _marketData = marketData;
     _dataId = dataId;
     _valuationTime = valuationTime;
+    _calendarQuery = calendarQuery;
   }
 
   @Override
@@ -73,9 +78,9 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
     final FinancialConvention payLegConvention = _conventionSource.getSingle(swapConvention.getPayLegConvention(), FinancialConvention.class);
     final FinancialConvention receiveLegConvention = _conventionSource.getSingle(swapConvention.getReceiveLegConvention(), FinancialConvention.class);
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(calendarSwapNode.getStartTenor().getPeriod());
-    final Calendar calendarStartEndDate = CalendarUtils.getCalendar(_regionSource, _holidaySource, calendarSwapNode.getCalendarId());
-    return NodeConverterUtils.getSwapCalendarDefinition(payLegConvention, receiveLegConvention, unadjustedStartDate, calendarSwapNode.getCalendarDateStartNumber(),
-        calendarSwapNode.getCalendarDateEndNumber(), calendarStartEndDate, _securitySource, _regionSource, _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
+    final DateSet calendar = _calendarQuery.get(calendarSwapNode.getDateSetName());
+    return NodeConverterUtils.getSwapCalendarDefinition(payLegConvention, receiveLegConvention, unadjustedStartDate, calendarSwapNode.getStartDateNumber(),
+        calendarSwapNode.getEndDateNumber(), calendar, _securitySource, _regionSource, _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
   }
   
 }

@@ -448,7 +448,7 @@ public class CurveValidator {
     if (curveNodeIdMapper == null) {
       createInvalidCurveNodeValidationNode(curveNode.getResolvedMaturity(), curveNode.getClass(), validationNode, "CurveNodeIdMapper " + curveNode.getCurveNodeIdMapperName() + " is missing");
     } else {
-      curveNode.accept(new CurveNodeValidator(_curveDate, _configValidationUtils, _securitySource, validationNode, curveNodeIdMapper));
+      curveNode.accept(new CurveNodeValidator(_curveDate, _configValidationUtils, _securitySource, validationNode, curveNodeIdMapper, _configSource));
     }
   }
 
