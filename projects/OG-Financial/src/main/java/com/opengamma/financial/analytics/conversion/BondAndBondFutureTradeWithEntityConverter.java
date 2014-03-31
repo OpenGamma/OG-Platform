@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.conversion;
 
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.PRICE_INDEX;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;
 
 import java.util.Collection;
@@ -52,6 +51,7 @@ import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.legalentity.Rating;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -59,7 +59,6 @@ import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InflationLegConvention;
-import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -424,8 +423,16 @@ public class BondAndBondFutureTradeWithEntityConverter {
           throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());
         }
         final Currency currency = bond.getCurrency();
-        final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
-        final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);
+        final ExternalId indexId = ExternalId.parse(bond.attributes().get().get("ReferenceIndexId"));
+
+        final Security sec = _securitySource.getSingle(indexId.toBundle());
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Ibor index with id " + indexId + " was null");
+        }
+        final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
+        final IndexPrice priceIndex = new IndexPrice(indexSecurity.getName(), currency);
+        /* final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
+         final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);*/
         final Calendar calendar;
         // If the bond is Supranational, we use the calendar derived from the currency of the bond.
         // this may need revisiting.
