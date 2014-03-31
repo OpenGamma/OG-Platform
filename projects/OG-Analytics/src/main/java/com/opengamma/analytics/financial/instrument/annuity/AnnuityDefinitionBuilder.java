@@ -82,44 +82,44 @@ public class AnnuityDefinitionBuilder {
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[adjustedEndAccrualDates.length];
     //First coupon uses settlement date
-    double accrualFactor;
-    if ((dayCount instanceof ActualActualICMA)) {
-      accrualFactor = ((ActualActualICMA) dayCount).getAccruedInterest(settlementDate, adjustedEndAccrualDates[0], adjustedEndAccrualDates[0], 1.0d, couponPerYear(paymentPeriod), stub);
-    } else {
-      if ((dayCount instanceof ActualActualICMANormal)) {
-        accrualFactor = ((ActualActualICMANormal) dayCount).getAccruedInterest(settlementDate, adjustedEndAccrualDates[0], adjustedEndAccrualDates[0], 1.0d, couponPerYear(paymentPeriod), stub);
-      } else {
-        if ((dayCount instanceof ThirtyEThreeSixtyISDA)) {
-          boolean isMaturity = (adjustedEndAccrualDates.length - 1 == 0);
-          accrualFactor = ((ThirtyEThreeSixtyISDA) dayCount).getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], isMaturity);
-        } else {
-          accrualFactor = dayCount.getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], calendar);
-        }
-      }
-    }
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, adjustedEndAccrualDates[0],
-        accrualFactor, sign * notional, fixedRate);
+    double accrualFactor = getDayCountFraction(paymentPeriod, calendar, dayCount, stub, settlementDate, adjustedEndAccrualDates[0], adjustedEndAccrualDates.length == 1);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, adjustedEndAccrualDates[0], accrualFactor, sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < adjustedEndAccrualDates.length; loopcpn++) {
-      if ((dayCount instanceof ActualActualICMA)) {
-        accrualFactor = ((ActualActualICMA) dayCount).getAccruedInterest(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], adjustedEndAccrualDates[loopcpn], 1.0d,
-            couponPerYear(paymentPeriod), stub);
-      } else {
-        if ((dayCount instanceof ActualActualICMANormal)) {
-          accrualFactor = ((ActualActualICMANormal) dayCount).getAccruedInterest(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], adjustedEndAccrualDates[loopcpn], 1.0d,
-              couponPerYear(paymentPeriod), stub);
-        } else {
-          if ((dayCount instanceof ThirtyEThreeSixtyISDA)) {
-            boolean isMaturity = (adjustedEndAccrualDates.length - 1 == loopcpn);
-            accrualFactor = ((ThirtyEThreeSixtyISDA) dayCount).getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], isMaturity);
-          } else {
-            accrualFactor = dayCount.getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], calendar);
-          }
-        }
-      }
-      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn],
-          accrualFactor, sign * notional, fixedRate);
+      boolean isMaturity = (adjustedEndAccrualDates.length - 1 == loopcpn);
+      accrualFactor = getDayCountFraction(paymentPeriod, calendar, dayCount, stub, adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], isMaturity);
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], accrualFactor, sign * notional, fixedRate);
     }
     return new AnnuityCouponFixedDefinition(coupons, calendar);
+  }
+
+  /**
+   * Get daycount fraction (handles some specific daycount complexities)
+   *
+   * @param paymentPeriod the payment period (used in some ICMA daycounts)
+   * @param calendar the calendar
+   * @param dayCount the daycount
+   * @param stub the stub (used in some ICMA daycounts)
+   * @param from from date
+   * @param to to date
+   * @param isMaturity is this the last coupon (needed for 30E/360 ISDA)
+   * @return the accrual factor
+   */
+  public static double getDayCountFraction(Period paymentPeriod, Calendar calendar, DayCount dayCount, StubType stub, ZonedDateTime from, ZonedDateTime to, boolean isMaturity) {
+    double accrualFactor;
+    if ((dayCount instanceof ActualActualICMA)) {
+      accrualFactor = ((ActualActualICMA) dayCount).getAccruedInterest(from, to, to, 1.0d, couponPerYear(paymentPeriod), stub);
+    } else {
+      if ((dayCount instanceof ActualActualICMANormal)) {
+        accrualFactor = ((ActualActualICMANormal) dayCount).getAccruedInterest(from, to, to, 1.0d, couponPerYear(paymentPeriod), stub);
+      } else {
+        if ((dayCount instanceof ThirtyEThreeSixtyISDA)) {
+          accrualFactor = ((ThirtyEThreeSixtyISDA) dayCount).getDayCountFraction(from, to, isMaturity);
+        } else {
+          accrualFactor = dayCount.getDayCountFraction(from, to, calendar);
+        }
+      }
+    }
+    return accrualFactor;
   }
 
   /**
