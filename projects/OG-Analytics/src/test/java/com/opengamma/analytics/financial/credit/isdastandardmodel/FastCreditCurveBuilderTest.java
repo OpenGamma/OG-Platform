@@ -95,7 +95,7 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
     assertEquals(1, curveFastQsp.getNumberOfKnots());
 
     for (int i = 0; i < num; ++i) {
-      assertEquals(curveFastPuf.getForwardRate(sampleTime[i]), curveFastQsp.getForwardRate(sampleTime[i]));
+      assertEquals(curveFastPuf.getForwardRate(sampleTime[i]), curveFastQsp.getForwardRate(sampleTime[i]), 1.e-12);
       assertEquals(curveSimplePuf.getForwardRate(sampleTime[i]), curveFastPuf.getForwardRate(sampleTime[i]), 1.e-6);
     }
 
