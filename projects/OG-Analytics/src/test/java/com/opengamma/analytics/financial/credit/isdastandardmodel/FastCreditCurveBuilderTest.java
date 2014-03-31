@@ -7,6 +7,9 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.Arrays;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -37,11 +40,11 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
   @SuppressWarnings("deprecation")
   @Test
   public void noAccOnDefaultTest() {
-    final FastCreditCurveBuilder fastOriginal = new FastCreditCurveBuilder(AccrualOnDefaultFormulae.OrignalISDA, ArbitrageHandling.Ignore);
+    final FastCreditCurveBuilder fastOg = new FastCreditCurveBuilder(OG_FIX, ArbitrageHandling.Ignore);
 
-    final SimpleCreditCurveBuilder simpleISDA = new SimpleCreditCurveBuilder();
+    final SimpleCreditCurveBuilder simpleISDA = new SimpleCreditCurveBuilder(ORIGINAL_ISDA);
     final SimpleCreditCurveBuilder simpleFix = new SimpleCreditCurveBuilder(MARKIT_FIX);
-    final SimpleCreditCurveBuilder simpleOriginal = new SimpleCreditCurveBuilder(AccrualOnDefaultFormulae.OrignalISDA);
+    final SimpleCreditCurveBuilder simpleOg = new SimpleCreditCurveBuilder(OG_FIX);
 
     final LocalDate tradeDate = LocalDate.of(2013, Month.APRIL, 25);
 
@@ -60,10 +63,10 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
 
     final ISDACompliantCreditCurve curveFastISDA = BUILDER_ISDA.calibrateCreditCurve(pillar, spreads, yc);
     final ISDACompliantCreditCurve curveFastFix = BUILDER_MARKIT.calibrateCreditCurve(pillar, spreads, yc);
-    final ISDACompliantCreditCurve curveFastOriginal = fastOriginal.calibrateCreditCurve(pillar, spreads, yc);
+    final ISDACompliantCreditCurve curveFastOriginal = fastOg.calibrateCreditCurve(pillar, spreads, yc);
     final ISDACompliantCreditCurve curveSimpleISDA = simpleISDA.calibrateCreditCurve(pillar, spreads, yc);
     final ISDACompliantCreditCurve curveSimpleFix = simpleFix.calibrateCreditCurve(pillar, spreads, yc);
-    final ISDACompliantCreditCurve curveSimpleOriginal = simpleOriginal.calibrateCreditCurve(pillar, spreads, yc);
+    final ISDACompliantCreditCurve curveSimpleOriginal = simpleOg.calibrateCreditCurve(pillar, spreads, yc);
 
     final double[] sampleTime = new double[] {30 / 365., 90 / 365., 180. / 365., 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
     final int num = sampleTime.length;
@@ -73,5 +76,91 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
       assertEquals(curveSimpleOriginal.getHazardRate(sampleTime[i]), curveFastOriginal.getHazardRate(sampleTime[i]), 1.e-6);
     }
 
+    /*
+     * Flat hazard rate case
+     */
+    final double coupon = 0.025;
+    final MarketQuoteConverter conv = new MarketQuoteConverter();
+    final double[] pufs = conv.parSpreadsToPUF(new CDSAnalytic[] {pillar[3] }, coupon, yc, new double[] {spreads[3] });
+    final double[] qsps = conv.quotedSpreadToParSpreads(new CDSAnalytic[] {pillar[3] }, coupon, yc, new double[] {spreads[3] });
+
+    final PointsUpFront puf = new PointsUpFront(coupon, pufs[0]);
+    final QuotedSpread qsp = new QuotedSpread(coupon, qsps[0]);
+
+    final ISDACompliantCreditCurve curveFastPuf = BUILDER_ISDA.calibrateCreditCurve(pillar[3], puf, yc);
+    final ISDACompliantCreditCurve curveFastQsp = BUILDER_ISDA.calibrateCreditCurve(pillar[3], qsp, yc);
+    final ISDACompliantCreditCurve curveSimplePuf = simpleISDA.calibrateCreditCurve(pillar[3], puf, yc);
+
+    assertEquals(1, curveFastPuf.getNumberOfKnots());
+    assertEquals(1, curveFastQsp.getNumberOfKnots());
+
+    for (int i = 0; i < num; ++i) {
+      assertEquals(curveFastPuf.getForwardRate(sampleTime[i]), curveFastQsp.getForwardRate(sampleTime[i]));
+      assertEquals(curveSimplePuf.getForwardRate(sampleTime[i]), curveFastPuf.getForwardRate(sampleTime[i]), 1.e-6);
+    }
+
+    final FastCreditCurveBuilder fastOriginalFail = new FastCreditCurveBuilder(AccrualOnDefaultFormulae.OrignalISDA, ArbitrageHandling.Fail);
+    /*
+     * Fail with zero pufs
+     */
+    try {
+      fastOriginalFail.calibrateCreditCurve(pillar, spreads, yc);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+
+    /*
+     * Fail with nonzero pufs
+     */
+    final int nSpreads = spreads.length;
+    final PointsUpFront[] pufsFail = new PointsUpFront[nSpreads];
+    final double[] pufValues = conv.parSpreadsToPUF(pillar, coupon, yc, spreads);
+    for (int i = 0; i < nSpreads; ++i) {
+      pufsFail[i] = new PointsUpFront(coupon, pufValues[i]);
+    }
+    try {
+      fastOriginalFail.calibrateCreditCurve(pillar, pufsFail, yc);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+
+    /*
+     * ArgumentChecker hit 
+     */
+    final double[] prems = new double[nSpreads];
+    Arrays.fill(prems, coupon);
+    final double[] shortPufs = Arrays.copyOf(pufValues, nSpreads - 1);
+    try {
+      fastOriginalFail.calibrateCreditCurve(pillar, prems, yc, shortPufs);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    final double[] shortPrems = Arrays.copyOf(prems, nSpreads - 1);
+    try {
+      fastOriginalFail.calibrateCreditCurve(pillar, shortPrems, yc, pufValues);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+
+    final CDSAnalytic[] pillarCopy = Arrays.copyOf(pillar, nSpreads);
+    pillarCopy[2] = pillarCopy[2].withOffset(0.5);
+    try {
+      fastOriginalFail.calibrateCreditCurve(pillarCopy, prems, yc, pufValues);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    pillarCopy[2] = pillar[3];
+    pillarCopy[3] = pillar[2];
+    try {
+      fastOriginalFail.calibrateCreditCurve(pillarCopy, prems, yc, pufValues);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
   }
 }
