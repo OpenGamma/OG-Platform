@@ -24,7 +24,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
   /**
    * Quantity of future. Can be positive or negative.
    */
-  private final int _quantity;
+  private final long _quantity;
   /**
    * The reference price. It is the transaction price on the transaction date and the last close price afterward.
    */
@@ -36,7 +36,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
    * @param quantity The transaction quantity.
    * @param referencePrice The reference price.
    */
-  public FuturesTransaction(F underlyingFuture, int quantity, double referencePrice) {
+  public FuturesTransaction(F underlyingFuture, long quantity, double referencePrice) {
     super();
     ArgumentChecker.notNull(underlyingFuture, "underlying futures security");
     _underlyingFuture = underlyingFuture;
@@ -56,7 +56,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
    * Returns the transaction quantity.
    * @return The quantity.
    */
-  public int getQuantity() {
+  public long getQuantity() {
     return _quantity;
   }
 
@@ -80,7 +80,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _quantity;
+    result = prime * result + (int) (_quantity ^ (_quantity >>> 32));
     long temp;
     temp = Double.doubleToLongBits(_referencePrice);
     result = prime * result + (int) (temp ^ (temp >>> 32));

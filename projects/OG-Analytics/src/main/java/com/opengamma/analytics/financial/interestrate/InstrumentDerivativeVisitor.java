@@ -67,6 +67,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
@@ -79,8 +81,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -498,13 +500,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondFuturesTransaction(BondFuturesTransaction bondFutures);
 
-  RESULT_TYPE visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures, DATA_TYPE data);
+  RESULT_TYPE visitBondFuturesYieldAverageSecurity(BondFuturesYieldAverageSecurity bondFutures, DATA_TYPE data);
 
-  RESULT_TYPE visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures);
+  RESULT_TYPE visitBondFuturesYieldAverageSecurity(BondFuturesYieldAverageSecurity bondFutures);
 
-  RESULT_TYPE visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures, DATA_TYPE data);
+  RESULT_TYPE visitYieldAverageBondFuturesTransaction(BondFuturesYieldAverageTransaction bondFutures, DATA_TYPE data);
 
-  RESULT_TYPE visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures);
+  RESULT_TYPE visitYieldAverageBondFuturesTransaction(BondFuturesYieldAverageTransaction bondFutures);
 
   RESULT_TYPE visitInterestRateFutureTransaction(InterestRateFutureTransaction future, DATA_TYPE data);
 
@@ -531,6 +533,14 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitSwapFuturesPriceDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures);
 
   // -----     Futures options   -----
+
+  RESULT_TYPE visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option, DATA_TYPE data);
+
+  RESULT_TYPE visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option);
+
+  RESULT_TYPE visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, DATA_TYPE data);
+
+  RESULT_TYPE visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option);
 
   RESULT_TYPE visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option, DATA_TYPE data);
 

@@ -12,9 +12,9 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
@@ -34,7 +34,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests related to the pricing of Yield average bond futures (in particular for AUD-SFE futures) with discounting method, i.e. without convexity adjustments.
  */
 @Test(groups = TestGroup.UNIT)
-public class YieldAverageBondFuturesDiscountingMethodTest {
+public class BondFuturesYieldAverageDiscountingMethodTest {
 
   // Bonds: Delivery basket SFE 10Y
   private static final Currency AUD = Currency.AUD;
@@ -70,11 +70,11 @@ public class YieldAverageBondFuturesDiscountingMethodTest {
   private static final double SYNTHETIC_COUPON = 0.06;
   private static final int TENOR = 10;
 
-  private static final YieldAverageBondFuturesSecurityDefinition FUT_SEC_DEFINITION = new YieldAverageBondFuturesSecurityDefinition(LAST_TRADING_DATE,
+  private static final BondFuturesYieldAverageSecurityDefinition FUT_SEC_DEFINITION = new BondFuturesYieldAverageSecurityDefinition(LAST_TRADING_DATE,
       BASKET_SECURITY_DEFINITION, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 1, 10);
-  private static final YieldAverageBondFuturesSecurity FUT_SEC = FUT_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final BondFuturesYieldAverageSecurity FUT_SEC = FUT_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final IssuerProviderInterface ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProviderAus();
   private static final FuturesSecurityIssuerMethod METHOD_FUTI_SEC = new FuturesSecurityIssuerMethod();

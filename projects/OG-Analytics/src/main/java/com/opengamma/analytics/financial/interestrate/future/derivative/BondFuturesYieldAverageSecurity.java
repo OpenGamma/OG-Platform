@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
  * In particular used for AUD-SFE bond futures.
  * <P>Reference: Add a reference.
  */
-public class YieldAverageBondFuturesSecurity extends FuturesSecurity {
+public class BondFuturesYieldAverageSecurity extends FuturesSecurity {
 
   /**
    * The notional of the bond future (also called face value or contract value).
@@ -49,7 +49,7 @@ public class YieldAverageBondFuturesSecurity extends FuturesSecurity {
    * @param tenor The underlying synthetic bond tenor (in years).
    * @param notional The notional of the bond future.
    */
-  public YieldAverageBondFuturesSecurity(final double tradingLastTime, final BondFixedSecurity[] deliveryBasketAtDeliveryDate, 
+  public BondFuturesYieldAverageSecurity(final double tradingLastTime, final BondFixedSecurity[] deliveryBasketAtDeliveryDate, 
       final BondFixedSecurity[] deliveryBasketAtSpotDate, final double couponRate, final int tenor, final double notional) {
     super(tradingLastTime);
     ArgumentChecker.notNull(deliveryBasketAtDeliveryDate, "Delivery basket at delivery date");
@@ -119,12 +119,12 @@ public class YieldAverageBondFuturesSecurity extends FuturesSecurity {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitYieldAverageBondFuturesSecurity(this, data);
+    return visitor.visitBondFuturesYieldAverageSecurity(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    return visitor.visitYieldAverageBondFuturesSecurity(this);
+    return visitor.visitBondFuturesYieldAverageSecurity(this);
   }
 
   @Override
@@ -153,7 +153,7 @@ public class YieldAverageBondFuturesSecurity extends FuturesSecurity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    YieldAverageBondFuturesSecurity other = (YieldAverageBondFuturesSecurity) obj;
+    BondFuturesYieldAverageSecurity other = (BondFuturesYieldAverageSecurity) obj;
     if (Double.doubleToLongBits(_couponRate) != Double.doubleToLongBits(other._couponRate)) {
       return false;
     }

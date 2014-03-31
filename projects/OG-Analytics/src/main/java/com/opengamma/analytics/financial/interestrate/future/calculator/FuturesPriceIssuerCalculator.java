@@ -11,7 +11,7 @@ import org.apache.commons.math.stat.descriptive.rank.Min;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -49,7 +49,7 @@ public final class FuturesPriceIssuerCalculator extends InstrumentDerivativeVisi
   //     -----     Futures     -----
 
   @Override
-  public Double visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity futures, final ParameterIssuerProviderInterface multicurve) {
+  public Double visitBondFuturesYieldAverageSecurity(final BondFuturesYieldAverageSecurity futures, final ParameterIssuerProviderInterface multicurve) {
     ArgumentChecker.notNull(futures, "futures");
     ArgumentChecker.notNull(futures, "multi-curve provider");
     final int nbBonds = futures.getDeliveryBasketAtDeliveryDate().length;

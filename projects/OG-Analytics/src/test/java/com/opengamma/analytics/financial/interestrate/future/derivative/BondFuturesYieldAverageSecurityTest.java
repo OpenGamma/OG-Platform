@@ -34,7 +34,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests related to the definition of Yield average bond futures (in particular for AUD-SFE futures).
  */
 @Test(groups = TestGroup.UNIT)
-public class YieldAverageBondFuturesTransactionTest {
+public class BondFuturesYieldAverageSecurityTest {
   
   // Bonds: Delivery basket SFE 10Y
   private static final Currency AUD = Currency.AUD;
@@ -77,41 +77,47 @@ public class YieldAverageBondFuturesTransactionTest {
   }
   private static final double SYNTHETIC_COUPON = 0.06;
   private static final int TENOR = 10;
-  private static final YieldAverageBondFuturesSecurity FUT_SEC = new YieldAverageBondFuturesSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, 
+  
+  private static final BondFuturesYieldAverageSecurity FUT_SEC = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, 
       BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
-  
-  // Transation
-  private static final int QUANTITY = 1234;
-  private static final double REFERENCE_PRICE = 0.95;
-  
-  private static final YieldAverageBondFuturesTransaction FUT_TRA = new YieldAverageBondFuturesTransaction(FUT_SEC, QUANTITY, REFERENCE_PRICE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullSecurity() {
-    new YieldAverageBondFuturesTransaction(null, QUANTITY, REFERENCE_PRICE);
+  public void nullBasketDelivery() {
+    new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, null, BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullBasketStandard() {
+    new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, null, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
   }
 
   @Test
   public void getter() {
-    assertEquals("YieldAverageBondFuturesTransaction: getter", FUT_SEC, FUT_TRA.getUnderlyingFuture());
-    assertEquals("YieldAverageBondFuturesTransaction: getter", QUANTITY, FUT_TRA.getQuantity());
-    assertEquals("YieldAverageBondFuturesTransaction: getter", REFERENCE_PRICE, FUT_TRA.getReferencePrice());
+    assertEquals("YieldAverageBondFuturesSecurity: getter", LAST_TRADING_TIME, FUT_SEC.getTradingLastTime());
+    assertEquals("YieldAverageBondFuturesSecurity: getter", SYNTHETIC_COUPON, FUT_SEC.getCouponRate());
+    assertEquals("YieldAverageBondFuturesSecurity: getter", TENOR, FUT_SEC.getTenor());
+    assertEquals("YieldAverageBondFuturesSecurity: getter", NOTIONAL_FUTURES, FUT_SEC.getNotional());
   }
   
   @Test
   public void equalHash() {
-    final YieldAverageBondFuturesTransaction other = new YieldAverageBondFuturesTransaction(FUT_SEC, QUANTITY, REFERENCE_PRICE);
-    assertEquals("YieldAverageBondFuturesTransactionDefinition: equal - hash", FUT_TRA, other);
-    assertEquals("YieldAverageBondFuturesSecurityDefinition: equal - hash", FUT_TRA.hashCode(), other.hashCode());
-    YieldAverageBondFuturesTransaction modified;
-    final YieldAverageBondFuturesSecurity futSecModified = new YieldAverageBondFuturesSecurity(LAST_TRADING_TIME+0.01, BASKET_SECURITY_SETTLEDELIVERY, 
-        BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
-    modified = new YieldAverageBondFuturesTransaction(futSecModified, QUANTITY, REFERENCE_PRICE);
-    assertFalse("YieldAverageBondFuturesSecurityDefinition: equal - hash", FUT_TRA.equals(modified));
-    modified = new YieldAverageBondFuturesTransaction(FUT_SEC, QUANTITY+1, REFERENCE_PRICE);
-    assertFalse("YieldAverageBondFuturesSecurityDefinition: equal - hash", FUT_TRA.equals(modified));
-    modified = new YieldAverageBondFuturesTransaction(FUT_SEC, QUANTITY, REFERENCE_PRICE*0.99);
-    assertFalse("YieldAverageBondFuturesSecurityDefinition: equal - hash", FUT_TRA.equals(modified));
+    final BondFuturesYieldAverageSecurity other = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, 
+      BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
+    assertEquals("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC, other);
+    assertEquals("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC.hashCode(), other.hashCode());
+    BondFuturesYieldAverageSecurity modified;
+    modified = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME+0.1, BASKET_SECURITY_SETTLEDELIVERY, BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
+    assertFalse("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC.equals(modified));
+    modified = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_STANDARD, BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
+    assertFalse("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC.equals(modified));
+    modified = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, BASKET_SECURITY_SETTLEDELIVERY, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
+    assertFalse("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC.equals(modified));
+    modified = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON+0.01, TENOR, NOTIONAL_FUTURES);
+    assertFalse("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC.equals(modified));
+    modified = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR+1, NOTIONAL_FUTURES);
+    assertFalse("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC.equals(modified));
+    modified = new BondFuturesYieldAverageSecurity(LAST_TRADING_TIME, BASKET_SECURITY_SETTLEDELIVERY, BASKET_SECURITY_STANDARD, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES*10);
+    assertFalse("YieldAverageBondFuturesSecurity: equal - hash", FUT_SEC.equals(modified));
   }
   
 }

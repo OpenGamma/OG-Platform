@@ -5,14 +5,13 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 
 /**
  * Transaction on a bond future security with cash settlement against a price deduced from a yield average. 
  * In particular used for AUD-SFE bond futures.
  */
-public class YieldAverageBondFuturesTransaction extends FuturesTransaction<YieldAverageBondFuturesSecurity> {
+public class BondFuturesYieldAverageTransaction extends FuturesTransaction<BondFuturesYieldAverageSecurity> {
 
   /**
    * Constructor
@@ -20,7 +19,7 @@ public class YieldAverageBondFuturesTransaction extends FuturesTransaction<Yield
    * @param quantity The transaction quantity.
    * @param referencePrice The reference price.
    */
-  public YieldAverageBondFuturesTransaction(final YieldAverageBondFuturesSecurity underlyingFuture, final int quantity, final double referencePrice) {
+  public BondFuturesYieldAverageTransaction(final BondFuturesYieldAverageSecurity underlyingFuture, final long quantity, final double referencePrice) {
     super(underlyingFuture, quantity, referencePrice);
   }
 
@@ -33,5 +32,5 @@ public class YieldAverageBondFuturesTransaction extends FuturesTransaction<Yield
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitYieldAverageBondFuturesTransaction(this);
   }
-  
+
 }

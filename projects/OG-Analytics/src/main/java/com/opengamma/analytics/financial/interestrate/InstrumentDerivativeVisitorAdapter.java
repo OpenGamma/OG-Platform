@@ -67,6 +67,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
@@ -79,8 +81,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -757,22 +759,22 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures, final DATA_TYPE data) {
+  public RESULT_TYPE visitBondFuturesYieldAverageSecurity(final BondFuturesYieldAverageSecurity bondFutures, final DATA_TYPE data) {
     return getException(bondFutures, data);
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures) {
+  public RESULT_TYPE visitBondFuturesYieldAverageSecurity(final BondFuturesYieldAverageSecurity bondFutures) {
     return getException(bondFutures);
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures, final DATA_TYPE data) {
+  public RESULT_TYPE visitYieldAverageBondFuturesTransaction(final BondFuturesYieldAverageTransaction bondFutures, final DATA_TYPE data) {
     return getException(bondFutures, data);
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures) {
+  public RESULT_TYPE visitYieldAverageBondFuturesTransaction(final BondFuturesYieldAverageTransaction bondFutures) {
     return getException(bondFutures);
   }
 
@@ -873,6 +875,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
+    return getException(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity option, final DATA_TYPE data) {
+    return getException(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity option) {
+    return getException(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginTransaction(final BondFuturesOptionMarginTransaction option, final DATA_TYPE data) {
+    return getException(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginTransaction(final BondFuturesOptionMarginTransaction option) {
     return getException(option);
   }
 

@@ -75,6 +75,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
@@ -87,8 +89,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -1525,23 +1527,43 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bondFuture, final T data) {
+    public String visitBondFuturesYieldAverageSecurityDefinition(final BondFuturesYieldAverageSecurityDefinition bondFuture, final T data) {
       return getValue(bondFuture, true);
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bondFuture) {
+    public String visitBondFuturesYieldAverageSecurityDefinition(final BondFuturesYieldAverageSecurityDefinition bondFuture) {
       return getValue(bondFuture, false);
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bondFuture, final T data) {
+    public String visitYieldAverageBondFuturesTransactionDefinition(final BondFuturesYieldAverageTransactionDefinition bondFuture, final T data) {
       return getValue(bondFuture, true);
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bondFuture) {
+    public String visitYieldAverageBondFuturesTransactionDefinition(final BondFuturesYieldAverageTransactionDefinition bondFuture) {
       return getValue(bondFuture, false);
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginSecurityDefinition(BondFuturesOptionMarginSecurityDefinition bondFutureOption, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginSecurityDefinition(BondFuturesOptionMarginSecurityDefinition bondFutureOption) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginTransactionDefinition(BondFuturesOptionMarginTransactionDefinition bondFutureOption, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginTransactionDefinition(BondFuturesOptionMarginTransactionDefinition bondFutureOption) {
+      return null;
     }
 
   }

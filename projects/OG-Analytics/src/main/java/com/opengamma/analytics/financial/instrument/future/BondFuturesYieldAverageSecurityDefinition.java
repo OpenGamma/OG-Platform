@@ -14,7 +14,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * In particular used for AUD-SFE bond futures.
  * <P>Reference: Add a reference.
  */
-public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDefinition<YieldAverageBondFuturesSecurity> {
+public class BondFuturesYieldAverageSecurityDefinition extends FuturesSecurityDefinition<BondFuturesYieldAverageSecurity> {
 
   /**
    * The number of days between notice date and delivery date.
@@ -64,7 +64,7 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
    * @param tenor The underlying synthetic bond tenor (in years).
    * @param notional The bond future notional.
    */
-  public YieldAverageBondFuturesSecurityDefinition(final ZonedDateTime tradingLastDate, final BondFixedSecurityDefinition[] deliveryBasket, final double couponRate,
+  public BondFuturesYieldAverageSecurityDefinition(final ZonedDateTime tradingLastDate, final BondFixedSecurityDefinition[] deliveryBasket, final double couponRate,
       final int tenor, final double notional) {
     super(tradingLastDate);
     ArgumentChecker.notNull(tradingLastDate, "Last trading date");
@@ -141,12 +141,12 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
    */
   @Deprecated
   @Override
-  public YieldAverageBondFuturesSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public BondFuturesYieldAverageSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new NotImplementedException("toDerivative with curve names not implemented.");
   }
 
   @Override
-  public YieldAverageBondFuturesSecurity toDerivative(final ZonedDateTime date) {
+  public BondFuturesYieldAverageSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getLastTradingDate()), "Date is after last trading date");
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
@@ -157,17 +157,17 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
       basketAtDelivery[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryDate);
       basketAtSpot[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, spotDate);
     }
-    return new YieldAverageBondFuturesSecurity(lastTradingTime, basketAtDelivery, basketAtDelivery, _couponRate, _tenor, _notional);
+    return new BondFuturesYieldAverageSecurity(lastTradingTime, basketAtDelivery, basketAtDelivery, _couponRate, _tenor, _notional);
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitYieldAverageBondFuturesSecurityDefinition(this, data);
+    return visitor.visitBondFuturesYieldAverageSecurityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitYieldAverageBondFuturesSecurityDefinition(this);
+    return visitor.visitBondFuturesYieldAverageSecurityDefinition(this);
   }
 
   @Override
@@ -201,7 +201,7 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
     if (getClass() != obj.getClass()) {
       return false;
     }
-    YieldAverageBondFuturesSecurityDefinition other = (YieldAverageBondFuturesSecurityDefinition) obj;
+    BondFuturesYieldAverageSecurityDefinition other = (BondFuturesYieldAverageSecurityDefinition) obj;
     if (Double.doubleToLongBits(_couponRate) != Double.doubleToLongBits(other._couponRate)) {
       return false;
     }

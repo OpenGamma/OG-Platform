@@ -63,6 +63,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
@@ -75,8 +77,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -347,14 +349,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture, DATA_TYPE data);
+  RESULT_TYPE visitBondFuturesYieldAverageSecurityDefinition(BondFuturesYieldAverageSecurityDefinition bondFuture, DATA_TYPE data);
 
   /**
    * Yield average bond future security method.
    * @param bondFuture A bond future security
    * @return The result
    */
-  RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture);
+  RESULT_TYPE visitBondFuturesYieldAverageSecurityDefinition(BondFuturesYieldAverageSecurityDefinition bondFuture);
 
   /**
    * Yield average bond future transaction method that takes data.
@@ -362,14 +364,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture, DATA_TYPE data);
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(BondFuturesYieldAverageTransactionDefinition bondFuture, DATA_TYPE data);
 
   /**
    * Yield average bond future transaction method.
    * @param bondFuture A bond future transaction
    * @return The result
    */
-  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture);
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(BondFuturesYieldAverageTransactionDefinition bondFuture);
 
   /**
    * Forward rate agreement method that takes data.
@@ -567,6 +569,36 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bondFutureOption);
+
+  /**
+   * Bond future option with margin security method that takes data.
+   * @param bondFutureOption A bond future option with margin security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginSecurityDefinition(BondFuturesOptionMarginSecurityDefinition bondFutureOption, DATA_TYPE data);
+
+  /**
+   * Bond future option with margin security method.
+   * @param bondFutureOption Bond future future option with margin security
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginSecurityDefinition(BondFuturesOptionMarginSecurityDefinition bondFutureOption);
+
+  /**
+   * Bond future option with margin transaction method that takes data.
+   * @param bondFutureOption A bond future option with margin transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginTransactionDefinition(BondFuturesOptionMarginTransactionDefinition bondFutureOption, DATA_TYPE data);
+
+  /**
+   * Bond future option with margin transaction method.
+   * @param bondFutureOption A bond future option with margin transaction
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginTransactionDefinition(BondFuturesOptionMarginTransactionDefinition bondFutureOption);
 
   // -----     Payment and coupon     -----
 
@@ -1996,4 +2028,3 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitEquityDefinition(EquityDefinition equity, DATA_TYPE data);
 }
-
