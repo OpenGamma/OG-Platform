@@ -19,23 +19,20 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Wraps another {@link ExecutorService} instance, ensuring {@link ThreadLocalServiceContext} is initialized before
- * every task is run and that it is cleared after every task completes.
+ * every task is run and that it is cleared after every task completes. {@link ThreadLocalServiceContext#init} is
+ * called on the pooled thread using the {@link ServiceContext} returned by
+ * {@link ThreadLocalServiceContext#getInstance()} on the thread that submits the task.
  */
 public class ServiceContextAwareExecutorService implements ExecutorService {
 
   /** Used to run the tasks. */
   private final ExecutorService _delegateExecutor;
 
-  /** The service context used to initialize {@link ThreadLocalServiceContext} before task execution. */
-  private final ServiceContext _serviceContext;
-
   /**
    * @param delegate the underlying {@link ExecutorService} used to execute tasks
-   * @param serviceContext used to configure {@link ThreadLocalServiceContext} before tasks are run
    */
-  public ServiceContextAwareExecutorService(ExecutorService delegate, ServiceContext serviceContext) {
+  public ServiceContextAwareExecutorService(ExecutorService delegate) {
     _delegateExecutor = ArgumentChecker.notNull(delegate, "delegate");
-    _serviceContext = ArgumentChecker.notNull(serviceContext, "serviceContext");
   }
 
   @Override
@@ -119,12 +116,16 @@ public class ServiceContextAwareExecutorService implements ExecutorService {
    * {@link Callable} implementation that sets up and tears down thread local {@link ServiceContext} bindings around
    * a call to a delegate {@link Callable} instance.
    */
-  private class ServiceContextAwareCallable<T> implements Callable<T> {
+  private final class ServiceContextAwareCallable<T> implements Callable<T> {
 
     private final Callable<T> _delegateCallable;
 
+    /** The service context used to initialize {@link ThreadLocalServiceContext} before task execution. */
+    private final ServiceContext _serviceContext;
+
     private ServiceContextAwareCallable(Callable<T> delegateCallable) {
       _delegateCallable = delegateCallable;
+      _serviceContext = ThreadLocalServiceContext.getInstance();
     }
 
     @Override
@@ -142,12 +143,16 @@ public class ServiceContextAwareExecutorService implements ExecutorService {
    * {@link Runnable} implementation that sets up and tears down thread local {@link ServiceContext} bindings around
    * a call to a delegate {@link Runnable} instance.
    */
-  private class ServiceContextAwareRunnable implements Runnable {
+  private final class ServiceContextAwareRunnable implements Runnable {
 
     private final Runnable _delegateRunnable;
 
+    /** The service context used to initialize {@link ThreadLocalServiceContext} before task execution. */
+    private final ServiceContext _serviceContext;
+
     private ServiceContextAwareRunnable(Runnable delegateRunnable) {
       _delegateRunnable = delegateRunnable;
+      _serviceContext = ThreadLocalServiceContext.getInstance();
     }
 
     @Override

@@ -5,6 +5,8 @@
  */
 package com.opengamma.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -17,6 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
@@ -29,9 +33,18 @@ import com.opengamma.util.test.TestGroup;
 @SuppressWarnings("unchecked")
 public class ServiceContextAwareExecutorServiceTest {
 
-  private final ServiceContext _serviceContext = ServiceContext.of(Collections.<Class<?>, Object>emptyMap());
   private final ExecutorService _underlying = Executors.newSingleThreadExecutor();
-  private final ExecutorService _executor = new ServiceContextAwareExecutorService(_underlying, _serviceContext);
+  private final ExecutorService _executor = new ServiceContextAwareExecutorService(_underlying);
+
+  @BeforeMethod
+  public void setUp() throws Exception {
+    ThreadLocalServiceContext.init(ServiceContext.of(Collections.<Class<?>, Object>emptyMap()));
+  }
+
+  @AfterMethod
+  public void tearDown() throws Exception {
+    ThreadLocalServiceContext.init(null);
+  }
 
   @Test
   public void submitCallable() throws ExecutionException, InterruptedException {
@@ -72,6 +85,36 @@ public class ServiceContextAwareExecutorServiceTest {
     List<Callable<Boolean>> tasks1 = Lists.newArrayList(callable(), callable());
     List<Future<Boolean>> futures1 = _underlying.invokeAll(tasks1);
     assertTrue(Iterables.all(futures1, Predicates.not(predicate())));
+  }
+
+  @Test
+  public void amendContext() throws InterruptedException, ExecutionException {
+    ThreadLocalServiceContext.init(ServiceContext.of(String.class, "StringService"));
+    ExecutorService executor = new ServiceContextAwareExecutorService(_underlying);
+    assertThat(executor.submit(stringCallable()).get(), is("WithString"));
+
+    // Now change to a different context, without StringService
+    ThreadLocalServiceContext.init(ServiceContext.of(Integer.class, 42));
+
+    assertThat(executor.submit(stringCallable()).get(), is("WithoutString"));
+  }
+
+  private Callable<String> stringCallable() {
+    return new Callable<String>() {
+      @Override
+      public String call() throws Exception {
+
+        if (ThreadLocalServiceContext.getInstance() == null) {
+          return "None";
+        }
+        try {
+          ThreadLocalServiceContext.getInstance().get(String.class);
+          return "WithString";
+        } catch (IllegalArgumentException e) {
+          return "WithoutString";
+        }
+      }
+    };
   }
 
   private Predicate<Future<Boolean>> predicate() {
