@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;
+/*import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;*/
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,7 +58,6 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -430,9 +429,8 @@ public class BondAndBondFutureTradeWithEntityConverter {
           throw new OpenGammaRuntimeException("Ibor index with id " + indexId + " was null");
         }
         final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
+
         final IndexPrice priceIndex = new IndexPrice(indexSecurity.getName(), currency);
-        /* final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
-         final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);*/
         final Calendar calendar;
         // If the bond is Supranational, we use the calendar derived from the currency of the bond.
         // this may need revisiting.
@@ -447,7 +445,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
         final ZoneId zone = bond.getInterestAccrualDate().getZone();
         final ZonedDateTime firstAccrualDate = ZonedDateTime.of(bond.getInterestAccrualDate().toLocalDate().atStartOfDay(), zone);
         final ZonedDateTime maturityDate = ZonedDateTime.of(bond.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
-        final int monthLag = _conventionSource.getSingle(getIds(currency, INFLATION_LEG), InflationLegConvention.class).getMonthLag();
+        final int monthLag = Integer.parseInt(bond.attributes().get().get("InflationLag"));
         final double rate = bond.getCouponRate() / 100;
         final DayCount dayCount = bond.getDayCount();
         final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING; //bond.getBusinessDayConvention();
