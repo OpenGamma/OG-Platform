@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InflationIssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.model.curve.forward.InstantaneousForwardCurveFunction;
 import com.opengamma.financial.analytics.parameters.G2ppParameters;
@@ -225,6 +226,8 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         final String curveConfigName) {
       if (curveTypeConfigClasses.contains(InflationCurveTypeConfiguration.class)) {
         functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
+      } else if (curveTypeConfigClasses.contains(InflationIssuerCurveTypeConfiguration.class)) {
+        functions.add(functionConfiguration(InflationIssuerProviderDiscountingFunction.class, curveConfigName));
       } else if (curveTypeConfigClasses.contains(IssuerCurveTypeConfiguration.class)) {
         functions.add(functionConfiguration(IssuerProviderDiscountingFunction.class, curveConfigName));
         functions.add(functionConfiguration(IssuerProviderInterpolatedFunction.class, curveConfigName));

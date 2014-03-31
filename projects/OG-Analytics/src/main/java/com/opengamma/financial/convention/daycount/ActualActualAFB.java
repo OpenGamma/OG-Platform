@@ -34,7 +34,7 @@ public class ActualActualAFB extends ActualTypeDayCount {
     if (d.isLeapYear() && d.getMonth() == Month.FEBRUARY && d.getDayOfMonth() == 28) {
       d = d.plusDays(1);
     }
-    return schedule.length + getDayCountFraction(firstDate, d);
+    return schedule.length - 1.0 + getDayCountFraction(firstDate, d);
   }
 
   @Override

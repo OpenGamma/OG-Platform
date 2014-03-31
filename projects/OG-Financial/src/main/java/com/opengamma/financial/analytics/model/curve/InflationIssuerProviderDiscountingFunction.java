@@ -85,7 +85,7 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
-import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InflationIssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
@@ -103,7 +103,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * 
+ * Produces price index curves using the discounting method. The object return contian issuer discount curves from the known data.
  */
 public class InflationIssuerProviderDiscountingFunction extends
 
@@ -111,7 +111,7 @@ public class InflationIssuerProviderDiscountingFunction extends
 
   /** The logger */
 
-  private static final Logger s_logger = LoggerFactory.getLogger(InflationProviderDiscountingFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationIssuerProviderDiscountingFunction.class);
   /** The calculator */
 
   private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteIssuerDiscountingCalculator.getInstance();
@@ -247,8 +247,8 @@ public class InflationIssuerProviderDiscountingFunction extends
             derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
           } // Node points - end
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
-            if (type instanceof InflationCurveTypeConfiguration) {
-              final InflationCurveTypeConfiguration inflationConfiguration = (InflationCurveTypeConfiguration) type;
+            if (type instanceof InflationIssuerCurveTypeConfiguration) {
+              final InflationIssuerCurveTypeConfiguration inflationConfiguration = (InflationIssuerCurveTypeConfiguration) type;
               final Security sec = securitySource.getSingle(inflationConfiguration.getPriceIndex().toBundle());
               if (sec == null) {
                 throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationConfiguration.getPriceIndex()
