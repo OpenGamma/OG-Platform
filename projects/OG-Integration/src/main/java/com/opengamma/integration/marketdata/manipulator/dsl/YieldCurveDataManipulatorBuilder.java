@@ -87,7 +87,7 @@ public class YieldCurveDataManipulatorBuilder {
    * @param shifts The shifts to apply to the curve data
    * @return the point shifts builder
    */
-  public final YieldCurveDataManipulatorBuilder pointShifts(ScenarioShiftType shiftType, YieldCurvePointShift... shifts) {
+  public final YieldCurveDataManipulatorBuilder pointShifts(ScenarioShiftType shiftType, YieldCurveDataPointShift... shifts) {
     ArgumentChecker.notNull(shiftType, "shiftType");
     ArgumentChecker.notEmpty(shifts, "shifts");
     YieldCurveDataPointShiftsManipulator manipulator =

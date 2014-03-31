@@ -23,13 +23,11 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
@@ -63,15 +61,19 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
   public YieldCurve execute(YieldCurve curve, ValueSpecification valueSpec, FunctionExecutionContext executionContext) {
     final List<Double> points = new ArrayList<>();
     final List<Double> shifts = new ArrayList<>();
-    ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     ShiftType shiftType = _shiftType.toAnalyticsType();
+    Double[] xData = curve.getCurve().getXData();
 
     for (YieldCurvePointShift shift : _pointShifts) {
-      double years = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getTenor()));
-      points.add(years);
+      int index = shift.getPointIndex();
+
+      if (index >= xData.length) {
+        throw new IllegalArgumentException("Shift index " + index + " is out of bounds, curve has " + xData.length + " points");
+      }
+      points.add(xData[index]);
 
       if (shiftType == ShiftType.RELATIVE) {
-        // add shifts to 1. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
+        // add shifts to 1. i.e. 10.pc actually means 'value * 1.1' and -10.pc means 'value * 0.9'
         shifts.add(shift.getShift() + 1);
       } else {
         shifts.add(shift.getShift());

@@ -59,7 +59,7 @@ public class YieldCurveManipulatorBuilderTest {
 
   @Test
   public void pointShifts() {
-    _builder.pointShifts(ScenarioShiftType.ABSOLUTE, pointShift(Period.ofYears(1), 2));
+    _builder.pointShifts(ScenarioShiftType.ABSOLUTE, pointShift(1, 2));
     
     YieldCurvePointShiftManipulator result = (YieldCurvePointShiftManipulator)_manipulatorResult;
     
@@ -67,7 +67,7 @@ public class YieldCurveManipulatorBuilderTest {
     
     YieldCurvePointShift shift = result.getPointShifts().get(0);
     
-    assertEquals(Period.ofYears(1), shift.getTenor());
-    assertEquals(2., shift.getShift());
+    assertEquals(1, shift.getPointIndex());
+    assertEquals(2d, shift.getShift());
   }
 }

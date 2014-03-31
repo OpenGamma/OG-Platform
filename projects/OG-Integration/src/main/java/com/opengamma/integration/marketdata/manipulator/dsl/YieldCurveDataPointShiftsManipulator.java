@@ -53,10 +53,10 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
   private final ScenarioShiftType _shiftType;
 
   @PropertyDefinition(validate = "notNull")
-  private final List<YieldCurvePointShift> _shifts;
+  private final List<YieldCurveDataPointShift> _shifts;
 
   @ImmutableConstructor
-  public YieldCurveDataPointShiftsManipulator(ScenarioShiftType shiftType, List<YieldCurvePointShift> shifts) {
+  public YieldCurveDataPointShiftsManipulator(ScenarioShiftType shiftType, List<YieldCurveDataPointShift> shifts) {
     _shiftType = ArgumentChecker.notNull(shiftType, "shiftType");
     _shifts = ImmutableList.copyOf(ArgumentChecker.notEmpty(shifts, "shiftList"));
   }
@@ -68,7 +68,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
     ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     Map<ExternalIdBundle, Double> data = Maps.newHashMap(curveData.getDataPoints());
     Map<ExternalId, ExternalIdBundle> index = curveData.getIndex();
-    for (YieldCurvePointShift shift : _shifts) {
+    for (YieldCurveDataPointShift shift : _shifts) {
       for (FixedIncomeStripWithSecurity strip : curveData.getCurveSpecification().getStrips()) {
         Period stripPeriod = strip.getTenor().getPeriod();
         Period shiftPeriod = shift.getTenor();
@@ -166,7 +166,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
    * Gets the shifts.
    * @return the value of the property, not null
    */
-  public List<YieldCurvePointShift> getShifts() {
+  public List<YieldCurveDataPointShift> getShifts() {
     return _shifts;
   }
 
@@ -234,7 +234,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
      * The meta-property for the {@code shifts} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<YieldCurvePointShift>> _shifts = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<List<YieldCurveDataPointShift>> _shifts = DirectMetaProperty.ofImmutable(
         this, "shifts", YieldCurveDataPointShiftsManipulator.class, (Class) List.class);
     /**
      * The meta-properties.
@@ -289,7 +289,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
      * The meta-property for the {@code shifts} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<YieldCurvePointShift>> shifts() {
+    public MetaProperty<List<YieldCurveDataPointShift>> shifts() {
       return _shifts;
     }
 
@@ -323,7 +323,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
   public static final class Builder extends DirectFieldsBeanBuilder<YieldCurveDataPointShiftsManipulator> {
 
     private ScenarioShiftType _shiftType;
-    private List<YieldCurvePointShift> _shifts = new ArrayList<YieldCurvePointShift>();
+    private List<YieldCurveDataPointShift> _shifts = new ArrayList<YieldCurveDataPointShift>();
 
     /**
      * Restricted constructor.
@@ -337,7 +337,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
      */
     private Builder(YieldCurveDataPointShiftsManipulator beanToCopy) {
       this._shiftType = beanToCopy.getShiftType();
-      this._shifts = new ArrayList<YieldCurvePointShift>(beanToCopy.getShifts());
+      this._shifts = new ArrayList<YieldCurveDataPointShift>(beanToCopy.getShifts());
     }
 
     //-----------------------------------------------------------------------
@@ -361,7 +361,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
           this._shiftType = (ScenarioShiftType) newValue;
           break;
         case -903338959:  // shifts
-          this._shifts = (List<YieldCurvePointShift>) newValue;
+          this._shifts = (List<YieldCurveDataPointShift>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -417,7 +417,7 @@ public final class YieldCurveDataPointShiftsManipulator implements StructureMani
      * @param shifts  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder shifts(List<YieldCurvePointShift> shifts) {
+    public Builder shifts(List<YieldCurveDataPointShift> shifts) {
       JodaBeanUtils.notNull(shifts, "shifts");
       this._shifts = shifts;
       return this;
