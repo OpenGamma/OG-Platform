@@ -104,6 +104,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    */
   public InflationIssuerProviderDiscount(final IssuerProviderDiscount issuerProvider) {
     _inflationProvider = new InflationProviderDiscount();
+    _inflationProvider.setAll(new InflationProviderDiscount(issuerProvider.getMulticurveProvider()));
     _issuerCurves = issuerProvider.getIssuerCurves();
   }
 
