@@ -106,9 +106,11 @@ public class PortfolioReader {
 
     SimplePosition posn = new SimplePosition();
     posn.setQuantity(position.getQuantity());
-    posn.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
+    ManageableSecurityLink securityLink = ManageableSecurityLink.of(security);
+    posn.setSecurityLink(securityLink);
 
     for (ManageableTrade trade : position.getTrades()) {
+      trade.setSecurityLink(securityLink);
       posn.addTrade(trade);
     }
     posn.setAttributes(position.getAttributes());

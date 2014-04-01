@@ -56,6 +56,9 @@ public class PortfolioReaderTest {
     List<Position> positions = portfolio.getRootNode().getPositions();
     assertThat(positions.size(), is(1));
     assertThat(positions.get(0).getSecurityLink().getExternalId(), is(idBundle));
+
+    // Check trade has security id on too
+    assertThat(positions.get(0).getTrades().iterator().next().getSecurityLink().getExternalId(), is(idBundle));
   }
 
   @Test
@@ -80,6 +83,9 @@ public class PortfolioReaderTest {
     List<Position> positions = portfolio.getRootNode().getPositions();
     assertThat(positions.size(), is(1));
     assertThat(positions.get(0).getSecurityLink().getExternalId(), is(idBundle));
+
+    // Check trade has security id on too
+    assertThat(positions.get(0).getTrades().iterator().next().getSecurityLink().getExternalId(), is(idBundle));
   }
 
 
