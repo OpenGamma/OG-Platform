@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapita
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
@@ -182,8 +183,12 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
     }
 
     if (yieldConvention.getName().equals(INDEX_LINKED_FLOAT.getName())) {
-
-      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      double realRate = 0.0;
+      if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationGearing) {
+        realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      } else if (bond.getCoupon().getNthPayment(1) instanceof CouponFixed) {
+        realRate = ((CouponFixed) bond.getCoupon().getNthPayment(1)).getFixedRate();
+      }
       double firstYearFraction = 0.0;
       double firstCouponEndFixingTime = 0.0;
       if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {

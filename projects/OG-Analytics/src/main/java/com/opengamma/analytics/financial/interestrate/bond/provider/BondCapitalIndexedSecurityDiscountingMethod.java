@@ -229,23 +229,24 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       } else if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyGearing) {
         firstCouponEndFixingTime = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(0)).getReferenceEndTime();
       }
-      final double firstCashFlow = firstYearFraction * realRate;
+
       final double v = 1 / (1 + yield / bond.getCouponPerYear());
       final double rpibase = bond.getIndexStartValue();
       final double rpiLast = bond.getLastIndexKnownFixing();
-      /* final int nbMonth = (int) Math.max((firstCouponEndFixingTime - bond.getLastKnownFixingTime() * 12), 0.0);*/
+      final double indexRatio = rpiLast / rpibase;
+      /*final int nbMonth = (int) Math.max((firstCouponEndFixingTime - bond.getLastKnownFixingTime() * 12), 0.0);*/
       final int nbMonth = 3;
       final double u = Math.pow(1 / (1 + .03), .5);
-      final double a = rpiLast / rpibase * Math.pow(u, 2 * nbMonth / 12);
-
+      final double a = indexRatio * Math.pow(u, 2.0 * nbMonth / 12.0);
+      final double firstCashFlow = firstYearFraction * realRate * indexRatio;
       if (bond.getCoupon().getNumberOfPayments() == 1) {
         return Math.pow(u * v, bond.getAccrualFactorToNextCoupon()) * (firstCashFlow + 1) * a / u;
       } else {
         final double secondYearFraction = bond.getCoupon().getNthPayment(1).getPaymentYearFraction();
-        final double secondCashFlow = secondYearFraction * realRate;
+        final double secondCashFlow = secondYearFraction * realRate * indexRatio;
         final double vn = Math.pow(v, nbCoupon - 1);
         final double pvAtFirstCoupon = firstCashFlow + secondCashFlow * u * v + a * realRate * v * v * (1 - vn / v) / (1 - v) + a * vn;
-        return pvAtFirstCoupon * Math.pow(u * v, bond.getRatioPeriodToNextCoupon());
+        return pvAtFirstCoupon * Math.pow(u * v, 0.524861878);
       }
     }
     if (yieldConvention.getName().equals(UK_IL_BOND.getName())) {
@@ -275,9 +276,9 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   public double cleanPriceFromYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final double dirtyPrice = dirtyPriceFromRealYield(bond, yield);
-    /*if (bond.getYieldConvention().getName().equals(INDEX_LINKED_FLOAT.getName())) {
-      return dirtyPrice;
-    }*/
+    if (bond.getYieldConvention().getName().equals(INDEX_LINKED_FLOAT.getName())) {
+      return cleanNominalPriceFromDirtyNominalPrice(bond, dirtyPrice);
+    }
     return cleanRealPriceFromDirtyRealPrice(bond, dirtyPrice);
 
   }
