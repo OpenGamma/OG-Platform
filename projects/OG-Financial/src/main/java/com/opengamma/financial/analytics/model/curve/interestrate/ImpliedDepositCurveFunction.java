@@ -279,7 +279,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
 
       for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
         final Tenor tenor = strip.getCurveNodePointTime();
-        final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+        final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, false);
         final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
         final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
         final double accrualFactor = dayCount.getDayCountFraction(spotDate, paymentDate, calendar);

@@ -305,7 +305,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
             if (spotLag == 0 && conventionSettlementRegion == null) {
               paymentDate = spotDate.plus(tenor.getPeriod()); 
             } else {
-              paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+              paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, false);
             }
             final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
             final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);

@@ -247,7 +247,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
           if (spotLag == 0 && conventionSettlementRegion == null) {
             paymentDate = spotDate.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
           } else {
-            paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+            paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, false);
           }
   
           final Double forwardValue = forwardTS.getValue(valuationDate);

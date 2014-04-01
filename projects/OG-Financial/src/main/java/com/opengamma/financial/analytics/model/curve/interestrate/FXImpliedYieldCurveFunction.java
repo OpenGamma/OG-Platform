@@ -225,7 +225,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         if (spotLag == 0 && conventionSettlementRegion == null) {
           paymentDate = now.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
         } else {
-          paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+          paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, false);
         }
         final double paymentTime = TimeCalculator.getTimeBetween(now, paymentDate);
         final double forwardFX = invertFXQuotes ? 1 / fxForwardData.get(identifier) : fxForwardData.get(identifier);
