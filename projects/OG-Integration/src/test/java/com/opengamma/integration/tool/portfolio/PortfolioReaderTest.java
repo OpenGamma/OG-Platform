@@ -13,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.testng.annotations.AfterMethod;
@@ -20,6 +21,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.Position;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePositionReader;
 import com.opengamma.master.security.ManageableSecurity;
@@ -48,7 +50,12 @@ public class PortfolioReaderTest {
 
     Set<ManageableSecurity> securities = pair.getSecond();
     assertThat(securities.size(), is(1));
-    assertThat(securities.iterator().next().getExternalIdBundle(), is(ExternalIdBundle.of("EIFO_ID", "EIFO1234")));
+    final ExternalIdBundle idBundle = securities.iterator().next().getExternalIdBundle();
+    assertThat(idBundle, is(ExternalIdBundle.of("EIFO_ID", "EIFO1234")));
+
+    List<Position> positions = portfolio.getRootNode().getPositions();
+    assertThat(positions.size(), is(1));
+    assertThat(positions.get(0).getSecurityLink().getExternalId(), is(idBundle));
   }
 
   @Test
@@ -58,8 +65,7 @@ public class PortfolioReaderTest {
     populateFileWithData(data);
 
     PortfolioReader portfolioReader = new PortfolioReader(new SingleSheetSimplePositionReader(_tempFile.getAbsolutePath(), "StandardVanillaCDS"),
-                                                             "CDS Portfolio"
-    );
+                                                             "CDS Portfolio");
 
     Pair<Portfolio, Set<ManageableSecurity>> pair = portfolioReader.createPortfolio();
     Portfolio portfolio = pair.getFirst();
@@ -68,7 +74,12 @@ public class PortfolioReaderTest {
     Set<ManageableSecurity> securities = pair.getSecond();
     assertThat(securities.size(), is(1));
     // We expect an external id to be generated for us
-    assertThat(securities.iterator().next().getExternalIdBundle().isEmpty(), is(false));
+    ExternalIdBundle idBundle = securities.iterator().next().getExternalIdBundle();
+    assertThat(idBundle.isEmpty(), is(false));
+
+    List<Position> positions = portfolio.getRootNode().getPositions();
+    assertThat(positions.size(), is(1));
+    assertThat(positions.get(0).getSecurityLink().getExternalId(), is(idBundle));
   }
 
 

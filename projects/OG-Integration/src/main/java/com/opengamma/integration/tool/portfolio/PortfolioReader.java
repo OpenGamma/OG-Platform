@@ -19,6 +19,7 @@ import com.opengamma.integration.copier.portfolio.reader.PositionReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -75,14 +76,16 @@ public class PortfolioReader {
     while ((positionData = _positionReader.readNext()) != null) {
 
       ManageablePosition manageablePosition = positionData.getFirst();
-      Position position = convertPosition(manageablePosition);
 
-      for (ManageableSecurity security : positionData.getSecond()) {
+      ManageableSecurity security = positionData.getSecond()[0];
+      if (security.getExternalIdBundle().isEmpty()) {
+        security.setExternalIdBundle(generateNewId());
+      }
 
-        if (security.getExternalIdBundle().isEmpty()) {
-          security.setExternalIdBundle(generateNewId());
-        }
-        securities.add(security);
+      Position position = convertPosition(manageablePosition, security);
+
+      for (ManageableSecurity sec : positionData.getSecond()) {
+        securities.add(sec);
       }
 
       rootNode.addPosition(position);
@@ -99,11 +102,11 @@ public class PortfolioReader {
     return ExternalIdBundle.of("OG_GENERATED_ID", id);
   }
 
-  private Position convertPosition(ManageablePosition position) {
+  private Position convertPosition(ManageablePosition position, ManageableSecurity security) {
 
     SimplePosition posn = new SimplePosition();
     posn.setQuantity(position.getQuantity());
-    posn.setSecurityLink(position.getSecurityLink());
+    posn.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
 
     for (ManageableTrade trade : position.getTrades()) {
       posn.addTrade(trade);

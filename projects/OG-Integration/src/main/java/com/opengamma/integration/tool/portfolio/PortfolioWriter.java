@@ -91,6 +91,10 @@ public class PortfolioWriter {
 
     for (ManageableSecurity security : securities) {
 
+      if (security.getExternalIdBundle().isEmpty()) {
+        throw new OpenGammaRuntimeException("Unable to persist security with no external id: " + security);
+      }
+
       if (_write) {
         final ManageableSecurity updated = SecurityMasterUtils.addOrUpdateSecurity(_securityMaster, security);
         if (updated == null) {
@@ -145,6 +149,11 @@ public class PortfolioWriter {
 
     List<ManageablePosition> added = new ArrayList<>();
     for (Position position : portfolio.getRootNode().getPositions()) {
+
+
+      if (position.getSecurityLink() == null || position.getSecurityLink().getExternalId().isEmpty()) {
+        throw new OpenGammaRuntimeException("Unable to persist position with no security external id: " + position);
+      }
 
       ManageablePosition manageablePosition = new ManageablePosition(position.getQuantity(),
                                                                      position.getSecurityLink().getExternalId());

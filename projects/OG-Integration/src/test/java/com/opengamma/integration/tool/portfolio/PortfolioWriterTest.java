@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
@@ -55,7 +56,6 @@ public class PortfolioWriterTest {
     _recorder = new MasterRecorder();
   }
 
-
   @Test
   public void testNewPortfolioInsertsSecurityPositionPortfolio() {
 
@@ -81,6 +81,72 @@ public class PortfolioWriterTest {
     assertThat(_recorder._positions.get(0).getQuantity(), is(BigDecimal.valueOf(1000)));
     assertThat(_recorder.countPortfolioAdditions(), is(1));
     assertThat(_recorder._portfolios.get(0).getPortfolio().getName(), is(portfolioName));
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testCannotInsertSecurityWithoutIdBundle() {
+
+    PortfolioWriter persister = new PortfolioWriter(true, mockPortfolioMaster(), mockPositionMaster(),
+                                                    mockSecurityMaster());
+
+    String portfolioName = "TestPortfolio";
+    SimplePortfolioNode root = new SimplePortfolioNode(portfolioName);
+    ManageableSecurity security = new ManageableSecurity("SEC_TYPE_TEST");
+    security.setName("TestSec");
+    Set<ManageableSecurity> securities = ImmutableSet.of(security);
+    SimplePosition position = new SimplePosition();
+    position.setQuantity(BigDecimal.valueOf(1000));
+    root.addPosition(position);
+    SimplePortfolio pf = new SimplePortfolio(portfolioName, root);
+
+    persister.write(pf, securities);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testCannotInsertPositionWithEmptySecurityIdBundle() {
+
+    PortfolioWriter persister = new PortfolioWriter(true, mockPortfolioMaster(), mockPositionMaster(),
+                                                    mockSecurityMaster());
+
+    String portfolioName = "TestPortfolio";
+    SimplePortfolioNode root = new SimplePortfolioNode(portfolioName);
+    ExternalIdBundle securityKey = ExternalIdBundle.of("TEST", "1234");
+    ManageableSecurity security = new ManageableSecurity("SEC_TYPE_TEST");
+    security.setName("TestSec");
+    security.setExternalIdBundle(securityKey);
+    Set<ManageableSecurity> securities = ImmutableSet.of(security);
+
+    // Create position with empty Id bundle
+    root.addPosition(new SimplePosition(BigDecimal.valueOf(1000), ExternalIdBundle.EMPTY));
+
+    SimplePortfolio pf = new SimplePortfolio(portfolioName, root);
+
+    persister.write(pf, securities);
+
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testCannotInsertPositionWithNullSecurityIdBundle() {
+
+    PortfolioWriter persister = new PortfolioWriter(true, mockPortfolioMaster(), mockPositionMaster(),
+                                                    mockSecurityMaster());
+
+    String portfolioName = "TestPortfolio";
+    SimplePortfolioNode root = new SimplePortfolioNode(portfolioName);
+    ExternalIdBundle securityKey = ExternalIdBundle.of("TEST", "1234");
+    ManageableSecurity security = new ManageableSecurity("SEC_TYPE_TEST");
+    security.setName("TestSec");
+    security.setExternalIdBundle(securityKey);
+    Set<ManageableSecurity> securities = ImmutableSet.of(security);
+
+    // Create position with null Id bundle
+    SimplePosition position = new SimplePosition();
+    position.setQuantity(BigDecimal.valueOf(1000));
+    root.addPosition(position);
+
+    SimplePortfolio pf = new SimplePortfolio(portfolioName, root);
+
+    persister.write(pf, securities);
   }
 
   @Test
