@@ -176,6 +176,9 @@ public class PortfolioWriter {
 
     List<ManageableTrade> converted = new ArrayList<>();
     for (Trade trade : position.getTrades()) {
+      if (trade.getSecurityLink().getExternalId().isEmpty()) {
+        throw new OpenGammaRuntimeException("Unable to persist trade with no security external id: " + trade);
+      }
       converted.add(new ManageableTrade(trade));
     }
     return converted;

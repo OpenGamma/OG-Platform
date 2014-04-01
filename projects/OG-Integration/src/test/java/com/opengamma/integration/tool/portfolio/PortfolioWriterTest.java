@@ -22,13 +22,19 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -122,7 +128,33 @@ public class PortfolioWriterTest {
     SimplePortfolio pf = new SimplePortfolio(portfolioName, root);
 
     persister.write(pf, securities);
+  }
 
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testCannotInsertTradeWithEmptySecurityIdBundle() {
+
+    PortfolioWriter persister = new PortfolioWriter(true, mockPortfolioMaster(), mockPositionMaster(),
+                                                    mockSecurityMaster());
+
+    String portfolioName = "TestPortfolio";
+    SimplePortfolioNode root = new SimplePortfolioNode(portfolioName);
+    ExternalIdBundle securityKey = ExternalIdBundle.of("TEST", "1234");
+    ManageableSecurity security = new ManageableSecurity("SEC_TYPE_TEST");
+    security.setName("TestSec");
+    security.setExternalIdBundle(securityKey);
+    Set<ManageableSecurity> securities = ImmutableSet.of(security);
+
+    // Create position with empty Id bundle
+    SimplePosition position = new SimplePosition(BigDecimal.valueOf(1000), securityKey);
+    position.addTrade(new SimpleTrade(new SimpleSecurityLink(ExternalIdBundle.EMPTY), BigDecimal.valueOf(1000),
+                                      new SimpleCounterparty(ExternalId.of("CP", "123")), LocalDate.of(2014, 5, 1),
+                                      OffsetTime.MAX));
+
+    root.addPosition(position);
+
+    SimplePortfolio pf = new SimplePortfolio(portfolioName, root);
+
+    persister.write(pf, securities);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
