@@ -177,7 +177,8 @@ public class CalendarSwapNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return null;
+    final int m = 1; // TODO [PLAT-6313]: Review: How to get the Roll date adjuster period?
+    return Tenor.of(getStartTenor().getPeriod().plusMonths(m * getEndDateNumber()));
   }
 
   @Override

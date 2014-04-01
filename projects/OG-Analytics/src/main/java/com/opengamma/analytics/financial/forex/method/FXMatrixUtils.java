@@ -42,7 +42,7 @@ public class FXMatrixUtils {
     final Set<Currency> set2 = matrix2.getCurrencies().keySet();
     final Set<Currency> intersection = Sets.intersection(set1, set2);
     if (intersection.isEmpty()) {
-      throw new OpenGammaRuntimeException("Currency sets of the two matrix don't have an interesection");
+      throw new OpenGammaRuntimeException("Currency sets of the two matrices don't have an intersection");
     }
     final Currency ccyCommon = intersection.iterator().next(); // Implementation note: take any currency in the intersection.
     // Implementation note: New matrix with the same element as matrix1
