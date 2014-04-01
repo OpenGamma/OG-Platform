@@ -457,15 +457,20 @@ public class BondAndBondFutureTradeWithEntityConverter {
         if (bond.getCouponType().equals("NONE") || bond.getCouponType().equals("ZERO COUPON")) { //TODO find where string is
           return new PaymentFixedDefinition(currency, maturityDate, 1);
         }
-        if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
-          throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
-        }
-        final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
+        final int settlementDays = Integer.parseInt(bond.attributes().get().get("daysToSettle"));
         final Period paymentPeriod = getTenor(bond.getCouponFrequency());
         final double baseCPI = Double.parseDouble(bond.attributes().get().get("BaseCPI"));
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
-        return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
-            calendar, dayCount, yieldConvention, isEOM, legalEntity);
+        final String interpolationMethod = bond.attributes().get().get("BaseCPI");
+        if ("Monthly".equals(interpolationMethod)) {
+          return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
+              calendar, dayCount, yieldConvention, isEOM, legalEntity);
+        } else if ("Daily".equals(interpolationMethod)) {
+          return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
+              calendar, dayCount, yieldConvention, isEOM, legalEntity);
+        } else {
+          throw new OpenGammaRuntimeException("Bond interpolation method is not valid");
+        }
       }
     });
   }

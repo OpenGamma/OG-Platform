@@ -57,6 +57,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INTERPOLATION_FOR_COUPON_CALC;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.HashSet;
@@ -157,7 +158,8 @@ public class BondLoader extends SecurityLoader {
       FIELD_RESET_IDX,
       FIELD_PARSEKYABLE_DES,
       FIELD_ID_BB_SEC_NUM_DES,
-      FIELD_INFLATION_LAG);
+      FIELD_INFLATION_LAG, 
+      FIELD_INTERPOLATION_FOR_COUPON_CALC);
 
   /**
    * The valid Bloomberg security types for Bond
@@ -346,6 +348,8 @@ public class BondLoader extends SecurityLoader {
         final String referenceIndexStr = validateAndGetStringField(fieldData, FIELD_REFERENCE_INDEX);
         final String baseCPI = validateAndGetStringField(fieldData, FIELD_BASE_CPI); // keep as string because going into attributes
         final String inflationLag = validateAndGetStringField(fieldData, FIELD_INFLATION_LAG);
+        final String daysToSettle = validateAndGetStringField(fieldData, FIELD_DAYS_TO_SETTLE);
+        final String interpolationMethod = validateAndGetStringField(fieldData, FIELD_INTERPOLATION_FOR_COUPON_CALC);
         final ExternalId referenceIndex = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, referenceIndexStr);
         bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
@@ -357,6 +361,8 @@ public class BondLoader extends SecurityLoader {
         ((BondSecurity) bondSecurity).addAttribute("BaseCPI", baseCPI);
         ((BondSecurity) bondSecurity).addAttribute("ReferenceIndexId", referenceIndex.toString());
         ((BondSecurity) bondSecurity).addAttribute("InflationLag", inflationLag);
+        ((BondSecurity) bondSecurity).addAttribute("daysToSettle", daysToSettle);
+        ((BondSecurity) bondSecurity).addAttribute("interpolationMethod", interpolationMethod);
       } else if (isFloater) {
         // six character stub of CUSIP to link to legal entity.
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?
