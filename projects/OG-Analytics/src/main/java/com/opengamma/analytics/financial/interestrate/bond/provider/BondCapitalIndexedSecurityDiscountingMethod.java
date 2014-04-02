@@ -224,18 +224,21 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
       final double firstYearFraction = bond.getCoupon().getNthPayment(0).getPaymentYearFraction();
       double firstCouponEndFixingTime = 0.0;
-      if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {
-        firstCouponEndFixingTime = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(0)).getReferenceEndTime()[1];
-      } else if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyGearing) {
-        firstCouponEndFixingTime = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(0)).getReferenceEndTime();
+      double firstCouponPayementTime = 0.0;
+      if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationZeroCouponInterpolationGearing) {
+        firstCouponEndFixingTime = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(1)).getReferenceEndTime()[1];
+        firstCouponPayementTime = ((CouponInflationZeroCouponInterpolationGearing) bond.getCoupon().getNthPayment(1)).getPaymentTime();
+      } else if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationZeroCouponMonthlyGearing) {
+        firstCouponEndFixingTime = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(1)).getReferenceEndTime();
+        firstCouponPayementTime = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(1)).getPaymentTime();
       }
+      final double lag = firstCouponPayementTime - firstCouponEndFixingTime;
 
       final double v = 1 / (1 + yield / bond.getCouponPerYear());
       final double rpibase = bond.getIndexStartValue();
       final double rpiLast = bond.getLastIndexKnownFixing();
       final double indexRatio = rpiLast / rpibase;
-      /*final int nbMonth = (int) Math.max((firstCouponEndFixingTime - bond.getLastKnownFixingTime() * 12), 0.0);*/
-      final int nbMonth = 3;
+      final int nbMonth = (int) Math.max((bond.getLastKnownFixingTime() - bond.getCoupon().getNthPayment(0).getPaymentTime() + lag) * 12, 0.0);
       final double u = Math.pow(1 / (1 + .03), .5);
       final double a = indexRatio * Math.pow(u, 2.0 * nbMonth / 12.0);
       final double firstCashFlow = firstYearFraction * realRate * indexRatio;
@@ -246,7 +249,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
         final double secondCashFlow = secondYearFraction * realRate * indexRatio;
         final double vn = Math.pow(v, nbCoupon - 1);
         final double pvAtFirstCoupon = firstCashFlow + secondCashFlow * u * v + a * realRate * v * v * (1 - vn / v) / (1 - v) + a * vn;
-        return pvAtFirstCoupon * Math.pow(u * v, 0.524861878);
+        return pvAtFirstCoupon * Math.pow(u * v, bond.getRatioPeriodToNextCoupon());
       }
     }
     if (yieldConvention.getName().equals(UK_IL_BOND.getName())) {

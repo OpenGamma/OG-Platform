@@ -44,6 +44,7 @@ import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
 import com.opengamma.analytics.financial.legalentity.Sector;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -177,9 +178,19 @@ public class BondAndBondFutureTradeWithEntityConverter {
       }
       final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final InflationBondSecurity bondSecurity = (InflationBondSecurity) security;
+      final Calendar calendar;
+      final ExternalId regionId = ExternalSchemes.financialRegionId(bondSecurity.getIssuerDomicile());
+      // If the bond is Supranational, we use the calendar derived from the currency of the bond.
+      // this may need revisiting.
+      if (regionId.getValue().equals("SNAT")) { // Supranational
+        calendar = CalendarUtils.getCalendar(_holidaySource, bondSecurity.getCurrency());
+      } else {
+        calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+      }
+      final ZonedDateTime settlementDateTime = ScheduleCalculator.getAdjustedDate(tradeDateTime, Integer.parseInt(bondSecurity.attributes().get().get("daysToSettle")), calendar);
       final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
       final BondCapitalIndexedSecurityDefinition bondFuture = (BondCapitalIndexedSecurityDefinition) getInflationBond(bondSecurity, legalEntity);
-      return new BondCapitalIndexedTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
+      return new BondCapitalIndexedTransactionDefinition(bondFuture, quantity, settlementDateTime, price);
     }
 
     OffsetTime settleTime = trade.getPremiumTime();
@@ -461,7 +472,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
         final Period paymentPeriod = getTenor(bond.getCouponFrequency());
         final double baseCPI = Double.parseDouble(bond.attributes().get().get("BaseCPI"));
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
-        final String interpolationMethod = bond.attributes().get().get("BaseCPI");
+        final String interpolationMethod = bond.attributes().get().get("interpolationMethod");
         if ("Monthly".equals(interpolationMethod)) {
           return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
               calendar, dayCount, yieldConvention, isEOM, legalEntity);
