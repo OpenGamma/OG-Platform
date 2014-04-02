@@ -4,6 +4,12 @@ OpenGamma Platform 2.2 milestones
 These release notes cover changes from v2.1 to v2.2.
 
 
+Any tool implementations relying on PortfolioWriter, PortfolioReader will
+need refactoring due to changes made for PLAT-6304:
+
+PortfolioReader was renamed to PositionReader
+PortfolioWriter was renamed to PositionWriter
+PortfolioTool was simplified as per the JIRA above
 
 Upgrading from 2.1.0
 ====================
