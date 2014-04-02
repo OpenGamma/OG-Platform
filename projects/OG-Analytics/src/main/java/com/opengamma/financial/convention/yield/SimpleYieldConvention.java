@@ -187,5 +187,36 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  //REVIEW emcleod 28-1-2011 Is the lack of hashCode() and equals() deliberate?
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_name == null) ? 0 : _name.toUpperCase().hashCode());
+    return result;
+  }
+
+  @Override
+  /**
+   * Note this is not case sensitive
+   */
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof SimpleYieldConvention)) {
+      return false;
+    }
+    SimpleYieldConvention other = (SimpleYieldConvention) obj;
+    if (_name == null) {
+      if (other._name != null) {
+        return false;
+      }
+    } else if (!_name.toUpperCase().equals(other._name.toUpperCase())) {
+      return false;
+    }
+    return true;
+  }
 }

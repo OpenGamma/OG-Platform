@@ -182,7 +182,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
 
-    if (yieldConvention.getName().equals(INDEX_LINKED_FLOAT.getName())) {
+    if (yieldConvention.equals(INDEX_LINKED_FLOAT)) {
       double realRate = 0.0;
       if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationGearing) {
         realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
@@ -220,7 +220,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
         return pvAtFirstCoupon * Math.pow(u * v, bond.getAccrualFactorToNextCoupon());
       }
     }
-    if (yieldConvention.getName().equals(UK_IL_BOND.getName())) {
+    if (yieldConvention.equals(UK_IL_BOND)) {
       double firstYearFraction = 0.0;
       final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
       if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {
