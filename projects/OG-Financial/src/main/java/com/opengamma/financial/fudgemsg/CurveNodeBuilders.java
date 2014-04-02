@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
+import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -744,6 +745,7 @@ import com.opengamma.util.time.Tenor;
    */
   @FudgeBuilderFor(ZeroCouponInflationNode.class)
   public static final class ZeroCouponInflationNodeBuilder implements FudgeBuilder<ZeroCouponInflationNode> {
+
     /** The tenor field */
     private static final String TENOR_FIELD = "tenor";
     /** The inflation convention field */
@@ -780,6 +782,59 @@ import com.opengamma.util.time.Tenor;
         return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, inflationNodeType, curveNodeIdMapperName, name);
       }
       return new ZeroCouponInflationNode(tenor, inflationConvention, fixedConvention, inflationNodeType, curveNodeIdMapperName);
+    }
+  }
+
+  /**
+   * Fudge builder for {@link CalendarSwapNode}
+   */
+  @FudgeBuilderFor(CalendarSwapNode.class)
+  public static final class CalendarSwapNodeBuilder implements FudgeBuilder<CalendarSwapNode> {
+
+    /** The tenor field */
+    private static final String START_TENOR_FIELD = "startTenor";
+    /** The date set name field */
+    private static final String DATESET_NAME = "dateSetName";
+    /** The start date number field */
+    private static final String START_DATE_NUMBER_FIELD = "startDateNumber";
+    /** The end date number */
+    private static final String END_DATE_NUMBER_FIELD = "endDateNumber";
+    /** The swap convention field */
+    private static final String SWAP_CONVENTION_FIELD = "swapConvention";
+    /** use fixings field */
+    private static final String USE_FIXINGS_FIELD = "useFixings";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CalendarSwapNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(START_TENOR_FIELD, object.getStartTenor().toFormattedString());
+      message.add(DATESET_NAME, object.getDateSetName());
+      message.add(START_DATE_NUMBER_FIELD, object.getStartDateNumber());
+      message.add(END_DATE_NUMBER_FIELD, object.getEndDateNumber());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      message.add(SWAP_CONVENTION_FIELD, object.getSwapConvention());
+      message.add(USE_FIXINGS_FIELD, object.isUseFixings() ? "true" : "false");
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
+      return message;
+    }
+
+    @Override
+    public CalendarSwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Tenor tenor = Tenor.parse(message.getString(START_TENOR_FIELD));
+      final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_CONVENTION_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      final String dateSetname = message.getString(DATESET_NAME);
+      final int startDateNumber = message.getInt(START_DATE_NUMBER_FIELD);
+      final int endDateNumber = message.getInt(END_DATE_NUMBER_FIELD);
+      final Boolean useFixings = Boolean.valueOf(message.getString(USE_FIXINGS_FIELD));
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new CalendarSwapNode(dateSetname, tenor, startDateNumber, endDateNumber, swapConvention, useFixings, curveNodeIdMapperName, name);
+      }
+      return new CalendarSwapNode(dateSetname, tenor, startDateNumber, endDateNumber, swapConvention, useFixings, curveNodeIdMapperName);
     }
 
   }

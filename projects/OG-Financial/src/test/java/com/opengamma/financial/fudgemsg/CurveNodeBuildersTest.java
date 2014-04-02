@@ -13,6 +13,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
+import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -225,6 +226,14 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
     final CreditSpreadNode node = new CreditSpreadNode("TEST", Tenor.EIGHT_YEARS);
     final CurveNodeWithIdentifier nodeWithId = new CurveNodeWithIdentifier(node, ExternalSchemes.bloombergTickerSecurityId("AAA"), "Market_Close", DataFieldType.OUTRIGHT);
     assertEquals(nodeWithId, cycleObject(CurveNodeWithIdentifier.class, nodeWithId));
+  }
+
+  @Test
+  public void testCalendarSwapNode() {
+    final CalendarSwapNode node = new CalendarSwapNode("ECB", Tenor.ONE_MONTH, 2, 3, ExternalId.of("id", "swap"), "mapper", "a name");
+    assertEquals(node, cycleObject(CalendarSwapNode.class, node));
+    final CalendarSwapNode node2 = new CalendarSwapNode("ECB", Tenor.ONE_MONTH, 2, 3, ExternalId.of("id", "swap"), "mapper");
+    assertEquals(node2, cycleObject(CalendarSwapNode.class, node2));
   }
 
 }
