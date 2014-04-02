@@ -219,39 +219,50 @@ public class DepGraphInputMergingTest extends AbstractDependencyGraphBuilderTest
     }
   }
 
-  public void req1And2_twoLevel() {
+  public void req1And2_threeLevel() {
     TestLifecycle.begin();
     try {
       final DepGraphTestHelper helper = new DepGraphTestHelper();
       helper.addFunctionProducing(new ComputedValue(helper.getSpecification1Bar(), null));
       helper.addFunctionProducing(new ComputedValue(helper.getSpec2Bar(), null));
       final VariantInputFunction v1 = new VariantInputFunction(helper, "Bar", "Cow");
-      final VariantInputFunction v2 = new VariantInputFunction(helper, "Cow", "Foo");
+      final VariantInputFunction v2 = new VariantInputFunction(helper, "Cow", "Dog");
+      final VariantInputFunction v3 = new VariantInputFunction(helper, "Dog", "Foo");
       helper.getFunctionRepository().addFunction(v1);
       helper.getFunctionRepository().addFunction(v2);
+      helper.getFunctionRepository().addFunction(v3);
       final DependencyGraphBuilder builder = helper.createBuilder(null);
       builder.addTarget(helper.getRequirement1Foo());
       builder.addTarget(helper.getRequirement2Foo());
       DependencyGraph graph = builder.getDependencyGraph();
       assertNotNull(graph);
-      assertEquals(graph.getSize(), 4); // VariantFunction1 (with two outputs), VariantFunction2, NodeProducing1 and NodeProducing2
-      assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph), ImmutableSet.of(v1._spec1, v1._spec2, v2._spec1, v2._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
+      assertEquals(graph.getSize(), 5); // v1, v2, v3, NodeProducing1 and NodeProducing2
+      assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph),
+          ImmutableSet.of(v1._spec1, v1._spec2, v2._spec1, v2._spec2, v3._spec1, v3._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
       final ValueRequirement req1 = new ValueRequirement(helper.getRequirement1().getValueName(), helper.getRequirement1().getTargetReference(), ValueProperties.with("TEST", "Cow")
           .with("AUX", "X").get());
       builder.addTarget(req1);
       graph = builder.getDependencyGraph();
       assertNotNull(graph);
-      assertEquals(graph.getSize(), 4); // VariantFunction1 (with two outputs), VariantFunction2, NodeProducing1 and NodeProducing2
+      assertEquals(graph.getSize(), 5); // v1, v2, v3, NodeProducing1 and NodeProducing2
       assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph),
-          ImmutableSet.of(v1._spec1.compose(req1), v1._spec2, v2._spec1, v2._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
+          ImmutableSet.of(v1._spec1.compose(req1), v1._spec2, v2._spec1, v2._spec2, v3._spec1, v3._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
       final ValueRequirement req2 = new ValueRequirement(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetReference(), ValueProperties.with("TEST", "Cow")
           .with("AUX", "X").get());
       builder.addTarget(req2);
       graph = builder.getDependencyGraph();
       assertNotNull(graph);
-      assertEquals(graph.getSize(), 4); // VariantFunction1 (with two outputs), VariantFunction2, NodeProducing1 and NodeProducing2
+      assertEquals(graph.getSize(), 5); // v1, v2, v3, NodeProducing1 and NodeProducing2
       assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph),
-          ImmutableSet.of(v1._spec1.compose(req1), v1._spec2.compose(req2), v2._spec1, v2._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
+          ImmutableSet.of(v1._spec1.compose(req1), v1._spec2.compose(req2), v2._spec1, v2._spec2, v3._spec1, v3._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
+      final ValueRequirement req3 = new ValueRequirement(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetReference(), ValueProperties.with("TEST", "Dog")
+          .with("AUX", "Y").get());
+      builder.addTarget(req3);
+      graph = builder.getDependencyGraph();
+      assertNotNull(graph);
+      assertEquals(graph.getSize(), 5); // v1, v2, v3, NodeProducing1 and NodeProducing2
+      assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph),
+          ImmutableSet.of(v1._spec1.compose(req1), v1._spec2.compose(req2), v2._spec1, v2._spec2.compose(req3), v3._spec1, v3._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
     } finally {
       TestLifecycle.end();
     }

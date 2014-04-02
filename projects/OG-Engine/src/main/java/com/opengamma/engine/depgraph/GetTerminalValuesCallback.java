@@ -710,8 +710,9 @@ import com.opengamma.util.tuple.Pairs;
     } else {
       final DependencyNode newNode = DependencyNodeImpl.addInputs(existingNode, inputValues, inputNodes);
       if (newNode != existingNode) {
+        inputCount = newNode.getInputCount();
         for (i = 0; i < inputCount; i++) {
-          final ValueSpecification input = inputValues[i];
+          final ValueSpecification input = newNode.getInputValue(i);
           Set<DependencyNode> usage = _spec2Usage.get(input);
           if (usage == null) {
             usage = new HashSet<DependencyNode>();
@@ -1043,6 +1044,9 @@ import com.opengamma.util.tuple.Pairs;
       for (int i = 0; i < count; i++) {
         _spec2Node.put(newNode.getOutputValue(i), newNode);
       }
+      final Set<DependencyNode> nodes = _func2nodeInfo.get(node.getFunction())._target2nodes.get(node.getTarget());
+      nodes.remove(node);
+      nodes.add(newNode);
     }
     return newNode;
   }
