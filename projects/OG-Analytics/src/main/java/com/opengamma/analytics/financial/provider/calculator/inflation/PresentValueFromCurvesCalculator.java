@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedTransactionDiscountingMethodWithoutIssuer;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -40,11 +41,13 @@ public final class PresentValueFromCurvesCalculator extends InstrumentDerivative
   // TODO : use the method with issuer when inflaiton curves with issuer are integrated.
   private static final BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer METHOD_BOND_SECURITY = BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer.getInstance();
 
+  private static final BondCapitalIndexedTransactionDiscountingMethodWithoutIssuer METHOD_BOND_TRANSACTION = BondCapitalIndexedTransactionDiscountingMethodWithoutIssuer.getInstance();
+
   @Override
   public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.presentValue(bond.getBondTransaction(), issuer).getAmount(bond.getBondStandard().getCurrency()) * 100;
+    return METHOD_BOND_TRANSACTION.presentValue(bond, issuer).getAmount(bond.getBondStandard().getCurrency()) * 100;
   }
 
   @Override

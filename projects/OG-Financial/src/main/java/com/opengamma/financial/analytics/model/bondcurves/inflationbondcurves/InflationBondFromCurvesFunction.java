@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
@@ -160,7 +161,7 @@ public abstract class InflationBondFromCurvesFunction<S extends ParameterInflati
    */
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties().with(CALCULATION_METHOD, CURVES_METHOD).withAny(CURVE_EXPOSURES).withAny(PROPERTY_CURVE_TYPE).withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(CURVE);
   }
 
 }
