@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivit
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateCurveSensitivityDiscountingCalculator;
@@ -23,6 +24,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRS
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -147,6 +149,22 @@ public final class SwaptionCashFixedIborSABRMethod {
     sensi.addRho(expiryMaturity, omega * discountFactorSettle * pvbp * bsAdjoint[2] * volatilityAdjoint[5]);
     sensi.addNu(expiryMaturity, omega * discountFactorSettle * pvbp * bsAdjoint[2] * volatilityAdjoint[6]);
     return sensi;
+  }
+  
+  /**
+   * Computes the present value of a physical delivery European swaption in the SABR model.
+   * @param swaption The swaption.
+   * @param sabrData The SABR and multi-curves provider.
+   * @return The implied volatility.
+   */
+  public double impliedVolatility(final SwaptionCashFixedIbor swaption, final SABRSwaptionProviderInterface sabrData) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(sabrData, "SABR swaption provider");
+    final double forward = swaption.getUnderlyingSwap().accept(PRDC, sabrData.getMulticurveProvider());
+    // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
+    // TODO: A better notion of maturity may be required (using period?)
+    final double volatility = sabrData.getSABRParameter().getVolatility(swaption.getTimeToExpiry(), swaption.getMaturityTime(), swaption.getStrike(), forward);
+    return volatility;
   }
 
 }
