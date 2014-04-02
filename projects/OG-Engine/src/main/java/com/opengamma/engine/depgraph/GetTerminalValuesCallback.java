@@ -885,7 +885,7 @@ import com.opengamma.util.tuple.Pairs;
         // This output was not matched. The "mismatchUnion" test means it is in addition to what the node was previously producing
         // and should be able to produce once its got any extra inputs it needs.
         if (_spec2Node.containsKey(output)) {
-          // Another node already produces this
+          // Another node already produces this; if this was the primary output we'd have found it in getOrCreateNode before this was called
           s_logger.debug("Discarding output {} - already produced elsewhere in the graph", output);
           // TODO: Would it be better to do this check at the start of the loop?
         } else {
@@ -1020,8 +1020,6 @@ import com.opengamma.util.tuple.Pairs;
   private DependencyNode getFixedNode(final Map<ValueSpecification, DependencyNode> fixed, final DependencyNode node) {
     int count = node.getInputCount();
     DependencyNode newNode = node;
-    ValueSpecification[] inputsUpdated = null;
-    int j = 0;
     for (int i = 0; i < count; i++) {
       final ValueSpecification input = node.getInputValue(i);
       DependencyNode fixedNode = fixed.get(input);
@@ -1031,16 +1029,12 @@ import com.opengamma.util.tuple.Pairs;
         fixed.put(input, fixedNode);
       }
       if (node.getInputNode(i) != fixedNode) {
-        if (inputsUpdated == null) {
-          inputsUpdated = new ValueSpecification[count - i];
-        }
-        inputsUpdated[j++] = input;
         newNode = DependencyNodeImpl.replaceInput(newNode, input, input, fixedNode);
       }
     }
     if (newNode != node) {
-      for (int i = 0; i < j; i++) {
-        final ValueSpecification input = inputsUpdated[i];
+      for (int i = 0; i < count; i++) {
+        final ValueSpecification input = newNode.getInputValue(i);
         final Set<DependencyNode> usage = _spec2Usage.get(input);
         usage.remove(node);
         usage.add(newNode);
@@ -1054,7 +1048,7 @@ import com.opengamma.util.tuple.Pairs;
   }
 
   /**
-   * Returns the root nodes that form the dependency graph build by calls {@link #resolved}. It is only valid to call this when there are no pending resolutions - that is all calls to
+   * Returns the root nodes that form the dependency graph build by calls to {@link #resolved}. It is only valid to call this when there are no pending resolutions - that is all calls to
    * {@link #resolved} have returned. A copy of the internal structure is used so that it may be modified by the caller and this callback instance be used to process subsequent resolutions.
    * 
    * @return the dependency graph root nodes and total number of nodes in the graph they imply, not null
