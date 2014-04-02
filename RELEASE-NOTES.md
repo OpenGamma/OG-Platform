@@ -7,6 +7,24 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M10p05
+---------------
+
+Configuration compatibility
+- No upgrade required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No changes
+
+Analytics compatibility
+- No expected differences
+
+Bug fixes
+* [PLAT-6321,PLAT-6325] Inconsistent internal state in GetTerminalValuesCallback
+
 
 To 2.2.0-M10p04
 ---------------
