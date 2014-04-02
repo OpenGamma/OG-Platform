@@ -245,7 +245,7 @@ public abstract class StandAloneScenarioScript extends Script {
       return Collections.emptyList();
     }
     if (_vars.size() != 2) {
-      throw new IllegalArgumentException("There must be 2 sets of shocks");
+      throw new IllegalArgumentException("There must be 2 sets of shocks for shockGrid. For 1 set, use shockList.");
     }
     Iterator<Map.Entry<String, List<?>>> itr = _vars.entrySet().iterator();
 
