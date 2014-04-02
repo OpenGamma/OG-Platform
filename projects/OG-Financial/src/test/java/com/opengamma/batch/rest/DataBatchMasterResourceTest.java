@@ -83,9 +83,7 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     BatchRunSearchRequest batchRunSearchRequest = new BatchRunSearchRequest();
     
     Object entity = batchMasterResource.searchBatchRuns(batchRunSearchRequest).getEntity();
-    if (entity instanceof FudgeResponse) {
-      entity = ((FudgeResponse) entity).getValue();
-    }
+    entity = FudgeResponse.unwrap(entity);
     Pair<List<RiskRun>, Paging> result = (Pair<List<RiskRun>, Paging>) entity;
     
     assertTrue(result.getFirst().size() > 0);
@@ -141,9 +139,7 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     when(batchMaster.getMarketData((PagingRequest) any())).thenReturn(Pairs.of(marketDataList, paging));
     
     Object entity = batchMasterResource.searchMarketData(pagingRequest).getEntity();
-    if (entity instanceof FudgeResponse) {
-      entity = ((FudgeResponse) entity).getValue();
-    }
+    entity = FudgeResponse.unwrap(entity);
     Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) entity;
 
     assertEquals(response.getFirst().size(), 1);

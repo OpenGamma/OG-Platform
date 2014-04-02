@@ -150,7 +150,7 @@ public abstract class AbstractDataResource {
     if (value instanceof FudgeMsgEnvelope || value instanceof FudgeMsg || value instanceof Bean) {
       return value;
     }
-    return new FudgeResponse(value);
+    return FudgeResponse.of(value);
   }
 
   //-------------------------------------------------------------------------

@@ -65,7 +65,7 @@ public class JodaBeanBinaryProducerConsumer implements MessageBodyReader<Object>
     }
     FlexiBean fbean = (FlexiBean) bean;
     if (((Object) type) == FudgeResponse.class) {
-      return new FudgeResponse(fbean.get("value"));
+      return FudgeResponse.of(fbean.get("value"));
     }
     if (((Object) type) == FudgeMsg.class) {
       return createMessage(bean);

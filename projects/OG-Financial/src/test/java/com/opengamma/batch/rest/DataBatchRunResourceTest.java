@@ -100,9 +100,7 @@ public class DataBatchRunResourceTest {
     Response response = _resource.getBatchValues(pagingRequest);
     
     Object entity = response.getEntity();
-    if (entity instanceof FudgeResponse) {
-      entity = ((FudgeResponse) entity).getValue();
-    }
+    entity = FudgeResponse.unwrap(entity);
     Pair<List<ViewResultEntry>, Paging> result = (Pair<List<ViewResultEntry>, Paging>) entity;
     
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
