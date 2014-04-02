@@ -118,7 +118,7 @@ public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCu
       // Next IMM date is after curve maturity date but there is only one point on the curve
       // i.e. the intention is to use a constant spread curve
       spread = marketSpreads[0];
-    } else {
+    } else if (spread == null) {
       throw new OpenGammaRuntimeException("Curve contained more than one spread tenor but the spread was not set");
     }
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy()
