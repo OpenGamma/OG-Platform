@@ -49,7 +49,6 @@ import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.inflationissuer.InflationIssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
@@ -263,7 +262,7 @@ public class InflationIssuerProviderDiscountingFunction extends
               if (priceIndexConvention == null) {
                 throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
               }
-              inflation.add(ConverterUtils.indexPrice(priceIndexConvention.getName(), priceIndexConvention));
+              inflation.add(ConverterUtils.indexPrice(indexSecurity.getName(), priceIndexConvention));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -349,7 +348,7 @@ public class InflationIssuerProviderDiscountingFunction extends
     protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
         final ValueProperties bundleProperties, final Pair<InflationIssuerProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
-      final InflationProviderDiscount provider = (InflationProviderDiscount) pair.getFirst();
+      final InflationIssuerProviderDiscount provider = (InflationIssuerProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));
       result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
@@ -357,7 +356,7 @@ public class InflationIssuerProviderDiscountingFunction extends
             .withoutAny(CURVE)
             .with(CURVE, curveName)
             .get();
-        final PriceIndexCurve curve = provider.getCurve(curveName);
+        final PriceIndexCurve curve = provider.getInflationProvider().getCurve(curveName);
         if (curve == null) {
           s_logger.error("Could not get curve called {} from configuration {}", curveName, getCurveConstructionConfigurationName());
         } else {
