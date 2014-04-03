@@ -25,6 +25,7 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
   @Override
   public abstract Double interpolate(Interpolator1DDataBundle data, Double value);
 
+  //TODO: [PLAT-6334] Add documentation
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
     final double vm = value - EPS;
     final double vp = value + EPS;
@@ -43,6 +44,7 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
     return (up - down) / 2 / EPS;
   }
 
+  //TODO: [PLAT-6334] Add documentation
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value, final boolean useFiniteDifferenceSensitivities) {
     return useFiniteDifferenceSensitivities ? getFiniteDifferenceSensitivities(data, value) : getNodeSensitivitiesForValue(data, value);
   }
@@ -55,6 +57,7 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
    */
   public abstract double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value);
 
+  //TODO: [PLAT-6334] Add documentation
   protected double[] getFiniteDifferenceSensitivities(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     final double[] x = data.getKeys();

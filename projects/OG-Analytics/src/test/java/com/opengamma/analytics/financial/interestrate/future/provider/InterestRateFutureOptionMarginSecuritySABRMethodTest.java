@@ -70,7 +70,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   public void priceFromFuturePriceMidCurve() {
     final double priceFuture = 0.9905;
     final double priceOption = METHOD_OPT_FUT_SEC_SABR.priceFromFuturePrice(OPTION_EDU2, SABR_MULTICURVES, priceFuture);
-    final double delay = EDU2.getLastTradingTime() - EXPIRATION_TIME;
+    final double delay = EDU2.getTradingLastTime() - EXPIRATION_TIME;
     final double volatility = SABR_PARAMETERS.getVolatility(EXPIRATION_TIME, delay, 1 - STRIKE, 1 - priceFuture);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(1 - priceFuture, 1.0, volatility);

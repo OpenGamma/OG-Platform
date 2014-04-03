@@ -106,7 +106,7 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
    * @return The future last trading time.
    */
   public double getLastTradingTime() {
-    return _underlying.getLastTradingTime();
+    return _underlying.getTradingLastTime();
   }
 
   /**

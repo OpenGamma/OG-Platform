@@ -73,7 +73,7 @@ public class InterestRateFutureSecurityTest {
 
   @Test
   public void getter() {
-    assertEquals(LAST_TRADING_TIME, ERU2.getLastTradingTime());
+    assertEquals(LAST_TRADING_TIME, ERU2.getTradingLastTime());
     assertEquals(IBOR_INDEX, ERU2.getIborIndex());
     assertEquals(NOTIONAL, ERU2.getNotional());
     assertEquals(FUTURE_FACTOR, ERU2.getPaymentAccrualFactor());

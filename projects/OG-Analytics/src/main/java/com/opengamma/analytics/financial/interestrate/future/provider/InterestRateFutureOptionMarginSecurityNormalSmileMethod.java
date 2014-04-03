@@ -63,7 +63,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
     final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(), security.isCall());
-    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
     final double volatility = normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
     final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
     final double priceSecurity = NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
@@ -98,7 +98,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
     // Forward sweep
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
     final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(), security.isCall());
-    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
     final double volatility = normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
     final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
     // Backward sweep
@@ -123,7 +123,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
-    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
     final double volatility = normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
     final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
     // Backward sweep
@@ -146,7 +146,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
   public double impliedVolatility(final InterestRateFutureOptionMarginSecurity security, final NormalSTIRFuturesSmileProviderInterface normalData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
-    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
     return normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
   }
 

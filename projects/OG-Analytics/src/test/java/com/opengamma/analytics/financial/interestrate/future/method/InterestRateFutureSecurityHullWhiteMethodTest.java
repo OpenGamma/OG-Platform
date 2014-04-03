@@ -33,7 +33,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
-
 /**
  * Tests for the methods related to interest rate securities pricing with Hull-White model convexity adjustment.
  * @deprecated This code tests deprecated functionality.
@@ -41,7 +40,7 @@ import com.opengamma.util.time.DateUtils;
 @Deprecated
 @Test(groups = TestGroup.UNIT)
 public class InterestRateFutureSecurityHullWhiteMethodTest {
-//EURIBOR 3M Index
+  //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -70,8 +69,8 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
       NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   private static final double MEAN_REVERSION = 0.01;
-  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
-  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
+  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014 };
+  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0 };
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(MODEL_PARAMETERS, CURVES);
@@ -86,7 +85,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
     final double price = METHOD.price(ERU2, BUNDLE_HW);
     final YieldAndDiscountCurve forwardCurve = BUNDLE_HW.getCurve(FORWARD_CURVE_NAME);
     final double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
-    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
+    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getTradingLastTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedPrice = 1.0 - factor * forward + (1 - factor) / FIXING_ACCRUAL;
     assertEquals("Future price from curves in Hull-White one factor model", expectedPrice, price);
   }

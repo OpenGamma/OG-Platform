@@ -74,7 +74,7 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     final double ktilde = 1.0 - k;
     final double theta = security.getExpirationTime();
     final double delta = security.getUnderlyingFuture().getFixingPeriodAccrualFactor();
-    final double t0 = security.getUnderlyingFuture().getLastTradingTime();
+    final double t0 = security.getUnderlyingFuture().getTradingLastTime();
     final double t1 = security.getUnderlyingFuture().getFixingPeriodStartTime();
     final double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
     final double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
@@ -108,7 +108,7 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     final double ktilde = 1.0 - k;
     final double theta = security.getExpirationTime();
     final double delta = security.getUnderlyingFuture().getFixingPeriodAccrualFactor();
-    final double t0 = security.getUnderlyingFuture().getLastTradingTime();
+    final double t0 = security.getUnderlyingFuture().getTradingLastTime();
     final double t1 = security.getUnderlyingFuture().getFixingPeriodStartTime();
     final double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
     // forward sweep

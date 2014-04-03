@@ -150,7 +150,7 @@ public class InterestRateFutureOptionMarginHullWhiteMethodTest {
    * Tests the price versus an explicit formula.
    */
   public void price() {
-    final double t0 = ERH3.getLastTradingTime();
+    final double t0 = ERH3.getTradingLastTime();
     final double delta = ERH3.getFixingPeriodAccrualFactor();
     final double t1 = ERH3.getFixingPeriodStartTime();
     final double t2 = ERH3.getFixingPeriodEndTime();

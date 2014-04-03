@@ -86,7 +86,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   public void price() {
     final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
     final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
-    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
+    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getTradingLastTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedPrice = 1.0 - factor * forward + (1 - factor) / ERU2.getFixingPeriodAccrualFactor();
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", expectedPrice, price, TOLERANCE_PRICE);
   }

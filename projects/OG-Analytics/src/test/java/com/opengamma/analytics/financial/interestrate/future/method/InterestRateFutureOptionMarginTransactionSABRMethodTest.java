@@ -43,7 +43,6 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
-
 /**
  * Tests the method for interest rate future option with SABR volatility parameter surfaces.
  * @deprecated This class tests deprecated functionality
@@ -200,7 +199,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     // SABR sensitivity vs finite difference
     final double pv = METHOD.presentValue(TRANSACTION, SABR_BUNDLE).getAmount();
     final double shift = 0.000001;
-    final double delay = EDU2.getLastTradingTime() - OPTION_EDU2.getExpirationTime();
+    final double delay = EDU2.getTradingLastTime() - OPTION_EDU2.getExpirationTime();
     final DoublesPair expectedExpiryDelay = DoublesPair.of(OPTION_EDU2.getExpirationTime(), delay);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shift);
