@@ -64,6 +64,7 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class DiscountingYCNSFunction extends DiscountingFunction {
   
+  /** The constraint name to select the currency for which the sensitivity is returned */
   public static final String SENSITIVITY_CURRENCY_PROPERTY = "SensitivityCurrency";
 
   /**

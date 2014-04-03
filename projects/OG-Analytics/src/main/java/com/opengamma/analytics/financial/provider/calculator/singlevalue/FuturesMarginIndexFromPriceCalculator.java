@@ -6,10 +6,11 @@
 package com.opengamma.analytics.financial.provider.calculator.singlevalue;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 
 /**
  * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
@@ -72,6 +73,13 @@ public final class FuturesMarginIndexFromPriceCalculator extends InstrumentDeriv
     final int n = tenor * couponPerYear;
     final double vn = Math.pow(v, -n);
     return coupon / yield * (1 - vn) + vn;
+  }
+
+  //-----     Futures options     -----
+
+  @Override
+  public Double visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity option, Double quotedPrice) {
+    return quotedPrice * option.getUnderlyingFuture().getNotional();
   }
 
 }

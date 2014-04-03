@@ -17,9 +17,9 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueCurveSensitivitySABRSTIRFuturesCalculator;
-import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueSABRSTIRFuturesCalculator;
-import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueSABRSensitivitySABRSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.sabrstirfutures.PresentValueCurveSensitivitySABRSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.sabrstirfutures.PresentValueSABRSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.sabrstirfutures.PresentValueSABRSensitivitySABRSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;

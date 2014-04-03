@@ -3,36 +3,36 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.calculator.sabrstrifutures;
+package com.opengamma.analytics.financial.provider.calculator.sabrstirfutures;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSTIRFuturesProviderInterface;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueSABRSensitivitySABRSTIRFuturesCalculator extends InstrumentDerivativeVisitorAdapter<SABRSTIRFuturesProviderInterface, PresentValueSABRSensitivityDataBundle> {
+public final class PresentValueSABRSTIRFuturesCalculator extends InstrumentDerivativeVisitorAdapter<SABRSTIRFuturesProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueSABRSensitivitySABRSTIRFuturesCalculator INSTANCE = new PresentValueSABRSensitivitySABRSTIRFuturesCalculator();
+  private static final PresentValueSABRSTIRFuturesCalculator INSTANCE = new PresentValueSABRSTIRFuturesCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueSABRSensitivitySABRSTIRFuturesCalculator getInstance() {
+  public static PresentValueSABRSTIRFuturesCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private PresentValueSABRSensitivitySABRSTIRFuturesCalculator() {
+  private PresentValueSABRSTIRFuturesCalculator() {
   }
 
   /**
@@ -43,8 +43,8 @@ public final class PresentValueSABRSensitivitySABRSTIRFuturesCalculator extends 
   // -----     Futures     ------
 
   @Override
-  public PresentValueSABRSensitivityDataBundle visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures, final SABRSTIRFuturesProviderInterface sabr) {
-    return METHOD_STRIRFUT_MARGIN.presentValueSABRSensitivity(futures, sabr);
+  public MultipleCurrencyAmount visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures, final SABRSTIRFuturesProviderInterface sabr) {
+    return METHOD_STRIRFUT_MARGIN.presentValue(futures, sabr);
   }
 
 }

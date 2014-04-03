@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.calculator.singlevalue;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
@@ -54,4 +55,11 @@ public final class FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator 
     return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(), priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getNotional() * futures.getQuantity()));
   }
 
+  //     -----     Futures options    -----
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitBondFuturesOptionMarginTransaction(final BondFuturesOptionMarginTransaction futures, final MulticurveSensitivity priceSensitivity) {
+    return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(), priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getUnderlyingFuture().getNotional()
+        * futures.getQuantity()));
+  }
 }

@@ -17,7 +17,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Implementation of a provider of Black smile for options on bond futures. The volatility is time to expiration/strike dependent.
+ * Implementation of a provider of Black smile for options on bond futures. The volatility is time to expiration/delay dependent.
+ * The delay is the time difference between the last notice and the option expiration.
  */
 public class BlackBondFuturesFlatProvider implements BlackBondFuturesFlatProviderInterface {
 
@@ -26,7 +27,7 @@ public class BlackBondFuturesFlatProvider implements BlackBondFuturesFlatProvide
    */
   private final IssuerProviderInterface _issuerProvider;
   /**
-   * The Black volatility surface. Not null. The dimensions are expiry and strike.
+   * The Black volatility surface. Not null. The dimensions are expiry and delay.
    */
   private final Surface<Double, Double, Double> _parameters;
   /**
