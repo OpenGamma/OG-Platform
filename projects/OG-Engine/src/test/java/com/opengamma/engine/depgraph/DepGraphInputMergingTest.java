@@ -55,12 +55,17 @@ public class DepGraphInputMergingTest extends AbstractDependencyGraphBuilderTest
       return null;
     }
 
+    private static Set<ValueRequirement> createRequirements(final ValueRequirement req, final String aux) {
+      return Collections.singleton(aux != null ? new ValueRequirement(req.getValueName(), req.getTargetReference(), req.getConstraints().copy().with("AUX", aux).get()) : req);
+    }
+
     @Override
     public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+      final String aux = desiredValue.getConstraints().getSingleValue("AUX'");
       if (desiredValue.getValueName() == _spec1.getValueName()) {
-        return Collections.singleton(_req1);
+        return createRequirements(_req1, aux);
       } else {
-        return Collections.singleton(_req2);
+        return createRequirements(_req2, aux);
       }
     }
 
@@ -263,6 +268,42 @@ public class DepGraphInputMergingTest extends AbstractDependencyGraphBuilderTest
       assertEquals(graph.getSize(), 5); // v1, v2, v3, NodeProducing1 and NodeProducing2
       assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph),
           ImmutableSet.of(v1._spec1.compose(req1), v1._spec2.compose(req2), v2._spec1, v2._spec2.compose(req3), v3._spec1, v3._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
+    } finally {
+      TestLifecycle.end();
+    }
+  }
+
+  public void req1And2_insitu_rewrite() {
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = new DepGraphTestHelper();
+      helper.addFunctionProducing(new ComputedValue(helper.getSpecification1Bar(), null));
+      helper.addFunctionProducing(new ComputedValue(helper.getSpec2Bar(), null));
+      final VariantInputFunction v1 = new VariantInputFunction(helper, "Bar", "Cow");
+      final VariantInputFunction v2 = new VariantInputFunction(helper, "Cow", "Dog");
+      final VariantInputFunction v3 = new VariantInputFunction(helper, "Dog", "Foo");
+      helper.getFunctionRepository().addFunction(v1);
+      helper.getFunctionRepository().addFunction(v2);
+      helper.getFunctionRepository().addFunction(v3);
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      builder.addTarget(helper.getRequirement1Foo());
+      builder.addTarget(helper.getRequirement2Foo());
+      DependencyGraph graph = builder.getDependencyGraph();
+      assertNotNull(graph);
+      assertEquals(graph.getSize(), 5); // v1, v2, v3, NodeProducing1 and NodeProducing2
+      assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph),
+          ImmutableSet.of(v1._spec1, v1._spec2, v2._spec1, v2._spec2, v3._spec1, v3._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
+      // Asking for this will cause a rewrite of the v1->v2 edge during the graph build ([PLAT-6321] error)
+      final ValueRequirement req = new ValueRequirement(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetReference(), ValueProperties.with("TEST", "Dog")
+          .with("AUX", "Y").withOptional("AUX'").with("AUX'", "X").get());
+      // This is the implied requirement that will be requested and used for the edge re-write above (needed to check the graph below)
+      final ValueRequirement ireq = new ValueRequirement(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetReference(), ValueProperties.with("AUX", "X").get());
+      builder.addTarget(req);
+      graph = builder.getDependencyGraph();
+      assertNotNull(graph);
+      assertEquals(graph.getSize(), 5); // v1, v2, v3, NodeProducing1 and NodeProducing2
+      assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph),
+          ImmutableSet.of(v1._spec1, v1._spec2.compose(ireq), v2._spec1, v2._spec2.compose(req), v3._spec1, v3._spec2, helper.getSpecification1Bar(), helper.getSpec2Bar()));
     } finally {
       TestLifecycle.end();
     }
