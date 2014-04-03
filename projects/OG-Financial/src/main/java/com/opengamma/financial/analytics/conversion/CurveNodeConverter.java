@@ -53,7 +53,7 @@ public class CurveNodeConverter {
    * @param node The curve node, not null
    * @param definition The definition, not null
    * @param now The valuation time, not null
-   * @param timeSeries A fixing time series, not null if required
+   * @param timeSeries A fixing time series, not null if {@link #requiresFixingSeries(CurveNode)} is true and definition is an instance of {@link InstrumentDefinitionWithData}.
    * @return A derivative instrument
    */
   @SuppressWarnings("unchecked")
@@ -129,7 +129,7 @@ public class CurveNodeConverter {
     return definition.toDerivative(now);
   }
 
-  private static boolean requiresFixingSeries(final CurveNode node) {
+  public static boolean requiresFixingSeries(final CurveNode node) {
     return node instanceof ZeroCouponInflationNode || node instanceof RateFutureNode || node instanceof DeliverableSwapFutureNode; // || (node instanceof SwapNode && ((SwapNode) node).isUseFixings());
   }
 
