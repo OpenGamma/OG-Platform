@@ -91,7 +91,9 @@ public class IntrinsicIndexDataBundle {
 
     _indexSize = creditCurves.length;
     ArgumentChecker.isTrue(_indexSize == recoveryRates.length, "Length of recoveryRates ({}) does not match index size ({})", recoveryRates.length, _indexSize);
-    ArgumentChecker.isTrue(_indexSize == defaulted.length(), "Length of defaulted ({}) does not match index size ({})", defaulted.length(), _indexSize);
+    // Correction made  PLAT-6323 
+    //    ArgumentChecker.isTrue(_indexSize == defaulted.length(), "Length of defaulted ({}) does not match index size ({})", defaulted.length(), _indexSize);
+    ArgumentChecker.isTrue(_indexSize >= defaulted.length(), "Length of defaulted ({}) is greater than index size ({})", defaulted.length(), _indexSize);
 
     _nDefaults = defaulted.cardinality();
 
@@ -112,7 +114,9 @@ public class IntrinsicIndexDataBundle {
     Arrays.fill(_weights, 1.0 / _indexSize);
     _creditCurves = creditCurves;
     _defaulted = defaulted;
-    _indexFactor = _nDefaults / ((double) _indexSize);
+    // Correction made PLAT-6328
+    //    _indexFactor = _nDefaults / ((double) _indexSize);
+    _indexFactor = (((double) _indexSize) - _nDefaults) * _weights[0];
   }
 
   public IntrinsicIndexDataBundle(final ISDACompliantCreditCurve[] creditCurves, final double[] recoveryRates, final double[] weights, final BitSet defaulted) {
@@ -124,7 +128,9 @@ public class IntrinsicIndexDataBundle {
     _indexSize = creditCurves.length;
     ArgumentChecker.isTrue(_indexSize == recoveryRates.length, "Length of recoveryRates ({}) does not match index size ({})", recoveryRates.length, _indexSize);
     ArgumentChecker.isTrue(_indexSize == weights.length, "Length of weights ({}) does not match index size ({})", weights.length, _indexSize);
-    ArgumentChecker.isTrue(_indexSize == defaulted.length(), "Length of defaulted ({}) does not match index size ({})", defaulted.length(), _indexSize);
+    // Correction made  PLAT-6323 
+    //    ArgumentChecker.isTrue(_indexSize == defaulted.length(), "Length of defaulted ({}) does not match index size ({})", defaulted.length(), _indexSize);
+    ArgumentChecker.isTrue(_indexSize >= defaulted.length(), "Length of defaulted ({}) is greater than index size ({})", defaulted.length(), _indexSize);
 
     _nDefaults = defaulted.cardinality();
 
@@ -245,9 +251,10 @@ public class IntrinsicIndexDataBundle {
    */
   public IntrinsicIndexDataBundle withCreditCurves(final ISDACompliantCreditCurve[] curves) {
     ArgumentChecker.notNull(curves, "curves");
-    if (_nDefaults == 0) {
-      ArgumentChecker.noNulls(curves, "curves");
-    }
+    //  caught by notNull above
+    //    if (_nDefaults == 0) {
+    //      ArgumentChecker.noNulls(curves, "curves");
+    //    }
     final int n = curves.length;
     ArgumentChecker.isTrue(n == _indexSize, "wrong number of curves. Require {}, but {} given", _indexSize, n);
     for (int i = 0; i < n; i++) {
@@ -266,6 +273,7 @@ public class IntrinsicIndexDataBundle {
    * @return  new data bundle with the name at the given index marked as defaulted
    */
   public IntrinsicIndexDataBundle withDefault(final int index) {
+    ArgumentChecker.isTrue(index < _indexSize, "index ({}) should be smaller than index size ({})", index, _indexSize);    //Added line PLAT-6324
     if (_defaulted.get(index)) {
       throw new IllegalArgumentException("Index " + index + " is already defaulted");
     }
@@ -288,12 +296,14 @@ public class IntrinsicIndexDataBundle {
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
       final int jj = index[i];
+      ArgumentChecker.isTrue(jj < _indexSize, "index ({}) should be smaller than index size ({})", jj, _indexSize); //Added line PLAT-6324
       if (defaulted.get(jj)) {
         throw new IllegalArgumentException("Index " + jj + " is already defaulted");
       }
       defaulted.set(jj);
       sum += _weights[jj];
     }
+
     return new IntrinsicIndexDataBundle(_indexSize, _nDefaults + n, _indexFactor - sum, _weights, _lgd, _creditCurves, defaulted);
   }
 
