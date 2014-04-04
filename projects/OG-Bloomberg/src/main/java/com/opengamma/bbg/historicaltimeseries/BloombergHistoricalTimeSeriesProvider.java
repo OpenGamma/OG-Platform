@@ -11,6 +11,7 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_HISTORICAL_DATA_REQ
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_SECURITIES_REQUEST;
 import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
 import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
+import static com.opengamma.bbg.BloombergConstants.EID_DATA;
 import static com.opengamma.bbg.BloombergConstants.ERROR_INFO;
 import static com.opengamma.bbg.BloombergConstants.FIELD_DATA;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCEPTIONS;
@@ -24,10 +25,13 @@ import static com.opengamma.core.id.ExternalSchemes.BLOOMBERG_TICKER;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +67,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalTimeSeriesProvider.class);
+
   /**
    * Default start date for loading time-series
    */
@@ -71,8 +76,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
   /**
    * Implementation class.
    */
-  private final BloombergHistoricalTimeSeriesProviderImpl _impl;
-
+  private final BloombergHistoricalDataRequestService _historicalDataService;
+  
   /**
    * Creates an instance.
    * <p>
@@ -81,51 +86,73 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
    * @param bloombergConnector the Bloomberg connector, not null
    */
   public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector) {
-    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
+    this(bloombergConnector, null);
   }
 
   /**
-   * Creates an instance with statistics gathering.
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
    * 
-   * @param bloombergConnector the Bloomberg connector, not null
-   * @param statistics the statistics to collect, not null
+   * @param bloombergConnector the bloomberg connector, not null
+   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
    */
-  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, String authenticationOption) {
+    this(bloombergConnector, authenticationOption, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
+   * 
+   * @param bloombergConnector the bloomberg connector, not null
+   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
+   */
+  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, String authenticationOption, double reAuthorizationScheduleTime) {
+    this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), authenticationOption, reAuthorizationScheduleTime);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param bloombergConnector the bloomberg connector, not null
+   * @param statistics the statistics, not null
+   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
+   */
+  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String authenticationOption, double reAuthorizationScheduleTime) {
     super(BLOOMBERG_DATA_SOURCE_NAME);
-    _impl = new BloombergHistoricalTimeSeriesProviderImpl(bloombergConnector, statistics);
+    _historicalDataService = new BloombergHistoricalDataRequestService(bloombergConnector, statistics, authenticationOption, reAuthorizationScheduleTime);
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request) {
     fixRequestDateRange(request, DEFAULT_START_DATE);
-    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _impl.doBulkGet(request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(), request.getDateRange(),
+    HistoricalTimeSeriesProviderGetResult result = _historicalDataService.doBulkGet(request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(), request.getDateRange(),
         request.getMaxPoints());
-    HistoricalTimeSeriesProviderGetResult result = new HistoricalTimeSeriesProviderGetResult(map);
     return filterResult(result, request.getDateRange(), request.getMaxPoints());
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void start() {
-    _impl.start();
+    _historicalDataService.start();
   }
 
   @Override
   public void stop() {
-    _impl.stop();
+    _historicalDataService.stop();
   }
 
   @Override
   public boolean isRunning() {
-    return _impl.isRunning();
+    return _historicalDataService.isRunning();
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Loads time-series from Bloomberg.
-   */
-  static class BloombergHistoricalTimeSeriesProviderImpl extends AbstractBloombergStaticDataProvider {
+  static class BloombergHistoricalDataRequestService extends AbstractBloombergStaticDataProvider {
 
     /**
      * The format of error messages.
@@ -137,13 +164,28 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      */
     private final BloombergReferenceDataStatistics _statistics;
 
+    public BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector) {
+      this(bloombergConnector, null);
+    }
+
+    public BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector, String authenticationOption) {
+      this(bloombergConnector, authenticationOption, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
+    }
+
+    public BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector, String authenticationOption, double reAuthorizationScheduleTime) {
+      this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), authenticationOption, reAuthorizationScheduleTime);
+    }
+
     /**
      * Creates an instance.
      * 
-     * @param provider the provider, not null
+     * @param bloombergConnector the bloomberg connector, not null
+     * @param statistics the statistics, not null
+     * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+     * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
      */
-    public BloombergHistoricalTimeSeriesProviderImpl(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
-      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
+    public BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String authenticationOption, double reAuthorizationScheduleTime) {
+      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME, authenticationOption, reAuthorizationScheduleTime);
       ArgumentChecker.notNull(statistics, "statistics");
       _statistics = statistics;
     }
@@ -165,27 +207,46 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      * @param maxPoints the maximum number of points required, negative back from the end date, null for all
      * @return a map of each supplied identifier bundle to the corresponding time-series, not null
      */
-    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> doBulkGet(Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints) {
+    public HistoricalTimeSeriesProviderGetResult doBulkGet(Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints) {
 
       ensureStarted();
-      s_logger.debug("Getting historical data for {}", externalIdBundle);
+      getLogger().debug("Getting historical data for {}", externalIdBundle);
       if (externalIdBundle.isEmpty()) {
-        s_logger.info("Historical data request for empty identifier set");
-        return Collections.emptyMap();
+        getLogger().info("Historical data request for empty identifier set");
+        return new HistoricalTimeSeriesProviderGetResult();
       }
 
       Map<String, ExternalIdBundle> reverseBundleMap = Maps.newHashMap();
       Request request = createRequest(externalIdBundle, dataProvider, dataField, dateRange, maxPoints, reverseBundleMap);
       _statistics.recordStatistics(reverseBundleMap.keySet(), Collections.singleton(dataField));
-      BlockingQueue<Element> responseElements = submitBloombergRequest(request);
-      return extractTimeSeries(externalIdBundle, dataField, reverseBundleMap, responseElements);
+      HistoricalTimeSeriesProviderGetResult result = new HistoricalTimeSeriesProviderGetResult();
+      try {
+        List<Element> responseElements = submitRequest(request).get();
+        final Map<ExternalIdBundle, LocalDateDoubleTimeSeries> tsMap = extractTimeSeries(externalIdBundle, dataField, reverseBundleMap, responseElements);
+        final Map<ExternalIdBundle, Set<String>> permissions = extractPermissions(reverseBundleMap, responseElements);
+        if (tsMap != null) {
+          result = permissions == null ? new HistoricalTimeSeriesProviderGetResult(tsMap) : new HistoricalTimeSeriesProviderGetResult(tsMap, permissions);
+        }
+      } catch (InterruptedException | ExecutionException ex) {
+        getLogger().warn(String.format("Error getting bulk historical data for %s %s %s %s %s", externalIdBundle, dataProvider, dataField, dateRange, maxPoints), ex);
+      }
+      return result;
     }
 
     //-------------------------------------------------------------------------
     /**
      * Creates the Bloomberg request.
+     * 
+     * @param externalIdBundle the external bundles, not null
+     * @param dataProvider the data provider, not null
+     * @param dataField the data field, not null
+     * @param dateRange the date range, not null
+     * @param maxPoints the maximum points
+     * @param reverseBundleMap the reverse bundle map, not null
+     * 
+     * @return the bloomberg request
      */
-    private Request createRequest(Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints,
+    protected Request createRequest(Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints,
         Map<String, ExternalIdBundle> reverseBundleMap) {
 
       // create request
@@ -195,7 +256,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       // identifiers
       for (ExternalIdBundle identifiers : externalIdBundle) {
         ExternalId preferredId = getPreferredIdentifier(identifiers, dataProvider);
-        s_logger.debug("Resolved preferred identifier {} from identifier bundle {}", preferredId, identifiers);
+        getLogger().debug("Resolved preferred identifier {} from identifier bundle {}", preferredId, identifiers);
         String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(preferredId, dataProvider);
         securitiesElem.appendValue(bbgKey);
         reverseBundleMap.put(bbgKey, identifiers);
@@ -216,6 +277,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       if (maxPoints != null && maxPoints <= 0) {
         request.set("maxDataPoints", -maxPoints);
       }
+      request.set("returnEids", true);
       return request;
     }
 
@@ -249,12 +311,12 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     /**
      * Convert response to time-series.
      */
-    private static Map<ExternalIdBundle, LocalDateDoubleTimeSeries> extractTimeSeries(Set<ExternalIdBundle> externalIdBundle, String dataField,
-        Map<String, ExternalIdBundle> reverseBundleMap, BlockingQueue<Element> resultElements) {
+    private Map<ExternalIdBundle, LocalDateDoubleTimeSeries> extractTimeSeries(Set<ExternalIdBundle> externalIdBundle, String dataField,
+        Map<String, ExternalIdBundle> reverseBundleMap, List<Element> resultElements) {
 
       // handle empty case
       if (resultElements == null || resultElements.isEmpty()) {
-        s_logger.warn("Unable to get historical data for {}", externalIdBundle);
+        getLogger().warn("Unable to get historical data for {}", externalIdBundle);
         return null;
       }
 
@@ -262,7 +324,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       Map<ExternalIdBundle, LocalDateDoubleTimeSeriesBuilder> result = Maps.newHashMap();
       for (Element resultElem : resultElements) {
         if (resultElem.hasElement(RESPONSE_ERROR)) {
-          s_logger.warn("Response error");
+          getLogger().warn("Response error");
           extractError(resultElem.getElement(RESPONSE_ERROR));
           continue;
         }
@@ -276,7 +338,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
           for (int i = 0; i < fieldExceptions.numValues(); i++) {
             Element fieldException = fieldExceptions.getValueAsElement(i);
             String fieldId = fieldException.getElementAsString(FIELD_ID);
-            s_logger.warn("Field error on {}", fieldId);
+            getLogger().warn("Field error on {}", fieldId);
             Element errorInfo = fieldException.getElement(ERROR_INFO);
             extractError(errorInfo);
           }
@@ -286,7 +348,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         }
       }
       if (externalIdBundle.size() != result.size()) {
-        s_logger.warn("Failed to get time series results for ({}/{}) {}", externalIdBundle.size() - result.size(), externalIdBundle.size(),
+        getLogger().warn("Failed to get time series results for ({}/{}) {}", externalIdBundle.size() - result.size(), externalIdBundle.size(),
             Sets.difference(externalIdBundle, result.keySet()));
       }
       return convertResult(result);
@@ -306,7 +368,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     /**
      * Extracts time-series.
      */
-    private static void extractFieldData(Element securityElem, String field, Map<String, ExternalIdBundle> reverseBundleMap, Map<ExternalIdBundle, LocalDateDoubleTimeSeriesBuilder> result) {
+    private void extractFieldData(Element securityElem, String field, Map<String, ExternalIdBundle> reverseBundleMap, Map<ExternalIdBundle, LocalDateDoubleTimeSeriesBuilder> result) {
 
       String secDes = securityElem.getElementAsString(BloombergConstants.SECURITY);
       ExternalIdBundle identifiers = reverseBundleMap.get(secDes);
@@ -344,6 +406,34 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
 
       String errorMessage = MessageFormat.format(ERROR_MESSAGE_FORMAT, code, category, subcategory, message);
       s_logger.warn(errorMessage);
+    }
+
+    protected Map<ExternalIdBundle, Set<String>> extractPermissions(Map<String, ExternalIdBundle> reverseBundleMap, List<Element> responseElements) {
+      final Map<ExternalIdBundle, Set<String>> result = new HashMap<>();
+      for (Element resultElem : responseElements) {
+        if (resultElem.hasElement(SECURITY_DATA)) {
+          Element securityElem = resultElem.getElement(SECURITY_DATA);
+          String secDes = securityElem.getElementAsString(BloombergConstants.SECURITY);
+          ExternalIdBundle identifiers = reverseBundleMap.get(secDes);
+          if (identifiers != null) {
+            if (securityElem.hasElement(EID_DATA)) {
+              Element eidData = securityElem.getElement(EID_DATA);
+              Set<String> eids = new HashSet<>();
+              int numValues = eidData.numValues();
+              for (int i = 0; i < numValues; i++) {
+                try {
+                  eids.add(String.format("%s:%d", BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, eidData.getValueAsInt32(i)));
+                } catch (Exception ex) {
+                  getLogger().warn("Error extracting EID from {} for security:{}", eidData, identifiers);
+                }
+              }
+              getLogger().debug("EIDS {} return for security {}", eids, identifiers);
+              result.put(identifiers, eids);
+            }
+          }
+        }
+      }
+      return result;
     }
   }
 
