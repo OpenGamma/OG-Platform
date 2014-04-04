@@ -14,6 +14,44 @@ PortfolioTool was simplified as per the JIRA above
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M17
+------------
+
+** Bug
+    * [PLAT-5965] - Trade loading should go through the exact same code paths no matter if UI or command line is used
+    * [PLAT-5997] - Bucketed PV01 for multi-currency views do not add
+    * [PLAT-6060] - Tenor-based calibrated curve shocks do not hit the nodal points correctly.
+    * [PLAT-6113] - Bucketed PV01 with wrong currency in browser UI
+    * [PLAT-6243] - test broke in index bond
+    * [PLAT-6265] - Inflation linked bonds not loading in 'new UI'
+    * [PLAT-6273] - OG-Analytics: ProviderUtils.mergeDiscountingProviders does not merge FXMatrix properly.
+    * [PLAT-6292] - OG-Analytics: FXMatrixUtils.merge: handle the case of empty matrix.
+    * [PLAT-6314] - Inconsistent equals and hashCode override in CreditCurveCalibrator
+    * [PLAT-6315] - Swap loader does not persist ID resulting in a broken reference
+    * [PLAT-6321] - Inconsistent internal state in GetTerminalValuesCallback (1)
+    * [PLAT-6325] - Inconsistent internal state in GetTerminalValuesCallback (2)
+* Improvement
+    * [PLAT-4573] - Absence of YCNS shown as a "Missing inputs"
+    * [PLAT-6242] - OG-Financial : access to the price index historical time series for index bond at the derivative level
+* New Feature
+    * [PLAT-6296] - OG-Analytics: New instrument: BondFutureOptionMargin
+    * [PLAT-6303] - Initialise ServiceContext in pooled threads before running tasks
+    * [PLAT-6329] - Expose Implied Vol for Swaptions under SABR
+    * [PLAT-6330] - Scenarios: Add test script showing BucketedPV01 example
+* Task
+    * [PLAT-6139] - More tests for IMMDateLogic
+    * [PLAT-6234] - add last known index fixing for capital index bond
+    * [PLAT-6281] - Specify point shifts on fitted curves using point index instead of tenor
+    * [PLAT-6286] - Parspread market quote curve sensitivity calculators with issuer for inflation instrument 
+    * [PLAT-6291] - OG-Analytics: Create standard data tests for USD swaption under SABR
+    * [PLAT-6295] - OG-Financial : add InflationIssuerCurveTypeConfiguration in curveTypeConfiguration
+    * [PLAT-6302] - Refactor swap coupon conversion allowing for more exotic daycounts
+    * [PLAT-6319] - access to days to settlement at inflationBondSecurity level  
+    * [PLAT-6320] - access to the interpolation method at inflationBondSecurity level
+* Epic
+    * [PLAT-6275] - develop a new calibration including an issuer in the curve bundle and integrat it in og-financial
+
+
 To 2.2.0-M16
 ------------
 
