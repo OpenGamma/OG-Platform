@@ -22,6 +22,7 @@ import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataRequestService;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.mongo.MongoConnector;
@@ -50,6 +51,15 @@ public final class BloombergTestUtils {
   }
 
   /**
+   * Creates a Bloomberg connector for testing.
+   * 
+   * @return the connector, not null
+   */
+  public static BloombergConnector getBloombergBipeConnector() {
+    return new BloombergConnector("BloombergTestUtils", getSessionOptions("bbgBpipeServer.host", "bbgBpipeServer.port"));
+  }
+
+  /**
    * Creates a Bloomberg reference data provider for testing.
    * This must be started before use by the caller.
    * This must be closed after use by the caller.
@@ -59,7 +69,11 @@ public final class BloombergTestUtils {
    */
   public static BloombergReferenceDataProvider getBloombergReferenceDataProvider() {
     BloombergConnector bbgConnector = BloombergTestUtils.getBloombergConnector();
-    return new BloombergReferenceDataProvider(bbgConnector);
+    return new BloombergReferenceDataProvider(new BloombergReferenceDataRequestService(bbgConnector));
+  }
+
+  private static SessionOptions getSessionOptions() {
+    return getSessionOptions("bbgServer.host", "bbgServer.port");
   }
 
   /**
@@ -67,16 +81,16 @@ public final class BloombergTestUtils {
    * 
    * @return the session options, not null
    */
-  private static SessionOptions getSessionOptions() {
+  private static SessionOptions getSessionOptions(String bbgServerHostName, String bbgServerPortName) {
     SessionOptions options = new SessionOptions();
     Properties properties = TestProperties.getTestProperties();
-    String serverHost = properties.getProperty("bbgServer.host");
+    String serverHost = properties.getProperty(bbgServerHostName);
     if (StringUtils.isBlank(serverHost)) {
-      throw new OpenGammaRuntimeException("bloomberg.host is missing in tests.properties");
+      throw new OpenGammaRuntimeException(bbgServerHostName + " is missing in tests.properties");
     }
-    String serverPort = properties.getProperty("bbgServer.port");
+    String serverPort = properties.getProperty(bbgServerPortName);
     if (StringUtils.isBlank(serverPort)) {
-      throw new OpenGammaRuntimeException("bloomberg.port is missing in tests.properties");
+      throw new OpenGammaRuntimeException(bbgServerPortName + " is missing in tests.properties");
     }
     options.setServerHost(serverHost);
     options.setServerPort(Integer.parseInt(serverPort));
@@ -171,7 +185,7 @@ public final class BloombergTestUtils {
    * @return the ticker, not null
    */
   public static String getSampleEquityOptionTicker() {
-    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(getBloombergConnector());
+    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(new BloombergReferenceDataRequestService(getBloombergConnector()));
     rdp.start();
     
     Set<ExternalId> options = BloombergDataUtils.getOptionChain(rdp, "AAPL US Equity");
