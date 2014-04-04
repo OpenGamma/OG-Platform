@@ -57,6 +57,7 @@ import com.opengamma.transport.jaxrs.JodaBeanXmlProducerConsumer;
 import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.rest.DataDuplicationExceptionMapper;
 import com.opengamma.util.rest.DataNotFoundExceptionMapper;
+import com.opengamma.util.rest.DataVersionExceptionMapper;
 import com.opengamma.util.rest.IllegalArgumentExceptionMapper;
 import com.opengamma.util.rest.ThrowableExceptionMapper;
 import com.opengamma.util.rest.UnsupportedOperationExceptionMapper;
@@ -253,6 +254,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     restComponents.publishHelper(new JodaBeanXmlProducerConsumer());
     restComponents.publishHelper(new DataNotFoundExceptionMapper());
     restComponents.publishHelper(new DataDuplicationExceptionMapper());
+    restComponents.publishHelper(new DataVersionExceptionMapper());
     restComponents.publishHelper(new IllegalArgumentExceptionMapper());
     restComponents.publishHelper(new UnsupportedOperationExceptionMapper());
     restComponents.publishHelper(new WebApplicationExceptionMapper());
