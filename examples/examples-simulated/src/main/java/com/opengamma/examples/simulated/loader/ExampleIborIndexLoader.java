@@ -16,8 +16,9 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
-
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 /**
  * Load a portfolio of {@link IborIndexSecurity} instances for testing.
@@ -45,8 +46,21 @@ public class ExampleIborIndexLoader extends AbstractTool<ToolContext> {
    */
   protected List<IborIndex> loadSecurities() {
     final List<IborIndex> securities = new ArrayList<IborIndex>();
-    securities.add(new IborIndex(syntheticSecurityId("AUDLIBORP3M").toString(), Tenor.of(Period.ofMonths(3)),  syntheticSecurityId("AUDLIBORP3M")));
-    securities.add(new IborIndex(syntheticSecurityId("AUDLIBORP6M").toString(), Tenor.of(Period.ofMonths(6)),  syntheticSecurityId("AUDLIBORP6M")));
+    IborIndex ii;
+    ii = new IborIndex("AUDLIBORP3M", Tenor.of(Period.ofMonths(3)),  syntheticSecurityId("AUDLIBORP3M"));
+    ii.addExternalId(syntheticSecurityId("AUDLIBORP3M"));
+    securities.add(ii);
+    ii = new IborIndex("AUDLIBORP6M", Tenor.of(Period.ofMonths(6)),  syntheticSecurityId("AUDLIBORP6M"));
+    ii.addExternalId(syntheticSecurityId("AUDLIBORP6M"));
+    securities.add(ii);
+    ii = new IborIndex(IndexType.BBSW + "_AUD_P3M", Tenor.of(Period.ofMonths(3)),  syntheticSecurityId("AUDBBP3M"));
+    ii.addExternalId(syntheticSecurityId("AUDBBP3M"));
+    ii.addExternalId(simpleNameSecurityId(IndexType.BBSW + "_AUD_P3M"));
+    securities.add(ii);
+    ii = new IborIndex(IndexType.BBSW + "_AUD_P6M", Tenor.of(Period.ofMonths(3)),  syntheticSecurityId("AUDBBP6M"));
+    ii.addExternalId(syntheticSecurityId("AUDBBP6M"));
+    ii.addExternalId(simpleNameSecurityId(IndexType.BBSW + "_AUD_P6M"));
+    securities.add(ii);
     return securities;
   }
 
