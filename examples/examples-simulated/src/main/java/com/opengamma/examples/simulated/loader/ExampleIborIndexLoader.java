@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,7 +10,6 @@ import java.util.List;
 import org.threeten.bp.Period;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
@@ -47,17 +46,17 @@ public class ExampleIborIndexLoader extends AbstractTool<ToolContext> {
   protected List<IborIndex> loadSecurities() {
     final List<IborIndex> securities = new ArrayList<IborIndex>();
     IborIndex ii;
-    ii = new IborIndex("AUDLIBORP3M", Tenor.of(Period.ofMonths(3)),  syntheticSecurityId("AUDLIBORP3M"));
+    ii = new IborIndex("AUDLIBORP3M", Tenor.of(Period.ofMonths(3)), simpleNameSecurityId("AUD LIBOR 3m"));
     ii.addExternalId(syntheticSecurityId("AUDLIBORP3M"));
     securities.add(ii);
-    ii = new IborIndex("AUDLIBORP6M", Tenor.of(Period.ofMonths(6)),  syntheticSecurityId("AUDLIBORP6M"));
+    ii = new IborIndex("AUDLIBORP6M", Tenor.of(Period.ofMonths(6)), simpleNameSecurityId("AUD LIBOR 6m"));
     ii.addExternalId(syntheticSecurityId("AUDLIBORP6M"));
     securities.add(ii);
-    ii = new IborIndex(IndexType.BBSW + "_AUD_P3M", Tenor.of(Period.ofMonths(3)),  syntheticSecurityId("AUDBBP3M"));
+    ii = new IborIndex(IndexType.BBSW + "_AUD_P3M", Tenor.of(Period.ofMonths(3)), simpleNameSecurityId("AUD Bank Bill 3m"));
     ii.addExternalId(syntheticSecurityId("AUDBBP3M"));
     ii.addExternalId(simpleNameSecurityId(IndexType.BBSW + "_AUD_P3M"));
     securities.add(ii);
-    ii = new IborIndex(IndexType.BBSW + "_AUD_P6M", Tenor.of(Period.ofMonths(3)),  syntheticSecurityId("AUDBBP6M"));
+    ii = new IborIndex(IndexType.BBSW + "_AUD_P6M", Tenor.of(Period.ofMonths(3)), simpleNameSecurityId("AUD Bank Bill 6m"));
     ii.addExternalId(syntheticSecurityId("AUDBBP6M"));
     ii.addExternalId(simpleNameSecurityId(IndexType.BBSW + "_AUD_P6M"));
     securities.add(ii);
