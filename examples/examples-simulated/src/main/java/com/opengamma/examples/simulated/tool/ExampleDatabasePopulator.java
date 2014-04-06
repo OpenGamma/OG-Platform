@@ -29,7 +29,7 @@ import com.opengamma.examples.simulated.loader.ExampleCurrencyConfigurationLoade
 import com.opengamma.examples.simulated.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.simulated.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.simulated.loader.ExampleEquityPortfolioLoader;
-import com.opengamma.examples.simulated.loader.ExampleIborIndexLoader;
+import com.opengamma.examples.simulated.loader.ExampleIndexLoader;
 import com.opengamma.examples.simulated.loader.ExampleExchangeLoader;
 import com.opengamma.examples.simulated.loader.ExampleFXImpliedCurveConfigurationLoader;
 import com.opengamma.examples.simulated.loader.ExampleFunctionConfigurationPopulator;
@@ -264,7 +264,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private void loadIborIndex() {
     final Log log = new Log("Creating ibor index configuration");
     try {
-      final ExampleIborIndexLoader iborIndexLoader = new ExampleIborIndexLoader();
+      final ExampleIndexLoader iborIndexLoader = new ExampleIndexLoader();
       iborIndexLoader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
