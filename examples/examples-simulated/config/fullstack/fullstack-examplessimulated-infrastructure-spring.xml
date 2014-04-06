@@ -13,10 +13,10 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="username" value="${db.standard.username}" />
     <property name="password" value="${db.standard.password}" />
     <property name="poolName" value="Standard"/>
-    <property name="partitionCount" value="4" />
+    <property name="partitionCount" value="1" />
     <property name="acquireIncrement" value="1" />
     <property name="minConnectionsPerPartition" value="1" />
-    <property name="maxConnectionsPerPartition" value="12" />
+    <property name="maxConnectionsPerPartition" value="5" />
   </bean>
 
   <bean id="finDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
@@ -60,7 +60,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="partitionCount" value="1" />
     <property name="acquireIncrement" value="1" />
     <property name="minConnectionsPerPartition" value="1" />
-    <property name="maxConnectionsPerPartition" value="10" />
+    <property name="maxConnectionsPerPartition" value="5" />
   </bean>
 
   <bean id="htsDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
@@ -81,7 +81,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="partitionCount" value="1" />
     <property name="acquireIncrement" value="1" />
     <property name="minConnectionsPerPartition" value="1" />
-    <property name="maxConnectionsPerPartition" value="10" />
+    <property name="maxConnectionsPerPartition" value="5" />
   </bean>
 
   <bean id="batDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
@@ -108,7 +108,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="partitionCount" value="1" />
     <property name="acquireIncrement" value="1" />
     <property name="minConnectionsPerPartition" value="1" />
-    <property name="maxConnectionsPerPartition" value="10" />
+    <property name="maxConnectionsPerPartition" value="5" />
   </bean>
 
   <bean id="userDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
