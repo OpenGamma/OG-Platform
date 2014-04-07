@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.config.BloombergFieldOverride;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
@@ -84,6 +85,22 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   @PropertyDefinition
   private ConfigSource _configSource;
 
+  /**
+   * The authentication option, null means NO_AUTH
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _authenticationOption;
+
+  /**
+   * The identity re authorization schedule time in hours
+   * <p>
+   * Defaults to 24hrs if not set
+   */
+  @PropertyDefinition
+  private Integer _reAuthorizationScheduleTime = AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME;
+
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -104,8 +121,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    * @return the provider, not null
    */
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
-    BloombergConnector bloombergConnector = getBloombergConnector();
-    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(bloombergConnector);
+    BloombergReferenceDataProvider underlying = createBloombergReferenceDataProvider();
     repo.registerLifecycle(underlying);
     
     ReferenceDataProvider effectiveProvider = underlying;
@@ -126,6 +142,12 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     } else {
       return new InMemoryInvalidFieldCachingReferenceDataProvider(effectiveProvider);
     }
+  }
+
+  protected BloombergReferenceDataProvider createBloombergReferenceDataProvider() {
+    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(getBloombergConnector(), getAuthenticationOption(),
+        getReAuthorizationScheduleTime());
+    return underlying;
   }
 
   /**
@@ -334,6 +356,69 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the authentication option, null means NO_AUTH
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   * @return the value of the property, not null
+   */
+  public String getAuthenticationOption() {
+    return _authenticationOption;
+  }
+
+  /**
+   * Sets the authentication option, null means NO_AUTH
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   * @param authenticationOption  the new value of the property, not null
+   */
+  public void setAuthenticationOption(String authenticationOption) {
+    JodaBeanUtils.notNull(authenticationOption, "authenticationOption");
+    this._authenticationOption = authenticationOption;
+  }
+
+  /**
+   * Gets the the {@code authenticationOption} property.
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   * @return the property, not null
+   */
+  public final Property<String> authenticationOption() {
+    return metaBean().authenticationOption().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identity re authorization schedule time in hours
+   * <p>
+   * Defaults to 24hrs if not set
+   * @return the value of the property
+   */
+  public Integer getReAuthorizationScheduleTime() {
+    return _reAuthorizationScheduleTime;
+  }
+
+  /**
+   * Sets the identity re authorization schedule time in hours
+   * <p>
+   * Defaults to 24hrs if not set
+   * @param reAuthorizationScheduleTime  the new value of the property
+   */
+  public void setReAuthorizationScheduleTime(Integer reAuthorizationScheduleTime) {
+    this._reAuthorizationScheduleTime = reAuthorizationScheduleTime;
+  }
+
+  /**
+   * Gets the the {@code reAuthorizationScheduleTime} property.
+   * <p>
+   * Defaults to 24hrs if not set
+   * @return the property, not null
+   */
+  public final Property<Integer> reAuthorizationScheduleTime() {
+    return metaBean().reAuthorizationScheduleTime().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public BloombergReferenceDataProviderComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -352,6 +437,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           JodaBeanUtils.equal(getMongoConnector(), other.getMongoConnector()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getAuthenticationOption(), other.getAuthenticationOption()) &&
+          JodaBeanUtils.equal(getReAuthorizationScheduleTime(), other.getReAuthorizationScheduleTime()) &&
           super.equals(obj);
     }
     return false;
@@ -366,12 +453,14 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     hash += hash * 31 + JodaBeanUtils.hashCode(getMongoConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAuthenticationOption());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReAuthorizationScheduleTime());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("BloombergReferenceDataProviderComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -391,6 +480,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     buf.append("mongoConnector").append('=').append(JodaBeanUtils.toString(getMongoConnector())).append(',').append(' ');
     buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
     buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("authenticationOption").append('=').append(JodaBeanUtils.toString(getAuthenticationOption())).append(',').append(' ');
+    buf.append("reAuthorizationScheduleTime").append('=').append(JodaBeanUtils.toString(getReAuthorizationScheduleTime())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -434,6 +525,16 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", BloombergReferenceDataProviderComponentFactory.class, ConfigSource.class);
     /**
+     * The meta-property for the {@code authenticationOption} property.
+     */
+    private final MetaProperty<String> _authenticationOption = DirectMetaProperty.ofReadWrite(
+        this, "authenticationOption", BloombergReferenceDataProviderComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code reAuthorizationScheduleTime} property.
+     */
+    private final MetaProperty<Integer> _reAuthorizationScheduleTime = DirectMetaProperty.ofReadWrite(
+        this, "reAuthorizationScheduleTime", BloombergReferenceDataProviderComponentFactory.class, Integer.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -443,7 +544,9 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
         "bloombergConnector",
         "mongoConnector",
         "cacheManager",
-        "configSource");
+        "configSource",
+        "authenticationOption",
+        "reAuthorizationScheduleTime");
 
     /**
      * Restricted constructor.
@@ -466,6 +569,10 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           return _cacheManager;
         case 195157501:  // configSource
           return _configSource;
+        case -1714316019:  // authenticationOption
+          return _authenticationOption;
+        case 1130765866:  // reAuthorizationScheduleTime
+          return _reAuthorizationScheduleTime;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -534,6 +641,22 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
       return _configSource;
     }
 
+    /**
+     * The meta-property for the {@code authenticationOption} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> authenticationOption() {
+      return _authenticationOption;
+    }
+
+    /**
+     * The meta-property for the {@code reAuthorizationScheduleTime} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> reAuthorizationScheduleTime() {
+      return _reAuthorizationScheduleTime;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -550,6 +673,10 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           return ((BloombergReferenceDataProviderComponentFactory) bean).getCacheManager();
         case 195157501:  // configSource
           return ((BloombergReferenceDataProviderComponentFactory) bean).getConfigSource();
+        case -1714316019:  // authenticationOption
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getAuthenticationOption();
+        case 1130765866:  // reAuthorizationScheduleTime
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getReAuthorizationScheduleTime();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -575,6 +702,12 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
         case 195157501:  // configSource
           ((BloombergReferenceDataProviderComponentFactory) bean).setConfigSource((ConfigSource) newValue);
           return;
+        case -1714316019:  // authenticationOption
+          ((BloombergReferenceDataProviderComponentFactory) bean).setAuthenticationOption((String) newValue);
+          return;
+        case 1130765866:  // reAuthorizationScheduleTime
+          ((BloombergReferenceDataProviderComponentFactory) bean).setReAuthorizationScheduleTime((Integer) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -583,6 +716,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._bloombergConnector, "bloombergConnector");
+      JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._authenticationOption, "authenticationOption");
       super.validate(bean);
     }
 
