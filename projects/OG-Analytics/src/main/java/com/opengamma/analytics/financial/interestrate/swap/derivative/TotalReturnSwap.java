@@ -18,18 +18,13 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class TotalReturnSwap implements InstrumentDerivative {
   /** The funding leg */
   private final Annuity<? extends Payment> _fundingLeg;
-  /** The asset */
-  private final InstrumentDerivative _asset;
 
   /**
    * @param fundingLeg The funding leg, not null
-   * @param asset The asset, not null
    */
-  public TotalReturnSwap(final Annuity<? extends Payment> fundingLeg, final InstrumentDerivative asset) {
+  public TotalReturnSwap(final Annuity<? extends Payment> fundingLeg) {
     ArgumentChecker.notNull(fundingLeg, "fundingLeg");
-    ArgumentChecker.notNull(asset, "asset");
     _fundingLeg = fundingLeg;
-    _asset = asset;
   }
 
   /**
@@ -40,19 +35,10 @@ public abstract class TotalReturnSwap implements InstrumentDerivative {
     return _fundingLeg;
   }
 
-  /**
-   * Gets the asset.
-   * @return The asset
-   */
-  public InstrumentDerivative getAsset() {
-    return _asset;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _asset.hashCode();
     result = prime * result + _fundingLeg.hashCode();
     return result;
   }
@@ -66,9 +52,6 @@ public abstract class TotalReturnSwap implements InstrumentDerivative {
       return false;
     }
     final TotalReturnSwap other = (TotalReturnSwap) obj;
-    if (!ObjectUtils.equals(_asset, other._asset)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_fundingLeg, other._fundingLeg)) {
       return false;
     }

@@ -117,11 +117,11 @@ public class CouponIborSpread extends CouponFloating implements DepositIndexCoup
   public CouponIborSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
       final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread) {
     super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
-    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start {} < fixing time {}", fixingPeriodStartTime, fixingTime);
     _fixingPeriodStartTime = fixingPeriodStartTime;
-    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end {} < fixing period start {}", fixingPeriodEndTime, fixingPeriodStartTime);
     _fixingPeriodEndTime = fixingPeriodEndTime;
-    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "fixing year fraction {} < 0", fixingYearFraction);
     _fixingAccrualFactor = fixingYearFraction;
     _spread = spread;
     _spreadAmount = _spread * getPaymentYearFraction() * getNotional();
@@ -203,6 +203,7 @@ public class CouponIborSpread extends CouponFloating implements DepositIndexCoup
    * Gets the Ibor-like index.
    * @return The index.
    */
+  @Override
   public IborIndex getIndex() {
     return _index;
   }

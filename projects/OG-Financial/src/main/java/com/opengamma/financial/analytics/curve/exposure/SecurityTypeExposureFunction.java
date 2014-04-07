@@ -443,11 +443,11 @@ public class SecurityTypeExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
-    return null;
+    return getSecurityType(security);
   }
 
   @Override
   public List<ExternalId> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
-    return null;
+    return getSecurityType(security);
   }
 }

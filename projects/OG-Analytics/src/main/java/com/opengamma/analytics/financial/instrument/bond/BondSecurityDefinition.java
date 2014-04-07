@@ -100,7 +100,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    */
   public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
       final Calendar calendar, final String issuer, final String repoType) {
-    this(nominal, coupon, exCouponDays, settlementDays, calendar, new LegalEntity(null, repoType, null, null, null), repoType);
+    this(nominal, coupon, exCouponDays, settlementDays, calendar, new LegalEntity(null, issuer, null, null, null), repoType);
   }
 
   /**

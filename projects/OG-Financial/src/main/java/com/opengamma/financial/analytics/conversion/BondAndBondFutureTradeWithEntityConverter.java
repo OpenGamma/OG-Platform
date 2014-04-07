@@ -9,6 +9,7 @@ package com.opengamma.financial.analytics.conversion;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;*/
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,9 +64,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -88,7 +86,7 @@ import com.opengamma.util.money.Currency;
  * {@link FloatingRateNoteSecurity} trades into the appropriate classes in the analytics
  * library.
  */
-public class BondAndBondFutureTradeWithEntityConverter {
+public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** Excluded coupon types */
   private static final Set<String> EXCLUDED_TYPES = Sets.newHashSet("TOGGLE PIK NOTES", "FLOAT_RATE_NOTE");
   /** Rating agency strings */
@@ -133,6 +131,28 @@ public class BondAndBondFutureTradeWithEntityConverter {
     _regionSource = regionSource;
     _securitySource = securitySource;
     _legalEntitySource = legalEntitySource;
+  }
+
+  /**
+   * Converts a government bond security into an {@link InstrumentDefinition}.
+   * @param security The government bond security.
+   * @return The security definition
+   */
+  @Override
+  public InstrumentDefinition<?> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+    final LegalEntity legalEntity = getLegalEntityForBond(Collections.<String, String>emptyMap(), security);
+    return getFixedCouponBond(security, legalEntity);
+  }
+
+  /**
+   * Converts a corporate bond security into an {@link InstrumentDefinition}.
+   * @param security The corporate bond security.
+   * @return The security definition
+   */
+  @Override
+  public InstrumentDefinition<?> visitCorporateBondSecurity(final CorporateBondSecurity security) {
+    final LegalEntity legalEntity = getLegalEntityForBond(Collections.<String, String>emptyMap(), security);
+    return getFixedCouponBond(security, legalEntity);
   }
 
   /**
@@ -189,8 +209,8 @@ public class BondAndBondFutureTradeWithEntityConverter {
       }
       final ZonedDateTime settlementDateTime = ScheduleCalculator.getAdjustedDate(tradeDateTime, Integer.parseInt(bondSecurity.attributes().get().get("daysToSettle")), calendar);
       final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
-      final BondCapitalIndexedSecurityDefinition bondFuture = (BondCapitalIndexedSecurityDefinition) getInflationBond(bondSecurity, legalEntity);
-      return new BondCapitalIndexedTransactionDefinition(bondFuture, quantity, settlementDateTime, price);
+      final BondCapitalIndexedSecurityDefinition<?> bond = (BondCapitalIndexedSecurityDefinition<?>) getInflationBond(bondSecurity, legalEntity);
+      return new BondCapitalIndexedTransactionDefinition<>(bond, quantity, settlementDateTime, price);
     }
 
     OffsetTime settleTime = trade.getPremiumTime();
@@ -231,7 +251,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
    * @param security The bond security
    * @return A legal entity
    */
-  private static LegalEntity getLegalEntityForBond(final Map<String, String> tradeAttributes, final BondSecurity security) {
+  public static LegalEntity getLegalEntityForBond(final Map<String, String> tradeAttributes, final BondSecurity security) {
     final Map<String, String> securityAttributes = security.getAttributes();
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
     final String ticker;
@@ -357,7 +377,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
           throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
         }
         final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
-        final Period paymentPeriod = getTenor(bond.getCouponFrequency());
+        final Period paymentPeriod = ConversionUtils.getTenor(bond.getCouponFrequency());
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
         return BondFixedSecurityDefinition.from(currency, firstAccrualDate, firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
             yieldConvention, isEOM, legalEntity);
@@ -469,7 +489,10 @@ public class BondAndBondFutureTradeWithEntityConverter {
           return new PaymentFixedDefinition(currency, maturityDate, 1);
         }
         final int settlementDays = Integer.parseInt(bond.attributes().get().get("daysToSettle"));
-        final Period paymentPeriod = getTenor(bond.getCouponFrequency());
+        final Period paymentPeriod = ConversionUtils.getTenor(bond.getCouponFrequency());
+        if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
+          throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
+        }
         final double baseCPI = Double.parseDouble(bond.attributes().get().get("BaseCPI"));
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
         final String interpolationMethod = bond.attributes().get().get("interpolationMethod");
@@ -548,20 +571,6 @@ public class BondAndBondFutureTradeWithEntityConverter {
     //    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
     final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, null, null);
     return legalEntity;
-  }
-
-  /**
-   * Gets the tenor for a frequency.
-   * @param freq The frequency
-   * @return The tenor
-   */
-  /* package */static Period getTenor(final Frequency freq) {
-    if (freq instanceof PeriodFrequency) {
-      return ((PeriodFrequency) freq).getPeriod();
-    } else if (freq instanceof SimpleFrequency) {
-      return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
-    }
-    throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
   }
 
 }

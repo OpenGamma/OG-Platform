@@ -36,6 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
 public class CarrLeeFairValueFXVolatilitySwapFunction extends CarrLeeFXVolatilitySwapFunction {
   /** The fair value calculator */
   private static final InstrumentDerivativeVisitor<CarrLeeFXData, VolatilitySwapCalculatorResult> CALCULATOR = new CarrLeeFXVolatilitySwapCalculator();
+
   /**
    * Sets the value requirement to {@link ValueRequirementNames#FAIR_VALUE}.
    */

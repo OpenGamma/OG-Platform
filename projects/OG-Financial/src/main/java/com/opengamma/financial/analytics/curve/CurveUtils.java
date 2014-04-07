@@ -32,7 +32,7 @@ public class CurveUtils {
 
   /**
    * Builds a {@link CurveSpecification} from a curve definition that is valid at a particular time. This method handles only {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
-   * 
+   *
    * @param valuationTime The valuation time, not null
    * @param curveDefinitionSource The curve definition source, not null
    * @param curveSpecificationBuilder The curve specification builder, not null
@@ -60,7 +60,7 @@ public class CurveUtils {
 
   /**
    * Builds a {@link CurveSpecification} from a curve definition that is valid at a particular time. This method handles only {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
-   * 
+   *
    * @param valuationTime The valuation time, not null
    * @param curveDefinitionSource The curve definition source, not null
    * @param curveSpecificationBuilder The curve specification builder, not null
@@ -85,7 +85,7 @@ public class CurveUtils {
 
   /**
    * Gets the names of all the curves that are to be constructed in this configuration.
-   * 
+   *
    * @param configuration The curve construction configuration, not null
    * @return The names of all of the curves to be constructed
    */
@@ -102,7 +102,7 @@ public class CurveUtils {
 
   /**
    * Gets the definitions for all of the curves in a configuration, including any in exogenous configurations.
-   * 
+   *
    * @param configuration The curve construction configuration, not null
    * @param curveDefinitionSource The curve definition source, not null
    * @param curveConstructionConfigurationSource The config source that contains information about any exogenous curve configurations, not null
@@ -140,6 +140,10 @@ public class CurveUtils {
     if (exogenousConfigurations != null && !exogenousConfigurations.isEmpty()) {
       for (final String name : exogenousConfigurations) {
         final CurveConstructionConfiguration exogenousConfiguration = curveConstructionConfigurationSource.getCurveConstructionConfiguration(name);
+        if (exogenousConfiguration == null) {
+          throw new OpenGammaRuntimeException("Exogenous configuration called " + name + " in " + configuration.getName() +
+              " was not present in the config master");
+        }
         currencies.addAll(getCurrencies(exogenousConfiguration, curveDefinitionSource, curveConstructionConfigurationSource, curveNodeCurrencyVisitor));
       }
     }

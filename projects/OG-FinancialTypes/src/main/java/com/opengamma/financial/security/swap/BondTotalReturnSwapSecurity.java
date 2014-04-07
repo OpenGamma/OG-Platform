@@ -68,7 +68,6 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * @param assetId The asset external id bundle, not null
    * @param effectiveDate The effective date, not null
    * @param maturityDate The maturity date, not null
-   * @param numberOfShares The number of shares, not null
    * @param notionalCurrency The currency of the notional, not null
    * @param notionalAmount The amount of the notional, not null
    * @param paymentSettlementDays The number of days to settle for the payments
@@ -77,7 +76,7 @@ public class BondTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * @param rollConvention The payment roll convention, not null
    */
   public BondTotalReturnSwapSecurity(final FloatingInterestRateSwapLeg fundingLeg, final ExternalIdBundle assetId,
-      final LocalDate effectiveDate, final LocalDate maturityDate, final Double numberOfShares, final Currency notionalCurrency,
+      final LocalDate effectiveDate, final LocalDate maturityDate, final Currency notionalCurrency,
       final Double notionalAmount, final int paymentSettlementDays, final BusinessDayConvention paymentBusinessDayConvention,
       final Frequency paymentFrequency, final RollConvention rollConvention) {
     super(SECURITY_TYPE, fundingLeg, assetId, effectiveDate, maturityDate, paymentSettlementDays, paymentBusinessDayConvention,
