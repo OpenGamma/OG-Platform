@@ -22,7 +22,6 @@ import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
-import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataRequestService;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.mongo.MongoConnector;
@@ -69,7 +68,7 @@ public final class BloombergTestUtils {
    */
   public static BloombergReferenceDataProvider getBloombergReferenceDataProvider() {
     BloombergConnector bbgConnector = BloombergTestUtils.getBloombergConnector();
-    return new BloombergReferenceDataProvider(new BloombergReferenceDataRequestService(bbgConnector));
+    return new BloombergReferenceDataProvider(bbgConnector);
   }
 
   private static SessionOptions getSessionOptions() {
@@ -185,7 +184,7 @@ public final class BloombergTestUtils {
    * @return the ticker, not null
    */
   public static String getSampleEquityOptionTicker() {
-    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(new BloombergReferenceDataRequestService(getBloombergConnector()));
+    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(getBloombergConnector());
     rdp.start();
     
     Set<ExternalId> options = BloombergDataUtils.getOptionChain(rdp, "AAPL US Equity");
