@@ -35,7 +35,6 @@ import com.bloomberglp.blpapi.Name;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.ConnectionUnavailableException;
@@ -229,10 +228,11 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * @return the correlation identifier, not null
    */
   protected Future<List<Element>> submitRequest(Request request) {
-    final Session session = getSession();
-    final CorrelationID cid = new CorrelationID(generateCorrelationID());
+    Session session = getSession();
+    CorrelationID cid = new CorrelationID(generateCorrelationID());
     
-    final SettableFuture<List<Element>> resultFuture = SettableFuture.<List<Element>>create();
+    SettableFuture<List<Element>> resultFuture = SettableFuture.<List<Element>>create();
+    ArrayList<Element> result = new ArrayList<>();
     try {
       if (_systemUserIdentity != null) {
         getLogger().debug("submitting authorized request {} with cid {}", request, cid);
@@ -241,11 +241,11 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
         getLogger().debug("submitting normal request {} with cid {}", request, cid);
         session.sendRequest(request, cid);
       }
-      _responseMessages.put(cid, Lists.<Element>newArrayList());
+      _responseMessages.put(cid, result);
       _responseFutures.put(cid, resultFuture);
     } catch (IOException ex) {
       getLogger().warn("Error executing bloomberg reference data request", ex);
-      resultFuture.set(Lists.<Element>newArrayList());
+      resultFuture.set(result);
     }
     return resultFuture;
   }
@@ -259,17 +259,18 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    */
   protected Future<List<Element>> submitAuthorizationRequest(Request request, Identity userIdentity) {
     getLogger().debug("Sending Request={}", request);
-    final Session session = getSession();
-    final CorrelationID cid = new CorrelationID(generateCorrelationID());
+    Session session = getSession();
+    CorrelationID cid = new CorrelationID(generateCorrelationID());
 
-    final SettableFuture<List<Element>> resultFuture = SettableFuture.<List<Element>>create();
+    SettableFuture<List<Element>> resultFuture = SettableFuture.<List<Element>>create();
+    ArrayList<Element> result = new ArrayList<>();
     try {
       session.sendAuthorizationRequest(request, userIdentity, cid);
-      _responseMessages.put(cid, Lists.<Element>newArrayList());
+      _responseMessages.put(cid, result);
       _responseFutures.put(cid, resultFuture);
     } catch (IOException ex) {
       getLogger().warn("Error executing bloomberg reference data request", ex);
-      resultFuture.set(Lists.<Element>newArrayList());
+      resultFuture.set(result);
     }
     return resultFuture;
   }
