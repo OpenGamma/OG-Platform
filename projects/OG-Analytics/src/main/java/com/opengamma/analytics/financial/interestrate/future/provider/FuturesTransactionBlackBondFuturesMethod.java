@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackBondFuturesCubeSensitivity;
+import com.opengamma.analytics.financial.provider.calculator.singlevalue.FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator;
 import com.opengamma.analytics.financial.provider.calculator.singlevalue.FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -15,15 +17,17 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Generic futures transaction pricing method.
  */
-public class FuturesTransactionBlackFlatBondFuturesMethod extends FuturesTransactionMethod {
+public class FuturesTransactionBlackBondFuturesMethod extends FuturesTransactionMethod {
 
   /** The calculator used to compute the present value curve sensitivity from the price curve sensitivity **/
   private static final FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator PVCSIC = FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator.getInstance();
+  /** The calculator used to compute the present value Black sensitivity from the price Black sensitivity **/
+  private static final FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator PVBSIC = FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator.getInstance();
 
   /**
    * Default constructor.
    */
-  public FuturesTransactionBlackFlatBondFuturesMethod() {
+  public FuturesTransactionBlackBondFuturesMethod() {
     super(new FuturesSecurityBlackBondFuturesMethod());
   }
 
@@ -48,7 +52,7 @@ public class FuturesTransactionBlackFlatBondFuturesMethod extends FuturesTransac
   }
 
   /**
-   * Compute the present value curve sensitivity to rates of a future.
+   * Compute the present value curve sensitivity to rates of a future transaction.
    * @param futures The futures.
    * @param multicurve The multicurve and parameters provider.
    * @return The present value rate sensitivity.
@@ -56,7 +60,17 @@ public class FuturesTransactionBlackFlatBondFuturesMethod extends FuturesTransac
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, final BlackBondFuturesProviderInterface multicurve) {
     final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingFuture(), multicurve);
     return futures.accept(PVCSIC, priceSensitivity);
+  }
 
+  /**
+   * Compute the present value Black sensitivity of a future transaction.
+   * @param futures The futures.
+   * @param multicurve The multicurve and parameters provider.
+   * @return The present value Black parameters sensitivity.
+   */
+  public PresentValueBlackBondFuturesCubeSensitivity presentValueBlackSensitivity(final FuturesTransaction<?> futures, final BlackBondFuturesProviderInterface multicurve) {
+    final PresentValueBlackBondFuturesCubeSensitivity priceSensitivity = getSecurityMethod().priceBlackSensitivity(futures.getUnderlyingFuture(), multicurve);
+    return futures.accept(PVBSIC, priceSensitivity);
   }
 
 }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.sensitivity;
 
-
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -48,7 +47,7 @@ public class PresentValueBlackBondFuturesCubeSensitivity {
    * @param currency The currency of the sensitivity.
    * @param legalEntity The legal entity of the bonds underlying the futures for which the volatility data is valid.
    */
-  public PresentValueBlackBondFuturesCubeSensitivity(final Map<Triple<Double, Double, Double>, Double> sensitivity, 
+  public PresentValueBlackBondFuturesCubeSensitivity(final Map<Triple<Double, Double, Double>, Double> sensitivity,
       final Currency currency, final LegalEntity legalEntity) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(currency, "currency");
@@ -64,7 +63,7 @@ public class PresentValueBlackBondFuturesCubeSensitivity {
    * @param currency The currency of the sensitivity.
    * @param legalEntity The legal entity of the bonds underlying the futures for which the volatility data is valid.
    */
-  public PresentValueBlackBondFuturesCubeSensitivity(final CubeValue sensitivity, 
+  public PresentValueBlackBondFuturesCubeSensitivity(final CubeValue sensitivity,
       final Currency currency, final LegalEntity legalEntity) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(currency, "currency");
@@ -86,23 +85,21 @@ public class PresentValueBlackBondFuturesCubeSensitivity {
 
   /**
    * Create a new sensitivity object with all the sensitivities multiplied by a common factor.
-   * @param sensi The Black sensitivity.
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public static PresentValueBlackBondFuturesCubeSensitivity multiplyBy(final PresentValueBlackBondFuturesCubeSensitivity sensi, final double factor) {
-    return new PresentValueBlackBondFuturesCubeSensitivity(CubeValue.multiplyBy(sensi._sensitivity, factor), sensi._currency, sensi._legalEntity);
+  public PresentValueBlackBondFuturesCubeSensitivity multipliedBy(final double factor) {
+    return new PresentValueBlackBondFuturesCubeSensitivity(CubeValue.multiplyBy(_sensitivity, factor), _currency, _legalEntity);
   }
 
   /**
    * Return the sum of to sensitivities in a new one. The original sensitivities are unchanged. The associated swap generators should be identical.
-   * @param sensi1 The first Black sensitivity.
-   * @param sensi2 The second Black sensitivity.
+   * @param sensi The Black sensitivity to add.
    * @return The sum sensitivity.
    */
-  public static PresentValueBlackBondFuturesCubeSensitivity plus(final PresentValueBlackBondFuturesCubeSensitivity sensi1, final PresentValueBlackBondFuturesCubeSensitivity sensi2) {
-    ArgumentChecker.isTrue(sensi1._currency.equals(sensi2._currency), "Swap generators should be equal to add sensitivities");
-    return new PresentValueBlackBondFuturesCubeSensitivity(CubeValue.plus(sensi1._sensitivity, sensi2._sensitivity), sensi1._currency, sensi1._legalEntity);
+  public PresentValueBlackBondFuturesCubeSensitivity plus(final PresentValueBlackBondFuturesCubeSensitivity sensi) {
+    ArgumentChecker.isTrue(_currency.equals(sensi._currency), "Swap generators should be equal to add sensitivities");
+    return new PresentValueBlackBondFuturesCubeSensitivity(CubeValue.plus(_sensitivity, sensi._sensitivity), _currency, _legalEntity);
   }
 
   /**

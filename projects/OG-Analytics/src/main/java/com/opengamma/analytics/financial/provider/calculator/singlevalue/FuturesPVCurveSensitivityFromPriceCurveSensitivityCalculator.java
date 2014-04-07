@@ -62,4 +62,5 @@ public final class FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator 
     return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(), priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getUnderlyingFuture().getNotional()
         * futures.getQuantity()));
   }
+
 }

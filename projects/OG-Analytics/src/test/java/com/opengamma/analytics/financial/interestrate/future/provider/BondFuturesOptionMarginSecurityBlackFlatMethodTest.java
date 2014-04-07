@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Map.Entry;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -14,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFuturesDataSets;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackBondFuturesCubeSensitivity;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -24,6 +27,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Black
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Triple;
 
 public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
 
@@ -54,6 +58,7 @@ public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
 
   /** Tolerances */
   private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double TOLERANCE_DELTA = 1.0E-8;
 
   @Test
   public void impliedVolatility() {
@@ -88,6 +93,26 @@ public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
     final double priceExpected = METHOD_OPT.price(CALL_BOBL_125, BLACK_FLAT_BNDFUT, priceFutures);
     final double priceComputed = METHOD_OPT.price(CALL_BOBL_125, BLACK_FLAT_BNDFUT);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
+  }
+
+  @Test
+  public void priceBlackSensitivity() {
+    final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_125.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_125, CALL_BOBL_125.getExpirationTime(), CALL_BOBL_125.isCall());
+    final double expiry = CALL_BOBL_125.getExpirationTime();
+    final double delay = CALL_BOBL_125.getUnderlyingFuture().getNoticeLastTime() - CALL_BOBL_125.getExpirationTime();
+    final double volatility = BLACK_SURFACE.getZValue(expiry, delay);
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
+    final double[] priceAD = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    final double vega = priceAD[2];
+    final PresentValueBlackBondFuturesCubeSensitivity vegaComputed = METHOD_OPT.priceBlackSensitivity(CALL_BOBL_125, BLACK_FLAT_BNDFUT);
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: Black parameters sensitivity", vega, vegaComputed.getSensitivity().toSingleValue(), TOLERANCE_DELTA);
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: Black parameters sensitivity", 1, vegaComputed.getSensitivity().getMap().size());
+    final Entry<Triple<Double, Double, Double>, Double> point = vegaComputed.getSensitivity().getMap().entrySet().iterator().next();
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: Black parameters sensitivity", CALL_BOBL_125.getExpirationTime(), point.getKey().getFirst(), TOLERANCE_RATE);
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: Black parameters sensitivity",
+        CALL_BOBL_125.getUnderlyingFuture().getTradingLastTime() - CALL_BOBL_125.getExpirationTime(), point.getKey().getSecond(), TOLERANCE_RATE);
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: Black parameters sensitivity", CALL_BOBL_125.getStrike(), point.getKey().getThird(), TOLERANCE_RATE);
   }
 
 }

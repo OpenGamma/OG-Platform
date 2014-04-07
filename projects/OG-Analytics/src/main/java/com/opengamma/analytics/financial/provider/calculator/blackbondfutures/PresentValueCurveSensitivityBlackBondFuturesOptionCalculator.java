@@ -7,39 +7,39 @@ package com.opengamma.analytics.financial.provider.calculator.blackbondfutures;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.FuturesTransactionBlackFlatBondFuturesMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.FuturesTransactionBlackBondFuturesMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueCurveSensitivityBlackFlatBondFuturesOptionCalculator extends
+public final class PresentValueCurveSensitivityBlackBondFuturesOptionCalculator extends
     InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueCurveSensitivityBlackFlatBondFuturesOptionCalculator INSTANCE = new PresentValueCurveSensitivityBlackFlatBondFuturesOptionCalculator();
+  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator INSTANCE = new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueCurveSensitivityBlackFlatBondFuturesOptionCalculator getInstance() {
+  public static PresentValueCurveSensitivityBlackBondFuturesOptionCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private PresentValueCurveSensitivityBlackFlatBondFuturesOptionCalculator() {
+  private PresentValueCurveSensitivityBlackBondFuturesOptionCalculator() {
   }
 
   /**
    * Pricing methods.
    */
-  private static final FuturesTransactionBlackFlatBondFuturesMethod METHOD_FUT = new FuturesTransactionBlackFlatBondFuturesMethod();
+  private static final FuturesTransactionBlackBondFuturesMethod METHOD_FUT = new FuturesTransactionBlackBondFuturesMethod();
 
   // -----     Futures     ------
 

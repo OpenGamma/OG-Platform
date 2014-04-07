@@ -35,7 +35,7 @@ import com.opengamma.util.tuple.Pairs;
  * The return format is ParameterSensitivity object.
  * This is a very inefficient way to compute the sensitivities. It should be used only for tests purposes or when speed is irrelevant.
  */
-public class ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalculator {
+public class ParameterSensitivityBlackBondFuturesFlatDiscountInterpolatedFDCalculator {
 
   /**
    * The value calculator.
@@ -51,7 +51,7 @@ public class ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalcu
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<BlackBondFuturesProviderInterface, MultipleCurrencyAmount> valueCalculator,
+  public ParameterSensitivityBlackBondFuturesFlatDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<BlackBondFuturesProviderInterface, MultipleCurrencyAmount> valueCalculator,
       final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;
