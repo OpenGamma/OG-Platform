@@ -54,7 +54,6 @@ public class DeprecatedInterestRateFutureTransactionTest {
   private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "ERU2";
   private static final int QUANTITY = 123;
-  //  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
 
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
   private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
@@ -65,88 +64,47 @@ public class DeprecatedInterestRateFutureTransactionTest {
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE,
-      NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+  private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL,
+      NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+  private static final InterestRateFutureTransaction ERU2_TRA = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE, QUANTITY);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullIndex() {
-    new InterestRateFutureTransaction(LAST_TRADING_TIME, null, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME, DISCOUNTING_CURVE_NAME,
-        FORWARD_CURVE_NAME);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullName() {
-    new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, null,
-        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDscCurve() {
-    new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME, null,
-        FORWARD_CURVE_NAME);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullForwardCurve() {
-    new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME,
-        DISCOUNTING_CURVE_NAME, null);
+  public void nullSecurity() {
+    new InterestRateFutureTransaction(null, REFERENCE_PRICE, QUANTITY);
   }
 
   @Test
   public void getter() {
-    assertEquals(LAST_TRADING_TIME, ERU2.getLastTradingTime());
-    assertEquals(IBOR_INDEX, ERU2.getIborIndex());
-    assertEquals(NOTIONAL, ERU2.getNotional());
-    assertEquals(FUTURE_FACTOR, ERU2.getPaymentAccrualFactor());
-    assertEquals(DISCOUNTING_CURVE_NAME, ERU2.getDiscountingCurveName());
-    assertEquals(FORWARD_CURVE_NAME, ERU2.getForwardCurveName());
-    assertEquals(NAME, ERU2.getName());
-    assertEquals(FIXING_START_TIME, ERU2.getFixingPeriodStartTime());
-    assertEquals(FIXING_END_TIME, ERU2.getFixingPeriodEndTime());
-    assertEquals(FIXING_ACCRUAL, ERU2.getFixingPeriodAccrualFactor());
+    assertEquals(ERU2, ERU2_TRA.getUnderlying());
+    assertEquals(LAST_TRADING_TIME, ERU2_TRA.getLastTradingTime());
+    assertEquals(IBOR_INDEX, ERU2_TRA.getIborIndex());
+    assertEquals(NOTIONAL, ERU2_TRA.getNotional());
+    assertEquals(FUTURE_FACTOR, ERU2_TRA.getPaymentAccrualFactor());
+    assertEquals(DISCOUNTING_CURVE_NAME, ERU2_TRA.getDiscountingCurveName());
+    assertEquals(FORWARD_CURVE_NAME, ERU2_TRA.getForwardCurveName());
+    assertEquals(NAME, ERU2_TRA.getName());
+    assertEquals(FIXING_START_TIME, ERU2_TRA.getFixingPeriodStartTime());
+    assertEquals(FIXING_END_TIME, ERU2_TRA.getFixingPeriodEndTime());
+    assertEquals(FIXING_ACCRUAL, ERU2_TRA.getFixingPeriodAccrualFactor());
   }
 
   @Test
   public void equalHash() {
-    assertTrue(ERU2.equals(ERU2));
-    final InterestRateFutureTransaction other = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
-        FUTURE_FACTOR, QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertTrue(ERU2.equals(other));
-    assertTrue(ERU2.hashCode() == other.hashCode());
-    assertEquals(ERU2.toString(), other.toString());
+    assertTrue(ERU2_TRA.equals(ERU2_TRA));
+    final InterestRateFutureTransaction other = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE, QUANTITY);
+    assertTrue(ERU2_TRA.equals(other));
+    assertTrue(ERU2_TRA.hashCode() == other.hashCode());
+    assertEquals(ERU2_TRA.toString(), other.toString());
     InterestRateFutureTransaction modifiedFuture;
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME - 0.01, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME + 0.01, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME + 0.01, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL + 0.01, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL + 1.0, FUTURE_FACTOR, QUANTITY,
-        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR + 0.25, QUANTITY,
-        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME,
-        DISCOUNTING_CURVE_NAME + "NO", FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME,
-        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME + "NO");
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME
-        + NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    final IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, otherIndex, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME,
-        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    assertFalse(ERU2.equals(LAST_TRADING_DATE));
-    assertFalse(ERU2.equals(null));
+    final InterestRateFutureSecurity modifiedSec = new InterestRateFutureSecurity(LAST_TRADING_TIME - 0.1, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL,
+        NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    modifiedFuture = new InterestRateFutureTransaction(modifiedSec, REFERENCE_PRICE, QUANTITY);
+    assertFalse(ERU2_TRA.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE + 0.01, QUANTITY);
+    assertFalse(ERU2_TRA.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE, QUANTITY + 1);
+    assertFalse(ERU2_TRA.equals(modifiedFuture));
+    assertFalse(ERU2_TRA.equals(LAST_TRADING_DATE));
+    assertFalse(ERU2_TRA.equals(null));
   }
 }

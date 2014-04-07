@@ -168,8 +168,7 @@ public class InterestRateFutureDiscountingMethodTest {
    */
   public void parSpreadMarketQuote() {
     final double parSpread = ERU2_TRA.accept(PSMQC, CURVES);
-    final InterestRateFutureTransaction futures0 = new InterestRateFutureTransaction(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL,
-        REFERENCE_PRICE + parSpread, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    final InterestRateFutureTransaction futures0 = new InterestRateFutureTransaction(ERU2_SEC, REFERENCE_PRICE + parSpread, QUANTITY);
     final CurrencyAmount pv0 = METHOD_FUT_TRA.presentValue(futures0, CURVES);
     assertEquals("Future par spread market quote", pv0.getAmount(), 0, TOLERANCE_PV);
   }
@@ -180,8 +179,7 @@ public class InterestRateFutureDiscountingMethodTest {
    */
   public void parSpreadRate() {
     final double parSpread = ERU2_TRA.accept(PSRC, CURVES);
-    final InterestRateFutureTransaction futures0 = new InterestRateFutureTransaction(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL,
-        REFERENCE_PRICE - parSpread, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    final InterestRateFutureTransaction futures0 = new InterestRateFutureTransaction(ERU2_SEC, REFERENCE_PRICE - parSpread, QUANTITY);
     final CurrencyAmount pv0 = METHOD_FUT_TRA.presentValue(futures0, CURVES);
     assertEquals("Future par spread rate", pv0.getAmount(), 0, TOLERANCE_PV);
     final double parSpreadMQ = ERU2_TRA.accept(PSMQC, CURVES);

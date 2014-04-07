@@ -34,6 +34,7 @@ import com.opengamma.util.time.DateUtils;
  */
 @Test(groups = TestGroup.UNIT)
 public class InterestRateFutureTransactionTest {
+
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -52,7 +53,6 @@ public class InterestRateFutureTransactionTest {
   private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "ERU2";
   private static final int QUANTITY = 123;
-  //  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
 
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
   private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
@@ -61,65 +61,46 @@ public class InterestRateFutureTransactionTest {
   private static final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
   private static final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-  private static final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE,
-      NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME);
+  private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME,
+      FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureTransaction ERU2_TRA = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE, QUANTITY);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullIndex() {
-    new InterestRateFutureTransaction(LAST_TRADING_TIME, null, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullName() {
-    new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, null);
+  public void nullUnderlying() {
+    new InterestRateFutureTransaction(null, REFERENCE_PRICE, QUANTITY);
   }
 
   @Test
   public void getter() {
-    assertEquals(LAST_TRADING_TIME, ERU2.getLastTradingTime());
-    assertEquals(IBOR_INDEX, ERU2.getIborIndex());
-    assertEquals(NOTIONAL, ERU2.getNotional());
-    assertEquals(FUTURE_FACTOR, ERU2.getPaymentAccrualFactor());
-    assertEquals(NAME, ERU2.getName());
-    assertEquals(FIXING_START_TIME, ERU2.getFixingPeriodStartTime());
-    assertEquals(FIXING_END_TIME, ERU2.getFixingPeriodEndTime());
-    assertEquals(FIXING_ACCRUAL, ERU2.getFixingPeriodAccrualFactor());
+    assertEquals("InterestRateFutureTransaction: equal-hash", ERU2, ERU2_TRA.getUnderlying());
+    assertEquals(LAST_TRADING_TIME, ERU2_TRA.getLastTradingTime());
+    assertEquals(IBOR_INDEX, ERU2_TRA.getIborIndex());
+    assertEquals(NOTIONAL, ERU2_TRA.getNotional());
+    assertEquals(FUTURE_FACTOR, ERU2_TRA.getPaymentAccrualFactor());
+    assertEquals(NAME, ERU2_TRA.getName());
+    assertEquals(FIXING_START_TIME, ERU2_TRA.getFixingPeriodStartTime());
+    assertEquals(FIXING_END_TIME, ERU2_TRA.getFixingPeriodEndTime());
+    assertEquals(FIXING_ACCRUAL, ERU2_TRA.getFixingPeriodAccrualFactor());
   }
 
   @Test
   public void equalHash() {
-    assertTrue(ERU2.equals(ERU2));
-    final InterestRateFutureTransaction other = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
-        FUTURE_FACTOR, QUANTITY, NAME);
-    assertTrue(ERU2.equals(other));
-    assertTrue(ERU2.hashCode() == other.hashCode());
-    assertEquals(ERU2.toString(), other.toString());
+    assertTrue("InterestRateFutureTransaction: equal-hash", ERU2_TRA.equals(ERU2_TRA));
+    final InterestRateFutureTransaction other = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE, QUANTITY);
+    assertTrue("InterestRateFutureTransaction: equal-hash", ERU2_TRA.equals(other));
+    assertTrue("InterestRateFutureTransaction: equal-hash", ERU2_TRA.hashCode() == other.hashCode());
+    assertEquals("InterestRateFutureTransaction: equal-hash", ERU2_TRA.toString(), other.toString());
     InterestRateFutureTransaction modifiedFuture;
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME - 0.01, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME + 0.01, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME + 0.01, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL + 0.01, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY,
-        NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL + 1.0, FUTURE_FACTOR, QUANTITY,
-        NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR + 0.25, QUANTITY,
-        NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME
-        + NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    final IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM, "Ibor");
-    modifiedFuture = new InterestRateFutureTransaction(LAST_TRADING_TIME, otherIndex, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME);
-    assertFalse(ERU2.equals(modifiedFuture));
-    assertFalse(ERU2.equals(LAST_TRADING_DATE));
-    assertFalse(ERU2.equals(null));
+    final InterestRateFutureSecurity modifiedSecurity = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME,
+        FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR * 2, NAME);
+    modifiedFuture = new InterestRateFutureTransaction(modifiedSecurity, REFERENCE_PRICE, QUANTITY);
+    assertFalse("InterestRateFutureTransaction: equal-hash", ERU2_TRA.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE + 0.1, QUANTITY);
+    assertFalse("InterestRateFutureTransaction: equal-hash", ERU2_TRA.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureTransaction(ERU2, REFERENCE_PRICE, QUANTITY + 1);
+    assertFalse("InterestRateFutureTransaction: equal-hash", ERU2_TRA.equals(modifiedFuture));
+    assertFalse("InterestRateFutureTransaction: equal-hash", ERU2_TRA.equals(LAST_TRADING_DATE));
+    assertFalse("InterestRateFutureTransaction: equal-hash", ERU2_TRA.equals(null));
   }
+
 }

@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -50,8 +51,10 @@ public class RateReplacingVisitorTest {
     final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING;
     final YieldConvention yieldConvention = SimpleYieldConvention.TRUE;
     final ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
-    final BondFixedSecurity b1 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R1, 0, calendar, dayCount, businessDay, yieldConvention, false, "I").toDerivative(date);
-    final BondFixedSecurity b2 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R2, 0, calendar, dayCount, businessDay, yieldConvention, false, "I").toDerivative(date);
+    final BondFixedSecurity b1 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R1, 0, calendar, dayCount, businessDay, yieldConvention, false, "I")
+        .toDerivative(date);
+    final BondFixedSecurity b2 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R2, 0, calendar, dayCount, businessDay, yieldConvention, false, "I")
+        .toDerivative(date);
     assertEquals(b2, VISITOR.visitBondFixedSecurity(b1, R2));
   }
 
@@ -88,10 +91,10 @@ public class RateReplacingVisitorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final int quantity = 123;
-    final InterestRateFutureTransaction ir1 = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1 - R1, 1, paymentAccrualFactor, quantity,
+    final InterestRateFutureSecurity sec = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1.0, paymentAccrualFactor,
         "K");
-    final InterestRateFutureTransaction ir2 = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1 - R2, 1, paymentAccrualFactor, quantity,
-        "K");
+    final InterestRateFutureTransaction ir1 = new InterestRateFutureTransaction(sec, 1 - R1, quantity);
+    final InterestRateFutureTransaction ir2 = new InterestRateFutureTransaction(sec, 1 - R2, quantity);
     assertEquals(ir1.accept(VISITOR, R2), ir2);
   }
 

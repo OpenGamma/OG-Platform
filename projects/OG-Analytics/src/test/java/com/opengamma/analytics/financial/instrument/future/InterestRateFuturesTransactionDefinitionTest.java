@@ -14,6 +14,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -50,7 +51,7 @@ public class InterestRateFuturesTransactionDefinitionTest {
 
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullLastTradeDate() {
@@ -115,10 +116,11 @@ public class InterestRateFuturesTransactionDefinitionTest {
     final double fixingStartTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
     final double fixingEndTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
     final double fixingAccrual = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(lastTradingTime, IBOR_INDEX, fixingStartTime, fixingEndTime, fixingAccrual, TRADE_PRICE, NOTIONAL, FUTURE_FACTOR,
-        QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(lastTradingTime, IBOR_INDEX, fixingStartTime, fixingEndTime, fixingAccrual, NOTIONAL, FUTURE_FACTOR,
+        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    final InterestRateFutureTransaction ERU2_TRA = new InterestRateFutureTransaction(ERU2, TRADE_PRICE, QUANTITY);
     final InterestRateFutureTransaction convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, TRADE_PRICE, CURVES);
-    assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
+    assertTrue("Rate future security converter", ERU2_TRA.equals(convertedERU2));
   }
 
   @Test
@@ -127,9 +129,9 @@ public class InterestRateFuturesTransactionDefinitionTest {
     final double fixingStartTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
     final double fixingEndTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
     final double fixingAccrual = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(lastTradingTime, IBOR_INDEX, fixingStartTime, fixingEndTime, fixingAccrual, TRADE_PRICE, NOTIONAL, FUTURE_FACTOR,
-        QUANTITY, NAME);
+    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(lastTradingTime, IBOR_INDEX, fixingStartTime, fixingEndTime, fixingAccrual, NOTIONAL, FUTURE_FACTOR, NAME);
+    final InterestRateFutureTransaction ERU2_TRA = new InterestRateFutureTransaction(ERU2, TRADE_PRICE, QUANTITY);
     final InterestRateFutureTransaction convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, TRADE_PRICE);
-    assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
+    assertTrue("Rate future security converter", ERU2_TRA.equals(convertedERU2));
   }
 }

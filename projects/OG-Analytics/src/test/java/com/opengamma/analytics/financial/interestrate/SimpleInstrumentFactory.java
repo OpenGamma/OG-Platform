@@ -14,6 +14,7 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -59,7 +60,8 @@ public abstract class SimpleInstrumentFactory {
 
   public static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq) {
     final double tau = 1. / paymentFreq.getPeriodsPerYear();
-    return new InterestRateFutureTransaction(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, 1, "N");
+    InterestRateFutureSecurity sec = new InterestRateFutureSecurity(time, DUMMY_INDEX, time, time + tau, tau, 1.0, tau, "N");
+    return new InterestRateFutureTransaction(sec, 0, 1);
   }
 
 }

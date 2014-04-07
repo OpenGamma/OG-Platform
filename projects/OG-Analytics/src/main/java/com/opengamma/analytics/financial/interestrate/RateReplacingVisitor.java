@@ -61,9 +61,8 @@ public final class RateReplacingVisitor extends InstrumentDerivativeVisitorAdapt
   }
 
   @Override
-  public InterestRateFutureTransaction visitInterestRateFutureTransaction(final InterestRateFutureTransaction security, final Double rate) {
-    return new InterestRateFutureTransaction(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(), security.getFixingPeriodEndTime(),
-        security.getFixingPeriodAccrualFactor(), 1 - rate, security.getNotional(), security.getPaymentAccrualFactor(), security.getQuantity(), security.getName());
+  public InterestRateFutureTransaction visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final Double rate) {
+    return new InterestRateFutureTransaction(futures.getUnderlying(), 1.0d - rate, futures.getQuantity());
   }
 
   @Override
