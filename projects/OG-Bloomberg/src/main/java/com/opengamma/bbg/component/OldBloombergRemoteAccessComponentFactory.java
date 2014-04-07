@@ -30,7 +30,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.bloomberglp.blpapi.Element;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -227,14 +226,14 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   static class PerSecurityReferenceDataResult {
     private final String _security;
     private FudgeMsg _fieldData;
-    private Element _eidData;
+    private Set<Integer> _eidData;
     private final List<String> _exceptions = Lists.newArrayList();
     private final Map<String, ReferenceDataError> _fieldExceptions = Maps.newLinkedHashMap();
 
     PerSecurityReferenceDataResult(ReferenceData refData) {
       _security = refData.getIdentifier();
       _fieldData = refData.getFieldValues();
-      _eidData = refData.getEntitlementInfo();
+      _eidData = refData.getEidValues();
       for (ReferenceDataError error : refData.getErrors()) {
         if (error.isFieldBased()) {
           _fieldExceptions.put(error.getField(), error);
@@ -253,7 +252,8 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
     public FudgeMsg getFieldData() {
       return _fieldData;
     }
-    public Element getEidData() {
+
+    public Set<Integer> getEidData() {
       return _eidData;
     }
     public List<String> getExceptions() {
