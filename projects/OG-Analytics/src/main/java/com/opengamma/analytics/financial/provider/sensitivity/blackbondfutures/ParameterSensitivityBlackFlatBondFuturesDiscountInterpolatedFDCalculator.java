@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -40,7 +40,7 @@ public class ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalcu
   /**
    * The value calculator.
    */
-  private final InstrumentDerivativeVisitor<BlackBondFuturesFlatProviderInterface, MultipleCurrencyAmount> _valueCalculator;
+  private final InstrumentDerivativeVisitor<BlackBondFuturesProviderInterface, MultipleCurrencyAmount> _valueCalculator;
   /**
    * The shift used for finite difference.
    */
@@ -51,7 +51,7 @@ public class ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalcu
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<BlackBondFuturesFlatProviderInterface, MultipleCurrencyAmount> valueCalculator,
+  public ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<BlackBondFuturesProviderInterface, MultipleCurrencyAmount> valueCalculator,
       final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;

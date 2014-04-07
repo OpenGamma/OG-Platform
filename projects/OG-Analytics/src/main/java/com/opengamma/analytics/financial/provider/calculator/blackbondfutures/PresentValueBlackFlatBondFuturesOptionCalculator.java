@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.provider.calculator.blackbondfutures;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.FuturesTransactionBlackFlatBondFuturesMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueBlackFlatBondFuturesOptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesFlatProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueBlackFlatBondFuturesOptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -43,7 +43,7 @@ public final class PresentValueBlackFlatBondFuturesOptionCalculator extends Inst
   // -----     Futures     ------
 
   @Override
-  public MultipleCurrencyAmount visitBondFuturesOptionMarginTransaction(final BondFuturesOptionMarginTransaction futures, final BlackBondFuturesFlatProviderInterface black) {
+  public MultipleCurrencyAmount visitBondFuturesOptionMarginTransaction(final BondFuturesOptionMarginTransaction futures, final BlackBondFuturesProviderInterface black) {
     return METHOD_FUT.presentValue(futures, black);
   }
 

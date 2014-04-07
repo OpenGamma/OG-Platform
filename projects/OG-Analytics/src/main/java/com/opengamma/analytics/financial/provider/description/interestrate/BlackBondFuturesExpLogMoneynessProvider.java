@@ -20,14 +20,14 @@ import com.opengamma.util.tuple.DoublesPair;
  * Implementation of a provider of Black smile for options on bond futures. The volatility is time to expiration/delay dependent.
  * The delay is the time difference between the last notice and the option expiration.
  */
-public class BlackBondFuturesFlatProvider implements BlackBondFuturesProviderInterface {
+public class BlackBondFuturesExpLogMoneynessProvider implements BlackBondFuturesProviderInterface {
 
   /**
    * The multicurve provider.
    */
   private final IssuerProviderInterface _issuerProvider;
   /**
-   * The Black volatility surface. Not null. The dimensions are expiration and delay.
+   * The Black volatility surface. Not null. The dimensions are expiration and log moneyness (ln(strike/price)).
    */
   private final Surface<Double, Double, Double> _parameters;
   /**
@@ -41,7 +41,7 @@ public class BlackBondFuturesFlatProvider implements BlackBondFuturesProviderInt
    * @param parameters The Black parameters, not null
    * @param legalEntity The legal entity of the bonds underlying the futures for which the volatility data is valid.
    */
-  public BlackBondFuturesFlatProvider(final IssuerProviderInterface issuerProvider, final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
+  public BlackBondFuturesExpLogMoneynessProvider(final IssuerProviderInterface issuerProvider, final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
     ArgumentChecker.notNull(issuerProvider, "issuerProvider");
     ArgumentChecker.notNull(parameters, "parameters");
     ArgumentChecker.notNull(legalEntity, "legal entity");
@@ -51,9 +51,9 @@ public class BlackBondFuturesFlatProvider implements BlackBondFuturesProviderInt
   }
 
   @Override
-  public BlackBondFuturesFlatProvider copy() {
+  public BlackBondFuturesExpLogMoneynessProvider copy() {
     final IssuerProviderInterface multicurveProvider = _issuerProvider.copy();
-    return new BlackBondFuturesFlatProvider(multicurveProvider, _parameters, _legalEntity);
+    return new BlackBondFuturesExpLogMoneynessProvider(multicurveProvider, _parameters, _legalEntity);
   }
 
   @Override
@@ -76,7 +76,10 @@ public class BlackBondFuturesFlatProvider implements BlackBondFuturesProviderInt
    * @return The volatility.
    */
   public double getVolatility(final double expiry, final double delay, final double strike, final double futuresPrice) {
-    return _parameters.getZValue(expiry, delay);
+    ArgumentChecker.isTrue(futuresPrice > 0, "negative futures price");
+    ArgumentChecker.isTrue(strike > 0, "negative strike");
+    final double logMoneyness = Math.log(strike / futuresPrice);
+    return _parameters.getZValue(expiry, logMoneyness);
   }
 
   /**
@@ -122,10 +125,10 @@ public class BlackBondFuturesFlatProvider implements BlackBondFuturesProviderInt
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof BlackBondFuturesFlatProvider)) {
+    if (!(obj instanceof BlackBondFuturesExpLogMoneynessProvider)) {
       return false;
     }
-    final BlackBondFuturesFlatProvider other = (BlackBondFuturesFlatProvider) obj;
+    final BlackBondFuturesExpLogMoneynessProvider other = (BlackBondFuturesExpLogMoneynessProvider) obj;
     if (!ObjectUtils.equals(_issuerProvider, other._issuerProvider)) {
       return false;
     }

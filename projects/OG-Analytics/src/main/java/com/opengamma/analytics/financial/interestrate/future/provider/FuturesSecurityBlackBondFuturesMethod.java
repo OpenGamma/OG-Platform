@@ -5,21 +5,21 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
-import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceBlackFlatBondFuturesCalculator;
-import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceCurveSensitivityBlackBondFuturesCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesSecurity;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
  * Interface to generic futures security pricing method for multi-curve, issuer and Black on bond futures parameter provider.
  */
-public class FuturesSecurityBlackFlatBondFuturesMethod extends FuturesSecurityMethod {
+public class FuturesSecurityBlackBondFuturesMethod extends FuturesSecurityMethod {
 
   /** The futures price calculator **/
-  private static final FuturesPriceBlackFlatBondFuturesCalculator FPC = FuturesPriceBlackFlatBondFuturesCalculator.getInstance();
+  private static final FuturesPriceBlackBondFuturesCalculator FPC = FuturesPriceBlackBondFuturesCalculator.getInstance();
   /** The futures price curve sensitivity calculator **/
-  private static final FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator FPCSC = FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator.getInstance();
+  private static final FuturesPriceCurveSensitivityBlackBondFuturesCalculator FPCSC = FuturesPriceCurveSensitivityBlackBondFuturesCalculator.getInstance();
 
   /**
    * Computes the quoted price of a futures from a multicurve provider.
@@ -27,7 +27,7 @@ public class FuturesSecurityBlackFlatBondFuturesMethod extends FuturesSecurityMe
    * @param multicurve The multicurve provider.
    * @return The price.
    */
-  public double price(final FuturesSecurity futures, final BlackBondFuturesFlatProviderInterface multicurve) {
+  public double price(final FuturesSecurity futures, final BlackBondFuturesProviderInterface multicurve) {
     return futures.accept(FPC, multicurve);
   }
 
@@ -37,7 +37,8 @@ public class FuturesSecurityBlackFlatBondFuturesMethod extends FuturesSecurityMe
    * @param multicurve The multicurve provider.
    * @return The price curve sensitivity.
    */
-  public MulticurveSensitivity priceCurveSensitivity(final FuturesSecurity futures, final BlackBondFuturesFlatProviderInterface multicurve) {
+  public MulticurveSensitivity priceCurveSensitivity(final FuturesSecurity futures, final BlackBondFuturesProviderInterface multicurve) {
     return futures.accept(FPCSC, multicurve);
   }
+  
 }

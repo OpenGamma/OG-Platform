@@ -11,32 +11,31 @@ import com.opengamma.analytics.financial.interestrate.future.provider.BondFuture
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Computes the price for different types of futures. Calculator using a multi-curve and issuer provider.
  */
-public final class FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesFlatProviderInterface, MulticurveSensitivity> {
+public final class FuturesPriceBlackBondFuturesCalculator extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator INSTANCE = new FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator();
+  private static final FuturesPriceBlackBondFuturesCalculator INSTANCE = new FuturesPriceBlackBondFuturesCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator getInstance() {
+  public static FuturesPriceBlackBondFuturesCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator() {
+  private FuturesPriceBlackBondFuturesCalculator() {
   }
 
   /** The Black function used in the pricing. */
@@ -47,22 +46,17 @@ public final class FuturesPriceCurveSensitivityBlackFlatBondFuturesCalculator ex
   //     -----     Futures options    -----
 
   @Override
-  public MulticurveSensitivity visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesFlatProviderInterface black) {
+  public Double visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black  data");
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
-    // Forward sweep
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
     final double delay = security.getUnderlyingFuture().getNoticeLastTime() - security.getExpirationTime();
-    final double volatility = black.getVolatility(security.getExpirationTime(), delay);
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
-    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
-    // Backward sweep
-    final double priceBar = 1.0;
-    final double priceFutureBar = priceAdjoint[1] * priceBar;
-    final MulticurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), black.getIssuerProvider());
-    return priceFutureDerivative.multipliedBy(priceFutureBar);
+    final double volatility = black.getVolatility(security.getExpirationTime(), delay, strike, priceFutures);
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
+    final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
+    return priceSecurity;
   }
 
 }

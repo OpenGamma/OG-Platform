@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.Pr
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.StandardDataSetsBlack;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.blackbondfutures.ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -65,12 +65,12 @@ public class BondFuturesOptionMarginTransactionBlackFlatMethodTest {
   private static final BlackBondFuturesFlatProviderDiscount BLACK_FLAT_BNDFUT = new BlackBondFuturesFlatProviderDiscount(ISSUER_SPECIFIC_MULTICURVES,
       BLACK_SURFACE, LEGAL_ENTITY_GERMANY);
   /** Methods and calculators */
-  private static final BondFuturesOptionMarginSecurityBlackFlatMethod METHOD_OPT_SEC = BondFuturesOptionMarginSecurityBlackFlatMethod.getInstance();
+  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT_SEC = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getInstance();
   private static final FuturesTransactionBlackFlatBondFuturesMethod METHOD_OPT_TRA = new FuturesTransactionBlackFlatBondFuturesMethod();
   private static final PresentValueBlackFlatBondFuturesOptionCalculator PVBFC = PresentValueBlackFlatBondFuturesOptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackFlatBondFuturesOptionCalculator PVCSBFC = PresentValueCurveSensitivityBlackFlatBondFuturesOptionCalculator.getInstance();
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<BlackBondFuturesFlatProviderInterface> PSSFC = new ParameterSensitivityParameterCalculator<>(PVCSBFC);
+  private static final ParameterSensitivityParameterCalculator<BlackBondFuturesProviderInterface> PSSFC = new ParameterSensitivityParameterCalculator<>(PVCSBFC);
   private static final ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalculator PSSFC_FD =
       new ParameterSensitivityBlackFlatBondFuturesDiscountInterpolatedFDCalculator(PVBFC, SHIFT);
   /** Tolerances */
