@@ -119,6 +119,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.TYPE.name(), ValueRequirementNames.TYPE));
 
     addScalingAndSummingFunction(functions, ValueRequirementNames.ACCRUED_INTEREST);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.ASSET_LEG_PV);
     addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
     addUnitScalingFunction(functions, ValueRequirementNames.EXTERNAL_ID);
     addUnitScalingFunction(functions, ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE);
@@ -155,6 +156,8 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_VANNA);
     addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_VEGA);
     addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_VOMMA);
+    addUnitScalingFunction(functions, ValueRequirementNames.FUNDING_LEG_DETAILS);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.FUNDING_LEG_PV);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     addUnitScalingFunction(functions, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES);

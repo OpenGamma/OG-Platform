@@ -676,6 +676,23 @@ public final class ValueRequirementNames {
    * The market quoted value of an instrument (e.g. 0.99 for a Eurodollar future)
    */
   public static final String MARKET_QUOTE = "Market Quote";
+  /**
+   * The PV of the funding leg of an instrument (e.g. TRS).
+   */
+  public static final String FUNDING_LEG_PV = "Funding Leg Present Value";
+  /**
+   * The PV of the asset leg of an instrument (e.g. TRS).
+   */
+  public static final String ASSET_LEG_PV = "Asset Leg Present Value";
+  /**
+   * The funding leg detals of an instrument (e.g. TRS).
+   */
+  public static final String FUNDING_LEG_DETAILS = "Funding Leg Details";
+  /**
+   * The bond equivalent value for a bond total return swap.
+   */
+  public static final String BOND_EQUIVALENT_VALUE = "Bond Equivalent Value";
+
   ///// Greeks
 
   /**

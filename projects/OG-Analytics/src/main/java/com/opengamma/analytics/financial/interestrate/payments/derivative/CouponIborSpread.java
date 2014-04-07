@@ -229,8 +229,20 @@ public class CouponIborSpread extends CouponFloating implements DepositIndexCoup
 
   @Override
   public String toString() {
-    return super.toString() + ", fixing : [" + _fixingPeriodStartTime + " - " + _fixingPeriodEndTime + " - " + _fixingAccrualFactor + "], spread = " + _spread + ", forward curve = "
-        + _forwardCurveName;
+    final StringBuilder sb = new StringBuilder(super.toString());
+    sb.append(", fixing : [");
+    sb.append(_fixingPeriodStartTime);
+    sb.append(" - ");
+    sb.append(_fixingPeriodEndTime);
+    sb.append(" - ");
+    sb.append(_fixingAccrualFactor);
+    sb.append("], spread = ");
+    sb.append(_spread);
+    if (_forwardCurveName != null) {
+      sb.append(", forward curve = ");
+      sb.append(_forwardCurveName);
+    }
+    return sb.toString();
   }
 
   @Override

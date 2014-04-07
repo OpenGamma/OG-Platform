@@ -13,6 +13,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -39,8 +40,9 @@ import com.opengamma.util.async.AsynchronousExecution;
 public class CurveSpecificationFunction extends AbstractFunction {
   /** The curve name */
   private final String _curveName;
-
+  /** The curve definition source */
   private CurveDefinitionSource _curveDefinitionSource;
+  /** The curve specification builder */
   private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   /**
@@ -69,10 +71,14 @@ public class CurveSpecificationFunction extends AbstractFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), _curveName);
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties);
-    return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveSpecification, spec);
+    try {
+      final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), _curveName);
+      final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
+      final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties);
+      return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveSpecification, spec);
+    } catch (final Exception e) {
+      throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveSpecification called " + _curveName);
+    }
   }
 
   /**
