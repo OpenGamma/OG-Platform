@@ -102,29 +102,17 @@ public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCu
         .with(calendar).with(cds.getStubType())
         .withAccrualDCC(cds.getDayCountFractionConvention());
 
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), cds.getMaturityDate().toLocalDate());
-    double spread = 0;
-    final ZonedDateTime[] times = new ZonedDateTime[n];
     final CDSAnalytic[] creditAnalytics = new CDSAnalytic[n];
     final double[] marketSpreads = new double[n];
     for (int i = 0; i < n; i++) {
       ZonedDateTime nextIMM = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
       creditAnalytics[i] = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), nextIMM.toLocalDate());
       marketSpreads[i] = marketSpreadObjects[i] * 1e-4;
-      if (!nextIMM.isAfter(cds.getMaturityDate().withHour(0).withMinute(0).withSecond(0).withNano(0))) {
-        spread = marketSpreads[i];
-      }
     }
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    final ISDACompliantCreditCurve curve;
-
-    if (IMMDateGenerator.isIMMDate(cds.getMaturityDate())) {
-      curve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pricingCDS, spread, yieldCurve);
-    } else {
-      curve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(creditAnalytics, marketSpreads, yieldCurve);
-    }
+    final ISDACompliantCreditCurve curve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(creditAnalytics, marketSpreads, yieldCurve);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, curve));
   }
