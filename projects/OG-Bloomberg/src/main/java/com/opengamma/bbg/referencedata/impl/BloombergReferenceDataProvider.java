@@ -19,11 +19,13 @@ import static com.opengamma.bbg.BloombergConstants.SECURITY_DATA;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_ERROR;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -55,7 +57,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
   /**
    * Implementation class.
    */
-  private final BloombergReferenceDataProviderImpl _impl;
+  private final BloombergReferenceDataRequestService _refDataService;
 
   /**
    * Creates an instance.
@@ -65,7 +67,32 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
    * @param bloombergConnector the Bloomberg connector, not null
    */
   public BloombergReferenceDataProvider(BloombergConnector bloombergConnector) {
-    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
+    this(bloombergConnector, null);
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
+   * 
+   * @param bloombergConnector the bloomberg connector, not null
+   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   */
+  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, String authenticationOption) {
+    this(bloombergConnector, authenticationOption, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
+   * 
+   * @param bloombergConnector the bloomberg connector, not null
+   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
+   */
+  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, String authenticationOption, double reAuthorizationScheduleTime) {
+    this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), authenticationOption, reAuthorizationScheduleTime);
   }
 
   /**
@@ -73,51 +100,67 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
    * 
    * @param bloombergConnector the Bloomberg connector, not null
    * @param statistics the statistics to collect, not null
+   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
    */
-  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
-    _impl = new BloombergReferenceDataProviderImpl(bloombergConnector, statistics);
+  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String authenticationOption, double reAuthorizationScheduleTime) {
+    _refDataService = new BloombergReferenceDataRequestService(bloombergConnector, statistics, authenticationOption, reAuthorizationScheduleTime);
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
-    return _impl.doBulkGet(request);
+    return _refDataService.doBulkGet(request);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void start() {
-    _impl.start();
+    _refDataService.start();
   }
 
   @Override
   public void stop() {
-    _impl.stop();
+    _refDataService.stop();
   }
 
   @Override
   public boolean isRunning() {
-    return _impl.isRunning();
+    return _refDataService.isRunning();
   }
 
   //-------------------------------------------------------------------------
   /**
    * Loads reference-data from Bloomberg.
    */
-  static class BloombergReferenceDataProviderImpl extends AbstractBloombergStaticDataProvider {
-
+  static class BloombergReferenceDataRequestService extends AbstractBloombergStaticDataProvider {
     /**
      * Bloomberg statistics.
      */
     private final BloombergReferenceDataStatistics _statistics;
 
+    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector) {
+      this(bloombergConnector, null);
+    }
+
+    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, String authenticationOption) {
+      this(bloombergConnector, authenticationOption, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
+    }
+
+    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, String authenticationOption, double reAuthorizationScheduleTime) {
+      this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), authenticationOption, reAuthorizationScheduleTime);
+    }
+
     /**
      * Creates an instance.
      * 
-     * @param provider the provider, not null
+     * @param bloombergConnector the bloomberg connector, not null
+     * @param statistics the bloomberg reference data statistics, not null
+     * @param authenticationOption the authentication option, null represent NO_AUTH
+     * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
      */
-    public BloombergReferenceDataProviderImpl(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
-      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
+    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String authenticationOption, double reAuthorizationScheduleTime) {
+      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME, authenticationOption, reAuthorizationScheduleTime);
       ArgumentChecker.notNull(statistics, "statistics");
       _statistics = statistics;
     }
@@ -142,15 +185,22 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       validateFields(dataFields);
 
       ensureStarted();
-      s_logger.debug("Getting reference data for {}, fields {}", identifiers, dataFields);
+      getLogger().debug("Getting reference data for {}, fields {}", identifiers, dataFields);
 
       Request bbgRequest = createRequest(identifiers, dataFields);
       _statistics.recordStatistics(identifiers, dataFields);
-      BlockingQueue<Element> resultElements = submitBloombergRequest(bbgRequest);
-      if (resultElements == null || resultElements.isEmpty()) {
-        throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + dataFields + " fields for " + identifiers);
+      ReferenceDataProviderGetResult result = new ReferenceDataProviderGetResult();
+      try {
+        List<Element> resultElements = submitRequest(bbgRequest).get();
+        if (resultElements == null || resultElements.isEmpty()) {
+          getLogger().warn("Unable to get a Bloomberg response for {} fields for {}", dataFields, identifiers);
+        } else {
+          result = parse(identifiers, dataFields, resultElements);
+        }
+      } catch (InterruptedException | ExecutionException ex) {
+        getLogger().warn(String.format("Unable to get a Bloomberg response fields:[%s] for security[%s]", dataFields, identifiers), ex);
       }
-      return parse(identifiers, dataFields, resultElements);
+      return result;
     }
 
     //-------------------------------------------------------------------------
@@ -172,7 +222,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       }
       if (excluded.size() > 0) {
         String message = MessageFormatter.format("Request contains invalid identifiers {} from ({})", excluded, identifiers).getMessage();
-        s_logger.error(message);
+        getLogger().error(message);
         throw new OpenGammaRuntimeException(message);
       }
     }
@@ -194,7 +244,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       }
       if (excluded.size() > 0) {
         String message = MessageFormatter.format("Request contains invalid fields {} from ({})", excluded, fields).getMessage();
-        s_logger.error(message);
+        getLogger().error(message);
         throw new OpenGammaRuntimeException(message);
       }
     }
@@ -202,8 +252,12 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     //-------------------------------------------------------------------------
     /**
      * Creates the Bloomberg request.
+     * 
+     * @param identifiers the identifiers, not null
+     * @param dataFields the datafields, not null
+     * @return the bloomberg request, not null
      */
-    private Request createRequest(Set<String> identifiers, Set<String> dataFields) {
+    protected Request createRequest(Set<String> identifiers, Set<String> dataFields) {
       // create request
       Request request = getService().createRequest(BLOOMBERG_REFERENCE_DATA_REQUEST);
       Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
@@ -226,9 +280,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
           fieldElem.appendValue(dataField);
         }
       }
-      if (dataFields.contains(BloombergConstants.FIELD_EID_DATA)) {
-        request.set("returnEids", true);
-      }
+      request.set("returnEids", true);
       return request;
     }
 
@@ -242,14 +294,14 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param resultElements the result elements from Bloomberg, not null
      * @return the parsed result, not null
      */
-    protected ReferenceDataProviderGetResult parse(Set<String> securityKeys, Set<String> fields, BlockingQueue<Element> resultElements) {
+    protected ReferenceDataProviderGetResult parse(Set<String> securityKeys, Set<String> fields, List<Element> resultElements) {
       ReferenceDataProviderGetResult result = new ReferenceDataProviderGetResult();
       for (Element resultElem : resultElements) {
         if (resultElem.hasElement(RESPONSE_ERROR)) {
           Element responseError = resultElem.getElement(RESPONSE_ERROR);
           String category = responseError.getElementAsString(BloombergConstants.CATEGORY);
           if ("LIMIT".equals(category)) {
-            s_logger.error("Limit reached {}", responseError);
+            getLogger().error("Limit reached {}", responseError);
           }
           throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securityKeys + ": " + responseError);
         }
@@ -261,16 +313,19 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
           String securityKey = securityElem.getElementAsString(SECURITY);
           ReferenceData refData = new ReferenceData(securityKey);
           if (securityElem.hasElement(SECURITY_ERROR)) {
-            parseIdentifierError(refData, securityElem.getElement(SECURITY_ERROR));
+            Element securityError = securityElem.getElement(SECURITY_ERROR);
+            getLogger().warn("Bloomberg referenceData security error: {}", securityError);
+            parseIdentifierError(refData, securityError);
           }
           if (securityElem.hasElement(FIELD_DATA)) {
             parseFieldData(refData, securityElem.getElement(FIELD_DATA));
           }
           if (securityElem.hasElement(FIELD_EXCEPTIONS)) {
-            parseFieldExceptions(refData, securityElem.getElement(FIELD_EXCEPTIONS));
+            Element fieldExceptions = securityElem.getElement(FIELD_EXCEPTIONS);
+            parseFieldExceptions(refData, fieldExceptions);
           }
           if (securityElem.hasElement(EID_DATA)) {
-            parseEidData(refData, securityElem.getElement(FIELD_DATA));
+            parseEidData(refData, securityElem.getElement(EID_DATA));
           }
           result.addReferenceData(refData);
         }
@@ -308,6 +363,9 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      */
     protected void parseFieldExceptions(ReferenceData refData, Element fieldExceptionArray) {
       int numExceptions = fieldExceptionArray.numValues();
+      if (numExceptions > 0) {
+        getLogger().warn("Bloomberg referenceData field exceptions: {}", fieldExceptionArray);
+      }
       for (int i = 0; i < numExceptions; i++) {
         Element exceptionElem = fieldExceptionArray.getValueAsElement(i);
         String fieldId = exceptionElem.getElementAsString(FIELD_ID);
@@ -320,10 +378,18 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * Processes the EID data.
      * 
      * @param refData the per identifier reference data result, not null
-     * @param element the bloomberg element, not null
+     * @param eidElement the bloomberg element, not null
      */
-    protected void parseEidData(ReferenceData refData, Element element) {
-      refData.setEntitlementInfo(element);
+    protected void parseEidData(ReferenceData refData, Element eidElement) {
+      for (int i = 0; i < eidElement.numValues(); i++) {
+        refData.getEidValues().add(eidElement.getValueAsInt32(i));
+      }
+      if (refData.getFieldValues() instanceof MutableFudgeMsg) {
+        MutableFudgeMsg fieldValues = (MutableFudgeMsg) refData.getFieldValues();
+        for (Integer eid : refData.getEidValues()) {
+          fieldValues.add(BloombergConstants.EID_DATA.toString(), eid);
+        }
+      }
     }
 
     /**
@@ -337,6 +403,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       return new ReferenceDataError(field, element.getElementAsInt32("code"), element.getElementAsString("category"), element.getElementAsString("subcategory"),
           element.getElementAsString("message"));
     }
+
   }
 
 }
