@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -81,6 +82,17 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
     int result = 0;
     for (final YieldAndDiscountCurve curve : _curves) {
       result += curve.getNumberOfParameters();
+    }
+    return result;
+  }
+
+  @Override
+  public int getNumberOfIntrinsicParameters(final Set<String> curvesNames) {
+    int result = 0;
+    for (final YieldAndDiscountCurve curve : _curves) {
+      if (!curvesNames.contains(curve.getName())) {
+        result += curve.getNumberOfParameters();
+      }
     }
     return result;
   }
