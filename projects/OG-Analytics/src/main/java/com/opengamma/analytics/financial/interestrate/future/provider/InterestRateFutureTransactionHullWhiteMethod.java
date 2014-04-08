@@ -44,7 +44,7 @@ public final class InterestRateFutureTransactionHullWhiteMethod extends Interest
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final InterestRateFutureTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
-    return presentValueFromPrice(futures, METHOD_SECURITY.price(futures.getUnderlying(), hwMulticurves));
+    return presentValueFromPrice(futures, METHOD_SECURITY.price(futures.getUnderlyingFuture(), hwMulticurves));
   }
 
   /**
@@ -54,7 +54,7 @@ public final class InterestRateFutureTransactionHullWhiteMethod extends Interest
    * @return The present value curve sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
-    return presentValueCurveSensitivity(futures, METHOD_SECURITY.priceCurveSensitivity(futures.getUnderlying(), hwMulticurves));
+    return presentValueCurveSensitivity(futures, METHOD_SECURITY.priceCurveSensitivity(futures.getUnderlyingFuture(), hwMulticurves));
   }
 
 }

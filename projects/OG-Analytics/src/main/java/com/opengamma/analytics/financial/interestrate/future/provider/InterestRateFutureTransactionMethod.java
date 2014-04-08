@@ -24,7 +24,7 @@ public abstract class InterestRateFutureTransactionMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValueFromPrice(final InterestRateFutureTransaction futures, final double price) {
-    double pv = (price - futures.getReferencePrice()) * futures.getPaymentAccrualFactor() * futures.getNotional() * futures.getQuantity();
+    double pv = (price - futures.getReferencePrice()) * futures.getUnderlyingFuture().getPaymentAccrualFactor() * futures.getUnderlyingFuture().getNotional() * futures.getQuantity();
     return MultipleCurrencyAmount.of(futures.getCurrency(), pv);
   }
 
@@ -36,7 +36,7 @@ public abstract class InterestRateFutureTransactionMethod {
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction futures, final MulticurveSensitivity priceSensitivity) {
     Validate.notNull(futures, "Future");
-    MulticurveSensitivity result = priceSensitivity.multipliedBy(futures.getPaymentAccrualFactor() * futures.getNotional() * futures.getQuantity());
+    MulticurveSensitivity result = priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getPaymentAccrualFactor() * futures.getUnderlyingFuture().getNotional() * futures.getQuantity());
     return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(), result);
   }
 

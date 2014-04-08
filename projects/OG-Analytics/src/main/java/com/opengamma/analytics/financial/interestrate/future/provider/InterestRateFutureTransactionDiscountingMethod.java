@@ -44,7 +44,7 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return presentValueFromPrice(futures, METHOD_SECURITY.price(futures.getUnderlying(), multicurves));
+    return presentValueFromPrice(futures, METHOD_SECURITY.price(futures.getUnderlyingFuture(), multicurves));
   }
 
   /**
@@ -54,7 +54,7 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
    * @return The present value curve sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return presentValueCurveSensitivity(futures, METHOD_SECURITY.priceCurveSensitivity(futures.getUnderlying(), multicurves));
+    return presentValueCurveSensitivity(futures, METHOD_SECURITY.priceCurveSensitivity(futures.getUnderlyingFuture(), multicurves));
   }
 
 }

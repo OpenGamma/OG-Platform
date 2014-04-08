@@ -75,17 +75,17 @@ public class DeprecatedInterestRateFutureTransactionTest {
 
   @Test
   public void getter() {
-    assertEquals(ERU2, ERU2_TRA.getUnderlying());
-    assertEquals(LAST_TRADING_TIME, ERU2_TRA.getLastTradingTime());
-    assertEquals(IBOR_INDEX, ERU2_TRA.getIborIndex());
-    assertEquals(NOTIONAL, ERU2_TRA.getNotional());
-    assertEquals(FUTURE_FACTOR, ERU2_TRA.getPaymentAccrualFactor());
-    assertEquals(DISCOUNTING_CURVE_NAME, ERU2_TRA.getDiscountingCurveName());
-    assertEquals(FORWARD_CURVE_NAME, ERU2_TRA.getForwardCurveName());
-    assertEquals(NAME, ERU2_TRA.getName());
-    assertEquals(FIXING_START_TIME, ERU2_TRA.getFixingPeriodStartTime());
-    assertEquals(FIXING_END_TIME, ERU2_TRA.getFixingPeriodEndTime());
-    assertEquals(FIXING_ACCRUAL, ERU2_TRA.getFixingPeriodAccrualFactor());
+    assertEquals(ERU2, ERU2_TRA.getUnderlyingFuture());
+    assertEquals(LAST_TRADING_TIME, ERU2_TRA.getUnderlyingFuture().getTradingLastTime());
+    assertEquals(IBOR_INDEX, ERU2_TRA.getUnderlyingFuture().getIborIndex());
+    assertEquals(NOTIONAL, ERU2_TRA.getUnderlyingFuture().getNotional());
+    assertEquals(FUTURE_FACTOR, ERU2_TRA.getUnderlyingFuture().getPaymentAccrualFactor());
+    assertEquals(DISCOUNTING_CURVE_NAME, ERU2_TRA.getUnderlyingFuture().getDiscountingCurveName());
+    assertEquals(FORWARD_CURVE_NAME, ERU2_TRA.getUnderlyingFuture().getForwardCurveName());
+    assertEquals(NAME, ERU2_TRA.getUnderlyingFuture().getName());
+    assertEquals(FIXING_START_TIME, ERU2_TRA.getUnderlyingFuture().getFixingPeriodStartTime());
+    assertEquals(FIXING_END_TIME, ERU2_TRA.getUnderlyingFuture().getFixingPeriodEndTime());
+    assertEquals(FIXING_ACCRUAL, ERU2_TRA.getUnderlyingFuture().getFixingPeriodAccrualFactor());
   }
 
   @Test

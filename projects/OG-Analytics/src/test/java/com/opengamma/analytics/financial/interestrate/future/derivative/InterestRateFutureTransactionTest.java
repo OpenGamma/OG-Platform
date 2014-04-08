@@ -72,15 +72,9 @@ public class InterestRateFutureTransactionTest {
 
   @Test
   public void getter() {
-    assertEquals("InterestRateFutureTransaction: equal-hash", ERU2, ERU2_TRA.getUnderlying());
-    assertEquals(LAST_TRADING_TIME, ERU2_TRA.getLastTradingTime());
-    assertEquals(IBOR_INDEX, ERU2_TRA.getIborIndex());
-    assertEquals(NOTIONAL, ERU2_TRA.getNotional());
-    assertEquals(FUTURE_FACTOR, ERU2_TRA.getPaymentAccrualFactor());
-    assertEquals(NAME, ERU2_TRA.getName());
-    assertEquals(FIXING_START_TIME, ERU2_TRA.getFixingPeriodStartTime());
-    assertEquals(FIXING_END_TIME, ERU2_TRA.getFixingPeriodEndTime());
-    assertEquals(FIXING_ACCRUAL, ERU2_TRA.getFixingPeriodAccrualFactor());
+    assertEquals("InterestRateFutureTransaction: equal-hash", ERU2, ERU2_TRA.getUnderlyingFuture());
+    assertEquals(REFERENCE_PRICE, ERU2_TRA.getReferencePrice());
+    assertEquals(QUANTITY, ERU2_TRA.getQuantity());
   }
 
   @Test

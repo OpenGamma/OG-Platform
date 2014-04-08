@@ -62,7 +62,7 @@ public final class RateReplacingVisitor extends InstrumentDerivativeVisitorAdapt
 
   @Override
   public InterestRateFutureTransaction visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final Double rate) {
-    return new InterestRateFutureTransaction(futures.getUnderlying(), 1.0d - rate, futures.getQuantity());
+    return new InterestRateFutureTransaction(futures.getUnderlyingFuture(), 1.0d - rate, futures.getQuantity());
   }
 
   @Override

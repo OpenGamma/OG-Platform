@@ -116,7 +116,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
-    return future.getFixingPeriodEndTime();
+    return future.getUnderlyingFuture().getFixingPeriodEndTime();
   }
 
   @Override

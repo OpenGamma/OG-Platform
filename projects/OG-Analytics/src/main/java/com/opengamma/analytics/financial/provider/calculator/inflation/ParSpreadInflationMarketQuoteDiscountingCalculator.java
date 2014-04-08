@@ -118,7 +118,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final InflationProviderInterface inflation) {
-    return METHOD_IR_FUT.price(futures.getUnderlying(), inflation.getMulticurveProvider()) - futures.getReferencePrice();
+    return METHOD_IR_FUT.price(futures.getUnderlyingFuture(), inflation.getMulticurveProvider()) - futures.getReferencePrice();
   }
 
   //     -----     Forex     -----

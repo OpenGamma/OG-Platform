@@ -50,7 +50,7 @@ public final class ParSpreadRateCurveSensitivityDiscountingCalculator extends In
 
   @Override
   public MulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_STIR_FUT.priceCurveSensitivity(futures.getUnderlying(), multicurves).multipliedBy(-1);
+    return METHOD_STIR_FUT.priceCurveSensitivity(futures.getUnderlyingFuture(), multicurves).multipliedBy(-1);
   }
 
   @Override

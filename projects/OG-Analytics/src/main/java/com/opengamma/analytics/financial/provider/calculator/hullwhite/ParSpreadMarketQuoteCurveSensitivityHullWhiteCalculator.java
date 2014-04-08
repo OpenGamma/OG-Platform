@@ -55,7 +55,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
    */
   @Override
   public MulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_IRFUT_HW.priceCurveSensitivity(futures.getUnderlying(), multicurves);
+    return METHOD_IRFUT_HW.priceCurveSensitivity(futures.getUnderlyingFuture(), multicurves);
   }
 
   @Override

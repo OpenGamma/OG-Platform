@@ -138,7 +138,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_STIR_FUT.price(futures.getUnderlying(), multicurves) - futures.getReferencePrice();
+    return METHOD_STIR_FUT.price(futures.getUnderlyingFuture(), multicurves) - futures.getReferencePrice();
   }
 
   @Override

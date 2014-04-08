@@ -52,7 +52,7 @@ public final class ParSpreadRateDiscountingCalculator extends InstrumentDerivati
    * @return The futures rate spread for the rate = 1-price.
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_STIR_FUT.parRate(futures.getUnderlying(), multicurves) - (1.0d - futures.getReferencePrice());
+    return METHOD_STIR_FUT.parRate(futures.getUnderlyingFuture(), multicurves) - (1.0d - futures.getReferencePrice());
   }
 
   @Override

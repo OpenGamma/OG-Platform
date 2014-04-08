@@ -115,7 +115,7 @@ public final class PresentValueBasisPointCalculator extends InstrumentDerivative
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(future, "Futures");
     ArgumentChecker.notNull(curves, "Bundle");
-    return future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity();
+    return future.getUnderlyingFuture().getNotional() * future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getQuantity();
   }
 
   // -----     Annuity     ------

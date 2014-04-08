@@ -119,11 +119,11 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
 
   @Override
   public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final String curveName = future.getForwardCurveName();
+    final String curveName = future.getUnderlyingFuture().getForwardCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = future.getFixingPeriodStartTime();
-    final double tb = future.getFixingPeriodEndTime();
-    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getFixingPeriodAccrualFactor();
+    final double ta = future.getUnderlyingFuture().getFixingPeriodStartTime();
+    final double tb = future.getUnderlyingFuture().getFixingPeriodEndTime();
+    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getUnderlyingFuture().getFixingPeriodAccrualFactor();
     final DoublesPair s1 = DoublesPair.of(ta, -ta * ratio);
     final DoublesPair s2 = DoublesPair.of(tb, tb * ratio);
     final List<DoublesPair> temp = new ArrayList<>();
