@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.Period;
+
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
@@ -46,17 +48,14 @@ import com.opengamma.util.time.Tenor;
  * Creates a curve construction configuration, interpolated curve definition and curve node id mapper
  * for Ugandan bonds to be used for pricing the example Ugandan TRS portfolio. The ISINs used 
  * follow the form "UG0000000XXX" where XX is equal to the number of months until bond maturity. 
- * The bond curve contains only bond nodes from 1y to 10y6m in 6m increments and uses the bond yield
+ * The bond curve contains only bond nodes from 6m to 10y in 6m increments and uses the bond yield
  * to construct the curve.
  */
 public class ExampleUgandanBondCurveConfigurationsPopulator {
-  /** The curve construction configuration name */
+  private static final Tenor ZERO = Tenor.of(Period.ZERO);
   private static final String CURVE_CONSTRUCTION_CONFIG_NAME = "UG Government Bond Configuration";
-  /** The curve name */
   private static final String CURVE_NAME = "UG Government Bond";
-  /** The curve node id mapper name */
   private static final String CURVE_NODE_ID_MAPPER_NAME = "UG Government Bond ISIN";
-  /** The currency */
   private static final Currency CURRENCY = Currency.of("UGX");
 
   /**
@@ -72,8 +71,6 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
   }
 
   /**
-   * Creates a curve construction configuration consisting of a single government bond curve
-   * which matches against the issuer name "UGANDA".
    * @return The configuration
    */
   private static CurveConstructionConfiguration makeCurveConstructionConfiguration() {
@@ -89,15 +86,10 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     return new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIG_NAME, groups, Collections.<String>emptyList());
   }
 
-  /**
-   * Creates an interpolated curve definition of 20 government bonds with tenors from 6m to 10y in 
-   * 6m intervals. The interpolator is double quadratic with linear extrapolation on both sides.
-   * @return The curve definition
-   */
   private static CurveDefinition makeCurveDefinition() {
     final Set<CurveNode> curveNodes = new LinkedHashSet<>();
     for (int i = 0; i < 20; i++) {
-      final int months = (int) ((i + 2) / 2. * 12);
+      final int months = (int) ((i + 1) / 2. * 12);
       curveNodes.add(new BondNode(Tenor.ofMonths(months), CURVE_NODE_ID_MAPPER_NAME));
     }
     final CurveDefinition curveDefinition = new InterpolatedCurveDefinition(CURVE_NAME, curveNodes,
@@ -105,15 +97,10 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     return curveDefinition;
   }
 
-  /**
-   * Creates a curve node id mapper containing ISINs for 20 government bonds with tenors from
-   * 1y to 10y6m in 6m intervals.
-   * @return The curve node id mapper
-   */
   private static CurveNodeIdMapper makeCurveNodeIdMapper() {
     final Map<Tenor, CurveInstrumentProvider> bondNodes = new HashMap<>();
     for (int i = 0; i < 20; i++) {
-      final int months = (int) ((i + 2) / 2. * 12);
+      final int months = (int) ((i + 1) / 2. * 12);
       final Tenor tenor = Tenor.ofMonths(months);
       String suffix;
       if (months < 10) {
@@ -123,8 +110,8 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
       } else {
         suffix = Integer.toString(months);
       }
-      final ExternalId isin = ExternalSchemes.syntheticSecurityId("UG0000000" + suffix);
-      final CurveInstrumentProvider instrumentProvider = new StaticCurveInstrumentProvider(isin, MarketDataRequirementNames.MARKET_VALUE, DataFieldType.OUTRIGHT);
+      final ExternalId isin = ExternalSchemes.isinSecurityId("UG0000000" + suffix);
+      final CurveInstrumentProvider instrumentProvider = new StaticCurveInstrumentProvider(isin, MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, DataFieldType.OUTRIGHT);
       bondNodes.put(tenor, instrumentProvider);
     }
     final CurveNodeIdMapper curveNodeIdMapper = CurveNodeIdMapper.builder()

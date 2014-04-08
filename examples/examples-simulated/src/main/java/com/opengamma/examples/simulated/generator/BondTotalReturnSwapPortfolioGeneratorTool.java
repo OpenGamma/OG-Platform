@@ -15,12 +15,16 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
@@ -63,16 +67,32 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
   private static final List<Double> NOTIONALS = new ArrayList<>();
   /** The currency of the bonds */
   private static final Currency CURRENCY = Currency.of("UGX");
-  /** The funding leg payment frequency */
-  private static final Frequency FREQUENCY = PeriodFrequency.QUARTERLY;
-  /** The funding leg holiday calendar */
-  private static final Set<ExternalId> HOLIDAY = Sets.newHashSet(ExternalSchemes.countryRegionId(Country.US).toBundle());
-  /** The funding leg ibor rate */
-  private static final ExternalId IBOR_RATE = ExternalSchemes.syntheticSecurityId("USDLIBORP3M");
   /** The rate formatter */
   private static final DecimalFormat FORMATTER = new DecimalFormat("###.###");
 
   static {
+    final Set<ExternalId> holiday = Sets.newHashSet(ExternalSchemes.countryRegionId(Country.US).toBundle());
+    final FloatingInterestRateSwapLegConvention leg = new FloatingInterestRateSwapLegConvention("USD Floating Swap Leg", ExternalIdBundle.of("CONVENTION", "USD 6M IBOR INDEX"));
+    leg.setDayCountConvention(DayCounts.ACT_360);
+    leg.setCalculationCalendars(holiday);
+    leg.setMaturityCalendars(holiday);
+    leg.setPaymentCalendars(holiday);
+    leg.setPaymentFrequency(SimpleFrequency.SEMI_ANNUAL);
+    leg.setPaymentRelativeTo(DateRelativeTo.END);
+    leg.setSettlementDays(0);
+    leg.setPaymentDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setCalculationBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setCalculationFrequency(SimpleFrequency.SEMI_ANNUAL);
+    leg.setMaturityBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setFixingCalendars(holiday);
+    leg.setFixingBusinessDayConvention(BusinessDayConventions.NONE);
+    leg.setResetFrequency(SimpleFrequency.SEMI_ANNUAL);
+    leg.setResetCalendars(holiday);
+    leg.setResetBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setResetRelativeTo(DateRelativeTo.START);
+    leg.setRollConvention(RollConvention.EOM);
+    leg.setRateType(FloatingRateType.IBOR);
+    leg.setCompoundingMethod(CompoundingMethod.NONE);
     final Random rng = new Random(131);
     for (int i = 0; i < 20; i++) {
       final String issuerName = "UGANDA";
@@ -90,7 +110,7 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
       final double redemptionValue = 100;
       final ZonedDateTime baseDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
       final ZonedDateTime bondStartDate = baseDate;
-      final int months = (int) ((i + 2) / 2. * 12);
+      final int months = (int) ((i + 1) / 2. * 12);
       final ZonedDateTime maturityDate = baseDate.plusMonths(months);
       final double coupon = 6 + (rng.nextInt(10) / 8. + (rng.nextBoolean() ? -0.5 : 0.5));
       final double issuancePrice = 100;
@@ -106,7 +126,7 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
       } else {
         suffix = Integer.toString(months);
       }
-      bond.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId("UG0000000" + suffix)));
+      bond.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.isinSecurityId("UG0000000" + suffix)));
       final StringBuilder bondName = new StringBuilder("Uganda ");
       bondName.append(FORMATTER.format(coupon));
       bondName.append("% ");
@@ -114,29 +134,8 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
       bond.setName(bondName.toString());
       final double notional = 1000000. * (1 + rng.nextInt(10));
       final double spread = 0.002 + rng.nextInt(100) / 10000.;
-      final FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
-      leg.setNotional(new InterestRateSwapNotional(CURRENCY, notional));
-      leg.setDayCountConvention(DayCounts.ACT_360);
-      leg.setPaymentDateFrequency(FREQUENCY);
-      leg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-      leg.setPaymentDateCalendars(HOLIDAY);
-      leg.setAccrualPeriodFrequency(FREQUENCY);
-      leg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-      leg.setAccrualPeriodCalendars(HOLIDAY);
-      leg.setResetPeriodFrequency(FREQUENCY);
-      leg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-      leg.setResetPeriodCalendars(HOLIDAY);
-      leg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
-      leg.setFixingDateCalendars(HOLIDAY);
-      leg.setFixingDateOffset(-2);
-      leg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-      leg.setMaturityDateCalendars(HOLIDAY);
-      leg.setFloatingRateType(FloatingRateType.IBOR);
-      leg.setFloatingReferenceRateId(IBOR_RATE);
-      leg.setPayReceiveType(PayReceiveType.PAY);
-      leg.setRollConvention(RollConvention.NONE);
-      leg.setSpreadSchedule(Rate.builder().rates(new double[] {spread }).build());
-      FUNDING_LEGS.add(leg);
+      FUNDING_LEGS.add(leg.toLeg(new InterestRateSwapNotional(CURRENCY, notional), PayReceiveType.PAY,
+          Rate.builder().rates(new double[] {spread }).build()));
       BONDS.add(bond);
       NOTIONALS.add(notional);
     }
@@ -183,7 +182,7 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
         final ExternalIdBundle assetId = getSecurityPersister().storeSecurity(bond);
         final double spread = fundingLeg.getSpreadSchedule().getRate(0);
         final BondTotalReturnSwapSecurity security = new BondTotalReturnSwapSecurity(fundingLeg, assetId, bond.getSettlementDate().toLocalDate(),
-            bond.getLastTradeDate().getExpiry().toLocalDate(), CURRENCY, NOTIONALS.get(_count), 2, BusinessDayConventions.MODIFIED_FOLLOWING,
+            bond.getLastTradeDate().getExpiry().toLocalDate(), CURRENCY, NOTIONALS.get(_count), 0, BusinessDayConventions.MODIFIED_FOLLOWING,
             PeriodFrequency.SEMI_ANNUAL, RollConvention.NONE);
         final StringBuilder sb = new StringBuilder(bond.getName());
         sb.append(", 6m USD Libor + ");

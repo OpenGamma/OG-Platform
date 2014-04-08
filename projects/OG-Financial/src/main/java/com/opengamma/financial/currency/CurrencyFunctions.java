@@ -55,8 +55,6 @@ public class CurrencyFunctions extends AbstractFunctionConfigurationBean {
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.PNL_SERIES);
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.YIELD_CURVE_PNL_SERIES);
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.CURVE_PNL_SERIES);
-    addCurrencyConversionFunction(functions, ValueRequirementNames.FUNDING_LEG_PV);
-    addCurrencyConversionFunction(functions, ValueRequirementNames.ASSET_LEG_PV);
     addCurrencyConversionFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addCurrencyConversionFunction(functions, ValueRequirementNames.ACCRUED_INTEREST);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY

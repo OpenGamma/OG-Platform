@@ -37,7 +37,7 @@ public final class EqyTrsPresentValueCalculator extends InstrumentDerivativeVisi
     ArgumentChecker.notNull(equityTrs, "equityTrs");
     ArgumentChecker.notNull(data, "data");
     final MultipleCurrencyAmount fundingLegPV = equityTrs.getFundingLeg().accept(PresentValueDiscountingCalculator.getInstance(), data.getCurves());
-    final CurrencyAmount equityPV = CurrencyAmount.of(equityTrs.getNotionalCurrency(), data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares());
+    final CurrencyAmount equityPV = CurrencyAmount.of(equityTrs.getNotionalCurrency(), -(data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares()));
     return fundingLegPV.plus(equityPV);
   }
 }

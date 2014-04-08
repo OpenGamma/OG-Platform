@@ -38,7 +38,6 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.NotionalExchange;
-import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -83,17 +82,17 @@ public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
   @Override
   public BondTotalReturnSwapDefinition visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    final FinancialSecurity underlying = (FinancialSecurity) _securitySource.getSingle(security.getAssetId().toBundle()); //TODO ignoring version
-    if (!(underlying instanceof BondSecurity)) {
-      throw new OpenGammaRuntimeException("Underlying for bond TRS was not a bond");
-    }
-    final FloatingInterestRateSwapLeg fundingLeg = security.getFundingLeg();
-    final boolean isPayer = fundingLeg.getPayReceiveType() == PayReceiveType.PAY ? true : false;
+    final boolean isPayer = false;
     final LocalDate startDate = security.getEffectiveDate();
     final LocalDate endDate = security.getMaturityDate();
+    final FloatingInterestRateSwapLeg leg = security.getFundingLeg();
     final NotionalExchange notionalExchange = NotionalExchange.NO_EXCHANGE;
     final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
-        startDate, endDate, notionalExchange, fundingLeg);
+        startDate, endDate, notionalExchange, leg);
+    final FinancialSecurity underlying = (FinancialSecurity) _securitySource.getSingle(security.getAssetId().toBundle()); //TODO ignoring version
+    if (underlying instanceof BondSecurity) {
+      throw new OpenGammaRuntimeException("Underlying for bond TRS was not a bond");
+    }
     final BondSecurity bond = (BondSecurity) underlying;
     final BondConvention convention = getConvention(bond, _conventionSource);
     final LegalEntity legalEntity = BondAndBondFutureTradeWithEntityConverter.getLegalEntityForBond(Collections.<String, String>emptyMap(), bond);

@@ -7,14 +7,11 @@ package com.opengamma.financial.analytics.model.multicurve;
 
 import static com.opengamma.engine.value.ValueRequirementNames.ACCRUED_INTEREST;
 import static com.opengamma.engine.value.ValueRequirementNames.ALL_PV01S;
-import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.CONVEXITY;
-import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_DETAILS;
-import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_PV;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.GROSS_BASIS;
@@ -51,14 +48,11 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ACCRUED_INTEREST,
     ALL_PV01S,
-    ASSET_LEG_PV,
     BLOCK_CURVE_SENSITIVITIES,
     BOND_DETAILS,
     BUCKETED_PV01,
     CLEAN_PRICE,
     CONVEXITY,
-    FUNDING_LEG_DETAILS,
-    FUNDING_LEG_PV,
     FX_PRESENT_VALUE,
     GAMMA_PV01,
     GROSS_BASIS,

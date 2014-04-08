@@ -30,7 +30,6 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.NotionalExchange;
-import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -66,17 +65,17 @@ public class EquityTotalReturnSwapSecurityConverter extends FinancialSecurityVis
   @Override
   public EquityTotalReturnSwapDefinition visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
     ArgumentChecker.notNull(security, "security");
+    final boolean isPayer = false;
+    final LocalDate startDate = security.getEffectiveDate();
+    final LocalDate endDate = security.getMaturityDate();
+    final FloatingInterestRateSwapLeg leg = security.getFundingLeg();
+    final NotionalExchange notionalExchange = NotionalExchange.NO_EXCHANGE;
+    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
+        startDate, endDate, notionalExchange, leg);
     final FinancialSecurity underlying = (FinancialSecurity) _securitySource.getSingle(security.getAssetId().toBundle()); //TODO ignoring version
     if (underlying instanceof BondSecurity) {
       throw new OpenGammaRuntimeException("Underlying for equity TRS was not an equity");
     }
-    final FloatingInterestRateSwapLeg fundingLeg = security.getFundingLeg();
-    final boolean isPayer = fundingLeg.getPayReceiveType() == PayReceiveType.PAY ? true : false;
-    final LocalDate startDate = security.getEffectiveDate();
-    final LocalDate endDate = security.getMaturityDate();
-    final NotionalExchange notionalExchange = NotionalExchange.NO_EXCHANGE;
-    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
-        startDate, endDate, notionalExchange, fundingLeg);
     final EquitySecurity equity = (EquitySecurity) underlying;
     final LegalEntity legalEntity = getLegalEntityForEquity(equity);
     final EquityDefinition equityDefinition = new EquityDefinition(legalEntity, equity.getCurrency(), security.getNumberOfShares());

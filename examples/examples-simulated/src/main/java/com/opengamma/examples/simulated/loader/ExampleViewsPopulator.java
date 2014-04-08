@@ -10,25 +10,19 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
-import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
-import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
-import static com.opengamma.engine.value.ValueRequirementNames.BOND_EQUIVALENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
 import static com.opengamma.engine.value.ValueRequirementNames.FAIR_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.FORWARD;
-import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_DETAILS;
-import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_PV;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
-import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
-import static com.opengamma.engine.value.ValueRequirementNames.NOTIONAL;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
@@ -79,9 +73,6 @@ import static com.opengamma.financial.analytics.model.InterpolatedDataProperties
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.X_INTERPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
-import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
-import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -766,10 +757,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   }
 
   /**
-   * Creates a view definition for bond total return swaps that requests the present value,
-   * funding and asset leg present values, PV01 for all relevant curves, gamma PV01,
-   * the details of the funding leg, the details of the bond, the bond equivalent value 
-   * and the notional.
+   * Creates a view definition for bond total return swaps that requests the bond curve
+   * for each issuer and the present value.
    * @param portfolioName The portfolio name
    * @param viewName The view name
    * @return The view definition
@@ -783,38 +772,24 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    for (final Pair<String, String> pair : BOND_TRS_ISSUER_CURVES) {
+      final ComputationTargetSpecification target = ComputationTargetSpecification.NULL;
+      final ValueProperties properties = ValueProperties.builder()
+          .with(CURVE_CONSTRUCTION_CONFIG, pair.getFirst())
+          .with(CURVE, pair.getSecond())
+          .get();
+      defaultCalculationConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, target, properties));
+    }
     final ValueProperties properties = ValueProperties.builder()
-        .with(PROPERTY_CURVE_TYPE, "Discounting")
         .with(CURVE_EXPOSURES, "Bond Exposures")
         .get();
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_PV, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_DETAILS, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, BOND_DETAILS, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, BOND_EQUIVALENT_VALUE, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, properties);
-    final ValueProperties thetaProperties = properties.copy()
-        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
-        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-        .get();
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_THETA, thetaProperties);
-    final String[] curveNames = new String[] {"USD Discounting", "USD 3M Forward Ibor", "UG Government Curve" };
-    for (final String curveName : curveNames) {
-      final ValueProperties curveProperties = properties.copy()
-          .with(CURVE, curveName)
-          .get();
-      defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PV01, curveProperties);
-    }
     viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
     return viewDefinition;
   }
 
   /**
-   * Creates a view definition for equity total return swaps that requests the present value,
-   * funding and asset leg present values, PV01 for all relevant curves, value delta, gamma PV01
-   * the details of the funding leg and the notional.
+   * Creates a view definition for equity total return swaps that requests the present value.
    * @param portfolioName The portfolio name
    * @param viewName The view name
    * @return The view definition
@@ -833,24 +808,6 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
         .with(CURVE_EXPOSURES, "Exposures")
         .get();
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_PV, properties);
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_DETAILS, properties);
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_DELTA, properties);
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, properties);
-    final ValueProperties thetaProperties = properties.copy()
-        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
-        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-        .get();
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_THETA, thetaProperties);
-    final String[] curveNames = new String[] {"USD Discounting", "USD 3M Forward Ibor" };
-    for (final String curveName : curveNames) {
-      final ValueProperties curveProperties = properties.copy()
-          .with(CURVE, curveName)
-          .get();
-      defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, PV01, curveProperties);
-    }
     viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
     return viewDefinition;
   }

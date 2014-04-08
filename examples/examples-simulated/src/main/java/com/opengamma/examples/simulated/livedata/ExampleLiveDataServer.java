@@ -55,7 +55,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleLiveDataServer.class);
 
-  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
+  private static final FudgeContext s_fudgeConext = OpenGammaFudgeContext.getInstance();
   private static final int NUM_FIELDS = 3;
   /**
    * Default scaling factor
@@ -171,9 +171,9 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
     final FudgeMsg previousTicks = _marketValues.get(uniqueId);
     MutableFudgeMsg ticks = null;
     if (previousTicks == null) {
-      ticks = s_fudgeContext.newMessage();
+      ticks = s_fudgeConext.newMessage();
     } else {
-      ticks = s_fudgeContext.newMessage(previousTicks);
+      ticks = s_fudgeConext.newMessage(previousTicks);
       if (ticks.hasField(fieldName)) {
         ticks.remove(fieldName);
       }
@@ -190,9 +190,9 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
 
     final Set<String> requestSubcriptions = Sets.newTreeSet(uniqueIds);
     final Set<String> validSubscriptions = Maps.filterKeys(_marketValues, Predicates.in(requestSubcriptions)).keySet();
-    final Map<String, Object> subscriptionHandles = Maps.toMap(validSubscriptions, new Function<String, Object>() {
+    Map<String, Object> subscriptionHandles = Maps.toMap(validSubscriptions, new Function<String, Object>() {
       @Override
-      public Object apply(final String uniqueId) {
+      public Object apply(String uniqueId) {
         return new AtomicReference<String>(uniqueId);
       }
     });
@@ -261,7 +261,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
           final FudgeMsg lastValues = _marketValues.get(identifier);
           final FudgeMsg baseValues = _baseValues.get(identifier);
           if (lastValues != null && baseValues != null) {
-            final MutableFudgeMsg nextValues = s_fudgeContext.newMessage();
+            final MutableFudgeMsg nextValues = s_fudgeConext.newMessage();
             for (final FudgeField field : lastValues) {
               final double lastValue = (Double) field.getValue();
               final double baseValue = baseValues.getDouble(field.getName());

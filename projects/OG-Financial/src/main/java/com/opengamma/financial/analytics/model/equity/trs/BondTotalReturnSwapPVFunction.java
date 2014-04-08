@@ -36,7 +36,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of a bond total return swap security.
  */
-public class BondTotalReturnSwapPVFunction extends BondTotalReturnSwapFunction {
+public class BondTotalReturnSwapPVFunction extends EquityTotalReturnSwapFunction {
   /** The calculator */
   private static final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> CALCULATOR =
       BondTrsPresentValueCalculator.getInstance();
@@ -50,7 +50,7 @@ public class BondTotalReturnSwapPVFunction extends BondTotalReturnSwapFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new BondTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new EquityTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @SuppressWarnings("synthetic-access")
       @Override

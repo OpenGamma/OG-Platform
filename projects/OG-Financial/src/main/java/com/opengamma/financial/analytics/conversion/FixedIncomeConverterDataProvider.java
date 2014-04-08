@@ -1620,7 +1620,7 @@ public class FixedIncomeConverterDataProvider {
     @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final TotalReturnSwapSecurity security) {
-      ArgumentChecker.notNull(security, "security");
+      Validate.notNull(security, "security");
       final InterestRateSwapLeg fundingLeg = security.getFundingLeg();
       final ZonedDateTime swapStartDate = security.getEffectiveDate().atStartOfDay(ZoneOffset.UTC);
       final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);

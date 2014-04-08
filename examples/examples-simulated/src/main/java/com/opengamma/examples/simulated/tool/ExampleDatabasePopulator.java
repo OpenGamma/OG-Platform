@@ -41,6 +41,7 @@ import com.opengamma.examples.simulated.loader.ExampleHolidayLoader;
 import com.opengamma.examples.simulated.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.simulated.loader.ExampleUgandanBondCurveConfigurationsLoader;
 import com.opengamma.examples.simulated.loader.ExampleViewsPopulator;
+import com.opengamma.examples.simulated.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
@@ -168,6 +169,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadEquityOptionPortfolio();
     loadFuturePortfolio();
     loadBondPortfolio();
+    loadLiborRawSecurities();
     loadSwaptionPortfolio();
     loadEURFixedIncomePortfolio();
     loadFXForwardPortfolio();
@@ -486,6 +488,16 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating example equity total return swap portfolio");
     try {
       portfolioGeneratorTool().run(getToolContext(), EQUITY_TRS_PORTFOLIO_NAME, "EquityTotalReturnSwap", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadLiborRawSecurities() {
+    final Log log = new Log("Creating libor raw securities");
+    try {
+      PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
