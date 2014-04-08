@@ -32,6 +32,7 @@ public class ExampleHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends Sp
     final HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(SimulatedHistoricalData.OG_DATA_SOURCE);
     final SyntheticHistoricalDataNormalizer adjuster = new SyntheticHistoricalDataNormalizer();
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, LAST_PRICE, adjuster);
+    fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, null, LAST_YIELD, adjuster);
     return fieldAdjustmentMap;
   }
 
