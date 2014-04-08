@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.analytics.financial.model.interestrate.InterestRateModel;
@@ -92,6 +93,15 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * @return The list.
    */
   public abstract List<String> getUnderlyingCurvesNames();
+
+  /**
+   * Return the number of intrinsic parameters for the definition of the curve. Which is the total number of parameters minus the parameters of the curves in curvesNames (If they are in curves).
+   *  @param curvesNames The list of curves names.
+   *  @return The number of parameters.
+   */
+  public int getNumberOfIntrinsicParameters(final Set<String> curvesNames) {
+    return getNumberOfParameters();
+  }
 
   /**
    * Create another {@link YieldAndDiscountCurve} with the zero-coupon rates shifted by a given amount.
