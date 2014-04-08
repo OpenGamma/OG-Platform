@@ -90,7 +90,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
           if (marketSpreadObject != null) {
             tenors.add(strip.getCurveNode().getResolvedMaturity());
-            marketSpreads.add(10000 * (Double) marketSpreadObject);
+            marketSpreads.add((Double) marketSpreadObject);
           } else {
             s_logger.warn("Could not get spread data for {}, defaulting", strip.getIdentifier());
             tenors.add(strip.getCurveNode().getResolvedMaturity());

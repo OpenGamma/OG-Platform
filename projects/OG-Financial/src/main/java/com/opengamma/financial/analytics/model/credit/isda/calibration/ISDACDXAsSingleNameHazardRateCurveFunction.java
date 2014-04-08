@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.calibration;
@@ -62,7 +62,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * 
  */
 public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCurveFunction {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
@@ -102,35 +102,17 @@ public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCu
         .with(calendar).with(cds.getStubType())
         .withAccrualDCC(cds.getDayCountFractionConvention());
 
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), cds.getMaturityDate().toLocalDate());
-    Double spread = null;
     final CDSAnalytic[] creditAnalytics = new CDSAnalytic[n];
     final double[] marketSpreads = new double[n];
     for (int i = 0; i < n; i++) {
-      final ZonedDateTime nextIMM = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
+      ZonedDateTime nextIMM = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
       creditAnalytics[i] = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), nextIMM.toLocalDate());
       marketSpreads[i] = marketSpreadObjects[i] * 1e-4;
-      if (!nextIMM.isAfter(cds.getMaturityDate().withHour(0).withMinute(0).withSecond(0).withNano(0))) {
-        spread = marketSpreads[i];
-      }
-    }
-    if (spread == null && n == 1) {
-      // Next IMM date is after curve maturity date but there is only one point on the curve
-      // i.e. the intention is to use a constant spread curve
-      spread = marketSpreads[0];
-    } else if (spread == null) {
-      throw new OpenGammaRuntimeException("Curve contained more than one spread tenor but the spread was not set");
     }
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    final ISDACompliantCreditCurve curve;
-
-    if (IMMDateGenerator.isIMMDate(cds.getMaturityDate())) {
-      curve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pricingCDS, spread, yieldCurve);
-    } else {
-      curve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(creditAnalytics, marketSpreads, yieldCurve);
-    }
+    final ISDACompliantCreditCurve curve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(creditAnalytics, marketSpreads, yieldCurve);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, curve));
   }
