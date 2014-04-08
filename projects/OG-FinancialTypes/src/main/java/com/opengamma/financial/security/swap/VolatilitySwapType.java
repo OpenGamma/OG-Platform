@@ -11,11 +11,11 @@ package com.opengamma.financial.security.swap;
 public enum VolatilitySwapType {
 
   /**
-   * Volatility
+   * Volatility.
    */
   VOLATILITY,
   /**
-   * Vega
+   * Vega.
    */
   VEGA
 }

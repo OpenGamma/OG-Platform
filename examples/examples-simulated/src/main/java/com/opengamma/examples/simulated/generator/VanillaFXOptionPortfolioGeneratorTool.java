@@ -38,25 +38,24 @@ import com.opengamma.util.tuple.Pairs;
 public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   /** The list of options */
   private static final List<FXOptionSecurity> FX_OPTIONS = new ArrayList<>();
-  /** The spot rates for a currency pair */
-  private static final List<Pair<UnorderedCurrencyPair, Double>> SPOT_RATES = new ArrayList<>();
   /** The strike formatter */
   private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("###.###");
 
   static {
-    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), 1.328));
-    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.CHF), 0.84));
-    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), 1.1));
-    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), 1.588));
-    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.JPY), 80.));
-    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), 1.2));
-    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY), 100.));
+    final List<Pair<UnorderedCurrencyPair, Double>> spotRates = new ArrayList<>();
+    spotRates.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), 1.328));
+    spotRates.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.CHF), 0.84));
+    spotRates.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), 1.1));
+    spotRates.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), 1.588));
+    spotRates.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.JPY), 80.));
+    spotRates.add(Pairs.of(UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), 1.2));
+    spotRates.add(Pairs.of(UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY), 100.));
     final ExerciseType european = new EuropeanExerciseType();
     final Random rng = new Random(1237);
     final ZonedDateTime date = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
     for (int i = 0; i < 100; i++) {
       final int n = rng.nextInt(6);
-      final Pair<UnorderedCurrencyPair, Double> pair = SPOT_RATES.get(n);
+      final Pair<UnorderedCurrencyPair, Double> pair = spotRates.get(n);
       final UnorderedCurrencyPair ccys = pair.getFirst();
       final double spot = pair.getSecond();
       final Currency putCurrency, callCurrency;

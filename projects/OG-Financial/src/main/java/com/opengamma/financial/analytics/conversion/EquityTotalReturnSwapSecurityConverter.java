@@ -30,7 +30,10 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.NotionalExchange;
+<<<<<<< HEAD
 import com.opengamma.financial.security.irs.PayReceiveType;
+=======
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -66,6 +69,7 @@ public class EquityTotalReturnSwapSecurityConverter extends FinancialSecurityVis
   @Override
   public EquityTotalReturnSwapDefinition visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
     ArgumentChecker.notNull(security, "security");
+<<<<<<< HEAD
     final FinancialSecurity underlying = (FinancialSecurity) _securitySource.getSingle(security.getAssetId().toBundle()); //TODO ignoring version
     if (underlying instanceof BondSecurity) {
       throw new OpenGammaRuntimeException("Underlying for equity TRS was not an equity");
@@ -77,6 +81,19 @@ public class EquityTotalReturnSwapSecurityConverter extends FinancialSecurityVis
     final NotionalExchange notionalExchange = NotionalExchange.NO_EXCHANGE;
     final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
         startDate, endDate, notionalExchange, fundingLeg);
+=======
+    final boolean isPayer = false;
+    final LocalDate startDate = security.getEffectiveDate();
+    final LocalDate endDate = security.getMaturityDate();
+    final FloatingInterestRateSwapLeg leg = security.getFundingLeg();
+    final NotionalExchange notionalExchange = NotionalExchange.NO_EXCHANGE;
+    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
+        startDate, endDate, notionalExchange, leg);
+    final FinancialSecurity underlying = (FinancialSecurity) _securitySource.getSingle(security.getAssetId().toBundle()); //TODO ignoring version
+    if (underlying instanceof BondSecurity) {
+      throw new OpenGammaRuntimeException("Underlying for equity TRS was not an equity");
+    }
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     final EquitySecurity equity = (EquitySecurity) underlying;
     final LegalEntity legalEntity = getLegalEntityForEquity(equity);
     final EquityDefinition equityDefinition = new EquityDefinition(legalEntity, equity.getCurrency(), security.getNumberOfShares());

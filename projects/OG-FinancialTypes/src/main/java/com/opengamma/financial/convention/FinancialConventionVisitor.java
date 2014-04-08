@@ -13,6 +13,13 @@ package com.opengamma.financial.convention;
 public interface FinancialConventionVisitor<T> {
 
   /**
+   * Visits {@link BondConvention}s.
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitBondConvention(BondConvention convention);
+
+  /**
    * Visits {@link CMSLegConvention}s.
    * @param convention The convention, not null
    * @return The return value

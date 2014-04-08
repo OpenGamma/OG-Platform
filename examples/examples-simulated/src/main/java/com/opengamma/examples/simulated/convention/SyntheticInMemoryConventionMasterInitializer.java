@@ -40,7 +40,10 @@ public class SyntheticInMemoryConventionMasterInitializer extends ConventionMast
   @Override
   public void init(final ConventionMaster master) {
     USFXConventions.INSTANCE.init(master);
+<<<<<<< HEAD
     ExampleUGConventions.INSTANCE.init(master);
+=======
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     ExampleUSConventions.INSTANCE.init(master);
   }
 }

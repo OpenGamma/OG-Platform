@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +39,8 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationYearOnYearDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
+import com.opengamma.analytics.financial.instrument.swap.TotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
@@ -65,11 +68,14 @@ import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.TotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -100,7 +106,7 @@ public class FixedIncomeConverterDataProvider {
 
   private final HistoricalTimeSeriesResolver _timeSeriesResolver;
 
-  /** The first fixing date of a swap is not stored at the security level. 
+  /** The first fixing date of a swap is not stored at the security level.
    * One needs to estimate how far before the effective date the fixing time-series is required. **/
   private static final int DAYS_BEFORE_EFFECTIVE = 180;
 
@@ -218,6 +224,9 @@ public class FixedIncomeConverterDataProvider {
     }
     if (security instanceof SwaptionSecurity) {
       return _swaptionSecurity;
+    }
+    if (security instanceof TotalReturnSwapSecurity) {
+      return _totalReturnSwapSecurity;
     }
     return _default;
   }
@@ -346,7 +355,7 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final BondFutureSecurity security, final BondFutureDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
-      // TODO [PLAT-5402] Change to security/transaction object. 
+      // TODO [PLAT-5402] Change to security/transaction object.
       final Double referencePrice = 0.0;
       return definition.toDerivative(now, referencePrice, curveNames);
     }
@@ -354,7 +363,7 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final BondFutureSecurity security, final BondFutureDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      // TODO [PLAT-5402] Change to security/transaction object. 
+      // TODO [PLAT-5402] Change to security/transaction object.
       final Double referencePrice = 0.0;
       return definition.toDerivative(now, referencePrice);
     }
@@ -1458,7 +1467,10 @@ public class FixedIncomeConverterDataProvider {
   };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
   private final Converter<InterestRateSwapSecurity, SwapMultilegDefinition> _irsMultiLegSecurity = new Converter<InterestRateSwapSecurity, SwapMultilegDefinition>() {
 
     @SuppressWarnings("synthetic-access")
@@ -1613,7 +1625,11 @@ public class FixedIncomeConverterDataProvider {
     @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final TotalReturnSwapSecurity security) {
+<<<<<<< HEAD
       ArgumentChecker.notNull(security, "security");
+=======
+      Validate.notNull(security, "security");
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
       final InterestRateSwapLeg fundingLeg = security.getFundingLeg();
       final ZonedDateTime swapStartDate = security.getEffectiveDate().atStartOfDay(ZoneOffset.UTC);
       final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
@@ -1649,7 +1665,10 @@ public class FixedIncomeConverterDataProvider {
     }
   };
 
+<<<<<<< HEAD
 >>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
+=======
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
     if (floatingLeg.getFloatingRateType().isIbor()) {
       return getIndexIborIdBundle(floatingLeg.getFloatingReferenceRateId());

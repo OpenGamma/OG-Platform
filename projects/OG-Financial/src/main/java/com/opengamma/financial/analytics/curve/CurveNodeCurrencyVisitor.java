@@ -9,9 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -37,6 +34,7 @@ import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.financial.convention.BondConvention;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.DeliverablePriceQuotedSwapFutureConvention;
@@ -79,8 +77,6 @@ import com.opengamma.util.money.Currency;
  * to the curve node.
  */
 public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>, FinancialConventionVisitor<Set<Currency>> {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(CurveNodeCurrencyVisitor.class);
   /** The security source */
   private final SecuritySource _securitySource;
   /** The convention source */
@@ -294,6 +290,11 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   public Set<Currency> visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
     final FinancialConvention convention = _conventionSource.getSingle(node.getInflationLegConvention(), InflationLegConvention.class);
     return convention.accept(this);
+  }
+
+  @Override
+  public Set<Currency> visitBondConvention(final BondConvention convention) {
+    return Collections.emptySet();
   }
 
   @Override

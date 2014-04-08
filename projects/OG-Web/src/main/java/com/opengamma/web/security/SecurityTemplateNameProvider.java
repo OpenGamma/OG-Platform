@@ -59,6 +59,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
@@ -353,6 +355,16 @@ public class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameVa
   @Override
   public String visitCashBalanceSecurity(final CashBalanceSecurity security) {
     return "cash-balance.ftl";
+  }
+
+  @Override
+  public String visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return "bond-total-return-swap.ftl";
+  }
+
+  @Override
+  public String visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+    return "equity-total-return-swap.ftl";
   }
 
   /**

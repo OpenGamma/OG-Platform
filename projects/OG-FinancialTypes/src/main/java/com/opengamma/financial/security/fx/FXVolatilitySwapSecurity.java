@@ -23,6 +23,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.VolatilitySwapSecurity;
 import com.opengamma.financial.security.swap.VolatilitySwapType;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
@@ -55,7 +56,7 @@ public class FXVolatilitySwapSecurity extends VolatilitySwapSecurity {
   /**
    * For the builder.
    */
-  /* package */ FXVolatilitySwapSecurity() {
+  /* package */FXVolatilitySwapSecurity() {
     super(SECURITY_TYPE);
   }
 
@@ -79,6 +80,31 @@ public class FXVolatilitySwapSecurity extends VolatilitySwapSecurity {
       final Currency baseCurrency, final Currency counterCurrency) {
     super(SECURITY_TYPE, counterCurrency, notional, volatilitySwapType, strike, settlementDate, maturityDate,
         annualizationFactor, firstObservationDate, lastObservationDate, observationFrequency);
+    setBaseCurrency(baseCurrency);
+    setCounterCurrency(counterCurrency);
+  }
+
+  /**
+   * @param currency The currency, not null
+   * @param notional The notional
+   * @param volatilitySwapType The volatility swap type, not null
+   * @param strike The strike
+   * @param settlementDate The settlement date, not null
+   * @param maturityDate The maturity date, not null
+   * @param annualizationFactor The annualization factor
+   * @param firstObservationDate The first observation date, not null
+   * @param lastObservationDate The last observation date, not null
+   * @param observationFrequency The observation frequency, not null
+   * @param underlyingId The id of the underlying fixing series, not null
+   * @param baseCurrency The base currency, not null
+   * @param counterCurrency The counter currency, not null
+   */
+  public FXVolatilitySwapSecurity(final Currency currency, final double notional, final VolatilitySwapType volatilitySwapType,
+      final double strike, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double annualizationFactor,
+      final ZonedDateTime firstObservationDate, final ZonedDateTime lastObservationDate, final Frequency observationFrequency,
+      final ExternalId underlyingId, final Currency baseCurrency, final Currency counterCurrency) {
+    super(SECURITY_TYPE, counterCurrency, notional, volatilitySwapType, strike, settlementDate, maturityDate,
+        annualizationFactor, firstObservationDate, lastObservationDate, observationFrequency, underlyingId);
     setBaseCurrency(baseCurrency);
     setCounterCurrency(counterCurrency);
   }

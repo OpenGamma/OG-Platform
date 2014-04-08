@@ -32,6 +32,7 @@ public class IndexPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool 
 
   static {
     final String[] currencies = new String[] {"USD", "EUR", "JPY", "CHF", "GBP" };
+<<<<<<< HEAD
     final String[] overnightTickers = new String[] {"USDFF", "EONIA", "TONAR", "TOISTOIS", "SONIO" };
     final Tenor[] tenors = new Tenor[] {Tenor.ONE_MONTH, Tenor.THREE_MONTHS, Tenor.SIX_MONTHS };
     for (int i = 0; i < currencies.length; i++) {
@@ -39,11 +40,22 @@ public class IndexPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool 
       final String overnightTicker = overnightTickers[i];
       for (final Tenor tenor : tenors) {
         final String iborTicker = currency + "LIBOR" + tenor.toFormattedString();
+=======
+    final Tenor[] tenors = new Tenor[] {Tenor.ONE_MONTH, Tenor.THREE_MONTHS, Tenor.SIX_MONTHS };
+    for (final String currency : currencies) {
+      for (final Tenor tenor : tenors) {
+        final String iborTicker = currency + " " + tenor.toFormattedString().substring(1) + " IBOR INDEX";
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
         final ExternalId iborIndexId = ExternalSchemes.syntheticSecurityId(iborTicker);
         final IborIndex iborIndex = new IborIndex(iborTicker, tenor, iborIndexId);
         iborIndex.setExternalIdBundle(iborIndexId.toBundle());
         INDICES.add(iborIndex);
+<<<<<<< HEAD
         final ExternalId overnightIndexId = ExternalSchemes.syntheticSecurityId(overnightTickers[i]);
+=======
+        final String overnightTicker = currency + " OVERNIGHT INDEX";
+        final ExternalId overnightIndexId = ExternalSchemes.syntheticSecurityId(overnightTicker);
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
         final OvernightIndex overnightIndex = new OvernightIndex(overnightTicker, overnightIndexId);
         overnightIndex.setExternalIdBundle(overnightIndexId.toBundle());
         INDICES.add(overnightIndex);

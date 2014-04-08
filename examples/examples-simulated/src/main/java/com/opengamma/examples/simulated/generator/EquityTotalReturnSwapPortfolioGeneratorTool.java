@@ -12,16 +12,30 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+<<<<<<< HEAD
 import org.threeten.bp.DayOfWeek;
+=======
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.google.common.collect.Sets;
+<<<<<<< HEAD
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+=======
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.LeafPortfolioNodeGenerator;
@@ -60,12 +74,15 @@ public class EquityTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfol
   private static final List<Double> NOTIONALS = new ArrayList<>();
   /** The currency of the equities */
   private static final Currency CURRENCY = Currency.USD;
+<<<<<<< HEAD
   /** The funding leg payment frequency */
   private static final Frequency FREQUENCY = PeriodFrequency.QUARTERLY;
   /** The funding leg holiday calendar */
   private static final Set<ExternalId> HOLIDAY = Sets.newHashSet(ExternalSchemes.countryRegionId(Country.US).toBundle());
   /** The funding leg ibor rate */
   private static final ExternalId IBOR_RATE = ExternalSchemes.syntheticSecurityId("USDLIBORP3M");
+=======
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
   /** The rate formatter */
   private static final DecimalFormat FORMATTER = new DecimalFormat("###.###");
   /** The tickers */
@@ -74,6 +91,31 @@ public class EquityTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfol
   private static final List<Double> PRICES = Arrays.asList(35.625, 68.5, 12.1, 29.53, 29.19);
 
   static {
+<<<<<<< HEAD
+=======
+    final Set<ExternalId> holiday = Sets.newHashSet(ExternalSchemes.countryRegionId(Country.US).toBundle());
+    final FloatingInterestRateSwapLegConvention leg = new FloatingInterestRateSwapLegConvention("USD Floating Swap Leg", ExternalIdBundle.of("CONVENTION", "USD 3M IBOR INDEX"));
+    leg.setDayCountConvention(DayCounts.ACT_360);
+    leg.setCalculationCalendars(holiday);
+    leg.setMaturityCalendars(holiday);
+    leg.setPaymentCalendars(holiday);
+    leg.setPaymentFrequency(SimpleFrequency.QUARTERLY);
+    leg.setPaymentRelativeTo(DateRelativeTo.START);
+    leg.setSettlementDays(2);
+    leg.setPaymentDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setCalculationBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setCalculationFrequency(SimpleFrequency.QUARTERLY);
+    leg.setMaturityBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setFixingCalendars(holiday);
+    leg.setFixingBusinessDayConvention(BusinessDayConventions.NONE);
+    leg.setResetFrequency(SimpleFrequency.QUARTERLY);
+    leg.setResetCalendars(holiday);
+    leg.setResetBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    leg.setResetRelativeTo(DateRelativeTo.START);
+    leg.setRollConvention(RollConvention.EOM);
+    leg.setRateType(FloatingRateType.IBOR);
+    leg.setCompoundingMethod(CompoundingMethod.NONE);
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     final Random rng = new Random(131);
     for (int i = 0; i < 20; i++) {
       final String ticker = TICKERS.get(rng.nextInt(TICKERS.size()));
@@ -81,6 +123,7 @@ public class EquityTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfol
       equity.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId(ticker)));
       final double notional = 1000000. * (1 + rng.nextInt(10));
       final double spread = 0.002 + rng.nextInt(100) / 10000.;
+<<<<<<< HEAD
       final FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
       leg.setNotional(new InterestRateSwapNotional(CURRENCY, notional));
       leg.setDayCountConvention(DayCounts.ACT_360);
@@ -104,6 +147,10 @@ public class EquityTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfol
       leg.setRollConvention(RollConvention.NONE);
       leg.setSpreadSchedule(Rate.builder().rates(new double[] {spread }).build());
       FUNDING_LEGS.add(leg);
+=======
+      FUNDING_LEGS.add(leg.toLeg(new InterestRateSwapNotional(CURRENCY, notional), PayReceiveType.PAY,
+          Rate.builder().rates(new double[] {spread }).build()));
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
       EQUITIES.add(equity);
       NOTIONALS.add(notional);
     }
@@ -148,7 +195,11 @@ public class EquityTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfol
         final EquitySecurity equity = EQUITIES.get(_count);
         toAddDoc.setSecurity(equity);
         securityMaster.add(toAddDoc);
+<<<<<<< HEAD
         final LocalDate startDate = DateUtils.previousWeekDay().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+=======
+        final LocalDate startDate = DateUtils.previousWeekDay().with(TemporalAdjusters.firstDayOfMonth());
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
         final LocalDate maturityDate = startDate.plusYears(1 + rng.nextInt(10));
         final ExternalIdBundle assetId = getSecurityPersister().storeSecurity(equity);
         final double spread = fundingLeg.getSpreadSchedule().getRate(0);
@@ -156,8 +207,13 @@ public class EquityTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfol
         final Double notional = NOTIONALS.get(_count);
         final long numberOfShares = Math.round(notional / price);
         final EquityTotalReturnSwapSecurity security = new EquityTotalReturnSwapSecurity(fundingLeg, assetId, startDate,
+<<<<<<< HEAD
             maturityDate, (double) numberOfShares, CURRENCY, notional, 2, BusinessDayConventions.MODIFIED_FOLLOWING,
             PeriodFrequency.QUARTERLY, RollConvention.NONE);
+=======
+            maturityDate, (double) numberOfShares, CURRENCY, notional, -2, BusinessDayConventions.MODIFIED_FOLLOWING,
+            PeriodFrequency.QUARTERLY, RollConvention.EOM);
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
         final StringBuilder sb = new StringBuilder(Long.toString(numberOfShares));
         sb.append(" x ");
         sb.append(equity.getCompanyName());

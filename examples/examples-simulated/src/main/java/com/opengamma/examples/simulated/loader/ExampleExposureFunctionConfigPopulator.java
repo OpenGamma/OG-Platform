@@ -42,7 +42,11 @@ public class ExampleExposureFunctionConfigPopulator {
     name = "Bond Exposures";
     exposureFunctionNames = Arrays.asList("Security / Currency");
     idsToNames = new HashMap<>();
+<<<<<<< HEAD
     idsToNames.put(ExternalId.of("SecurityType", "BOND_TOTAL_RETURN_SWAP_UGX"), "UG Government Bond Configuration");
+=======
+    idsToNames.put(ExternalId.of("SecurityType", "BOND_UG"), "UG Government Curve");
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     idsToNames.put(ExternalId.of(Currency.OBJECT_SCHEME, "USD"), "Default USD Curves");
     exposureFunctions = new ExposureFunctions(name, exposureFunctionNames, idsToNames);
     ConfigMasterUtils.storeByName(configMaster, makeConfig(exposureFunctions));

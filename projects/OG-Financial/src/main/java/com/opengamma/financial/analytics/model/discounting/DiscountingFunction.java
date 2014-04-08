@@ -102,7 +102,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
-          properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
+          properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode());
         }
         // TODO: Handle the multiple currency case (SWAP_CROSS_CURRENCY) by returning a collection with more than one element
       }
@@ -125,7 +125,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
 
     /**
      * Merges the multi-curve providers.
-     * 
+     *
      * @param inputs The function inputs, not null
      * @param matrix The FX matrix, not null
      * @return The merged providers
@@ -137,7 +137,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
       for (final ComputedValue input : inputs.getAllValues()) {
         final String valueName = input.getSpecification().getValueName();
         if (CURVE_BUNDLE.equals(valueName)) {
-          ParameterProviderInterface generic = (ParameterProviderInterface) input.getValue();
+          final ParameterProviderInterface generic = (ParameterProviderInterface) input.getValue();
           providers.add((MulticurveProviderDiscount) generic.getMulticurveProvider());
         }
       }
@@ -147,7 +147,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
 
     /**
      * Merges the multi-curve blocks.
-     * 
+     *
      * @param inputs The function inputs, not null
      * @return The merged blocks
      */
@@ -165,7 +165,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
 
     /**
      * Gets the flag indicating whether or not the currency property is set.
-     * 
+     *
      * @return True if the currency property is set
      */
     protected boolean isWithCurrency() {

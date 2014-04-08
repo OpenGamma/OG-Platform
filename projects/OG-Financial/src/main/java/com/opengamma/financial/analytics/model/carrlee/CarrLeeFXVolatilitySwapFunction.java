@@ -20,12 +20,17 @@ import static com.opengamma.financial.analytics.model.InterpolatedDataProperties
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.X_INTERPOLATOR_NAME;
 
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.volatilityswap.CarrLeeFXData;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -60,12 +65,17 @@ public abstract class CarrLeeFXVolatilitySwapFunction extends CarrLeeVolatilityS
 
     /**
      * @param tradeToDefinitionConverter Converts targets to definitions, not null
-     * @param definitionToDerivativeConverter Converts definitions to derivatives, not nul
+     * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the {@link ValuePropertyNames#CURRENCY} result property is set
      */
     protected CarrLeeFXVolatilitySwapCompiledFunction(final TradeConverter tradeToDefinitionConverter,
         final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
+    }
+
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      return target.getTrade().getSecurity() instanceof FXVolatilitySwapSecurity;
     }
 
     @Override
@@ -100,13 +110,16 @@ public abstract class CarrLeeFXVolatilitySwapFunction extends CarrLeeVolatilityS
     protected ValueRequirement getRealizedVarianceRequirement(final ValueRequirement desiredValue, final ComputationTarget target) {
       final ValueProperties constraints = desiredValue.getConstraints();
       final ValueProperties.Builder properties = ValueProperties.builder();
+      final FXVolatilitySwapSecurity security = (FXVolatilitySwapSecurity) target.getTrade().getSecurity();
+      final LocalDate firstObservationDate = security.getFirstObservationDate().toLocalDate();
+      final LocalDate lastObservationDate = security.getLastObservationDate().toLocalDate();
       final String varianceCalculationMethod = Iterables.getOnlyElement(constraints.getValues(PROPERTY_REALIZED_VARIANCE_METHOD));
       if (MARKET_REALIZED_VARIANCE.equals(varianceCalculationMethod)) {
         properties.with(PROPERTY_REALIZED_VARIANCE_METHOD, MARKET_REALIZED_VARIANCE);
       } else if (HISTORICAL_REALIZED_VARIANCE.equals(varianceCalculationMethod)) {
-        properties.with(PROPERTY_REALIZED_VARIANCE_METHOD, MARKET_REALIZED_VARIANCE)
-          .with(HISTORICAL_VARIANCE_START, constraints.getValues(HISTORICAL_VARIANCE_START))
-          .with(HISTORICAL_VARIANCE_END, constraints.getValues(HISTORICAL_VARIANCE_END));
+        properties.with(PROPERTY_REALIZED_VARIANCE_METHOD, HISTORICAL_REALIZED_VARIANCE)
+          .with(HISTORICAL_VARIANCE_START, firstObservationDate.toString())
+          .with(HISTORICAL_VARIANCE_END, lastObservationDate.toString());
       }
       final FXVolatilitySwapSecurity swap = (FXVolatilitySwapSecurity) target.getTrade().getSecurity();
       final Currency counterCurrency = swap.getCounterCurrency();
@@ -121,7 +134,13 @@ public abstract class CarrLeeFXVolatilitySwapFunction extends CarrLeeVolatilityS
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final SmileDeltaTermStructureParametersStrikeInterpolation volatilitySurface = (SmileDeltaTermStructureParametersStrikeInterpolation) inputs.getValue(STANDARD_VOLATILITY_SURFACE_DATA);
       final Pair<Currency, Currency> currencyPair = Pairs.of(security.getBaseCurrency(), security.getCounterCurrency());
-      return new CarrLeeFXData(currencyPair, volatilitySurface, data);
+      final Clock snapshotClock = executionContext.getValuationClock();
+      final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
+      if (now.isBefore(security.getFirstObservationDate())) {
+        return new CarrLeeFXData(currencyPair, volatilitySurface, data);
+      }
+      final double realizedVariance = (Double) inputs.getValue(REALIZED_VARIANCE);
+      return new CarrLeeFXData(currencyPair, volatilitySurface, data, realizedVariance);
     }
 
   }

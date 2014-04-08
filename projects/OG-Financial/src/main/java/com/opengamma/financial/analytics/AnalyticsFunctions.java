@@ -338,7 +338,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   protected FunctionConfigurationSource modelFunctionConfiguration() {
     return ModelFunctions.instance();
   }
-  
+
   protected FunctionConfigurationSource securityFunctionConfiguration() {
     return SecurityFunctions.instance();
   }

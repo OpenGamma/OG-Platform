@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+<<<<<<< HEAD
+=======
+import org.threeten.bp.Period;
+
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
@@ -46,6 +51,7 @@ import com.opengamma.util.time.Tenor;
  * Creates a curve construction configuration, interpolated curve definition and curve node id mapper
  * for Ugandan bonds to be used for pricing the example Ugandan TRS portfolio. The ISINs used 
  * follow the form "UG0000000XXX" where XX is equal to the number of months until bond maturity. 
+<<<<<<< HEAD
  * The bond curve contains only bond nodes from 1y to 10y6m in 6m increments and uses the bond yield
  * to construct the curve.
  */
@@ -57,6 +63,16 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
   /** The curve node id mapper name */
   private static final String CURVE_NODE_ID_MAPPER_NAME = "UG Government Bond ISIN";
   /** The currency */
+=======
+ * The bond curve contains only bond nodes from 6m to 10y in 6m increments and uses the bond yield
+ * to construct the curve.
+ */
+public class ExampleUgandanBondCurveConfigurationsPopulator {
+  private static final Tenor ZERO = Tenor.of(Period.ZERO);
+  private static final String CURVE_CONSTRUCTION_CONFIG_NAME = "UG Government Bond Configuration";
+  private static final String CURVE_NAME = "UG Government Bond";
+  private static final String CURVE_NODE_ID_MAPPER_NAME = "UG Government Bond ISIN";
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
   private static final Currency CURRENCY = Currency.of("UGX");
 
   /**
@@ -72,8 +88,11 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
   }
 
   /**
+<<<<<<< HEAD
    * Creates a curve construction configuration consisting of a single government bond curve
    * which matches against the issuer name "UGANDA".
+=======
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
    * @return The configuration
    */
   private static CurveConstructionConfiguration makeCurveConstructionConfiguration() {
@@ -86,6 +105,7 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     curveTypes.put(CURVE_NAME, Arrays.asList(discountingCurveType, issuerCurveType));
     final CurveGroupConfiguration group = new CurveGroupConfiguration(0, curveTypes);
     final List<CurveGroupConfiguration> groups = Arrays.asList(group);
+<<<<<<< HEAD
     final List<String> exogenousConfig = Collections.singletonList("Default USD Curves");
     return new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIG_NAME, groups, exogenousConfig);
   }
@@ -99,6 +119,15 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     final Set<CurveNode> curveNodes = new LinkedHashSet<>();
     for (int i = 0; i < 20; i++) {
       final int months = (int) ((i + 2) / 2. * 12);
+=======
+    return new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIG_NAME, groups, Collections.<String>emptyList());
+  }
+
+  private static CurveDefinition makeCurveDefinition() {
+    final Set<CurveNode> curveNodes = new LinkedHashSet<>();
+    for (int i = 0; i < 20; i++) {
+      final int months = (int) ((i + 1) / 2. * 12);
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
       curveNodes.add(new BondNode(Tenor.ofMonths(months), CURVE_NODE_ID_MAPPER_NAME));
     }
     final CurveDefinition curveDefinition = new InterpolatedCurveDefinition(CURVE_NAME, curveNodes,
@@ -106,6 +135,7 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     return curveDefinition;
   }
 
+<<<<<<< HEAD
   /**
    * Creates a curve node id mapper containing ISINs for 20 government bonds with tenors from
    * 1y to 10y6m in 6m intervals.
@@ -115,6 +145,12 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     final Map<Tenor, CurveInstrumentProvider> bondNodes = new HashMap<>();
     for (int i = 0; i < 20; i++) {
       final int months = (int) ((i + 2) / 2. * 12);
+=======
+  private static CurveNodeIdMapper makeCurveNodeIdMapper() {
+    final Map<Tenor, CurveInstrumentProvider> bondNodes = new HashMap<>();
+    for (int i = 0; i < 20; i++) {
+      final int months = (int) ((i + 1) / 2. * 12);
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
       final Tenor tenor = Tenor.ofMonths(months);
       String suffix;
       if (months < 10) {
@@ -124,8 +160,13 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
       } else {
         suffix = Integer.toString(months);
       }
+<<<<<<< HEAD
       final ExternalId isin = ExternalSchemes.syntheticSecurityId("UG0000000" + suffix);
       final CurveInstrumentProvider instrumentProvider = new StaticCurveInstrumentProvider(isin, MarketDataRequirementNames.MARKET_VALUE, DataFieldType.OUTRIGHT);
+=======
+      final ExternalId isin = ExternalSchemes.isinSecurityId("UG0000000" + suffix);
+      final CurveInstrumentProvider instrumentProvider = new StaticCurveInstrumentProvider(isin, MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, DataFieldType.OUTRIGHT);
+>>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
       bondNodes.put(tenor, instrumentProvider);
     }
     final CurveNodeIdMapper curveNodeIdMapper = CurveNodeIdMapper.builder()
