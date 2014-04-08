@@ -307,7 +307,11 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       paymentDates = getPaymentDates(adjustedAccrualEndDates);
     }
     
-    coupons = new CouponDefinition[exchangeNotionalCouponCount + adjustedAccrualEndDates.length];
+    if (_index instanceof IborIndex && !isCompounding() && !hasSpread() && !hasGearing()) {
+      coupons = new CouponIborDefinition[adjustedAccrualEndDates.length];
+    } else {
+      coupons = new CouponDefinition[exchangeNotionalCouponCount + adjustedAccrualEndDates.length];
+    }
 
     int couponOffset = isExchangeInitialNotional() ? 1 : 0;
     
@@ -364,6 +368,10 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       coupons[c + couponOffset] = coupon;
     }
     return coupons;
+  }
+  
+  private boolean hasStubs() {
+    return false;
   }
 
   private CouponDefinition[] generateZeroCouponFlows(int exchangeNotionalCouponCount) {

@@ -15,6 +15,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
 import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
 import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
@@ -23,7 +25,10 @@ import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -89,7 +94,39 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     LocalDate endDate = security.getUnadjustedMaturityDate();
     AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
     AnnuityDefinition<?> receiveLeg = getAnnuityDefinition(false, startDate, endDate, security.getNotionalExchange(), security.getReceiveLeg());
+    return getDefinition(security, payLeg, receiveLeg);
+  }
+  
+  private SwapDefinition getDefinition(InterestRateSwapSecurity swap, AnnuityDefinition<?> payLeg, AnnuityDefinition<?> receiveLeg) {
+    
+    boolean payLegFixed = isLegFixed(swap.getPayLeg(), payLeg);
+    boolean receiveLegFixed = isLegFixed(swap.getReceiveLeg(), receiveLeg);
+    if (payLegFixed && !receiveLegFixed) {
+      AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(payLeg);
+      FloatingInterestRateSwapLeg leg = (FloatingInterestRateSwapLeg) swap.getReceiveLeg();
+      if (leg.getFloatingRateType().isIbor()) {
+        return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(receiveLeg));
+      }
+    } else if (!payLegFixed && !receiveLegFixed) {
+      AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(receiveLeg);
+      FloatingInterestRateSwapLeg floatLeg = (FloatingInterestRateSwapLeg) swap.getPayLeg();
+      if (floatLeg.getFloatingRateType().isIbor()) {
+        return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(payLeg));
+      }
+    }
     return new SwapDefinition(payLeg, receiveLeg);
+  }
+  
+  private boolean isLegFixed(InterestRateSwapLeg leg, AnnuityDefinition<?> annuity) {
+    return leg instanceof FixedInterestRateSwapLeg && annuity.getPayments() instanceof CouponFixedDefinition[];
+  }
+  
+  private AnnuityCouponFixedDefinition getFixedLegAnnuity(AnnuityDefinition<?> leg) {
+    return new AnnuityCouponFixedDefinition((CouponFixedDefinition[]) leg.getPayments(), leg.getCalendar());
+  }
+  
+  private AnnuityCouponIborDefinition getIborLegAnnuity(AnnuityDefinition<?> leg) {
+    return new AnnuityCouponIborDefinition((CouponIborDefinition[]) leg.getPayments(), ((CouponIborDefinition) leg.getNthPayment(0)).getIndex(), leg.getCalendar());
   }
   
   private AnnuityDefinition<?> getAnnuityDefinition(boolean payer, LocalDate startDate, LocalDate endDate, NotionalExchange notionalExchange, InterestRateSwapLeg leg) {
