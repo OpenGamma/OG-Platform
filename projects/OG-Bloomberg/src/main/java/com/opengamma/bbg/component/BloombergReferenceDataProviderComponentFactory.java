@@ -90,7 +90,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    * <p>
    * user|none|app=<app>|dir=<property> (default: none)");
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private String _authenticationOption;
 
   /**
@@ -360,7 +360,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    * Gets the authentication option, null means NO_AUTH
    * <p>
    * user|none|app=<app>|dir=<property> (default: none)");
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public String getAuthenticationOption() {
     return _authenticationOption;
@@ -370,10 +370,9 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    * Sets the authentication option, null means NO_AUTH
    * <p>
    * user|none|app=<app>|dir=<property> (default: none)");
-   * @param authenticationOption  the new value of the property, not null
+   * @param authenticationOption  the new value of the property
    */
   public void setAuthenticationOption(String authenticationOption) {
-    JodaBeanUtils.notNull(authenticationOption, "authenticationOption");
     this._authenticationOption = authenticationOption;
   }
 
@@ -716,7 +715,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._bloombergConnector, "bloombergConnector");
-      JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._authenticationOption, "authenticationOption");
       super.validate(bean);
     }
 

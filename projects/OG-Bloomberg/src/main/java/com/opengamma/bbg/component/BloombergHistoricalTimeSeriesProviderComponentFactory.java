@@ -52,7 +52,7 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
    * <p>
    * user|none|app=<app>|dir=<property> (default: none)");
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private String _authenticationOption;
 
   /**
@@ -157,7 +157,7 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
    * Gets the authentication option, null means NO_AUTH
    * <p>
    * user|none|app=<app>|dir=<property> (default: none)");
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public String getAuthenticationOption() {
     return _authenticationOption;
@@ -167,10 +167,9 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
    * Sets the authentication option, null means NO_AUTH
    * <p>
    * user|none|app=<app>|dir=<property> (default: none)");
-   * @param authenticationOption  the new value of the property, not null
+   * @param authenticationOption  the new value of the property
    */
   public void setAuthenticationOption(String authenticationOption) {
-    JodaBeanUtils.notNull(authenticationOption, "authenticationOption");
     this._authenticationOption = authenticationOption;
   }
 
@@ -416,7 +415,6 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesProviderComponentFactory) bean)._bloombergConnector, "bloombergConnector");
-      JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesProviderComponentFactory) bean)._authenticationOption, "authenticationOption");
       super.validate(bean);
     }
 
