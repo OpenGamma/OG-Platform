@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve.exposure;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.core.security.SecuritySource;
@@ -527,16 +528,16 @@ public class UnderlyingExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
-    return Arrays.asList(security.getBenchmarkRateId());
+    return Collections.singletonList(security.getBenchmarkRateId());
   }
 
   @Override
   public List<ExternalId> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
-    return null;
+    return Collections.singletonList(security.getFundingLeg().getFloatingReferenceRateId());
   }
 
   @Override
   public List<ExternalId> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
-    return null;
+    return Collections.singletonList(security.getFundingLeg().getFloatingReferenceRateId());
   }
 }

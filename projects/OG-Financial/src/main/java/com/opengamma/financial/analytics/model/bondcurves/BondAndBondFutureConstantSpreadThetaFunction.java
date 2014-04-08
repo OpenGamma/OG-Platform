@@ -13,7 +13,9 @@ import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNames
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
@@ -111,11 +113,16 @@ public class BondAndBondFutureConstantSpreadThetaFunction extends BondAndBondFut
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+  protected Collection<ValueProperties.Builder> getResultProperties(final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    return super.getResultProperties(target)
-        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD)
-        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-        .with(CURRENCY, currency);
+    final Collection<ValueProperties.Builder> properties = super.getResultProperties(target);
+    final Collection<ValueProperties.Builder> result = new HashSet<>();
+    for (final ValueProperties.Builder builder : properties) {
+      result.add(builder
+          .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD)
+          .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+          .with(CURRENCY, currency));
+    }
+    return result;
   }
 }

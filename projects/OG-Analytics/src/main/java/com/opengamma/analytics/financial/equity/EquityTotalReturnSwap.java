@@ -18,6 +18,8 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class EquityTotalReturnSwap extends TotalReturnSwap {
+  /** The asset */
+  private final Equity _equity;
   /** The notional amount */
   private final double _notionalAmount;
   /** The notional currency */
@@ -34,15 +36,25 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
    */
   public EquityTotalReturnSwap(final Annuity<? extends Payment> fundingLeg, final Equity equity,
       final double notionalAmount, final Currency notionalCurrency, final double dividendPercentage) {
-    super(fundingLeg, equity);
+    super(fundingLeg);
+    ArgumentChecker.notNull(equity, "equity");
     ArgumentChecker.notNull(notionalCurrency, "notionalCurrency");
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, dividendPercentage), "Dividend percentage must be >= 0 and <= 1 "
         + "have {}", dividendPercentage);
+    _equity = equity;
     _dividendPercentage = dividendPercentage;
     _notionalAmount = notionalAmount;
     _notionalCurrency = notionalCurrency;
   }
 
+  /**
+   * Gets the equity.
+   * @return The equity
+   */
+
+  public Equity getEquity() {
+    return _equity;
+  }
   /**
    * Gets the dividend percentage.
    * @return The dividend percentage
@@ -89,7 +101,7 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
     temp = Double.doubleToLongBits(_notionalAmount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _notionalCurrency.hashCode();
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _equity.hashCode();
     return result;
   }
 
@@ -105,6 +117,9 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
       return false;
     }
     final EquityTotalReturnSwap other = (EquityTotalReturnSwap) obj;
+    if (!ObjectUtils.equals(_equity, other._equity)) {
+      return false;
+    }
     if (Double.compare(_notionalAmount, other._notionalAmount) != 0) {
       return false;
     }

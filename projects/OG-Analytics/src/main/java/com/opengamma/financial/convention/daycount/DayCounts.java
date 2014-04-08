@@ -61,6 +61,10 @@ public final class DayCounts {
    * The 'Business/252' day count.
    */
   public static final DayCount BUSINESS_252 = DayCountFactory.of("Business/252");
+  /**
+   * The 30/360 day count.
+   */
+  public static final DayCount THIRTY_360 = DayCountFactory.of("30/360");
 
   /**
    * Restricted constructor.

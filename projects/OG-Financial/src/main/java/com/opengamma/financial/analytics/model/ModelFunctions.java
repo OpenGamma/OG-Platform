@@ -21,6 +21,7 @@ import com.opengamma.financial.analytics.model.bondcurves.BondCurveFunctions;
 import com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves.InflationBondCurveFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.bondyield.BondYieldFunctions;
+import com.opengamma.financial.analytics.model.carrlee.CarrLeeFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
@@ -28,6 +29,7 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.discounting.DiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
+import com.opengamma.financial.analytics.model.equity.trs.TotalReturnSwapFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
@@ -43,6 +45,7 @@ import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
+import com.opengamma.financial.analytics.model.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.VolatilityFunctions;
 
@@ -119,6 +122,15 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
    */
   protected FunctionConfigurationSource bondYieldFunctionConfiguration() {
     return BondYieldFunctions.instance();
+  }
+
+  /**
+   * Adds functions that produce analytics for volatility swaps using the Carr-Lee
+   * model.
+   * @return A configuration source containing pricing and analytics functions
+   */
+  protected FunctionConfigurationSource carrLeeFunctionConfiguration() {
+    return CarrLeeFunctions.instance();
   }
 
   /**
@@ -301,6 +313,22 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return com.opengamma.financial.analytics.model.curve.future.FutureFunctions.instance();
   }
 
+  /**
+   * Adds time series functions.
+   * @return A configuration source containing time series functions
+   */
+  protected FunctionConfigurationSource timeSeriesFunctionConfiguration() {
+    return TimeSeriesFunctions.instance();
+  }
+
+  /**
+   * Adds total return swap functions.
+   * @return A configuration source containing total return swap functions
+   */
+  protected FunctionConfigurationSource totalReturnSwapFunctionConfiguration() {
+    return TotalReturnSwapFunctions.instance();
+  }
+
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(),
@@ -310,6 +338,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         bondCurveFunctionConfiguration(),
         inflationbondCurveFunctionConfiguration(),
         bondYieldFunctionConfiguration(),
+        carrLeeFunctionConfiguration(),
         cdsFunctionConfiguration(),
         creditFunctionConfiguration(),
         curveFunctionConfiguration(),
@@ -338,7 +367,9 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         fxPricingFunctionConfiguration(),
         blackDiscountingFunctionConfiguration(),
         sabrDiscountingFunctionConfiguration(),
-        g2ppPricingFunctionConfiguration());
+        g2ppPricingFunctionConfiguration(),
+        timeSeriesFunctionConfiguration(),
+        totalReturnSwapFunctionConfiguration());
   }
 
 }

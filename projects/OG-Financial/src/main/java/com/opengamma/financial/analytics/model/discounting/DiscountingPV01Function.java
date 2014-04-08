@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
@@ -54,8 +52,6 @@ import com.opengamma.util.tuple.Pair;
  * Gets the PV01 of an instrument to a named curve using curves constructed with the discounting method.
  */
 public class DiscountingPV01Function extends DiscountingFunction {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingPV01Function.class);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PV01}
@@ -107,14 +103,20 @@ public class DiscountingPV01Function extends DiscountingFunction {
         if (curveExposureConfigs == null) {
           return null;
         }
-        final ValueProperties properties = ValueProperties.with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(CURVE_EXPOSURES, curveExposureConfigs).get();
+        final ValueProperties properties = ValueProperties
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+            .with(CURVE_EXPOSURES, curveExposureConfigs)
+            .get();
         return Collections.singleton(new ValueRequirement(ALL_PV01S, target.toSpecification(), properties));
       }
 
       @SuppressWarnings("synthetic-access")
       @Override
       protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).withAny(CURVE_EXPOSURES).withAny(CURVE);
+        final ValueProperties.Builder properties = createValueProperties()
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+            .withAny(CURVE_EXPOSURES)
+            .withAny(CURVE);
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
           if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
@@ -137,8 +139,8 @@ public class DiscountingPV01Function extends DiscountingFunction {
       }
 
       @Override
-      protected Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
-          InstrumentDerivative derivative, FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
+          final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         return null;
       }
     };
