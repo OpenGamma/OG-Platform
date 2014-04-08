@@ -8,36 +8,33 @@ package com.opengamma.analytics.financial.equity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of an equity total return swap.
+ * Calculates the present value of the funding leg of an equity total return swap.
  */
-public final class EqyTrsPresentValueCalculator extends InstrumentDerivativeVisitorAdapter<EquityTrsDataBundle, MultipleCurrencyAmount> {
+public final class EqyTrsFundingLegPresentValueCalculator extends InstrumentDerivativeVisitorAdapter<EquityTrsDataBundle, MultipleCurrencyAmount> {
   /** The singleton instance */
-  private static final EqyTrsPresentValueCalculator INSTANCE = new EqyTrsPresentValueCalculator();
+  private static final EqyTrsFundingLegPresentValueCalculator INSTANCE = new EqyTrsFundingLegPresentValueCalculator();
 
   /**
    * Gets the instance.
    * @return The instance
    */
-  public static EqyTrsPresentValueCalculator getInstance() {
+  public static EqyTrsFundingLegPresentValueCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private EqyTrsPresentValueCalculator() {
+  private EqyTrsFundingLegPresentValueCalculator() {
   }
 
   @Override
   public MultipleCurrencyAmount visitEquityTotalReturnSwap(final EquityTotalReturnSwap equityTrs, final EquityTrsDataBundle data) {
     ArgumentChecker.notNull(equityTrs, "equityTrs");
     ArgumentChecker.notNull(data, "data");
-    final MultipleCurrencyAmount fundingLegPV = equityTrs.getFundingLeg().accept(PresentValueDiscountingCalculator.getInstance(), data.getCurves());
-    final CurrencyAmount equityPV = CurrencyAmount.of(equityTrs.getNotionalCurrency(), data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares());
-    return fundingLegPV.plus(equityPV);
+    return equityTrs.getFundingLeg().accept(PresentValueDiscountingCalculator.getInstance(), data.getCurves());
   }
 }

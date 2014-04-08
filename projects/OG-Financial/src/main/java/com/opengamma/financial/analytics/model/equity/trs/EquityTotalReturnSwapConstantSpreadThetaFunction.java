@@ -27,9 +27,10 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.horizon.EqyTrsConstantSpreadHorizonCalculator;
 import com.opengamma.analytics.financial.horizon.HorizonCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.security.Security;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -40,7 +41,15 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.CalendarUtils;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -50,7 +59,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class EquityTotalReturnSwapConstantSpreadThetaFunction extends EquityTotalReturnSwapFunction {
   /** The calculator */
-  private static final HorizonCalculator<EquityTotalReturnSwapDefinition, IssuerProviderInterface, Double> CALCULATOR =
+  private static final HorizonCalculator<EquityTotalReturnSwapDefinition, MulticurveProviderInterface, ZonedDateTimeDoubleTimeSeries> CALCULATOR =
       EqyTrsConstantSpreadHorizonCalculator.getInstance();
 
   /**
@@ -71,12 +80,21 @@ public class EquityTotalReturnSwapConstantSpreadThetaFunction extends EquityTota
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints();
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
+        final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
         final Trade trade = target.getTrade();
-        final Security security = trade.getSecurity();
-        final IssuerProviderInterface issuerCurves = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final EquityTotalReturnSwapSecurity security = (EquityTotalReturnSwapSecurity) trade.getSecurity();
+        final MulticurveProviderInterface curves = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final EquityTotalReturnSwapDefinition definition = (EquityTotalReturnSwapDefinition) getTargetToDefinitionConverter(context).convert(trade);
         final int daysForward = Integer.parseInt(desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD));
-        final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, issuerCurves, daysForward, null);
+        final ZonedDateTimeDoubleTimeSeries fixingSeries = TotalReturnSwapUtils.getIndexTimeSeries(security.getFundingLeg(), security.getEffectiveDate(), now, timeSeries);
+        final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+        final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+        final Set<ExternalId> fixingDateCalendars = security.getFundingLeg().getFixingDateCalendars();
+        if (fixingDateCalendars.size() != 1) {
+          throw new OpenGammaRuntimeException("Cannot handle more than one fixing date calendar");
+        }
+        final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, Iterables.getOnlyElement(fixingDateCalendars));
+        final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, curves, daysForward, calendar, fixingSeries);
         if (theta.size() != 1) {
           throw new OpenGammaRuntimeException("Got result with more than one currency for theta: " + theta);
         }
@@ -114,6 +132,7 @@ public class EquityTotalReturnSwapConstantSpreadThetaFunction extends EquityTota
         }
         return result;
       }
+
     };
 
   }

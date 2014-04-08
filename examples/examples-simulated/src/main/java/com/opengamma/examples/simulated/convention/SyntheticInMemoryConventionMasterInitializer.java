@@ -40,6 +40,7 @@ public class SyntheticInMemoryConventionMasterInitializer extends ConventionMast
   @Override
   public void init(final ConventionMaster master) {
     USFXConventions.INSTANCE.init(master);
+    ExampleUGConventions.INSTANCE.init(master);
     ExampleUSConventions.INSTANCE.init(master);
   }
 }

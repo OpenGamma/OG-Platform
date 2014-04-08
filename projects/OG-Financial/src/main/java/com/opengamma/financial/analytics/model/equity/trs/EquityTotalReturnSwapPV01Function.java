@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.equity.trs;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +37,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -81,9 +84,31 @@ public class EquityTotalReturnSwapPV01Function extends EquityTotalReturnSwapFunc
         }
         if (!curveNameFound) {
           final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), properties.copy().with(CURVE, desiredCurveName).get());
-          return Collections.singleton(new ComputedValue(spec, 0));
+          return Collections.singleton(new ComputedValue(spec, 0.));
         }
         return results;
+      }
+
+      @Override
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
+        final Set<String> curveNames = desiredValue.getConstraints().getValues(CURVE);
+        if (curveNames == null || curveNames.size() != 1) {
+          return null;
+        }
+        return super.getRequirements(context, target, desiredValue);
+      }
+
+      @Override
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        final Collection<ValueProperties.Builder> result = new HashSet<>();
+        for (final ValueProperties.Builder builder : properties) {
+          result.add(builder
+              .with(CURRENCY, currency)
+              .withAny(CURVE));
+        }
+        return result;
       }
     };
   }

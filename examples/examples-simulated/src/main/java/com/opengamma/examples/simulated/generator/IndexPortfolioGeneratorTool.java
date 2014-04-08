@@ -32,16 +32,18 @@ public class IndexPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool 
 
   static {
     final String[] currencies = new String[] {"USD", "EUR", "JPY", "CHF", "GBP" };
+    final String[] overnightTickers = new String[] {"USDFF", "EONIA", "TONAR", "TOISTOIS", "SONIO" };
     final Tenor[] tenors = new Tenor[] {Tenor.ONE_MONTH, Tenor.THREE_MONTHS, Tenor.SIX_MONTHS };
-    for (final String currency : currencies) {
+    for (int i = 0; i < currencies.length; i++) {
+      final String currency = currencies[i];
+      final String overnightTicker = overnightTickers[i];
       for (final Tenor tenor : tenors) {
-        final String iborTicker = currency + " " + tenor.toFormattedString().substring(1) + " IBOR INDEX";
+        final String iborTicker = currency + "LIBOR" + tenor.toFormattedString();
         final ExternalId iborIndexId = ExternalSchemes.syntheticSecurityId(iborTicker);
         final IborIndex iborIndex = new IborIndex(iborTicker, tenor, iborIndexId);
         iborIndex.setExternalIdBundle(iborIndexId.toBundle());
         INDICES.add(iborIndex);
-        final String overnightTicker = currency + " OVERNIGHT INDEX";
-        final ExternalId overnightIndexId = ExternalSchemes.syntheticSecurityId(overnightTicker);
+        final ExternalId overnightIndexId = ExternalSchemes.syntheticSecurityId(overnightTickers[i]);
         final OvernightIndex overnightIndex = new OvernightIndex(overnightTicker, overnightIndexId);
         overnightIndex.setExternalIdBundle(overnightIndexId.toBundle());
         INDICES.add(overnightIndex);

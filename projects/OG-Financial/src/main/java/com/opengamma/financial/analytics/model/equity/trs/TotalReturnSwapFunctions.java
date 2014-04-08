@@ -17,7 +17,7 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean {
 
   /**
-   * Gets and instance of this class.
+   * Gets an instance of this class.
    * @return The instance
    */
   public static FunctionConfigurationSource instance() {
@@ -26,6 +26,11 @@ public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean 
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(BondTotalReturnSwapPVFunction.class));
+
+    functions.add(functionConfiguration(EquityTotalReturnSwapAssetLegPVFunction.class));
+    functions.add(functionConfiguration(EquityTotalReturnSwapFundingLegDetailsFunction.class));
+    functions.add(functionConfiguration(EquityTotalReturnSwapFundingLegPVFunction.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapGammaPV01Function.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapPV01Function.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapPVFunction.class));
