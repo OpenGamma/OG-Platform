@@ -12,7 +12,6 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -118,14 +117,9 @@ public class BondAndBondFutureYCNSFunction extends BondAndBondFutureFromCurvesFu
   }
 
   @Override
-  protected Collection<ValueProperties.Builder> getResultProperties(final ComputationTarget target) {
-    final Collection<ValueProperties.Builder> properties = super.getResultProperties(target);
-    final Collection<ValueProperties.Builder> result = new HashSet<>();
-    for (final ValueProperties.Builder builder : properties) {
-      result.add(builder
-          .withAny(CURVE));
-    }
-    return result;
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    return super.getResultProperties(target)
+        .withAny(CURVE);
   }
 
 }

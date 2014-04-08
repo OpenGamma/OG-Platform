@@ -470,11 +470,11 @@ public class SecurityAndCurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
-    return getExternalIds(security);
+    return null;
   }
 
   @Override
   public List<ExternalId> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
-    return getExternalIds(security);
+    return null;
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -26,7 +26,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * 
  */
 public class CapFloorCMSSpreadSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
@@ -49,7 +49,8 @@ public class CapFloorCMSSpreadSecurityConverter extends FinancialSecurityVisitor
     final double notional = capFloorCMSSpreadSecurity.getNotional();
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     final Frequency payFreq = capFloorCMSSpreadSecurity.getFrequency();
-    final Period tenorPayment = ConversionUtils.getTenor(payFreq);
+    // FIXME: convert frequency to period in a better way
+    final Period tenorPayment = getTenor(payFreq);
     final ExternalId[] swapIndexId = new ExternalId[2];
     swapIndexId[0] = capFloorCMSSpreadSecurity.getLongId();
     swapIndexId[1] = capFloorCMSSpreadSecurity.getShortId();
@@ -72,11 +73,28 @@ public class CapFloorCMSSpreadSecurityConverter extends FinancialSecurityVisitor
     for (int loopindex = 0; loopindex < 2; loopindex++) {
       iborIndex[loopindex] = new IborIndex(currency, tenorPayment, iborIndexConvention[loopindex].getSettlementDays(), iborIndexConvention[loopindex].getDayCount(),
           iborIndexConvention[loopindex].getBusinessDayConvention(), iborIndexConvention[loopindex].isEOMConvention());
-      final Period fixedLegPaymentPeriod = ConversionUtils.getTenor(swapIndexConvention[loopindex].getSwapFixedLegFrequency());
+      final Period fixedLegPaymentPeriod = getTenor(swapIndexConvention[loopindex].getSwapFixedLegFrequency());
       swapIndex[loopindex] = new IndexSwap(fixedLegPaymentPeriod, swapIndexConvention[loopindex].getSwapFixedLegDayCount(), iborIndex[loopindex], swapIndexConvention[loopindex].getPeriod(), calendar);
     }
     return AnnuityCapFloorCMSSpreadDefinition.from(startDate, endDate, notional, swapIndex[0], swapIndex[1], tenorPayment, capFloorCMSSpreadSecurity.getDayCount(),
         capFloorCMSSpreadSecurity.isPayer(), capFloorCMSSpreadSecurity.getStrike(), capFloorCMSSpreadSecurity.isCap(), calendar, calendar);
+  }
+
+  // FIXME: convert frequency to period in a better way
+  private Period getTenor(final Frequency freq) {
+    Period tenor;
+    if (Frequency.ANNUAL_NAME.equals(freq.getName())) {
+      tenor = Period.ofMonths(12);
+    } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getName())) {
+      tenor = Period.ofMonths(6);
+    } else if (Frequency.QUARTERLY_NAME.equals(freq.getName())) {
+      tenor = Period.ofMonths(3);
+    } else if (Frequency.MONTHLY_NAME.equals(freq.getName())) {
+      tenor = Period.ofMonths(1);
+    } else {
+      throw new OpenGammaRuntimeException("Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floor CMS spreads");
+    }
+    return tenor;
   }
 
 }

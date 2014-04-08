@@ -128,8 +128,8 @@ public class IborIndex extends IndexDeposit {
     int result = super.hashCode();
     result = prime * result + _businessDayConvention.hashCode();
     result = prime * result + _dayCount.hashCode();
-//    result = prime * result + (_endOfMonth ? 1231 : 1237);
-//    result = prime * result + _spotLag;
+    result = prime * result + (_endOfMonth ? 1231 : 1237);
+    result = prime * result + _spotLag;
     result = prime * result + _tenor.hashCode();
     return result;
   }
@@ -152,12 +152,12 @@ public class IborIndex extends IndexDeposit {
     if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
       return false;
     }
-//    if (_endOfMonth != other._endOfMonth) {
-//      return false;
-//    }
-//    if (_spotLag != other._spotLag) {
-//      return false;
-//    }
+    if (_endOfMonth != other._endOfMonth) {
+      return false;
+    }
+    if (_spotLag != other._spotLag) {
+      return false;
+    }
     if (!ObjectUtils.equals(_tenor, other._tenor)) {
       return false;
     }

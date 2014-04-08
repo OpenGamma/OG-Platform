@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Month;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
@@ -67,7 +68,7 @@ public class ERFutureForCurvePortfolioGeneratorTool extends AbstractPortfolioGen
     rootNode.addChildNode(generator);
     return rootNode;
   }
-
+  
   private FutureSecurityGenerator<ManageableSecurity> getIRFutureSecurityGenerator() {
     final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 3, 1);
     final ZonedDateTime startDate = tradeDate;
@@ -84,11 +85,11 @@ public class ERFutureForCurvePortfolioGeneratorTool extends AbstractPortfolioGen
       security.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId(code)));
       securities[i] = security;
       amounts[i] = 1;
-      prices[i] = 1 - ((i + 1) * 0.001);
+      prices[i] = 1 - ((i + 1) * 0.001);      
     }
     return new FutureSecurityGenerator<>(securities, amounts, prices, tradeDate, "Euribor futures");
   }
-
+  
   /**
    * Generates future trades and adds them to a portfolio.
    * @param <T> The type of the security

@@ -38,7 +38,7 @@ public abstract class CouponFloatingDefinition extends CouponDefinition implemen
       final double accrualFactor, final double notional, final ZonedDateTime fixingDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional);
     ArgumentChecker.notNull(fixingDate, "fixing date");
-    ArgumentChecker.isTrue(!fixingDate.isAfter(paymentDate), "fixing date {} must be strictly before payment {}", fixingDate, paymentDate);
+    ArgumentChecker.isTrue(!fixingDate.isAfter(paymentDate), "payment date strictly before fixing");
     _fixingDate = fixingDate;
   }
 

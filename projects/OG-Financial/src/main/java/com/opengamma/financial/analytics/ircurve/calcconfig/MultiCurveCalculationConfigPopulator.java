@@ -34,26 +34,19 @@ public class MultiCurveCalculationConfigPopulator {
     final String forward6MCurveName = "Forward6M";
     final String forward3MFutCurveName = "Forward3MFut";
     final MultiCurveCalculationConfig defaultUSDConfig = new MultiCurveCalculationConfig("DefaultTwoCurveUSDConfig", new String[] {discountingCurveName, forward3MCurveName},
-        ComputationTargetSpecification.of(Currency.USD), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
-        getTwoCurveUSDInstrumentConfig(discountingCurveName, forward3MCurveName));
+        ComputationTargetSpecification.of(Currency.USD), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getTwoCurveUSDInstrumentConfig(discountingCurveName, forward3MCurveName));
     final MultiCurveCalculationConfig defaultGBPConfig = new MultiCurveCalculationConfig("DefaultTwoCurveGBPConfig", new String[] {discountingCurveName, forward6MCurveName},
-        ComputationTargetSpecification.of(Currency.GBP), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
-        getTwoCurveGBPInstrumentConfig(discountingCurveName, forward6MCurveName));
+        ComputationTargetSpecification.of(Currency.GBP), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getTwoCurveGBPInstrumentConfig(discountingCurveName, forward6MCurveName));
     final MultiCurveCalculationConfig defaultEURConfig = new MultiCurveCalculationConfig("DefaultTwoCurveEURConfig", new String[] {discountingCurveName, forward6MCurveName},
-        ComputationTargetSpecification.of(Currency.EUR), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
-        getTwoCurveEURInstrumentConfig(discountingCurveName, forward6MCurveName));
+        ComputationTargetSpecification.of(Currency.EUR), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getTwoCurveEURInstrumentConfig(discountingCurveName, forward6MCurveName));
     final MultiCurveCalculationConfig defaultJPYConfig = new MultiCurveCalculationConfig("DefaultTwoCurveJPYConfig", new String[] {discountingCurveName, forward6MCurveName},
-        ComputationTargetSpecification.of(Currency.JPY), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
-        getTwoCurveJPYInstrumentConfig(discountingCurveName, forward6MCurveName));
+        ComputationTargetSpecification.of(Currency.JPY), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getTwoCurveJPYInstrumentConfig(discountingCurveName, forward6MCurveName));
     final MultiCurveCalculationConfig defaultCHFConfig = new MultiCurveCalculationConfig("DefaultTwoCurveCHFConfig", new String[] {discountingCurveName, forward6MCurveName},
-        ComputationTargetSpecification.of(Currency.CHF), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
-        getTwoCurveCHFInstrumentConfig(discountingCurveName, forward6MCurveName));
+        ComputationTargetSpecification.of(Currency.CHF), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getTwoCurveCHFInstrumentConfig(discountingCurveName, forward6MCurveName));
     final MultiCurveCalculationConfig eurOIS3M6M = new MultiCurveCalculationConfig("EUR-OIS-3M-6M", new String[] {discountingCurveName, forward3MCurveName, forward6MCurveName},
-        ComputationTargetSpecification.of(Currency.EUR), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
-        getEUROISInstrumentConfig1(discountingCurveName, forward3MCurveName, forward6MCurveName));
+        ComputationTargetSpecification.of(Currency.EUR), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getEUROISInstrumentConfig1(discountingCurveName, forward3MCurveName, forward6MCurveName));
     final MultiCurveCalculationConfig eurOIS3MFut6M = new MultiCurveCalculationConfig("EUR-OIS-3MFut-6M", new String[] {discountingCurveName, forward3MFutCurveName, forward6MCurveName},
-        ComputationTargetSpecification.of(Currency.EUR), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
-        getEUROISFutInstrumentConfig1(discountingCurveName, forward3MFutCurveName, forward6MCurveName));
+        ComputationTargetSpecification.of(Currency.EUR), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getEUROISFutInstrumentConfig1(discountingCurveName, forward3MFutCurveName, forward6MCurveName));
     ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultUSDConfig));
     ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultGBPConfig));
     ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultEURConfig));

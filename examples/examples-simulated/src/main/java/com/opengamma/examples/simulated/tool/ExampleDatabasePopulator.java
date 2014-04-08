@@ -24,24 +24,20 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.examples.simulated.convention.SyntheticInMemoryConventionMasterInitializer;
 import com.opengamma.examples.simulated.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.simulated.loader.ExampleCurrencyConfigurationLoader;
 import com.opengamma.examples.simulated.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.simulated.loader.ExampleCurveConfigurationLoader;
-import com.opengamma.examples.simulated.loader.ExampleCurveConfigurationsLoader;
 import com.opengamma.examples.simulated.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.simulated.loader.ExampleExchangeLoader;
-import com.opengamma.examples.simulated.loader.ExampleExposureFunctionLoader;
 import com.opengamma.examples.simulated.loader.ExampleFXImpliedCurveConfigurationLoader;
-import com.opengamma.examples.simulated.loader.ExampleFXImpliedCurveConfigurationsLoader;
 import com.opengamma.examples.simulated.loader.ExampleFunctionConfigurationPopulator;
 import com.opengamma.examples.simulated.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.simulated.loader.ExampleHolidayLoader;
 import com.opengamma.examples.simulated.loader.ExampleTimeSeriesRatingLoader;
-import com.opengamma.examples.simulated.loader.ExampleUgandanBondCurveConfigurationsLoader;
 import com.opengamma.examples.simulated.loader.ExampleViewsPopulator;
 import com.opengamma.examples.simulated.loader.PortfolioLoaderHelper;
+import com.opengamma.financial.convention.initializer.DefaultConventionMasterInitializer;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
@@ -87,10 +83,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    */
   public static final String VANILLA_FX_OPTION_PORTFOLIO_NAME = "Vanilla FX Option Portfolio";
   /**
-   * The name of a FX volatility swap portfolio
-   */
-  public static final String FX_VOLATILITY_SWAP_PORTFOLIO_NAME = "FX Volatility Swap Portfolio";
-  /**
    * The name of a EUR fixed income portfolio
    */
   public static final String EUR_SWAP_PORTFOLIO_NAME = "EUR Fixed Income Portfolio";
@@ -118,19 +110,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * The name of a US Government bond portfolio.
    */
   public static final String US_GOVERNMENT_BOND_PORTFOLIO_NAME = "Government Bonds";
-  /**
-   * The name of an index portfolio.
-   */
-  public static final String INDEX_PORTFOLIO_NAME = "Index Portfolio";
-  /**
-   * The name of a bond total return swap portfolio.
-   */
-  public static final String BOND_TRS_PORTFOLIO_NAME = "Bond Total Return Swaps";
-  /** 
-   * The name of an equity total return swap portfolio.
-   */
-  public static final String EQUITY_TRS_PORTFOLIO_NAME = "Equity Total Return Swaps";
-
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
@@ -174,17 +153,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadEURFixedIncomePortfolio();
     loadFXForwardPortfolio();
     loadERFuturePortfolio();
-    loadFXVolatilitySwapPortfolio();
-    loadIndexPortfolio();
-    loadBondTotalReturnSwapPortfolio();
-    loadEquityTotalReturnSwapPortfolio();
     loadFXImpliedCurveCalculationConfigurations();
     loadViews();
     loadFunctionConfigurations();
-    loadExposureFunctions();
-    loadFXImpliedCurveConfigurations();
-    loadCurveConfigurations();
-    loadUgandanBondCurveConfigurations();
   }
 
   private void loadFunctionConfigurations() {
@@ -226,7 +197,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating convention data");
     try {
       final ConventionMaster master = getToolContext().getConventionMaster();
-      SyntheticInMemoryConventionMasterInitializer.INSTANCE.init(master);
+      DefaultConventionMasterInitializer.INSTANCE.init(master);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
@@ -395,29 +366,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
-  /**
-   * Loads a portfolio of FX volatility swaps.
-   */
-  private void loadFXVolatilitySwapPortfolio() {
-    final Log log = new Log("Creating example FX volatility swap portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), FX_VOLATILITY_SWAP_PORTFOLIO_NAME, "FXVolatilitySwap", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadIndexPortfolio() {
-    final Log log = new Log("Creating example indices");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), INDEX_PORTFOLIO_NAME, "Index", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
   private void loadSwaptionPortfolio() {
     final Log log = new Log("Creating example swaption portfolio");
     try {
@@ -468,92 +416,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
-  /**
-   * Loads a portfolio of bond TRS.
-   */
-  private void loadBondTotalReturnSwapPortfolio() {
-    final Log log = new Log("Creating example bond total return swap portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), BOND_TRS_PORTFOLIO_NAME, "BondTotalReturnSwap", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  /**
-   * Loads a portfolio of equity TRS.
-   */
-  private void loadEquityTotalReturnSwapPortfolio() {
-    final Log log = new Log("Creating example equity total return swap portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), EQUITY_TRS_PORTFOLIO_NAME, "EquityTotalReturnSwap", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
   private void loadLiborRawSecurities() {
     final Log log = new Log("Creating libor raw securities");
     try {
       PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  /**
-   * Loads example exposure functions.
-   */
-  private void loadExposureFunctions() {
-    final Log log = new Log("Creating exposure functions");
-    try {
-      final ExampleExposureFunctionLoader exposureFunctionLoader = new ExampleExposureFunctionLoader();
-      exposureFunctionLoader.run(getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  /**
-   * Loads example FX implied curve construction configurations.
-   */
-  private void loadFXImpliedCurveConfigurations() {
-    final Log log = new Log("Creating FX implied curve construction configurations");
-    try {
-      final ExampleFXImpliedCurveConfigurationsLoader loader = new ExampleFXImpliedCurveConfigurationsLoader();
-      loader.run(getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  /**
-   * Loads example curve construction configurations.
-   */
-  private void loadCurveConfigurations() {
-    final Log log = new Log("Creating curve construction configurations");
-    try {
-      final ExampleCurveConfigurationsLoader loader = new ExampleCurveConfigurationsLoader();
-      loader.run(getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  /**
-   * Loads example Ugandan bond curve construction configurations.
-   */
-  private void loadUgandanBondCurveConfigurations() {
-    final Log log = new Log("Creating Ugandan bond curve construction configurations");
-    try {
-      final ExampleUgandanBondCurveConfigurationsLoader loader = new ExampleUgandanBondCurveConfigurationsLoader();
-      loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

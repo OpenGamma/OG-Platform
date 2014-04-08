@@ -49,25 +49,11 @@ public class HistoricalRealizedVarianceFunction extends AbstractFunction.NonComp
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
     final LocalDateDoubleTimeSeries ts = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES);
-    final String startDateConstraint = desiredValue.getConstraint(HISTORICAL_VARIANCE_START);
-    final String endDateConstraint = desiredValue.getConstraint(HISTORICAL_VARIANCE_END);
-    final LocalDate startDate, endDate;
-    if (startDateConstraint != null) {
-      startDate = LocalDate.parse(desiredValue.getConstraint(HISTORICAL_VARIANCE_START));
-    } else {
-      startDate = ts.getEarliestTime();
-    }
-    if (endDateConstraint != null) {
-      endDate = LocalDate.parse(desiredValue.getConstraint(HISTORICAL_VARIANCE_END));
-    } else {
-      endDate = ts.getLatestTime();
-    }
+    final LocalDate startDate = LocalDate.parse(desiredValue.getConstraint(HISTORICAL_VARIANCE_START));
+    final LocalDate endDate = LocalDate.parse(desiredValue.getConstraint(HISTORICAL_VARIANCE_END));
     final LocalDateDoubleTimeSeries history = ts.subSeries(startDate, endDate);
-    final ValueSpecification spec = new ValueSpecification(REALIZED_VARIANCE, target.toSpecification(), properties);
-    if (history.isEmpty()) {
-      return Collections.singleton(new ComputedValue(spec, 0.));
-    }
     final double variance = CALCULATOR.evaluate(history.valuesArrayFast());
+    final ValueSpecification spec = new ValueSpecification(REALIZED_VARIANCE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, variance));
   }
 
@@ -91,6 +77,14 @@ public class HistoricalRealizedVarianceFunction extends AbstractFunction.NonComp
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> varianceCalculationMethods = constraints.getValues(PROPERTY_REALIZED_VARIANCE_METHOD);
     if (varianceCalculationMethods == null || varianceCalculationMethods.size() != 1) {
+      return null;
+    }
+    final Set<String> startDates = constraints.getValues(HISTORICAL_VARIANCE_START);
+    if (startDates == null || startDates.size() != 1) {
+      return null;
+    }
+    final Set<String> endDates = constraints.getValues(HISTORICAL_VARIANCE_END);
+    if (endDates == null || endDates.size() != 1) {
       return null;
     }
     final UnorderedCurrencyPair currencyPair = (UnorderedCurrencyPair) target.getValue();

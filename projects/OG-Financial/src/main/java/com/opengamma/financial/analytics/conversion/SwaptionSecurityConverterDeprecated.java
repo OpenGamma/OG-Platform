@@ -31,6 +31,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -95,7 +97,7 @@ public class SwaptionSecurityConverterDeprecated extends FinancialSecurityVisito
     final boolean isLong = swaptionSecurity.isLong();
     final boolean isCall = underlyingSecurity.getPayLeg() instanceof FixedInterestRateLeg;
     if (swaptionSecurity.getCurrency().equals(Currency.BRL)) {
-      final SwapFixedCompoundedONCompoundedDefinition swapDefinition = getBRLSwapDefinition(underlyingSecurity, isCall);
+      SwapFixedCompoundedONCompoundedDefinition swapDefinition = getBRLSwapDefinition(underlyingSecurity, isCall);
       return isCashSettled ? SwaptionCashFixedCompoundedONCompoundingDefinition.from(expiry, swapDefinition, isCall, isLong) :
         SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(expiry, swapDefinition, isCall, isLong);
     }
@@ -165,7 +167,7 @@ public class SwaptionSecurityConverterDeprecated extends FinancialSecurityVisito
     if (freqIbor.getName() == Frequency.NEVER_NAME) {
       tenorIbor = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
     } else {
-      tenorIbor = ConversionUtils.getTenor(freqIbor);
+      tenorIbor = getTenor(freqIbor);
     }
     final IborIndex indexIbor = new IborIndex(currency, tenorIbor, iborIndexConvention.getSettlementDays(), iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isEOMConvention(), iborIndexConvention.getName());
@@ -174,7 +176,7 @@ public class SwaptionSecurityConverterDeprecated extends FinancialSecurityVisito
     if (freqIbor.getName() == Frequency.NEVER_NAME) {
       tenorFixed = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
     } else {
-      tenorFixed = ConversionUtils.getTenor(freqFixed);
+      tenorFixed = getTenor(freqFixed);
     }
     final double fixedLegNotional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
@@ -183,4 +185,17 @@ public class SwaptionSecurityConverterDeprecated extends FinancialSecurityVisito
     return swap;
   }
 
+  /**
+   * Gets the tenor from a frequency
+   * @param freq The frequency
+   * @return The tenor
+   */
+  private static Period getTenor(final Frequency freq) {
+    if (freq instanceof PeriodFrequency) {
+      return ((PeriodFrequency) freq).getPeriod();
+    } else if (freq instanceof SimpleFrequency) {
+      return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+    }
+    throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
+  }
 }

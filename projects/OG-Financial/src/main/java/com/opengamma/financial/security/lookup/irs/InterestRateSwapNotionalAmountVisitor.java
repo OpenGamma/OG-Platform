@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -20,52 +20,54 @@ import com.opengamma.financial.security.swap.VarianceSwapNotional;
 public class InterestRateSwapNotionalAmountVisitor implements InterestRateSwapNotionalVisitor<LocalDate,  Double> {
 
   @Override
-  public Double visitCommodityNotional(final CommodityNotional notional, final LocalDate period) {
+  public Double visitCommodityNotional(CommodityNotional notional, LocalDate period) {
     return null;
   }
 
   @Override
-  public Double visitInterestRateNotional(final InterestRateNotional notional, final LocalDate period) {
+  public Double visitInterestRateNotional(InterestRateNotional notional, LocalDate period) {
     return notional.getAmount();
   }
 
   @Override
-  public Double visitSecurityNotional(final SecurityNotional notional, final LocalDate period) {
+  public Double visitSecurityNotional(SecurityNotional notional, LocalDate period) {
     return null;
   }
 
   @Override
-  public Double visitVarianceSwapNotional(final VarianceSwapNotional notional, final LocalDate period) {
+  public Double visitVarianceSwapNotional(VarianceSwapNotional notional, LocalDate period) {
     return null;
   }
 
   @Override
-  public Double visitInterestRateSwapNotional(final InterestRateSwapNotional notional, final LocalDate period) {
+  public Double visitInterestRateSwapNotional(InterestRateSwapNotional notional, LocalDate period) {
     return notional.getAmount(period);
   }
 
   @Override
-  public Double visitInterestRateSwapNotional(final InterestRateSwapNotional notional) {
+  public Double visitInterestRateSwapNotional(InterestRateSwapNotional notional) {
     throw new UnsupportedOperationException("InterestRateSwapNotional requires a period to get the notional for: " + notional);
   }
 
   @Override
-  public Double visitInterestRateNotional(final InterestRateNotional notional) {
+  public Double visitInterestRateNotional(InterestRateNotional notional) {
     return notional.getAmount();
   }
 
+
+
   @Override
-  public Double visitCommodityNotional(final CommodityNotional notional) {
+  public Double visitCommodityNotional(CommodityNotional notional) {
     throw new UnsupportedOperationException(notional + " not supported by InterestRateSwapNotionalAmountVisitor visitor");
   }
 
   @Override
-  public Double visitSecurityNotional(final SecurityNotional notional) {
+  public Double visitSecurityNotional(SecurityNotional notional) {
     throw new UnsupportedOperationException(notional + " not supported by InterestRateSwapNotionalAmountVisitor visitor");
   }
 
   @Override
-  public Double visitVarianceSwapNotional(final VarianceSwapNotional notional) {
+  public Double visitVarianceSwapNotional(VarianceSwapNotional notional) {
     throw new UnsupportedOperationException(notional + " not supported by InterestRateSwapNotionalAmountVisitor visitor");
   }
 }

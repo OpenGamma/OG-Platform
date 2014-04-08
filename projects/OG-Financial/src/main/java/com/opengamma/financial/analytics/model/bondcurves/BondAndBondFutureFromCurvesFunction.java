@@ -16,7 +16,6 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
@@ -108,13 +106,8 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Collection<ValueProperties.Builder> propertiesSet = getResultProperties(target);
-    final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(propertiesSet.size());
-    for (final ValueProperties.Builder propertiesBuilder : propertiesSet) {
-      final ValueProperties properties = propertiesBuilder.get();
-      results.add(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties));
-    }
-    return results;
+    final ValueProperties properties = getResultProperties(target).get();
+    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties));
   }
 
   @Override
@@ -165,13 +158,9 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
    * @param target The computation target
    * @return The properties
    */
-  protected Collection<ValueProperties.Builder> getResultProperties(final ComputationTarget target) {
-    return Collections.singleton(createValueProperties()
-        .with(CALCULATION_METHOD, CURVES_METHOD)
-        .withAny(CURVE_EXPOSURES).withAny(PROPERTY_CURVE_TYPE)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS));
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    return createValueProperties().with(CALCULATION_METHOD, CURVES_METHOD).withAny(CURVE_EXPOSURES).withAny(PROPERTY_CURVE_TYPE).withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
   }
 
 }

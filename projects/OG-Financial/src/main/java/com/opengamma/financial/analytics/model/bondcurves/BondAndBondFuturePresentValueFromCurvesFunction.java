@@ -9,9 +9,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
@@ -23,6 +21,7 @@ import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValue
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -32,6 +31,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -65,14 +65,9 @@ public class BondAndBondFuturePresentValueFromCurvesFunction extends BondAndBond
   }
 
   @Override
-  protected Collection<ValueProperties.Builder> getResultProperties(final ComputationTarget target) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    final Collection<ValueProperties.Builder> properties = super.getResultProperties(target);
-    final Collection<ValueProperties.Builder> result = new HashSet<>();
-    for (final ValueProperties.Builder builder : properties) {
-      result.add(builder
-          .with(CURRENCY, currency));
-    }
-    return result;
+    return super.getResultProperties(target)
+        .with(CURRENCY, currency);
   }
 }

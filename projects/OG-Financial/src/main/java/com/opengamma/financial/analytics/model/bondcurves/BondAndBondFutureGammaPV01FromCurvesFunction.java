@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.model.bondcurves;
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.GammaPV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
@@ -37,15 +34,10 @@ public class BondAndBondFutureGammaPV01FromCurvesFunction extends BondAndBondFut
   }
 
   @Override
-  protected Collection<ValueProperties.Builder> getResultProperties(final ComputationTarget target) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    final Collection<ValueProperties.Builder> properties = super.getResultProperties(target);
-    final Collection<ValueProperties.Builder> result = new HashSet<>();
-    for (final ValueProperties.Builder builder : properties) {
-      result.add(builder
-          .with(CURRENCY, currency));
-    }
-    return result;
+    return super.getResultProperties(target)
+        .with(CURRENCY, currency);
   }
 
 }

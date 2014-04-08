@@ -10,12 +10,13 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -36,6 +37,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -44,6 +46,8 @@ import com.opengamma.util.tuple.Pair;
  * Calculates the PV01 of a bond or bond future for all curves to which the instruments are sensitive.
  */
 public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFunction<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(BondAndBondFuturePV01Function.class);
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
@@ -81,8 +85,8 @@ public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFu
       results.add(new ComputedValue(spec, entry.getValue()));
     }
     if (!curveNameFound) {
-      final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), properties.copy().with(CURVE, desiredCurveName).get());
-      return Collections.singleton(new ComputedValue(spec, 0));
+      s_logger.error("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
+      return Collections.emptySet();
     }
     return results;
   }
@@ -97,16 +101,11 @@ public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFu
   }
 
   @Override
-  protected Collection<ValueProperties.Builder> getResultProperties(final ComputationTarget target) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    final Collection<ValueProperties.Builder> properties = super.getResultProperties(target);
-    final Collection<ValueProperties.Builder> result = new HashSet<>();
-    for (final ValueProperties.Builder builder : properties) {
-      result.add(builder
-          .with(CURRENCY, currency)
-          .withAny(CURVE));
-    }
-    return result;
+    return super.getResultProperties(target)
+        .with(CURRENCY, currency)
+        .withAny(CURVE);
   }
 
 }

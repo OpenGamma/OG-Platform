@@ -166,11 +166,11 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final int paymentLag = 0; // TODO: this should be pass trough the security [PLAT-5956]
     final Currency currencyIbor = ((InterestRateNotional) iborLeg.getNotional()).getCurrency();
     final Frequency freqIborLeg = iborLeg.getFrequency();
-    final Period iborLegTenorPayment = ConversionUtils.getTenor(freqIborLeg);
+    final Period iborLegTenorPayment = getTenor(freqIborLeg);
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
     final AnnuityDefinition<? extends CouponDefinition> iborLegDefinition;
     if (Frequency.NEVER_NAME.equals(freqIborLeg.getName())) { // If NEVER, then treated as a compounded Ibor coupon over the annuity length
-      final CouponDefinition[] payments = new CouponDefinition[nbNotional + 1];
+      CouponDefinition[] payments = new CouponDefinition[nbNotional + 1];
       int loopnot = 0;
       if (swapSecurity.isExchangeInitialNotional()) {
         payments[0] = new CouponFixedDefinition(currencyIbor, effectiveDate, effectiveDate, effectiveDate, 1.0, signFixed * iborLegNotional, 1.0);
@@ -191,7 +191,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         iborLegDefinition = AnnuityDefinitionBuilder.couponIbor(effectiveDate, maturityDate, indexIbor.getTenor(), iborLegNotional, indexIbor,
             !payFixed, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), calendarIbor, stub, paymentLag);
       }
-    }
+    }    
     // Fixed Leg
     final ExternalId regionIdFixed = fixedLeg.getRegionId();
     final Calendar calendarFixed = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionIdFixed);
@@ -202,7 +202,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     if (Frequency.NEVER_NAME.equals(freqFixed.getName())) { // If NEVER, then treated as a zero-coupon and coupon not used.
       final int nbPayment = Math.max(nbNotional, 1); // Implementation note: If zero-coupon with no notional, create a fake coupon of 0.
       final double accruedEnd = (nbNotional == 0 ? 0.0 : 1.0);
-      final CouponFixedDefinition[] notional = new CouponFixedDefinition[nbPayment];
+      CouponFixedDefinition[] notional = new CouponFixedDefinition[nbPayment];
       int loopnot = 0;
       if (swapSecurity.isExchangeInitialNotional()) {
         notional[0] = new CouponFixedDefinition(currencyIbor, effectiveDate, effectiveDate, effectiveDate, 1.0, -signFixed * fixedLegNotional, 1.0);
@@ -213,7 +213,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       }
       fixedLegDefinition = new AnnuityCouponFixedDefinition(notional, calendarFixed);
     } else {
-      final Period tenorFixed = ConversionUtils.getTenor(freqFixed);
+      final Period tenorFixed = getTenor(freqFixed);
       // Implementation note : when the stub and the payment lag will be pass trough the security, maybe there will not be the same for both legs
       fixedLegDefinition = AnnuityDefinitionBuilder.couponFixedWithNotional(currencyFixed, effectiveDate, maturityDate, tenorFixed, calendarFixed,
           fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional, fixedLeg.getRate(), payFixed, stub, paymentLag,
@@ -240,13 +240,30 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
     final String currencyString = currency.getCode();
     final Integer publicationLag = indexConvention.getPublicationLag();
-    final Period paymentFrequency = ConversionUtils.getTenor(floatLeg.getFrequency());
+    final Period paymentFrequency = getTenor(floatLeg.getFrequency());
     final int paymentLag = 0; // TODO: this should be pass through the security [PLAT-5956]
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currencyString + "_OIS_Convention", index, paymentFrequency, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(),
         fixedLeg.isEom(), paymentLag, 1 - publicationLag, calendar);
     final double notionalFixed = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double notionalOIS = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
     return SwapFixedONDefinition.from(effectiveDate, maturityDate, notionalFixed, notionalOIS, generator, fixedLeg.getRate(), payFixed);
+  }
+
+  private static Period getTenor(final Frequency freq) {
+    if (freq instanceof PeriodFrequency) {
+      Period period = ((PeriodFrequency) freq).getPeriod();
+      if (period.getYears() == 1) {
+        return Period.ofMonths(12);
+      }
+      return period;
+    } else if (freq instanceof SimpleFrequency) {
+      Period period = ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+      if (period.getYears() == 1) {
+        return Period.ofMonths(12);
+      }
+      return period;
+    }
+    throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
   }
 
   private static String getTenorString(final Frequency freq) {
@@ -272,7 +289,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final InterestRateNotional interestRateNotional = (InterestRateNotional) swapLeg.getNotional();
         final Currency currency = interestRateNotional.getCurrency();
         final Frequency freqFixed = swapLeg.getFrequency();
-        final Period tenorFixed = ConversionUtils.getTenor(freqFixed);
+        final Period tenorFixed = getTenor(freqFixed);
         final double notional = interestRateNotional.getAmount();
         final DayCount dayCount = swapLeg.getDayCount();
         final boolean isEOM = swapLeg.isEom();
@@ -359,14 +376,14 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final double notional = interestRateNotional.getAmount();
         final StubType stub = StubType.SHORT_START;  // TODO stub type should be available at the security level
         final int paymentLag = 0; // TODO Payment lag should be available at the security level
-        final Period tenorPayment = ConversionUtils.getTenor(swapLeg.getFrequency());
+        final Period tenorPayment = getTenor(swapLeg.getFrequency());
         if (swapLeg instanceof FloatingSpreadIRLeg) {
           final FloatingSpreadIRLeg spread = (FloatingSpreadIRLeg) swapLeg;
-          return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, notional, spread.getSpread(), iborIndex,
+          return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, notional, spread.getSpread(), iborIndex, 
               swapLeg.getDayCount(), swapLeg.getBusinessDayConvention(), swapLeg.isEom(), tenorPayment, isPayer, calendar, stub, paymentLag,
               isInitialNotionalExchange, isFinalNotionalExchange);
         }
-        return AnnuityDefinitionBuilder.couponIborWithNotional(effectiveDate, maturityDate, notional, iborIndex,
+        return AnnuityDefinitionBuilder.couponIborWithNotional(effectiveDate, maturityDate, notional, iborIndex, 
             swapLeg.getDayCount(), swapLeg.getBusinessDayConvention(), swapLeg.isEom(), tenorPayment, isPayer, calendar, stub, paymentLag, isInitialNotionalExchange,
             isFinalNotionalExchange);
       }
@@ -376,7 +393,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final OvernightIndex overnightIndex = (OvernightIndex) _securitySource.getSingle(swapLeg.getFloatingReferenceRateId().toBundle());
         final OvernightIndexConvention indexConvention = _conventionSource.getSingle(overnightIndex.getConventionId(), OvernightIndexConvention.class);
         final IndexON index = ConverterUtils.indexON(overnightIndex.getName(), indexConvention);
-        final Period paymentFrequency = ConversionUtils.getTenor(swapLeg.getFrequency());
+        final Period paymentFrequency = getTenor(swapLeg.getFrequency());
         final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
         final double notional = interestRateNotional.getAmount();
         final int paymentLag = 0; // TODO [PLAT-5878] Payment lag should be stored security level
@@ -408,7 +425,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final SwapFixedLegConvention payLegConvention = _conventionSource.getSingle(underlyingSwapConvention.getPayLegConvention(), SwapFixedLegConvention.class);
         final VanillaIborLegConvention receiveLegConvention = _conventionSource.getSingle(underlyingSwapConvention.getReceiveLegConvention(), VanillaIborLegConvention.class);
         final Frequency freqIbor = swapLeg.getFrequency();
-        final Period tenorIbor = ConversionUtils.getTenor(freqIbor);
+        final Period tenorIbor = getTenor(freqIbor);
         final int spotLag = iborIndexConvention.getSettlementDays();
         final DayCount dayCount = swapLeg.getDayCount();
         final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
@@ -427,7 +444,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final OvernightIndex overnightIndex = (OvernightIndex) _securitySource.getSingle(swapLeg.getFloatingReferenceRateId().toBundle());
         final OvernightIndexConvention indexConvention = _conventionSource.getSingle(overnightIndex.getConventionId(), OvernightIndexConvention.class);
         final IndexON index = ConverterUtils.indexON(overnightIndex.getName(), indexConvention);
-        final Period paymentFrequency = ConversionUtils.getTenor(swapLeg.getFrequency());
+        final Period paymentFrequency = getTenor(swapLeg.getFrequency());
         final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention();
         final double notional = interestRateNotional.getAmount();
         final int paymentLag = 0; // TODO [PLAT-5878] Payment lag should be stored security level

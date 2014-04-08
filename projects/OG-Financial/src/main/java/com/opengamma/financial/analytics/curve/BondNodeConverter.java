@@ -32,7 +32,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
-import com.opengamma.financial.analytics.conversion.ConversionUtils;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -41,6 +40,9 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
@@ -142,7 +144,7 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
     }
     final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
-    final Period paymentPeriod = ConversionUtils.getTenor(bondSecurity.getCouponFrequency());
+    final Period paymentPeriod = getTenor(bondSecurity.getCouponFrequency());
     final ZonedDateTime firstCouponDate = ZonedDateTime.of(bondSecurity.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
     final String isin = identifiers.getValue(ExternalSchemes.ISIN);
@@ -171,4 +173,17 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     return BondFixedTransactionDefinition.fromYield(securityDefinition, 1, _valuationTime, yield);
   }
 
+  /**
+   * Gets the tenor for a frequency.
+   * @param freq The frequency
+   * @return The tenor
+   */
+  private static Period getTenor(final Frequency freq) {
+    if (freq instanceof PeriodFrequency) {
+      return ((PeriodFrequency) freq).getPeriod();
+    } else if (freq instanceof SimpleFrequency) {
+      return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+    }
+    throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
+  }
 }

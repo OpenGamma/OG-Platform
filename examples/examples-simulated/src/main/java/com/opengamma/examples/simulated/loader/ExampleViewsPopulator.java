@@ -10,14 +10,11 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
-import static com.opengamma.engine.value.ValueRequirementNames.FAIR_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.FORWARD;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
@@ -53,31 +50,20 @@ import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOB
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.YTM;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.AUD_SWAP_PORFOLIO_NAME;
-import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.BOND_TRS_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.EQUITY_OPTION_PORTFOLIO_NAME;
-import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.EQUITY_TRS_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.EUR_SWAP_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.FUTURE_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.FX_FORWARD_PORTFOLIO_NAME;
-import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.FX_VOLATILITY_SWAP_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.MIXED_CMS_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.SWAPTION_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.US_GOVERNMENT_BOND_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.VANILLA_FX_OPTION_PORTFOLIO_NAME;
-import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_REALIZED_VARIANCE;
-import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.PROPERTY_REALIZED_VARIANCE_METHOD;
-import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME;
-import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME;
-import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.X_INTERPOLATOR_NAME;
-import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,7 +71,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -110,12 +95,9 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
-import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
@@ -142,36 +124,20 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
   /** A list of currencies */
-  private static final Currency[] s_swapCurrencies = new Currency[] {
-    Currency.USD,
-    Currency.GBP,
-    Currency.EUR,
-    Currency.JPY,
-    Currency.CHF };
+  private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
   /** A list of curve configuration names */
   private static final String[] s_curveConfigNames = new String[] {
-    "DefaultTwoCurveUSDConfig",
-    "DefaultTwoCurveGBPConfig",
-    "DefaultTwoCurveEURConfig",
-    "DefaultTwoCurveJPYConfig",
-    "DefaultTwoCurveCHFConfig" };
+    "DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig", "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
   /** A list of currency pairs */
-  public static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {
-    UnorderedCurrencyPair.of(Currency.USD, Currency.EUR),
-    UnorderedCurrencyPair.of(Currency.USD, Currency.CHF),
-    UnorderedCurrencyPair.of(Currency.USD, Currency.AUD),
-    UnorderedCurrencyPair.of(Currency.USD, Currency.GBP),
-    UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
-    UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR),
-    UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY) };
+  public static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), UnorderedCurrencyPair.of(Currency.USD, Currency.CHF),
+    UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
+    UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY) };
   /** Map of currencies to swaption surface / cube names */
   public static final Map<Currency, String> SWAPTION_CURRENCY_CONFIGS = new HashMap<>();
   /** Map of countries to swaption surface / cube names */
   public static final Map<String, String> SWAPTION_COUNTRY_CONFIGS = new HashMap<>();
   /** Map of currencies to curves */
   public static final Map<Currency, Pair<String, String>> SWAPTION_CURVES = new HashMap<>();
-  /** List of (curve construction configuration, curve definition) pairs for bond TRS issuers */
-  private static final List<Pair<String, String>> BOND_TRS_ISSUER_CURVES = new ArrayList<>();
 
   static {
     SWAPTION_CURRENCY_CONFIGS.put(Currency.USD, "PROVIDER1");
@@ -189,7 +155,6 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     SWAPTION_CURVES.put(Currency.EUR, Pairs.of("Discounting", "Forward6M"));
     SWAPTION_CURVES.put(Currency.JPY, Pairs.of("Discounting", "Forward6M"));
     SWAPTION_CURVES.put(Currency.CHF, Pairs.of("Discounting", "Forward6M"));
-    BOND_TRS_ISSUER_CURVES.add(Pairs.of("UG Government Bond Configuration", "UG Government Curve"));
   }
 
   //-------------------------------------------------------------------------
@@ -221,9 +186,6 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     storeViewDefinition(getEquityOptionViewDefinition(EQUITY_OPTION_PORTFOLIO_NAME, "Equity Option View"));
     storeViewDefinition(getFutureViewDefinition(FUTURE_PORTFOLIO_NAME, "Futures View"));
     storeViewDefinition(getBondViewDefinition(US_GOVERNMENT_BOND_PORTFOLIO_NAME, "Government Bond View"));
-    storeViewDefinition(getFXVolatilitySwapViewDefinition(FX_VOLATILITY_SWAP_PORTFOLIO_NAME, "FX Volatility Swap View"));
-    storeViewDefinition(getBondTotalReturnSwapViewDefinition(BOND_TRS_PORTFOLIO_NAME, "Bond TRS View"));
-    storeViewDefinition(getEquityTotalReturnSwapViewDefinition(EQUITY_TRS_PORTFOLIO_NAME, "Equity TRS View"));
   }
 
   private ViewDefinition getEquityViewDefinition(final String portfolioName) {
@@ -383,43 +345,6 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_VANNA, currencyProperty);
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_THETA, currencyProperty);
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, SECURITY_IMPLIED_VOLATILITY, ValueProperties.builder().get());
-    viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
-    return viewDefinition;
-  }
-
-  /**
-   * Creates a view definition for FX volatility swaps that requests the surface data
-   * for each currency pair and the fair value for each swap.
-   * @param portfolioName The portfolio name
-   * @param viewName The view name
-   * @return The view definition
-   */
-  private ViewDefinition getFXVolatilitySwapViewDefinition(final String portfolioName, final String viewName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
-    viewDefinition.setDefaultCurrency(Currency.USD);
-    viewDefinition.setMaxDeltaCalculationPeriod(500L);
-    viewDefinition.setMaxFullCalculationPeriod(500L);
-    viewDefinition.setMinDeltaCalculationPeriod(500L);
-    viewDefinition.setMinFullCalculationPeriod(500L);
-    final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    for (final UnorderedCurrencyPair pair : CURRENCY_PAIRS) {
-      final ComputationTargetSpecification target = ComputationTargetSpecification.of(pair.getUniqueId());
-      final ValueProperties properties = ValueProperties.builder()
-          .with(SURFACE, "DEFAULT")
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-          .get();
-      defaultCalculationConfig.addSpecificRequirement(new ValueRequirement(VOLATILITY_SURFACE_DATA, target, properties));
-    }
-    final ValueProperties properties = ValueProperties.builder()
-        .with(SURFACE, "DEFAULT")
-        .with(X_INTERPOLATOR_NAME, Interpolator1DFactory.LINEAR)
-        .with(LEFT_X_EXTRAPOLATOR_NAME, Interpolator1DFactory.LINEAR_EXTRAPOLATOR)
-        .with(RIGHT_X_EXTRAPOLATOR_NAME, Interpolator1DFactory.LINEAR_EXTRAPOLATOR)
-        .with(PROPERTY_REALIZED_VARIANCE_METHOD, HISTORICAL_REALIZED_VARIANCE)
-        .with(CURVE_EXPOSURES, "Exposures")
-        .get();
-    defaultCalculationConfig.addPortfolioRequirement(FXVolatilitySwapSecurity.SECURITY_TYPE, FAIR_VALUE, properties);
     viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
     return viewDefinition;
   }
@@ -753,62 +678,6 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
     config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, YTM, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
     viewDefinition.addViewCalculationConfiguration(config);
-    return viewDefinition;
-  }
-
-  /**
-   * Creates a view definition for bond total return swaps that requests the bond curve
-   * for each issuer and the present value.
-   * @param portfolioName The portfolio name
-   * @param viewName The view name
-   * @return The view definition
-   */
-  private ViewDefinition getBondTotalReturnSwapViewDefinition(final String portfolioName, final String viewName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
-    viewDefinition.setDefaultCurrency(Currency.USD);
-    viewDefinition.setMaxDeltaCalculationPeriod(500L);
-    viewDefinition.setMaxFullCalculationPeriod(500L);
-    viewDefinition.setMinDeltaCalculationPeriod(500L);
-    viewDefinition.setMinFullCalculationPeriod(500L);
-    final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    for (final Pair<String, String> pair : BOND_TRS_ISSUER_CURVES) {
-      final ComputationTargetSpecification target = ComputationTargetSpecification.NULL;
-      final ValueProperties properties = ValueProperties.builder()
-          .with(CURVE_CONSTRUCTION_CONFIG, pair.getFirst())
-          .with(CURVE, pair.getSecond())
-          .get();
-      defaultCalculationConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, target, properties));
-    }
-    final ValueProperties properties = ValueProperties.builder()
-        .with(CURVE_EXPOSURES, "Bond Exposures")
-        .get();
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
-    viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
-    return viewDefinition;
-  }
-
-  /**
-   * Creates a view definition for equity total return swaps that requests the present value.
-   * @param portfolioName The portfolio name
-   * @param viewName The view name
-   * @return The view definition
-   */
-  private ViewDefinition getEquityTotalReturnSwapViewDefinition(final String portfolioName, final String viewName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
-    viewDefinition.setDefaultCurrency(Currency.USD);
-    viewDefinition.setMaxDeltaCalculationPeriod(500L);
-    viewDefinition.setMaxFullCalculationPeriod(500L);
-    viewDefinition.setMinDeltaCalculationPeriod(500L);
-    viewDefinition.setMinFullCalculationPeriod(500L);
-    final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    final ValueProperties properties = ValueProperties.builder()
-        .with(PROPERTY_CURVE_TYPE, "Discounting")
-        .with(CURVE_EXPOSURES, "Exposures")
-        .get();
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
-    viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
     return viewDefinition;
   }
 

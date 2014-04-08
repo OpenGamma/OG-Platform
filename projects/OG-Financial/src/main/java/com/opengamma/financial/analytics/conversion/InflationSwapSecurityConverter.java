@@ -20,6 +20,9 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
@@ -92,7 +95,7 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final DayCount fixedLegDayCount = fixedLeg.getDayCount();
     final BusinessDayConvention businessDayConvention = fixedLeg.getBusinessDayConvention();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fixedLeg.getRegionId());
-    final Period paymentPeriod = ConversionUtils.getTenor(indexLeg.getFrequency());
+    final Period paymentPeriod = getTenor(indexLeg.getFrequency());
     final Period maturityTenor = security.getMaturityTenor().getPeriod();
     boolean isMonthly;
     switch (indexLeg.getInterpolationMethod()) {
@@ -171,4 +174,12 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
         notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag);
   }
 
+  private static Period getTenor(final Frequency freq) {
+    if (freq instanceof PeriodFrequency) {
+      return ((PeriodFrequency) freq).getPeriod();
+    } else if (freq instanceof SimpleFrequency) {
+      return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+    }
+    throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
+  }
 }

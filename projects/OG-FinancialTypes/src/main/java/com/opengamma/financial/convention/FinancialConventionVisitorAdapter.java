@@ -14,11 +14,6 @@ package com.opengamma.financial.convention;
 public class FinancialConventionVisitorAdapter<T> implements FinancialConventionVisitor<T> {
 
   @Override
-  public T visitBondConvention(final BondConvention convention) {
-    return getErrorMessage(convention);
-  }
-
-  @Override
   public T visitCMSLegConvention(final CMSLegConvention convention) {
     return getErrorMessage(convention);
   }

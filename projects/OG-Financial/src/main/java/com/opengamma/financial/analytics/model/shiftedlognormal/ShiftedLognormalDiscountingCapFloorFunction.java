@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.threeten.bp.Period;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -51,7 +52,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CapFloorSecurityConverter;
-import com.opengamma.financial.analytics.conversion.ConversionUtils;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
@@ -59,6 +59,8 @@ import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -155,7 +157,7 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
 
     /**
      * Gets the Black surface and curve data.
-     *
+     * 
      * @param executionContext The execution context, not null
      * @param inputs The function inputs, not null
      * @param target The computation target, not null
@@ -170,7 +172,7 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
       final String iborConventionName = getConventionName(currency, IBOR);
       final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
       final Frequency freqIbor = security.getFrequency();
-      final Period tenorIbor = ConversionUtils.getTenor(freqIbor);
+      final Period tenorIbor = getTenor(freqIbor);
       final int spotLag = iborIndexConvention.getSettlementDays();
       final IborIndex iborIndex = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(), iborIndexConvention.getBusinessDayConvention(),
           iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
@@ -181,5 +183,21 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
       final BlackSmileShiftCapProviderInterface blackData = new BlackSmileShiftCapProvider(data, parameters);
       return blackData;
     }
+
+    /**
+     * Gets a tenor from a frequency.
+     * 
+     * @param freq The frequency
+     * @return The tenor, not null
+     */
+    private Period getTenor(final Frequency freq) {
+      if (freq instanceof PeriodFrequency) {
+        return ((PeriodFrequency) freq).getPeriod();
+      } else if (freq instanceof SimpleFrequency) {
+        return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+      }
+      throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
+    }
+
   }
 }

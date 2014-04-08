@@ -9,6 +9,9 @@ import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_REALIZED_VARIANCE;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_VARIANCE_END;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.HISTORICAL_VARIANCE_START;
 import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.PROPERTY_REALIZED_VARIANCE_METHOD;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME;
@@ -20,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.volatilityswap.CarrLeeData;
@@ -63,6 +67,9 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
   /**
    * Base compiled function for all pricing and risk functions that use the Carr-Lee method.
    */
+  /**
+   *
+   */
   protected abstract class CarrLeeVolatilitySwapCompiledFunction extends DiscountingCompiledFunction {
 
     /**
@@ -78,15 +85,7 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
     @SuppressWarnings("synthetic-access")
     @Override
     protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-          .with(CALCULATION_METHOD, CARR_LEE)
-          .withAny(SURFACE)
-          .withAny(X_INTERPOLATOR_NAME)
-          .withAny(LEFT_X_EXTRAPOLATOR_NAME)
-          .withAny(RIGHT_X_EXTRAPOLATOR_NAME)
-          .withAny(PROPERTY_REALIZED_VARIANCE_METHOD)
-          .withAny(CURVE_EXPOSURES);
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(CALCULATION_METHOD, CARR_LEE).withAny(SURFACE).withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
@@ -104,7 +103,6 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
       }
       requirements.add(getVolatilitySurfaceRequirement(desiredValue, target));
       requirements.add(getSpotRequirement(target));
-      // TODO ideally, realized variance should only be requested for seasoned swaps
       requirements.add(getRealizedVarianceRequirement(desiredValue, target));
       return requirements;
     }
@@ -131,12 +129,23 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
       if (varianceCalculationMethods == null || varianceCalculationMethods.size() != 1) {
         return false;
       }
+      final String varianceCalculationMethod = Iterables.getOnlyElement(varianceCalculationMethods);
+      if (HISTORICAL_REALIZED_VARIANCE.equals(varianceCalculationMethod)) {
+        final Set<String> startDate = constraints.getValues(HISTORICAL_VARIANCE_START);
+        if (startDate == null || startDate.size() != 1) {
+          return false;
+        }
+        final Set<String> endDate = constraints.getValues(HISTORICAL_VARIANCE_END);
+        if (endDate == null || endDate.size() != 1) {
+          return false;
+        }
+      }
       return super.requirementsSet(constraints);
     }
 
     /**
      * Gets the volatility surface requirement.
-     *
+     * 
      * @param desiredValue The desired value
      * @param target The target
      * @return The volatility surface requirement
@@ -145,7 +154,7 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
 
     /**
      * Gets the spot requirement.
-     *
+     * 
      * @param target The target
      * @return The spot requirement
      */
@@ -153,7 +162,7 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
 
     /**
      * Gets the realized variance requirement.
-     *
+     * 
      * @param desiredValue The desired vale
      * @param target The target
      * @return The realized variance requirement
@@ -162,7 +171,7 @@ public abstract class CarrLeeVolatilitySwapFunction extends DiscountingFunction 
 
     /**
      * Gets the Carr-Lee data.
-     *
+     * 
      * @param executionContext The execution context, not null
      * @param inputs The function inputs, not null
      * @param target The computation target, not null

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -85,14 +85,14 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   public InstrumentDefinition<?> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     ArgumentChecker.notNull(security, "swap security");
 
-    final LocalDate startDate = security.getEffectiveDate();
-    final LocalDate endDate = security.getUnadjustedMaturityDate();
-    final AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
-    final AnnuityDefinition<?> receiveLeg = getAnnuityDefinition(false, startDate, endDate, security.getNotionalExchange(), security.getReceiveLeg());
+    LocalDate startDate = security.getEffectiveDate();
+    LocalDate endDate = security.getUnadjustedMaturityDate();
+    AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
+    AnnuityDefinition<?> receiveLeg = getAnnuityDefinition(false, startDate, endDate, security.getNotionalExchange(), security.getReceiveLeg());
     return new SwapDefinition(payLeg, receiveLeg);
   }
-
-  private AnnuityDefinition<?> getAnnuityDefinition(final boolean payer, final LocalDate startDate, final LocalDate endDate, final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
+  
+  private AnnuityDefinition<?> getAnnuityDefinition(boolean payer, LocalDate startDate, LocalDate endDate, NotionalExchange notionalExchange, InterestRateSwapLeg leg) {
     if (leg instanceof FixedInterestRateSwapLeg) {
       return buildFixedAnnuityDefinition(payer, startDate, endDate, notionalExchange, leg);
     } else if (leg instanceof FloatingInterestRateSwapLeg) {
@@ -102,45 +102,41 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     }
   }
 
-  //TODO the classes below have been pulled into AnnuityUtils with slight adjustments.
-  // Once the behaviour has been checked to be identical, then this class should refer
-  // to methods in those classes
-  private AnnuityDefinition<?> buildFloatingAnnuityDefinition(final boolean payer, final LocalDate startDate, final LocalDate endDate,
-      final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
-    final FloatingInterestRateSwapLeg floatLeg = (FloatingInterestRateSwapLeg) leg;
+  private AnnuityDefinition<?> buildFloatingAnnuityDefinition(boolean payer, LocalDate startDate, LocalDate endDate, NotionalExchange notionalExchange, InterestRateSwapLeg leg) {
+    FloatingInterestRateSwapLeg floatLeg = (FloatingInterestRateSwapLeg) leg;
 
     AdjustedDateParameters maturityDateParameters = null;
     if (leg.getMaturityDateCalendars() != null && leg.getMaturityDateBusinessDayConvention() != null) {
-      final Calendar maturityDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getMaturityDateCalendars().toArray(new ExternalId[0]));
+      Calendar maturityDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getMaturityDateCalendars().toArray(new ExternalId[0]));
       maturityDateParameters = new AdjustedDateParameters(maturityDateCalendar, leg.getMaturityDateBusinessDayConvention());
     }
-
+    
     AdjustedDateParameters accrualPeriodParameters = null;
     if (leg.getAccrualPeriodCalendars() != null && leg.getAccrualPeriodBusinessDayConvention() != null) {
-      final Calendar accrualPeriodCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[0]));
+      Calendar accrualPeriodCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[0]));
       accrualPeriodParameters = new AdjustedDateParameters(accrualPeriodCalendar, leg.getAccrualPeriodBusinessDayConvention());
     }
-
+    
     RollDateAdjuster rollDateAdjuster = null;
     if (leg.getRollConvention() == RollConvention.EOM) {
       rollDateAdjuster = EndOfMonthRollDateAdjuster.getAdjuster();
     } else {
       rollDateAdjuster = leg.getRollConvention().getRollDateAdjuster(0);
     }
-
+    
     AdjustedDateParameters resetDateParameters = null;
     if (floatLeg.getResetPeriodCalendars() != null && floatLeg.getResetPeriodBusinessDayConvention() != null) {
-      final Calendar resetCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatLeg.getResetPeriodCalendars().toArray(new ExternalId[0]));
+      Calendar resetCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatLeg.getResetPeriodCalendars().toArray(new ExternalId[0]));
       resetDateParameters = new AdjustedDateParameters(resetCalendar, floatLeg.getResetPeriodBusinessDayConvention());
     }
-
+    
     double spread = Double.NaN;
     if (floatLeg.getSpreadSchedule() != null) {
       spread = floatLeg.getSpreadSchedule().getInitialRate();
     }
 
     final int paymentOffset = floatLeg.getPaymentOffset();
-
+    
     final IndexDeposit index;
     if (FloatingRateType.IBOR == floatLeg.getFloatingRateType()) {
       index = new IborIndex(
@@ -151,38 +147,38 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           leg.getPaymentDateBusinessDayConvention(),
           RollConvention.EOM == leg.getRollConvention(),
           floatLeg.getFloatingReferenceRateId().getValue());
-
+      
     } else if (FloatingRateType.OIS == floatLeg.getFloatingRateType()) {
-      final Convention convention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
+      Convention convention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
       if (convention == null) {
         throw new OpenGammaRuntimeException("Convention not found for " + floatLeg.getFloatingReferenceRateId());
       }
       if (!(convention instanceof OvernightIndexConvention)) {
         throw new OpenGammaRuntimeException("Mis-match between floating rate type " + floatLeg.getFloatingRateType() + " and convention " + convention.getClass());
       }
-      final OvernightIndexConvention onIndexConvention = (OvernightIndexConvention) convention;
+      OvernightIndexConvention onIndexConvention = (OvernightIndexConvention) convention;
       index = new IndexON(
           floatLeg.getFloatingReferenceRateId().getValue(),
           leg.getNotional().getCurrency(),
           floatLeg.getDayCountConvention(),
           onIndexConvention.getPublicationLag());
-
+      
     } else {
       throw new OpenGammaRuntimeException("Unsupported floating rate type " + floatLeg.getFloatingRateType());
     }
 
     OffsetAdjustedDateParameters paymentDateParameters = null;
     if (leg.getPaymentDateCalendars() != null && leg.getPaymentDateBusinessDayConvention() != null) {
-      final Calendar paymentDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getPaymentDateCalendars().toArray(new ExternalId[leg.getPaymentDateCalendars().size()]));
+      Calendar paymentDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getPaymentDateCalendars().toArray(new ExternalId[leg.getPaymentDateCalendars().size()]));
       paymentDateParameters = new OffsetAdjustedDateParameters(paymentOffset, OffsetType.BUSINESS, paymentDateCalendar, leg.getPaymentDateBusinessDayConvention());
     }
-
+    
     OffsetAdjustedDateParameters fixingDateParameters = null;
     if (floatLeg.getFixingDateCalendars() != null && floatLeg.getFixingDateBusinessDayConvention() != null) {
-      final Calendar fixingDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatLeg.getFixingDateCalendars().toArray(new ExternalId[floatLeg.getFixingDateCalendars().size()]));
+      Calendar fixingDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatLeg.getFixingDateCalendars().toArray(new ExternalId[floatLeg.getFixingDateCalendars().size()]));
       fixingDateParameters = new OffsetAdjustedDateParameters(floatLeg.getFixingDateOffset(), floatLeg.getFixingDateOffsetType(), fixingDateCalendar, floatLeg.getFixingDateBusinessDayConvention());
     }
-
+    
     com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod compoundingMethod;
     switch (floatLeg.getCompoundingMethod()) {
       case FLAT:
@@ -197,12 +193,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       default:
         throw new OpenGammaRuntimeException("Unsupported compounding method");
     }
+    
+    Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
+    CouponStub startStub = stubs.getFirst();
+    CouponStub endStub = stubs.getSecond();
 
-    final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
-    final CouponStub startStub = stubs.getFirst();
-    final CouponStub endStub = stubs.getSecond();
-
-    final List<Double> notionalList = leg.getNotional().getNotionals();
+    List<Double> notionalList = leg.getNotional().getNotionals();
     double[] notionalSchedule;
     if (notionalList.isEmpty()) {
       notionalSchedule = new double[] {(payer ? -1 : 1) * leg.getNotional().getInitialAmount()};
@@ -212,11 +208,11 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         notionalSchedule[i] = (payer ? -1 : 1) * notionalList.get(i);
       }
     }
-
+    
     return new FloatingAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
-        notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
+        notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(), 
             new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
         startDate(startDate).
         endDate(endDate).
@@ -241,44 +237,43 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         build();
   }
 
-  private AnnuityDefinition<?> buildFixedAnnuityDefinition(final boolean payer, final LocalDate startDate, final LocalDate endDate,
-      final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
-    final FixedInterestRateSwapLeg fixedLeg = (FixedInterestRateSwapLeg) leg;
-
+  private AnnuityDefinition<?> buildFixedAnnuityDefinition(boolean payer, LocalDate startDate, LocalDate endDate, NotionalExchange notionalExchange, InterestRateSwapLeg leg) {
+    FixedInterestRateSwapLeg fixedLeg = (FixedInterestRateSwapLeg) leg;
+    
     AdjustedDateParameters maturityDateParameters = null;
     if (leg.getMaturityDateCalendars() != null && leg.getMaturityDateBusinessDayConvention() != null) {
-      final Calendar maturityDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getMaturityDateCalendars().toArray(new ExternalId[leg.getMaturityDateCalendars().size()]));
+      Calendar maturityDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getMaturityDateCalendars().toArray(new ExternalId[leg.getMaturityDateCalendars().size()]));
       maturityDateParameters = new AdjustedDateParameters(maturityDateCalendar, leg.getMaturityDateBusinessDayConvention());
     }
-
+    
     AdjustedDateParameters accrualPeriodParameters = null;
     if (leg.getAccrualPeriodCalendars() != null && leg.getAccrualPeriodBusinessDayConvention() != null) {
-      final Calendar accrualPeriodCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()]));
+      Calendar accrualPeriodCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()]));
       accrualPeriodParameters = new AdjustedDateParameters(accrualPeriodCalendar, leg.getAccrualPeriodBusinessDayConvention());
     }
-
+    
     OffsetAdjustedDateParameters paymentDateParameters = null;
     if (leg.getPaymentDateCalendars() != null && leg.getPaymentDateBusinessDayConvention() != null) {
-      final Calendar paymentDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getPaymentDateCalendars().toArray(new ExternalId[leg.getPaymentDateCalendars().size()]));
+      Calendar paymentDateCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getPaymentDateCalendars().toArray(new ExternalId[leg.getPaymentDateCalendars().size()]));
       paymentDateParameters = new OffsetAdjustedDateParameters(
           leg.getPaymentOffset(),
           OffsetType.BUSINESS,
           paymentDateCalendar,
           leg.getPaymentDateBusinessDayConvention());
     }
-
+    
     RollDateAdjuster rollDateAdjuster = null;
     if (leg.getRollConvention() == RollConvention.EOM) {
       rollDateAdjuster = EndOfMonthRollDateAdjuster.getAdjuster();
     } else {
       rollDateAdjuster = leg.getRollConvention().getRollDateAdjuster(0);
     }
-
-    final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
-    final CouponStub startStub = stubs.getFirst();
-    final CouponStub endStub = stubs.getSecond();
-
-    final List<Double> notionalList = leg.getNotional().getNotionals();
+    
+    Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
+    CouponStub startStub = stubs.getFirst();
+    CouponStub endStub = stubs.getSecond();
+    
+    List<Double> notionalList = leg.getNotional().getNotionals();
     double[] notionalSchedule;
     if (notionalList.isEmpty()) {
       notionalSchedule = new double[] {(payer ? -1 : 1) * leg.getNotional().getInitialAmount()};
@@ -288,12 +283,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         notionalSchedule[i] = (payer ? -1 : 1) * notionalList.get(i);
       }
     }
-
+    
     return new FixedAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
 //        notional((payer ? -1 : 1) * leg.getNotional().getAmount()).
-        notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
+        notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(), 
             new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
         startDate(startDate).
         endDate(endDate).
@@ -311,30 +306,30 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         endStub(endStub).
         build();
   }
-
+  
   /**
    * Converts the StubCalculationMethod to CouponStubs.
    */
   private Pair<CouponStub, CouponStub> parseStubs(final StubCalculationMethod stubCalcMethod) {
     CouponStub startStub = null;
     CouponStub endStub = null;
-
+    
     if (stubCalcMethod != null) {
       stubCalcMethod.validate();
-      final StubType stubType = stubCalcMethod.getType();
-
+      StubType stubType = stubCalcMethod.getType();
+      
       // first stub
-      final double firstStubRate = stubCalcMethod.hasFirstStubRate() ? stubCalcMethod.getFirstStubRate() : Double.NaN;
-      final LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();
-      final Tenor firstStubStartIndex = stubCalcMethod.getFirstStubStartIndex();
-      final Tenor firstStubEndIndex = stubCalcMethod.getFirstStubEndIndex();
+      double firstStubRate = stubCalcMethod.hasFirstStubRate() ? stubCalcMethod.getFirstStubRate() : Double.NaN;
+      LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();
+      Tenor firstStubStartIndex = stubCalcMethod.getFirstStubStartIndex();
+      Tenor firstStubEndIndex = stubCalcMethod.getFirstStubEndIndex();
 
       // last stub
-      final double finalStubRate = stubCalcMethod.hasLastStubRate() ? stubCalcMethod.getLastStubRate() : Double.NaN;
-      final LocalDate finalStubDate = stubCalcMethod.getLastStubEndDate();
-      final Tenor lastStubStartIndex = stubCalcMethod.getLastStubStartIndex();
-      final Tenor lastStubEndIndex = stubCalcMethod.getLastStubEndIndex();
-
+      double finalStubRate = stubCalcMethod.hasLastStubRate() ? stubCalcMethod.getLastStubRate() : Double.NaN;
+      LocalDate finalStubDate = stubCalcMethod.getLastStubEndDate();
+      Tenor lastStubStartIndex = stubCalcMethod.getLastStubStartIndex();
+      Tenor lastStubEndIndex = stubCalcMethod.getLastStubEndIndex();
+      
       if (StubType.BOTH == stubType) {
         if (!Double.isNaN(firstStubRate)) {
           startStub = new CouponStub(stubType, firstStubDate, stubCalcMethod.getFirstStubRate());
@@ -343,7 +338,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         } else {
           startStub = new CouponStub(stubType, firstStubDate);
         }
-
+        
         if (!Double.isNaN(finalStubRate)) {
           endStub = new CouponStub(stubType, finalStubDate, stubCalcMethod.getLastStubRate());
         } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
@@ -351,7 +346,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         } else {
           endStub = new CouponStub(stubType, finalStubDate);
         }
-
+        
       } else if (StubType.LONG_START == stubType || StubType.SHORT_START == stubType) {
         if (!Double.isNaN(firstStubRate)) {
           startStub = new CouponStub(stubType, firstStubDate, firstStubRate);
@@ -372,7 +367,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         startStub = new CouponStub(stubType);
         endStub = new CouponStub(stubType);
       }
-
+      
     }
     return Pairs.of(startStub, endStub);
   }
@@ -381,13 +376,13 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     if (Frequency.NEVER_NAME.equals(freq.getName())) {
       return Period.ZERO;
     } else if (freq instanceof PeriodFrequency) {
-      final Period period = ((PeriodFrequency) freq).getPeriod();
+      Period period = ((PeriodFrequency) freq).getPeriod();
       if (period.getYears() == 1) {
         return Period.ofMonths(12);
       }
       return period;
     } else if (freq instanceof SimpleFrequency) {
-      final Period period =  ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+      Period period =  ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
       if (period.getYears() == 1) {
         return Period.ofMonths(12);
       }
@@ -397,7 +392,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   }
 
   //TODO: Would be nice to make this support Notional
-  private static NotionalProvider getNotionalProvider(InterestRateSwapNotional notional, final BusinessDayConvention convention, final Calendar calendar) {
+  private static NotionalProvider getNotionalProvider(InterestRateSwapNotional notional, BusinessDayConvention convention, Calendar calendar) {
     final InterestRateSwapNotionalVisitor<LocalDate,  Double> visitor = new InterestRateSwapNotionalAmountVisitor();
     final List<LocalDate> dates = notional.getDates();
     if (!dates.isEmpty()) {
@@ -411,7 +406,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final InterestRateSwapNotional adjustednotional = notional;
     return new NotionalProvider() {
       @Override
-      public double getAmount(final LocalDate date) {
+      public double getAmount(LocalDate date) {
         return adjustednotional.accept(visitor, date);
       }
     };
