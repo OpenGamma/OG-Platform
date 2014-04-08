@@ -51,6 +51,7 @@ import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
@@ -111,7 +112,8 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
     final CashFlowSecurityConverter cashFlowConverter = new CashFlowSecurityConverter();
     final FRASecurityConverter fraConverter = new FRASecurityConverter(securitySource, holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
-    final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(securitySource, swapConverter);
+    final InterestRateSwapSecurityConverter irsConverter = new InterestRateSwapSecurityConverter(holidaySource, conventionSource);
+    final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(swapConverter, irsConverter);
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);

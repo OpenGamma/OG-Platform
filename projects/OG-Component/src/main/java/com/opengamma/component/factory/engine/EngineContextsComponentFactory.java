@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -54,6 +55,8 @@ import com.opengamma.financial.marketdata.MarketDataELCompiler;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
 
 /**
  * Component factory for the config source.
@@ -195,6 +198,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     initPnlRequirementsGatherer();
+    initThreadLocalServiceContext();
     initFunctionCompilationContext(repo, configuration);
     final OverrideOperationCompiler ooc = initOverrideOperationCompiler(repo, configuration);
     initFunctionExecutionContext(repo, configuration, ooc);
@@ -229,6 +233,34 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         addFXDiscountingCurveName("USD", "Forward3M");
       }
     };
+  }
+
+  private void initThreadLocalServiceContext() {
+
+    ImmutableMap.Builder<Class<?>, Object> services = ImmutableMap.<Class<?>, Object>builder()
+        .put(ConfigSource.class, getConfigSource())
+        .put(RegionSource.class, getRegionSource())
+        .put(ConventionBundleSource.class, getConventionBundleSource())
+        .put(ConventionSource.class, getConventionSource())
+        .put(HolidaySource.class, getHolidaySource())
+        .put(ExchangeSource.class, getExchangeSource())
+        .put(HistoricalTimeSeriesSource.class, getHistoricalTimeSeriesSource())
+        .put(HistoricalTimeSeriesResolver.class, getHistoricalTimeSeriesResolver())
+        .put(SecuritySource.class, getSecuritySource())
+        .put(LegalEntitySource.class, getLegalEntitySource())
+        .put(PositionSource.class, getPositionSource());
+
+    if (getInterpolatedYieldCurveDefinitionSource() != null) {
+      services.put(InterpolatedYieldCurveDefinitionSource.class, getInterpolatedYieldCurveDefinitionSource());
+    }
+    if (getInterpolatedYieldCurveSpecificationBuilder() != null) {
+      services.put(InterpolatedYieldCurveSpecificationBuilder.class, getInterpolatedYieldCurveSpecificationBuilder());
+    }
+    if (getVolatilityCubeDefinitionSource() != null) {
+      services.put(VolatilityCubeDefinitionSource.class, getVolatilityCubeDefinitionSource());
+    }
+
+    ThreadLocalServiceContext.init(ServiceContext.of(services.build()));
   }
 
 
