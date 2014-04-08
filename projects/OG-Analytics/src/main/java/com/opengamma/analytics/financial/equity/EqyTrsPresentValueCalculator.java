@@ -38,10 +38,15 @@ public final class EqyTrsPresentValueCalculator extends InstrumentDerivativeVisi
     ArgumentChecker.notNull(equityTrs, "equityTrs");
     ArgumentChecker.notNull(data, "data");
     final MultipleCurrencyAmount fundingLegPV = equityTrs.getFundingLeg().accept(PresentValueDiscountingCalculator.getInstance(), data.getCurves());
+<<<<<<< HEAD
     final Currency fundingCurrency = equityTrs.getFundingLeg().getCurrency();
     final CurrencyAmount equityPV = CurrencyAmount.of(equityTrs.getNotionalCurrency(), data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares());
     final Currency equityCurrency = equityTrs.getEquity().getCurrency();
     final double fxRate = data.getCurves().getFxRate(equityCurrency, fundingCurrency);
     return MultipleCurrencyAmount.of(equityPV.plus(CurrencyAmount.of(equityCurrency, -fundingLegPV.getAmount(fundingCurrency) * fxRate)));
+=======
+    final CurrencyAmount equityPV = CurrencyAmount.of(equityTrs.getNotionalCurrency(), data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares());
+    return fundingLegPV.plus(equityPV);
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
   }
 }

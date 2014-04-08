@@ -37,7 +37,11 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+<<<<<<< HEAD:projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/trs/EquityTotalReturnSwapPV01Function.java
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
+=======
+import com.opengamma.financial.security.FinancialSecurityUtils;
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated"":projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/equity/trs/EquityTotalReturnSwapPV01Function.java
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -100,12 +104,20 @@ public class EquityTotalReturnSwapPV01Function extends EquityTotalReturnSwapFunc
 
       @Override
       protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+<<<<<<< HEAD:projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/trs/EquityTotalReturnSwapPV01Function.java
         final EquityTotalReturnSwapSecurity security = (EquityTotalReturnSwapSecurity) target.getTrade().getSecurity();
+=======
+        final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated"":projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/equity/trs/EquityTotalReturnSwapPV01Function.java
         final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
         final Collection<ValueProperties.Builder> result = new HashSet<>();
         for (final ValueProperties.Builder builder : properties) {
           result.add(builder
+<<<<<<< HEAD:projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/trs/EquityTotalReturnSwapPV01Function.java
               .with(CURRENCY, security.getFundingLeg().getNotional().getCurrency().getCode())
+=======
+              .with(CURRENCY, currency)
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated"":projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/equity/trs/EquityTotalReturnSwapPV01Function.java
               .withAny(CURVE));
         }
         return result;

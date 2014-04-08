@@ -26,6 +26,7 @@ public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean 
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+<<<<<<< HEAD:projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/trs/TotalReturnSwapFunctions.java
     functions.add(functionConfiguration(BondTotalReturnSwapAssetLegDetailsFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapAssetLegPVFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapFundingLegDetailsFunction.class));
@@ -33,6 +34,9 @@ public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean 
     functions.add(functionConfiguration(BondTotalReturnSwapFundingLegPVFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapPVFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapPV01Function.class));
+=======
+    functions.add(functionConfiguration(BondTotalReturnSwapPVFunction.class));
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated"":projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/equity/trs/TotalReturnSwapFunctions.java
 
     functions.add(functionConfiguration(EquityTotalReturnSwapAssetLegPVFunction.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapFundingLegDetailsFunction.class));

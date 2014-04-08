@@ -113,6 +113,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
      * @param specification The curve specification
      * @param spec The result specification
      */
+    @SuppressWarnings("synthetic-access")
     public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification, final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
       _specification = specification;

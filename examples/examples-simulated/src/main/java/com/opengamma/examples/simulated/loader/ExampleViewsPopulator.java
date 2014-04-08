@@ -13,18 +13,28 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_ME
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
 import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
 >>>>>>> 7decf75... [PLAT-6345] Adding more outputs for equity and bond TRS
+=======
+import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
+import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
+import static com.opengamma.engine.value.ValueRequirementNames.BOND_EQUIVALENT_VALUE;
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
 import static com.opengamma.engine.value.ValueRequirementNames.FORWARD;
+import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_DETAILS;
+import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_PV;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
+import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
+import static com.opengamma.engine.value.ValueRequirementNames.NOTIONAL;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
@@ -66,6 +76,9 @@ import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.SWA
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.US_GOVERNMENT_BOND_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.VANILLA_FX_OPTION_PORTFOLIO_NAME;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -716,7 +729,12 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, BOND_DETAILS, properties);
+<<<<<<< HEAD
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, ValueProperties.builder().get());
+=======
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, BOND_EQUIVALENT_VALUE, properties);
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, properties);
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
     final ValueProperties thetaProperties = properties.copy()
         .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
@@ -760,7 +778,11 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_DELTA, properties);
+<<<<<<< HEAD
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, ValueProperties.builder().get());
+=======
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, properties);
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
     final ValueProperties thetaProperties = properties.copy()
         .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)

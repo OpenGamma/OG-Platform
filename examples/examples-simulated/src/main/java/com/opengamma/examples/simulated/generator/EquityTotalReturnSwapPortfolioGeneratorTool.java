@@ -7,23 +7,22 @@ package com.opengamma.examples.simulated.generator;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
-import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.LeafPortfolioNodeGenerator;
 import com.opengamma.financial.generator.NameGenerator;
@@ -33,13 +32,12 @@ import com.opengamma.financial.generator.PositionGenerator;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.financial.generator.SimplePositionGenerator;
 import com.opengamma.financial.generator.StaticNameGenerator;
-import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapNotional;
 import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.financial.security.irs.Rate;
-import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -49,20 +47,19 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.time.Expiry;
 
 /**
- * Generates a portfolio of UGX bond TRS.
+ * Generates a portfolio of equity TRS.
  */
-public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public class EquityTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   /** The list of funding legs */
   private static final List<FloatingInterestRateSwapLeg> FUNDING_LEGS = new ArrayList<>();
-  /** The list of bonds */
-  private static final List<BondSecurity> BONDS = new ArrayList<>();
+  /** The list of equities */
+  private static final List<EquitySecurity> EQUITIES = new ArrayList<>();
   /** The list of notionals */
   private static final List<Double> NOTIONALS = new ArrayList<>();
-  /** The currency of the bonds */
-  private static final Currency CURRENCY = Currency.of("UGX");
+  /** The currency of the equities */
+  private static final Currency CURRENCY = Currency.USD;
   /** The funding leg payment frequency */
   private static final Frequency FREQUENCY = PeriodFrequency.QUARTERLY;
   /** The funding leg holiday calendar */
@@ -71,55 +68,21 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
   private static final ExternalId IBOR_RATE = ExternalSchemes.syntheticSecurityId("USDLIBORP3M");
   /** The rate formatter */
   private static final DecimalFormat FORMATTER = new DecimalFormat("###.###");
+  /** The tickers */
+  private static final List<String> TICKERS = Arrays.asList("HD", "ARG", "IPG", "RSG", "M");
+  /** The equity price */
+  private static final List<Double> PRICES = Arrays.asList(35.625, 68.5, 12.1, 29.53, 29.19);
 
   static {
     final Random rng = new Random(131);
     for (int i = 0; i < 20; i++) {
-      final String issuerName = "UGANDA";
-      final String issuerType = "Sovereign";
-      final String issuerDomicile = "UG";
-      final String market = "UGANDA";
-      final YieldConvention yieldConvention = YieldConventionFactory.INSTANCE.getYieldConvention("US street");
-      final String couponType = "FIXED";
-      final Frequency couponFrequency = PeriodFrequency.SEMI_ANNUAL;
-      final DayCount dayCountConvention = DayCounts.ACT_365;
-      final double totalAmountIssued = 1000000000.;
-      final double minimumAmount = 100;
-      final double minimumIncrement = 100;
-      final double parAmount = 100;
-      final double redemptionValue = 100;
-      final ZonedDateTime baseDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
-      final ZonedDateTime bondStartDate = baseDate;
-      final int months = (int) ((i + 2) / 2. * 12);
-      final ZonedDateTime maturityDate = baseDate.plusMonths(months);
-      final double coupon = 6 + (rng.nextInt(10) / 8. + (rng.nextBoolean() ? -0.5 : 0.5));
-      final double issuancePrice = 100;
-      final GovernmentBondSecurity bond = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, CURRENCY,
-          yieldConvention, new Expiry(maturityDate), couponType, coupon, couponFrequency, dayCountConvention, bondStartDate,
-          bondStartDate, bondStartDate.plusMonths(6), issuancePrice, totalAmountIssued, minimumAmount,
-          minimumIncrement, parAmount, redemptionValue);
-      String suffix;
-      if (months < 10) {
-        suffix = "00" + Integer.toString(months);
-      } else if (months < 100) {
-        suffix = "0" + Integer.toString(months);
-      } else {
-        suffix = Integer.toString(months);
-      }
-      bond.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId("UG0000000" + suffix)));
-      final StringBuilder bondName = new StringBuilder("Uganda ");
-      bondName.append(FORMATTER.format(coupon));
-      bondName.append("% ");
-      bondName.append(maturityDate.toLocalDate());
-      bond.setName(bondName.toString());
+      final String ticker = TICKERS.get(rng.nextInt(TICKERS.size()));
+      final EquitySecurity equity = new EquitySecurity("UQ", "UQ", ticker, CURRENCY);
+      equity.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId(ticker)));
       final double notional = 1000000. * (1 + rng.nextInt(10));
       final double spread = 0.002 + rng.nextInt(100) / 10000.;
       final FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
-<<<<<<< HEAD
-      leg.setNotional(new InterestRateSwapNotional(Currency.USD, notional));
-=======
       leg.setNotional(new InterestRateSwapNotional(CURRENCY, notional));
->>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
       leg.setDayCountConvention(DayCounts.ACT_360);
       leg.setPaymentDateFrequency(FREQUENCY);
       leg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -141,35 +104,36 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
       leg.setRollConvention(RollConvention.NONE);
       leg.setSpreadSchedule(Rate.builder().rates(new double[] {spread }).build());
       FUNDING_LEGS.add(leg);
-      BONDS.add(bond);
+      EQUITIES.add(equity);
       NOTIONALS.add(notional);
     }
   }
 
   @Override
   public final PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
-    final SecurityGenerator<ManageableSecurity> securities = createBondTRSSecurityGenerator(FUNDING_LEGS.size());
+    final SecurityGenerator<ManageableSecurity> securities = createEquityTRSSecurityGenerator(FUNDING_LEGS.size());
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Bond Total Return Swaps"), positions, FUNDING_LEGS.size());
+    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Equity Total Return Swaps"), positions, FUNDING_LEGS.size());
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }
 
   @Override
   public final PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
-    final SecurityGenerator<ManageableSecurity> securities = createBondTRSSecurityGenerator(FUNDING_LEGS.size());
+    final SecurityGenerator<ManageableSecurity> securities = createEquityTRSSecurityGenerator(FUNDING_LEGS.size());
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Bond Total Return Swaps"), positions, FUNDING_LEGS.size());
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Equity Total Return Swaps"), positions, FUNDING_LEGS.size());
   }
 
   /**
-   * Creates a security generator that loops over the components of the bond TRS.
+   * Creates a security generator that loops over the components of the equity TRS.
    * @param size The expected size of the portfolio
    * @return The security generator
    */
-  private SecurityGenerator<ManageableSecurity> createBondTRSSecurityGenerator(final int size) {
+  private SecurityGenerator<ManageableSecurity> createEquityTRSSecurityGenerator(final int size) {
     final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    final Random rng = new Random(111);
     final SecurityGenerator<ManageableSecurity> securities = new SecurityGenerator<ManageableSecurity>() {
       private int _count;
 
@@ -181,15 +145,22 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
         }
         final SecurityDocument toAddDoc = new SecurityDocument();
         final FloatingInterestRateSwapLeg fundingLeg = FUNDING_LEGS.get(_count);
-        final BondSecurity bond = BONDS.get(_count);
-        toAddDoc.setSecurity(bond);
+        final EquitySecurity equity = EQUITIES.get(_count);
+        toAddDoc.setSecurity(equity);
         securityMaster.add(toAddDoc);
-        final ExternalIdBundle assetId = getSecurityPersister().storeSecurity(bond);
+        final LocalDate startDate = DateUtils.previousWeekDay().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        final LocalDate maturityDate = startDate.plusYears(1 + rng.nextInt(10));
+        final ExternalIdBundle assetId = getSecurityPersister().storeSecurity(equity);
         final double spread = fundingLeg.getSpreadSchedule().getRate(0);
-        final BondTotalReturnSwapSecurity security = new BondTotalReturnSwapSecurity(fundingLeg, assetId, bond.getSettlementDate().toLocalDate(),
-            bond.getLastTradeDate().getExpiry().toLocalDate(), CURRENCY, NOTIONALS.get(_count), 2, BusinessDayConventions.MODIFIED_FOLLOWING,
-            PeriodFrequency.SEMI_ANNUAL, RollConvention.NONE);
-        final StringBuilder sb = new StringBuilder(bond.getName());
+        final Double price = PRICES.get(TICKERS.indexOf(equity.getCompanyName()));
+        final Double notional = NOTIONALS.get(_count);
+        final long numberOfShares = Math.round(notional / price);
+        final EquityTotalReturnSwapSecurity security = new EquityTotalReturnSwapSecurity(fundingLeg, assetId, startDate,
+            maturityDate, (double) numberOfShares, CURRENCY, notional, 2, BusinessDayConventions.MODIFIED_FOLLOWING,
+            PeriodFrequency.QUARTERLY, RollConvention.NONE);
+        final StringBuilder sb = new StringBuilder(Long.toString(numberOfShares));
+        sb.append(" x ");
+        sb.append(equity.getCompanyName());
         sb.append(", 6m USD Libor + ");
         sb.append(FORMATTER.format(spread * 10000.));
         sb.append("bp");

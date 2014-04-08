@@ -36,8 +36,11 @@ import com.opengamma.examples.simulated.loader.ExampleHistoricalDataGeneratorToo
 import com.opengamma.examples.simulated.loader.ExampleHolidayLoader;
 import com.opengamma.examples.simulated.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.simulated.loader.ExampleViewsPopulator;
+<<<<<<< HEAD
 import com.opengamma.examples.simulated.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.convention.initializer.DefaultConventionMasterInitializer;
+=======
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
@@ -148,7 +151,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadEquityOptionPortfolio();
     loadFuturePortfolio();
     loadBondPortfolio();
-    loadLiborRawSecurities();
     loadSwaptionPortfolio();
     loadEURFixedIncomePortfolio();
     loadFXForwardPortfolio();
@@ -416,10 +418,89 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
+<<<<<<< HEAD
   private void loadLiborRawSecurities() {
     final Log log = new Log("Creating libor raw securities");
     try {
       PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext());
+=======
+  /**
+   * Loads a portfolio of bond TRS.
+   */
+  private void loadBondTotalReturnSwapPortfolio() {
+    final Log log = new Log("Creating example bond total return swap portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), BOND_TRS_PORTFOLIO_NAME, "BondTotalReturnSwap", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads a portfolio of equity TRS.
+   */
+  private void loadEquityTotalReturnSwapPortfolio() {
+    final Log log = new Log("Creating example equity total return swap portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), EQUITY_TRS_PORTFOLIO_NAME, "EquityTotalReturnSwap", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example exposure functions.
+   */
+  private void loadExposureFunctions() {
+    final Log log = new Log("Creating exposure functions");
+    try {
+      final ExampleExposureFunctionLoader exposureFunctionLoader = new ExampleExposureFunctionLoader();
+      exposureFunctionLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example FX implied curve construction configurations.
+   */
+  private void loadFXImpliedCurveConfigurations() {
+    final Log log = new Log("Creating FX implied curve construction configurations");
+    try {
+      final ExampleFXImpliedCurveConfigurationsLoader loader = new ExampleFXImpliedCurveConfigurationsLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example curve construction configurations.
+   */
+  private void loadCurveConfigurations() {
+    final Log log = new Log("Creating curve construction configurations");
+    try {
+      final ExampleCurveConfigurationsLoader loader = new ExampleCurveConfigurationsLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example Ugandan bond curve construction configurations.
+   */
+  private void loadUgandanBondCurveConfigurations() {
+    final Log log = new Log("Creating Ugandan bond curve construction configurations");
+    try {
+      final ExampleUgandanBondCurveConfigurationsLoader loader = new ExampleUgandanBondCurveConfigurationsLoader();
+      loader.run(getToolContext());
+>>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
