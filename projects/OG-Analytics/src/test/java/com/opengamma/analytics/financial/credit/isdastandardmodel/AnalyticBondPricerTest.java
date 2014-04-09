@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -15,6 +16,7 @@ import com.opengamma.analytics.financial.credit.options.YieldCurveProvider;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  * 
@@ -117,6 +119,150 @@ public class AnalyticBondPricerTest extends ISDABaseTest {
       //    System.out.println(cdsProtLeg);
       //    System.out.println(bondPrice + "\t" + bondPriceAsCDS);
       assertEquals(bondPriceAsCDS, bondPrice, 1e-15);
+    }
+  }
+
+  /**
+   * Bond and CDS coincide for certain setup
+   */
+  public void limitedCaseTest() {
+    final double tol = 1.e-12;
+    final AnalyticBondPricer bondPricer = new AnalyticBondPricer();
+    final AnalyticCDSPricer cdsPricer = new AnalyticCDSPricer();
+
+    final LocalDate tradeDate = LocalDate.of(2014, 2, 13);
+    final LocalDate startDate = LocalDate.of(2013, 12, 20);
+    final LocalDate endDate = LocalDate.of(2018, 12, 20);
+
+    final Period couponPrd = Period.ofMonths(6);
+    final StubType stubTp = StubType.FRONTSHORT;
+    final BusinessDayConvention bdConv = MOD_FOLLOWING;
+    final Calendar cal = DEFAULT_CALENDAR;
+    boolean ProtStart = false;
+    double rr = 0.;
+    final PriceType priceTp = PriceType.DIRTY;
+
+    final ISDACompliantYieldCurve yc = YieldCurveProvider.ISDA_USD_20140213;
+    final double hr = 0.2;
+    final ISDACompliantCreditCurve cc = new ISDACompliantCreditCurve(10., hr);
+    final double coupon = 0.1;
+    final ISDAPremiumLegSchedule schedule = new ISDAPremiumLegSchedule(startDate, endDate, couponPrd, stubTp, bdConv, cal, ProtStart);
+    final BondAnalytic bond = new BondAnalytic(tradeDate, coupon, schedule, rr, ACT360);
+    final CDSAnalytic cds = new CDSAnalytic(tradeDate, tradeDate.plusDays(1), tradeDate, startDate, endDate, false, couponPrd, stubTp,
+        ProtStart, 1. - rr, bdConv, cal, ACT360, DayCounts.ACT_365);
+
+    final double resBond1 = bondPricer.bondPriceForHazardRate(bond, yc, hr, priceTp);
+    final double resCDS1 = -cdsPricer.pv(cds, yc, cc, coupon, priceTp);
+    final double mat = bond.getPaymentTime(bond.getnPayments() - 1);
+    assertEquals((resCDS1 + 1. * yc.getDiscountFactor(mat) * cc.getDiscountFactor(mat)), resBond1, tol);
+    final double eqSp1 = bondPricer.getEquivalentCDSSpread(bond, yc, resBond1, priceTp, cds);
+    assertEquals(0., eqSp1, tol);
+
+    rr = 0.3;
+    ProtStart = true;
+    final CDSAnalytic cds2 = new CDSAnalytic(tradeDate, tradeDate.plusDays(1), tradeDate, startDate, endDate, false, couponPrd, stubTp,
+        ProtStart, 1. - rr, bdConv, cal, ACT360, DayCounts.ACT_365);
+    final BondAnalytic bond2 = new BondAnalytic(tradeDate, 0., schedule, rr, ACT360);
+    final double resBond2 = bondPricer.bondPriceForHazardRate(bond2, yc, hr, priceTp);
+    final double resCDS2 = cdsPricer.pv(cds2, yc, cc, 0., priceTp);
+    assertEquals((resCDS2 + 1. * yc.getDiscountFactor(mat) * cc.getDiscountFactor(mat)), resBond2, tol);
+    final double eqSp2 = bondPricer.getEquivalentCDSSpread(bond2, yc, resBond2, priceTp, cds2);
+    final double sp2 = cdsPricer.parSpread(cds2, yc, cc);
+    assertEquals(sp2, eqSp2, tol);
+  }
+
+  /**
+   * 
+   */
+  public void hazardRateTest() {
+    final double tol = 1.e-12;
+    final AnalyticBondPricer bondPricer = new AnalyticBondPricer();
+
+    final LocalDate tradeDate = LocalDate.of(2014, 2, 13);
+    final LocalDate startDate = LocalDate.of(2013, 12, 20);
+    final LocalDate endDate = LocalDate.of(2018, 12, 20);
+    final ISDACompliantYieldCurve yc = YieldCurveProvider.ISDA_USD_20140213;
+
+    final double coupon = 0.11;
+    double rr = 0.3;
+    final Period couponPrd = Period.ofMonths(6);
+    final StubType stubTp = StubType.FRONTSHORT;
+    final BusinessDayConvention bdConv = MOD_FOLLOWING;
+    final Calendar cal = DEFAULT_CALENDAR;
+    final boolean ProtStart = true;
+    final ISDAPremiumLegSchedule schedule = new ISDAPremiumLegSchedule(startDate, endDate, couponPrd, stubTp, bdConv, cal, ProtStart);
+    final BondAnalytic bond = new BondAnalytic(tradeDate, coupon, schedule, rr, ACT360);
+
+    final double hr = 0.15;
+    final double cleanPrice = bondPricer.bondPriceForHazardRate(bond, yc, hr, PriceType.CLEAN);
+    final double dirtyPrice = bondPricer.bondPriceForHazardRate(bond, yc, hr, PriceType.DIRTY);
+    final double hrClean = bondPricer.getHazardRate(bond, yc, cleanPrice, PriceType.CLEAN);
+    final double hrDirty = bondPricer.getHazardRate(bond, yc, dirtyPrice, PriceType.DIRTY);
+    assertEquals(hr, hrClean, tol);
+    assertEquals(hr, hrDirty, tol);
+
+    final double priceZero = bondPricer.bondPriceForHazardRate(bond, yc, 0., PriceType.DIRTY);
+    final double hrZero = bondPricer.getHazardRate(bond, yc, priceZero, PriceType.DIRTY);
+    assertEquals(0., hrZero, tol);
+
+    /*
+     * Exception thrown
+     */
+    try {
+      bondPricer.getHazardRate(bond, yc, priceZero * 2., PriceType.CLEAN);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+    try {
+      bondPricer.getHazardRate(bond, yc, bond.getRecoveryRate() * 0.5, PriceType.DIRTY);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("The dirty price of " + bond.getRecoveryRate() * 0.5 + " give, is less than the bond's recovery rate of " + bond.getRecoveryRate() + ". Please check inputs", e.getMessage());
+    }
+    try {
+      bondPricer.getHazardRate(bond, yc, -cleanPrice, PriceType.CLEAN);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Bond price must be positive", e.getMessage());
+    }
+  }
+
+  /**
+   * 
+   */
+  public void exceptionalBranchTest() {
+    final double tol = 1.e-12;
+    final AnalyticBondPricer bondPricer = new AnalyticBondPricer();
+
+    final LocalDate tradeDate = LocalDate.of(2014, 2, 13);
+    final LocalDate startDate = LocalDate.of(2013, 12, 20);
+    final LocalDate endDate = LocalDate.of(2014, 12, 20);
+    final double coupon = 0.11;
+    double rr = 0.3;
+    final Period couponPrd = Period.ofMonths(6);
+    final StubType stubTp = StubType.FRONTSHORT;
+    final BusinessDayConvention bdConv = MOD_FOLLOWING;
+    final Calendar cal = DEFAULT_CALENDAR;
+    final boolean ProtStart = true;
+    final ISDAPremiumLegSchedule schedule = new ISDAPremiumLegSchedule(startDate, endDate, couponPrd, stubTp, bdConv, cal, ProtStart);
+    final BondAnalytic bond = new BondAnalytic(tradeDate, coupon, schedule, rr, ACT360);
+    final double bondPaymentTimeLast = bond.getPaymentTime(bond.getnPayments() - 1);
+
+    final double hr = 0.11;
+    final ISDACompliantYieldCurve yc1 = new ISDACompliantYieldCurve(new double[] {0.3 * bondPaymentTimeLast, 0.7 * bondPaymentTimeLast,
+        bondPaymentTimeLast, 1.2 * bondPaymentTimeLast, 2. * bondPaymentTimeLast }, new double[] {-hr, 0.11, 0.044, 0.1, 0.12 });
+    final ISDACompliantYieldCurve yc2 = new ISDACompliantYieldCurve(new double[] {1.1 * bondPaymentTimeLast, 1.2 * bondPaymentTimeLast,
+        1.3 * bondPaymentTimeLast, 1.5 * bondPaymentTimeLast, 2.1 * bondPaymentTimeLast }, new double[] {0.1, 0.11, 0.08, 0.12, 0.12 });
+    final ISDACompliantYieldCurve yc3 = new ISDACompliantYieldCurve(new double[] {bondPaymentTimeLast, 1.2 * bondPaymentTimeLast,
+        1.3 * bondPaymentTimeLast, 1.5 * bondPaymentTimeLast, 2.1 * bondPaymentTimeLast }, new double[] {0.12, 0.11, 0.08, 0.12, 0.12 });
+    final ISDACompliantYieldCurve[] ycArr = new ISDACompliantYieldCurve[] {yc1, yc2, yc3 };
+    final int nyc = ycArr.length;
+
+    for (int i = 0; i < nyc; ++i) {
+      final double bondPrice = bondPricer.bondPriceForHazardRate(bond, ycArr[i], hr, PriceType.CLEAN);
+      final double impliedHr = bondPricer.getHazardRate(bond, ycArr[i], bondPrice, PriceType.CLEAN);
+      assertEquals(hr, impliedHr, tol);
     }
   }
 
