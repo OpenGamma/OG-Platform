@@ -40,7 +40,7 @@ public class ParameterSensitivityMulticurveUnderlyingMatrixCalculator extends Pa
    * @param sensitivity The point sensitivity.
    * @param multicurves The multi-curve provider. Not null.
    * @param sensicurveNamesSet The set of curves for which the sensitivity will be computed. Not null.
-   * @return The sensitivity (as a ParameterSensitivity). ??The order of the sensitivity is by curve as provided by the curvesSet??
+   * @return The sensitivity (as a ParameterSensitivity). The order of the sensitivity is by curve as provided by the sensicurveNamesSet.
    */
   @Override
   public DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final MulticurveProviderInterface multicurves, final Set<String> sensicurveNamesSet) {
@@ -132,7 +132,7 @@ public class ParameterSensitivityMulticurveUnderlyingMatrixCalculator extends Pa
       final int num = multicurveNum.get(name);
       // Direct sensitivity
       for (int loopi = 0; loopi < nbNewParameters[num]; loopi++) {
-        sensiClean[num][loopi] = sensiDirty[num][startOwnParameter[num] + loopi];
+        sensiClean[num][loopi] += sensiDirty[num][startOwnParameter[num] + loopi];
       }
       // Underlying (indirect) sensitivity
       for (int loopu = 0; loopu < startUnderlyingParameter[num].length; loopu++) {

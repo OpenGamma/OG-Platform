@@ -90,7 +90,7 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
       Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR); // Log-linear on the discount factor = step on the instantaneous rates
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
-  private static final double TOLERANCE_ROOT = 1.0E-10;
+  private static final double TOLERANCE_ROOT = 1.0E-12;
   private static final int STEP_MAX = 100;
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -526,8 +526,8 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
 
   @Test(enabled = true)
   public void jacobianMatrixFor2Curves() {
-    final double toleranceDelta = 1.0E+1;
-    final double shift = 1.0E-4;
+    final double toleranceDelta = 1.0E-6;
+    final double shift = 1.0E-6;
     // Explicit matrix
     final CurveBuildingBlock blockDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(6).getSecond().getBlock(CURVE_NAME_DSC_USD).getFirst();
     final CurveBuildingBlock blockFwd3 = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(6).getSecond().getBlock(CURVE_NAME_FWD3_USD).getFirst();
@@ -536,6 +536,8 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
     final int nbParamDsc = DSC_USD_MARKET_QUOTES.length;
     final int nbParamFwd3 = FWD3_USD_MARKET_QUOTES_3.length;
     // Finite difference matrix - DSC
+    final double[][] parameterDeltaFDDsc = new double[nbParamDsc][nbParamDsc + nbParamFwd3];
+    final double[][] parameterDeltaFDFwd3 = new double[nbParamFwd3][nbParamDsc + nbParamFwd3];
     for (int loopnodedsc = 0; loopnodedsc < nbParamDsc; loopnodedsc++) {
       // Shift data - PLUS
       final double[] dscMarketQuoteShifted = DSC_USD_MARKET_QUOTES.clone();
@@ -555,19 +557,49 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
       final Double[] parametersDscDscP = ((YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) curveBlockP.getFirst().getCurve(CURVE_NAME_DSC_USD)).getCurves()[1]).getCurve().getYData();
       final Double[] parametersDscFwd3P = ((YieldCurve) curveBlockP.getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
       // Finite Difference
-      final double[] parameterDeltaFDDsc = new double[nbParamDsc];
+      //      final double[] parameterDeltaFDDsc = new double[nbParamDsc];
       for (int loopdsc = 0; loopdsc < nbParamDsc; loopdsc++) {
-        parameterDeltaFDDsc[loopdsc] = (parametersDscDscP[loopdsc] - parametersDscDscM[loopdsc]) / (2 * shift);
-        assertEquals("MulticurveBuildingDiscounting Jacobian - Dsc-Dsc - " + loopdsc, pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc], parameterDeltaFDDsc[loopdsc],
-            toleranceDelta);
-        System.out.println(loopdsc + " " + loopnodedsc + " difference " + (pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] - parameterDeltaFDDsc[loopdsc]));
-        System.out.println(loopdsc + " " + loopnodedsc + " difference " + (pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] - parameterDeltaFDDsc[loopdsc]));
+        parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] = (parametersDscDscP[loopdsc] - parametersDscDscM[loopdsc]) / (2 * shift);
+        assertEquals("MulticurveBuildingDiscounting Jacobian - Dsc-Dsc: " + loopnodedsc + " - " + loopdsc, pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc],
+            parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc], toleranceDelta);
+        //        System.out.println(loopdsc + " " + loopnodedsc + " difference " +
+        //            (pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] - parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc]));
       }
-      final double[] parameterDeltaFDFwd3 = new double[nbParamFwd3];
       for (int loopfwd3 = 0; loopfwd3 < nbParamFwd3; loopfwd3++) {
-        parameterDeltaFDFwd3[loopfwd3] = (parametersDscFwd3P[loopfwd3] - parametersDscFwd3M[loopfwd3]) / (2 * shift);
-        assertEquals("MulticurveBuildingDiscounting Jacobian - Dsc-Fwd3 - " + loopfwd3, pfwd3Dm[loopfwd3][blockFwd3.getStart(CURVE_NAME_DSC_USD) + loopnodedsc], parameterDeltaFDFwd3[loopfwd3],
-            toleranceDelta);
+        parameterDeltaFDFwd3[loopfwd3][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] = (parametersDscFwd3P[loopfwd3] - parametersDscFwd3M[loopfwd3]) / (2 * shift);
+        assertEquals("MulticurveBuildingDiscounting Jacobian - Dsc-Fwd3 - " + loopnodedsc + " - " + loopfwd3, pfwd3Dm[loopfwd3][blockFwd3.getStart(CURVE_NAME_DSC_USD) + loopnodedsc],
+            parameterDeltaFDFwd3[loopfwd3][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc], toleranceDelta);
+      }
+    }
+    // Finite difference matrix - FWD3
+    for (int loopnodefwd3 = 0; loopnodefwd3 < nbParamFwd3; loopnodefwd3++) {
+      // Shift data - PLUS
+      final double[] fwd3MarketQuoteShifted = FWD3_USD_MARKET_QUOTES_3.clone();
+      fwd3MarketQuoteShifted[loopnodefwd3] -= shift;
+      final InstrumentDefinition<?>[][][] definitionFwd3M =
+          new InstrumentDefinition<?>[][][] {{getDefinitions(fwd3MarketQuoteShifted, FWD3_USD_GENERATORS_3, FWD3_USD_ATTR_3), DEFINITIONS_DSC_USD } };
+      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> curveBlockM = makeCurvesFromDefinitions(definitionFwd3M, GENERATORS_UNITS[6], NAMES_UNITS[6], KNOWN_DATA,
+          PSMQC, PSMQCSC, false);
+      final Double[] parametersFwd3DscM = ((YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) curveBlockM.getFirst().getCurve(CURVE_NAME_DSC_USD)).getCurves()[1]).getCurve().getYData();
+      final Double[] parametersFwd3Fwd3M = ((YieldCurve) curveBlockM.getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
+      // Shift data - MINUS
+      fwd3MarketQuoteShifted[loopnodefwd3] += 2 * shift;
+      final InstrumentDefinition<?>[][][] definitionFwd3P =
+          new InstrumentDefinition<?>[][][] {{getDefinitions(fwd3MarketQuoteShifted, FWD3_USD_GENERATORS_3, FWD3_USD_ATTR_3), DEFINITIONS_DSC_USD } };
+      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> curveBlockP = makeCurvesFromDefinitions(definitionFwd3P, GENERATORS_UNITS[6], NAMES_UNITS[6], KNOWN_DATA,
+          PSMQC, PSMQCSC, false);
+      final Double[] parametersFwd3DscP = ((YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) curveBlockP.getFirst().getCurve(CURVE_NAME_DSC_USD)).getCurves()[1]).getCurve().getYData();
+      final Double[] parametersFwd3Fwd3P = ((YieldCurve) curveBlockP.getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
+      // Finite Difference
+      for (int loopdsc = 0; loopdsc < nbParamDsc; loopdsc++) {
+        parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_FWD3_USD) + loopnodefwd3] = (parametersFwd3DscP[loopdsc] - parametersFwd3DscM[loopdsc]) / (2 * shift);
+        assertEquals("MulticurveBuildingDiscounting Jacobian - Fwd3-Dsc - " + loopdsc, pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_FWD3_USD) + loopnodefwd3],
+            parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_FWD3_USD) + loopnodefwd3], toleranceDelta);
+      }
+      for (int loopfwd3 = 0; loopfwd3 < nbParamFwd3; loopfwd3++) {
+        parameterDeltaFDFwd3[loopfwd3][blockDsc.getStart(CURVE_NAME_FWD3_USD) + loopnodefwd3] = (parametersFwd3Fwd3P[loopfwd3] - parametersFwd3Fwd3M[loopfwd3]) / (2 * shift);
+        assertEquals("MulticurveBuildingDiscounting Jacobian - Fwd3-Fwd3: " + loopnodefwd3 + " - " + loopfwd3, pfwd3Dm[loopfwd3][blockFwd3.getStart(CURVE_NAME_FWD3_USD) + loopnodefwd3],
+            parameterDeltaFDFwd3[loopfwd3][blockDsc.getStart(CURVE_NAME_FWD3_USD) + loopnodefwd3], toleranceDelta);
       }
     }
   }
