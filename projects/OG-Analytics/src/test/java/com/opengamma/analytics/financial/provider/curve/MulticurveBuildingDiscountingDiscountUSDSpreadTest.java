@@ -524,7 +524,7 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void jacobianMatrixFor2Curves() {
     final double toleranceDelta = 1.0E+1;
     final double shift = 1.0E-4;
