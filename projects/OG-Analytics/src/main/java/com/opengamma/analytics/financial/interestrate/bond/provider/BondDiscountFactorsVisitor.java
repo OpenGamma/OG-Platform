@@ -17,9 +17,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 
 /**
- * 
+ * Returns the discount factors for each payment of a bond.
  */
-public class BondDiscountFactorsVisitor extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, double[]> {
+public final class BondDiscountFactorsVisitor extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, double[]> {
   /** A singleton instance */
   private static final InstrumentDerivativeVisitor<IssuerProviderInterface, double[]> INSTANCE = new BondDiscountFactorsVisitor();
 

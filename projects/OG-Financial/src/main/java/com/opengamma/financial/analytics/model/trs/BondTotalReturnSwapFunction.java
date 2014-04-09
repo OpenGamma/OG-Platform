@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.trs;
+package com.opengamma.financial.analytics.model.trs;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.convention.ConventionSource;

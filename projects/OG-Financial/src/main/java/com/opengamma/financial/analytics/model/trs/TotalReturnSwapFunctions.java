@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.trs;
+package com.opengamma.financial.analytics.model.trs;
 
 import java.util.List;
 
@@ -26,7 +26,13 @@ public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean 
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(BondTotalReturnSwapAssetLegDetailsFunction.class));
+    functions.add(functionConfiguration(BondTotalReturnSwapAssetLegPVFunction.class));
+    functions.add(functionConfiguration(BondTotalReturnSwapFundingLegDetailsFunction.class));
+    functions.add(functionConfiguration(BondTotalReturnSwapGammaPV01Function.class));
+    functions.add(functionConfiguration(BondTotalReturnSwapFundingLegPVFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapPVFunction.class));
+    functions.add(functionConfiguration(BondTotalReturnSwapPV01Function.class));
 
     functions.add(functionConfiguration(EquityTotalReturnSwapAssetLegPVFunction.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapFundingLegDetailsFunction.class));

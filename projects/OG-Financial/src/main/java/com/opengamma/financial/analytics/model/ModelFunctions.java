@@ -29,7 +29,6 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.discounting.DiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
-import com.opengamma.financial.analytics.model.equity.trs.TotalReturnSwapFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
@@ -46,6 +45,7 @@ import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFuncti
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
 import com.opengamma.financial.analytics.model.timeseries.TimeSeriesFunctions;
+import com.opengamma.financial.analytics.model.trs.TotalReturnSwapFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.VolatilityFunctions;
 

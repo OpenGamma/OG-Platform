@@ -3,11 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.trs;
+package com.opengamma.financial.analytics.model.trs;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_PV;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -15,11 +20,11 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.equity.EqyTrsFundingLegPresentValueCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.BondTrsFundingLegPresentValueCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -30,26 +35,27 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of the funding leg of an equity total return swap security.
+ * Calculates the present value of the funding leg of a bond total return swap security.
  */
-public class EquityTotalReturnSwapFundingLegPVFunction extends EquityTotalReturnSwapFunction {
+public class BondTotalReturnSwapFundingLegPVFunction extends BondTotalReturnSwapFunction {
   /** The calculator */
-  private static final InstrumentDerivativeVisitor<EquityTrsDataBundle, MultipleCurrencyAmount> CALCULATOR =
-      EqyTrsFundingLegPresentValueCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+      BondTrsFundingLegPresentValueCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#FUNDING_LEG_PV}.
    */
-  public EquityTotalReturnSwapFundingLegPVFunction() {
+  public BondTotalReturnSwapFundingLegPVFunction() {
     super(FUNDING_LEG_PV);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new EquityTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new BondTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @SuppressWarnings("synthetic-access")
       @Override
@@ -57,7 +63,7 @@ public class EquityTotalReturnSwapFundingLegPVFunction extends EquityTotalReturn
           final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
         final ValueSpecification spec = new ValueSpecification(FUNDING_LEG_PV, target.toSpecification(), properties);
-        final EquityTrsDataBundle data = getDataBundle(inputs, fxMatrix);
+        final IssuerProviderInterface data = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final MultipleCurrencyAmount pv = derivative.accept(CALCULATOR, data);
         final String expectedCurrency = spec.getProperty(CURRENCY);
         if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
@@ -65,6 +71,18 @@ public class EquityTotalReturnSwapFundingLegPVFunction extends EquityTotalReturn
         }
         return Collections.singleton(new ComputedValue(spec, pv.getCurrencyAmounts()[0].getAmount()));
       }
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final BondTotalReturnSwapSecurity security = (BondTotalReturnSwapSecurity) target.getTrade().getSecurity();
+        final ValueProperties.Builder properties = createValueProperties()
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+            .withAny(CURVE_EXPOSURES)
+            .with(CURRENCY, security.getFundingLeg().getNotional().getCurrency().getCode());
+        return Collections.singleton(properties);
+      }
+
     };
   }
 

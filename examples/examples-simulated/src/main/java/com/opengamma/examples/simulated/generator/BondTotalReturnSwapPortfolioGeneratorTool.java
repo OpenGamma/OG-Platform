@@ -115,7 +115,7 @@ public class BondTotalReturnSwapPortfolioGeneratorTool extends AbstractPortfolio
       final double notional = 1000000. * (1 + rng.nextInt(10));
       final double spread = 0.002 + rng.nextInt(100) / 10000.;
       final FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
-      leg.setNotional(new InterestRateSwapNotional(CURRENCY, notional));
+      leg.setNotional(new InterestRateSwapNotional(Currency.USD, notional));
       leg.setDayCountConvention(DayCounts.ACT_360);
       leg.setPaymentDateFrequency(FREQUENCY);
       leg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);

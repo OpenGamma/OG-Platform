@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.trs;
+package com.opengamma.financial.analytics.model.trs;
 
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_DETAILS;
@@ -16,10 +16,9 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.equity.EquityTotalReturnSwap;
-import com.opengamma.analytics.financial.equity.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixedRatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityPaymentAmountsVisitor;
@@ -27,6 +26,7 @@ import com.opengamma.analytics.financial.interestrate.AnnuityPaymentFractionsVis
 import com.opengamma.analytics.financial.interestrate.AnnuityPaymentTimesVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityAccrualDatesVisitor;
 import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityFixingDatesVisitor;
 import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityFixingYearFractionsVisitor;
@@ -39,7 +39,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityDiscountFactorsVisitor;
 import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityForwardRatesVisitor;
 import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityProjectedPaymentsVisitor;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -60,20 +60,20 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Produces information about the cash-flows of the funding leg of an equity total return swap.
+ * Produces information about the cash-flows of the funding leg of a bond total return swap.
  */
-public class EquityTotalReturnSwapFundingLegDetailsFunction extends EquityTotalReturnSwapFunction {
+public class BondTotalReturnSwapFundingLegDetailsFunction extends BondTotalReturnSwapFunction {
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#FUNDING_LEG_DETAILS}.
    */
-  public EquityTotalReturnSwapFundingLegDetailsFunction() {
+  public BondTotalReturnSwapFundingLegDetailsFunction() {
     super(FUNDING_LEG_DETAILS);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new EquityTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
+    return new BondTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -83,11 +83,11 @@ public class EquityTotalReturnSwapFundingLegDetailsFunction extends EquityTotalR
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
         final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
         final Trade trade = target.getTrade();
-        final MulticurveProviderInterface data = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final IssuerProviderInterface data = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final ValueSpecification spec = new ValueSpecification(FUNDING_LEG_DETAILS, target.toSpecification(), properties);
-        final EquityTotalReturnSwapDefinition trsDefinition = (EquityTotalReturnSwapDefinition) getTargetToDefinitionConverter(context).convert(trade);
+        final BondTotalReturnSwapDefinition trsDefinition = (BondTotalReturnSwapDefinition) getTargetToDefinitionConverter(context).convert(trade);
         final AnnuityDefinition<? extends PaymentDefinition> definition = trsDefinition.getFundingLeg();
-        final Annuity<? extends Payment> derivative = ((EquityTotalReturnSwap) getDerivative(target, now, timeSeries, trsDefinition)).getFundingLeg();
+        final Annuity<? extends Payment> derivative = ((BondTotalReturnSwap) getDerivative(target, now, timeSeries, trsDefinition)).getFundingLeg();
         final LocalDate localDate = now.toLocalDate();
         final CurrencyAmount[] notionals = definition.accept(AnnuityNotionalsVisitor.getInstance(), localDate);
         final Pair<LocalDate[], LocalDate[]> accrualDates = definition.accept(AnnuityAccrualDatesVisitor.getInstance(), localDate);
@@ -95,12 +95,12 @@ public class EquityTotalReturnSwapFundingLegDetailsFunction extends EquityTotalR
         final double[] paymentFractions = derivative.accept(AnnuityPaymentFractionsVisitor.getInstance());
         final CurrencyAmount[] paymentAmounts = derivative.accept(AnnuityPaymentAmountsVisitor.getInstance());
         final Double[] fixedRates = derivative.accept(AnnuityFixedRatesVisitor.getInstance());
-        final double[] discountFactors = derivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), data);
+        final double[] discountFactors = derivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), data.getMulticurveProvider());
         final Pair<LocalDate[], LocalDate[]> fixingDates = definition.accept(AnnuityFixingDatesVisitor.getInstance(), localDate);
         final Double[] fixingYearFractions = definition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), localDate);
-        final Double[] forwardRates = derivative.accept(AnnuityForwardRatesVisitor.getInstance(), data);
+        final Double[] forwardRates = derivative.accept(AnnuityForwardRatesVisitor.getInstance(), data.getMulticurveProvider());
         final LocalDate[] paymentDates = definition.accept(AnnuityPaymentDatesVisitor.getInstance(), localDate);
-        final CurrencyAmount[] projectedAmounts = derivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), data);
+        final CurrencyAmount[] projectedAmounts = derivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), data.getMulticurveProvider());
         final double[] spreads = definition.accept(AnnuitySpreadsVisitor.getInstance(), localDate);
         final double[] gearings = definition.accept(AnnuityGearingsVisitor.getInstance(), localDate);
         final Tenor[] indexTenors = definition.accept(AnnuityIndexTenorsVisitor.getInstance(), localDate);

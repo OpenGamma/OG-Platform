@@ -28,6 +28,7 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapLeg;
@@ -42,6 +43,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -50,7 +53,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Obtain notional from a security, null in not applicable.
+ * Obtain notional from a security, null if not applicable.
  */
 public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmount> {
 
@@ -228,14 +231,20 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
     final Currency currency = security.getCurrency();
     return CurrencyAmount.of(currency, security.getUnitAmount());
   }
-  
+
+  @Override
+  public CurrencyAmount visitMetalFutureSecurity(final MetalFutureSecurity security) {
+    final Currency currency = security.getCurrency();
+    return CurrencyAmount.of(currency, security.getUnitAmount());
+  }
+
   @Override
   public CurrencyAmount visitBondFutureSecurity(final BondFutureSecurity security) {
     final Currency currency = security.getCurrency();
     final double notional = security.getUnitAmount();
     return CurrencyAmount.of(currency, notional);
   }
-  
+
   @Override
   public CurrencyAmount visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     final Currency currency = security.getCurrency();
@@ -302,5 +311,15 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   @Override
   public CurrencyAmount visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
     return CurrencyAmount.of(security.getCurrency(), security.getAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+    return CurrencyAmount.of(security.getNotionalCurrency(), security.getNotionalAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return CurrencyAmount.of(security.getNotionalCurrency(), security.getNotionalAmount());
   }
 }

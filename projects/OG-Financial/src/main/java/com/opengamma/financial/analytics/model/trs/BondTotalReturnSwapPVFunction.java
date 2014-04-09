@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.trs;
+package com.opengamma.financial.analytics.model.trs;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
-import static com.opengamma.engine.value.ValueRequirementNames.VALUE_DELTA;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
+import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,11 +16,11 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.equity.EqyTrsValueDeltaCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.BondTrsPresentValueCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -33,37 +34,37 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the value delta of an equity total return swap security.
+ * Calculates the present value of a bond total return swap security.
  */
-public class EquityTotalReturnSwapValueDeltaFunction extends EquityTotalReturnSwapFunction {
+public class BondTotalReturnSwapPVFunction extends BondTotalReturnSwapFunction {
   /** The calculator */
-  private static final InstrumentDerivativeVisitor<EquityTrsDataBundle, MultipleCurrencyAmount> CALCULATOR =
-      EqyTrsValueDeltaCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+      BondTrsPresentValueCalculator.getInstance();
 
   /**
-   * Sets the value requirement to {@link ValueRequirementNames#VALUE_DELTA}.
+   * Sets the value requirement to {@link ValueRequirementNames#PRESENT_VALUE}.
    */
-  public EquityTotalReturnSwapValueDeltaFunction() {
-    super(VALUE_DELTA);
+  public BondTotalReturnSwapPVFunction() {
+    super(PRESENT_VALUE);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new EquityTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new BondTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @SuppressWarnings("synthetic-access")
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
-        final ValueSpecification spec = new ValueSpecification(VALUE_DELTA, target.toSpecification(), properties);
-        final EquityTrsDataBundle data = getDataBundle(inputs, fxMatrix);
-        final MultipleCurrencyAmount valueDelta = derivative.accept(CALCULATOR, data);
+        final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
+        final IssuerProviderInterface data = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final MultipleCurrencyAmount pv = derivative.accept(CALCULATOR, data);
         final String expectedCurrency = spec.getProperty(CURRENCY);
-        if (valueDelta.size() != 1 || !(expectedCurrency.equals(valueDelta.getCurrencyAmounts()[0].getCurrency().getCode()))) {
+        if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
           throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);
         }
-        return Collections.singleton(new ComputedValue(spec, valueDelta.getCurrencyAmounts()[0].getAmount()));
+        return Collections.singleton(new ComputedValue(spec, pv.getCurrencyAmounts()[0].getAmount()));
       }
     };
   }

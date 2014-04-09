@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -62,8 +63,11 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
+import com.opengamma.financial.security.bond.BillSecurity;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.index.PriceIndex;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -77,15 +81,34 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
+  /** The config source */
+  private final ConfigSource _configSource;
 
   /**
    * @param securitySource The security source. Not null.
    * @param conventionSource The convention source, not null
    */
   public CurveNodeCurrencyVisitor(final ConventionSource conventionSource, final SecuritySource securitySource) {
-    ArgumentChecker.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(conventionSource, "conventionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
     _conventionSource = conventionSource;
     _securitySource = securitySource;
+    _configSource = null;
+  }
+
+  /**
+   * @param securitySource The security source. Not null.
+   * @param conventionSource The convention source, not null
+   * @param configSource The config source, not null
+   */
+  public CurveNodeCurrencyVisitor(final ConventionSource conventionSource, final SecuritySource securitySource,
+      final ConfigSource configSource) {
+    ArgumentChecker.notNull(conventionSource, "conventionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(configSource, "configSource");
+    _conventionSource = conventionSource;
+    _securitySource = securitySource;
+    _configSource = configSource;
   }
 
   /**
@@ -105,23 +128,37 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   /**
-   * {@inheritDoc}
-   * Bill nodes point to a real security in the database, so the currency information is not available
-   * in the node itself.
+   * Gets the config source.
+   * @return The config source
    */
-  @Override
-  public Set<Currency> visitBillNode(final BillNode node) {
-    return Collections.emptySet();
+  protected ConfigSource getConfigSource() {
+    return _configSource;
   }
 
-  /**
-   * {@inheritDoc}
-   * Bond nodes point to a real security in the database, so the currency information is not available
-   * in the node itself.
-   */
+  @Override
+  public Set<Currency> visitBillNode(final BillNode node) {
+    if (_configSource == null) {
+      throw new OpenGammaRuntimeException("Config source was null");
+    }
+    final CurveNodeIdMapper idMapper = _configSource.getSingle(CurveNodeIdMapper.class, node.getCurveNodeIdMapperName(), VersionCorrection.LATEST);
+    final Security security = _securitySource.getSingle(idMapper.getBondNodeId(null, node.getMaturityTenor()).toBundle()); // curve date is not relevant for bonds
+    if (security instanceof BillSecurity) {
+      return Collections.singleton(((BillSecurity) security).getCurrency());
+    }
+    throw new OpenGammaRuntimeException("Security underlying nill node " + node + " was not a bill");
+  }
+
   @Override
   public Set<Currency> visitBondNode(final BondNode node) {
-    return Collections.emptySet();
+    if (_configSource == null) {
+      throw new OpenGammaRuntimeException("Config source was null");
+    }
+    final CurveNodeIdMapper idMapper = _configSource.getSingle(CurveNodeIdMapper.class, node.getCurveNodeIdMapperName(), VersionCorrection.LATEST);
+    final Security security = _securitySource.getSingle(idMapper.getBondNodeId(null, node.getMaturityTenor()).toBundle()); // curve date is not relevant for bonds
+    if (security instanceof BondSecurity) {
+      return Collections.singleton(((BondSecurity) security).getCurrency());
+    }
+    throw new OpenGammaRuntimeException("Security underlying bond node " + node + " was not a bond");
   }
 
   @Override

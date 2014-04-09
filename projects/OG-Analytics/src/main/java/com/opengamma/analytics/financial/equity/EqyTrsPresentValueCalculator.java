@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.equity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -37,7 +38,10 @@ public final class EqyTrsPresentValueCalculator extends InstrumentDerivativeVisi
     ArgumentChecker.notNull(equityTrs, "equityTrs");
     ArgumentChecker.notNull(data, "data");
     final MultipleCurrencyAmount fundingLegPV = equityTrs.getFundingLeg().accept(PresentValueDiscountingCalculator.getInstance(), data.getCurves());
+    final Currency fundingCurrency = equityTrs.getFundingLeg().getCurrency();
     final CurrencyAmount equityPV = CurrencyAmount.of(equityTrs.getNotionalCurrency(), data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares());
-    return fundingLegPV.plus(equityPV);
+    final Currency equityCurrency = equityTrs.getEquity().getCurrency();
+    final double fxRate = data.getCurves().getFxRate(equityCurrency, fundingCurrency);
+    return MultipleCurrencyAmount.of(equityPV.plus(CurrencyAmount.of(equityCurrency, -fundingLegPV.getAmount(fundingCurrency) * fxRate)));
   }
 }

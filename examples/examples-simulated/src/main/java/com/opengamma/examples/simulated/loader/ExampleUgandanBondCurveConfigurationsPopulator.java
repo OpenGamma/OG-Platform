@@ -86,7 +86,8 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     curveTypes.put(CURVE_NAME, Arrays.asList(discountingCurveType, issuerCurveType));
     final CurveGroupConfiguration group = new CurveGroupConfiguration(0, curveTypes);
     final List<CurveGroupConfiguration> groups = Arrays.asList(group);
-    return new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIG_NAME, groups, Collections.<String>emptyList());
+    final List<String> exogenousConfig = Collections.singletonList("Default USD Curves");
+    return new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIG_NAME, groups, exogenousConfig);
   }
 
   /**

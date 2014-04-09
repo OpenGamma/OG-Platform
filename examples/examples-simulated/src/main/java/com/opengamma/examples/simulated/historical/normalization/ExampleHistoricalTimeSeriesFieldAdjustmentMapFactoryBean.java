@@ -14,9 +14,9 @@ import com.opengamma.util.spring.SpringFactoryBean;
  * Spring factory bean for {@code HistoricalTimeSeriesFieldAdjustmentMap}.
  */
 public class ExampleHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends SpringFactoryBean<HistoricalTimeSeriesFieldAdjustmentMap> {
-  /** Value that the {@link MarketDataRequirementName#MARKET_VALUE} field is adjusted into */
+  /** Value that the {@link MarketDataRequirementNames#MARKET_VALUE} field is adjusted into */
   private static final String LAST_PRICE = "CLOSE";
-  /** Value that the {@link MarketDataRequirementName#YIELD_YIELD_TO_MATURITY_MID} field is adjusted into */
+  /** Value that the {@link MarketDataRequirementNames#YIELD_YIELD_TO_MATURITY_MID} field is adjusted into */
   private static final String LAST_YIELD = "YIELD_CLOSE";
 
   /**
