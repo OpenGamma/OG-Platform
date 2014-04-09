@@ -37,7 +37,7 @@ public class IntrinsicIndexDataBundleTest extends ISDABaseTest {
     final int indexSize = CREDIT_CURVES.length;
     BitSet defaulted = new BitSet(indexSize);
     IntrinsicIndexDataBundle intrinsicData = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES);
-    IntrinsicIndexDataBundle intrinsicDataNoDefault = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, defaulted);
+    final IntrinsicIndexDataBundle intrinsicDataNoDefault = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, defaulted);
     assertTrue(checkEqual(intrinsicData, intrinsicDataNoDefault, 1.e-15));
 
     final double[] rrCp = Arrays.copyOf(RECOVERY_RATES, indexSize);
@@ -77,6 +77,29 @@ public class IntrinsicIndexDataBundleTest extends ISDABaseTest {
     /*
      * throw exception
      */
+    BitSet longSet = new BitSet(indexSize + 10);
+    longSet.set(indexSize + 3);
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, longSet);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of defaulted (" + (indexSize + 3 + 1) + ") is greater than index size (" + indexSize + ")", e.getMessage());
+    }
+
+    final double[] shortRR = Arrays.copyOf(RECOVERY_RATES, indexSize - 1);
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, shortRR);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of recoveryRates (" + (indexSize - 1) + ") does not match index size (" + indexSize + ")", e.getMessage());
+    }
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, shortRR, defaulted);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of recoveryRates (" + (indexSize - 1) + ") does not match index size (" + indexSize + ")", e.getMessage());
+    }
+
     creditCurveDefaulted[12] = null;
     try {
       intrinsicData.withCreditCurves(creditCurveDefaulted);
@@ -115,6 +138,26 @@ public class IntrinsicIndexDataBundleTest extends ISDABaseTest {
     } catch (final Exception e) {
       assertEquals("Index " + 22 + " is already defaulted", e.getMessage());
     }
+
+    final ISDACompliantCreditCurve[] shortCC = Arrays.copyOf(CREDIT_CURVES, indexSize - 2);
+    try {
+      intrinsicDataNoDefault.withCreditCurves(shortCC);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("wrong number of curves. Require " + indexSize + ", but " + (indexSize - 2) + " given", e.getMessage());
+    }
+    try {
+      intrinsicDataNoDefault.withDefault(indexSize);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("index (" + indexSize + ") should be smaller than index size (" + indexSize + ")", e.getMessage());
+    }
+    try {
+      intrinsicDataNoDefault.withDefault(1, 4, indexSize + 2);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("index (" + (indexSize + 2) + ") should be smaller than index size (" + indexSize + ")", e.getMessage());
+    }
   }
 
   /**
@@ -148,11 +191,16 @@ public class IntrinsicIndexDataBundleTest extends ISDABaseTest {
     IntrinsicIndexDataBundle bundleToDefaulted = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, weights);
 
     BitSet defaulted = new BitSet(indexSize);
+    final IntrinsicIndexDataBundle bundleNoDefault = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, weights, defaulted);
+    assertTrue(checkEqual(bundle, bundleNoDefault, 1.e-13));
+
+    final ISDACompliantCreditCurve[] ccCopy = Arrays.copyOf(CREDIT_CURVES, indexSize);
+    ccCopy[defaultedIndex[1]] = null;//null is allowed if defaulted
     for (int i = 0; i < defaultedIndex.length; ++i) {
       defaulted.set(defaultedIndex[i]);
       bundleToDefaulted = bundleToDefaulted.withDefault(defaultedIndex[i]);
     }
-    final IntrinsicIndexDataBundle bundleWithBitSet = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, weights, defaulted);
+    final IntrinsicIndexDataBundle bundleWithBitSet = new IntrinsicIndexDataBundle(ccCopy, RECOVERY_RATES, weights, defaulted);
 
     assertTrue(checkEqual(bundleWithBitSet, bundleDefaulted, 1.e-13));
     assertTrue(checkEqual(bundleWithBitSet, bundleToDefaulted, 1.e-13));
@@ -160,6 +208,43 @@ public class IntrinsicIndexDataBundleTest extends ISDABaseTest {
     /*
      * throw exception
      */
+    BitSet longSet = new BitSet(indexSize + 10);
+    longSet.set(indexSize + 4);
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, weights, longSet);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of defaulted (" + (indexSize + 4 + 1) + ") is greater than index size (" + indexSize + ")", e.getMessage());
+    }
+
+    final double[] shortRR = Arrays.copyOf(RECOVERY_RATES, indexSize - 1);
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, shortRR, weights, defaulted);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of recoveryRates (" + (indexSize - 1) + ") does not match index size (" + indexSize + ")", e.getMessage());
+    }
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, shortRR, weights);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of recoveryRates (" + (indexSize - 1) + ") does not match index size (" + indexSize + ")", e.getMessage());
+    }
+    final double[] longWeights = new double[indexSize + 1];
+    Arrays.fill(longWeights, 1. / (indexSize + 1.));
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, longWeights);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of weights (" + (indexSize + 1) + ") does not match index size (" + indexSize + ")", e.getMessage());
+    }
+    try {
+      new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, longWeights, defaulted);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Length of weights (" + (indexSize + 1) + ") does not match index size (" + indexSize + ")", e.getMessage());
+    }
+
     weights[14] *= -1.;
     try {
       new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES, weights);
