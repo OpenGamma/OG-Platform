@@ -113,7 +113,7 @@ public class AnalyticBondPricer {
     final double exp = bond.getPaymentTime(nPayments - 1);
     int index = Arrays.binarySearch(yieldCurve.getKnotTimes(), exp);
     double[] temp;
-    if (index > 0) {
+    if (index >= 0) {
       temp = new double[index + 1];
       System.arraycopy(yieldCurve.getKnotTimes(), 0, temp, 0, index + 1);
     } else {
