@@ -10,9 +10,9 @@ import java.util.Comparator;
 import org.apache.commons.lang.ObjectUtils;
 
 /**
- * Available sort orders for the user search.
+ * Available sort orders for the role search.
  */
-public enum UserSearchSortOrder implements Comparator<ManageableUser> {
+public enum RoleSearchSortOrder implements Comparator<ManageableRole> {
   // this design is simple and perhaps not ideal, but it is effective for most use cases at the moment
 
   /**
@@ -20,7 +20,7 @@ public enum UserSearchSortOrder implements Comparator<ManageableUser> {
    */
   OBJECT_ID_ASC {
     @Override
-    public int compare(ManageableUser obj1, ManageableUser obj2) {
+    public int compare(ManageableRole obj1, ManageableRole obj2) {
       return obj1.getObjectId().compareTo(obj2.getObjectId());
     }
   },
@@ -29,7 +29,7 @@ public enum UserSearchSortOrder implements Comparator<ManageableUser> {
    */
   OBJECT_ID_DESC {
     @Override
-    public int compare(ManageableUser obj1, ManageableUser obj2) {
+    public int compare(ManageableRole obj1, ManageableRole obj2) {
       return obj2.getObjectId().compareTo(obj1.getObjectId());
     }
   },
@@ -38,8 +38,8 @@ public enum UserSearchSortOrder implements Comparator<ManageableUser> {
    */
   NAME_ASC {
     @Override
-    public int compare(ManageableUser obj1, ManageableUser obj2) {
-      return ObjectUtils.compare(obj1.getUserName(), obj2.getUserName(), true);
+    public int compare(ManageableRole obj1, ManageableRole obj2) {
+      return ObjectUtils.compare(obj1.getRoleName(), obj2.getRoleName(), true);
     }
   },
   /**
@@ -47,8 +47,8 @@ public enum UserSearchSortOrder implements Comparator<ManageableUser> {
    */
   NAME_DESC {
     @Override
-    public int compare(ManageableUser obj1, ManageableUser obj2) {
-      return ObjectUtils.compare(obj2.getUserName(), obj1.getUserName(), true);
+    public int compare(ManageableRole obj1, ManageableRole obj2) {
+      return ObjectUtils.compare(obj2.getRoleName(), obj1.getRoleName(), true);
     }
   };
 

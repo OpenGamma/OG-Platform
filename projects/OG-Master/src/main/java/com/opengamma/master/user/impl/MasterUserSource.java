@@ -5,26 +5,37 @@
  */
 package com.opengamma.master.user.impl;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.opengamma.DataNotFoundException;
-import com.opengamma.core.user.OGUser;
+import com.opengamma.core.ObjectChangeListener;
+import com.opengamma.core.ObjectChangeListenerManager;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.user.UserAccount;
 import com.opengamma.core.user.UserSource;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.AbstractMasterSource;
-import com.opengamma.master.user.ManageableOGUser;
-import com.opengamma.master.user.UserDocument;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.user.UserMaster;
-import com.opengamma.master.user.UserSearchRequest;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A {@code UserSource} implemented using an underlying {@code UserMaster}.
  * <p>
- * The {@link UserSource} interface provides exchanges to the application via a narrow API. This class provides the source on top of a standard {@link UserMaster}.
+ * The {@link UserSource} interface is a minimal interface for accessing user accounts.
+ * This class implements the source on top of a standard {@link UserMaster}.
  */
-public class MasterUserSource extends AbstractMasterSource<OGUser, UserDocument, UserMaster> implements UserSource {
+public class MasterUserSource implements UserSource, ObjectChangeListenerManager {
+
+  /**
+   * The master.
+   */
+  private final UserMaster _master;
+  /**
+   * The listeners.
+   */
+  private final ConcurrentHashMap<Pair<ObjectId, ObjectChangeListener>, ChangeListener> _registeredListeners = new ConcurrentHashMap<>();
 
   /**
    * Creates an instance with an underlying master.
@@ -32,30 +43,58 @@ public class MasterUserSource extends AbstractMasterSource<OGUser, UserDocument,
    * @param master the master, not null
    */
   public MasterUserSource(final UserMaster master) {
-    super(master);
+    ArgumentChecker.notNull(master, "master");
+    _master = master;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying master.
+   * 
+   * @return the master, not null
+   */
+  public UserMaster getMaster() {
+    return _master;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Collection<? extends OGUser> getUsers(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    UserSearchRequest searchRequest = new UserSearchRequest(bundle);
-    searchRequest.setVersionCorrection(versionCorrection);
-    return getMaster().search(searchRequest).getUsers();
+  public UserAccount getAccount(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    return getMaster().getAccount(userName);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void addChangeListener(final ObjectId oid, final ObjectChangeListener listener) {
+    ChangeListener changeListener = new ChangeListener() {
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        ObjectId changedOid = event.getObjectId();
+        if (changedOid.equals(oid)) {
+          listener.objectChanged(oid);
+        }
+      }
+    };
+    _registeredListeners.put(Pairs.of(oid, listener), changeListener);
+    changeManager().addChangeListener(changeListener);
   }
 
   @Override
-  public OGUser getUser(String userId, VersionCorrection versionCorrection) {
-    UserSearchRequest searchRequest = new UserSearchRequest();
-    searchRequest.setUserId(userId);
-    searchRequest.setVersionCorrection(versionCorrection);
-    List<ManageableOGUser> result = getMaster().search(searchRequest).getUsers();
-    if (result.size() == 1) {
-      return result.get(0);
-    }
-    if (result.size() == 0) {
-      throw new DataNotFoundException("User not found: " + userId);
-    }
-    throw new IllegalStateException("Multiple users found: " + userId);
+  public void removeChangeListener(ObjectId oid, ObjectChangeListener listener) {
+    ChangeListener changeListener = _registeredListeners.remove(Pairs.of(oid, listener));
+    changeManager().removeChangeListener(changeListener);
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return getMaster().changeManager();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + getMaster() + "]";
   }
 
 }

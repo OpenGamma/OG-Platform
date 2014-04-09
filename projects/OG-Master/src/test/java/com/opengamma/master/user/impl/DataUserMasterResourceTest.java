@@ -5,11 +5,10 @@
  */
 package com.opengamma.master.user.impl;
 
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
 
@@ -23,9 +22,9 @@ import org.threeten.bp.ZoneId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.user.ManageableOGUser;
-import com.opengamma.master.user.UserDocument;
+import com.opengamma.master.user.ManageableUser;
 import com.opengamma.master.user.UserMaster;
+import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -35,7 +34,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Test(groups = TestGroup.UNIT)
 public class DataUserMasterResourceTest {
 
-  private static final UniqueId UID = UniqueId.of("Test", "A", "B");
+  private static final UniqueId UID = UniqueId.of("Test", "A", "1");
+  private static final ObjectId OID = ObjectId.of("Test", "A");
   private UserMaster _underlying;
   private UriInfo _uriInfo;
   private DataUserMasterResource _resource;
@@ -51,27 +51,63 @@ public class DataUserMasterResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testAddUser() {
-    final ManageableOGUser target = new ManageableOGUser("bob");
-    target.setExternalIdBundle(ExternalIdBundle.of("A", "B"));
-    target.setName("Test");
-    target.setTimeZone(ZoneId.of("Europe/London"));
-    target.setEmailAddress("bob@bob.com");
-    final UserDocument request = new UserDocument(target);
+    final ManageableUser input = new ManageableUser("bob");
+    input.setAlternateIds(ExternalIdBundle.of("A", "B"));
+    input.setEmailAddress("bob@bob.com");
+    input.getProfile().setDisplayName("Test");
+    input.getProfile().setZone(ZoneId.of("Europe/London"));
     
-    final UserDocument result = new UserDocument(target);
-    result.setUniqueId(UID);
-    when(_underlying.add(same(request))).thenReturn(result);
+    when(_underlying.add(input)).thenReturn(UID);
     
-    Response test = _resource.add(_uriInfo, request);
+    Response test = _resource.add(_uriInfo, input);
     assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
-    assertSame(result, test.getEntity());
+    assertEquals(UID, FudgeResponse.unwrap(test.getEntity()));
   }
 
   @Test
-  public void testFindUser() {
-    DataUserResource test = _resource.findUser("Test~A");
-    assertSame(_resource, test.getUsersResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
+  public void testGetUser() {
+    final ManageableUser target = new ManageableUser("bob");
+    target.setAlternateIds(ExternalIdBundle.of("A", "B"));
+    target.setEmailAddress("bob@bob.com");
+    target.getProfile().setDisplayName("Test");
+    target.getProfile().setZone(ZoneId.of("Europe/London"));
+    
+    when(_underlying.getById(OID)).thenReturn(target);
+    
+    Response test = _resource.getById(OID.toString());
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertEquals(target, test.getEntity());
+  }
+
+  @Test
+  public void testUpdateUser() {
+    final ManageableUser input = new ManageableUser("bob");
+    input.setAlternateIds(ExternalIdBundle.of("A", "B"));
+    input.setEmailAddress("bob@bob.com");
+    input.getProfile().setDisplayName("Test");
+    input.getProfile().setZone(ZoneId.of("Europe/London"));
+    input.setUniqueId(UID.withVersion("1"));
+    final ManageableUser result = input.clone();
+    result.getProfile().setDisplayName("Tester");
+    result.setUniqueId(UID.withVersion("2"));
+    
+    when(_underlying.update(input)).thenReturn(UID.withVersion("2"));
+    
+    Response test = _resource.updateById(_uriInfo, OID.toString(), input);
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertEquals(UID.withVersion("2"), FudgeResponse.unwrap(test.getEntity()));
+  }
+
+  @Test
+  public void testRemoveUserById() {
+    _resource.removeById(OID.toString());
+    verify(_underlying).removeById(OID);
+  }
+
+  @Test
+  public void testRemoveUserByName() {
+    _resource.removeByName("bob");
+    verify(_underlying).removeByName("bob");
   }
 
 }

@@ -6,28 +6,35 @@
 package com.opengamma.master.user.impl;
 
 import java.net.URI;
-import java.util.List;
+
+import javax.ws.rs.core.Response.Status;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.core.user.UserAccount;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
-import com.opengamma.master.user.UserDocument;
-import com.opengamma.master.user.UserHistoryRequest;
-import com.opengamma.master.user.UserHistoryResult;
+import com.opengamma.master.impl.AbstractRemoteMaster;
+import com.opengamma.master.user.ManageableUser;
+import com.opengamma.master.user.RoleMaster;
+import com.opengamma.master.user.UserEventHistoryRequest;
+import com.opengamma.master.user.UserEventHistoryResult;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.sun.jersey.api.client.GenericType;
+import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Provides access to a remote {@link UserMaster}.
  */
 public class RemoteUserMaster
-    extends AbstractRemoteDocumentMaster<UserDocument>
+    extends AbstractRemoteMaster
     implements UserMaster {
+
+  /**
+   * The role master.
+   */
+  private final RemoteRoleMaster _roleMaster;
 
   /**
    * Creates an instance.
@@ -36,6 +43,7 @@ public class RemoteUserMaster
    */
   public RemoteUserMaster(final URI baseUri) {
     super(baseUri);
+    _roleMaster = new RemoteRoleMaster(baseUri.resolve("users"));
   }
 
   /**
@@ -45,127 +53,113 @@ public class RemoteUserMaster
    * @param changeManager  the change manager, not null
    */
   public RemoteUserMaster(final URI baseUri, ChangeManager changeManager) {
-    super(baseUri, changeManager);
+    this(baseUri, changeManager, changeManager);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param userChangeManager  the change manager, not null
+   * @param roleChangeManager  the change manager, not null
+   */
+  public RemoteUserMaster(final URI baseUri, ChangeManager userChangeManager, ChangeManager roleChangeManager) {
+    super(baseUri, userChangeManager);
+    _roleMaster = new RemoteRoleMaster(baseUri.resolve("users"), roleChangeManager);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public UserSearchResult search(final UserSearchRequest request) {
-    ArgumentChecker.notNull(request, "request");
+  public boolean nameExists(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    URI uri = DataUserMasterResource.uriNameExists(getBaseUri(), userName);
+    ClientResponse response = accessRemote(uri).get(ClientResponse.class);
+    if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
+      return false;
+    }
+    if (response.getStatus() == Status.OK.getStatusCode()) {
+      return true;
+    }
+    throw new IllegalStateException("Unexpected response from server: " + response.getStatus());
+  }
 
+  @Override
+  public ManageableUser getByName(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    URI uri = DataUserMasterResource.uriUserByName(getBaseUri(), userName);
+    return accessRemote(uri).get(ManageableUser.class);
+  }
+
+  @Override
+  public ManageableUser getById(ObjectId objectId) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    URI uri = DataUserMasterResource.uriUserById(getBaseUri(), objectId);
+    return accessRemote(uri).get(ManageableUser.class);
+  }
+
+  @Override
+  public UniqueId add(ManageableUser user) {
+    ArgumentChecker.notNull(user, "user");
+    URI uri = DataUserMasterResource.uriAdd(getBaseUri());
+    return accessRemote(uri).post(UniqueId.class, user);
+  }
+
+  @Override
+  public UniqueId update(ManageableUser user) {
+    ArgumentChecker.notNull(user, "user");
+    ArgumentChecker.notNull(user.getUniqueId(), "user.uniqueId");
+    URI uri = DataUserMasterResource.uriUserById(getBaseUri(), user.getUniqueId());
+    return accessRemote(uri).put(UniqueId.class, user);
+  }
+
+  @Override
+  public UniqueId save(ManageableUser user) {
+    ArgumentChecker.notNull(user, "user");
+    if (user.getUniqueId() != null) {
+      return update(user);
+    } else {
+      return add(user);
+    }
+  }
+
+  @Override
+  public void removeByName(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    URI uri = DataUserMasterResource.uriUserByName(getBaseUri(), userName);
+    accessRemote(uri).delete();
+  }
+
+  @Override
+  public void removeById(ObjectId objectId) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    URI uri = DataUserMasterResource.uriUserById(getBaseUri(), objectId);
+    accessRemote(uri).delete();
+  }
+
+  @Override
+  public UserSearchResult search(UserSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
     URI uri = DataUserMasterResource.uriSearch(getBaseUri());
     return accessRemote(uri).post(UserSearchResult.class, request);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public UserDocument get(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-
-    if (uniqueId.isVersioned()) {
-      URI uri = (new DataUserResource()).uriVersion(getBaseUri(), uniqueId);
-      return accessRemote(uri).get(UserDocument.class);
-    } else {
-      return get(uniqueId, VersionCorrection.LATEST);
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(objectId, "objectId");
-
-    URI uri = (new DataUserResource()).uri(getBaseUri(), objectId, versionCorrection);
-    return accessRemote(uri).get(UserDocument.class);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument add(final UserDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getUser(), "document.user");
-
-    URI uri = DataUserMasterResource.uriAdd(getBaseUri());
-    return accessRemote(uri).post(UserDocument.class, document);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument update(final UserDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getUser(), "document.user");
-    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-
-    URI uri = (new DataUserResource()).uri(getBaseUri(), document.getUniqueId(), null);
-    return accessRemote(uri).post(UserDocument.class, document);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public void remove(final ObjectIdentifiable objectIdentifiable) {
-    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
-
-    URI uri = (new DataUserResource()).uri(getBaseUri(), objectIdentifiable, null);
-    accessRemote(uri).delete();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserHistoryResult history(final UserHistoryRequest request) {
+  public UserEventHistoryResult eventHistory(UserEventHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
-
-    URI uri = (new DataUserResource()).uriVersions(getBaseUri(), request.getObjectId(), request);
-    return accessRemote(uri).get(UserHistoryResult.class);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument correct(final UserDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getUser(), "document.user");
-    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-
-    URI uri = (new DataUserResource()).uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).post(UserDocument.class, document);
+    URI uri = DataUserMasterResource.uriEventHistory(getBaseUri(), request);
+    return accessRemote(uri).get(UserEventHistoryResult.class);
   }
 
   @Override
-  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<UserDocument> replacementDocuments) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
-    for (UserDocument replacementDocument : replacementDocuments) {
-      ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getUser(), "replacementDocument.user");
-    }
-    URI uri = (new DataUserResource()).uriVersion(getBaseUri(), uniqueId);
-    return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
-    }, replacementDocuments);
+  public UserAccount getAccount(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    URI uri = DataUserMasterResource.uriUserByName(getBaseUri(), userName);
+    return accessRemote(uri).get(UserAccount.class);
   }
 
   @Override
-  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<UserDocument> replacementDocuments) {
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
-    for (UserDocument replacementDocument : replacementDocuments) {
-      ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getUser(), "replacementDocument.user");
-    }
-    URI uri = (new DataUserResource()).uriAll(getBaseUri(), objectId, null);
-    return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
-    }, replacementDocuments);
+  public RoleMaster roleMaster() {
+    return _roleMaster;
   }
 
-  @Override
-  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<UserDocument> replacementDocuments) {
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
-    for (UserDocument replacementDocument : replacementDocuments) {
-      ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getUser(), "replacementDocument.user");
-    }
-    URI uri = (new DataUserResource()).uri(getBaseUri(), objectId, null);
-    return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
-    }, replacementDocuments);
-  }
 }

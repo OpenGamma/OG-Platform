@@ -6,9 +6,9 @@
 package com.opengamma.master.user;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -18,20 +18,16 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.master.AbstractDocument;
-import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicSPI;
 import com.opengamma.util.RegexUtils;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Request for searching for users. 
@@ -39,12 +35,17 @@ import com.opengamma.util.RegexUtils;
  * Documents will be returned that match the search criteria.
  * This class provides the ability to page the results and to search
  * as at a specific version and correction instant.
- * See {@link UserHistoryRequest} for more details on how history works.
+ * See {@link UserEventHistoryRequest} for more details on how history works.
  */
-@PublicSPI
 @BeanDefinition
-public class UserSearchRequest extends AbstractSearchRequest {
+public class UserSearchRequest implements Bean {
 
+  /**
+   * The request for paging.
+   * By default all matching items will be returned.
+   */
+  @PropertyDefinition
+  private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
    * The set of user object identifiers, null to not limit by user object identifiers.
    * Note that an empty list will return no users.
@@ -52,74 +53,54 @@ public class UserSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition(set = "manual")
   private List<ObjectId> _objectIds;
   /**
-   * The external user identifiers to match, null to not match on user identifiers.
+   * The user name to search for, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
-  private ExternalIdSearch _externalIdSearch;
+  private String _userName;
   /**
-   * The external identifier value, matching against the <b>value</b> of the identifiers,
-   * null to not match by identifier value.
+   * The alternate user identifier scheme, matching only against the <b>scheme</b> of the
+   * identifiers, null not to match by identifier scheme.
+   * This matches against the {@link ExternalId#getScheme() scheme} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   */
+  @PropertyDefinition
+  private String _alternateIdScheme;
+  /**
+   * The alternate user identifier value, matching only against the <b>value</b> of the
+   * stored identifiers, null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code externalIdSearch}
-   * search is useful for exact machine searching.
    */
   @PropertyDefinition
-  private String _externalIdValue;
+  private String _alternateIdValue;
   /**
-   * The external identifier scheme, matching against the <b>scheme</b> of the identifiers,
-   * null not to match by identifier scheme. Wildcards are allowed.
+   * The associated permission to search for, no wildcards.
+   * If used, only those roles which explicitly reference the permission are returned.
+   * Any permissions implied by membership of roles are not matched.
+   * In other words, this searches {@link ManageableUser#getAssociatedPermissions()}.
    */
   @PropertyDefinition
-  private String _externalIdScheme;
-  /**
-   * The user id to search for, wildcards allowed, null to not match on name.
-   */
-  @PropertyDefinition
-  private String _userId;
-  /**
-   * The display user name to search for, wildcards allowed, null to not match on name.
-   */
-  @PropertyDefinition
-  private String _name;
-  /**
-   * The time zone to search for, wildcards allowed, null to not match on time-zone.
-   */
-  @PropertyDefinition
-  private String _timeZone;
+  private String _associatedPermission;
   /**
    * The primary email address to search for, wildcards allowed, null to not match on email.
    */
   @PropertyDefinition
   private String _emailAddress;
   /**
+   * The display name to search for, wildcards allowed, null to not match on name.
+   */
+  @PropertyDefinition
+  private String _displayName;
+  /**
    * The sort order to use.
    */
   @PropertyDefinition(validate = "notNull")
-  private UserSearchSortOrder _sortOrder = UserSearchSortOrder.OBJECT_ID_ASC;
+  private UserSearchSortOrder _sortOrder = UserSearchSortOrder.NAME_ASC;
 
   /**
    * Creates an instance.
    */
   public UserSearchRequest() {
-  }
-
-  /**
-   * Creates an instance using a single search identifier.
-   * 
-   * @param userId  the external user identifier to search for, not null
-   */
-  public UserSearchRequest(ExternalId userId) {
-    addExternalId(userId);
-  }
-
-  /**
-   * Creates an instance using a bundle of identifiers.
-   * 
-   * @param userIdBundle  the external user identifiers to search for, not null
-   */
-  public UserSearchRequest(ExternalIdBundle userIdBundle) {
-    addExternalIds(userIdBundle);
   }
 
   //-------------------------------------------------------------------------
@@ -155,98 +136,40 @@ public class UserSearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single external user identifier to the collection to search for.
-   * Unless customized, the search will match 
-   * {@link ExternalIdSearchType#ANY any} of the identifiers.
-   * 
-   * @param externalUserId  the external user identifier to add, not null
+   * Checks if this search matches the specified user.
+   *
+   * @param user  the user to match, null returns false
+   * @return true if matches
    */
-  public void addExternalId(ExternalId externalUserId) {
-    ArgumentChecker.notNull(externalUserId, "externalUserId");
-    addExternalIds(Arrays.asList(externalUserId));
-  }
-
-  /**
-   * Adds a collection of external user identifiers to the collection to search for.
-   * Unless customized, the search will match 
-   * {@link ExternalIdSearchType#ANY any} of the identifiers.
-   * 
-   * @param externalUserIds  the external user identifiers to add, not null
-   */
-  public void addExternalIds(ExternalId... externalUserIds) {
-    ArgumentChecker.notNull(externalUserIds, "externalUserIds");
-    if (getExternalIdSearch() == null) {
-      setExternalIdSearch(ExternalIdSearch.of(externalUserIds));
-    } else {
-      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalUserIds));
-    }
-  }
-
-  /**
-   * Adds a collection of external user identifiers to the collection to search for.
-   * Unless customized, the search will match 
-   * {@link ExternalIdSearchType#ANY any} of the identifiers.
-   * 
-   * @param externalUserIds  the user key identifiers to add, not null
-   */
-  public void addExternalIds(Iterable<ExternalId> externalUserIds) {
-    ArgumentChecker.notNull(externalUserIds, "externalUserIds");
-    if (getExternalIdSearch() == null) {
-      setExternalIdSearch(ExternalIdSearch.of(externalUserIds));
-    } else {
-      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalUserIds));
-    }
-  }
-
-  /**
-   * Sets the search type to use in {@code ExternalIdSearch}.
-   * 
-   * @param type  the type to set, not null
-   */
-  public void setExternalIdSearchType(ExternalIdSearchType type) {
-    if (getExternalIdSearch() == null) {
-      setExternalIdSearch(ExternalIdSearch.of(type));
-    } else {
-      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public boolean matches(AbstractDocument obj) {
-    if (obj instanceof UserDocument == false) {
-      return false;
-    }    
-    UserDocument document = (UserDocument) obj;
-    ManageableOGUser user = document.getUser();
-    if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
+  public boolean matches(ManageableUser user) {
+    if (user == null) {
       return false;
     }
-    if (getExternalIdSearch() != null && getExternalIdSearch().matches(user.getExternalIdBundle()) == false) {
+    if (getObjectIds() != null && getObjectIds().contains(user.getObjectId()) == false) {
       return false;
     }
-    if (getUserId() != null && RegexUtils.wildcardMatch(getUserId(), user.getUserId()) == false) {
+    if (getUserName() != null && RegexUtils.wildcardMatch(getUserName(), user.getUserName()) == false) {
       return false;
     }
-    if (getName() != null && RegexUtils.wildcardMatch(getName(), user.getName()) == false) {
-      return false;
-    }
-    if (getTimeZone() != null && RegexUtils.wildcardMatch(getTimeZone(), (user.getTimeZone() != null ? user.getTimeZone().getId() : null)) == false) {
+    if (getDisplayName() != null && RegexUtils.wildcardMatch(getDisplayName(), user.getProfile().getDisplayName()) == false) {
       return false;
     }
     if (getEmailAddress() != null && RegexUtils.wildcardMatch(getEmailAddress(), user.getEmailAddress()) == false) {
       return false;
     }
-    if (getExternalIdValue() != null) {
-      for (ExternalId identifier : user.getExternalIdBundle()) {
-        if (RegexUtils.wildcardMatch(getExternalIdValue(), identifier.getValue()) == false) {
+    if (user.getAssociatedPermissions().contains(getAssociatedPermission()) == false) {
+      return false;
+    }
+    if (getAlternateIdValue() != null) {
+      for (ExternalId identifier : user.getAlternateIds()) {
+        if (RegexUtils.wildcardMatch(getAlternateIdValue(), identifier.getValue()) == false) {
           return false;
         }
       }
     }
-    if (getExternalIdScheme() != null) {
-      for (ExternalId identifier : user.getExternalIdBundle()) {
-        if (RegexUtils.wildcardMatch(getExternalIdScheme(), identifier.getScheme().getName()) == false) {
+    if (getAlternateIdScheme() != null) {
+      for (ExternalId identifier : user.getAlternateIds()) {
+        if (RegexUtils.wildcardMatch(getAlternateIdScheme(), identifier.getScheme().getName()) == false) {
           return false;
         }
       }
@@ -273,6 +196,44 @@ public class UserSearchRequest extends AbstractSearchRequest {
     return UserSearchRequest.Meta.INSTANCE;
   }
 
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the request for paging.
+   * By default all matching items will be returned.
+   * @return the value of the property
+   */
+  public PagingRequest getPagingRequest() {
+    return _pagingRequest;
+  }
+
+  /**
+   * Sets the request for paging.
+   * By default all matching items will be returned.
+   * @param pagingRequest  the new value of the property
+   */
+  public void setPagingRequest(PagingRequest pagingRequest) {
+    this._pagingRequest = pagingRequest;
+  }
+
+  /**
+   * Gets the the {@code pagingRequest} property.
+   * By default all matching items will be returned.
+   * @return the property, not null
+   */
+  public final Property<PagingRequest> pagingRequest() {
+    return metaBean().pagingRequest().createProperty(this);
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the set of user object identifiers, null to not limit by user object identifiers.
@@ -294,170 +255,129 @@ public class UserSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the external user identifiers to match, null to not match on user identifiers.
+   * Gets the user name to search for, wildcards allowed, null to not match on name.
    * @return the value of the property
    */
-  public ExternalIdSearch getExternalIdSearch() {
-    return _externalIdSearch;
+  public String getUserName() {
+    return _userName;
   }
 
   /**
-   * Sets the external user identifiers to match, null to not match on user identifiers.
-   * @param externalIdSearch  the new value of the property
+   * Sets the user name to search for, wildcards allowed, null to not match on name.
+   * @param userName  the new value of the property
    */
-  public void setExternalIdSearch(ExternalIdSearch externalIdSearch) {
-    this._externalIdSearch = externalIdSearch;
+  public void setUserName(String userName) {
+    this._userName = userName;
   }
 
   /**
-   * Gets the the {@code externalIdSearch} property.
+   * Gets the the {@code userName} property.
    * @return the property, not null
    */
-  public final Property<ExternalIdSearch> externalIdSearch() {
-    return metaBean().externalIdSearch().createProperty(this);
+  public final Property<String> userName() {
+    return metaBean().userName().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the external identifier value, matching against the <b>value</b> of the identifiers,
-   * null to not match by identifier value.
+   * Gets the alternate user identifier scheme, matching only against the <b>scheme</b> of the
+   * identifiers, null not to match by identifier scheme.
+   * This matches against the {@link ExternalId#getScheme() scheme} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * @return the value of the property
+   */
+  public String getAlternateIdScheme() {
+    return _alternateIdScheme;
+  }
+
+  /**
+   * Sets the alternate user identifier scheme, matching only against the <b>scheme</b> of the
+   * identifiers, null not to match by identifier scheme.
+   * This matches against the {@link ExternalId#getScheme() scheme} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * @param alternateIdScheme  the new value of the property
+   */
+  public void setAlternateIdScheme(String alternateIdScheme) {
+    this._alternateIdScheme = alternateIdScheme;
+  }
+
+  /**
+   * Gets the the {@code alternateIdScheme} property.
+   * identifiers, null not to match by identifier scheme.
+   * This matches against the {@link ExternalId#getScheme() scheme} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * @return the property, not null
+   */
+  public final Property<String> alternateIdScheme() {
+    return metaBean().alternateIdScheme().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the alternate user identifier value, matching only against the <b>value</b> of the
+   * stored identifiers, null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code externalIdSearch}
-   * search is useful for exact machine searching.
    * @return the value of the property
    */
-  public String getExternalIdValue() {
-    return _externalIdValue;
+  public String getAlternateIdValue() {
+    return _alternateIdValue;
   }
 
   /**
-   * Sets the external identifier value, matching against the <b>value</b> of the identifiers,
-   * null to not match by identifier value.
+   * Sets the alternate user identifier value, matching only against the <b>value</b> of the
+   * stored identifiers, null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code externalIdSearch}
-   * search is useful for exact machine searching.
-   * @param externalIdValue  the new value of the property
+   * @param alternateIdValue  the new value of the property
    */
-  public void setExternalIdValue(String externalIdValue) {
-    this._externalIdValue = externalIdValue;
+  public void setAlternateIdValue(String alternateIdValue) {
+    this._alternateIdValue = alternateIdValue;
   }
 
   /**
-   * Gets the the {@code externalIdValue} property.
-   * null to not match by identifier value.
+   * Gets the the {@code alternateIdValue} property.
+   * stored identifiers, null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code externalIdSearch}
-   * search is useful for exact machine searching.
    * @return the property, not null
    */
-  public final Property<String> externalIdValue() {
-    return metaBean().externalIdValue().createProperty(this);
+  public final Property<String> alternateIdValue() {
+    return metaBean().alternateIdValue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the external identifier scheme, matching against the <b>scheme</b> of the identifiers,
-   * null not to match by identifier scheme. Wildcards are allowed.
+   * Gets the associated permission to search for, no wildcards.
+   * If used, only those roles which explicitly reference the permission are returned.
+   * Any permissions implied by membership of roles are not matched.
+   * In other words, this searches {@link ManageableUser#getAssociatedPermissions()}.
    * @return the value of the property
    */
-  public String getExternalIdScheme() {
-    return _externalIdScheme;
+  public String getAssociatedPermission() {
+    return _associatedPermission;
   }
 
   /**
-   * Sets the external identifier scheme, matching against the <b>scheme</b> of the identifiers,
-   * null not to match by identifier scheme. Wildcards are allowed.
-   * @param externalIdScheme  the new value of the property
+   * Sets the associated permission to search for, no wildcards.
+   * If used, only those roles which explicitly reference the permission are returned.
+   * Any permissions implied by membership of roles are not matched.
+   * In other words, this searches {@link ManageableUser#getAssociatedPermissions()}.
+   * @param associatedPermission  the new value of the property
    */
-  public void setExternalIdScheme(String externalIdScheme) {
-    this._externalIdScheme = externalIdScheme;
+  public void setAssociatedPermission(String associatedPermission) {
+    this._associatedPermission = associatedPermission;
   }
 
   /**
-   * Gets the the {@code externalIdScheme} property.
-   * null not to match by identifier scheme. Wildcards are allowed.
+   * Gets the the {@code associatedPermission} property.
+   * If used, only those roles which explicitly reference the permission are returned.
+   * Any permissions implied by membership of roles are not matched.
+   * In other words, this searches {@link ManageableUser#getAssociatedPermissions()}.
    * @return the property, not null
    */
-  public final Property<String> externalIdScheme() {
-    return metaBean().externalIdScheme().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the user id to search for, wildcards allowed, null to not match on name.
-   * @return the value of the property
-   */
-  public String getUserId() {
-    return _userId;
-  }
-
-  /**
-   * Sets the user id to search for, wildcards allowed, null to not match on name.
-   * @param userId  the new value of the property
-   */
-  public void setUserId(String userId) {
-    this._userId = userId;
-  }
-
-  /**
-   * Gets the the {@code userId} property.
-   * @return the property, not null
-   */
-  public final Property<String> userId() {
-    return metaBean().userId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the display user name to search for, wildcards allowed, null to not match on name.
-   * @return the value of the property
-   */
-  public String getName() {
-    return _name;
-  }
-
-  /**
-   * Sets the display user name to search for, wildcards allowed, null to not match on name.
-   * @param name  the new value of the property
-   */
-  public void setName(String name) {
-    this._name = name;
-  }
-
-  /**
-   * Gets the the {@code name} property.
-   * @return the property, not null
-   */
-  public final Property<String> name() {
-    return metaBean().name().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the time zone to search for, wildcards allowed, null to not match on time-zone.
-   * @return the value of the property
-   */
-  public String getTimeZone() {
-    return _timeZone;
-  }
-
-  /**
-   * Sets the time zone to search for, wildcards allowed, null to not match on time-zone.
-   * @param timeZone  the new value of the property
-   */
-  public void setTimeZone(String timeZone) {
-    this._timeZone = timeZone;
-  }
-
-  /**
-   * Gets the the {@code timeZone} property.
-   * @return the property, not null
-   */
-  public final Property<String> timeZone() {
-    return metaBean().timeZone().createProperty(this);
+  public final Property<String> associatedPermission() {
+    return metaBean().associatedPermission().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -483,6 +403,31 @@ public class UserSearchRequest extends AbstractSearchRequest {
    */
   public final Property<String> emailAddress() {
     return metaBean().emailAddress().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the display name to search for, wildcards allowed, null to not match on name.
+   * @return the value of the property
+   */
+  public String getDisplayName() {
+    return _displayName;
+  }
+
+  /**
+   * Sets the display name to search for, wildcards allowed, null to not match on name.
+   * @param displayName  the new value of the property
+   */
+  public void setDisplayName(String displayName) {
+    this._displayName = displayName;
+  }
+
+  /**
+   * Gets the the {@code displayName} property.
+   * @return the property, not null
+   */
+  public final Property<String> displayName() {
+    return metaBean().displayName().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -524,33 +469,32 @@ public class UserSearchRequest extends AbstractSearchRequest {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       UserSearchRequest other = (UserSearchRequest) obj;
-      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
-          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
-          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
-          JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
-          JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
+      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+          JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getUserName(), other.getUserName()) &&
+          JodaBeanUtils.equal(getAlternateIdScheme(), other.getAlternateIdScheme()) &&
+          JodaBeanUtils.equal(getAlternateIdValue(), other.getAlternateIdValue()) &&
+          JodaBeanUtils.equal(getAssociatedPermission(), other.getAssociatedPermission()) &&
           JodaBeanUtils.equal(getEmailAddress(), other.getEmailAddress()) &&
-          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
-          super.equals(obj);
+          JodaBeanUtils.equal(getDisplayName(), other.getDisplayName()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder());
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = 7;
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAlternateIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAlternateIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedPermission());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDisplayName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    return hash ^ super.hashCode();
+    return hash;
   }
 
   @Override
@@ -566,17 +510,15 @@ public class UserSearchRequest extends AbstractSearchRequest {
     return buf.toString();
   }
 
-  @Override
   protected void toString(StringBuilder buf) {
-    super.toString(buf);
+    buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
     buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
-    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
-    buf.append("externalIdValue").append('=').append(JodaBeanUtils.toString(getExternalIdValue())).append(',').append(' ');
-    buf.append("externalIdScheme").append('=').append(JodaBeanUtils.toString(getExternalIdScheme())).append(',').append(' ');
-    buf.append("userId").append('=').append(JodaBeanUtils.toString(getUserId())).append(',').append(' ');
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
-    buf.append("timeZone").append('=').append(JodaBeanUtils.toString(getTimeZone())).append(',').append(' ');
+    buf.append("userName").append('=').append(JodaBeanUtils.toString(getUserName())).append(',').append(' ');
+    buf.append("alternateIdScheme").append('=').append(JodaBeanUtils.toString(getAlternateIdScheme())).append(',').append(' ');
+    buf.append("alternateIdValue").append('=').append(JodaBeanUtils.toString(getAlternateIdValue())).append(',').append(' ');
+    buf.append("associatedPermission").append('=').append(JodaBeanUtils.toString(getAssociatedPermission())).append(',').append(' ');
     buf.append("emailAddress").append('=').append(JodaBeanUtils.toString(getEmailAddress())).append(',').append(' ');
+    buf.append("displayName").append('=').append(JodaBeanUtils.toString(getDisplayName())).append(',').append(' ');
     buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
   }
 
@@ -584,12 +526,17 @@ public class UserSearchRequest extends AbstractSearchRequest {
   /**
    * The meta-bean for {@code UserSearchRequest}.
    */
-  public static class Meta extends AbstractSearchRequest.Meta {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code pagingRequest} property.
+     */
+    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(
+        this, "pagingRequest", UserSearchRequest.class, PagingRequest.class);
     /**
      * The meta-property for the {@code objectIds} property.
      */
@@ -597,40 +544,35 @@ public class UserSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<List<ObjectId>> _objectIds = DirectMetaProperty.ofReadWrite(
         this, "objectIds", UserSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code externalIdSearch} property.
+     * The meta-property for the {@code userName} property.
      */
-    private final MetaProperty<ExternalIdSearch> _externalIdSearch = DirectMetaProperty.ofReadWrite(
-        this, "externalIdSearch", UserSearchRequest.class, ExternalIdSearch.class);
+    private final MetaProperty<String> _userName = DirectMetaProperty.ofReadWrite(
+        this, "userName", UserSearchRequest.class, String.class);
     /**
-     * The meta-property for the {@code externalIdValue} property.
+     * The meta-property for the {@code alternateIdScheme} property.
      */
-    private final MetaProperty<String> _externalIdValue = DirectMetaProperty.ofReadWrite(
-        this, "externalIdValue", UserSearchRequest.class, String.class);
+    private final MetaProperty<String> _alternateIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "alternateIdScheme", UserSearchRequest.class, String.class);
     /**
-     * The meta-property for the {@code externalIdScheme} property.
+     * The meta-property for the {@code alternateIdValue} property.
      */
-    private final MetaProperty<String> _externalIdScheme = DirectMetaProperty.ofReadWrite(
-        this, "externalIdScheme", UserSearchRequest.class, String.class);
+    private final MetaProperty<String> _alternateIdValue = DirectMetaProperty.ofReadWrite(
+        this, "alternateIdValue", UserSearchRequest.class, String.class);
     /**
-     * The meta-property for the {@code userId} property.
+     * The meta-property for the {@code associatedPermission} property.
      */
-    private final MetaProperty<String> _userId = DirectMetaProperty.ofReadWrite(
-        this, "userId", UserSearchRequest.class, String.class);
-    /**
-     * The meta-property for the {@code name} property.
-     */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
-        this, "name", UserSearchRequest.class, String.class);
-    /**
-     * The meta-property for the {@code timeZone} property.
-     */
-    private final MetaProperty<String> _timeZone = DirectMetaProperty.ofReadWrite(
-        this, "timeZone", UserSearchRequest.class, String.class);
+    private final MetaProperty<String> _associatedPermission = DirectMetaProperty.ofReadWrite(
+        this, "associatedPermission", UserSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code emailAddress} property.
      */
     private final MetaProperty<String> _emailAddress = DirectMetaProperty.ofReadWrite(
         this, "emailAddress", UserSearchRequest.class, String.class);
+    /**
+     * The meta-property for the {@code displayName} property.
+     */
+    private final MetaProperty<String> _displayName = DirectMetaProperty.ofReadWrite(
+        this, "displayName", UserSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code sortOrder} property.
      */
@@ -640,15 +582,15 @@ public class UserSearchRequest extends AbstractSearchRequest {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, null,
+        "pagingRequest",
         "objectIds",
-        "externalIdSearch",
-        "externalIdValue",
-        "externalIdScheme",
-        "userId",
-        "name",
-        "timeZone",
+        "userName",
+        "alternateIdScheme",
+        "alternateIdValue",
+        "associatedPermission",
         "emailAddress",
+        "displayName",
         "sortOrder");
 
     /**
@@ -660,22 +602,22 @@ public class UserSearchRequest extends AbstractSearchRequest {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return _pagingRequest;
         case -1489617159:  // objectIds
           return _objectIds;
-        case -265376882:  // externalIdSearch
-          return _externalIdSearch;
-        case 2072311499:  // externalIdValue
-          return _externalIdValue;
-        case -267027573:  // externalIdScheme
-          return _externalIdScheme;
-        case -836030906:  // userId
-          return _userId;
-        case 3373707:  // name
-          return _name;
-        case -2077180903:  // timeZone
-          return _timeZone;
+        case -266666762:  // userName
+          return _userName;
+        case -1982121670:  // alternateIdScheme
+          return _alternateIdScheme;
+        case -1169602756:  // alternateIdValue
+          return _alternateIdValue;
+        case -1203804299:  // associatedPermission
+          return _associatedPermission;
         case -1070931784:  // emailAddress
           return _emailAddress;
+        case 1714148973:  // displayName
+          return _displayName;
         case -26774448:  // sortOrder
           return _sortOrder;
       }
@@ -699,6 +641,14 @@ public class UserSearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code pagingRequest} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<PagingRequest> pagingRequest() {
+      return _pagingRequest;
+    }
+
+    /**
      * The meta-property for the {@code objectIds} property.
      * @return the meta-property, not null
      */
@@ -707,51 +657,35 @@ public class UserSearchRequest extends AbstractSearchRequest {
     }
 
     /**
-     * The meta-property for the {@code externalIdSearch} property.
+     * The meta-property for the {@code userName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalIdSearch> externalIdSearch() {
-      return _externalIdSearch;
+    public final MetaProperty<String> userName() {
+      return _userName;
     }
 
     /**
-     * The meta-property for the {@code externalIdValue} property.
+     * The meta-property for the {@code alternateIdScheme} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> externalIdValue() {
-      return _externalIdValue;
+    public final MetaProperty<String> alternateIdScheme() {
+      return _alternateIdScheme;
     }
 
     /**
-     * The meta-property for the {@code externalIdScheme} property.
+     * The meta-property for the {@code alternateIdValue} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> externalIdScheme() {
-      return _externalIdScheme;
+    public final MetaProperty<String> alternateIdValue() {
+      return _alternateIdValue;
     }
 
     /**
-     * The meta-property for the {@code userId} property.
+     * The meta-property for the {@code associatedPermission} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> userId() {
-      return _userId;
-    }
-
-    /**
-     * The meta-property for the {@code name} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> name() {
-      return _name;
-    }
-
-    /**
-     * The meta-property for the {@code timeZone} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> timeZone() {
-      return _timeZone;
+    public final MetaProperty<String> associatedPermission() {
+      return _associatedPermission;
     }
 
     /**
@@ -760,6 +694,14 @@ public class UserSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> emailAddress() {
       return _emailAddress;
+    }
+
+    /**
+     * The meta-property for the {@code displayName} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> displayName() {
+      return _displayName;
     }
 
     /**
@@ -774,22 +716,22 @@ public class UserSearchRequest extends AbstractSearchRequest {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return ((UserSearchRequest) bean).getPagingRequest();
         case -1489617159:  // objectIds
           return ((UserSearchRequest) bean).getObjectIds();
-        case -265376882:  // externalIdSearch
-          return ((UserSearchRequest) bean).getExternalIdSearch();
-        case 2072311499:  // externalIdValue
-          return ((UserSearchRequest) bean).getExternalIdValue();
-        case -267027573:  // externalIdScheme
-          return ((UserSearchRequest) bean).getExternalIdScheme();
-        case -836030906:  // userId
-          return ((UserSearchRequest) bean).getUserId();
-        case 3373707:  // name
-          return ((UserSearchRequest) bean).getName();
-        case -2077180903:  // timeZone
-          return ((UserSearchRequest) bean).getTimeZone();
+        case -266666762:  // userName
+          return ((UserSearchRequest) bean).getUserName();
+        case -1982121670:  // alternateIdScheme
+          return ((UserSearchRequest) bean).getAlternateIdScheme();
+        case -1169602756:  // alternateIdValue
+          return ((UserSearchRequest) bean).getAlternateIdValue();
+        case -1203804299:  // associatedPermission
+          return ((UserSearchRequest) bean).getAssociatedPermission();
         case -1070931784:  // emailAddress
           return ((UserSearchRequest) bean).getEmailAddress();
+        case 1714148973:  // displayName
+          return ((UserSearchRequest) bean).getDisplayName();
         case -26774448:  // sortOrder
           return ((UserSearchRequest) bean).getSortOrder();
       }
@@ -800,29 +742,29 @@ public class UserSearchRequest extends AbstractSearchRequest {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          ((UserSearchRequest) bean).setPagingRequest((PagingRequest) newValue);
+          return;
         case -1489617159:  // objectIds
           ((UserSearchRequest) bean).setObjectIds((List<ObjectId>) newValue);
           return;
-        case -265376882:  // externalIdSearch
-          ((UserSearchRequest) bean).setExternalIdSearch((ExternalIdSearch) newValue);
+        case -266666762:  // userName
+          ((UserSearchRequest) bean).setUserName((String) newValue);
           return;
-        case 2072311499:  // externalIdValue
-          ((UserSearchRequest) bean).setExternalIdValue((String) newValue);
+        case -1982121670:  // alternateIdScheme
+          ((UserSearchRequest) bean).setAlternateIdScheme((String) newValue);
           return;
-        case -267027573:  // externalIdScheme
-          ((UserSearchRequest) bean).setExternalIdScheme((String) newValue);
+        case -1169602756:  // alternateIdValue
+          ((UserSearchRequest) bean).setAlternateIdValue((String) newValue);
           return;
-        case -836030906:  // userId
-          ((UserSearchRequest) bean).setUserId((String) newValue);
-          return;
-        case 3373707:  // name
-          ((UserSearchRequest) bean).setName((String) newValue);
-          return;
-        case -2077180903:  // timeZone
-          ((UserSearchRequest) bean).setTimeZone((String) newValue);
+        case -1203804299:  // associatedPermission
+          ((UserSearchRequest) bean).setAssociatedPermission((String) newValue);
           return;
         case -1070931784:  // emailAddress
           ((UserSearchRequest) bean).setEmailAddress((String) newValue);
+          return;
+        case 1714148973:  // displayName
+          ((UserSearchRequest) bean).setDisplayName((String) newValue);
           return;
         case -26774448:  // sortOrder
           ((UserSearchRequest) bean).setSortOrder((UserSearchSortOrder) newValue);
@@ -834,7 +776,6 @@ public class UserSearchRequest extends AbstractSearchRequest {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((UserSearchRequest) bean)._sortOrder, "sortOrder");
-      super.validate(bean);
     }
 
   }
