@@ -23,6 +23,27 @@ Analytics compatibility
 - No expected differences
 
 Bug fixes
+* [PLAT-6353] [PLAT-6354] Fixes to credit functions. Removed single spread credit curve calibration for CDS and CDX; removed multiplication by 10,000 of observed market spreads in CDX curve calibration
+* [PLAT-6321] Fix consistency errors when active nodes are rewritten
+
+
+
+To 2.2.0-M10p05
+---------------
+
+Configuration compatibility
+- No upgrade required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No changes
+
+Analytics compatibility
+- No expected differences
+
+Bug fixes
 * [PLAT-6321,PLAT-6325] Inconsistent internal state in GetTerminalValuesCallback
 
 
