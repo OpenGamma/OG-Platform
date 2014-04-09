@@ -204,7 +204,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the funding leg.
    * @param fundingLeg  the new value of the property, not null
    */
-  public void setFundingLeg(final FloatingInterestRateSwapLeg fundingLeg) {
+  public void setFundingLeg(FloatingInterestRateSwapLeg fundingLeg) {
     JodaBeanUtils.notNull(fundingLeg, "fundingLeg");
     this._fundingLeg = fundingLeg;
   }
@@ -230,7 +230,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets external ids of the asset being swapped.
    * @param assetId  the new value of the property, not null
    */
-  public void setAssetId(final ExternalIdBundle assetId) {
+  public void setAssetId(ExternalIdBundle assetId) {
     JodaBeanUtils.notNull(assetId, "assetId");
     this._assetId = assetId;
   }
@@ -256,7 +256,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the effective date.
    * @param effectiveDate  the new value of the property, not null
    */
-  public void setEffectiveDate(final LocalDate effectiveDate) {
+  public void setEffectiveDate(LocalDate effectiveDate) {
     JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
     this._effectiveDate = effectiveDate;
   }
@@ -282,7 +282,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the (unadjusted) maturity date.
    * @param maturityDate  the new value of the property, not null
    */
-  public void setMaturityDate(final LocalDate maturityDate) {
+  public void setMaturityDate(LocalDate maturityDate) {
     JodaBeanUtils.notNull(maturityDate, "maturityDate");
     this._maturityDate = maturityDate;
   }
@@ -308,7 +308,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the number of payment settlement days.
    * @param paymentSettlementDays  the new value of the property
    */
-  public void setPaymentSettlementDays(final int paymentSettlementDays) {
+  public void setPaymentSettlementDays(int paymentSettlementDays) {
     this._paymentSettlementDays = paymentSettlementDays;
   }
 
@@ -333,7 +333,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the calendars used to adjust the return payment dates.
    * @param paymentDateCalendar  the new value of the property, not null
    */
-  public void setPaymentDateCalendar(final Set<ExternalId> paymentDateCalendar) {
+  public void setPaymentDateCalendar(Set<ExternalId> paymentDateCalendar) {
     JodaBeanUtils.notNull(paymentDateCalendar, "paymentDateCalendar");
     this._paymentDateCalendar.clear();
     this._paymentDateCalendar.addAll(paymentDateCalendar);
@@ -360,7 +360,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the business day convention used for return payment dates.
    * @param paymentBusinessDayConvention  the new value of the property, not null
    */
-  public void setPaymentBusinessDayConvention(final BusinessDayConvention paymentBusinessDayConvention) {
+  public void setPaymentBusinessDayConvention(BusinessDayConvention paymentBusinessDayConvention) {
     JodaBeanUtils.notNull(paymentBusinessDayConvention, "paymentBusinessDayConvention");
     this._paymentBusinessDayConvention = paymentBusinessDayConvention;
   }
@@ -403,7 +403,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the frequency of the return payment dates.
    * @param paymentFrequency  the new value of the property, not null
    */
-  public void setPaymentFrequency(final Frequency paymentFrequency) {
+  public void setPaymentFrequency(Frequency paymentFrequency) {
     JodaBeanUtils.notNull(paymentFrequency, "paymentFrequency");
     this._paymentFrequency = paymentFrequency;
   }
@@ -429,7 +429,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the roll convention of the return payment dates.
    * @param rollConvention  the new value of the property, not null
    */
-  public void setRollConvention(final RollConvention rollConvention) {
+  public void setRollConvention(RollConvention rollConvention) {
     JodaBeanUtils.notNull(rollConvention, "rollConvention");
     this._rollConvention = rollConvention;
   }
@@ -455,7 +455,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the number for which custom payment dates are provided.
    * @param dates  the new value of the property
    */
-  public void setDates(final int[] dates) {
+  public void setDates(int[] dates) {
     this._dates = dates;
   }
 
@@ -480,7 +480,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
    * Sets the custom payment dates.
    * @param paymentDates  the new value of the property
    */
-  public void setPaymentDates(final LocalDate[] paymentDates) {
+  public void setPaymentDates(LocalDate[] paymentDates) {
     this._paymentDates = paymentDates;
   }
 
@@ -494,12 +494,12 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final TotalReturnSwapSecurity other = (TotalReturnSwapSecurity) obj;
+      TotalReturnSwapSecurity other = (TotalReturnSwapSecurity) obj;
       return JodaBeanUtils.equal(getFundingLeg(), other.getFundingLeg()) &&
           JodaBeanUtils.equal(getAssetId(), other.getAssetId()) &&
           JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
@@ -537,9 +537,9 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(416);
     buf.append("TotalReturnSwapSecurity{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -549,7 +549,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("fundingLeg").append('=').append(JodaBeanUtils.toString(getFundingLeg())).append(',').append(' ');
     buf.append("assetId").append('=').append(JodaBeanUtils.toString(getAssetId())).append(',').append(' ');
@@ -661,7 +661,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 514140625:  // fundingLeg
           return _fundingLeg;
@@ -805,7 +805,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 514140625:  // fundingLeg
           return ((TotalReturnSwapSecurity) bean).getFundingLeg();
@@ -837,7 +837,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 514140625:  // fundingLeg
           ((TotalReturnSwapSecurity) bean).setFundingLeg((FloatingInterestRateSwapLeg) newValue);
@@ -882,7 +882,7 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._fundingLeg, "fundingLeg");
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._assetId, "assetId");
       JodaBeanUtils.notNull(((TotalReturnSwapSecurity) bean)._effectiveDate, "effectiveDate");
