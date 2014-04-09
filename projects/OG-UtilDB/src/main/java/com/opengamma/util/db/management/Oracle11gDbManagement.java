@@ -16,6 +16,7 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.Oracle10gDialect;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestProperties;
 
 /**
  * Database management for Postgres databases.
@@ -134,11 +135,19 @@ public final class Oracle11gDbManagement extends AbstractDbManagement {
   }
 
   private String getSystemUser() {
-    return System.getProperty("system.user");
+    String user = System.getProperty("system.user");
+    if (user == null) {
+      user = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.username");
+    }
+    return user;
   }
 
   private String getSystemPassword() {
-    return System.getProperty("system.password");
+    String pw = System.getProperty("system.password");
+    if (pw == null) {
+      pw = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.password");
+    }
+    return pw;
   }
 
   @Override

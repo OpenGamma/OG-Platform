@@ -96,6 +96,14 @@ public abstract class AbstractDbTest implements TableCreationCallback {
       String password = dbTool.getPassword();
       String systemUser = System.getProperty("system.user");
       String systemPassword = System.getProperty("system.password");
+      if ("oracle11g".equals(getDatabaseType())) {
+        if (systemUser == null) {
+          systemUser = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.username");
+        }
+        if (systemPassword == null) {
+          systemPassword = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.password");
+        }
+      }
       if (systemUser != null && systemPassword != null) {
         dbTool.setUser(systemUser);
         dbTool.setPassword(systemPassword);
