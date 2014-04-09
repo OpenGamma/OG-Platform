@@ -107,11 +107,11 @@ public final class EntitlementUtils {
    * @param requirement  the requirement needed, not null
    * @return true if access is permitted, false if not permitted
    */
-  public static boolean userHasEntitlement(OGUser user, String requirement) {
+  public static boolean userHasEntitlement(UserAccount user, String requirement) {
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(requirement, "requirement");
-    for (String entitlement : user.getEntitlements()) {
-      switch (checkEntitlement(entitlement, requirement)) {
+    for (String permission : user.getPermissions()) {
+      switch (checkEntitlement(permission, requirement)) {
         case MATCHES_NOT_ALLOWED:
           return false;
         case MATCHES_ALLOWED:

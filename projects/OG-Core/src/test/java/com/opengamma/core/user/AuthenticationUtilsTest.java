@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.user.impl.SimpleOGUser;
+import com.opengamma.core.user.impl.SimpleUserAccount;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -26,7 +26,7 @@ public class AuthenticationUtilsTest {
     String hash = AuthenticationUtils.generatePasswordHash(simple);
     assertNotNull(hash);
     assertFalse(hash.isEmpty());
-    SimpleOGUser oguser = new SimpleOGUser("testuser");
+    SimpleUserAccount oguser = new SimpleUserAccount("testuser");
     oguser.setPasswordHash(hash);
     
     assertTrue(AuthenticationUtils.passwordsMatch(oguser, simple));

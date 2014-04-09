@@ -28,13 +28,13 @@ public final class AuthenticationUtils {
   //-------------------------------------------------------------------------
   /**
    * Check to see whether the password provided by an end-user as part of an authentication
-   * pass matches the hashed version stored in the {@link OGUser}.
+   * pass matches the hashed version stored in the {@link UserAccount}.
    * 
    * @param user  the user to check, not null
    * @param passwordProvided  the password provided by the user, not null
    * @return true if the password matches the hash
    */
-  public static boolean passwordsMatch(OGUser user, String passwordProvided) {
+  public static boolean passwordsMatch(UserAccount user, String passwordProvided) {
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(passwordProvided, "passwordProvided");
     return BCrypt.checkpw(passwordProvided, user.getPasswordHash());
