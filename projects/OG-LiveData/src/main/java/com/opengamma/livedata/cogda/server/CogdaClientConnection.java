@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.user.EntitlementUtils;
-import com.opengamma.core.user.OGUser;
+import com.opengamma.core.user.UserAccount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -73,7 +73,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
   private final Lock _valuesToSendLock = new ReentrantLock();
   
   private UserPrincipal _userPrincipal;
-  private OGUser _user;
+  private UserAccount _user;
   
   public CogdaClientConnection(FudgeContext fudgeContext, CogdaLiveDataServer server, FudgeConnection connection) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -123,7 +123,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
    * Gets the user.
    * @return the user
    */
-  public OGUser getUser() {
+  public UserAccount getUser() {
     return _user;
   }
 
@@ -131,7 +131,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
    * Sets the user.
    * @param user  the user
    */
-  public void setUser(OGUser user) {
+  public void setUser(UserAccount user) {
     _user = user;
   }
 
@@ -164,7 +164,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     synchronized (this) {
       _userPrincipal = getServer().authenticate(request.getUserName(), request.getPassword());
       if (_userPrincipal != null) {
-        _user = getServer().getOGUser(request.getUserName());
+        _user = getServer().getUserAccount(request.getUserName());
       }
     }
     
