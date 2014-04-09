@@ -47,6 +47,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
     EXPIRY_RULES.put("FB US", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
     EXPIRY_RULES.put("TWSE", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY, 1)));
     EXPIRY_RULES.put("HSCEI", new DaysFromEndOfMonthExpiryAdjuster(1));
+    EXPIRY_RULES.put("RDXUSD", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.THURSDAY, 1)));
     EXPIRY_RULES.put("DEFAULT", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
     //TODO DAX, EUROSTOXX 50 (SX5E)
   }

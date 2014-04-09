@@ -10,7 +10,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -41,7 +40,7 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
   private final ZonedDateTime _vaulationTime;
 
   public CreditDefaultIndexSwapSecurityToProxyConverter(final HolidaySource holidaySource, final RegionSource regionSource, final LegalEntitySource legalEntitySource,
-                                                        final SecuritySource securitySource, final ZonedDateTime valuationTime) {
+      final SecuritySource securitySource, final ZonedDateTime valuationTime) {
     _securitySource = securitySource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -61,7 +60,7 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
       throw new OpenGammaRuntimeException("Underlying index definition not found: " + referenceEntity);
     }
     final double recoveryRate = indexDef.getRecoveryRate();
-    CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(_holidaySource, _regionSource, _orgSource, recoveryRate, _vaulationTime);
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(_holidaySource, _regionSource, _orgSource, recoveryRate, _vaulationTime);
     final DebtSeniority debtSeniority = DebtSeniority.NONE;
     final RestructuringClause restructuringClause = RestructuringClause.NONE;
     final ZonedDateTime startDate = security.getStartDate();
@@ -69,6 +68,9 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final StubType stubType = security.getStubType();
     final Frequency couponFrequency = security.getCouponFrequency();
+    if (couponFrequency.getName().equals(Frequency.NEVER_NAME)) {
+      throw new OpenGammaRuntimeException("Coupon payment frequency was set to NEVER; cannot price CDX");
+    }
     final DayCount dayCount = security.getDayCount();
     final BusinessDayConvention businessDayConvention = security.getBusinessDayConvention();
     final boolean immAdjustMaturityDate = false;
@@ -100,7 +102,7 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
         includeAccruedPremium,
         protectionStart,
         parSpread);
-    CreditDefaultSwapDefinition definition = cds.accept(converter);
+    final CreditDefaultSwapDefinition definition = cds.accept(converter);
     return definition;
   }
 }

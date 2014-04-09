@@ -66,7 +66,8 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
 
   @Override
   protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition, final ISDACompliantYieldCurve yieldCurve, final ZonedDateTime[] times, final double[] marketSpreads,
-      final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs, final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final Tenor[] tenors) {
+      final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs, final ISDACompliantCreditCurve hazardCurve,
+      final CDSAnalytic analytic, final Tenor[] tenors) {
     final Object hazardRateCurveObject = inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
     if (hazardRateCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get hazard rate curve");

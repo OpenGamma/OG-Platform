@@ -12,6 +12,11 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CO
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+<<<<<<< HEAD
+=======
+import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
+import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
+>>>>>>> 7decf75... [PLAT-6345] Adding more outputs for equity and bond TRS
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
@@ -681,6 +686,98 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     return viewDefinition;
   }
 
+<<<<<<< HEAD
+=======
+  /**
+   * Creates a view definition for bond total return swaps that requests the present value,
+   * funding and asset leg present values, PV01 for all relevant curves, gamma PV01,
+   * the details of the funding leg, the details of the bond, the bond equivalent value 
+   * and the notional.
+   * @param portfolioName The portfolio name
+   * @param viewName The view name
+   * @return The view definition
+   */
+  private ViewDefinition getBondTotalReturnSwapViewDefinition(final String portfolioName, final String viewName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(PROPERTY_CURVE_TYPE, "Discounting")
+        .with(CURVE_EXPOSURES, "Bond Exposures")
+        .get();
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_PV, properties);
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_DETAILS, properties);
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, BOND_DETAILS, properties);
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, ValueProperties.builder().get());
+    final ValueProperties thetaProperties = properties.copy()
+        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .get();
+    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_THETA, thetaProperties);
+    final String[] curveNames = new String[] {"USD Discounting", "USD 3M Forward Ibor", "UG Government Curve" };
+    for (final String curveName : curveNames) {
+      final ValueProperties curveProperties = properties.copy()
+          .with(CURVE, curveName)
+          .get();
+      defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PV01, curveProperties);
+    }
+    viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
+    return viewDefinition;
+  }
+
+  /**
+   * Creates a view definition for equity total return swaps that requests the present value,
+   * funding and asset leg present values, PV01 for all relevant curves, value delta, gamma PV01
+   * the details of the funding leg and the notional.
+   * @param portfolioName The portfolio name
+   * @param viewName The view name
+   * @return The view definition
+   */
+  private ViewDefinition getEquityTotalReturnSwapViewDefinition(final String portfolioName, final String viewName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(PROPERTY_CURVE_TYPE, "Discounting")
+        .with(CURVE_EXPOSURES, "Exposures")
+        .get();
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_PV, properties);
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_DETAILS, properties);
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_DELTA, properties);
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, ValueProperties.builder().get());
+    final ValueProperties thetaProperties = properties.copy()
+        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .get();
+    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_THETA, thetaProperties);
+    final String[] curveNames = new String[] {"USD Discounting", "USD 3M Forward Ibor" };
+    for (final String curveName : curveNames) {
+      final ValueProperties curveProperties = properties.copy()
+          .with(CURVE, curveName)
+          .get();
+      defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, PV01, curveProperties);
+    }
+    viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
+    return viewDefinition;
+  }
+
+>>>>>>> 7decf75... [PLAT-6345] Adding more outputs for equity and bond TRS
   private void addValueRequirements(final ViewCalculationConfiguration calcConfiguration, final String securityType, final String[] valueRequirementNames) {
     for (final String valueRequirementName : valueRequirementNames) {
       calcConfiguration.addPortfolioRequirementName(securityType, valueRequirementName);

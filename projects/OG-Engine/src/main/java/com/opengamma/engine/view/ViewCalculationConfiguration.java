@@ -39,7 +39,7 @@ import com.opengamma.util.tuple.Pairs;
  */
 @PublicAPI
 public class ViewCalculationConfiguration implements Serializable {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(ViewCalculationConfiguration.class);
 
   /**
@@ -101,12 +101,12 @@ public class ViewCalculationConfiguration implements Serializable {
    * subset of the graph.
    */
   private ResolutionRuleTransform _resolutionRuleTransform = IdentityResolutionRuleTransform.INSTANCE;
-  
+
   /**
    * Defines merged outputs. These are sets of portfolio requirements which should be published under a single output
    * name with common aggregates. 
    */
-  private List<MergedOutput> _mergedOutputs = new ArrayList<>();
+  private final List<MergedOutput> _mergedOutputs = new ArrayList<>();
 
   /**
    * Defines the labels and order of the columns used for displaying the data in the UI. This doesn't have to contain
@@ -121,13 +121,13 @@ public class ViewCalculationConfiguration implements Serializable {
    * @param definition  the parent view definition, not null
    * @param name  the calculation configuration name, not null
    */
-  public ViewCalculationConfiguration(ViewDefinition definition, String name) {
+  public ViewCalculationConfiguration(final ViewDefinition definition, final String name) {
     ArgumentChecker.notNull(definition, "Parent view definition");
     ArgumentChecker.notNull(name, "Calculation configuration name");
     _viewDefinition = definition;
     _name = name;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Copies this view calculation configuration to a new parent view definition, adding the copy to the new owner.
@@ -135,17 +135,19 @@ public class ViewCalculationConfiguration implements Serializable {
    * @param newOwner  the new parent view definition, not null
    * @return
    */
-  public void copyTo(ViewDefinition newOwner) {
-    ViewCalculationConfiguration copy = new ViewCalculationConfiguration(newOwner, getName());
+  public void copyTo(final ViewDefinition newOwner) {
+    final ViewCalculationConfiguration copy = new ViewCalculationConfiguration(newOwner, getName());
     newOwner.addViewCalculationConfiguration(copy);
     copy.setDefaultProperties(getDefaultProperties());
     copy.addSpecificRequirements(getSpecificRequirements());
     copy.setScenarioId(getScenarioId());
     copy.setScenarioParametersId(getScenarioParametersId());
-    for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getPortfolioRequirementsBySecurityType().entrySet()) {
-      copy.addPortfolioRequirements(requirementEntry.getKey(), requirementEntry.getValue()); 
+    for (final Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getPortfolioRequirementsBySecurityType().entrySet()) {
+      copy.addPortfolioRequirements(requirementEntry.getKey(), requirementEntry.getValue());
     }
-    
+    for (final MergedOutput mergedOutput : getMergedOutputs()) {
+      copy.addMergedOutput(mergedOutput);
+    }
     // REVIEW jonathan 2011-11-13 -- should really do deep copies of these to avoid references to same objects
     copy.getDeltaDefinition().setNumberComparer(getDeltaDefinition().getNumberComparer());
     copy.setResolutionRuleTransform(getResolutionRuleTransform());
@@ -172,7 +174,7 @@ public class ViewCalculationConfiguration implements Serializable {
     return _deltaDefinition;
   }
 
-  public void setDeltaDefinition(DeltaDefinition deltaDefinition) {
+  public void setDeltaDefinition(final DeltaDefinition deltaDefinition) {
     ArgumentChecker.notNull(deltaDefinition, "deltaDefinition");
     _deltaDefinition = deltaDefinition;
   }
@@ -204,7 +206,7 @@ public class ViewCalculationConfiguration implements Serializable {
    *
    * @param scenarioId the scenarioId for this configuration, may be null
    */
-  public void setScenarioId(UniqueId scenarioId) {
+  public void setScenarioId(final UniqueId scenarioId) {
     _scenarioId = scenarioId;
   }
 
@@ -225,7 +227,7 @@ public class ViewCalculationConfiguration implements Serializable {
    *
    * @param scenarioParametersId the scenarioParametersId for this configuration, may be null
    */
-  public void setScenarioParametersId(UniqueId scenarioParametersId) {
+  public void setScenarioParametersId(final UniqueId scenarioParametersId) {
     _scenarioParametersId = scenarioParametersId;
   }
 
@@ -274,8 +276,8 @@ public class ViewCalculationConfiguration implements Serializable {
    * @return  a set of every required portfolio output, not null
    */
   public Set<Pair<String, ValueProperties>> getAllPortfolioRequirements() {
-    Set<Pair<String, ValueProperties>> requirements = Sets.newLinkedHashSet();
-    for (Set<Pair<String, ValueProperties>> secTypeDefinitions : _portfolioRequirementsBySecurityType.values()) {
+    final Set<Pair<String, ValueProperties>> requirements = Sets.newLinkedHashSet();
+    for (final Set<Pair<String, ValueProperties>> secTypeDefinitions : _portfolioRequirementsBySecurityType.values()) {
       requirements.addAll(secTypeDefinitions);
     }
     return requirements;
@@ -288,7 +290,7 @@ public class ViewCalculationConfiguration implements Serializable {
    * @param securityType  the type of security for which the outputs should be produced, not null
    * @param requiredOutputs  a set of output names and value constraints, not null
    */
-  public void addPortfolioRequirements(String securityType, Set<Pair<String, ValueProperties>> requiredOutputs) {
+  public void addPortfolioRequirements(final String securityType, final Set<Pair<String, ValueProperties>> requiredOutputs) {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(requiredOutputs, "requiredOutputs");
     Set<Pair<String, ValueProperties>> secTypeRequirements = _portfolioRequirementsBySecurityType.get(securityType);
@@ -310,7 +312,7 @@ public class ViewCalculationConfiguration implements Serializable {
   public void addPortfolioRequirementNames(final String securityType, final Set<String> requiredOutputs) {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(requiredOutputs, "requiredOutput");
-    for (String requiredOutput : requiredOutputs) {
+    for (final String requiredOutput : requiredOutputs) {
       addPortfolioRequirementName(securityType, requiredOutput);
     }
   }
@@ -323,7 +325,7 @@ public class ViewCalculationConfiguration implements Serializable {
    * @param requiredOutput  an output name, not null
    * @param constraints constraints on the requirement, not null
    */
-  public void addPortfolioRequirement(String securityType, String requiredOutput, ValueProperties constraints) {
+  public void addPortfolioRequirement(final String securityType, final String requiredOutput, final ValueProperties constraints) {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(requiredOutput, "requiredOutput");
     ArgumentChecker.notNull(constraints, "constraints");
@@ -359,7 +361,7 @@ public class ViewCalculationConfiguration implements Serializable {
    * 
    * @param requirements  the requirements, not null
    */
-  public void addSpecificRequirements(Set<ValueRequirement> requirements) {
+  public void addSpecificRequirements(final Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "requirements");
     _specificRequirements.addAll(requirements);
   }
@@ -373,11 +375,11 @@ public class ViewCalculationConfiguration implements Serializable {
    *  
    * @param requirement  the output, not null
    */
-  public void addSpecificRequirement(ValueRequirement requirement) {
+  public void addSpecificRequirement(final ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
     addSpecificRequirements(Collections.singleton(requirement));
   }
-  
+
   /**
    * Gets the list of merged outputs.
    * 
@@ -386,29 +388,29 @@ public class ViewCalculationConfiguration implements Serializable {
   public List<MergedOutput> getMergedOutputs() {
     return _mergedOutputs;
   }
-  
+
   /**
    * Gets the merged output with a given name.
    * 
    * @param mergedOutputName  the merged output name, not null
    * @return the merged output, null if not found
    */
-  public MergedOutput getMergedOutput(String mergedOutputName) {
+  public MergedOutput getMergedOutput(final String mergedOutputName) {
     ArgumentChecker.notNull(mergedOutputName, "mergedOutputName");
-    for (MergedOutput mergedOutput : getMergedOutputs()) {
+    for (final MergedOutput mergedOutput : getMergedOutputs()) {
       if (mergedOutput.getMergedOutputName().equals(mergedOutputName)) {
         return mergedOutput;
       }
     }
     return null;
   }
-  
+
   /**
    * Adds a new merged output.
    * 
    * @param mergedOutput  the merged output, not null
    */
-  public void addMergedOutput(MergedOutput mergedOutput) {
+  public void addMergedOutput(final MergedOutput mergedOutput) {
     ArgumentChecker.notNull(mergedOutput, "mergedOutput");
     _mergedOutputs.add(mergedOutput);
   }
@@ -427,7 +429,7 @@ public class ViewCalculationConfiguration implements Serializable {
    * 
    * @param columns  the column definitions, not null
    */
-  public void setColumns(List<Column> columns) {
+  public void setColumns(final List<Column> columns) {
     ArgumentChecker.notNull(columns, "columns");
     _columns = columns;
   }
@@ -449,7 +451,7 @@ public class ViewCalculationConfiguration implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -457,15 +459,15 @@ public class ViewCalculationConfiguration implements Serializable {
       return false;
     }
 
-    ViewCalculationConfiguration other = (ViewCalculationConfiguration) obj;
+    final ViewCalculationConfiguration other = (ViewCalculationConfiguration) obj;
     if (!(ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getDeltaDefinition(), other.getDeltaDefinition()) && ObjectUtils.equals(getSpecificRequirements(), other
         .getSpecificRequirements()))
         && ObjectUtils.equals(_portfolioRequirementsBySecurityType.keySet(), other._portfolioRequirementsBySecurityType.keySet())) {
       return false;
     }
-    Map<String, Set<Pair<String, ValueProperties>>> otherPortfolioRequirementsBySecurityType = other.getPortfolioRequirementsBySecurityType();
-    for (Map.Entry<String, Set<Pair<String, ValueProperties>>> securityTypeRequirements : getPortfolioRequirementsBySecurityType().entrySet()) {
-      Set<Pair<String, ValueProperties>> otherRequirements = otherPortfolioRequirementsBySecurityType.get(securityTypeRequirements.getKey());
+    final Map<String, Set<Pair<String, ValueProperties>>> otherPortfolioRequirementsBySecurityType = other.getPortfolioRequirementsBySecurityType();
+    for (final Map.Entry<String, Set<Pair<String, ValueProperties>>> securityTypeRequirements : getPortfolioRequirementsBySecurityType().entrySet()) {
+      final Set<Pair<String, ValueProperties>> otherRequirements = otherPortfolioRequirementsBySecurityType.get(securityTypeRequirements.getKey());
       if (!ObjectUtils.equals(securityTypeRequirements.getValue(), otherRequirements)) {
         return false;
       }
@@ -509,7 +511,7 @@ public class ViewCalculationConfiguration implements Serializable {
     private final String _valueName;
     private final ValueProperties _properties;
 
-    public Column(String header, String valueName, ValueProperties properties) {
+    public Column(final String header, final String valueName, final ValueProperties properties) {
       ArgumentChecker.notNull(header, "header");
       ArgumentChecker.notNull(valueName, "valueName");
       ArgumentChecker.notNull(properties, "properties");
@@ -541,66 +543,66 @@ public class ViewCalculationConfiguration implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
       if (this == obj) {
         return true;
       }
       if (!(obj instanceof Column)) {
         return false;
       }
-      Column other = (Column) obj;
+      final Column other = (Column) obj;
       return ObjectUtils.equals(_header, other._header)
           && ObjectUtils.equals(_valueName, other._valueName)
           && ObjectUtils.equals(_valueName, other._valueName);
     }
-    
+
   }
-  
+
   /**
    * Represents a set of portfolio requirements to be published under a single output name with common aggregates.
    */
   public static final class MergedOutput {
-    
+
     private final String _mergedOutputName;
-    private Set<Pair<String, ValueProperties>> _portfolioRequirements = new HashSet<>();
+    private final Set<Pair<String, ValueProperties>> _portfolioRequirements = new HashSet<>();
     private MergedOutputAggregationType _aggregationType;
-    
+
     /**
      * Creates an instance. 
      * 
      * @param mergedOutputName  the name under which to display the merged output, not null
      * @param aggregationType  the aggregation to apply to the merged output, not null
      */
-    public MergedOutput(String mergedOutputName, MergedOutputAggregationType aggregationType) {
+    public MergedOutput(final String mergedOutputName, final MergedOutputAggregationType aggregationType) {
       ArgumentChecker.notNull(mergedOutputName, "mergedOutputName");
       ArgumentChecker.notNull(aggregationType, "aggregationType");
       _mergedOutputName = mergedOutputName;
       _aggregationType = aggregationType;
     }
-    
+
     public String getMergedOutputName() {
       return _mergedOutputName;
     }
-    
+
     public Set<Pair<String, ValueProperties>> getPortfolioRequirements() {
       return _portfolioRequirements;
     }
-    
+
     public MergedOutputAggregationType getAggregationType() {
       return _aggregationType;
     }
-    
-    public void setAggregationType(MergedOutputAggregationType aggregationType) {
+
+    public void setAggregationType(final MergedOutputAggregationType aggregationType) {
       _aggregationType = aggregationType;
     }
-    
+
     /**
      * Adds a requirement to this merged output.
      * 
      * @param valueName  the original value name, not null
      * @param properties  the original value properties, not null
      */
-    public void addMergedRequirement(String valueName, ValueProperties properties) {
+    public void addMergedRequirement(final String valueName, final ValueProperties properties) {
       ArgumentChecker.notNull(valueName, "valueName");
       ArgumentChecker.notNull(properties, "properties");
       _portfolioRequirements.add(Pairs.of(valueName, properties));
@@ -617,31 +619,31 @@ public class ViewCalculationConfiguration implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
       if (this == obj) {
         return true;
       }
       if (!(obj instanceof ViewCalculationConfiguration)) {
         return false;
       }
-      MergedOutput other = (MergedOutput) obj;
+      final MergedOutput other = (MergedOutput) obj;
       return ObjectUtils.equals(_aggregationType, other._aggregationType)
           && ObjectUtils.equals(_mergedOutputName, other._mergedOutputName)
           && ObjectUtils.equals(_portfolioRequirements, other._portfolioRequirements);
     }
-    
+
   }
-  
+
   /**
    * Enumerates the ways that aggregates can be calculated for merged outputs.
    */
   public static enum MergedOutputAggregationType {
-    
+
     /**
      * Specifies that simple, linear aggregation should be used
      */
     LINEAR
-    
+
   }
-  
+
 }

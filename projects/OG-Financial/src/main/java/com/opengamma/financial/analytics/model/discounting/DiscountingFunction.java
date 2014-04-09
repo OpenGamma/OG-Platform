@@ -86,7 +86,9 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
     @SuppressWarnings("synthetic-access")
     @Override
     protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).withAny(CURVE_EXPOSURES);
+      final ValueProperties.Builder properties = createValueProperties()
+          .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+          .withAny(CURVE_EXPOSURES);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security) &&

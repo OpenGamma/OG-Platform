@@ -43,6 +43,11 @@ import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
+<<<<<<< HEAD
+=======
+import com.opengamma.financial.analytics.model.timeseries.TimeSeriesFunctions;
+import com.opengamma.financial.analytics.model.trs.TotalReturnSwapFunctions;
+>>>>>>> 7decf75... [PLAT-6345] Adding more outputs for equity and bond TRS
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.VolatilityFunctions;
 
