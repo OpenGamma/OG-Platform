@@ -14,6 +14,17 @@ PortfolioTool was simplified as per the JIRA above
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M17p01
+------------
+
+** Bug
+    * [PLAT-6353] [PLAT-6354] Fixes to credit functions
+
+* Improvement
+    * [PLAT-6345] Adding more outputs for equity and bond TRS
+    * [PLAT-5345] Adding bond TRS analytics to examples-simulated
+    * [PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS
+
 To 2.2.0-M17
 ------------
 
