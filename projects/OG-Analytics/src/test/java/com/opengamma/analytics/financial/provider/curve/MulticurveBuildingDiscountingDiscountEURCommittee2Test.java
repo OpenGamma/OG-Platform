@@ -422,7 +422,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
         final double[] rates = new double[nInstruments];
-        for(int k = 0; k < nInstruments; k++) {
+        for (int k = 0; k < nInstruments; k++) {
           derivatives[k] = convert(definitions[i][j][k], withToday);
           rates[k] = initialRateGuess(definitions[i][j][k]);
         }
@@ -501,7 +501,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
       return ((CashDefinition) instrument).getRate();
     }
     if (instrument instanceof InterestRateFutureTransactionDefinition) {
-      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTransactionPrice();
+      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTradePrice();
     }
     return 0.01;
   }

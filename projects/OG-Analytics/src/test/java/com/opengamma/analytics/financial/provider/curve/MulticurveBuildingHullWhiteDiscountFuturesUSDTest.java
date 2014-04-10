@@ -105,16 +105,20 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
       .fromFixingPeriodStartDate(EDH4_START_PERIOD, USDLIBOR3M, NOTIONAL, 0.25, "EDH4", NYC);
   private static final Period CTPM3_TENOR = Period.ofYears(2);
   private static final double CTPM3_RATE = 0.0050;
-  private static final SwapFuturesPriceDeliverableSecurityDefinition CTPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CTPM3_TENOR, NOTIONAL, CTPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CTPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CTPM3_TENOR, NOTIONAL,
+      CTPM3_RATE);
   private static final Period CFPM3_TENOR = Period.ofYears(5);
   private static final double CFPM3_RATE = 0.0100;
-  private static final SwapFuturesPriceDeliverableSecurityDefinition CFPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CFPM3_TENOR, NOTIONAL, CFPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CFPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CFPM3_TENOR, NOTIONAL,
+      CFPM3_RATE);
   private static final Period CNPM3_TENOR = Period.ofYears(10);
   private static final double CNPM3_RATE = 0.0200;
-  private static final SwapFuturesPriceDeliverableSecurityDefinition CNPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CNPM3_TENOR, NOTIONAL, CNPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CNPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CNPM3_TENOR, NOTIONAL,
+      CNPM3_RATE);
   private static final Period CBPM3_TENOR = Period.ofYears(30);
   private static final double CBPM3_RATE = 0.0275;
-  private static final SwapFuturesPriceDeliverableSecurityDefinition CBPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CBPM3_TENOR, NOTIONAL, CBPM3_RATE);
+  private static final SwapFuturesPriceDeliverableSecurityDefinition CBPM3_DEFINITION = SwapFuturesPriceDeliverableSecurityDefinition.from(EDM3_START_PERIOD, USD6MLIBOR3M, CBPM3_TENOR, NOTIONAL,
+      CBPM3_RATE);
   private static final GeneratorInterestRateFutures GENERATOR_EDM3 = new GeneratorInterestRateFutures("EDM3", EDM3_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_EDU3 = new GeneratorInterestRateFutures("EDU3", EDU3_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_EDZ3 = new GeneratorInterestRateFutures("EDZ3", EDZ3_DEFINITION);
@@ -127,7 +131,7 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
 
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 25),
-      DateUtils.getUTCDate(2013, 4, 26) }, new double[] {0.0007, 0.0008 });
+    DateUtils.getUTCDate(2013, 4, 26) }, new double[] {0.0007, 0.0008 });
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 25) },
       new double[] {0.0007 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITH_TODAY };
@@ -140,10 +144,10 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0022, 0.00127, 0.00125, 0.00126, 0.00126, 0.00125, 0.001315, 0.001615, 0.00243, 0.00393, 0.00594, 0.01586 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
+    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
-      Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < 1; loopins++) {
@@ -154,14 +158,14 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
     }
   }
   private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0027560, 0.99715, 0.99700, 0.99680, 0.99660, (100 + 7.0 / 32.0 + 3.0 / (32.0 * 4.0)) / 100.0, (100 + 17.0 / 32.0) / 100.0,
-      (101 + 2.0 / 32.0) / 100.0, (98 + 21.0 / 32.0) / 100.0 };
+    (101 + 2.0 / 32.0) / 100.0, (98 + 21.0 / 32.0) / 100.0 };
   // Quoted in 32nd (by 1/4): 100-07 3/4, 100-17 +, 101-02, 98-21 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, GENERATOR_EDM3, GENERATOR_EDU3, GENERATOR_EDZ3,
-      GENERATOR_EDH4, GENERATOR_CTPM3, GENERATOR_CFPM3, GENERATOR_CNPM3, GENERATOR_CBPM3 };
+    GENERATOR_EDH4, GENERATOR_CTPM3, GENERATOR_CFPM3, GENERATOR_CNPM3, GENERATOR_CBPM3 };
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0),
-      Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0) };
+    Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0) };
   private static final GeneratorAttribute[] FWD3_USD_ATTR = new GeneratorAttribute[FWD3_USD_TENOR.length];
   static {
     FWD3_USD_ATTR[0] = new GeneratorAttributeIR(FWD3_USD_TENOR[0], FWD3_USD_TENOR[0]);
@@ -306,7 +310,7 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
         final double[] rates = new double[nInstruments];
-        for(int k = 0; k < nInstruments; k++) {
+        for (int k = 0; k < nInstruments; k++) {
           derivatives[k] = convert(definitions[i][j][k], withToday);
           rates[k] = initialGuess(definitions[i][j][k]);
         }
@@ -381,7 +385,7 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
       return ((CashDefinition) instrument).getRate();
     }
     if (instrument instanceof InterestRateFutureTransactionDefinition) {
-      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTransactionPrice();
+      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTradePrice();
     }
     return 0.01;
   }

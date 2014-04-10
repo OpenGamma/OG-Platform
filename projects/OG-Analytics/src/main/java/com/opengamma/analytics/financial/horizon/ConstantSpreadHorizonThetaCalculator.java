@@ -118,7 +118,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
    * @return The theta
    */
   public MultipleCurrencyAmount getTheta(final SwapDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-    final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward, final Calendar calendar) {
+      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward, final Calendar calendar) {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -202,16 +202,16 @@ public final class ConstantSpreadHorizonThetaCalculator {
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
-   /**
-    * Calculates the theta for an interest rate future without rate slide.
-    * @param definition The swap definition, not null
-    * @param date The calculation date, not null
-    * @param yieldCurveNames The yield curve names, not null
-    * @param data The initial yield curve data, not null
-    * @param lastMarginPrice Last margin price, not null
-    * @param daysForward The number of days to roll forward, must be +/-1
-    * @return The theta
-    */
+  /**
+   * Calculates the theta for an interest rate future without rate slide.
+   * @param definition The swap definition, not null
+   * @param date The calculation date, not null
+   * @param yieldCurveNames The yield curve names, not null
+   * @param data The initial yield curve data, not null
+   * @param lastMarginPrice Last margin price, not null
+   * @param daysForward The number of days to roll forward, must be +/-1
+   * @return The theta
+   */
   public MultipleCurrencyAmount getTheta(final InterestRateFutureTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final Double lastMarginPrice, final int daysForward) {
     ArgumentChecker.notNull(definition, "definition");
@@ -226,10 +226,11 @@ public final class ConstantSpreadHorizonThetaCalculator {
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, lastMarginPrice, yieldCurveNames);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, shiftTime);
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final Currency currency = definition.getCurrency();
+    final Currency currency = definition.getUnderlyingFuture().getCurrency();
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
+
   /**
    * Calculates the theta for an interest rate future option without volatility or rate slide.
    * @param definition The swap definition, not null

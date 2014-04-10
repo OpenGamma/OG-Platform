@@ -54,7 +54,9 @@ public class InterestRateFutureSecurityDefinition extends FuturesSecurityDefinit
   private final String _name;
   /**
    * The holiday calendar.
+   *  @deprecated Deprecated since 2.2.0.M17
    */
+  @Deprecated
   private final Calendar _calendar;
 
   /**
@@ -95,11 +97,11 @@ public class InterestRateFutureSecurityDefinition extends FuturesSecurityDefinit
    * @param iborIndex Ibor index associated to the future.
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor.
-   * @param calendar The holiday calendar for the ibor leg.
    * @param name Future name.
+   * @param calendar The holiday calendar for the index.
    */
-  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor, final String name,
-      final Calendar calendar) {
+  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor,
+      final String name, final Calendar calendar) {
     super(lastTradingDate);
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(iborIndex, "Ibor index");
@@ -134,7 +136,9 @@ public class InterestRateFutureSecurityDefinition extends FuturesSecurityDefinit
     return new InterestRateFutureSecurityDefinition(lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex, notional, paymentAccrualFactor, name, calendar);
   }
 
-  /** Scales notional to 1.0 in curve fitting to provide better conditioning of the Jacobian */
+  /** Scales notional to 1.0 in curve fitting to provide better conditioning of the Jacobian
+   * @deprecated Deprecated since 2.2.0.M17 */
+  @Deprecated
   public void setUnitNotional() {
     _notional = 1.0;
   }
@@ -214,7 +218,9 @@ public class InterestRateFutureSecurityDefinition extends FuturesSecurityDefinit
   /**
    * Gets the holiday calendar.
    * @return The holiday calendar
+   * @deprecated Deprecated since 2.2.0.M17
    */
+  @Deprecated
   public Calendar getCalendar() {
     return _calendar;
   }

@@ -48,7 +48,7 @@ public class IRFutureConstantSpreadHorizonCalculator implements HorizonCalculato
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, lastMarginPrice, yieldCurveNames);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, shiftTime);
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final Currency currency = definition.getCurrency();
+    final Currency currency = definition.getUnderlyingFuture().getCurrency();
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }

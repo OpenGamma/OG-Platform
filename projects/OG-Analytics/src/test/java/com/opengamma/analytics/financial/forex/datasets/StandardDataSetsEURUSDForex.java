@@ -61,7 +61,7 @@ import com.opengamma.util.tuple.Pair;
  * Standard test data set: 2014-03-10
  */
 public class StandardDataSetsEURUSDForex {
-  
+
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2014, 3, 10);
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -93,32 +93,31 @@ public class StandardDataSetsEURUSDForex {
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, TARGET, INDEX_ON_USD.getDayCount());
   private static final GeneratorForexSwap GENERATOR_FX_EURUSD = new GeneratorForexSwap("EURUSD", EUR, USD, TARGET, 2, GENERATOR_OIS_EUR.getBusinessDayConvention(), true);
 
-
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_USD_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_USD_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITHOUT_TODAY };
-  
+
   private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
   private static final String CURVE_NAME_DSC_USD = "USD Dsc";
 
   /** Market values for the dsc USD curve */
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0015, 0.0015,
-    7.9E-4, 7.8E-4, 8.3E-4, 0.0009, 0.0010, 
-    0.00112, 0.0030525, 0.00686, 0.0109, 0.01465, 
-    0.01782, 0.02048, 0.02264, 0.02445, 0.02597};
+    7.9E-4, 7.8E-4, 8.3E-4, 0.0009, 0.0010,
+    0.00112, 0.0030525, 0.00686, 0.0109, 0.01465,
+    0.01782, 0.02048, 0.02264, 0.02445, 0.02597 };
   /** Generators for the dsc USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, 
-    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, 
-    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,  
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD,
+    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
+    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
     GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
-  private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), 
+  private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), 
+    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
@@ -132,18 +131,18 @@ public class StandardDataSetsEURUSDForex {
 
   /** Market values for the dsc EUR curve - calibrated on OIS*/
   private static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.001725, 0.00170,
-    0.00196, 0.00193, 0.00186, 0.00181, 0.00172, 
-    0.00174, 0.002015, 0.00321, 0.00491, 0.0068, 
-    0.01061, 0.01539};
+    0.00196, 0.00193, 0.00186, 0.00181, 0.00172,
+    0.00174, 0.002015, 0.00321, 0.00491, 0.0068,
+    0.01061, 0.01539 };
   /** Generators for the dsc EUR curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR, 
-    GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, 
-    GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,  
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR,
+    GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,
+    GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,
     GENERATOR_OIS_EUR, GENERATOR_OIS_EUR };
   /** Tenors for the dsc EUR curve */
-  private static final Period[] DSC_EUR_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), 
+  private static final Period[] DSC_EUR_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), 
+    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(7), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] DSC_EUR_ATTR = new GeneratorAttributeIR[DSC_EUR_TENOR.length];
   static {
@@ -156,23 +155,23 @@ public class StandardDataSetsEURUSDForex {
   }
 
   /** Market values for the FX EUR USD FX swaps*/
-  private static final double[] DSC_EURUSD_MARKET_FORWARD = new double[] { 
-    1.387673, 1.387625, 1.3875895, 1.38755, 1.387566, 
-    1.387777, 1.39303, 1.406789, 1.427726, 1.4525105};
+  private static final double[] DSC_EURUSD_MARKET_FORWARD = new double[] {
+    1.387673, 1.387625, 1.3875895, 1.38755, 1.387566,
+    1.387777, 1.39303, 1.406789, 1.427726, 1.4525105 };
   private static final int NB_DSC_EURUSD_QUOTES = DSC_EURUSD_MARKET_FORWARD.length;
   private static final double[] DSC_EURUSD_MARKET_QUOTES = new double[NB_DSC_EURUSD_QUOTES];
   static {
-    for(int loopquote=0;loopquote<NB_DSC_EURUSD_QUOTES; loopquote++) {
-      DSC_EURUSD_MARKET_QUOTES[loopquote] = DSC_EURUSD_MARKET_FORWARD[loopquote]-FX_EURUSD;
+    for (int loopquote = 0; loopquote < NB_DSC_EURUSD_QUOTES; loopquote++) {
+      DSC_EURUSD_MARKET_QUOTES[loopquote] = DSC_EURUSD_MARKET_FORWARD[loopquote] - FX_EURUSD;
     }
   }
   /** Generators for the dsc FX curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_EURUSD_GENERATORS = new GeneratorInstrument<?>[] { 
-    GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, 
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_EURUSD_GENERATORS = new GeneratorInstrument<?>[] {
+    GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD,
     GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD };
   /** Tenors for the dsc FX curve */
-  private static final Period[] DSC_EURUSD_TENOR = new Period[] { 
-    Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), 
+  private static final Period[] DSC_EURUSD_TENOR = new Period[] {
+    Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
     Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5) };
   private static final GeneratorAttribute[] DSC_EURUSD_ATTR = new GeneratorAttribute[DSC_EUR_TENOR.length];
   static {
@@ -231,12 +230,12 @@ public class StandardDataSetsEURUSDForex {
     GENERATORS_UNITS[2][1] = new GeneratorYDCurve[] {genIntLin };
     NAMES_UNITS[0] = new String[NB_UNITS[0]][];
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_DSC_EUR};
+    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_DSC_EUR };
     NAMES_UNITS[1] = new String[NB_UNITS[0]][];
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD };
-    NAMES_UNITS[1][1] = new String[] {CURVE_NAME_DSC_EUR};
+    NAMES_UNITS[1][1] = new String[] {CURVE_NAME_DSC_EUR };
     NAMES_UNITS[2] = new String[NB_UNITS[0]][];
-    NAMES_UNITS[2][0] = new String[] {CURVE_NAME_DSC_EUR};
+    NAMES_UNITS[2][0] = new String[] {CURVE_NAME_DSC_EUR };
     NAMES_UNITS[2][1] = new String[] {CURVE_NAME_DSC_USD };
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     DSC_MAP.put(CURVE_NAME_DSC_EUR, EUR);
@@ -263,7 +262,7 @@ public class StandardDataSetsEURUSDForex {
 
   static {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], 
+      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock],
           MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false));
     }
   }
@@ -309,7 +308,7 @@ public class StandardDataSetsEURUSDForex {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
         final double[] rates = new double[nInstruments];
-        for(int k = 0; k < nInstruments; k++) {
+        for (int k = 0; k < nInstruments; k++) {
           derivatives[k] = convert(definitions[i][j][k], withToday);
           rates[k] = initialGuess(definitions[i][j][k]);
         }
@@ -350,7 +349,7 @@ public class StandardDataSetsEURUSDForex {
       return ((CashDefinition) instrument).getRate();
     }
     if (instrument instanceof InterestRateFutureTransactionDefinition) {
-      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTransactionPrice();
+      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTradePrice();
     }
     return 0.01;
   }
