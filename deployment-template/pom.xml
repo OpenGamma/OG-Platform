@@ -186,7 +186,7 @@
                 <configuration>
                   <descriptors>
                     <descriptor>src/main/assembly/assembly-server-unix.xml</descriptor>
-                    <!--<descriptor>src/main/assembly/assembly-server-windows.xml</descriptor>-->
+                    <descriptor>src/main/assembly/assembly-server-windows.xml</descriptor>
                   </descriptors>
                   <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
