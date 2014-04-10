@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
  * Interface specific to inflation curves.
  * Compose the MulticurveProviderInterface.
  */
-public interface InflationIssuerProviderInterface extends ParameterIssuerProviderInterface {
+public interface InflationIssuerProviderInterface extends ParameterIssuerProviderInterface, ParameterInflationProviderInterface {
 
   /**
    * Create a new copy of the provider.
@@ -95,6 +95,7 @@ public interface InflationIssuerProviderInterface extends ParameterIssuerProvide
    * Returns the InflationProvider from which the InflationIssuerProvider is composed.
    * @return The inflation provider.
    */
+  @Override
   InflationProviderInterface getInflationProvider();
 
   //     =====     Methods related to MulticurveProvider     =====
