@@ -7,14 +7,14 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculate clean price from the curves.
  */
-public final class CleanRealPriceFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<InflationProviderInterface, Double> {
+public final class CleanRealPriceFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<InflationIssuerProviderInterface, Double> {
 
   /**
    * The calculator instance.
@@ -36,11 +36,10 @@ public final class CleanRealPriceFromCurvesCalculator extends InstrumentDerivati
   }
 
   /** The method used for bonds */
-  // TODO : use the method with issuer when inflaiton curves with issuer are integrated.
-  private static final BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer METHOD_BOND_SECURITY = BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer.getInstance();
+  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_SECURITY = BondCapitalIndexedSecurityDiscountingMethod.getInstance();
 
   @Override
-  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface issuer) {
+  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
     return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondTransaction(), issuer) * 100;

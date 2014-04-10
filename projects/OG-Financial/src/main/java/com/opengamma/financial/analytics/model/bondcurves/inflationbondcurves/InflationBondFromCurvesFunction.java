@@ -28,7 +28,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -56,7 +56,7 @@ import com.opengamma.util.async.AsynchronousExecution;
  * @param <S> The type of the curves required by the calculator
  * @param <T> The type of the result
  */
-public abstract class InflationBondFromCurvesFunction<S extends ParameterInflationProviderInterface, T> extends AbstractFunction.NonCompiledInvoker {
+public abstract class InflationBondFromCurvesFunction<S extends InflationIssuerProviderInterface, T> extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InflationBondFromCurvesFunction.class);
   /** The value requirement name */
