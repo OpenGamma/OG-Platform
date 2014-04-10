@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
- * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod}
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethodDeprecated}
  */
 @Deprecated
 public final class InterestRateFutureSecurityDiscountingMethod extends InterestRateFutureSecurityMethod {

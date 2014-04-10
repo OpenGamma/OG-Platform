@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -41,6 +42,12 @@ public final class FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator 
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction futures, final MulticurveSensitivity priceSensitivity) {
+    return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(),
+        priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getNotional() * futures.getQuantity() * futures.getUnderlyingFuture().getPaymentAccrualFactor()));
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveSensitivity priceSensitivity) {
     return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(),
         priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getNotional() * futures.getQuantity() * futures.getUnderlyingFuture().getPaymentAccrualFactor()));
   }

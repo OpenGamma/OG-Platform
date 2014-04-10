@@ -57,7 +57,6 @@ public class FuturesTransactionMulticurveMethod extends FuturesTransactionMethod
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, final ParameterProviderInterface multicurve) {
     final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingFuture(), multicurve);
     return futures.accept(PVCSIC, priceSensitivity);
-
   }
 
 }

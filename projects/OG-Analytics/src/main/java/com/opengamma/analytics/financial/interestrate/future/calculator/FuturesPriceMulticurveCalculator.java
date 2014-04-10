@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -36,6 +37,16 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
   }
 
   //     -----     Futures     -----
+
+  @Override
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurve) {
+    ArgumentChecker.notNull(futures, "Futures");
+    ArgumentChecker.notNull(multicurve, "Multi-curves provider");
+    final double forward = multicurve.getMulticurveProvider().getSimplyCompoundForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(),
+        futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
+    final double price = 1.0 - forward;
+    return price;
+  }
 
   @Override
   public Double visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity futures, final ParameterProviderInterface multicurve) {

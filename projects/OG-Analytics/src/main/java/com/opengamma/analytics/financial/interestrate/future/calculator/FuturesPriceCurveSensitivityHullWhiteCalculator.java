@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -19,7 +20,9 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlo
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -62,6 +65,22 @@ public final class FuturesPriceCurveSensitivityHullWhiteCalculator extends Instr
   private static final CashFlowEquivalentCurveSensitivityCalculator CFECSC = CashFlowEquivalentCurveSensitivityCalculator.getInstance();
 
   //     -----     Futures     -----
+
+  @Override
+  public MulticurveSensitivity visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface multicurve) {
+    ArgumentChecker.notNull(futures, "Future");
+    ArgumentChecker.notNull(multicurve, "Multi-curves with Hull-White");
+    final double futureConvexityFactor = MODEL.futuresConvexityFactor(multicurve.getHullWhiteParameters(), futures.getTradingLastTime(), futures.getFixingPeriodStartTime(),
+        futures.getFixingPeriodEndTime());
+    // Backward sweep
+    final double priceBar = 1.0;
+    final double forwardBar = -futureConvexityFactor * priceBar;
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
+    listForward.add(new SimplyCompoundedForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
+    mapFwd.put(multicurve.getMulticurveProvider().getName(futures.getIborIndex()), listForward);
+    return MulticurveSensitivity.ofForward(mapFwd);
+  }
 
   @Override
   public MulticurveSensitivity visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface multicurve) {

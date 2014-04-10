@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 
 /**
@@ -37,6 +38,11 @@ public final class FuturesMarginIndexFromPriceCalculator extends InstrumentDeriv
   }
 
   //     -----     Futures     -----
+
+  @Override
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final Double quotedPrice) {
+    return quotedPrice * futures.getNotional() * futures.getPaymentAccrualFactor();
+  }
 
   @Override
   public Double visitBondFuturesSecurity(final BondFuturesSecurity futures, final Double quotedPrice) {

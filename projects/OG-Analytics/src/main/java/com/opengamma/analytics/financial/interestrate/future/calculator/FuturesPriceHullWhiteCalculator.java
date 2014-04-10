@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -50,6 +51,18 @@ public final class FuturesPriceHullWhiteCalculator extends InstrumentDerivativeV
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
 
   //     -----     Futures     -----
+
+  @Override
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface multicurve) {
+    ArgumentChecker.notNull(futures, "Future");
+    ArgumentChecker.notNull(multicurve, "Multi-curve with Hull-White");
+    final double forward = multicurve.getMulticurveProvider().getSimplyCompoundForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
+        futures.getFixingPeriodAccrualFactor());
+    final double futureConvexityFactor = MODEL.futuresConvexityFactor(multicurve.getHullWhiteParameters(), futures.getTradingLastTime(),
+        futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime());
+    final double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / futures.getFixingPeriodAccrualFactor();
+    return price;
+  }
 
   @Override
   public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface multicurve) {

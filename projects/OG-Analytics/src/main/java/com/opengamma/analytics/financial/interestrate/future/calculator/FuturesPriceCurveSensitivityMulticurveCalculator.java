@@ -13,6 +13,7 @@ import java.util.Map;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -44,6 +45,19 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
   }
 
   //     -----     Futures     -----
+
+  @Override
+  public MulticurveSensitivity visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurve) {
+    ArgumentChecker.notNull(futures, "Futures");
+    ArgumentChecker.notNull(multicurve, "Multi-curves provider");
+    final double priceBar = 1.0;
+    final double forwardBar = -priceBar;
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
+    listForward.add(new SimplyCompoundedForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
+    mapFwd.put(multicurve.getMulticurveProvider().getName(futures.getIborIndex()), listForward);
+    return MulticurveSensitivity.ofForward(mapFwd);
+  }
 
   @Override
   public MulticurveSensitivity visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity futures, final ParameterProviderInterface multicurve) {
