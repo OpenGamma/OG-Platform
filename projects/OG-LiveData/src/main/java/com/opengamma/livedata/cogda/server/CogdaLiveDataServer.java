@@ -24,7 +24,6 @@ import org.springframework.context.Lifecycle;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.opengamma.core.user.AuthenticationUtils;
 import com.opengamma.core.user.UserAccount;
 import com.opengamma.core.user.UserSource;
 import com.opengamma.core.user.impl.SimpleUserAccount;
@@ -235,11 +234,7 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
       s_logger.info("Not allowing login for {} because no user in UserSource", userId);
       return null;
     }
-    
-    if (isCheckPassword() && !AuthenticationUtils.passwordsMatch(user, password)) {
-      s_logger.info("Not allowing login for {} because passwords don't match", userId);
-      return null;
-    }
+    // password check not supported
     return UserPrincipal.getLocalUser(userId);
   }
   

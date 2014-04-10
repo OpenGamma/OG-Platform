@@ -5,7 +5,6 @@
  */
 package com.opengamma.livedata.cogda.server;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.user.EntitlementUtils;
 import com.opengamma.core.user.UserAccount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -59,6 +57,16 @@ import com.opengamma.util.ArgumentChecker;
  * a particular {@link CogdaLiveDataServer}.
  */
 public class CogdaClientConnection implements FudgeConnectionStateListener, FudgeMessageReceiver {
+
+  /**
+   * Subscribe to a stream
+   */
+  public static final String SUBSCRIBE = "subscribe";
+  /**
+   * Snapshot the state of the world
+   */
+  public static final String SNAPSHOT = "snapshot";
+
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaClientConnection.class);
   private final FudgeContext _fudgeContext;
   private final CogdaLiveDataServer _server;
@@ -213,9 +221,10 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
   }
   
   protected boolean isEntitled(String operation, ExternalId subscriptionId, String normalizationScheme) {
-    String entitlementDetail = MessageFormat.format("/{0}/{1}[{2}]", subscriptionId.getScheme(), subscriptionId.getValue(), normalizationScheme);
-    String entitlementString = EntitlementUtils.generateEntitlementString(true, operation, "cogda", entitlementDetail);
-    return EntitlementUtils.userHasEntitlement(getUser(), entitlementString);
+    return true;  // TODO: check permissions against user
+//    String entitlementDetail = MessageFormat.format("/{0}/{1}[{2}]", subscriptionId.getScheme(), subscriptionId.getValue(), normalizationScheme);
+//    String entitlementString = EntitlementUtils.generateEntitlementString(true, operation, "cogda", entitlementDetail);
+//    return EntitlementUtils.userHasEntitlement(getUser(), entitlementString);
   }
 
   /**
@@ -231,7 +240,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     
     if (!getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
       response.setGenericResult(CogdaCommandResponseResult.NOT_AVAILABLE);
-    } else if (!isEntitled(EntitlementUtils.SNAPSHOT, request.getSubscriptionId(), request.getNormalizationScheme())) {
+    } else if (!isEntitled(SNAPSHOT, request.getSubscriptionId(), request.getNormalizationScheme())) {
       response.setGenericResult(CogdaCommandResponseResult.NOT_AUTHORIZED);
     } else {
       LastKnownValueStore lkvStore = getServer().getLastKnownValueStore(request.getSubscriptionId(), request.getNormalizationScheme());
@@ -264,7 +273,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     // TODO kirk 2012-07-23 -- Check entitlements.
     if (!getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
       response.setGenericResult(CogdaCommandResponseResult.NOT_AVAILABLE);
-    } else if (!isEntitled(EntitlementUtils.SUBSCRIBE, request.getSubscriptionId(), request.getNormalizationScheme())) {
+    } else if (!isEntitled(SUBSCRIBE, request.getSubscriptionId(), request.getNormalizationScheme())) {
       response.setGenericResult(CogdaCommandResponseResult.NOT_AUTHORIZED);
     } else {
       LastKnownValueStore lkvStore = getServer().getLastKnownValueStore(request.getSubscriptionId(), request.getNormalizationScheme());
