@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -182,6 +183,8 @@ public class WebPositionResource extends AbstractWebPositionResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
+    out.put("timeFormatterJson", DateTimeFormatter.ofPattern("HH:mm:ss"));
+    out.put("offsetFormatterJson", DateTimeFormatter.ofPattern("Z"));
     PositionDocument doc = data().getPosition();
     
     // REVIEW jonathan 2012-01-12 -- we are throwing away any adjuster that may be required, e.g. to apply
