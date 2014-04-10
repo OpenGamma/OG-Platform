@@ -189,6 +189,7 @@ public class VolatilityCubeData<X, Y, Z> implements Bean, Serializable {
    * Initializes data structures and divides the cube into x-y strips.
    * @param values The values, not null
    */
+  @SuppressWarnings("unchecked")
   private void init(final Map<Triple<X, Y, Z>, Double> values) {
     _values = values;
     _strips = new HashMap<>();

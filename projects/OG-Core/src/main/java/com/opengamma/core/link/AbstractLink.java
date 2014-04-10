@@ -81,7 +81,7 @@ public abstract class AbstractLink<I, T> implements Link<I, T> {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    AbstractLink other = (AbstractLink) obj;
+    AbstractLink<?, ?> other = (AbstractLink<?, ?>) obj;
     return
         Objects.equals(this._identifier, other._identifier) &&
         Objects.equals(this._type, other._type);

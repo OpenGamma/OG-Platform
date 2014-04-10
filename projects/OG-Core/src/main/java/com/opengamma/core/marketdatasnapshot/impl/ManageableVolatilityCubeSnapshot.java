@@ -87,6 +87,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * @param msg message containing the snapshot representation, not null
    * @return a snapshot object
    */
+  @SuppressWarnings("unchecked")
   public static ManageableVolatilityCubeSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final HashMap<Triple<Object, Object, Object>, ValueSnapshot> values = new HashMap<>();
     Triple<Object, Object, Object> key = null;

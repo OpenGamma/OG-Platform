@@ -151,6 +151,7 @@ public class SurfaceData<X, Y> implements Bean, Serializable {
    * Initializes data structures and divides the surface into x strips.
    * @param values The values, not null
    */
+  @SuppressWarnings("unchecked")
   private void init(final Map<Pair<X, Y>, Double> values) {
     _values = values;
     _strips = new HashMap<>();
