@@ -23,23 +23,31 @@
       <@link text="Portfolios" uriObj=portfolioUris!""/>
       <@link text="Positions" uriObj=positionUris!""/>
       <@link text="Regions" uriObj=regionUris!""/>
+<#if security.isPermitted('RoleMaster:view')>
+      <@link text="Roles" uriObj=roleUris!""/>
+</#if>
       <@link text="Securities" uriObj=securityUris!""/>
       <@link text="Snapshots" uriObj=snapshotUris!""/>
       <@link text="Time Series" uriObj=timeseriesUris!""/>
+<#if security.isPermitted('UserMaster:view')>
+      <@link text="Users" uriObj=userUris!""/>
+</#if>
     </ul>
   </p>
 </@section>
+<#if security.isPermitted('WebAbout:view') || security.isPermitted('WebComponents:view')>
 <#-- SECTION Links -->
 <@section title="Links">
   <p>
-<#if uris.about()?has_content>
+<#if security.isPermitted('WebAbout:view')>
     <a href="${uris.about()}">View information about the system</a><br />
 </#if>
-<#if uris.components()?has_content>
+<#if security.isPermitted('WebComponents:view')>
     <a href="${uris.components()}">View the components</a><br />
 </#if>
   </p>
 </@section>
+</#if>
 <p>
 <br />
 <br />

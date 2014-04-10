@@ -72,14 +72,13 @@ public abstract class AbstractWebBundleResource
   /**
    * Creates the output root data.
    * 
-   * @param userName  logged in user name
    * @return the output root data, not null
    */
-  protected FlexiBean createRootData(String userName) {
+  @Override
+  protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     out.put("ogStyle", new StyleTag(data()));
     out.put("ogScript", new ScriptTag(data()));
-    out.put("ogUserName", userName);
     HttpHeaders httpHeaders = data().getHttpHeaders();
     String openfin = "";
     if (httpHeaders != null) {

@@ -34,7 +34,7 @@
     <a href="components.xml">View as XML</a><br />
     <a href="components.fudge">View as Fudge</a><br />
     <a href="${uris.home()}">Return home</a><br />
-<#if uris.about()?has_content>
+<#if security.isPermitted('WebAbout:view')>
     <a href="${uris.about()}">View information about the system</a><br />
 </#if>
   </p>

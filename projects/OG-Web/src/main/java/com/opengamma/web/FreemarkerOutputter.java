@@ -15,11 +15,15 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.joda.beans.integrate.freemarker.FreemarkerObjectWrapper;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
+import com.opengamma.core.user.UserProfile;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.web.user.WebUser;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -103,8 +107,11 @@ public class FreemarkerOutputter {
   public static FlexiBean createRootData() {
     FlexiBean data = new FlexiBean();
     data.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
+    data.put("locale", Locale.ENGLISH);
+    data.put("timeZone", OpenGammaClock.getInstance().getZone());
+    data.put("dateFormatter", DateTimeFormatter.ofPattern("d MMM yyyy"));
     data.put("timeFormatter", DateTimeFormatter.ofPattern("HH:mm:ss"));
-    data.put("offsetFormatter", DateTimeFormatter.ofPattern("Z"));
+    data.put("offsetFormatter", new DateTimeFormatterBuilder().appendOffsetId().toFormatter());
     return data;
   }
 
@@ -128,6 +135,21 @@ public class FreemarkerOutputter {
     FlexiBean out = FreemarkerOutputter.createRootData();
     out.put("homeUris", new WebHomeUris(uriInfo));
     out.put("baseUri", uriInfo.getBaseUri().toString());
+    WebUser user = new WebUser(uriInfo);
+    UserProfile profile = user.getProfile();
+    if (profile != null) {
+      Locale locale = profile.getLocale();
+      ZoneId zone = profile.getZone();
+      DateTimeFormatter dateFormatter = profile.getDateStyle().formatter(locale);
+      DateTimeFormatter timeFormatter = profile.getTimeStyle().formatter(locale);
+      ZonedDateTime now = ZonedDateTime.now(OpenGammaClock.getInstance().withZone(zone));
+      out.put("now", now);
+      out.put("locale", locale);
+      out.put("timeZone", zone);
+      out.put("dateFormatter", dateFormatter);
+      out.put("timeFormatter", timeFormatter);
+    }
+    out.put("security", user);
     return out;
   }
 

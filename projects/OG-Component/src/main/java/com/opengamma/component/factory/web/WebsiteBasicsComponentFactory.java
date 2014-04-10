@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.credential.PasswordService;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -34,6 +36,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.infrastructure.PermissiveSecurityManager;
 import com.opengamma.component.rest.JerseyRestResourceFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -61,6 +64,8 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.user.UserMaster;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.WebAboutResource;
 import com.opengamma.web.WebHomeResource;
 import com.opengamma.web.config.WebConfigsResource;
@@ -76,6 +81,12 @@ import com.opengamma.web.position.WebPositionsResource;
 import com.opengamma.web.region.WebRegionsResource;
 import com.opengamma.web.security.WebSecuritiesResource;
 import com.opengamma.web.target.WebComputationTargetTypeResource;
+import com.opengamma.web.user.WebLoginResource;
+import com.opengamma.web.user.WebLogoutResource;
+import com.opengamma.web.user.WebProfileResource;
+import com.opengamma.web.user.WebRegisterResource;
+import com.opengamma.web.user.WebRolesResource;
+import com.opengamma.web.user.WebUsersResource;
 import com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource;
 
 /**
@@ -90,6 +101,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private ConfigMaster _configMaster;
+  /**
+   * The user master.
+   */
+  @PropertyDefinition
+  private UserMaster _userMaster;
+  /**
+   * The password service.
+   */
+  @PropertyDefinition
+  private PasswordService _passwordService;
   /**
    * The exchange master.
    */
@@ -258,6 +279,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected void initBasics(ComponentRepository repo, Set<Class<?>> publishedTypes) {
+    if (SecurityUtils.getSecurityManager() instanceof PermissiveSecurityManager == false) {
+      ArgumentChecker.notNull(getUserMaster(), "UserMaster");
+      ArgumentChecker.notNull(getPasswordService(), "PasswordService");
+      repo.getRestComponents().publishResource(new WebLoginResource());
+      repo.getRestComponents().publishResource(new WebLogoutResource());
+      repo.getRestComponents().publishResource(new WebRegisterResource(getUserMaster(), getPasswordService()));
+      repo.getRestComponents().publishResource(new WebProfileResource(getUserMaster(), getPasswordService()));
+    }
     repo.getRestComponents().publishResource(new WebHomeResource(publishedTypes));
     repo.getRestComponents().publishResource(new WebAboutResource());
   }
@@ -281,6 +310,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   private Map<Class<?>, List<Object>> extractResourceParams(Map<ExternalScheme, String> externalSchemes, final MasterConfigSource configSource) {
     Map<Class<?>, List<Object>> resourceParameters = Maps.newHashMap();
     resourceParameters.put(WebConfigsResource.class,   params(getConfigMaster()));
+    resourceParameters.put(WebUsersResource.class, params(getUserMaster(), getPasswordService()));
+    resourceParameters.put(WebRolesResource.class, params(getUserMaster()));
     resourceParameters.put(WebExchangesResource.class, params(getExchangeMaster()));
     resourceParameters.put(WebHolidaysResource.class,  params(getHolidayMaster()));
     resourceParameters.put(WebRegionsResource.class,   params(getRegionMaster()));
@@ -377,6 +408,56 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<ConfigMaster> configMaster() {
     return metaBean().configMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the user master.
+   * @return the value of the property
+   */
+  public UserMaster getUserMaster() {
+    return _userMaster;
+  }
+
+  /**
+   * Sets the user master.
+   * @param userMaster  the new value of the property
+   */
+  public void setUserMaster(UserMaster userMaster) {
+    this._userMaster = userMaster;
+  }
+
+  /**
+   * Gets the the {@code userMaster} property.
+   * @return the property, not null
+   */
+  public final Property<UserMaster> userMaster() {
+    return metaBean().userMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the password service.
+   * @return the value of the property
+   */
+  public PasswordService getPasswordService() {
+    return _passwordService;
+  }
+
+  /**
+   * Sets the password service.
+   * @param passwordService  the new value of the property
+   */
+  public void setPasswordService(PasswordService passwordService) {
+    this._passwordService = passwordService;
+  }
+
+  /**
+   * Gets the the {@code passwordService} property.
+   * @return the property, not null
+   */
+  public final Property<PasswordService> passwordService() {
+    return metaBean().passwordService().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1005,6 +1086,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     if (obj != null && obj.getClass() == this.getClass()) {
       WebsiteBasicsComponentFactory other = (WebsiteBasicsComponentFactory) obj;
       return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getUserMaster(), other.getUserMaster()) &&
+          JodaBeanUtils.equal(getPasswordService(), other.getPasswordService()) &&
           JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
           JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
           JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
@@ -1038,6 +1121,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordService());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
@@ -1067,7 +1152,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(832);
+    StringBuilder buf = new StringBuilder(896);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1082,6 +1167,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("userMaster").append('=').append(JodaBeanUtils.toString(getUserMaster())).append(',').append(' ');
+    buf.append("passwordService").append('=').append(JodaBeanUtils.toString(getPasswordService())).append(',').append(' ');
     buf.append("exchangeMaster").append('=').append(JodaBeanUtils.toString(getExchangeMaster())).append(',').append(' ');
     buf.append("holidayMaster").append('=').append(JodaBeanUtils.toString(getHolidayMaster())).append(',').append(' ');
     buf.append("regionMaster").append('=').append(JodaBeanUtils.toString(getRegionMaster())).append(',').append(' ');
@@ -1123,6 +1210,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
         this, "configMaster", WebsiteBasicsComponentFactory.class, ConfigMaster.class);
+    /**
+     * The meta-property for the {@code userMaster} property.
+     */
+    private final MetaProperty<UserMaster> _userMaster = DirectMetaProperty.ofReadWrite(
+        this, "userMaster", WebsiteBasicsComponentFactory.class, UserMaster.class);
+    /**
+     * The meta-property for the {@code passwordService} property.
+     */
+    private final MetaProperty<PasswordService> _passwordService = DirectMetaProperty.ofReadWrite(
+        this, "passwordService", WebsiteBasicsComponentFactory.class, PasswordService.class);
     /**
      * The meta-property for the {@code exchangeMaster} property.
      */
@@ -1249,6 +1346,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "configMaster",
+        "userMaster",
+        "passwordService",
         "exchangeMaster",
         "holidayMaster",
         "regionMaster",
@@ -1285,6 +1384,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           return _configMaster;
+        case 1402846733:  // userMaster
+          return _userMaster;
+        case 348360602:  // passwordService
+          return _passwordService;
         case -652001691:  // exchangeMaster
           return _exchangeMaster;
         case 246258906:  // holidayMaster
@@ -1359,6 +1462,22 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConfigMaster> configMaster() {
       return _configMaster;
+    }
+
+    /**
+     * The meta-property for the {@code userMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UserMaster> userMaster() {
+      return _userMaster;
+    }
+
+    /**
+     * The meta-property for the {@code passwordService} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<PasswordService> passwordService() {
+      return _passwordService;
     }
 
     /**
@@ -1561,6 +1680,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           return ((WebsiteBasicsComponentFactory) bean).getConfigMaster();
+        case 1402846733:  // userMaster
+          return ((WebsiteBasicsComponentFactory) bean).getUserMaster();
+        case 348360602:  // passwordService
+          return ((WebsiteBasicsComponentFactory) bean).getPasswordService();
         case -652001691:  // exchangeMaster
           return ((WebsiteBasicsComponentFactory) bean).getExchangeMaster();
         case 246258906:  // holidayMaster
@@ -1618,6 +1741,12 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           ((WebsiteBasicsComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+        case 1402846733:  // userMaster
+          ((WebsiteBasicsComponentFactory) bean).setUserMaster((UserMaster) newValue);
+          return;
+        case 348360602:  // passwordService
+          ((WebsiteBasicsComponentFactory) bean).setPasswordService((PasswordService) newValue);
           return;
         case -652001691:  // exchangeMaster
           ((WebsiteBasicsComponentFactory) bean).setExchangeMaster((ExchangeMaster) newValue);

@@ -21,7 +21,7 @@ public enum TimeStyle {
   /**
    * The standard ISO-8601 format
    */
-  ISO(DateTimeFormatter.ISO_LOCAL_TIME),
+  ISO(DateTimeFormatter.ofPattern("HH:mm:ss")),
   /**
    * The short localized format.
    */

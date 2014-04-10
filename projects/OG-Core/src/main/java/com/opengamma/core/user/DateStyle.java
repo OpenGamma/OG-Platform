@@ -23,13 +23,17 @@ public enum DateStyle {
    */
   ISO(DateTimeFormatter.ISO_LOCAL_DATE),
   /**
-   * A standard US ordered format
+   * A standard US ordered format.
    */
   STANDARD_US(DateTimeFormatter.ofPattern("MM/dd/yyyy")),
   /**
-   * A standard EU ordered format
+   * A standard EU ordered format.
    */
   STANDARD_EU(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+  /**
+   * A simple format with abbreviated textual month.
+   */
+  TEXTUAL_MONTH(DateTimeFormatter.ofPattern("d MMM yyyy")),
   /**
    * The short localized format.
    */

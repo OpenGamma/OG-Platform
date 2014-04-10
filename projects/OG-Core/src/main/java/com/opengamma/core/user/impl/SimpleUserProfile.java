@@ -64,7 +64,7 @@ public class SimpleUserProfile implements Bean, UserProfile, Serializable {
    * The date format style that the user prefers.
    */
   @PropertyDefinition(validate = "notNull")
-  private DateStyle _dateStyle = DateStyle.ISO;
+  private DateStyle _dateStyle = DateStyle.TEXTUAL_MONTH;
   /**
    * The time formatter that the user prefers.
    */

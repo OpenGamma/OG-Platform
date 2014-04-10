@@ -57,7 +57,7 @@ img {
  * @todo move to og.common.header.css
  */
 
-#header {
+#header, #header TABLE {
   background-color: #e1e9ec;
   border-bottom: 2px solid #59ac7c;
   margin: 0;
@@ -65,7 +65,12 @@ img {
   width: 100%;
 }
 
-#header #logo,
+#header #logo {
+  width: 30%;
+  margin: 0;
+  padding: 0;
+}
+
 #header #logo a {
   margin: 0;
   padding: 0;
@@ -75,6 +80,12 @@ img {
   padding: 4px 0px 4px 24px;
 }
 
+#header #topright {
+  text-align: right;
+  padding-right: 24px;
+  font-family: Arial,sans-serif;
+  font-size: 12px;
+}
 
 
 /*
@@ -144,7 +155,6 @@ img {
 
 .dat {
   color: #000;
-  display: inline-block;
   width: 100%;
 }
 

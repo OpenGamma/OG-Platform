@@ -49,10 +49,10 @@
       </a>
     </li>
   </ul>
-  <#if ogUserName?has_content>
+  <#if security.enabled && security.userName?has_content>
   <ul class="og-username-logout">
     <li>
-      <span class="og-username">${ogUserName}</span> | <span class="og-logout">Logout</span>
+      <span class="og-username">${security.userName}</span> | <span class="og-logout">Logout</span>
     </li>
   </ul>
   </#if>

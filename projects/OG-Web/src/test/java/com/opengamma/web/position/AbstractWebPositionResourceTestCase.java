@@ -17,6 +17,8 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletContext;
 import org.testng.annotations.BeforeMethod;
@@ -59,6 +61,7 @@ import com.opengamma.master.security.impl.AbstractSecurityLoader;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestUtils;
 import com.opengamma.web.FreemarkerOutputter;
 import com.opengamma.web.MockUriInfo;
 import com.opengamma.web.WebResourceTestUtils;
@@ -90,6 +93,7 @@ public abstract class AbstractWebPositionResourceTestCase {
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
+    TestUtils.initSecurity();
     _uriInfo = new MockUriInfo(true);
     _trades = getTrades();
     _secMaster = new InMemorySecurityMaster(new ObjectIdSupplier("Mock"));

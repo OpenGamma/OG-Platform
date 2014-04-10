@@ -187,6 +187,9 @@ public class DbRoleMaster
     int newVersion = Integer.parseInt(oldVersion) + 1;
     UniqueId newUniqueId = objectId.atVersion(Integer.toString(newVersion));
     // validate
+    if (current.equals(role)) {
+      return Pairs.of(newUniqueId, null);  // no change
+    }
     if (current.getUniqueId().getVersion().equals(oldVersion) == false) {
       throw new DataVersionException("Invalid version, Role has already been updated: " + objectId);
     }

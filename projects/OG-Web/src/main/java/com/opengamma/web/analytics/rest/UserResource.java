@@ -11,17 +11,32 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.session.SessionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * REST resource for the user sessions. This resource class specifies the endpoints for user requests.
  */
 @Path("user")
 public class UserResource {
 
-  @Path("logout")
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(UserResource.class);
+
   @GET
+  @Path("logout")
   public Response get(@Context HttpServletRequest hsr) {
-    hsr.getSession().invalidate();
-    return Response.status(Response.Status.OK).build();
+    try {
+      SecurityUtils.getSubject().logout();
+      hsr.getSession().invalidate();
+    } catch (SessionException ex) {
+      s_logger.debug("Ignoring session exception during logout", ex);
+    } catch (RuntimeException ex) {
+      s_logger.debug("Ignoring unexpected exception during logout", ex);
+    }
+    return Response.ok().build();
   }
 
 }

@@ -57,6 +57,12 @@ import com.opengamma.web.region.WebRegionsResource;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesResource;
 import com.opengamma.web.security.WebSecuritiesUris;
+import com.opengamma.web.user.WebRoleData;
+import com.opengamma.web.user.WebRoleUris;
+import com.opengamma.web.user.WebRolesResource;
+import com.opengamma.web.user.WebUserData;
+import com.opengamma.web.user.WebUserUris;
+import com.opengamma.web.user.WebUsersResource;
 
 /**
  * RESTful resource for the home page.
@@ -81,9 +87,10 @@ public class WebHomeResource extends AbstractSingletonWebResource {
     builder.add(new ResourceConfig(WebPortfoliosResource.class, WebPortfoliosData.class, WebPortfoliosUris.class, "portfolioUris"));
     builder.add(new ResourceConfig(WebPositionsResource.class, WebPositionsData.class, WebPositionsUris.class, "positionUris"));
     builder.add(new ResourceConfig(WebRegionsResource.class, WebRegionData.class, WebRegionUris.class, "regionUris"));
+    builder.add(new ResourceConfig(WebRolesResource.class, WebRoleData.class, WebRoleUris.class, "roleUris"));
     builder.add(new ResourceConfig(WebSecuritiesResource.class, WebSecuritiesData.class, WebSecuritiesUris.class, "securityUris"));
     builder.add(new ResourceConfig(WebMarketDataSnapshotsResource.class, WebMarketDataSnapshotData.class, WebMarketDataSnapshotUris.class, "snapshotUris"));
-    
+    builder.add(new ResourceConfig(WebUsersResource.class, WebUserData.class, WebUserUris.class, "userUris"));
     s_resourceConfigs = builder.build();
   }
   

@@ -278,8 +278,8 @@ public class ComponentManager {
     _logger.logDebug("--- Using merged properties ---");
     Map<String, String> properties = new TreeMap<String, String>(getProperties());
     for (String key : properties.keySet()) {
-      if (key.contains("password")) {
-        _logger.logDebug(" " + key + " = " + StringUtils.repeat("*", properties.get(key).length()));
+      if (key.contains("password") || key.startsWith("shiro.")) {
+        _logger.logDebug(" " + key + " = *** HIDDEN ***");
       } else {
         _logger.logDebug(" " + key + " = " + properties.get(key));
       }

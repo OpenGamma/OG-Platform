@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
@@ -332,12 +333,14 @@ public abstract class AbstractDbUserMaster<T extends UniqueIdentifiable>
 
   void insertEvent(HistoryEvent event, String eventIdSequence) {
     Long eventId = nextId(eventIdSequence);
+    Object principal = SecurityUtils.getSubject().getPrincipal();
+    String activeUser = (principal instanceof String ? (String) principal : "system");
     final DbMapSqlParameterSource eventArgs = createParameterSource()
         .addValue("id", eventId)
         .addValue("doc_id", extractOid(event.getUniqueId()))
         .addValue("version", Integer.parseInt(event.getUniqueId().getVersion()))
         .addValue("event_type", event.getType().name().substring(0, 1))
-        .addValue("active_user", "system")
+        .addValue("active_user", activeUser)
         .addValue("event_instant", DbDateUtils.toSqlTimestamp(event.getInstant()));
     final String sqlEvent = getElSqlBundle().getSql("InsertEvent");
     getJdbcTemplate().update(sqlEvent, eventArgs);

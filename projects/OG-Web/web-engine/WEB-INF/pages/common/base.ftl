@@ -25,9 +25,24 @@
   </head>
   <body>
     <div id="header">
-      <p id="logo">
-        <a href="/"><img src="/images/opengamma.png" width="289" height="51" alt="OpenGamma - Financial Analytics and Risk Management" /></a>
-      </p>
+      <table>
+        <tr colcount="2">
+          <td id="logo">
+            <a href="/jax"><img src="/images/opengamma.png" width="289" height="51" alt="OpenGamma - Financial Analytics and Risk Management" /></a>
+          </td>
+          <td id="topright">
+<#if security.enabled>
+ <#if security.loggedIn>
+            Logged in as <a href="${security.profileUri}">${security.userName}</a> : <a href="${security.logoutUri}">Logout</a>
+ <#else>
+            <a href="${security.registerUri}">Register</a> : <a href="${security.loginUri}">Login</a>
+ </#if>
+</#if>
+            <br />
+            ${dateFormatter.format(now)}, ${timeFormatter.format(now)} ${offsetFormatter.format(now)} ${timeZone}            
+          </td>
+        </tr>
+      </table>
     </div>
     <div id="body">
 <#nested>

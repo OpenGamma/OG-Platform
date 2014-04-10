@@ -47,6 +47,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.HistoryEvent;
 import com.opengamma.master.user.HistoryEventType;
+import com.opengamma.master.user.ManageableRole;
 import com.opengamma.master.user.ManageableUser;
 import com.opengamma.master.user.UserEventHistoryRequest;
 import com.opengamma.master.user.UserEventHistoryResult;
@@ -162,7 +163,49 @@ public class DbUserMaster
   //-------------------------------------------------------------------------
   @Override
   public UniqueId add(final ManageableUser user) {
-    return doAdd(user);
+    UniqueId added = doAdd(user);
+    setupRole(user);
+    return added;
+  }
+
+  private void setupRole(final ManageableUser user) {
+    for (int retry = 0; retry < 5; retry++) {
+      try {
+        ManageableRole role;
+        if (user.getUserName().equals("admin")) {
+          if (roleMaster().nameExists("admin")) {
+            role = roleMaster().getByName("admin");
+            if (role.getAssociatedUsers().contains("admin") == false) {
+              role.getAssociatedUsers().add("admin");
+            }
+          } else {
+            role = new ManageableRole("admin");
+            role.setDescription("Administrators");
+            role.getAssociatedUsers().add("admin");
+            role.getAssociatedPermissions().add("*");
+          }
+        } else {
+          if (roleMaster().nameExists("registered")) {
+            role = roleMaster().getByName("registered");
+            if (role.getAssociatedUsers().contains(caseInsensitive(user.getUserName())) == false) {
+              role.getAssociatedUsers().add(caseInsensitive(user.getUserName()));
+            }
+          } else {
+            role = new ManageableRole("registered");
+            role.setDescription("Registered users");
+            role.getAssociatedUsers().add(caseInsensitive(user.getUserName()));
+          }
+        }
+        roleMaster().save(role);
+        return;
+        
+      } catch (DataVersionException | DataDuplicationException ex) {
+        // retry, handling contended user setup senarios
+      } catch (RuntimeException ex) {
+        // ignore and do not assign a role
+        return;
+      }
+    }
   }
 
   /**

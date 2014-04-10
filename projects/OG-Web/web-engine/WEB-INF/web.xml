@@ -75,4 +75,25 @@
     </init-param>
   </servlet>
 
+  <!-- Apache Shiro security -->
+  <listener>
+    <listener-class>com.opengamma.web.ShiroSecurityEnvironmentLoader</listener-class>
+  </listener>
+  <filter>
+    <filter-name>ShiroFilter</filter-name>
+    <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>ShiroFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+    <dispatcher>ERROR</dispatcher>
+  </filter-mapping>
+  <context-param>
+    <param-name>shiroConfigLocations</param-name>
+    <param-value>/WEB-INF/shiro.ini</param-value>
+  </context-param>
+
 </web-app>

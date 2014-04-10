@@ -11,7 +11,7 @@ $.register_module({
             init : function () {
                 $('.OG-masthead .og-logout').on('click', function () {
                     api.logout.get().pipe(function () {
-                        window.location = '/login.html';
+                        window.location = '/jax/login/og';
                     });
                 });
             }

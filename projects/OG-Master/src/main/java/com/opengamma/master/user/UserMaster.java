@@ -10,6 +10,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.DataVersionException;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.user.UserAccount;
+import com.opengamma.core.user.UserSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
@@ -28,7 +29,7 @@ import com.opengamma.id.UniqueId;
  * Unlike some other master interfaces, a user master only maintains lightweight history.
  * Each version is assigned a unique identifier, but only the current version can be queried.
  */
-public interface UserMaster extends ChangeProvider {
+public interface UserMaster extends UserSource, ChangeProvider {
 
   /**
    * Checks if a user name already exists.
