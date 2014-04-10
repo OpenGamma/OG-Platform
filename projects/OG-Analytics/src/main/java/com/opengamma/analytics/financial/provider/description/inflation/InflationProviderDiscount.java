@@ -41,7 +41,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    */
   private final Map<IndexPrice, PriceIndexCurve> _priceIndexCurves;
   /**
-   * Map of all curves used in the provider.
+   * Map of all inflation curves used in the provider.
    */
   private Map<String, PriceIndexCurve> _allCurves;
 
@@ -299,6 +299,13 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
+  public Set<String> getAllCurveNames() {
+    final TreeSet<String> allNames = new TreeSet<>(_multicurveProvider.getAllCurveNames());
+    allNames.addAll(_allCurves.keySet());
+    return Collections.unmodifiableSortedSet(allNames);
+  }
+
+  @Override
   public Set<String> getAllNames() {
     return getAllCurveNames();
   }
@@ -455,11 +462,6 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
-  }
-
-  @Override
-  public Set<String> getAllCurveNames() {
-    return Collections.unmodifiableSortedSet(new TreeSet<>(_allCurves.keySet()));
   }
 
   @Override
