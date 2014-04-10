@@ -408,6 +408,9 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   @Override
   public Set<Currency> visitOISLegConvention(final OISLegConvention convention) {
     final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+    if (index == null) {
+      throw new OpenGammaRuntimeException("Overnight index with id " + convention.getOvernightIndexConvention() + " not found in security source.");
+    }
     final FinancialConvention underlyingConvention = _conventionSource.getSingle(index.getConventionId(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
