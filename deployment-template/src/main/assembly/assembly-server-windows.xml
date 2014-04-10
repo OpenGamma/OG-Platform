@@ -8,12 +8,10 @@
     <format>zip</format>
   </formats>
 
-  <!-- website resources -->
   <dependencySets>
+    <!-- Platform libaries - eg C:\Program Files\OpenGamma Ltd\Server\lib -->
     <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
-      <directoryMode>755</directoryMode>
-      <fileMode>644</fileMode>
+      <outputDirectory>/platform/lib</outputDirectory>
       <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       <useStrictFiltering>true</useStrictFiltering>
       <excludes>
@@ -22,73 +20,85 @@
     </dependencySet>
   </dependencySets>
   <fileSets>
-    <!-- config -->
+    <!-- Site libraries - eg C:\ProgramData\OpenGamma Ltd\Server\lib) -->
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/lib</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+    <!-- Site configuration template - eg C:\Program Files\OpenGamma Ltd\Server\data-template\config -->
     <fileSet>
       <directory>config</directory>
       <outputDirectory>/config</outputDirectory>
-      <directoryMode>755</directoryMode>
-      <fileMode>644</fileMode>
       <lineEnding>windows</lineEnding>
+      <includes>
+        <include>**/*.properties</include>
+      </includes>
     </fileSet>
-    <!-- scripts -->
+    <!-- Platform configuration - eg C:\Program Files\OpenGamma Ltd\Server\config -->
+    <fileSet>
+      <directory>config</directory>
+      <outputDirectory>/platform/config</outputDirectory>
+      <lineEnding>windows</lineEnding>
+      <includes>
+        <include>**/*.ini</include>
+        <include>**/*.xml</include>
+      </includes>
+    </fileSet>
+    <!-- Scripts - eg C:\Program Files\OpenGamma Ltd\Server\bin -->
     <fileSet>
       <directory>${project.build.directory}/scripts</directory>
-      <outputDirectory>/scripts</outputDirectory>
-      <directoryMode>755</directoryMode>
-      <fileMode>755</fileMode>
+      <outputDirectory>/platform/scripts</outputDirectory>
       <lineEnding>windows</lineEnding>
       <includes>
         <include>*.bat</include>
       </includes>
+      <excludes>
+        <!-- Files from OG-Tools that don't work with this package layout -->
+        <exclude>run-tool.bat</exclude>
+        <exclude>run-tool-noexe.bat</exclude>
+        <exclude>project-utils.bat</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>scripts</directory>
-      <outputDirectory>/scripts</outputDirectory>
-      <directoryMode>755</directoryMode>
-      <fileMode>755</fileMode>
+      <outputDirectory>/platform/scripts</outputDirectory>
       <lineEnding>windows</lineEnding>
       <includes>
         <include>*.bat</include>
-        <include>README*.txt</include>
       </includes>
     </fileSet>
+    <!-- Documentation -->
     <fileSet>
       <directory>src/main/assembly</directory>
       <outputDirectory></outputDirectory>
-      <directoryMode>755</directoryMode>
-      <fileMode>755</fileMode>
       <lineEnding>windows</lineEnding>
       <includes>
         <include>*.txt</include>
       </includes>
     </fileSet>
-    <!-- web directory -->
+    <!-- Jetty resources - eg C:\Program Files\OpenGamma Ltd\Server\web-* -->
     <fileSet>
       <directory>${project.build.directory}/assembly/web-engine</directory>
-      <outputDirectory>/web-engine</outputDirectory>
-      <directoryMode>755</directoryMode>
-      <fileMode>644</fileMode>
+      <outputDirectory>/platform/web-engine</outputDirectory>
     </fileSet>
-    <!-- marketdata web directory -->
     <fileSet>
       <directory>${project.build.directory}/assembly/web-marketdata</directory>
-      <outputDirectory>/web-marketdata</outputDirectory>
-      <directoryMode>755</directoryMode>
-      <fileMode>644</fileMode>
+      <outputDirectory>/platform/web-marketdata</outputDirectory>
     </fileSet>
-    <!-- directory for data and logs -->
+    <!-- Empty data and log directories -->
     <fileSet>
       <directory>${project.build.directory}</directory>
-      <outputDirectory>/data</outputDirectory>
-      <directoryMode>755</directoryMode>
+      <outputDirectory>/platform/data</outputDirectory>
       <excludes>
         <exclude>**/*</exclude>
       </excludes>
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}</directory>
-      <outputDirectory>/logs</outputDirectory>
-      <directoryMode>755</directoryMode>
+      <outputDirectory>/platform/logs</outputDirectory>
       <excludes>
         <exclude>**/*</exclude>
       </excludes>

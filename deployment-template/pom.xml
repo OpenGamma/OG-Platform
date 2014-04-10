@@ -40,8 +40,6 @@
 
   <!-- ==================================================================== -->
   <properties>
-    <!-- Properties for OpenGamma plugin -->
-    <opengamma.generate.scripts.type>tool</opengamma.generate.scripts.type>
     <!-- Properties for maven-javadoc-plugin -->
     <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
   </properties>
@@ -80,9 +78,23 @@
         <artifactId>opengamma-maven-plugin</artifactId>
         <executions>
           <execution>
+            <id>unix-shell-scripts</id>
             <goals>
               <goal>generate-scripts</goal>
             </goals>
+            <configuration>
+              <type>tool</type>
+              <windows>false</windows>
+            </configuration>
+          </execution>
+          <execution>
+            <id>windows-batch-files</id>
+            <goals>
+              <goal>generate-scripts</goal>
+            </goals>
+            <configuration>
+              <windowsTemplate>scripts/generate-scripts-windows.ftl</windowsTemplate>
+            </configuration>
           </execution>
         </executions>
       </plugin>
