@@ -169,10 +169,11 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
   @Override
   public MultipleCurrencyInflationSensitivity visitCouponFixed(final CouponFixed coupon, final InflationProviderInterface inflation) {
     final MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
-    final MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
+    MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
     for (final Currency loopccy : multipleCurrencyMulticurveSensitivity.getCurrencies()) {
       final Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
-      multipleCurrencyInflationSensitivity.plus(loopccy, InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
+      multipleCurrencyInflationSensitivity = multipleCurrencyInflationSensitivity.plus(loopccy,
+          InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
     }
     return multipleCurrencyInflationSensitivity;
   }
@@ -180,10 +181,11 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
   @Override
   public MultipleCurrencyInflationSensitivity visitCouponFixedCompounding(final CouponFixedCompounding coupon, final InflationProviderInterface inflation) {
     final MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED_COMPOUNDING.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
-    final MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
+    MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
     for (final Currency loopccy : multipleCurrencyMulticurveSensitivity.getCurrencies()) {
       final Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
-      multipleCurrencyInflationSensitivity.plus(loopccy, InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
+      multipleCurrencyInflationSensitivity = multipleCurrencyInflationSensitivity.plus(loopccy,
+          InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
     }
     return multipleCurrencyInflationSensitivity;
   }
