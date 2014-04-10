@@ -1,65 +1,44 @@
 -- SQL for user master
 
 -- ==========================================================================
-@NAME(GetById)
+@NAME(GetIdByName)
   SELECT
-    main.id AS doc_id,
-    main.oid AS doc_oid,
-    main.ver_from_instant AS ver_from_instant,
-    main.ver_to_instant AS ver_to_instant,
-    main.corr_from_instant AS corr_from_instant,
-    main.corr_to_instant AS corr_to_instant,
-    main.userid AS userid,
-    main.password AS password,
-    main.name AS name,
-    main.time_zone AS time_zone,
-    main.email_address AS email_address,
-    ui.idkey_id as idkey_id,
-    ik.key_scheme as key_scheme,
-    ik.key_value as key_value,
-    ent.entitlement_pattern as entitlement_pattern
+    user_id AS doc_id,
+    deleted AS deleted
   FROM
-    usr_oguser main
-    LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
-    LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
-    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
-  WHERE main.id = :doc_id
-    AND main.oid = :doc_oid
-  ORDER BY
-    idkey_id,
-    ent.entitlement_index
+    usr_user_name_lookup
+  WHERE user_name_ci = :name_ci
 
 
 -- ==========================================================================
-@NAME(GetByOidInstants)
+@NAME(GetById)
   SELECT
     main.id AS doc_id,
-    main.oid AS doc_oid,
-    main.ver_from_instant AS ver_from_instant,
-    main.ver_to_instant AS ver_to_instant,
-    main.corr_from_instant AS corr_from_instant,
-    main.corr_to_instant AS corr_to_instant,
-    main.userid AS userid,
-    main.password AS password,
-    main.name AS name,
-    main.time_zone AS time_zone,
+    main.version AS version,
+    main.user_name AS user_name,
+    main.password_hash AS password_hash,
+    main.status AS status,
     main.email_address AS email_address,
+    main.display_name AS display_name,
+    main.locale_tag AS locale_tag,
+    main.time_zone AS time_zone,
+    main.date_fmt_style AS date_fmt_style,
+    main.time_fmt_style AS time_fmt_style,
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
-    ik.key_scheme as key_scheme,
     ik.key_value as key_value,
-    ent.entitlement_pattern as entitlement_pattern
+    perm.permission_str as permission_str,
+    extn.extn_key as extn_key,
+    extn.extn_value as extn_value
   FROM
-    usr_oguser main
-    LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
-    LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
-    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
-  WHERE main.oid = :doc_oid
-    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
-    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+    usr_user main
+    LEFT JOIN usr_user_user2idkey ui ON (ui.user_id = main.id)
+    LEFT JOIN usr_user_idkey ik ON (ik.id = ui.idkey_id)
+    LEFT JOIN usr_user_assocperm perm on (perm.user_id = main.id)
+    LEFT JOIN usr_user_extension extn on (extn.user_id = main.id)
+  WHERE main.id = :doc_id
   ORDER BY
-    idkey_id,
-    ent.entitlement_index
+    idkey_id
 
 
 -- ==========================================================================
@@ -67,26 +46,29 @@
   WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS doc_id,
-    main.oid AS doc_oid,
-    main.ver_from_instant AS ver_from_instant,
-    main.ver_to_instant AS ver_to_instant,
-    main.corr_from_instant AS corr_from_instant,
-    main.corr_to_instant AS corr_to_instant,
-    main.userid AS userid,
-    main.password AS password,
-    main.name AS name,
-    main.time_zone AS time_zone,
+    main.version AS version,
+    main.user_name AS user_name,
+    main.password_hash AS password_hash,
+    main.status AS status,
     main.email_address AS email_address,
+    main.display_name AS display_name,
+    main.locale_tag AS locale_tag,
+    main.time_zone AS time_zone,
+    main.date_fmt_style AS date_fmt_style,
+    main.time_fmt_style AS time_fmt_style,
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
     ik.key_value as key_value,
-    ent.entitlement_pattern as entitlement_pattern
+    perm.permission_str as permission_str,
+    extn.extn_key as extn_key,
+    extn.extn_value as extn_value
   FROM
-    usr_oguser main
+    usr_user main
     INNER JOIN cte_docs ON main.id = cte_docs.id
-    LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
-    LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
-    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
+    LEFT JOIN usr_user_user2idkey ui ON (ui.user_id = main.id)
+    LEFT JOIN usr_user_idkey ik ON (ik.id = ui.idkey_id)
+    LEFT JOIN usr_user_assocperm perm on (perm.user_id = main.id)
+    LEFT JOIN usr_user_extension extn on (extn.user_id = main.id)
   ORDER BY
     main.@VALUE(:sort_order),
     main.id
@@ -98,11 +80,11 @@
     SELECT
       id
     FROM
-      usr_oguser
+      usr_user
     @INCLUDE(SearchWhere)
     ORDER BY
       @VALUE(:sort_order),
-      usr_oguser.id
+      usr_user.id
 
 
 -- ==========================================================================
@@ -110,207 +92,106 @@
   SELECT
     COUNT(id)
   FROM
-    usr_oguser
+    usr_user
   @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
 @NAME(SearchWhere)
-  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
-    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+  @WHERE
     @AND(:sql_search_object_ids)
-      oid IN ( @VALUE(:sql_search_object_ids) )
-    @AND(:userid)
-      UPPER(userid) @LIKE UPPER(:userid)
-    @AND(:name)
-      UPPER(name) @LIKE UPPER(:name)
-    @AND(:time_zone)
-      UPPER(time_zone) @LIKE UPPER(:time_zone)
-    @AND(:email_address)
-      UPPER(email_address) @LIKE UPPER(:email_address)
-    @AND(:external_id_scheme)
+      id IN ( @VALUE(:sql_search_object_ids) )
+    @AND(:user_name_ci)
+      user_name_ci @LIKE :user_name_ci
+    @AND(:email_address_ci)
+      email_address_ci @LIKE :email_address_ci
+    @AND(:display_name_ci)
+      display_name_ci @LIKE :display_name_ci
+    @AND(:alternate_id_scheme)
       id IN ( @INCLUDE(SelectKeyScheme) )
-    @AND(:external_id_value)
+    @AND(:alternate_id_value)
       id IN ( @INCLUDE(SelectKeyValue) )
-    @AND(:sql_search_external_ids_type = EXACT)
-      id IN ( @INCLUDE(SelectKeyValuesExact) )
-    @AND(:sql_search_external_ids_type = ALL)
-      id IN ( @INCLUDE(SelectKeyValuesAll) )
-    @AND(:sql_search_external_ids_type = ANY)
-      id IN ( @INCLUDE(SelectKeyValuesAny) )
-    @AND(:sql_search_external_ids_type = NONE)
-      id NOT IN ( @INCLUDE(SelectKeyValuesAny) )
+    @AND(:permission_str)
+      id IN ( @INCLUDE(SelectPermission) )
 
 
 -- ==========================================================================
-@NAME(SelectKeyValuesExact)
+@NAME(SelectKeyScheme)
   SELECT
-    matched_doc_id AS doc_id
+    DISTINCT user_id
   FROM
-    (
-      SELECT
-        oguser_id AS matched_doc_id,
-        COUNT(oguser_id) AS matched_count
-      FROM
-        usr_oguser2idkey,
-        usr_oguser
-      WHERE usr_oguser2idkey.oguser_id = usr_oguser.id
-        AND usr_oguser.ver_from_instant <= :version_as_of_instant AND usr_oguser.ver_to_instant > :version_as_of_instant
-        AND usr_oguser.corr_from_instant <= :corrected_to_instant AND usr_oguser.corr_to_instant > :corrected_to_instant
-        AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
-      GROUP BY
-        oguser_id
-      HAVING
-        COUNT(oguser_id) >= :id_search_size
-    ) AS a, (
-      SELECT
-        oguser_id AS total_doc_id,
-        COUNT(oguser_id) AS total_count
-      FROM
-        usr_oguser2idkey,
-        usr_oguser
-      WHERE usr_oguser2idkey.oguser_id = usr_oguser.id
-        AND usr_oguser.ver_from_instant <= :version_as_of_instant AND usr_oguser.ver_to_instant > :version_as_of_instant
-        AND usr_oguser.corr_from_instant <= :corrected_to_instant AND usr_oguser.corr_to_instant > :corrected_to_instant
-      GROUP BY
-        oguser_id
-    ) AS b
-  WHERE matched_doc_id = total_doc_id
-    AND matched_count = total_count
+    usr_user_user2idkey,
+    usr_user
+  WHERE usr_user2idkey.user_id = usr_user.id
+    AND idkey_id IN ( SELECT id FROM sec_idkey WHERE UPPER(key_scheme) @LIKE UPPER(:alternate_id_scheme) @ENDLIKE )
 
 
 -- ==========================================================================
-@NAME(SelectKeyValuesAll)
+@NAME(SelectKeyValue)
   SELECT
-    oguser_id
+    DISTINCT user_id
   FROM
-    usr_oguser2idkey,
-    usr_oguser
-  WHERE usr_oguser2idkey.oguser_id = usr_oguser.id
-    AND usr_oguser.ver_from_instant <= :version_as_of_instant AND usr_oguser.ver_to_instant > :version_as_of_instant
-    AND usr_oguser.corr_from_instant <= :corrected_to_instant AND usr_oguser.corr_to_instant > :corrected_to_instant
-    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
-    GROUP BY
-      oguser_id
-    HAVING
-      COUNT(oguser_id) >= :id_search_size
+    usr_user_user2idkey,
+    usr_user
+  WHERE usr_user2idkey.user_id = usr_user.id
+    AND idkey_id IN ( SELECT id FROM sec_idkey WHERE UPPER(key_value) @LIKE UPPER(:alternate_id_value) @ENDLIKE )
 
 
 -- ==========================================================================
-@NAME(SelectKeyValuesAny)
+@NAME(SelectPermission)
   SELECT
-    DISTINCT oguser_id
+    DISTINCT user_id
   FROM
-    usr_oguser2idkey,
-    usr_oguser
-  WHERE usr_oguser2idkey.oguser_id = usr_oguser.id
-    AND usr_oguser.ver_from_instant <= :version_as_of_instant AND usr_oguser.ver_to_instant > :version_as_of_instant
-    AND usr_oguser.corr_from_instant <= :corrected_to_instant AND usr_oguser.corr_to_instant > :corrected_to_instant
-    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
+    usr_permission
+  WHERE permission_str = :permission_str
 
 
 -- ==========================================================================
-@NAME(SelectKeyValuesOr)
+@NAME(GetEventHistory)
   SELECT
-    id
+    eh.id AS id,
+    eh.user_id AS doc_id,
+    eh.version AS version,
+    eh.event_type AS event_type,
+    eh.active_user AS active_user,
+    eh.event_instant AS event_instant,
+    ei.description AS description
   FROM
-    usr_idkey
+    usr_user_event_history eh
+    LEFT JOIN usr_user_event_item ei ON (ei.event_id = eh.id)
   WHERE
-    @VALUE(:sql_search_external_ids)
-
-
--- ==========================================================================
-@NAME(History)
-  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
-  SELECT
-    main.id AS doc_id,
-    main.oid AS doc_oid,
-    main.ver_from_instant AS ver_from_instant,
-    main.ver_to_instant AS ver_to_instant,
-    main.corr_from_instant AS corr_from_instant,
-    main.corr_to_instant AS corr_to_instant,
-    main.userid AS userid,
-    main.password AS password,
-    main.name AS name,
-    main.time_zone AS time_zone,
-    main.email_address AS email_address,
-    ui.idkey_id as idkey_id,
-    ik.key_scheme as key_scheme,
-    ik.key_scheme as key_scheme,
-    ik.key_value as key_value,
-    ent.entitlement_pattern as entitlement_pattern
-  FROM
-    usr_oguser main
-    INNER JOIN cte_docs ON main.id = cte_docs.id
-    LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
-    LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
-    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
-  ORDER BY
-    main.ver_from_instant DESC,
-    main.corr_from_instant DESC
-
+    eh.user_id = :doc_id
 
 -- ==========================================================================
-@NAME(HistoryInner)
-  @PAGING(:paging_offset,:paging_fetch)
-    SELECT
-      id
-    FROM
-      usr_oguser
-    @INCLUDE(HistoryWhere)
-    ORDER BY
-      ver_from_instant DESC,
-      corr_from_instant DESC
-
-
--- ==========================================================================
-@NAME(HistoryCount)
-  SELECT
-    COUNT(id)
-  FROM
-    usr_oguser 
-  @INCLUDE(HistoryWhere)
-
-
--- ==========================================================================
-@NAME(HistoryWhere)
-  WHERE oid = :doc_oid
-    @IF(:sql_history_versions = Point)
-      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
-    @IF(:sql_history_versions = Range)
-      @AND(:versions_from_instant)
-        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
-      @AND(:versions_to_instant)
-        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
-    @IF(:sql_history_corrections = Point)
-      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
-    @IF(:sql_history_corrections = Range)
-      @AND(:corrections_from_instant)
-        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
-      @AND(:corrections_to_instant)
-        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
-
-
--- ==========================================================================
-@NAME(Insert)
-  INSERT INTO usr_oguser
-    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, userid, password, name, time_zone, email_address)
+@NAME(InsertMain)
+  INSERT INTO usr_user
+    (id, version, user_name, user_name_ci, password_hash, status, email_address, email_address_ci,
+    display_name, display_name_ci, locale_tag, time_zone, date_fmt_style, time_fmt_style)
   VALUES
-    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :userid, :password, :name, :time_zone, :email_address)
+    (:doc_id, :version, :user_name, :user_name_ci, :password_hash, :status, :email_address, :email_address_ci,
+    :display_name, :display_name_ci, :locale_tag, :time_zone, :date_fmt_style, :time_fmt_style)
 
 
 -- ==========================================================================
-@NAME(InsertEntitlement)
-  INSERT INTO usr_entitlement
-    (oguser_id, entitlement_index, entitlement_pattern)
+@NAME(InsertAssocPermission)
+  INSERT INTO usr_user_assocperm
+    (id, user_id, permission_str)
   VALUES
-    (:oguser_id, :entitlement_index, :entitlement_pattern)
+    (:id, :doc_id, :permission_str)
+
+
+-- ==========================================================================
+@NAME(InsertExtension)
+  INSERT INTO usr_user_extension
+    (id, user_id, extn_key, extn_value)
+  VALUES
+    (:id, :doc_id, :extn_key, :extn_value)
 
 
 -- ==========================================================================
 @NAME(InsertDoc2IdKey)
-  INSERT INTO usr_oguser2idkey
-    (oguser_id, idkey_id)
+  INSERT INTO usr_user_user2idkey
+    (user_id, idkey_id)
   VALUES
     (:doc_id, ( @INCLUDE(SelectIdKey) ))
 
@@ -320,33 +201,92 @@
   SELECT
     id
   FROM
-    usr_idkey
+    usr_user_idkey
   WHERE key_scheme = :key_scheme
     AND key_value = :key_value
 
 
 -- ==========================================================================
 @NAME(InsertIdKey)
-  INSERT INTO usr_idkey
+  INSERT INTO usr_user_idkey
     (id, key_scheme, key_value)
   VALUES
     (:idkey_id, :key_scheme, :key_value)
 
 
 -- ==========================================================================
-@NAME(UpdateVersionToInstant)
-  UPDATE usr_oguser
-  SET ver_to_instant = :ver_to_instant
-  WHERE id = :doc_id
-    AND ver_to_instant >= :max_instant
+@NAME(InsertNameLookup)
+  INSERT INTO usr_user_name_lookup
+    (user_name_ci, user_id, deleted)
+  VALUES
+    (:name_ci, :doc_id, 'N')
 
 
 -- ==========================================================================
-@NAME(UpdateCorrectionToInstant)
-  UPDATE usr_oguser
-  SET corr_to_instant = :corr_to_instant
+@NAME(InsertEvent)
+  INSERT INTO usr_user_event_history
+    (id, user_id, version, event_type, active_user, event_instant)
+  VALUES
+    (:id, :doc_id, :version, :event_type, :active_user, :event_instant)
+
+
+-- ==========================================================================
+@NAME(InsertEventItem)
+  INSERT INTO usr_user_event_item
+    (id, event_id, description)
+  VALUES
+    (:id, :event_id, :description)
+
+
+-- ==========================================================================
+@NAME(UpdateMain)
+  UPDATE usr_user
+  SET
+    version = :version,
+    user_name = :user_name,
+    user_name_ci = :user_name_ci,
+    password_hash = :password_hash,
+    status = :status,
+    email_address = :email_address,
+    email_address_ci = :email_address_ci,
+    display_name = :display_name,
+    display_name_ci = :display_name_ci,
+    locale_tag = :locale_tag,
+    time_zone = :time_zone,
+    date_fmt_style = :date_fmt_style,
+    time_fmt_style = :time_fmt_style
   WHERE id = :doc_id
-    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateNameLookupToDeleted)
+  UPDATE usr_user_name_lookup
+  SET deleted = 'Y'
+  WHERE user_id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteMain)
+  DELETE FROM usr_user
+  WHERE id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteAlternateIds)
+  DELETE FROM usr_user_user2idkey
+  WHERE user_id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteAssocPermissions)
+  DELETE FROM usr_user_assocperm
+  WHERE user_id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteExtensions)
+  DELETE FROM usr_user_extension
+  WHERE user_id = :doc_id
 
 
 -- ==========================================================================
