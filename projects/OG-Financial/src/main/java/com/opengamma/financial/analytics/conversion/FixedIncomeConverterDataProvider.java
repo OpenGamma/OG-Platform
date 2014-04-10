@@ -628,9 +628,9 @@ public class FixedIncomeConverterDataProvider {
       final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
       if (curveNames.length == 1) {
         final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
-        return definition.toDerivative(now, lastMarginPrice, singleCurve);
+        return definition.toDerivative(now, singleCurve);
       }
-      return definition.toDerivative(now, lastMarginPrice, curveNames);
+      return definition.toDerivative(now, curveNames);
     }
 
     @Override
@@ -645,7 +645,7 @@ public class FixedIncomeConverterDataProvider {
         throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
       }
       final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
-      return definition.toDerivative(now, lastMarginPrice);
+      return definition.toDerivative(now);
     }
   };
 

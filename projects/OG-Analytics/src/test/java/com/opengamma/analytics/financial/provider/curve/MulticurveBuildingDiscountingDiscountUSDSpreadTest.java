@@ -519,7 +519,7 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
         parameterDeltaFDDsc[loopdsc] = (parametersDscDscP[loopdsc] - parametersDscDscM[loopdsc]) / (2 * shift);
         assertEquals("MulticurveBuildingDiscounting Jacobian - Dsc-Dsc - " + loopdsc, pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc], parameterDeltaFDDsc[loopdsc],
             toleranceDelta);
-        System.out.println(loopdsc + " " + loopnodedsc + " difference " + (pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] - parameterDeltaFDDsc[loopdsc]));
+        //        System.out.println(loopdsc + " " + loopnodedsc + " difference " + (pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] - parameterDeltaFDDsc[loopdsc]));
       }
     }
   }
@@ -562,8 +562,6 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
         parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] = (parametersDscDscP[loopdsc] - parametersDscDscM[loopdsc]) / (2 * shift);
         assertEquals("MulticurveBuildingDiscounting Jacobian - Dsc-Dsc: " + loopnodedsc + " - " + loopdsc, pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc],
             parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc], toleranceDelta);
-        //        System.out.println(loopdsc + " " + loopnodedsc + " difference " +
-        //            (pdscDm[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] - parameterDeltaFDDsc[loopdsc][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc]));
       }
       for (int loopfwd3 = 0; loopfwd3 < nbParamFwd3; loopfwd3++) {
         parameterDeltaFDFwd3[loopfwd3][blockDsc.getStart(CURVE_NAME_DSC_USD) + loopnodedsc] = (parametersDscFwd3P[loopfwd3] - parametersDscFwd3M[loopfwd3]) / (2 * shift);

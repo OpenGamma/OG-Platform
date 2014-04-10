@@ -109,7 +109,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
     final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final InterestRateFutureSecurityDefinition eru2Definition = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, noitonal, futuresAccrualFactor, name, calendar);
-    final InterestRateFutureSecurity eru2 = eru2Definition.toDerivative(REFERENCE_DATE_ZONED, referencePrice);
+    final InterestRateFutureSecurity eru2 = eru2Definition.toDerivative(REFERENCE_DATE_ZONED);
     final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, eru2.getTradingLastTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
     final double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, TOLERANCE_RATE);
