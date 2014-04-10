@@ -15,6 +15,7 @@ import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -281,4 +282,9 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
     return null; //TODO the index?
   }
 
+  @Override
+  public Void visitIndexCDSSecurity(final IndexCDSSecurity security) {
+    _underlyings.add(security.getUnderlyingIndex().toBundle());
+    return null;
+  }
 }

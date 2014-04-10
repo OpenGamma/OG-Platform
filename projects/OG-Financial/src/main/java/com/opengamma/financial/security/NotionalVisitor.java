@@ -21,6 +21,9 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
@@ -321,5 +324,26 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   @Override
   public CurrencyAmount visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
     return CurrencyAmount.of(security.getNotionalCurrency(), security.getNotionalAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitIndexCDSSecurity(IndexCDSSecurity security) {
+    final InterestRateNotional notional = security.getNotional();
+    final int sign = security.isBuyProtection() ? -1 : 1;
+    return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+    final InterestRateNotional notional = security.getNotional();
+    final int sign = security.isBuyProtection() ? -1 : 1;
+    return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitStandardCDSSecurity(StandardCDSSecurity security) {
+    final InterestRateNotional notional = security.getNotional();
+    final int sign = security.isBuyProtection() ? -1 : 1;
+    return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
   }
 }

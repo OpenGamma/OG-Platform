@@ -31,6 +31,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -600,6 +604,33 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
     return _bondTRSSecurity.get(pair(security.getNotionalCurrency(), security.getFundingLeg().getNotional().accept(this)));
+  }
+
+  private final Digests _standardCDSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitStandardCDSSecurity(StandardCDSSecurity security) {
+    return _standardCDSSecurity.get(security.getNotional().accept(this));
+  }
+  private final Digests _legacyCDSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+    return _legacyCDSSecurity.get(security.getNotional().accept(this));
+  }
+
+  private final Digests _indexCDSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitIndexCDSSecurity(IndexCDSSecurity security) {
+    return _indexCDSSecurity.get(security.getNotional().accept(this));
+  }
+
+  private final Digests _indexCDSDefSecurity = new Digests("Security");
+
+  @Override
+  public Object visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
+    return _indexCDSDefSecurity.get(security.getCurrency());
   }
 
   // NotionalVisitor

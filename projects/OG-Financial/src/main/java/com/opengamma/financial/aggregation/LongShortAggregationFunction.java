@@ -36,6 +36,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -536,6 +540,26 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     @Override
     public String visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
       return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitStandardCDSSecurity(StandardCDSSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitIndexCDSSecurity(IndexCDSSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
+      return null;
     }
   }
 

@@ -25,6 +25,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -445,6 +449,26 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitStandardCDSSecurity(StandardCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitIndexCDSSecurity(IndexCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
     return _value;
   }
 }

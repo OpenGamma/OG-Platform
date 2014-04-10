@@ -25,6 +25,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -448,5 +452,25 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
   @Override
   public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
     return _delegate.visitBondTotalReturnSwapSecurity(security);
+  }
+
+  @Override
+  public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+    return _delegate.visitStandardCDSSecurity(security);
+  }
+
+  @Override
+  public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+    return _delegate.visitLegacyCDSSecurity(security);
+  }
+
+  @Override
+  public T visitIndexCDSSecurity(final IndexCDSSecurity security) {
+    return _delegate.visitIndexCDSSecurity(security);
+  }
+
+  @Override
+  public T visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+    return _delegate.visitIndexCDSDefinitionSecurity(security);
   }
 }

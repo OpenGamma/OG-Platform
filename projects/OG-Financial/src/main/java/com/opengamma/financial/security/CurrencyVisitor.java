@@ -30,6 +30,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -461,5 +465,25 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
   @Override
   public Currency visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
     return security.getNotionalCurrency();
+  }
+
+  @Override
+  public Currency visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+    return security.getCurrency();
+  }
+
+  @Override
+  public Currency visitStandardCDSSecurity(final StandardCDSSecurity security) {
+    return security.getNotional().getCurrency();
+  }
+
+  @Override
+  public Currency visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+    return security.getNotional().getCurrency();
+  }
+
+  @Override
+  public Currency visitIndexCDSSecurity(final IndexCDSSecurity security) {
+    return security.getNotional().getCurrency();  // should this be read from the underlying index?
   }
 }

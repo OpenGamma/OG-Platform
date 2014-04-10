@@ -25,6 +25,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -398,6 +402,26 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitIndexCDSSecurity(final IndexCDSSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
@@ -1632,6 +1656,33 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> creditSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitIndexCDSSecurity(final IndexCDSSecurity security) {
+          return value;
+        }
+
+      };
+      return this;
+    }
+
     public Builder<T> futureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -2022,6 +2073,26 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
         @Override
         public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitIndexCDSSecurity(final IndexCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
           return value;
         }
       };

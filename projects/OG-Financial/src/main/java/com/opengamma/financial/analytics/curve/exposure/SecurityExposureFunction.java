@@ -29,6 +29,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -450,6 +454,26 @@ public class SecurityExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return getSecurityUID(security);
+  }
+
+  @Override
+  public List<ExternalId> visitStandardCDSSecurity(final StandardCDSSecurity security) {
+    return getSecurityUID(security);
+  }
+
+  @Override
+  public List<ExternalId> visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+    return getSecurityUID(security);
+  }
+
+  @Override
+  public List<ExternalId> visitIndexCDSSecurity(final IndexCDSSecurity security) {
+    return getSecurityUID(security);
+  }
+
+  @Override
+  public List<ExternalId> visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
     return getSecurityUID(security);
   }
 }

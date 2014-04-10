@@ -31,6 +31,10 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -539,5 +543,25 @@ public class UnderlyingExposureFunction implements ExposureFunction {
   @Override
   public List<ExternalId> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
     return Collections.singletonList(security.getFundingLeg().getFloatingReferenceRateId());
+  }
+
+  @Override
+  public List<ExternalId> visitStandardCDSSecurity(final StandardCDSSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitIndexCDSSecurity(IndexCDSSecurity security) {
+    return Arrays.asList(security.getUnderlyingIndex());
+  }
+
+  @Override
+  public List<ExternalId> visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
+    return null;
   }
 }

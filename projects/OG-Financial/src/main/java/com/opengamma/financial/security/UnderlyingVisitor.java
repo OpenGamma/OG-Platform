@@ -8,6 +8,7 @@ package com.opengamma.financial.security;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
@@ -175,5 +176,10 @@ public class UnderlyingVisitor extends FinancialSecurityVisitorSameValueAdapter<
   @Override
   public ExternalId visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
     return security.getUnderlyingId();
+  }
+
+  @Override
+  public ExternalId visitIndexCDSSecurity(IndexCDSSecurity security) {
+    return security.getUnderlyingIndex();
   }
 }

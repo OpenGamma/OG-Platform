@@ -16,6 +16,10 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -194,4 +198,14 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitEquityTotalReturnSwapSecurity(EquityTotalReturnSwapSecurity security);
 
   T visitBondTotalReturnSwapSecurity(BondTotalReturnSwapSecurity security);
+
+  // Credit
+
+  T visitStandardCDSSecurity(StandardCDSSecurity security);
+
+  T visitLegacyCDSSecurity(LegacyCDSSecurity security);
+
+  T visitIndexCDSSecurity(IndexCDSSecurity security);
+
+  T visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security);
 }
