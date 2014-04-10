@@ -20,7 +20,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -42,9 +42,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Calculates the yield curve node sensitivities of a linked bond  for all curves to which the instruments are sensitive.
  */
-public class InflationBondYCNSFunction extends InflationBondFromCurvesFunction<InflationProviderInterface, MultipleCurrencyInflationSensitivity> {
+public class InflationBondYCNSFunction extends InflationBondFromCurvesFunction<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InflationBondYCNSFunction.class);
 

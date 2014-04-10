@@ -24,8 +24,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PV01CurveParametersInflationCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityIssuerDiscountingInflationCalculator;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -45,12 +45,12 @@ import com.opengamma.util.tuple.Pair;
 /**
  *  Calculates the PV01 of a linked bond  for all curves to which the instruments are sensitive.
  */
-public class InflationBondPV01Function extends InflationBondFromCurvesFunction<InflationProviderInterface, ReferenceAmount<Pair<String, Currency>>> {
+public class InflationBondPV01Function extends InflationBondFromCurvesFunction<InflationIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InflationBondPV01Function.class);
   /** The PV01 calculator */
-  private static final InstrumentDerivativeVisitor<InflationProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
-      new PV01CurveParametersInflationCalculator<>(PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance());
+  private static final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
+      new PV01CurveParametersInflationCalculator<>(PresentValueCurveSensitivityIssuerDiscountingInflationCalculator.getInstance());
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#PV01} and
@@ -67,7 +67,7 @@ public class InflationBondPV01Function extends InflationBondFromCurvesFunction<I
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(context.getValuationClock());
     final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(context, target, now, inputs);
-    final InflationProviderInterface issuerCurves = (InflationProviderInterface) inputs.getValue(CURVE_BUNDLE);
+    final InflationIssuerProviderInterface issuerCurves = (InflationIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final String desiredCurveName = properties.getStrictValue(CURVE);
     final ReferenceAmount<Pair<String, Currency>> pv01 = derivative.accept(CALCULATOR, issuerCurves);
     final Set<ComputedValue> results = new HashSet<>();
