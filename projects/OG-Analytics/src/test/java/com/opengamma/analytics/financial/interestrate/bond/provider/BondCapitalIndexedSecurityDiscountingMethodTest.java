@@ -25,14 +25,17 @@ import com.opengamma.analytics.financial.interestrate.inflation.provider.CouponI
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityIssuerDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -68,8 +71,9 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final String ISSUER_UK_GOVT = ISSUER_NAMES[1];
   private static final String ISSUER_AUD_GOVT = ISSUER_NAMES[3];
 
-  private static final double SHIFT_FD = 1.0E-7;
+  private static final double SHIFT_FD = 1.0E-9;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+  private static final double TOLERANCE_SENSI_DELTA = 1.0E-6;
 
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_INFLATION = new BondCapitalIndexedSecurityDiscountingMethod();
@@ -79,8 +83,12 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final NetAmountInflationCalculator NADIC = NetAmountInflationCalculator.getInstance();
   private static final PresentValueDiscountingInflationIssuerCalculator PVDIIC = PresentValueDiscountingInflationIssuerCalculator.getInstance();
   private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVDIC, SHIFT_FD);
+  private static final ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDIC = new ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFDCalculator(
+      PVDIIC, SHIFT_FD);
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
   private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
+  private static final PresentValueCurveSensitivityIssuerDiscountingInflationCalculator PVCSDIC = PresentValueCurveSensitivityIssuerDiscountingInflationCalculator.getInstance();
+  private static final ParameterInflationSensitivityParameterCalculator<InflationIssuerProviderInterface> PSIC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDIC);
 
   // Treasury Indexed Bonds CAIN 3% Index-linked Treasury Stock 2025 - AU0000XCLWP8
   private static final Calendar CALENDAR_AUD = new MondayToFridayCalendar("AUD");
@@ -141,8 +149,18 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(BOND_SECURITY_CAIN.getCoupon(), MARKET.getInflationProvider());
     final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(BOND_SECURITY_CAIN.getCoupon(), MARKET.getInflationProvider(), MARKET.getAllNames());
 
-    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
+    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_SENSI_DELTA);
 
+  }
+
+  @Test
+  /**
+   * Test the present value parameter curves sensitivity.
+   */
+  public void presentValueParameterCurveSensitivityCAINWithIssuer() {
+    final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDIC.calculateSensitivity(BOND_SECURITY_CAIN, MARKET);
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSIC.calculateSensitivity(BOND_SECURITY_CAIN, MARKET, MARKET.getAllNames());
+    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_SENSI_DELTA);
   }
 
   @Test

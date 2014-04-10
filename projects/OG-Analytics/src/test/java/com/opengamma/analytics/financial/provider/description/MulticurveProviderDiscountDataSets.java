@@ -127,7 +127,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final double[] USD30_RATE = new double[] {0.030, 0.030 };
   private static final YieldAndDiscountCurve CURVE_USD_30 = new YieldCurve(USD30, new InterpolatedDoublesCurve(USD30_TIME, USD30_RATE, LINEAR_FLAT, true, USD30));
 
-  private static final String AUD30 = "GBP 3.00";
+  private static final String AUD30 = "AUD 3.00";
   private static final double[] AUD30_TIME = new double[] {0.0, 10.0 };
   private static final double[] AUD30_RATE = new double[] {0.030, 0.030 };
   private static final YieldAndDiscountCurve CURVE_AUD_30 = new YieldCurve(AUD30, new InterpolatedDoublesCurve(AUD30_TIME, AUD30_RATE, LINEAR_FLAT, true, AUD30));
