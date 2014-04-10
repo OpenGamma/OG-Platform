@@ -10,21 +10,11 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
 import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
->>>>>>> 7decf75... [PLAT-6345] Adding more outputs for equity and bond TRS
-=======
-import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
-import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
-import static com.opengamma.engine.value.ValueRequirementNames.BOND_EQUIVALENT_VALUE;
->>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
@@ -774,19 +764,11 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     return viewDefinition;
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
   /**
    * Creates a view definition for bond total return swaps that requests the present value,
    * funding and asset leg present values, PV01 for all relevant curves, gamma PV01,
    * the details of the funding leg, the details of the bond, the bond equivalent value 
    * and the notional.
-=======
-  /**
-   * Creates a view definition for bond total return swaps that requests the bond curve
-   * for each issuer and the present value.
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
    * @param portfolioName The portfolio name
    * @param viewName The view name
    * @return The view definition
@@ -800,7 +782,6 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalculationConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-<<<<<<< HEAD
     final ValueProperties properties = ValueProperties.builder()
         .with(PROPERTY_CURVE_TYPE, "Discounting")
         .with(CURVE_EXPOSURES, "Bond Exposures")
@@ -811,12 +792,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, BOND_DETAILS, properties);
-<<<<<<< HEAD
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, ValueProperties.builder().get());
-=======
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, BOND_EQUIVALENT_VALUE, properties);
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, properties);
->>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
     final ValueProperties thetaProperties = properties.copy()
         .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
@@ -829,32 +805,14 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
           .get();
       defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PV01, curveProperties);
     }
-=======
-    for (final Pair<String, String> pair : BOND_TRS_ISSUER_CURVES) {
-      final ComputationTargetSpecification target = ComputationTargetSpecification.NULL;
-      final ValueProperties properties = ValueProperties.builder()
-          .with(CURVE_CONSTRUCTION_CONFIG, pair.getFirst())
-          .with(CURVE, pair.getSecond())
-          .get();
-      defaultCalculationConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, target, properties));
-    }
-    final ValueProperties properties = ValueProperties.builder()
-        .with(CURVE_EXPOSURES, "Bond Exposures")
-        .get();
-    defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
     return viewDefinition;
   }
 
   /**
-<<<<<<< HEAD
    * Creates a view definition for equity total return swaps that requests the present value,
    * funding and asset leg present values, PV01 for all relevant curves, value delta, gamma PV01
    * the details of the funding leg and the notional.
-=======
-   * Creates a view definition for equity total return swaps that requests the present value.
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
    * @param portfolioName The portfolio name
    * @param viewName The view name
    * @return The view definition
@@ -873,17 +831,12 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
         .with(CURVE_EXPOSURES, "Exposures")
         .get();
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
-<<<<<<< HEAD
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_PV, properties);
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, FUNDING_LEG_DETAILS, properties);
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, ASSET_LEG_PV, properties);
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, GAMMA_PV01, properties);
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_DELTA, properties);
-<<<<<<< HEAD
     defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, ValueProperties.builder().get());
-=======
-    defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, NOTIONAL, properties);
->>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
     final ValueProperties thetaProperties = properties.copy()
         .with(PROPERTY_DAYS_TO_MOVE_FORWARD, "1")
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
@@ -896,16 +849,10 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
           .get();
       defaultCalculationConfig.addPortfolioRequirement(EquityTotalReturnSwapSecurity.SECURITY_TYPE, PV01, curveProperties);
     }
-=======
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     viewDefinition.addViewCalculationConfiguration(defaultCalculationConfig);
     return viewDefinition;
   }
 
-<<<<<<< HEAD
->>>>>>> 7decf75... [PLAT-6345] Adding more outputs for equity and bond TRS
-=======
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
   private void addValueRequirements(final ViewCalculationConfiguration calcConfiguration, final String securityType, final String[] valueRequirementNames) {
     for (final String valueRequirementName : valueRequirementNames) {
       calcConfiguration.addPortfolioRequirementName(securityType, valueRequirementName);

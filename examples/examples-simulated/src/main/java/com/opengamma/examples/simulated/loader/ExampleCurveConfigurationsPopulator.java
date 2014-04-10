@@ -78,15 +78,9 @@ public class ExampleCurveConfigurationsPopulator {
   private static final Map<String, Tenor> IBOR_TENOR_FOR_CURRENCY = new HashMap<>();
 
   static {
-<<<<<<< HEAD
     IBOR_SECURITY_FOR_CURRENCY.put(Pairs.of("USD", Tenor.THREE_MONTHS), ExternalSchemes.syntheticSecurityId("USDLIBORP3M"));
     DEPOSIT_CONVENTION_FOR_CURRENCY.put("USD", ExternalId.of("CONVENTION", "USD Deposit"));
     OVERNIGHT_CONVENTION_FOR_CURRENCY.put("USD", ExternalSchemes.syntheticSecurityId("USDFF"));
-=======
-    IBOR_SECURITY_FOR_CURRENCY.put(Pairs.of("USD", Tenor.THREE_MONTHS), ExternalSchemes.syntheticSecurityId("USD 3M IBOR INDEX"));
-    DEPOSIT_CONVENTION_FOR_CURRENCY.put("USD", ExternalId.of("CONVENTION", "USD Deposit"));
-    OVERNIGHT_CONVENTION_FOR_CURRENCY.put("USD", ExternalSchemes.syntheticSecurityId("USD OVERNIGHT INDEX"));
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     FIXED_LEG_CONVENTION_FOR_CURRENCY.put("USD", ExternalId.of("CONVENTION", "USD IRS Fixed Leg"));
     IBOR_LEG_CONVENTION_FOR_CURRENCY.put(Pairs.of("USD", Tenor.THREE_MONTHS), ExternalId.of("CONVENTION", "USD 3M IRS Ibor Leg"));
     FIXED_OIS_LEG_CONVENTION_FOR_CURRENCY.put("USD", ExternalId.of("CONVENTION", "USD OIS Fixed Leg"));

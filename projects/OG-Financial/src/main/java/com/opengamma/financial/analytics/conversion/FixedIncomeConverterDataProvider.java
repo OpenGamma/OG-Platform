@@ -1466,11 +1466,6 @@ public class FixedIncomeConverterDataProvider {
     }
   };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
   private final Converter<InterestRateSwapSecurity, SwapMultilegDefinition> _irsMultiLegSecurity = new Converter<InterestRateSwapSecurity, SwapMultilegDefinition>() {
 
     @SuppressWarnings("synthetic-access")
@@ -1625,11 +1620,7 @@ public class FixedIncomeConverterDataProvider {
     @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final TotalReturnSwapSecurity security) {
-<<<<<<< HEAD
       ArgumentChecker.notNull(security, "security");
-=======
-      Validate.notNull(security, "security");
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
       final InterestRateSwapLeg fundingLeg = security.getFundingLeg();
       final ZonedDateTime swapStartDate = security.getEffectiveDate().atStartOfDay(ZoneOffset.UTC);
       final ZonedDateTime swapStartLocalDate = swapStartDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
@@ -1665,10 +1656,6 @@ public class FixedIncomeConverterDataProvider {
     }
   };
 
-<<<<<<< HEAD
->>>>>>> a8c2f08... Revert "Revert "[PLAT-5345] Adding bond TRS analytics to examples-simulated""
-=======
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
     if (floatingLeg.getFloatingRateType().isIbor()) {
       return getIndexIborIdBundle(floatingLeg.getFloatingReferenceRateId());

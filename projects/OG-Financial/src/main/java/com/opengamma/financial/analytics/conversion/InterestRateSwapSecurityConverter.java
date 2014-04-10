@@ -84,58 +84,14 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   @Override
   public InstrumentDefinition<?> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     ArgumentChecker.notNull(security, "swap security");
-<<<<<<< HEAD
-
-    LocalDate startDate = security.getEffectiveDate();
-    LocalDate endDate = security.getUnadjustedMaturityDate();
-    AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
-    AnnuityDefinition<?> receiveLeg = getAnnuityDefinition(false, startDate, endDate, security.getNotionalExchange(), security.getReceiveLeg());
-    return new SwapDefinition(payLeg, receiveLeg);
-  }
-  
-  private AnnuityDefinition<?> getAnnuityDefinition(boolean payer, LocalDate startDate, LocalDate endDate, NotionalExchange notionalExchange, InterestRateSwapLeg leg) {
-=======
     final LocalDate startDate = security.getEffectiveDate();
     final LocalDate endDate = security.getUnadjustedMaturityDate();
     final AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
     final AnnuityDefinition<?> receiveLeg = getAnnuityDefinition(false, startDate, endDate, security.getNotionalExchange(), security.getReceiveLeg());
-    return getDefinition(security, payLeg, receiveLeg);
-  }
-
-  private SwapDefinition getDefinition(final InterestRateSwapSecurity swap, final AnnuityDefinition<?> payLeg, final AnnuityDefinition<?> receiveLeg) {
-
-    final boolean payLegFixed = isLegFixed(swap.getPayLeg(), payLeg);
-    final boolean receiveLegFixed = isLegFixed(swap.getReceiveLeg(), receiveLeg);
-    if (payLegFixed && !receiveLegFixed) {
-      final AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(payLeg);
-      final FloatingInterestRateSwapLeg leg = (FloatingInterestRateSwapLeg) swap.getReceiveLeg();
-      if (leg.getFloatingRateType().isIbor()) {
-        return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(receiveLeg));
-      }
-    } else if (!payLegFixed && !receiveLegFixed) {
-      final AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(receiveLeg);
-      final FloatingInterestRateSwapLeg floatLeg = (FloatingInterestRateSwapLeg) swap.getPayLeg();
-      if (floatLeg.getFloatingRateType().isIbor()) {
-        return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(payLeg));
-      }
-    }
     return new SwapDefinition(payLeg, receiveLeg);
   }
 
-  private boolean isLegFixed(final InterestRateSwapLeg leg, final AnnuityDefinition<?> annuity) {
-    return leg instanceof FixedInterestRateSwapLeg && annuity.getPayments() instanceof CouponFixedDefinition[];
-  }
-
-  private AnnuityCouponFixedDefinition getFixedLegAnnuity(final AnnuityDefinition<?> leg) {
-    return new AnnuityCouponFixedDefinition((CouponFixedDefinition[]) leg.getPayments(), leg.getCalendar());
-  }
-
-  private AnnuityCouponIborDefinition getIborLegAnnuity(final AnnuityDefinition<?> leg) {
-    return new AnnuityCouponIborDefinition((CouponIborDefinition[]) leg.getPayments(), ((CouponIborDefinition) leg.getNthPayment(0)).getIndex(), leg.getCalendar());
-  }
-
   private AnnuityDefinition<?> getAnnuityDefinition(final boolean payer, final LocalDate startDate, final LocalDate endDate, final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     if (leg instanceof FixedInterestRateSwapLeg) {
       return buildFixedAnnuityDefinition(payer, startDate, endDate, notionalExchange, leg);
     } else if (leg instanceof FloatingInterestRateSwapLeg) {

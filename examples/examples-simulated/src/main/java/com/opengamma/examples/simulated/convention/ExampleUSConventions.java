@@ -56,17 +56,12 @@ public class ExampleUSConventions extends ConventionMasterInitializer {
     // Deposit conventions
     final String depositConventionName = getConventionName(Currency.USD, DEPOSIT);
     final DepositConvention depositConvention = new DepositConvention(
-<<<<<<< HEAD
         depositConventionName, getIds(Currency.USD, DEPOSIT), DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING, 2, false, Currency.USD, US);
-=======
-        depositConventionName, getIds(Currency.USD, DEPOSIT), DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, Currency.USD, US);
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     final String depositONConventionName = getConventionName(Currency.USD, DEPOSIT_ON);
     final DepositConvention depositONConvention = new DepositConvention(
         depositONConventionName, getIds(Currency.USD, DEPOSIT_ON), DayCounts.ACT_360, BusinessDayConventions.FOLLOWING, 0, false, Currency.USD, US);
 
     // Ibor conventions
-<<<<<<< HEAD
     final String iborTicker = "USDLIBORP3M";
     final ExternalId liborConventionId = ExternalSchemes.syntheticSecurityId(iborTicker);
     final IborIndexConvention liborIndexConvention = new IborIndexConvention(iborTicker, liborConventionId.toBundle(),
@@ -80,50 +75,23 @@ public class ExampleUSConventions extends ConventionMasterInitializer {
         irsFixedLegConventionName, getIds(Currency.USD, IRS_FIXED_LEG),
         Tenor.SIX_MONTHS, DayCounts.THIRTY_360, BusinessDayConventions.MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.SHORT_START, false, 0);
     final String iborTicker6m = "USDLIBORP6M";
-=======
-    final String iborTicker = "USD 3M IBOR INDEX";
-    final ExternalId liborConventionId = ExternalSchemes.syntheticSecurityId(iborTicker);
-    final IborIndexConvention liborIndexConvention = new IborIndexConvention(iborTicker, liborConventionId.toBundle(),
-        DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, Currency.USD, LocalTime.of(11, 00), "US", NYLON, US, "");
-    final String liborLeg3MConventionName = getConventionName(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG);
-    final VanillaIborLegConvention liborLeg3MConvention = new VanillaIborLegConvention(
-        liborLeg3MConventionName, getIds(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG),
-        liborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.SHORT_START, false, 0);
-    final String irsFixedLegConventionName = getConventionName(Currency.USD, IRS_FIXED_LEG);
-    final SwapFixedLegConvention irsFixedLegConvention = new SwapFixedLegConvention(
-        irsFixedLegConventionName, getIds(Currency.USD, IRS_FIXED_LEG),
-        Tenor.SIX_MONTHS, DayCounts.THIRTY_360, BusinessDayConventions.MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, true, StubType.SHORT_START, false, 0);
-    final String iborTicker6m = "USD 6M IBOR INDEX";
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     final ExternalId liborConventionId6m = ExternalSchemes.syntheticSecurityId(iborTicker6m);
     final IborIndexConvention liborIndexConvention6m = new IborIndexConvention(iborTicker6m, liborConventionId6m.toBundle(),
         DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, Currency.USD, LocalTime.of(11, 00), "US", NYLON, US, "");
 
     // Overnight conventions
-<<<<<<< HEAD
     final String overnightTicker = "USDFF";
-=======
-    final String overnightTicker = "USD OVERNIGHT INDEX";
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
     final ExternalId overnightConventionId = ExternalSchemes.syntheticSecurityId(overnightTicker);
     final OvernightIndexConvention overnightConvention = new OvernightIndexConvention(
         overnightTicker, overnightConventionId.toBundle(), DayCounts.ACT_360, 1, Currency.USD, US);
     final String oisFixedLegConventionName = getConventionName(Currency.USD, OIS_FIXED_LEG);
     final SwapFixedLegConvention oisFixedLegConvention = new SwapFixedLegConvention(
         oisFixedLegConventionName, getIds(Currency.USD, OIS_FIXED_LEG),
-<<<<<<< HEAD
         Tenor.ONE_YEAR, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING, Currency.USD, US, 2, false, StubType.SHORT_START, false, 2);
     final String oisONLegConventionName = getConventionName(Currency.USD, OIS_ON_LEG);
     final OISLegConvention oisONLegConvention = new OISLegConvention(
         oisONLegConventionName, getIds(Currency.USD, OIS_ON_LEG), overnightConventionId,
         Tenor.ONE_YEAR, BusinessDayConventions.MODIFIED_FOLLOWING, 2, false, StubType.NONE, false, 2);
-=======
-        Tenor.ONE_YEAR, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING, Currency.USD, US, 2, true, StubType.SHORT_START, false, 2);
-    final String oisONLegConventionName = getConventionName(Currency.USD, OIS_ON_LEG);
-    final OISLegConvention oisONLegConvention = new OISLegConvention(
-        oisONLegConventionName, getIds(Currency.USD, OIS_ON_LEG), overnightConventionId,
-        Tenor.ONE_YEAR, BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, StubType.NONE, false, 2);
->>>>>>> 6aec53f... Revert "Revert "[PLAT-6098], [PLAT-6099], [PLAT-6344], [PLAT-6345] Adding support for equity and bond TRS""
 
     addConvention(master, depositConvention);
     addConvention(master, depositONConvention);
