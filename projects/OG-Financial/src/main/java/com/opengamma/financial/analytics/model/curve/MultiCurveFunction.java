@@ -465,7 +465,9 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      *
      * @param curveNames All of the curves produced by this function
      * @return The result properties
+     * @deprecated Use the method that sets the sensitivity currencies
      */
+    @Deprecated
     protected ValueProperties getBundleProperties(final String[] curveNames) {
       return getBundleProperties(curveNames, null);
     }
@@ -474,7 +476,6 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * Gets the result properties for a curve.
      *
      * @param curveName The curve name
-     * @param sensitivityCurrencies The set of currencies to which the curves produce sensitivities
      * @return The result properties
      */
     @SuppressWarnings("synthetic-access")
