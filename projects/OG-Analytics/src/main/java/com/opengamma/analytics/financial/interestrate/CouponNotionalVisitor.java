@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -94,13 +95,17 @@ public class CouponNotionalVisitor extends InstrumentDefinitionVisitorAdapter<Vo
   }
 
   @Override
-  public CurrencyAmount visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
+  public CurrencyAmount visitCouponFixedCompoundingDefinition(final CouponFixedCompoundingDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
   @Override
-  public CurrencyAmount visitCouponArithmeticAverageONSpreadDefinition(CouponONArithmeticAverageSpreadDefinition payment) {
+  public CurrencyAmount visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
+  @Override
+  public CurrencyAmount visitPaymentFixedDefinition(final PaymentFixedDefinition payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getReferenceAmount());
+  }
 }
