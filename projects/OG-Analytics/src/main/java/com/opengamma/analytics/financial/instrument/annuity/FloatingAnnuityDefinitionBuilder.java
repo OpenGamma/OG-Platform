@@ -656,7 +656,8 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
             notional,
             initialRate);
       } else {
-        ZonedDateTime fixingPeriodStartDate = adjustedAccrualStartDate;
+        // See TODO below about reset BDC used instead of fixing BDC
+        ZonedDateTime fixingPeriodStartDate = _adjustedResetDateParameters.getBusinessDayConvention().adjustDate(_adjustedFixingDateParameters.getCalendar(), adjustedAccrualStartDate);
         if (isFirstCoupon) {
           // Ensure that the forward period dates are adjusted for first coupon
           fixingPeriodStartDate = _adjustedResetDateParameters.getBusinessDayConvention().adjustDate(
