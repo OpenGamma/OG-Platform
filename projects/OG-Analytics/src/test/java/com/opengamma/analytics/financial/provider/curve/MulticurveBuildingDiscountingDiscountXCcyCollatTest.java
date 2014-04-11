@@ -318,7 +318,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
         PSMQCSDC, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, false)); // USD and EUR curves
     final MulticurveProviderDiscount knownCurves = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst().copy();
     knownCurves.removeCurve(EUR);
-    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], knownCurves, PSMQDC,
+    final CurveBuildingBlockBundle knownBundle = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getSecond();
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], knownCurves, knownBundle, PSMQDC,
         PSMQCSDC, DSC_MAP_2, FWD_IBOR_MAP_2, FWD_ON_MAP_2, false)); // EUR with USD FF collateral dsc curve
   }
 
@@ -346,7 +347,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
 
   @SuppressWarnings("unchecked")
   private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+      final String[][] curveNames, final MulticurveProviderDiscount knownData,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final LinkedHashMap<String, Currency> dscMap,
       final LinkedHashMap<String, IborIndex[]> fwdIborMap, final LinkedHashMap<String, IndexON[]> fwdOnMap, final boolean withToday) {
     final int nUnits = definitions.length;
@@ -368,7 +370,37 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
       }
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
+
     return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, dscMap, fwdIborMap, fwdOnMap, calculator, sensitivityCalculator);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
+      final String[][] curveNames, final MulticurveProviderDiscount knownData, final CurveBuildingBlockBundle knownBundle,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final LinkedHashMap<String, Currency> dscMap,
+      final LinkedHashMap<String, IborIndex[]> fwdIborMap, final LinkedHashMap<String, IndexON[]> fwdOnMap, final boolean withToday) {
+    final int nUnits = definitions.length;
+    final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    for (int i = 0; i < nUnits; i++) {
+      final int nCurves = definitions[i].length;
+      final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      for (int j = 0; j < nCurves; j++) {
+        final int nInstruments = definitions[i][j].length;
+        final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
+        final double[] rates = new double[nInstruments];
+        for (int k = 0; k < nInstruments; k++) {
+          derivatives[k] = convert(definitions[i][j][k], withToday);
+          rates[k] = initialGuess(definitions[i][j][k]);
+        }
+        final GeneratorYDCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        final double[] initialGuess = generator.initialGuess(rates);
+        singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
+      }
+      curveBundles[i] = new MultiCurveBundle<>(singleCurves);
+    }
+
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, knownBundle, dscMap, fwdIborMap, fwdOnMap, calculator, sensitivityCalculator);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
