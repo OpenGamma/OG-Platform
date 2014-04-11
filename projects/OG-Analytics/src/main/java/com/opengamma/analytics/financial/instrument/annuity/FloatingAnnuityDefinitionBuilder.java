@@ -307,7 +307,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       paymentDates = getPaymentDates(adjustedAccrualEndDates);
     }
     
-    if (_index instanceof IborIndex && !isCompounding() && !hasSpread() && !hasGearing()) {
+    if (_index instanceof IborIndex && !isCompounding() && !hasSpread() && !hasGearing() && !hasInitialRate()) {
       coupons = new CouponIborDefinition[adjustedAccrualEndDates.length];
     } else {
       coupons = new CouponDefinition[exchangeNotionalCouponCount + adjustedAccrualEndDates.length];
