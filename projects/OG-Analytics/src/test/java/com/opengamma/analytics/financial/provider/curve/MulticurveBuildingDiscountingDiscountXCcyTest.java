@@ -608,7 +608,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
 
   }
 
-  public void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final MulticurveProviderDiscount curves, final boolean withToday, final int block) {
+  private void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final MulticurveProviderDiscount curves, final boolean withToday, final int block) {
     final int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       final InstrumentDerivative[][] instruments = convert(definitions[loopblock], withToday);
@@ -644,7 +644,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     @SuppressWarnings("unused")
     final MultipleCurrencyParameterSensitivity mqs = MQSC.fromInstrument(swap, multicurves7, blocks7);
     @SuppressWarnings("unused")
-    int t = 0;
+    final int t = 0;
   }
 
   @Test(enabled = false)

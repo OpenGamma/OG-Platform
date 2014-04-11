@@ -70,7 +70,7 @@ public class MulticurveBuildingDiscountingBrazilianONTest2 {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
 
-  private static final Currency BRL = Currency.EUR;
+  private static final Currency BRL = Currency.BRL;
   private static final FXMatrix FX_MATRIX = new FXMatrix(BRL);
 
   private static final double NOTIONAL = 1.0;

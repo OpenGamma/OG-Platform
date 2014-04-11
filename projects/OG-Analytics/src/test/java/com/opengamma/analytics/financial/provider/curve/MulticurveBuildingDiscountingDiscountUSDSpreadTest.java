@@ -440,7 +440,7 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
 
   }
 
-  public void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final MulticurveProviderDiscount curves, final boolean withToday, final int block) {
+  private void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final MulticurveProviderDiscount curves, final boolean withToday, final int block) {
     final int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       final InstrumentDerivative[][] instruments = convert(definitions[loopblock], loopblock, withToday);
@@ -576,7 +576,7 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
       fwd3MarketQuoteShifted[loopnodefwd3] -= shift;
       final InstrumentDefinition<?>[][][] definitionFwd3M =
           new InstrumentDefinition<?>[][][] {{getDefinitions(fwd3MarketQuoteShifted, FWD3_USD_GENERATORS_3, FWD3_USD_ATTR_3), DEFINITIONS_DSC_USD } };
-      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> curveBlockM = makeCurvesFromDefinitions(definitionFwd3M, GENERATORS_UNITS[6], NAMES_UNITS[6], KNOWN_DATA,
+      final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> curveBlockM = makeCurvesFromDefinitions(definitionFwd3M, GENERATORS_UNITS[6], NAMES_UNITS[6], KNOWN_DATA,
           PSMQC, PSMQCSC, false);
       final Double[] parametersFwd3DscM = ((YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) curveBlockM.getFirst().getCurve(CURVE_NAME_DSC_USD)).getCurves()[1]).getCurve().getYData();
       final Double[] parametersFwd3Fwd3M = ((YieldCurve) curveBlockM.getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
@@ -584,7 +584,7 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
       fwd3MarketQuoteShifted[loopnodefwd3] += 2 * shift;
       final InstrumentDefinition<?>[][][] definitionFwd3P =
           new InstrumentDefinition<?>[][][] {{getDefinitions(fwd3MarketQuoteShifted, FWD3_USD_GENERATORS_3, FWD3_USD_ATTR_3), DEFINITIONS_DSC_USD } };
-      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> curveBlockP = makeCurvesFromDefinitions(definitionFwd3P, GENERATORS_UNITS[6], NAMES_UNITS[6], KNOWN_DATA,
+      final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> curveBlockP = makeCurvesFromDefinitions(definitionFwd3P, GENERATORS_UNITS[6], NAMES_UNITS[6], KNOWN_DATA,
           PSMQC, PSMQCSC, false);
       final Double[] parametersFwd3DscP = ((YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) curveBlockP.getFirst().getCurve(CURVE_NAME_DSC_USD)).getCurves()[1]).getCurve().getYData();
       final Double[] parametersFwd3Fwd3P = ((YieldCurve) curveBlockP.getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
