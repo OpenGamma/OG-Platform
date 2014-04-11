@@ -189,7 +189,9 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
    * @param exogenousRequirements The exogenous requirements
    * @param curveConstructionConfiguration The curve construction configuration
    * @return A compiled function that produces curves.
+   * @deprecated Use the method that sets all currencies used in curve construction
    */
+  @Deprecated
   public abstract CompiledFunctionDefinition getCompiledFunction(ZonedDateTime earliestInvocation, ZonedDateTime latestInvocation, String[] curveNames,
       Set<ValueRequirement> exogenousRequirements, CurveConstructionConfiguration curveConstructionConfiguration);
 
@@ -227,7 +229,9 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param curveNames The curve names, not null
      * @param curveRequirement The curve value requirement produced by this function, not null
      * @param exogenousRequirements The exogenous requirements, not null
+     * @deprecated Use the constructor that sets all currencies used in curve construction
      */
+    @Deprecated
     protected CurveCompiledFunctionDefinition(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames, final String curveRequirement,
         final Set<ValueRequirement> exogenousRequirements) {
       this(earliestInvocation, latestInvocation, curveNames, curveRequirement, exogenousRequirements, null);
@@ -239,7 +243,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param curveNames The curve names, not null
      * @param curveRequirement The curve value requirement produced by this function, not null
      * @param exogenousRequirements The exogenous requirements, not null
-     * @param currencies The set of currencies to which the curves produce sensitivities
+     * @param currencies The set of currencies to which the curves produce sensitivities, can be null
      */
     protected CurveCompiledFunctionDefinition(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames, final String curveRequirement,
         final Set<ValueRequirement> exogenousRequirements, final String[] currencies) {
@@ -252,7 +256,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       _results = new HashSet<>();
       final ValueProperties properties = getBundleProperties(_curveNames, currencies);
       for (final String curveName : _curveNames) {
-        final ValueProperties curveProperties = getCurveProperties(curveName, currencies);
+        final ValueProperties curveProperties = getCurveProperties(curveName);
         _results.add(new ValueSpecification(curveRequirement, ComputationTargetSpecification.NULL, curveProperties));
       }
       _results.add(new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
@@ -456,17 +460,6 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     }
 
     /**
-     * Gets the result properties for a curve. This method does not set the
-     * {@link ValuePropertyNames#CURVE_SENSITIVITY_CURRENCY} property.
-     *
-     * @param curveName The curve name
-     * @return The result properties
-     */
-    protected ValueProperties getCurveProperties(final String curveName) {
-      return getCurveProperties(curveName, null);
-    }
-
-    /**
      * Gets the result properties for a curve bundle. This method does not
      * set the {@link ValuePropertyNames#CURVE_SENSITIVITY_CURRENCY} property.
      *
@@ -485,7 +478,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @return The result properties
      */
     @SuppressWarnings("synthetic-access")
-    protected ValueProperties getCurveProperties(final String curveName, final String[] sensitivityCurrencies) {
+    protected ValueProperties getCurveProperties(final String curveName) {
       final ValueProperties.Builder builder = createValueProperties()
           .with(CURVE, curveName)
           .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
@@ -494,9 +487,6 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
           .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
-      if (sensitivityCurrencies != null) {
-        builder.with(CURVE_SENSITIVITY_CURRENCY, sensitivityCurrencies);
-      }
       return builder.get();
     }
 

@@ -75,7 +75,6 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -117,9 +116,6 @@ public class MultiCurveInterpolatedFunction extends
 
   /**
    * Compiled function implementation.
-   */
-  /**
-   *
    */
   protected class MultiCurveInterpolatedCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
     /** The curve construction configuration */
@@ -175,7 +171,7 @@ public class MultiCurveInterpolatedFunction extends
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
 
         for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
-          
+
           final String curveName = entry.getKey();
           final List<? extends CurveTypeConfiguration> types = entry.getValue();
 
@@ -191,7 +187,7 @@ public class MultiCurveInterpolatedFunction extends
               (InterpolatedCurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, curveProperties));
 
           n = specification.getNodes().size();
-          
+
           final double[] times = new double[n];
           final double[] yields = new double[n];
           final double[][] jacobian = new double[n][n];
