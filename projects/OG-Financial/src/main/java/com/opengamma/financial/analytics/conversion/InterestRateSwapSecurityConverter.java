@@ -103,13 +103,13 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     if (payLegFixed && !receiveLegFixed) {
       final AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(payLeg);
       final FloatingInterestRateSwapLeg leg = (FloatingInterestRateSwapLeg) swap.getReceiveLeg();
-      if (leg.getFloatingRateType().isIbor()) {
+      if (leg.getFloatingRateType().isIbor() && (receiveLeg.getPayments() instanceof CouponIborDefinition[])) {
         return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(receiveLeg));
       }
-    } else if (!payLegFixed && !receiveLegFixed) {
+    } else if (!payLegFixed && receiveLegFixed) {
       final AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(receiveLeg);
       final FloatingInterestRateSwapLeg floatLeg = (FloatingInterestRateSwapLeg) swap.getPayLeg();
-      if (floatLeg.getFloatingRateType().isIbor()) {
+      if (floatLeg.getFloatingRateType().isIbor() && (payLeg.getPayments() instanceof CouponIborDefinition[])) {
         return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(payLeg));
       }
     }

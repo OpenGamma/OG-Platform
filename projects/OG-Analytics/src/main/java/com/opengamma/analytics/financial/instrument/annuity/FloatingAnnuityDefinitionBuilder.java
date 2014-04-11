@@ -306,12 +306,8 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     } else {
       paymentDates = getPaymentDates(adjustedAccrualEndDates);
     }
-    
-    if (_index instanceof IborIndex && !isCompounding() && !hasSpread() && !hasGearing() && !hasInitialRate()) {
-      coupons = new CouponIborDefinition[adjustedAccrualEndDates.length];
-    } else {
-      coupons = new CouponDefinition[exchangeNotionalCouponCount + adjustedAccrualEndDates.length];
-    }
+
+    coupons = new CouponDefinition[exchangeNotionalCouponCount + adjustedAccrualEndDates.length];
 
     int couponOffset = isExchangeInitialNotional() ? 1 : 0;
     
@@ -367,9 +363,31 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       }
       coupons[c + couponOffset] = coupon;
     }
+    return downCastIborCoupons(coupons);
+  }
+
+  /**
+   * Function to downcast ibor coupons to help identify vanilla fix/float swaps to downstream code
+   *
+   * @param coupons the coupons
+   * @return coupons cast into array of CouponIborDefinition or original list if not all Ibor-like
+   */
+  private CouponDefinition[] downCastIborCoupons(CouponDefinition[] coupons) {
+    boolean allIborCoupons = true;
+    for (CouponDefinition coupon : coupons) {
+      if (!(coupon instanceof CouponIborDefinition)) {
+        allIborCoupons = false;
+        break;
+      }
+    }
+    if (allIborCoupons) {
+      CouponIborDefinition[] iborCoupons = new CouponIborDefinition[coupons.length];
+      System.arraycopy(coupons, 0, iborCoupons, 0, coupons.length);
+      return iborCoupons;
+    }
     return coupons;
   }
-  
+
   private boolean hasStubs() {
     return false;
   }
