@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Implementation of a provider of Black smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent.
  * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
  */
-public class BlackSTIRFuturesSmileProvider implements BlackSTIRFuturesSmileProviderInterface {
+public class BlackSTIRFuturesSmileProvider implements BlackSTIRFuturesProviderInterface {
 
   /**
    * The multicurve provider.
@@ -57,8 +57,7 @@ public class BlackSTIRFuturesSmileProvider implements BlackSTIRFuturesSmileProvi
   }
 
   @Override
-  public double getVolatility(final double expiry, final double strike, final double delay) {
-    //TODO: delay is not used.
+  public double getVolatility(final double expiry, final double delay, final double strike, double futuresPrice) {
     return _parameters.getZValue(expiry, strike);
   }
 

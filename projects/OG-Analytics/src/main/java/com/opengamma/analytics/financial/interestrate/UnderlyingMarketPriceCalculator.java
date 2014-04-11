@@ -56,7 +56,7 @@ public class UnderlyingMarketPriceCalculator extends InstrumentDerivativeVisitor
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction security, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(curves, "curves");
-    return MARGINED_IR_FUTURE_OPTION.underlyingFuturePrice(security.getUnderlyingOption(), curves);
+    return MARGINED_IR_FUTURE_OPTION.underlyingFuturePrice(security.getUnderlyingSecurity(), curves);
   }
 
   @Override

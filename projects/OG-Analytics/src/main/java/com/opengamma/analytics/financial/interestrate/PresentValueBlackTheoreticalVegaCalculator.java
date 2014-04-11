@@ -38,9 +38,8 @@ public class PresentValueBlackTheoreticalVegaCalculator extends InstrumentDeriva
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return MARGINED_IR_FUTURE_OPTION.optionPriceVega(transaction.getUnderlyingOption(), (YieldCurveWithBlackCubeBundle) curves);
+    return MARGINED_IR_FUTURE_OPTION.optionPriceVega(transaction.getUnderlyingSecurity(), (YieldCurveWithBlackCubeBundle) curves);
   }
-
 
   @Override
   public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {

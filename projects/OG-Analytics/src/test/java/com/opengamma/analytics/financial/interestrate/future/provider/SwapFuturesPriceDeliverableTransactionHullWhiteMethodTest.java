@@ -80,7 +80,7 @@ public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
 
   @Test
   public void presentValue() {
-    final double price = METHOD_SWAP_FUT_SEC_HW.price(SWAP_FUTURES_TRANSACTION.getUnderlyingFuture(), MULTICURVES_HW);
+    final double price = METHOD_SWAP_FUT_SEC_HW.price(SWAP_FUTURES_TRANSACTION.getUnderlyingSecurity(), MULTICURVES_HW);
     final MultipleCurrencyAmount pvComputed = METHOD_SWAP_FUT_TRA_HW.presentValue(SWAP_FUTURES_TRANSACTION, MULTICURVES_HW);
     final MultipleCurrencyAmount pvExpected1 = METHOD_SWAP_FUT_TRA_HW.presentValueFromPrice(SWAP_FUTURES_TRANSACTION, price);
     assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value", pvExpected1.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
@@ -97,7 +97,7 @@ public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
 
   @Test
   public void presentValueCurveSensitivity() {
-    final MulticurveSensitivity pricecs = METHOD_SWAP_FUT_SEC_HW.priceCurveSensitivity(SWAP_FUTURES_TRANSACTION.getUnderlyingFuture(), MULTICURVES_HW);
+    final MulticurveSensitivity pricecs = METHOD_SWAP_FUT_SEC_HW.priceCurveSensitivity(SWAP_FUTURES_TRANSACTION.getUnderlyingSecurity(), MULTICURVES_HW);
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_SWAP_FUT_TRA_HW.presentValueCurveSensitivity(SWAP_FUTURES_TRANSACTION, MULTICURVES_HW);
     final MultipleCurrencyMulticurveSensitivity pvcsExpected1 = SWAP_FUTURES_TRANSACTION.accept(PVCSIC, pricecs);
     AssertSensivityObjects.assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value curve sensitivity",

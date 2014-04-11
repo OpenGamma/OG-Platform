@@ -234,7 +234,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
 
     @Override
     public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
-      return visitInterestRateFutureOptionMarginSecurity(option.getUnderlyingOption());
+      return visitInterestRateFutureOptionMarginSecurity(option.getUnderlyingSecurity());
     }
 
     private HestonCharacteristicExponent getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final double t, final double k) {

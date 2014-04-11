@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -158,7 +158,7 @@ public abstract class BlackDiscountingIRFutureOptionFunction extends Discounting
      * @param fxMatrix The FX matrix, not null
      * @return The Black surface and curve data
      */
-    protected BlackSTIRFuturesSmileProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+    protected BlackSTIRFuturesProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final FXMatrix fxMatrix) {
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final IRFutureOptionSecurity security = (IRFutureOptionSecurity) target.getTrade().getSecurity();

@@ -49,7 +49,7 @@ public final class InterestRateFutureTransactionHullWhiteMethod extends Interest
   //  private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   public CurrencyAmount presentValue(final InterestRateFutureTransaction future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
-    final double pv = presentValueFromPrice(future, METHOD_SECURITY.price(future.getUnderlyingFuture(), curves));
+    final double pv = presentValueFromPrice(future, METHOD_SECURITY.price(future.getUnderlyingSecurity(), curves));
     return CurrencyAmount.of(future.getCurrency(), pv);
   }
 
@@ -62,7 +62,7 @@ public final class InterestRateFutureTransactionHullWhiteMethod extends Interest
 
   @Override
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return presentValueCurveSensitivity(future, METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingFuture(), curves));
+    return presentValueCurveSensitivity(future, METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingSecurity(), curves));
   }
 
 }

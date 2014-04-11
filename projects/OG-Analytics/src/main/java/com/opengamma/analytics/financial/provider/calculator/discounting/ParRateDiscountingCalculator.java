@@ -136,7 +136,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_IR_FUT.parRate(futures.getUnderlyingFuture(), multicurves);
+    return METHOD_IR_FUT.parRate(futures.getUnderlyingSecurity(), multicurves);
   }
 
   //     -----     Forex     ------

@@ -43,20 +43,20 @@ public class MarginedIRFutureOptionConstantSpreadHorizonCalculator implements Ho
     ArgumentChecker.notNull(lastMarginPrice, "last margin price");
     ArgumentChecker.notNull(calendar, "calendar");
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
-    final ZonedDateTime expiry = definition.getUnderlyingOption().getExpirationDate();
+    final ZonedDateTime expiry = definition.getUnderlyingSecurity().getExpirationDate();
     ArgumentChecker.isTrue(!date.isAfter(expiry), "Attempted to compute theta on expiry ir future option. date = " + date + ", expiry = " + expiry);
     final ZonedDateTime horizon = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizon);
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
 
     // Compute today's pv
-    final Currency currency = definition.getUnderlyingOption().getUnderlyingFuture().getCurrency();
+    final Currency currency = definition.getUnderlyingSecurity().getUnderlyingFuture().getCurrency();
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, lastMarginPrice, yieldCurveNames);
     final double valueToday = instrumentToday.accept(pvCalculator, data);
 
     // Compute value at horizon
     final double valueHorizon;
-    if (horizon.isBefore(definition.getUnderlyingOption().getExpirationDate())) {
+    if (horizon.isBefore(definition.getUnderlyingSecurity().getExpirationDate())) {
       final InstrumentDerivative instrumentHorizon = definition.toDerivative(horizon, lastMarginPrice, yieldCurveNames);
       final YieldCurveWithBlackCubeBundle tomorrowData = IR_FUTURE_OPTION_ROLLDOWN.rollDown(data, shiftTime);
       valueHorizon = instrumentHorizon.accept(pvCalculator, tomorrowData);

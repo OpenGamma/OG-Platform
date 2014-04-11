@@ -38,10 +38,10 @@ public class BondFuturesYieldAverageTransactionDefinition extends FuturesTransac
   public BondFuturesYieldAverageTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getLastTradingDate().toLocalDate()), "Date is after last trade date");
+    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingSecurity().getLastTradingDate().toLocalDate()), "Date is after last trade date");
     final LocalDate tradeDate = getTradeDate().toLocalDate();
     ArgumentChecker.isTrue(!date.isBefore(tradeDate), "Date is before trade date");
-    final BondFuturesYieldAverageSecurity underlyingFuture = getUnderlyingFuture().toDerivative(dateTime);
+    final BondFuturesYieldAverageSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(dateTime);
     final double referencePrice;
     if (tradeDate.isBefore(date)) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;

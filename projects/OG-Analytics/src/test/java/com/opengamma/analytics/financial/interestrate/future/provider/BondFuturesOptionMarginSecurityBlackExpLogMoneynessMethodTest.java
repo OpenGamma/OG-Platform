@@ -49,7 +49,7 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
       LAST_TRADING_DATE_OPT, EXPIRY_DATE_OPT, STRIKE_116, !IS_CALL);
   private static final BondFuturesOptionMarginSecurity CALL_BOBL_116 = CALL_BOBL_116_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final BondFuturesOptionMarginSecurity PUT_BOBL_116 = PUT_BOBL_116_DEFINITION.toDerivative(REFERENCE_DATE);
-  /** Black surface expiry/delay */
+  /** Black surface expiry/log-moneyness */
   final private static InterpolatedDoublesSurface BLACK_SURFACE = StandardDataSetsBlack.blackSurfaceExpiryLogMoneyness();
   /** Curves for a specific issuer name */
   private static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();

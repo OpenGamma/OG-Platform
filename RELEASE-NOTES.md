@@ -14,6 +14,24 @@ PortfolioTool was simplified as per the JIRA above
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M18
+------------
+
+Configuration compatibility
+- No changes
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- [PLAT-5535] OG-Analytics: InterestRateFutureSecurityDefinition now implements FuturesSecurityDefinition. The toDerivative method does not take a 
+  Double data anymore; it was suppose to represent the last settlement price, but this is handled at the "Transaction" level. InterestRateFutureTransactionDefinition 
+  now implements FuturesTransactionDefinition.
+- [PLAT-6333] OG-Analytics: InterestRateFutureOptionMarginXXX now extends FuturesXXX.
+
+Analytics compatibility
+- No expected differences
+
 To 2.2.0-M17
 ------------
 

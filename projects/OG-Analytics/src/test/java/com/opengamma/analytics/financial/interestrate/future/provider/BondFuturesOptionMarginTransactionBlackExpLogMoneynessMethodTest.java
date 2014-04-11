@@ -78,22 +78,22 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
   private static final ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpolatedFDCalculator PSSFC_FD =
       new ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpolatedFDCalculator(PVBFC, SHIFT);
   /** Tolerances */
-  private static final double TOLERANCE_RATE = 1.0E-3;
+  private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
 
   @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed1 = METHOD_OPT_TRA.presentValue(CALL_BOBLM4_125_TRA_1, BLACK_BNDFUT_MONEYNESS);
-    final double priceOpt1 = METHOD_OPT_SEC.price(CALL_BOBLM4_125_TRA_1.getUnderlyingFuture(), BLACK_BNDFUT_MONEYNESS);
+    final double priceOpt1 = METHOD_OPT_SEC.price(CALL_BOBLM4_125_TRA_1.getUnderlyingSecurity(), BLACK_BNDFUT_MONEYNESS);
     final double pvExpected1 = (priceOpt1 - TRADE_PRICE) * BOBLM4_DEFINITION.getNotional() * QUANTITY;
-    assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected1, pvComputed1.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_RATE);
+    assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected1, pvComputed1.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_PV);
     assertTrue("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvComputed1.size() == 1);
     final MultipleCurrencyAmount pvCalculator = CALL_BOBLM4_125_TRA_1.accept(PVBFC, BLACK_BNDFUT_MONEYNESS);
-    assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected1, pvCalculator.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_RATE);
+    assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected1, pvCalculator.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_PV);
     final MultipleCurrencyAmount pvComputed2 = METHOD_OPT_TRA.presentValue(CALL_BOBLM4_125_TRA_2, BLACK_BNDFUT_MONEYNESS);
-    final double priceOpt2 = METHOD_OPT_SEC.price(CALL_BOBLM4_125_TRA_2.getUnderlyingFuture(), BLACK_BNDFUT_MONEYNESS);
+    final double priceOpt2 = METHOD_OPT_SEC.price(CALL_BOBLM4_125_TRA_2.getUnderlyingSecurity(), BLACK_BNDFUT_MONEYNESS);
     final double pvExpected2 = (priceOpt2 - REFERENCE_PRICE) * BOBLM4_DEFINITION.getNotional() * QUANTITY;
-    assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected2, pvComputed2.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_RATE);
+    assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected2, pvComputed2.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_PV);
   }
 
   @Test

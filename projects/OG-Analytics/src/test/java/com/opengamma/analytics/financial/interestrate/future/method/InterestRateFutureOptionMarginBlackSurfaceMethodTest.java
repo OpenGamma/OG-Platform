@@ -95,6 +95,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
   //
   private static final double TOLERANCE_PRICE = 1.0E-2;
   private static final double TOLERANCE_DELTA = 1.0E+2;
+
   //
   @Test
   /**
@@ -112,6 +113,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double priceComputed = METHOD_SECURITY_OPTION_BLACK.optionPrice(OPTION_ERU2, BLACK_BUNDLE);
     assertEquals("Future option with Black volatilities: option security price", priceExpected, priceComputed);
   }
+
   //
   @Test
   /**
@@ -128,6 +130,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double presentValue1Calculator = TRANSACTION_1.accept(PVC_BLACK, BLACK_BUNDLE);
     assertEquals("Future option with Black volatilities: option transaction pv", presentValue1Computed.getAmount(), presentValue1Calculator, TOLERANCE_PRICE);
   }
+
   //
   @Test
   /**
@@ -138,9 +141,9 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     pvcsMethod.cleaned();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] curvesBumpedForward = new String[] {CURVE_NAMES[0], bumpedCurveName};
+    final String[] curvesBumpedForward = new String[] {CURVE_NAMES[0], bumpedCurveName };
     final InterestRateFutureOptionMarginTransaction transactionBumped = TRANSACTION_1_DEFINITION.toDerivative(REFERENCE_DATE, TRADE_PRICE, curvesBumpedForward);
-    final double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime()};
+    final double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime() };
     final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(transactionBumped, BLACK_BUNDLE, CURVE_NAMES[1], bumpedCurveName, nodeTimesForward, DELTA_SHIFT,
         METHOD_TRANSACTION_OPTION_BLACK);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
@@ -153,6 +156,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(TRANSACTION_1.accept(PVCSC_BLACK, BLACK_BUNDLE));
     AssertSensivityObjects.assertEquals("Future option with Black volatilities: option transaction curve sensi", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
+
   //
   @Test
   /**
@@ -181,9 +185,10 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double vega = METHOD_SECURITY_OPTION_BLACK.optionPriceVega(OPTION_ERU2, BLACK_BUNDLE);
     final DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with Black volatilities: option security vol sensi", vega, blackSens.getMap().get(point), TOLERANCE_DELTA);
-    final SurfaceValue sensFromVega = SurfaceValue.from(point,vega);
+    final SurfaceValue sensFromVega = SurfaceValue.from(point, vega);
     assertTrue("SurfaceValue produced by priceBlackSensitivity() is not equal to one from optionPriceVega()", sensFromVega.equals(blackSens));
   }
+
   @Test
   /**
    * Test the option price Black sensitivity
@@ -228,7 +233,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
   public void deltaVsCurveSensitivity() {
 
     final double dOptionDFuture = METHOD_SECURITY_OPTION_BLACK.optionPriceDelta(OPTION_ERU2, BLACK_BUNDLE);
-    final YieldAndDiscountCurve fwdCurve = BLACK_BUNDLE.getCurve(OPTION_ERU2.getForwardCurveName());
+    final YieldAndDiscountCurve fwdCurve = BLACK_BUNDLE.getCurve(OPTION_ERU2.getUnderlyingFuture().getForwardCurveName());
     final InterestRateFutureSecurity future = OPTION_ERU2.getUnderlyingFuture();
     final double tStart = future.getFixingPeriodStartTime();
     final double tEnd = future.getFixingPeriodEndTime();
@@ -273,7 +278,6 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double gammaComputed = METHOD_SECURITY_OPTION_BLACK.optionPriceGamma(OPTION_ERU2, BLACK_BUNDLE);
     assertEquals("Future option with futures price deltas: ", 0.0, (gammaExpected - gammaComputed) / gammaExpected, DELTA_SHIFT);
   }
-
 
   @Test
   /**

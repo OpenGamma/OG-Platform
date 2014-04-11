@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -44,7 +44,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class BlackDiscountingPV01IRFutureOptionFunction extends BlackDiscountingIRFutureOptionFunction {
   /** The PV01 calculator */
-  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesSmileProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR = new PV01CurveParametersCalculator<>(
+  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR = new PV01CurveParametersCalculator<>(
       PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance());
 
   /**
@@ -61,7 +61,7 @@ public class BlackDiscountingPV01IRFutureOptionFunction extends BlackDiscounting
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
-        final BlackSTIRFuturesSmileProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSTIRFuturesProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints();

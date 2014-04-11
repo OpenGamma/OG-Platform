@@ -45,7 +45,7 @@ public class BondFutureTransactionDefinitionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("Bond future transaction definition: underlying", FUTURE_DEFINITION, FUTURE_TRANSACTION_DEFINITION.getUnderlyingFuture());
+    assertEquals("Bond future transaction definition: underlying", FUTURE_DEFINITION, FUTURE_TRANSACTION_DEFINITION.getUnderlyingSecurity());
     assertEquals("Bond future transaction definition: quantity", QUANTITY, FUTURE_TRANSACTION_DEFINITION.getQuantity());
     assertEquals("Bond future transaction definition: trade date", TRADE_DATE, FUTURE_TRANSACTION_DEFINITION.getTradeDate());
     assertEquals("Bond future transaction definition: trade price", TRADE_PRICE, FUTURE_TRANSACTION_DEFINITION.getTradePrice());

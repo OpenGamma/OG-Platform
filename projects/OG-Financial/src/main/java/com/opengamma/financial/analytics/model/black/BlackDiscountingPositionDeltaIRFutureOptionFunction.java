@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PositionDeltaSTIRFutureOptionCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class BlackDiscountingPositionDeltaIRFutureOptionFunction extends BlackDiscountingIRFutureOptionFunction {
   /** The position delta calculator */
-  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesSmileProviderInterface, Double> CALCULATOR =
+  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesProviderInterface, Double> CALCULATOR =
       PositionDeltaSTIRFutureOptionCalculator.getInstance();
 
   /**
@@ -53,7 +53,7 @@ public class BlackDiscountingPositionDeltaIRFutureOptionFunction extends BlackDi
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final BlackSTIRFuturesSmileProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSTIRFuturesProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final double positionDelta = derivative.accept(CALCULATOR, blackData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();

@@ -12,15 +12,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Abstract class for generic futures transactions.
- * @param <F> The futures type of the underlying security.
+ * Abstract class for generic transaction on securities with a futures-style margining feature.
+ * @param <F> The type of the underlying security.
  */
 public abstract class FuturesTransaction<F extends FuturesSecurity> implements InstrumentDerivative {
 
   /**
    * The underlying future security. Not null.
    */
-  private final F _underlyingFuture;
+  private final F _underlyingSecurity;
   /**
    * Quantity of future. Can be positive or negative.
    */
@@ -32,14 +32,14 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
 
   /**
    * Constructor.
-   * @param underlyingFuture The underlying futures security.
+   * @param underlyingSecurity The underlying futures security.
    * @param quantity The transaction quantity.
    * @param referencePrice The reference price.
    */
-  public FuturesTransaction(F underlyingFuture, long quantity, double referencePrice) {
+  public FuturesTransaction(F underlyingSecurity, long quantity, double referencePrice) {
     super();
-    ArgumentChecker.notNull(underlyingFuture, "underlying futures security");
-    _underlyingFuture = underlyingFuture;
+    ArgumentChecker.notNull(underlyingSecurity, "underlying futures security");
+    _underlyingSecurity = underlyingSecurity;
     _quantity = quantity;
     _referencePrice = referencePrice;
   }
@@ -48,8 +48,8 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
    * Returns the underlying futures security.
    * @return The futures.
    */
-  public F getUnderlyingFuture() {
-    return _underlyingFuture;
+  public F getUnderlyingSecurity() {
+    return _underlyingSecurity;
   }
 
   /**
@@ -73,7 +73,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
    * @return The currency.
    */
   public Currency getCurrency() {
-    return _underlyingFuture.getCurrency();
+    return _underlyingSecurity.getCurrency();
   }
 
   @Override
@@ -84,7 +84,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
     long temp;
     temp = Double.doubleToLongBits(_referencePrice);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _underlyingFuture.hashCode();
+    result = prime * result + _underlyingSecurity.hashCode();
     return result;
   }
 
@@ -106,7 +106,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
     if (Double.doubleToLongBits(_referencePrice) != Double.doubleToLongBits(other._referencePrice)) {
       return false;
     }
-    if (!ObjectUtils.equals(_underlyingFuture, other._underlyingFuture)) {
+    if (!ObjectUtils.equals(_underlyingSecurity, other._underlyingSecurity)) {
       return false;
     }
     return true;

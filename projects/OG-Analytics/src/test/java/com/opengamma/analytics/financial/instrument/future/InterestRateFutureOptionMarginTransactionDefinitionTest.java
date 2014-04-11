@@ -61,7 +61,7 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 13);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -78,7 +78,7 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
    * Tests the class getters.
    */
   public void getter() {
-    assertEquals(OPTION_ERU2, OPTION_TRANSACTION.getUnderlyingOption());
+    assertEquals(OPTION_ERU2, OPTION_TRANSACTION.getUnderlyingSecurity());
     assertEquals(QUANTITY, OPTION_TRANSACTION.getQuantity());
     assertEquals(TRADE_DATE, OPTION_TRANSACTION.getTradeDate());
     assertEquals(TRADE_PRICE, OPTION_TRANSACTION.getTradePrice());

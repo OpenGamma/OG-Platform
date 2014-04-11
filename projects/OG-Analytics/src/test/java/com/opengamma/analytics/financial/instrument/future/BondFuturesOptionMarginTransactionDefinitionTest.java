@@ -52,7 +52,7 @@ public class BondFuturesOptionMarginTransactionDefinitionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("BondFuturesOptionMarginTransactionDefinition: getter", CALL_BOBLM4_SEC_DEFINITION, CALL_BOBLM4_TRA_DEFINITION.getUnderlyingFuture());
+    assertEquals("BondFuturesOptionMarginTransactionDefinition: getter", CALL_BOBLM4_SEC_DEFINITION, CALL_BOBLM4_TRA_DEFINITION.getUnderlyingSecurity());
     assertEquals("BondFuturesOptionMarginTransactionDefinition: getter", QUANTITY, CALL_BOBLM4_TRA_DEFINITION.getQuantity());
     assertEquals("BondFuturesOptionMarginTransactionDefinition: getter", TRADE_DATE, CALL_BOBLM4_TRA_DEFINITION.getTradeDate());
     assertEquals("BondFuturesOptionMarginTransactionDefinition: getter", TRADE_PRICE, CALL_BOBLM4_TRA_DEFINITION.getTradePrice());

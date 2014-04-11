@@ -67,7 +67,7 @@ public class BondFuturesOptionMarginTransactionDefinition extends FuturesTransac
     final LocalDate date = dateTime.toLocalDate();
     final LocalDate tradeDateLocal = getTradeDate().toLocalDate();
     ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
-    final BondFuturesOptionMarginSecurity underlyingOption = getUnderlyingFuture().toDerivative(dateTime);
+    final BondFuturesOptionMarginSecurity underlyingOption = getUnderlyingSecurity().toDerivative(dateTime);
     double referencePrice;
     if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before reference date.
       referencePrice = lastMarginPrice;

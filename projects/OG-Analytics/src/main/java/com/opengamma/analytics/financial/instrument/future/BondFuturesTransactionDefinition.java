@@ -48,9 +48,9 @@ public class BondFuturesTransactionDefinition extends FuturesTransactionDefiniti
   @Override
   public BondFuturesTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getDeliveryLastDate()), "Date is after last delivery date");
+    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingSecurity().getDeliveryLastDate()), "Date is after last delivery date");
     ArgumentChecker.isTrue(!date.isBefore(getTradeDate()), "Date is before trade date");
-    final BondFuturesSecurity underlyingFuture = getUnderlyingFuture().toDerivative(date, yieldCurveNames);
+    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(date, yieldCurveNames);
     double referencePrice;
     if (getTradeDate().isBefore(date)) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
@@ -69,9 +69,9 @@ public class BondFuturesTransactionDefinition extends FuturesTransactionDefiniti
   @Override
   public BondFuturesTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getDeliveryLastDate()), "Date is after last delivery date");
+    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingSecurity().getDeliveryLastDate()), "Date is after last delivery date");
     ArgumentChecker.isTrue(!date.isBefore(getTradeDate()), "Date is before trade date");
-    final BondFuturesSecurity underlyingFuture = getUnderlyingFuture().toDerivative(date);
+    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(date);
     final double referencePrice;
     if (getTradeDate().isBefore(date)) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;

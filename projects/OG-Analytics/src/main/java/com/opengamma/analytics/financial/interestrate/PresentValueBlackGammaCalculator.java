@@ -52,7 +52,7 @@ public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisito
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return MARGINED_IR_FUTURE_OPTION_SEC.optionPriceGamma(transaction.getUnderlyingOption(), (YieldCurveWithBlackCubeBundle) curves);
+    return MARGINED_IR_FUTURE_OPTION_SEC.optionPriceGamma(transaction.getUnderlyingSecurity(), (YieldCurveWithBlackCubeBundle) curves);
   }
 
   @Override
@@ -72,7 +72,7 @@ public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisito
       final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(), underlyingOption.getExpirationTime(),
           underlyingOption.getStrike(), underlyingOption.isCall());
       final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getTradePrice());
-      return MARGINED_IR_FUTURE_OPTION_SEC.optionPriceGamma(margined.getUnderlyingOption(), (YieldCurveWithBlackCubeBundle) curves);
+      return MARGINED_IR_FUTURE_OPTION_SEC.optionPriceGamma(margined.getUnderlyingSecurity(), (YieldCurveWithBlackCubeBundle) curves);
     }
     throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
   }

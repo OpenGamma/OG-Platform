@@ -12,26 +12,26 @@ import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBl
 /**
  * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
  */
-public final class FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator
+public final class FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator
     extends InstrumentDerivativeVisitorAdapter<PresentValueBlackBondFuturesCubeSensitivity, PresentValueBlackBondFuturesCubeSensitivity> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator INSTANCE = new FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator();
+  private static final FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator INSTANCE = new FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator getInstance() {
+  public static FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator() {
+  private FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator() {
 
   }
 
@@ -40,7 +40,7 @@ public final class FuturesPVBlackSensitivityFromPriceBlackSensitivityCalculator
   @Override
   public PresentValueBlackBondFuturesCubeSensitivity visitBondFuturesOptionMarginTransaction(final BondFuturesOptionMarginTransaction futures,
       final PresentValueBlackBondFuturesCubeSensitivity priceSensitivity) {
-    return priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getUnderlyingFuture().getNotional() * futures.getQuantity());
+    return priceSensitivity.multipliedBy(futures.getUnderlyingSecurity().getUnderlyingFuture().getNotional() * futures.getQuantity());
   }
 
 }

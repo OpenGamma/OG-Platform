@@ -116,12 +116,12 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
-    return future.getUnderlyingFuture().getFixingPeriodEndTime();
+    return future.getUnderlyingSecurity().getFixingPeriodEndTime();
   }
 
   @Override
   public Double visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
-    final double[] fixingPeriods = future.getUnderlyingFuture().getFixingPeriodTime();
+    final double[] fixingPeriods = future.getUnderlyingSecurity().getFixingPeriodTime();
     return fixingPeriods[fixingPeriods.length - 1];
   }
 
@@ -132,7 +132,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction future) {
-    return visitSwap(future.getUnderlyingFuture().getUnderlyingSwap());
+    return visitSwap(future.getUnderlyingSecurity().getUnderlyingSwap());
   }
 
   @Override
@@ -316,7 +316,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
-    return option.getUnderlyingOption().getExpirationTime();
+    return option.getUnderlyingSecurity().getExpirationTime();
   }
 
   @Override

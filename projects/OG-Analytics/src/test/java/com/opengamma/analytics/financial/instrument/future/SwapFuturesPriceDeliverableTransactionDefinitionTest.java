@@ -60,7 +60,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", SWAP_FUTURES_SECURITY_DEFINITION, SWAP_FUTURES_TRANSACTION_DEFINITION.getUnderlyingFuture());
+    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", SWAP_FUTURES_SECURITY_DEFINITION, SWAP_FUTURES_TRANSACTION_DEFINITION.getUnderlyingSecurity());
     assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_DATE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTradeDate());
     assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_PRICE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTradePrice());
     assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", QUANTITY, SWAP_FUTURES_TRANSACTION_DEFINITION.getQuantity());

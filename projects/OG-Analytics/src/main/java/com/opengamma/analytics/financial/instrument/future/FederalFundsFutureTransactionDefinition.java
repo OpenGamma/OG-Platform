@@ -62,7 +62,7 @@ public class FederalFundsFutureTransactionDefinition extends FuturesTransactionD
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Date");
     ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    final FederalFundsFutureSecurity underlying = getUnderlyingFuture().toDerivative(date, data[0], yieldCurveNames);
+    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(date, data[0], yieldCurveNames);
     if (getTradeDate().equals(date)) {
       return new FederalFundsFutureTransaction(underlying, getQuantity(), getTradePrice());
     }
@@ -83,7 +83,7 @@ public class FederalFundsFutureTransactionDefinition extends FuturesTransactionD
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data) {
     ArgumentChecker.notNull(date, "Date");
     ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    final FederalFundsFutureSecurity underlying = getUnderlyingFuture().toDerivative(date, data[0]);
+    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(date, data[0]);
     if (getTradeDate().equals(date)) {
       return new FederalFundsFutureTransaction(underlying, getQuantity(), getTradePrice());
     }

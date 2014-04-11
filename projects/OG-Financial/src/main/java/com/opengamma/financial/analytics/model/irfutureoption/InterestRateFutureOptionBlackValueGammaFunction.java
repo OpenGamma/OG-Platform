@@ -91,7 +91,7 @@ public class InterestRateFutureOptionBlackValueGammaFunction extends InterestRat
     if (derivative instanceof InterestRateFutureOptionMarginTransaction) {
       final InterestRateFutureOptionMarginTransaction transaction = (InterestRateFutureOptionMarginTransaction) derivative;
       gamma = MARGINED_TRANSANCTION_METHOD.presentValueGamma(transaction, data);
-      spot = MARGINED_SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingOption(), data);
+      spot = MARGINED_SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingSecurity(), data);
     } else if (derivative instanceof InterestRateFutureOptionPremiumTransaction) {
       final InterestRateFutureOptionPremiumTransaction transaction = (InterestRateFutureOptionPremiumTransaction) derivative;
       gamma = PREMIUM_TRANSANCTION_METHOD.presentValueGamma(transaction, data);

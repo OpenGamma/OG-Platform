@@ -67,7 +67,7 @@ public final class PresentValueCouponSensitivityCalculator extends InstrumentDer
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getQuantity() * future.getUnderlyingFuture().getNotional();
+    return future.getUnderlyingSecurity().getPaymentAccrualFactor() * future.getQuantity() * future.getUnderlyingSecurity().getNotional();
   }
 
   @Override

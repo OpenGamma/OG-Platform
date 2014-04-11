@@ -87,7 +87,7 @@ public class BondFuturesYieldAverageTransactionDefinitionTest {
   
   @Test
   public void getter() {
-    assertEquals("YieldAverageBondFuturesTransactionDefinition: getter", FUT_SEC_DEFINITION, FUT_TRA_DEFINITION.getUnderlyingFuture());
+    assertEquals("YieldAverageBondFuturesTransactionDefinition: getter", FUT_SEC_DEFINITION, FUT_TRA_DEFINITION.getUnderlyingSecurity());
     assertEquals("YieldAverageBondFuturesTransactionDefinition: getter", QUANTITY, FUT_TRA_DEFINITION.getQuantity());
     assertEquals("YieldAverageBondFuturesTransactionDefinition: getter", TRADE_DATE, FUT_TRA_DEFINITION.getTradeDate());
     assertEquals("YieldAverageBondFuturesTransactionDefinition: getter", TRADE_PRICE, FUT_TRA_DEFINITION.getTradePrice());

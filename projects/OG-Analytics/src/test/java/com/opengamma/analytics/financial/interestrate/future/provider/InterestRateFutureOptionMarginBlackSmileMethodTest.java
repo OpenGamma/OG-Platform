@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.Pr
 import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.blackstirfutures.ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -89,7 +89,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   private static final PresentValueBlackSTIRFutureOptionCalculator PVBFC = PresentValueBlackSTIRFutureOptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator PVCSBFC = PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance();
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesSmileProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<>(
+  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<>(
       PVCSBFC);
   private static final ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator PSHWC_DSC_FD = new ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator(PVBFC, SHIFT);
 

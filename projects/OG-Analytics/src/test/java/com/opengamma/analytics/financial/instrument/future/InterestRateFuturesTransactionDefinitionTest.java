@@ -67,7 +67,7 @@ public class InterestRateFuturesTransactionDefinitionTest {
 
   @Test
   public void getter() {
-    assertEquals("InterestRateFuturesTransactionDefinition: getter", ERU2_SEC_DEFINITION, ERU2_TRA_DEFINITION.getUnderlyingFuture());
+    assertEquals("InterestRateFuturesTransactionDefinition: getter", ERU2_SEC_DEFINITION, ERU2_TRA_DEFINITION.getUnderlyingSecurity());
     assertEquals("InterestRateFuturesTransactionDefinition: getter", QUANTITY, ERU2_TRA_DEFINITION.getQuantity());
     assertEquals("InterestRateFuturesTransactionDefinition: getter", TRADE_DATE, ERU2_TRA_DEFINITION.getTradeDate());
     assertEquals("InterestRateFuturesTransactionDefinition: getter", TRADE_PRICE, ERU2_TRA_DEFINITION.getTradePrice());

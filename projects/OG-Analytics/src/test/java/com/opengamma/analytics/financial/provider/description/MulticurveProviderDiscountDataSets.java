@@ -451,6 +451,19 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   /**
+   * Returns a multi-curves provider with one currency (EUR), two Ibor index (EURIBOR3M and EURIBOR6M).
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createMulticurveEUR() {
+    MulticurveProviderDiscount provideurEUR = new MulticurveProviderDiscount();
+    provideurEUR.setCurve(Currency.EUR, EUR_DSC);
+    provideurEUR.setCurve(EONIA, EUR_DSC);
+    provideurEUR.setCurve(EURIBOR3M, EUR_FWD3);
+    provideurEUR.setCurve(EURIBOR6M, EUR_FWD6);
+    return provideurEUR;
+  }
+
+  /**
    * Returns an issuer provider with two currencies (EUR, USD), four Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M, UsdLibor6M) and one issuer curve.
    * @return The provider.
    */

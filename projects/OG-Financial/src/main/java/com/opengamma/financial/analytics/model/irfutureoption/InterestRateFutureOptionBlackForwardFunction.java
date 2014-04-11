@@ -44,7 +44,7 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec,
       final Set<ValueRequirement> desiredValues) {
     if (irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction) {
-      final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
+      final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingSecurity();
       final double forward = irFutureOptionSecurity.accept(CALCULATOR, curveBundle);
       return Collections.singleton(new ComputedValue(spec, forward));
     } else if (irFutureOptionTransaction instanceof InterestRateFutureOptionPremiumTransaction) {

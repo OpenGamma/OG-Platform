@@ -86,7 +86,7 @@ public class DeprecatedBondFutureTransactionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("Bond future transaction derivative: underlying", BOND_FUTURE_SECURITY, FUTURE_TRANSACTION.getUnderlyingFuture());
+    assertEquals("Bond future transaction derivative: underlying", BOND_FUTURE_SECURITY, FUTURE_TRANSACTION.getUnderlyingSecurity());
     assertEquals("Bond future transaction derivative: quantity", QUANTITY, FUTURE_TRANSACTION.getQuantity());
     assertEquals("Bond future transaction derivative: reference price", REFERENCE_PRICE, FUTURE_TRANSACTION.getReferencePrice());
   }

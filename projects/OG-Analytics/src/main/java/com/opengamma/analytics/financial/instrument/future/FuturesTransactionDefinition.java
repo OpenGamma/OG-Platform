@@ -20,7 +20,7 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
   /**
    * Underlying future security. Not null;
    */
-  private final FS _underlyingFuture;
+  private final FS _underlyingSecurity;
   /**
    * Quantity of future. Can be positive or negative.
    */
@@ -36,16 +36,16 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
 
   /**
    * Constructor.
-   * @param underlyingFuture The underlying futures security.
+   * @param underlyingSecurity The underlying futures security.
    * @param quantity The quantity of the transaction.
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price (in the convention of the futures).
    */
-  public FuturesTransactionDefinition(final FS underlyingFuture, long quantity, ZonedDateTime tradeDate, double tradePrice) {
+  public FuturesTransactionDefinition(final FS underlyingSecurity, long quantity, ZonedDateTime tradeDate, double tradePrice) {
     super();
-    ArgumentChecker.notNull(underlyingFuture, "Underlying futures");
+    ArgumentChecker.notNull(underlyingSecurity, "Underlying futures");
     ArgumentChecker.notNull(tradeDate, "Trade date");
-    _underlyingFuture = underlyingFuture;
+    _underlyingSecurity = underlyingSecurity;
     _quantity = quantity;
     _tradeDate = tradeDate;
     _tradePrice = tradePrice;
@@ -55,8 +55,8 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
    * Returns the underlying futures security.
    * @return The security.
    */
-  public FS getUnderlyingFuture() {
-    return _underlyingFuture;
+  public FS getUnderlyingSecurity() {
+    return _underlyingSecurity;
   }
 
   /**
@@ -85,7 +85,7 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
 
   @Override
   public String toString() {
-    final String result = "Quantity: " + _quantity + " of " + _underlyingFuture.toString();
+    final String result = "Quantity: " + _quantity + " of " + _underlyingSecurity.toString();
     return result;
   }
 
@@ -98,7 +98,7 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
     long temp;
     temp = Double.doubleToLongBits(_tradePrice);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _underlyingFuture.hashCode();
+    result = prime * result + _underlyingSecurity.hashCode();
     return result;
   }
 
@@ -123,7 +123,7 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
     if (Double.doubleToLongBits(_tradePrice) != Double.doubleToLongBits(other._tradePrice)) {
       return false;
     }
-    if (!ObjectUtils.equals(_underlyingFuture, other._underlyingFuture)) {
+    if (!ObjectUtils.equals(_underlyingSecurity, other._underlyingSecurity)) {
       return false;
     }
     return true;

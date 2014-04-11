@@ -45,7 +45,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final LocalDate date = dateTime.toLocalDate();
     final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate deliveryDateLocal = getUnderlyingFuture().getDeliveryDate().toLocalDate();
+    final LocalDate deliveryDateLocal = getUnderlyingSecurity().getDeliveryDate().toLocalDate();
     if (date.isAfter(deliveryDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last trading date, " + deliveryDateLocal);
     }
@@ -55,7 +55,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
     } else { // Transaction is today
       referencePrice = getTradePrice();
     }
-    final SwapFuturesPriceDeliverableSecurity underlying = getUnderlyingFuture().toDerivative(dateTime, yieldCurveNames);
+    final SwapFuturesPriceDeliverableSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
     final SwapFuturesPriceDeliverableTransaction future = new SwapFuturesPriceDeliverableTransaction(underlying, referencePrice, getQuantity());
     return future;
   }
@@ -69,7 +69,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate date = dateTime.toLocalDate();
     final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate deliveryDateLocal = getUnderlyingFuture().getDeliveryDate().toLocalDate();
+    final LocalDate deliveryDateLocal = getUnderlyingSecurity().getDeliveryDate().toLocalDate();
     if (date.isAfter(deliveryDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last trading date, " + deliveryDateLocal);
     }
@@ -79,7 +79,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
     } else { // Transaction is today
       referencePrice = getTradePrice();
     }
-    final SwapFuturesPriceDeliverableSecurity underlying = getUnderlyingFuture().toDerivative(dateTime);
+    final SwapFuturesPriceDeliverableSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime);
     final SwapFuturesPriceDeliverableTransaction future = new SwapFuturesPriceDeliverableTransaction(underlying, referencePrice, getQuantity());
     return future;
   }

@@ -52,11 +52,11 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
    * @return The present value curve sensitivity.
    */
   public double vega(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
-    final double securitySensitivity = SECURITY_METHOD.optionPriceVega(transaction.getUnderlyingOption(), blackData);
+    final double securitySensitivity = SECURITY_METHOD.optionPriceVega(transaction.getUnderlyingSecurity(), blackData);
     final double txnSensitivity = securitySensitivity
         * transaction.getQuantity()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
     return txnSensitivity;
   }
 
@@ -67,11 +67,11 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
    * @return The theta.
    */
   public double theta(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
-    final double securitySensitivity = SECURITY_METHOD.optionPriceTheta(transaction.getUnderlyingOption(), blackData);
+    final double securitySensitivity = SECURITY_METHOD.optionPriceTheta(transaction.getUnderlyingSecurity(), blackData);
     final double txnSensitivity = securitySensitivity
         * transaction.getQuantity()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
     return txnSensitivity;
   }
 
@@ -82,9 +82,9 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
    * @return The present value curve sensitivity.
    */
   public SurfaceValue presentValueBlackSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
-    SurfaceValue securitySensitivity = ((InterestRateFutureOptionMarginSecurityBlackSurfaceMethod) getSecurityMethod()).priceBlackSensitivity(transaction.getUnderlyingOption(), blackData);
-    securitySensitivity = SurfaceValue.multiplyBy(securitySensitivity, transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
+    SurfaceValue securitySensitivity = ((InterestRateFutureOptionMarginSecurityBlackSurfaceMethod) getSecurityMethod()).priceBlackSensitivity(transaction.getUnderlyingSecurity(), blackData);
+    securitySensitivity = SurfaceValue.multiplyBy(securitySensitivity, transaction.getQuantity() * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor());
     return securitySensitivity;
   }
 
@@ -96,11 +96,11 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
    * @return The present value curve sensitivity.
    */
   public double deltaWrtFuturesPrice(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
-    final double securityDelta = SECURITY_METHOD.optionPriceDelta(transaction.getUnderlyingOption(), blackData);
+    final double securityDelta = SECURITY_METHOD.optionPriceDelta(transaction.getUnderlyingSecurity(), blackData);
     final double txnDelta = securityDelta
         * transaction.getQuantity()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
     return txnDelta;
   }
 
@@ -112,9 +112,9 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity deltaWrtCurve(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
-    final InterestRateCurveSensitivity securityDelta = SECURITY_METHOD.priceCurveSensitivity(transaction.getUnderlyingOption(), blackData);
-    final double scaleFactor = transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+    final InterestRateCurveSensitivity securityDelta = SECURITY_METHOD.priceCurveSensitivity(transaction.getUnderlyingSecurity(), blackData);
+    final double scaleFactor = transaction.getQuantity() * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
     return securityDelta.multipliedBy(scaleFactor);
   }
 
@@ -126,11 +126,11 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
    * @return The present value curve sensitivity.
    */
   public double presentValueGamma(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
-    final double securityGamma = SECURITY_METHOD.optionPriceGamma(transaction.getUnderlyingOption(), blackData);
+    final double securityGamma = SECURITY_METHOD.optionPriceGamma(transaction.getUnderlyingSecurity(), blackData);
     final double txnGamma = securityGamma
         * transaction.getQuantity()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
     return txnGamma;
   }
 
@@ -142,6 +142,6 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
    */
   public Double impliedVolatility(final InterestRateFutureOptionMarginTransaction optionTransaction, final YieldCurveBundle curveBundle) {
     ArgumentChecker.notNull(optionTransaction, "optionTransaction");
-    return SECURITY_METHOD.impliedVolatility(optionTransaction.getUnderlyingOption(), curveBundle);
+    return SECURITY_METHOD.impliedVolatility(optionTransaction.getUnderlyingSecurity(), curveBundle);
   }
 }

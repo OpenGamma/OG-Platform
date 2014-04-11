@@ -60,7 +60,7 @@ public class BondFutureGrossBasisFromCurvesFunction extends BondAndBondFutureFro
     final BondFuturesTransaction transaction = (BondFuturesTransaction) BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final IssuerProviderInterface issuerCurves = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(GROSS_BASIS, target.toSpecification(), properties);
-    final double[] grossBasis = BondFuturesSecurityDiscountingMethod.getInstance().grossBasisFromCurves(transaction.getUnderlyingFuture(), issuerCurves, price);
+    final double[] grossBasis = BondFuturesSecurityDiscountingMethod.getInstance().grossBasisFromCurves(transaction.getUnderlyingSecurity(), issuerCurves, price);
     final int n = grossBasis.length;
     final String[] keys = new String[n];
     for (int i = 0; i < n; i++) {

@@ -63,7 +63,7 @@ public class FederalFundsFutureTransactionDefinitionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("Fed fund future transaction definition: getter", FUTURE_SECURITY_DEFINITION, FUTURE_TRANSACTION_DEFINITION.getUnderlyingFuture());
+    assertEquals("Fed fund future transaction definition: getter", FUTURE_SECURITY_DEFINITION, FUTURE_TRANSACTION_DEFINITION.getUnderlyingSecurity());
     assertEquals("Fed fund future transaction definition: getter", QUANTITY, FUTURE_TRANSACTION_DEFINITION.getQuantity());
     assertEquals("Fed fund future transaction definition: getter", TRADE_DATE, FUTURE_TRANSACTION_DEFINITION.getTradeDate());
     assertEquals("Fed fund future transaction definition: getter", TRADE_PRICE, FUTURE_TRANSACTION_DEFINITION.getTradePrice());

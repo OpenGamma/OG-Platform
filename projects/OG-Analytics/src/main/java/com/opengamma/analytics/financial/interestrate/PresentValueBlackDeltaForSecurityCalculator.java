@@ -73,7 +73,7 @@ public class PresentValueBlackDeltaForSecurityCalculator extends InstrumentDeriv
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return MARGINED_IR_FUTURE_OPTION.optionPriceDelta(security.getUnderlyingOption(), (YieldCurveWithBlackCubeBundle) curves);
+    return MARGINED_IR_FUTURE_OPTION.optionPriceDelta(security.getUnderlyingSecurity(), (YieldCurveWithBlackCubeBundle) curves);
   }
 
   @Override

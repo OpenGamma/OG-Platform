@@ -42,7 +42,7 @@ public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final FuturesTransaction<?> futures, final ParameterIssuerProviderInterface multicurve) {
-    double price = getSecurityMethod().price(futures.getUnderlyingFuture(), multicurve);
+    double price = getSecurityMethod().price(futures.getUnderlyingSecurity(), multicurve);
     return presentValueFromPrice(futures, price);
   }
 
@@ -54,7 +54,7 @@ public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
    */
 
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, final ParameterIssuerProviderInterface multicurve) {
-    final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingFuture(), multicurve);
+    final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingSecurity(), multicurve);
     return futures.accept(PVCSIC, priceSensitivity);
 
   }

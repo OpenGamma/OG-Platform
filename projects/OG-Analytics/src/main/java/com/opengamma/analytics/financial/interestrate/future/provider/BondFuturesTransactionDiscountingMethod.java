@@ -46,7 +46,7 @@ public final class BondFuturesTransactionDiscountingMethod extends FuturesTransa
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValueFromNetBasis(final BondFuturesTransaction futures, final IssuerProviderInterface issuerMulticurves, final double netBasis) {
-    return presentValueFromPrice(futures, METHOD_FUTURES_SEC.priceFromNetBasis(futures.getUnderlyingFuture(), issuerMulticurves, netBasis));
+    return presentValueFromPrice(futures, METHOD_FUTURES_SEC.priceFromNetBasis(futures.getUnderlyingSecurity(), issuerMulticurves, netBasis));
   }
 
 }

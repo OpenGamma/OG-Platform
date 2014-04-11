@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
 
 /**
- * Abstract class for generic futures securities.
+ * Abstract class for generic securities with a futures-style margining feature.
  */
 public abstract class FuturesSecurity implements InstrumentDerivative {
 

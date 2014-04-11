@@ -55,12 +55,12 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
    */
   @Override
   public MulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_IRFUT_HW.priceCurveSensitivity(futures.getUnderlyingFuture(), multicurves);
+    return METHOD_IRFUT_HW.priceCurveSensitivity(futures.getUnderlyingSecurity(), multicurves);
   }
 
   @Override
   public MulticurveSensitivity visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_SWAP_FUT.priceCurveSensitivity(futures.getUnderlyingFuture(), multicurves);
+    return METHOD_SWAP_FUT.priceCurveSensitivity(futures.getUnderlyingSecurity(), multicurves);
   }
 
 }

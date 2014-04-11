@@ -72,7 +72,7 @@ public class InterestRateFutureTransactionTest {
 
   @Test
   public void getter() {
-    assertEquals("InterestRateFutureTransaction: equal-hash", ERU2, ERU2_TRA.getUnderlyingFuture());
+    assertEquals("InterestRateFutureTransaction: equal-hash", ERU2, ERU2_TRA.getUnderlyingSecurity());
     assertEquals(REFERENCE_PRICE, ERU2_TRA.getReferencePrice());
     assertEquals(QUANTITY, ERU2_TRA.getQuantity());
   }

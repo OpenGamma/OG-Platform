@@ -42,7 +42,7 @@ public class FuturesTransactionHullWhiteIssuerMethod extends FuturesTransactionM
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final FuturesTransaction<?> futures, final HullWhiteIssuerProviderInterface multicurve) {
-    double price = getSecurityMethod().price(futures.getUnderlyingFuture(), multicurve);
+    double price = getSecurityMethod().price(futures.getUnderlyingSecurity(), multicurve);
     return presentValueFromPrice(futures, price);
   }
 
@@ -54,7 +54,7 @@ public class FuturesTransactionHullWhiteIssuerMethod extends FuturesTransactionM
    */
 
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, final HullWhiteIssuerProviderInterface multicurve) {
-    final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingFuture(), multicurve);
+    final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingSecurity(), multicurve);
     return futures.accept(PVCSIC, priceSensitivity);
 
   }

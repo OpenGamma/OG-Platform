@@ -86,9 +86,9 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
   }
 
   public InterestRateFutureTransactionDefinition withNewNotionalAndTransactionPrice(final double notional, final double transactionPrice) {
-    final InterestRateFutureSecurityDefinition sec = new InterestRateFutureSecurityDefinition(getUnderlyingFuture().getLastTradingDate(),
-        getUnderlyingFuture().getIborIndex(), notional, getUnderlyingFuture().getPaymentAccrualFactor(), getUnderlyingFuture().getName(),
-        getUnderlyingFuture().getCalendar());
+    final InterestRateFutureSecurityDefinition sec = new InterestRateFutureSecurityDefinition(getUnderlyingSecurity().getLastTradingDate(),
+        getUnderlyingSecurity().getIborIndex(), notional, getUnderlyingSecurity().getPaymentAccrualFactor(), getUnderlyingSecurity().getName(),
+        getUnderlyingSecurity().getCalendar());
     return new InterestRateFutureTransactionDefinition(sec, getQuantity(), getTradeDate(), transactionPrice);
   }
 
@@ -105,7 +105,7 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
     final LocalDate date = dateTime.toLocalDate();
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate lastMarginDateLocal = getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate();
+    final LocalDate lastMarginDateLocal = getUnderlyingSecurity().getFixingPeriodStartDate().toLocalDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }
@@ -115,7 +115,7 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
     } else { // Transaction is today
       referencePrice = getTradePrice();
     }
-    final InterestRateFutureSecurity underlying = getUnderlyingFuture().toDerivative(dateTime, yieldCurveNames);
+    final InterestRateFutureSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
     final InterestRateFutureTransaction future = new InterestRateFutureTransaction(underlying, referencePrice, getQuantity());
     return future;
   }
@@ -134,7 +134,7 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate date = dateTime.toLocalDate();
     final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate lastMarginDateLocal = getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate();
+    final LocalDate lastMarginDateLocal = getUnderlyingSecurity().getFixingPeriodStartDate().toLocalDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }
@@ -144,7 +144,7 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
     } else { // Transaction is today
       referencePrice = getTradePrice();
     }
-    final InterestRateFutureSecurity underlying = getUnderlyingFuture().toDerivative(dateTime);
+    final InterestRateFutureSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime);
     final InterestRateFutureTransaction future = new InterestRateFutureTransaction(underlying, referencePrice, getQuantity());
     return future;
   }

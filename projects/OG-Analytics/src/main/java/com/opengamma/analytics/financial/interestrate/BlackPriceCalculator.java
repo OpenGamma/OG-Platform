@@ -57,7 +57,7 @@ public final class BlackPriceCalculator extends InstrumentDerivativeVisitorAdapt
 
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction irFutureOption, final YieldCurveBundle curves) {
-    return MARGINED_IR_FUTURE_OPTION_SECURITY.optionPrice(irFutureOption.getUnderlyingOption(), curves);
+    return MARGINED_IR_FUTURE_OPTION_SECURITY.optionPrice(irFutureOption.getUnderlyingSecurity(), curves);
   }
 
   @Override

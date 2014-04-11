@@ -138,12 +138,12 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_STIR_FUT.price(futures.getUnderlyingFuture(), multicurves) - futures.getReferencePrice();
+    return METHOD_STIR_FUT.price(futures.getUnderlyingSecurity(), multicurves) - futures.getReferencePrice();
   }
 
   @Override
   public Double visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final MulticurveProviderInterface multicurve) {
-    return METHOD_FED_FUNDS.price(future.getUnderlyingFuture(), multicurve) - future.getReferencePrice();
+    return METHOD_FED_FUNDS.price(future.getUnderlyingSecurity(), multicurve) - future.getReferencePrice();
   }
 
   //     -----     Forex     -----

@@ -132,7 +132,7 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
    */
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES_SECURITY.price(future.getUnderlyingFuture(), curves) - future.getReferencePrice();
+    return METHOD_IR_FUTURES_SECURITY.price(future.getUnderlyingSecurity(), curves) - future.getReferencePrice();
   }
 
   //  @Override

@@ -68,7 +68,7 @@ public class InterestRateFutureOptionMarginTransactionTest {
 
   @Test
   public void getter() {
-    assertEquals(OPTION_EDU2, OPTION_TRANSACTION.getUnderlyingOption());
+    assertEquals(OPTION_EDU2, OPTION_TRANSACTION.getUnderlyingSecurity());
     assertEquals(QUANTITY, OPTION_TRANSACTION.getQuantity());
     assertEquals(TRADE_PRICE, OPTION_TRANSACTION.getReferencePrice());
   }

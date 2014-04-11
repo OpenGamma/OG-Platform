@@ -46,7 +46,7 @@ public final class ParRateHullWhiteCalculator extends InstrumentDerivativeVisito
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
-    return METHOD_STIRFUT.parRate(futures.getUnderlyingFuture(), hullWhite);
+    return METHOD_STIRFUT.parRate(futures.getUnderlyingSecurity(), hullWhite);
   }
 
   @Override

@@ -52,7 +52,7 @@ public class PresentValueBlackThetaForSecurityCalculator extends InstrumentDeriv
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    final double theta = MARGINED_IR_FUTURE_OPTION.optionPriceTheta(security.getUnderlyingOption(), (YieldCurveWithBlackCubeBundle) curves);
+    final double theta = MARGINED_IR_FUTURE_OPTION.optionPriceTheta(security.getUnderlyingSecurity(), (YieldCurveWithBlackCubeBundle) curves);
     return theta;
   }
 

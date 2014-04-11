@@ -60,7 +60,7 @@ public class BondFutureNetBasisFromCurvesFunction extends BondAndBondFutureFromC
     final BondFuturesTransaction transaction = (BondFuturesTransaction) BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final IssuerProviderInterface issuerCurves = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(NET_BASIS, target.toSpecification(), properties);
-    final double[] netBasis = BondFuturesSecurityDiscountingMethod.getInstance().netBasisAllBonds(transaction.getUnderlyingFuture(), issuerCurves, price);
+    final double[] netBasis = BondFuturesSecurityDiscountingMethod.getInstance().netBasisAllBonds(transaction.getUnderlyingSecurity(), issuerCurves, price);
     final int n = netBasis.length;
     final String[] keys = new String[n];
     for (int i = 0; i < n; i++) {

@@ -53,7 +53,7 @@ public class DeprecatedInterestRateFutureOptionMarginTransactionTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
   // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
@@ -73,7 +73,7 @@ public class DeprecatedInterestRateFutureOptionMarginTransactionTest {
 
   @Test
   public void getter() {
-    assertEquals(OPTION_EDU2, OPTION_TRANSACTION.getUnderlyingOption());
+    assertEquals(OPTION_EDU2, OPTION_TRANSACTION.getUnderlyingSecurity());
     assertEquals(QUANTITY, OPTION_TRANSACTION.getQuantity());
     assertEquals(TRADE_PRICE, OPTION_TRANSACTION.getReferencePrice());
   }
