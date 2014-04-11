@@ -45,6 +45,7 @@ import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -54,6 +55,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Test related to swaption end-to-end using standardized market data.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 1, 22);
@@ -96,7 +98,6 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
   private static final double TOLERANCE_RATE = 1.0E-8;
   private static final double BP1 = 1.0E-4;
 
-  @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed = SWAPTION_P_2Yx7Y.accept(PVSSC, MULTICURVE_SABR);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(USD, 3156216.4895777884);
@@ -104,14 +105,12 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: present value from standard curves", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
-  @Test
   public void impliedVolatility() {
     final double volExpected = 0.29809226250599946;
     final double volComputed = METHOD_SWPT_SABR.impliedVolatility(SWAPTION_P_2Yx7Y, MULTICURVE_SABR);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: present value from standard curves", volExpected, volComputed, TOLERANCE_RATE);
   }
 
-  @Test
   /**
    * Test Bucketed PV01 with a standard set of data against hard-coded standard values for a swap fixed vs LIBOR3M. Can be used for platform testing or regression testing.
    */
@@ -123,7 +122,6 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: pv01 from standard curves", pv01fwd, pv01Computed.getMap().get(Pairs.of(MULTICURVE.getName(USDLIBOR3M), USD)), TOLERANCE_RATE);
   }
 
-  @Test
   /**
    * Test Bucketed PV01 with a standard set of data against hard-coded standard values for a swaption physical fixed vs LIBOR3M. Can be used for platform testing or regression testing.
    */
@@ -141,7 +139,6 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
     AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
-  @Test
   public void BucketedSABRRisk() {
     final PresentValueSABRSensitivityDataBundle pvssComputed = SWAPTION_P_2Yx7Y.accept(PVSSSSC, MULTICURVE_SABR);
     final PresentValueSABRSensitivityDataBundle pvssNodeComputed = SABRSensitivityNodeCalculator.calculateNodeSensitivities(pvssComputed, SABR_PARAMETER);

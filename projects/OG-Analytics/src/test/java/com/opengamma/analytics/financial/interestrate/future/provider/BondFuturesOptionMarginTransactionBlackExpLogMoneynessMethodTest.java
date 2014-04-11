@@ -31,8 +31,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
 
   /** Bond future option: Bobl */
@@ -81,7 +86,6 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
 
-  @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed1 = METHOD_OPT_TRA.presentValue(CALL_BOBLM4_125_TRA_1, BLACK_BNDFUT_MONEYNESS);
     final double priceOpt1 = METHOD_OPT_SEC.price(CALL_BOBLM4_125_TRA_1.getUnderlyingSecurity(), BLACK_BNDFUT_MONEYNESS);
@@ -96,7 +100,6 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
     assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected2, pvComputed2.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Test using the flat smile. This is required for a finite difference comparison, as the model is the Black sensitivity and a full bump and re-price with 
    * volatility interpolation would change the volatility (and the risk).
@@ -107,14 +110,12 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
     AssertSensivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvpsFD, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
-  @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_OPT_TRA.presentValueCurveSensitivity(CALL_BOBLM4_125_TRA_1, BLACK_BNDFUT_MONEYNESS);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CALL_BOBLM4_125_TRA_1.accept(PVCSBFC, BLACK_BNDFUT_MONEYNESS);
     AssertSensivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
-  @Test
   /**
    * Compare the computed Black sensitivity (vega) with a finite difference approximation.
    */

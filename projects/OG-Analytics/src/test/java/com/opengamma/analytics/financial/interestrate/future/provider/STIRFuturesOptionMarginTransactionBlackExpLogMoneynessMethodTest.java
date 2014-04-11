@@ -36,8 +36,13 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
 
   /** Option on STIR futures */
@@ -101,7 +106,6 @@ public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
 
-  @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed1 = METHOD_OPT_TRA.presentValue(CALL_ERZ4_099_TRA_1, MULTICURVE_BLACK);
     final double priceOpt1 = METHOD_OPT_SEC.price(CALL_ERZ4_099_TRA_1.getUnderlyingSecurity(), MULTICURVE_BLACK);
@@ -118,7 +122,6 @@ public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
         pvComputed2.getAmount(ERZ4_DEFINITION.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   public void presentValuePuCallParity() {
     final MultipleCurrencyAmount priceFutures = METHOD_FUT_TRA.presentValue(ERZ4_TRA_STRIKE, MULTICURVE);
     final MultipleCurrencyAmount pvCallComputed = METHOD_OPT_TRA.presentValue(CALL_ERZ4_099_TRA_1, MULTICURVE_BLACK);
@@ -128,7 +131,6 @@ public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
         priceFutures.getAmount(EURIBOR3M.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Test using the flat smile. This is required for a finite difference comparison, as the model is the Black sensitivity and a full bump and re-price with 
    * volatility interpolation would change the volatility (and the risk).
@@ -139,7 +141,6 @@ public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
     AssertSensivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvpsFD, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
-  @Test
   /**
    * Compare the computed Black sensitivity (vega) with a finite difference approximation.
    */

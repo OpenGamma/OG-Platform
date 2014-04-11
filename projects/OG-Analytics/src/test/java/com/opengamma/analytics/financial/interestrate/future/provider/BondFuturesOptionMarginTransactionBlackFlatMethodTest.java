@@ -31,8 +31,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesOptionMarginTransactionBlackFlatMethodTest {
 
   /** Bond future option: Bobl */
@@ -77,7 +82,6 @@ public class BondFuturesOptionMarginTransactionBlackFlatMethodTest {
   private static final double TOLERANCE_RATE = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
 
-  @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed1 = METHOD_OPT_TRA.presentValue(CALL_BOBLM4_125_TRA_1, BLACK_FLAT_BNDFUT);
     final double priceOpt1 = METHOD_OPT_SEC.price(CALL_BOBLM4_125_TRA_1.getUnderlyingSecurity(), BLACK_FLAT_BNDFUT);
@@ -92,14 +96,12 @@ public class BondFuturesOptionMarginTransactionBlackFlatMethodTest {
     assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: present value", pvExpected2, pvComputed2.getAmount(BOBLM4_DEFINITION.getCurrency()), TOLERANCE_RATE);
   }
 
-  @Test
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsComputed = PSSFC.calculateSensitivity(CALL_BOBLM4_125_TRA_1, BLACK_FLAT_BNDFUT);
     final MultipleCurrencyParameterSensitivity pvpsFD = PSSFC_FD.calculateSensitivity(CALL_BOBLM4_125_TRA_1, BLACK_FLAT_BNDFUT);
     AssertSensivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvpsFD, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
-  @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_OPT_TRA.presentValueCurveSensitivity(CALL_BOBLM4_125_TRA_1, BLACK_FLAT_BNDFUT);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CALL_BOBLM4_125_TRA_1.accept(PVCSBFC, BLACK_FLAT_BNDFUT);

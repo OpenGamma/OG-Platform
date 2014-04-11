@@ -15,11 +15,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesDataSets;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to bond futures option security derivative construction.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesOptionMarginSecurityTest {
 
   private static final BondFuturesSecurityDefinition BOBLM4_DEFINITION = BondFuturesDataSets.boblM4Definition();
@@ -35,7 +37,6 @@ public class BondFuturesOptionMarginSecurityTest {
   private static final boolean IS_CALL = true;
   private static final BondFuturesOptionMarginSecurity CALL_BOBLM4 = new BondFuturesOptionMarginSecurity(BOBLM4, LAST_TRADIND_TIME_OPT, EXPIRY_TIME_OPT, STRIKE_125, IS_CALL);
 
-  @Test
   /**
    * Tests the getter methods.
    */
@@ -46,7 +47,6 @@ public class BondFuturesOptionMarginSecurityTest {
     assertEquals("BondFuturesOptionMarginSecurity: getter", IS_CALL, CALL_BOBLM4.isCall());
   }
 
-  @Test
   /**
    * Tests the equal and hashCode methods.
    */

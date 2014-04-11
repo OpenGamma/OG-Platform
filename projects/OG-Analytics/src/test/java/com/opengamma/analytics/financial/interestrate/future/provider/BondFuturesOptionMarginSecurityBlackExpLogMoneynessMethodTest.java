@@ -31,9 +31,14 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
 
   /** Bond future option: Bobl */
@@ -68,7 +73,6 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_DELTA = 1.0E-8;
 
-  @Test
   public void impliedVolatility() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final double logmoney = Math.log(STRIKE_116 / priceFutures);
@@ -78,14 +82,12 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: impliedVolatility", ivExpected, ivComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void futurePrice() {
     final double priceExpected = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final double priceComputed = METHOD_OPT.underlyingFuturePrice(CALL_BOBL_116, ISSUER_SPECIFIC_MULTICURVES);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceFromFuturesPrice() {
     final double price = 1.26;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_116, CALL_BOBL_116.getExpirationTime(), CALL_BOBL_116.isCall());
@@ -98,7 +100,6 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceFromCurves() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final double priceExpected = METHOD_OPT.price(CALL_BOBL_116, BLACK_FLAT_BNDFUT, priceFutures);
@@ -106,7 +107,6 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void putCallParity() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final double priceCallComputed = METHOD_OPT.price(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
@@ -114,7 +114,6 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: put call parity price", priceCallComputed - pricePutComputed, priceFutures - STRIKE_116, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceBlackSensitivity() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_116, CALL_BOBL_116.getExpirationTime(), CALL_BOBL_116.isCall());
@@ -134,7 +133,6 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: Black parameters sensitivity", CALL_BOBL_116.getStrike(), point.getKey().getThird(), TOLERANCE_RATE);
   }
 
-  @Test
   public void theoreticalDelta() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_116, CALL_BOBL_116.getExpirationTime(), CALL_BOBL_116.isCall());
@@ -183,7 +181,6 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
 
   private static final double TOLERANCE_VOL = 2.0E-4;
 
-  @Test(enabled = true)
   public void interpolation() {
     final int nbExpTest = 4;
     final int nbMonTest = 5;

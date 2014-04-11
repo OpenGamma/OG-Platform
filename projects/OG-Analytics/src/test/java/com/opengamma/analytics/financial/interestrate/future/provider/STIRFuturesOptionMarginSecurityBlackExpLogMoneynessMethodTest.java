@@ -29,9 +29,14 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Black
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
 
   /** Option on STIR futures */
@@ -70,7 +75,6 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_DELTA = 1.0E-8;
 
-  @Test
   public void impliedVolatility() {
     final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
     final double rateFutures = 1.0d - priceFutures;
@@ -82,7 +86,6 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: impliedVolatility", ivExpected, ivComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void futurePrice() {
     final double priceExpected = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
     final double priceComputed = METHOD_OPT.underlyingFuturesPrice(CALL_ERZ4_099, MULTICURVE_BLACK);
@@ -91,7 +94,6 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: underlying futures price", priceExpected, priceComputed2, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceFromFuturesPrice() {
     final double priceFutures = 0.9875;
     final double rateFutures = 1.0d - priceFutures;
@@ -106,7 +108,6 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceFromCurves() {
     final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
     final double priceExpected = METHOD_OPT.price(CALL_ERZ4_099, MULTICURVE_BLACK, priceFutures);
@@ -114,7 +115,6 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void putCallParity() {
     final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
     final double priceCallComputed = METHOD_OPT.price(CALL_ERZ4_099, MULTICURVE_BLACK);
@@ -123,7 +123,6 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
         priceFutures - STRIKE_099, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceBlackSensitivity() {
     final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
     final double rateFutures = 1.0d - priceFutures;
@@ -145,7 +144,6 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: Black parameters sensitivity", CALL_ERZ4_099.getStrike(), point.getKey().getThird(), TOLERANCE_RATE);
   }
 
-  @Test
   public void theoreticalDelta() {
     final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
     final double rateFutures = 1.0d - priceFutures;

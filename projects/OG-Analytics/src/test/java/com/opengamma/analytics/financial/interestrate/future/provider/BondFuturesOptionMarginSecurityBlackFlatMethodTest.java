@@ -26,9 +26,14 @@ import com.opengamma.analytics.financial.provider.description.StandardDataSetsBl
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
 
   /** Bond future option: Bobl */
@@ -60,7 +65,6 @@ public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_DELTA = 1.0E-8;
 
-  @Test
   public void impliedVolatility() {
     final double delay = CALL_BOBL_125.getUnderlyingFuture().getNoticeLastTime() - CALL_BOBL_125.getExpirationTime();
     final double expiry = CALL_BOBL_125.getExpirationTime();
@@ -69,14 +73,12 @@ public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: impliedVolatility", ivExpected, ivComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void futurePrice() {
     final double priceExpected = METHOD_FUTURE.price(CALL_BOBL_125.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final double priceComputed = METHOD_OPT.underlyingFuturePrice(CALL_BOBL_125, ISSUER_SPECIFIC_MULTICURVES);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceFromFuturesPrice() {
     final double price = 1.26;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_125, CALL_BOBL_125.getExpirationTime(), CALL_BOBL_125.isCall());
@@ -87,7 +89,6 @@ public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceFromCurves() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_125.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final double priceExpected = METHOD_OPT.price(CALL_BOBL_125, BLACK_FLAT_BNDFUT, priceFutures);
@@ -95,7 +96,6 @@ public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
-  @Test
   public void priceBlackSensitivity() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_125.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_125, CALL_BOBL_125.getExpirationTime(), CALL_BOBL_125.isCall());

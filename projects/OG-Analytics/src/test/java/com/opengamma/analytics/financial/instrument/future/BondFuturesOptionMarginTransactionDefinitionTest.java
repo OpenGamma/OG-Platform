@@ -14,11 +14,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to bond futures option security Definition construction.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesOptionMarginTransactionDefinitionTest {
 
   private static final BondFuturesSecurityDefinition BOBLM4_DEFINITION = BondFuturesDataSets.boblM4Definition();
@@ -47,7 +49,6 @@ public class BondFuturesOptionMarginTransactionDefinitionTest {
     new BondFuturesOptionMarginTransactionDefinition(CALL_BOBLM4_SEC_DEFINITION, QUANTITY, null, TRADE_PRICE);
   }
 
-  @Test
   /**
    * Tests the getter methods.
    */
@@ -58,7 +59,6 @@ public class BondFuturesOptionMarginTransactionDefinitionTest {
     assertEquals("BondFuturesOptionMarginTransactionDefinition: getter", TRADE_PRICE, CALL_BOBLM4_TRA_DEFINITION.getTradePrice());
   }
 
-  @Test
   /**
    * Tests the equal and hashCode methods.
    */
@@ -86,7 +86,6 @@ public class BondFuturesOptionMarginTransactionDefinitionTest {
     CALL_BOBLM4_TRA_DEFINITION.toDerivative(null, REFERENCE_PRICE);
   }
 
-  @Test
   /**
    * Tests the toDerivative method when the reference date is not the trade date
    */
@@ -98,7 +97,6 @@ public class BondFuturesOptionMarginTransactionDefinitionTest {
     assertEquals("BondFuturesOptionMarginTransactionDefinition: toDerivative", optionExpected, optionConverted);
   }
 
-  @Test
   /**
    * Tests the toDerivative method when the reference date is the trade date
    */
