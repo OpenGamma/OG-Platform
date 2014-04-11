@@ -58,6 +58,48 @@ Analytics compatibility
 - No expected differences
 
 
+* Bug
+    * [PLAT-5904] - Bill market data not available for curve construction
+    * [PLAT-5911] - CurveNodeCurrencyVisitor in visitVanillaIborLegRollDateConvention
+    * [PLAT-6323] - IntrinsicIndexDataBundle with BitSet
+    * [PLAT-6324] - Handle Large index in IntrinsicIndexDataBundle
+    * [PLAT-6328] - index factor with defaulted names in IntrinsicIndexDataBundle
+    * [PLAT-6340] - Errors in CAsynchronousTest
+    * [PLAT-6347] - Timeseries load failing
+    * [PLAT-6353] - Credit curve attempts to calibrate off a single spread in some cases
+    * [PLAT-6354] - ISDACreditSpreadCurveFunction scales market spreads up 10,000
+    * [PLAT-6360] - Error returned for short maturity in AnalyticBondPricer
+    * [PLAT-6365] - ParameterSensitivityMulticurveUnderlyingMatrixCalculator: matrix for par curves incorrect
+* Improvement
+    * [PLAT-4530] - OG-Financial: SwapSecurityConverter uses Ibor leg convention when it requires only index convention
+    * [PLAT-4533] - OG-Financial: InterestRateFutureSecurity converter and conventions
+    * [PLAT-4589] - OG-Analytics: AnnuityDefinitionBuilder: method with stub
+    * [PLAT-5123] - XCcy swap node for curve calibration
+    * [PLAT-5394] - IndexIbor items in database
+    * [PLAT-5535] - OG-Analytics: Generic method for interest rate futures
+    * [PLAT-6293] - SwaptionSecurityConverter needs to allow for Swaptions using InterestRateSwapSecurity
+    * [PLAT-6334] - Interpolator1D: Add javadoc
+    * [PLAT-6342] - Add DataVersionException
+    * [PLAT-6346] - InterestRateSwapConverter should return more specific type than SwapDefinition
+    * [PLAT-6326] - Enhance API of FudgeResponse
+    * [PLAT-6341] - Refactor model for user source/master
+* New Feature
+    * [PLAT-6331] - OG-Analytics: Create a BondFutures option pricing with Black expiry/strike
+    * [PLAT-6333] - OG-Analytics: Create a STIRFutures option pricing with Black expiry/strike
+    * [PLAT-6338] - OG-Analytics: Create an object for Black bond futures sensititivies (vega)
+    * [PLAT-6348] - Add Apache Shiro for authn/authz
+    * [PLAT-6355] - add tests for jacobian matrix in MulticurveBuildingDiscountingDiscountUSDSpreadTest
+    * [PLAT-6356] - add function getCurve and getFixedCurve in YieldAndDiscountAddZeroFixedCurve
+    * [PLAT-6357] - add function getCurve and getFixedCurve in YieldAndDiscountAddZeroSpreadCurve
+    * [PLAT-6372] - change structure of InflationIssuerProvider : make it a subclass of ParameterInflationProviderInterface
+    * [PLAT-6373] - add new data and function to the class InflationProviderDiscount
+    * [PLAT-6374] - new test on sensitivity for capital index bonds using issuer curves 
+* Task
+    * [PLAT-6140] - More tests for ISDACompliantCreditCurveBuilder
+    * [PLAT-6204] - add uk linked gilt to yield convention
+    * [PLAT-6216] - OG-Financial : add convention for US, NL, KY, JE for inflation bond
+
+
 To 2.2.0-M17
 ------------
 
