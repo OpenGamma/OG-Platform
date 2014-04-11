@@ -17,6 +17,31 @@ Upgrading from 2.1.0
 To 2.2.0-M18
 ------------
 
+Security manager and user database [PLAT-6341, PLAT-6348]
+  The user source and master has been replaced with a new implementation.
+  No backwards compatibility was maintained (as the old code was not in active use).
+  WARNING: The database migration code deletes the old database tables and replaces them with different tables.
+  The Eclipse based security system has been replaced with Apache Shiro.
+  By default, the system will start with a permissive security manager and a console warning.
+  Add security to your system as follows:
+
+  In the INI file, add:
+ MANAGER.INCLUDE = classpath:common/common-shiro.ini
+  before:
+ MANAGER.INCLUDE = classpath:common/common-dbmasters.ini
+
+  In the INI file, change the start of the [webBasics] section to be:
+ [webBasics]
+ factory = com.opengamma.component.factory.web.WebsiteBasicsComponentFactory
+ configMaster = ::central
+ userMaster = ::central
+ passwordService = ::main
+
+  In the config properties file, add:
+ shiro.hashIterations = <an integer number of your choosing, say between 4,000 and 10,000>
+ shiro.cryptoSalt = <a string phrase of your choosing, say between 8 and 30 characters>
+
+
 Configuration compatibility
 - No changes
 
@@ -31,6 +56,7 @@ API compatibility
 
 Analytics compatibility
 - No expected differences
+
 
 To 2.2.0-M17
 ------------
