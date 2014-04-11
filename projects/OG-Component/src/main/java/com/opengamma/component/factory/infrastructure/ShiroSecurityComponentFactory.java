@@ -36,6 +36,7 @@ import com.opengamma.core.user.UserSource;
 import com.opengamma.core.user.impl.UserSourceRealm;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PermissiveSecurityManager;
 
 /**
  * Component Factory for an Apache Shiro {@code SecurityManager}.

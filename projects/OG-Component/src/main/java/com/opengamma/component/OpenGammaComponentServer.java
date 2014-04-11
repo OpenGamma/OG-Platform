@@ -17,9 +17,12 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.UnavailableSecurityManagerException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PermissiveSecurityManager;
 import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.StartupUtils;
 
@@ -302,6 +305,7 @@ public class OpenGammaComponentServer {
       ComponentManager manager = buildManager(configFile, properties);
       serverStarting(manager);
       repo = manager.start(configFile);
+      checkSecurityManager();
       
     } catch (Exception ex) {
       _logger.logError(ex);
@@ -361,7 +365,24 @@ public class OpenGammaComponentServer {
   protected void serverStarting(final ComponentManager manager) {
     OpenGammaComponentServerMonitor.create(manager.getRepository());
   }
-  
+
+  /**
+   * Called once the server has started to check the security manager.
+   */
+  protected void checkSecurityManager() {
+    try {
+      if (SecurityUtils.getSecurityManager() instanceof PermissiveSecurityManager) {
+        _logger.logWarn("****************************************************************");
+        _logger.logWarn(" Warning: Server running without an appropriate SecurityManager ");
+        _logger.logWarn("****************************************************************");
+      }
+    } catch (UnavailableSecurityManagerException ex) {
+      _logger.logError("***************************************************");
+      _logger.logError(" Error: Server running without any SecurityManager ");
+      _logger.logError("***************************************************");
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates the logger.

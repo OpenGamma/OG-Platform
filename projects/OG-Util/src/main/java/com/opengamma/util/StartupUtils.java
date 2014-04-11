@@ -5,6 +5,8 @@
  */
 package com.opengamma.util;
 
+import org.apache.shiro.SecurityUtils;
+
 /**
  * Utility method to be run at system startup.
  */
@@ -29,6 +31,9 @@ public final class StartupUtils {
       if (System.getProperties().containsKey("org.terracotta.quartz.skipUpdateCheck") == false) {
         System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
       }
+      // setup permissive security manager
+      SecurityUtils.setSecurityManager(new PermissiveSecurityManager());
+      
     } catch (SecurityException ex) {
       // ignore silently
     } catch (RuntimeException ex) {
