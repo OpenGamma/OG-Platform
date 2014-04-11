@@ -97,7 +97,7 @@ public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
   private static final PresentValueBlackSTIRFutureOptionCalculator PVBFOC = PresentValueBlackSTIRFutureOptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator PVCSBFOC =
       PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance();
-  private static final double SHIFT_FD = 1.0E-6;
+  private static final double SHIFT_FD = 1.0E-7;
   private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesProviderInterface> PSSFC = new ParameterSensitivityParameterCalculator<>(PVCSBFOC);
   private static final ParameterSensitivityBlackSTIRFuturesExpLogMoneynessDiscountInterpolatedFDCalculator PSSFC_FD =
       new ParameterSensitivityBlackSTIRFuturesExpLogMoneynessDiscountInterpolatedFDCalculator(PVBFOC, SHIFT_FD);
