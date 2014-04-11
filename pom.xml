@@ -607,7 +607,7 @@
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
-        <version>3.1.4.RELEASE</version>
+        <version>${og.spring.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -626,6 +626,11 @@
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>${og.spring.version}</version>
       </dependency>
 
       <!-- Web -->
