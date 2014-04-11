@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 /**
- * Calculates the PV01s for a bond total return swap. 
+ * Calculates the PV01s for a bond total return swap.
  */
 /** A singleton instance */
 /** The PV01 calculator */
@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.Pairs;
 
 /**
  * Returns the change in PV01 of an instrument due to a parallel 1bp move of <b>all</b> the curves to which the bond total
- * return swap is sensitive.
+ * return swap is sensitive. The value is returned in the currency of the asset.
  */
 public final class BondTrsGammaPV01Calculator extends InstrumentDerivativeVisitorAdapter<ParameterIssuerProviderInterface, Double> {
   /** The singleton instance */
@@ -66,7 +66,7 @@ public final class BondTrsGammaPV01Calculator extends InstrumentDerivativeVisito
   }
 
   /**
-   * Private constructor 
+   * Private constructor
    */
   private BondTrsGammaPV01Calculator() {
 
@@ -85,13 +85,16 @@ public final class BondTrsGammaPV01Calculator extends InstrumentDerivativeVisito
     final ParameterIssuerProviderInterface bumped = getBumpedProvider(data);
     final ReferenceAmount<Pair<String, Currency>> pv01 = bondTrs.accept(BondTrsPV01Calculator.getInstance(), data);
     final ReferenceAmount<Pair<String, Currency>> up = bondTrs.accept(BondTrsPV01Calculator.getInstance(), bumped);
+    final Currency assetCurrency = bondTrs.getAsset().getCurrency();
     double gammaPV01 = 0;
     for (final Map.Entry<Pair<String, Currency>, Double> entry : pv01.getMap().entrySet()) {
       final Pair<String, Currency> bumpedNameCurrency = Pairs.of(entry.getKey().getFirst() + YieldCurveUtils.PARALLEL_SHIFT_NAME, entry.getKey().getSecond());
       if (!(up.getMap().containsKey(bumpedNameCurrency))) {
         throw new IllegalStateException("Have bumped PV01 for curve / currency pair " + entry.getKey() + " but no PV01");
       }
-      gammaPV01 += (up.getMap().get(bumpedNameCurrency) - entry.getValue()) / BP1;
+      final Currency pv01Currency = entry.getKey().getSecond();
+      final double fxRate = data.getMulticurveProvider().getFxRate(pv01Currency, assetCurrency);
+      gammaPV01 += fxRate * (up.getMap().get(bumpedNameCurrency) - entry.getValue()) / BP1;
     }
     return gammaPV01;
   }

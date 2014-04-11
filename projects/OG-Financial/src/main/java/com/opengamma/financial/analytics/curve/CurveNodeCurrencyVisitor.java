@@ -142,10 +142,13 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     }
     final CurveNodeIdMapper idMapper = _configSource.getSingle(CurveNodeIdMapper.class, node.getCurveNodeIdMapperName(), VersionCorrection.LATEST);
     final Security security = _securitySource.getSingle(idMapper.getBondNodeId(null, node.getMaturityTenor()).toBundle()); // curve date is not relevant for bonds
+    if (security == null) {
+      throw new OpenGammaRuntimeException("Security underlying bill node " + node + " was not present in security master");
+    }
     if (security instanceof BillSecurity) {
       return Collections.singleton(((BillSecurity) security).getCurrency());
     }
-    throw new OpenGammaRuntimeException("Security underlying nill node " + node + " was not a bill");
+    throw new OpenGammaRuntimeException("Security underlying bill node " + node + " was not a bill); have " + security.getClass());
   }
 
   @Override
@@ -155,10 +158,13 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     }
     final CurveNodeIdMapper idMapper = _configSource.getSingle(CurveNodeIdMapper.class, node.getCurveNodeIdMapperName(), VersionCorrection.LATEST);
     final Security security = _securitySource.getSingle(idMapper.getBondNodeId(null, node.getMaturityTenor()).toBundle()); // curve date is not relevant for bonds
+    if (security == null) {
+      throw new OpenGammaRuntimeException("Security underlying bond node " + node + " was not present in security master");
+    }
     if (security instanceof BondSecurity) {
       return Collections.singleton(((BondSecurity) security).getCurrency());
     }
-    throw new OpenGammaRuntimeException("Security underlying bond node " + node + " was not a bond");
+    throw new OpenGammaRuntimeException("Security underlying bond node " + node + " was not a bond; have " + security.getClass());
   }
 
   @Override

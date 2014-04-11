@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.curve;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES;
@@ -27,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
@@ -42,8 +45,10 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -55,20 +60,26 @@ import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -80,12 +91,16 @@ import com.opengamma.util.tuple.Pair;
  * @param <W> The type of the sensitivity results
  */
 public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U, V, W> extends AbstractFunction {
-  /** The curve configuration name */
-  private final String _configurationName;
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(MultiCurveFunction.class);
   /** The maturity calculator */
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
+  /** The curve configuration name */
+  private final String _configurationName;
   /** A curve construction configuration source */
   private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+  /** A curve definition source */
+  private CurveDefinitionSource _curveDefinitionSource;
 
   /**
    * @param configurationName The configuration name, not null
@@ -98,6 +113,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
   @Override
   public void init(final FunctionCompilationContext context) {
     _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
   }
 
   @Override
@@ -122,8 +138,25 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       }
     }
     final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
-    return getCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveNames, exogenousRequirements,
-        curveConstructionConfiguration);
+    final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    try {
+      final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource, securitySource, configSource);
+      final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, _curveDefinitionSource, _curveConstructionConfigurationSource,
+          visitor);
+      final String[] currencyStrings = new String[currencies.size()];
+      int i = 0;
+      for (final Currency currency : currencies) {
+        currencyStrings[i++] = currency.getCode();
+      }
+      return getCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveNames, exogenousRequirements,
+          curveConstructionConfiguration, currencyStrings);
+    } catch (final Throwable e) {
+      s_logger.error("{}: problem in CurveConstructionConfiguration called {}", e.getMessage(), _configurationName);
+      s_logger.error("Full stack trace", e);
+      throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveConstructionConfiguration called " + _configurationName);
+    }
   }
 
   /**
@@ -161,13 +194,28 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       Set<ValueRequirement> exogenousRequirements, CurveConstructionConfiguration curveConstructionConfiguration);
 
   /**
+   * Gets the compiled function for this curve construction method. This method is not abstract to maintain
+   * backwards-compatibility for the version of the curve functions that do not set sensitivity currencies.
+   *
+   * @param earliestInvocation The earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+   * @param latestInvocation The latest time this metadata and invoker are valid, null to indicate no upper validity bound
+   * @param curveNames The curve names
+   * @param exogenousRequirements The exogenous requirements
+   * @param curveConstructionConfiguration The curve construction configuration
+   * @param currencies The set of currencies to which the curves produce sensitivities
+   * @return A compiled function that produces curves.
+   */
+  public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames,
+      final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration, final String[] currencies) {
+    return getCompiledFunction(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration);
+  }
+
+  /**
    * Base function for the compiled functions.
    */
   protected abstract class CurveCompiledFunctionDefinition extends AbstractInvokingCompiledFunction {
     /** The curve names */
     private final String[] _curveNames;
-    /** The curve value requirement */
-    private final String _curveRequirement;
     /** The exogenous requirements */
     private final Set<ValueRequirement> _exogenousRequirements;
     /** The set of results */
@@ -182,17 +230,29 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      */
     protected CurveCompiledFunctionDefinition(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames, final String curveRequirement,
         final Set<ValueRequirement> exogenousRequirements) {
+      this(earliestInvocation, latestInvocation, curveNames, curveRequirement, exogenousRequirements, null);
+    }
+
+    /**
+     * @param earliestInvocation The earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+     * @param latestInvocation The latest time this metadata and invoker are valid, null to indicate no upper validity bound
+     * @param curveNames The curve names, not null
+     * @param curveRequirement The curve value requirement produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param currencies The set of currencies to which the curves produce sensitivities
+     */
+    protected CurveCompiledFunctionDefinition(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames, final String curveRequirement,
+        final Set<ValueRequirement> exogenousRequirements, final String[] currencies) {
       super(earliestInvocation, latestInvocation);
       ArgumentChecker.notNull(curveNames, "curve names");
       ArgumentChecker.notNull(curveRequirement, "curve requirement");
       ArgumentChecker.notNull(exogenousRequirements, "exogenous requirements");
       _curveNames = curveNames;
-      _curveRequirement = curveRequirement;
       _exogenousRequirements = exogenousRequirements;
       _results = new HashSet<>();
-      final ValueProperties properties = getBundleProperties(_curveNames);
+      final ValueProperties properties = getBundleProperties(_curveNames, currencies);
       for (final String curveName : _curveNames) {
-        final ValueProperties curveProperties = getCurveProperties(curveName);
+        final ValueProperties curveProperties = getCurveProperties(curveName, currencies);
         _results.add(new ValueSpecification(curveRequirement, ComputationTargetSpecification.NULL, curveProperties));
       }
       _results.add(new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
@@ -271,19 +331,19 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Adds the exogenous requirements, composed with any input constraints, to a collection.
-     * 
+     *
      * @param desiredValue the input constraints, not null
      * @param requirements the collection to add the requirements to, not null
      */
-    protected void addExogenousRequirements(final ValueProperties desiredValue, Collection<ValueRequirement> requirements) {
+    protected void addExogenousRequirements(final ValueProperties desiredValue, final Collection<ValueRequirement> requirements) {
       if (!_exogenousRequirements.isEmpty()) {
-        for (ValueRequirement exogenousRequirement : _exogenousRequirements) {
+        for (final ValueRequirement exogenousRequirement : _exogenousRequirements) {
           final String valueName = exogenousRequirement.getValueName();
           final ComputationTargetReference targetReq = exogenousRequirement.getTargetReference();
           final ValueProperties exogenousConstraints = exogenousRequirement.getConstraints();
           final ValueProperties.Builder composedConstraints = exogenousConstraints.copy();
           // add desired contraints as optional constraints on the exogenous requirment
-          for (String desiredConstraintProperty : desiredValue.getProperties()) {
+          for (final String desiredConstraintProperty : desiredValue.getProperties()) {
             if (!exogenousConstraints.isDefined(desiredConstraintProperty)) {
               final Set<String> constrainedValue = desiredValue.getValues(desiredConstraintProperty);
               if (!constrainedValue.isEmpty()) {
@@ -396,42 +456,71 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     }
 
     /**
-     * Gets the result properties for a curve
+     * Gets the result properties for a curve. This method does not set the
+     * {@link ValuePropertyNames#CURVE_SENSITIVITY_CURRENCY} property.
      *
      * @param curveName The curve name
      * @return The result properties
      */
-    @SuppressWarnings("synthetic-access")
     protected ValueProperties getCurveProperties(final String curveName) {
-      return createValueProperties()
+      return getCurveProperties(curveName, null);
+    }
+
+    /**
+     * Gets the result properties for a curve bundle. This method does not
+     * set the {@link ValuePropertyNames#CURVE_SENSITIVITY_CURRENCY} property.
+     *
+     * @param curveNames All of the curves produced by this function
+     * @return The result properties
+     */
+    protected ValueProperties getBundleProperties(final String[] curveNames) {
+      return getBundleProperties(curveNames, null);
+    }
+
+    /**
+     * Gets the result properties for a curve.
+     *
+     * @param curveName The curve name
+     * @param sensitivityCurrencies The set of currencies to which the curves produce sensitivities
+     * @return The result properties
+     */
+    @SuppressWarnings("synthetic-access")
+    protected ValueProperties getCurveProperties(final String curveName, final String[] sensitivityCurrencies) {
+      final ValueProperties.Builder builder = createValueProperties()
           .with(CURVE, curveName)
           .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
           .with(PROPERTY_CURVE_TYPE, getCurveTypeProperty())
           .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
           .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-          .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-          .get();
+          .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+      if (sensitivityCurrencies != null) {
+        builder.with(CURVE_SENSITIVITY_CURRENCY, sensitivityCurrencies);
+      }
+      return builder.get();
     }
 
     /**
-     * Gets the result properties for a curve bundle
+     * Gets the result properties for a curve bundle.
      *
      * @param curveNames All of the curves produced by this function
+     * @param sensitivityCurrencies The set of currencies to which the curves produce sensitivities
      * @return The result properties
      */
     @SuppressWarnings("synthetic-access")
-    protected ValueProperties getBundleProperties(final String[] curveNames) {
-      return createValueProperties()
+    protected ValueProperties getBundleProperties(final String[] curveNames, final String[] sensitivityCurrencies) {
+      final ValueProperties.Builder builder = createValueProperties()
           .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
           .with(PROPERTY_CURVE_TYPE, getCurveTypeProperty())
           .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
           .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-          .with(CURVE, curveNames)
-          .get();
+          .with(CURVE, curveNames);
+      if (sensitivityCurrencies != null) {
+        builder.with(CURVE_SENSITIVITY_CURRENCY, sensitivityCurrencies);
+      }
+      return builder.get();
     }
-
   }
 }

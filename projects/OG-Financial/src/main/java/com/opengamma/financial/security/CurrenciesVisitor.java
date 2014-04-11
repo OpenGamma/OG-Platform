@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
@@ -527,12 +528,18 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
-    return Collections.singletonList(security.getNotionalCurrency());
+    final Set<Currency> currencies = new HashSet<>();
+    currencies.add(security.getNotionalCurrency());
+    currencies.add(security.getFundingLeg().getNotional().getCurrency());
+    return currencies;
   }
 
   @Override
   public Collection<Currency> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
-    return Collections.singletonList(security.getNotionalCurrency());
+    final Set<Currency> currencies = new HashSet<>();
+    currencies.add(security.getNotionalCurrency());
+    currencies.add(security.getFundingLeg().getNotional().getCurrency());
+    return currencies;
   }
 
   @Override

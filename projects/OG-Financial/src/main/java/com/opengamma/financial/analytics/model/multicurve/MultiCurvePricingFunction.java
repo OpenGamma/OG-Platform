@@ -195,19 +195,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
       final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
       final InstrumentDerivative derivative = getDerivative(target, now, timeSeries, definition);
-      final FXMatrix fxMatrix = new FXMatrix();
       final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(target.getTrade().getSecurity(), securitySource);
-      final Iterator<Currency> iter = currencies.iterator();
-      final Currency initialCurrency = iter.next();
-      while (iter.hasNext()) {
-        final Currency otherCurrency = iter.next();
-        final Double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair
-            .of(otherCurrency, initialCurrency))));
-        if (spotRate != null) {
-          fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
-        }
-      }
+      final FXMatrix fxMatrix = getFXMatrix(inputs, target, securitySource);
       return getValues(executionContext, inputs, target, desiredValues, derivative, fxMatrix);
     }
 
@@ -354,6 +343,29 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     protected InstrumentDerivative getDerivative(final ComputationTarget target, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries,
         final InstrumentDefinition<?> definition) {
       return _definitionToDerivativeConverter.convert(target.getTrade().getSecurity(), definition, now, timeSeries);
+    }
+
+    /**
+     * Gets the FX matrix required for the curve provider.
+     * @param inputs The function inputs
+     * @param target The computation target
+     * @param securitySource The security source
+     * @return The FX matrix
+     */
+    protected FXMatrix getFXMatrix(final FunctionInputs inputs, final ComputationTarget target, final SecuritySource securitySource) {
+      final FXMatrix fxMatrix = new FXMatrix();
+      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(target.getTrade().getSecurity(), securitySource);
+      final Iterator<Currency> iter = currencies.iterator();
+      final Currency initialCurrency = iter.next();
+      while (iter.hasNext()) {
+        final Currency otherCurrency = iter.next();
+        final Double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair
+            .of(otherCurrency, initialCurrency))));
+        if (spotRate != null) {
+          fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+        }
+      }
+      return fxMatrix;
     }
 
     /**

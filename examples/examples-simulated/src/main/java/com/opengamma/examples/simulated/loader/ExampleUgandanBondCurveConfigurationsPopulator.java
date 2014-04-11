@@ -45,7 +45,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Creates a curve construction configuration, interpolated curve definition and curve node id mapper
  * for Ugandan bonds to be used for pricing the example Ugandan TRS portfolio. The ISINs used 
- * follow the form "UG0000000XXX" where XX is equal to the number of months until bond maturity. 
+ * follow the form "UG0000000XXX" where "XXX" is equal to the number of months until bond maturity. 
  * The bond curve contains only bond nodes from 1y to 10y6m in 6m increments and uses the bond yield
  * to construct the curve.
  */
@@ -86,8 +86,7 @@ public class ExampleUgandanBondCurveConfigurationsPopulator {
     curveTypes.put(CURVE_NAME, Arrays.asList(discountingCurveType, issuerCurveType));
     final CurveGroupConfiguration group = new CurveGroupConfiguration(0, curveTypes);
     final List<CurveGroupConfiguration> groups = Arrays.asList(group);
-    final List<String> exogenousConfig = Collections.singletonList("Default USD Curves");
-    return new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIG_NAME, groups, exogenousConfig);
+    return new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIG_NAME, groups, Collections.<String>emptyList());
   }
 
   /**

@@ -459,12 +459,22 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
 
   @Override
   public Currency visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
-    return security.getNotionalCurrency();
+    final Currency notionalCurrency = security.getNotionalCurrency();
+    final Currency fundingCurrency = security.getFundingLeg().getNotional().getCurrency();
+    if (notionalCurrency.equals(fundingCurrency)) {
+      return notionalCurrency;
+    }
+    return null;
   }
 
   @Override
   public Currency visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
-    return security.getNotionalCurrency();
+    final Currency notionalCurrency = security.getNotionalCurrency();
+    final Currency fundingCurrency = security.getFundingLeg().getNotional().getCurrency();
+    if (notionalCurrency.equals(fundingCurrency)) {
+      return notionalCurrency;
+    }
+    return null;
   }
 
   @Override

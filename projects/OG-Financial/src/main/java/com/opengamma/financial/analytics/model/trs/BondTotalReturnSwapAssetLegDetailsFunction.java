@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.trs;
 
 import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 
 import java.util.Collections;
 import java.util.Set;
@@ -35,6 +34,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -45,7 +45,9 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.Pair;
@@ -75,7 +77,8 @@ public class BondTotalReturnSwapAssetLegDetailsFunction extends BondTotalReturnS
         final Trade trade = target.getTrade();
         final ValueSpecification spec = new ValueSpecification(BOND_DETAILS, target.toSpecification(), properties);
         final BondTotalReturnSwapDefinition trsDefinition = (BondTotalReturnSwapDefinition) getTargetToDefinitionConverter(context).convert(trade);
-        final IssuerProviderInterface issuerCurves = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+        final IssuerProviderInterface issuerCurves = getMergedWithIssuerProviders(inputs, getFXMatrix(inputs, target, securitySource));
         final BondFixedSecurityDefinition bondDefinition = (BondFixedSecurityDefinition) trsDefinition.getAsset();
         final BondSecurity<? extends Payment, ? extends Coupon> bondDerivative = bondDefinition.toDerivative(now);
         final AnnuityDefinition<? extends CouponDefinition> couponDefinitions = bondDefinition.getCoupons();
@@ -97,6 +100,12 @@ public class BondTotalReturnSwapAssetLegDetailsFunction extends BondTotalReturnS
           final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         throw new IllegalStateException("Should never reach this method");
       }
+
+      @Override
+      protected String getCurrencyOfResult(final BondTotalReturnSwapSecurity security) {
+        throw new IllegalStateException("This function does not set the Currency property");
+      }
+
     };
   }
 }

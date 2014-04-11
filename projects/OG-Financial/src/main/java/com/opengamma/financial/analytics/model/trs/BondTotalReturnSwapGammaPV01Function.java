@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.trs;
 
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
 
 import java.util.Collections;
@@ -28,9 +27,11 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 
 /**
- * Calculates the gamma PV01 of a bond total return swap security.
+ * Calculates the gamma PV01 of a bond total return swap security. The value is returned in
+ * the currency of the asset.
  */
 public class BondTotalReturnSwapGammaPV01Function extends BondTotalReturnSwapFunction {
 
@@ -50,9 +51,14 @@ public class BondTotalReturnSwapGammaPV01Function extends BondTotalReturnSwapFun
           final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
         final ValueSpecification spec = new ValueSpecification(GAMMA_PV01, target.toSpecification(), properties);
-        final IssuerProviderInterface data = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
-        final Double gammaPV01 = derivative.accept(BondTrsGammaPV01Calculator.getInstance(), data);
+        final IssuerProviderInterface issuerCurves = getMergedWithIssuerProviders(inputs, fxMatrix);
+        final Double gammaPV01 = derivative.accept(BondTrsGammaPV01Calculator.getInstance(), issuerCurves);
         return Collections.singleton(new ComputedValue(spec, gammaPV01));
+      }
+
+      @Override
+      protected String getCurrencyOfResult(final BondTotalReturnSwapSecurity security) {
+        return security.getNotionalCurrency().getCode();
       }
     };
   }

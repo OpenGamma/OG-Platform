@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.trs;
 
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.FUNDING_LEG_DETAILS;
 
 import java.util.Collections;
@@ -41,6 +40,7 @@ import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityForwa
 import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityProjectedPaymentsVisitor;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -51,9 +51,11 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.Tenor;
@@ -83,7 +85,8 @@ public class BondTotalReturnSwapFundingLegDetailsFunction extends BondTotalRetur
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
         final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
         final Trade trade = target.getTrade();
-        final IssuerProviderInterface data = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+        final IssuerProviderInterface issuerCurves = getMergedWithIssuerProviders(inputs, getFXMatrix(inputs, target, securitySource));
         final ValueSpecification spec = new ValueSpecification(FUNDING_LEG_DETAILS, target.toSpecification(), properties);
         final BondTotalReturnSwapDefinition trsDefinition = (BondTotalReturnSwapDefinition) getTargetToDefinitionConverter(context).convert(trade);
         final AnnuityDefinition<? extends PaymentDefinition> definition = trsDefinition.getFundingLeg();
@@ -95,12 +98,12 @@ public class BondTotalReturnSwapFundingLegDetailsFunction extends BondTotalRetur
         final double[] paymentFractions = derivative.accept(AnnuityPaymentFractionsVisitor.getInstance());
         final CurrencyAmount[] paymentAmounts = derivative.accept(AnnuityPaymentAmountsVisitor.getInstance());
         final Double[] fixedRates = derivative.accept(AnnuityFixedRatesVisitor.getInstance());
-        final double[] discountFactors = derivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), data.getMulticurveProvider());
+        final double[] discountFactors = derivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), issuerCurves.getMulticurveProvider());
         final Pair<LocalDate[], LocalDate[]> fixingDates = definition.accept(AnnuityFixingDatesVisitor.getInstance(), localDate);
         final Double[] fixingYearFractions = definition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), localDate);
-        final Double[] forwardRates = derivative.accept(AnnuityForwardRatesVisitor.getInstance(), data.getMulticurveProvider());
+        final Double[] forwardRates = derivative.accept(AnnuityForwardRatesVisitor.getInstance(), issuerCurves.getMulticurveProvider());
         final LocalDate[] paymentDates = definition.accept(AnnuityPaymentDatesVisitor.getInstance(), localDate);
-        final CurrencyAmount[] projectedAmounts = derivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), data.getMulticurveProvider());
+        final CurrencyAmount[] projectedAmounts = derivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), issuerCurves.getMulticurveProvider());
         final double[] spreads = definition.accept(AnnuitySpreadsVisitor.getInstance(), localDate);
         final double[] gearings = definition.accept(AnnuityGearingsVisitor.getInstance(), localDate);
         final Tenor[] indexTenors = definition.accept(AnnuityIndexTenorsVisitor.getInstance(), localDate);
@@ -113,6 +116,11 @@ public class BondTotalReturnSwapFundingLegDetailsFunction extends BondTotalRetur
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         throw new IllegalStateException("Should never reach this code");
+      }
+
+      @Override
+      protected String getCurrencyOfResult(final BondTotalReturnSwapSecurity security) {
+        throw new IllegalStateException("This function does not set the Currency property");
       }
 
     };

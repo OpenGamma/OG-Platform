@@ -12,6 +12,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CO
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.ASSET_LEG_PV;
 import static com.opengamma.engine.value.ValueRequirementNames.BOND_DETAILS;
@@ -798,10 +799,13 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
         .get();
     defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, VALUE_THETA, thetaProperties);
-    final String[] curveNames = new String[] {"USD Discounting", "USD 3M Forward Ibor", "UG Government Curve" };
-    for (final String curveName : curveNames) {
+    final String[] curveNames = new String[] {"USD Discounting", "USD 3M Forward Ibor", "UG Government Bond" };
+    final String[] sensitivityCurrencies = new String[] {"USD", "USD", "UGX" };
+    for (int i = 0; i < curveNames.length; i++) {
       final ValueProperties curveProperties = properties.copy()
-          .with(CURVE, curveName)
+          .with(CURVE, curveNames[i])
+          .with(CURVE_SENSITIVITY_CURRENCY, sensitivityCurrencies[i])
+          .with(CURRENCY, sensitivityCurrencies[i])
           .get();
       defaultCalculationConfig.addPortfolioRequirement(BondTotalReturnSwapSecurity.SECURITY_TYPE, PV01, curveProperties);
     }

@@ -28,6 +28,7 @@ public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean 
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondTotalReturnSwapAssetLegDetailsFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapAssetLegPVFunction.class));
+    functions.add(functionConfiguration(BondTotalReturnSwapConstantSpreadThetaFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapFundingLegDetailsFunction.class));
     functions.add(functionConfiguration(BondTotalReturnSwapGammaPV01Function.class));
     functions.add(functionConfiguration(BondTotalReturnSwapFundingLegPVFunction.class));

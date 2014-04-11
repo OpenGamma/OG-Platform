@@ -111,8 +111,7 @@ public class MultiCurveInterpolatedFunction extends
 
   @Override
   public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames,
-      final Set<ValueRequirement> exogenousRequirements,
-      final CurveConstructionConfiguration curveConstructionConfiguration) {
+      final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
     return new MultiCurveInterpolatedCompiledFunctionDefinition(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 

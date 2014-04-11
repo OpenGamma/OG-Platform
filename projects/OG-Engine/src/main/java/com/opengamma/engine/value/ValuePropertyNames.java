@@ -241,6 +241,11 @@ public final class ValuePropertyNames {
   public static final String CURVE_CONSTRUCTION_CONFIG = "CurveConstructionConfiguration";
 
   /**
+   * The name for a property describing the currencies used in constructing curves.
+   */
+  public static final String CURVE_SENSITIVITY_CURRENCY = "CurveSensitivityCurrency";
+
+  /**
    * The name for a property describing the shift of the strike
    * when approximating a binary option as a call or put spread
    */

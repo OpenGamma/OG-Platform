@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.trs;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
 import java.util.Collections;
@@ -31,6 +30,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -58,13 +58,18 @@ public class BondTotalReturnSwapPVFunction extends BondTotalReturnSwapFunction {
           final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
-        final IssuerProviderInterface data = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
-        final MultipleCurrencyAmount pv = derivative.accept(CALCULATOR, data);
+        final IssuerProviderInterface issuerCurves = getMergedWithIssuerProviders(inputs, fxMatrix);
+        final MultipleCurrencyAmount pv = derivative.accept(CALCULATOR, issuerCurves);
         final String expectedCurrency = spec.getProperty(CURRENCY);
         if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
           throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);
         }
         return Collections.singleton(new ComputedValue(spec, pv.getCurrencyAmounts()[0].getAmount()));
+      }
+
+      @Override
+      protected String getCurrencyOfResult(final BondTotalReturnSwapSecurity security) {
+        return security.getNotionalCurrency().getCode();
       }
     };
   }
