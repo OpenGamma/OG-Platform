@@ -65,7 +65,7 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PermissiveSecurityManager;
+import com.opengamma.util.auth.PermissiveSecurityManager;
 import com.opengamma.web.WebAboutResource;
 import com.opengamma.web.WebHomeResource;
 import com.opengamma.web.config.WebConfigsResource;

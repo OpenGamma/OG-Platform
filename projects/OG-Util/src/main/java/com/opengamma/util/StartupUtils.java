@@ -7,6 +7,8 @@ package com.opengamma.util;
 
 import org.apache.shiro.SecurityUtils;
 
+import com.opengamma.util.auth.PermissiveSecurityManager;
+
 /**
  * Utility method to be run at system startup.
  */

@@ -21,9 +21,9 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PermissiveSecurityManager;
 import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.StartupUtils;
+import com.opengamma.util.auth.PermissiveSecurityManager;
 
 /**
  * Main entry point for OpenGamma component-based servers.
