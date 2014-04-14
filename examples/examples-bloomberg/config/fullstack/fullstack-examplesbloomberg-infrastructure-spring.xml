@@ -24,10 +24,10 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="username" value="${db.standard.username}" />
     <property name="password" value="${db.standard.password}" />
     <property name="poolName" value="Standard"/>
-    <property name="partitionCount" value="4" />
+    <property name="partitionCount" value="2" />
     <property name="acquireIncrement" value="1" />
     <property name="minConnectionsPerPartition" value="1" />
-    <property name="maxConnectionsPerPartition" value="15" />
+    <property name="maxConnectionsPerPartition" value="10" />
   </bean>
 
   <bean id="finDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
