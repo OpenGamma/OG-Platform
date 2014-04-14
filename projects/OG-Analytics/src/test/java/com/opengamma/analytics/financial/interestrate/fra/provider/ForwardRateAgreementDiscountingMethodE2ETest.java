@@ -41,7 +41,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * Tests the ForwardRateAgreement discounting method.
+ * Tests the ForwardRateAgreement discounting method with standard data.
  */
 @Test(groups = TestGroup.UNIT)
 public class ForwardRateAgreementDiscountingMethodE2ETest {
@@ -81,7 +81,7 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
 
   @Test
   /**
-   * Test different results with a standard set of data against hardcoded values. Can be used for platform testing or regression testing.
+   * Test different results with a standard set of data against hard-coded values. Can be used for platform testing or regression testing.
    */
   public void presentValue() {
     // Present Value
@@ -96,9 +96,9 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
   */
   public void presentValueAfterFee() {
     // fee offsets PV
-    Annuity<?> fee = new Annuity<>(new CouponFixed[] {new CouponFixed(Currency.USD, 1. / 365, 1, -23182.647032590383, 1)});
+    Annuity<?> fee = new Annuity<>(new CouponFixed[] {new CouponFixed(Currency.USD, 1. / 365, 1, -23182.647032590383, 1) });
     // Present Value
-    Pair<InstrumentDerivative[], MulticurveProviderInterface> data = Pairs.of(new InstrumentDerivative[] {fee}, (MulticurveProviderInterface) MULTICURVE_STD);
+    Pair<InstrumentDerivative[], MulticurveProviderInterface> data = Pairs.of(new InstrumentDerivative[] {fee }, (MulticurveProviderInterface) MULTICURVE_STD);
     final MultipleCurrencyAmount pvComputed = STD_FRA.accept(PVMULTIDC, data);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 0);
     assertEquals("ForwardRateAgreementDiscountingMethod: present value after fee from standard curves", pvExpected.getAmount(CUR), pvComputed.getAmount(CUR), STD_TOLERANCE_PV);
@@ -116,7 +116,6 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE_STD.getName(CUR), CUR), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_STD.getName(USDLIBOR3M), CUR), new DoubleMatrix1D(deltaFwd));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    //    final ParameterSe
     final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(STD_FRA, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
     AssertSensivityObjects.assertEquals("ForwardRateAgreementDiscountingMethod: bucketed delts from standard curves", pvpsExpected, pvpsComputed, STD_TOLERANCE_PV_DELTA);
   }
