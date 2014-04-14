@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PermissiveSecurityManager;
 import com.opengamma.util.ShutdownUtils;
@@ -113,6 +112,7 @@ public class OpenGammaComponentServer {
    * 
    * @param args  the arguments, not null
    * @return true if the server is started, false if there was a problem
+   * @throws RuntimeException if an error occurs
    */
   public boolean run(String[] args) {
     // parse command line
@@ -152,15 +152,15 @@ public class OpenGammaComponentServer {
         String arg = args[i];
         int equalsPosition = arg.indexOf('=');
         if (equalsPosition < 0) {
-          throw new OpenGammaRuntimeException("Invalid property format, must be key=value (no spaces)");
+          throw new ComponentConfigException("Invalid property format, must be key=value (no spaces)");
         }
         String key = arg.substring(0, equalsPosition).trim();
         String value = arg.substring(equalsPosition + 1).trim();
         if (key.length() == 0) {
-          throw new IllegalArgumentException("Invalid empty property key");
+          throw new ComponentConfigException("Invalid empty property key");
         }
         if (properties.containsKey(key)) {
-          throw new IllegalArgumentException("Invalid property, key '" + key + "' specified twice");
+          throw new ComponentConfigException("Invalid property, key '" + key + "' specified twice");
         }
         properties.put(key, value);
       }
@@ -190,6 +190,7 @@ public class OpenGammaComponentServer {
    * @param properties  the set of override properties to use, not null
    * @param logger  the logger to use, null uses verbose
    * @return the component repository, null if there was an error
+   * @throws RuntimeException if an error occurs
    */
   public ComponentRepository run(String configFile, Map<String, String> properties, ComponentLogger logger) {
     ArgumentChecker.notNull(configFile, "configFile");

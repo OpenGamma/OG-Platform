@@ -100,6 +100,7 @@ public class ComponentServer implements Bean {
    * @param type  the type of the component, typically an interface
    * @param classifier  the classifier of the type, used to name instances of the same type
    * @return the info for the component, not null
+   * @throws IllegalArgumentException if the component cannot be found
    */
   public ComponentInfo getComponentInfo(Class<?> type, String classifier) {
     for (ComponentInfo info : getComponentInfos()) {

@@ -260,7 +260,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Finds the type information for the component.
    * <p>
-   * This method is lenient, ignoring case and matching simple type names.
+   * This method is lenient, ignoring case and matching both full and simple type names.
    *
    * @param typeName  the name of the type to get, case insensitive, not null
    * @return the component type information, null if not found
@@ -292,7 +292,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Finds the component information.
    * <p>
-   * This method is lenient, ignoring case and matching simple type names.
+   * This method is lenient, ignoring case and matching both full and simple type names.
    *
    * @param typeName  the simple name of the type to get, case insensitive, not null
    * @param classifier  the classifier that distinguishes the component, case insensitive, not null
@@ -314,7 +314,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Finds the component information.
    * <p>
-   * This method is lenient, ignoring case and matching simple type names.
+   * This method is lenient, ignoring case and matching both full and simple type names.
    *
    * @param type  the type to get, not null
    * @param classifier  the classifier that distinguishes the component, case insensitive, not null
@@ -394,7 +394,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * The object is retained to ensure that it is not initialized twice.
    *
    * @param object  the object to initialize, not null
-   * @throws OpenGammaRuntimeException if an error is thrown during initialization
+   * @throws OpenGammaRuntimeException if the object cannot be initialized
    */
   public void initialize(final InitializingBean object) {
     if (isInitialized(object) == false) {
@@ -451,7 +451,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
-   * @throws IllegalArgumentException if unable to register
+   * @throws OpenGammaRuntimeException if an error occurs
    */
   public void registerComponent(final ComponentInfo info, Object instance) {
     ArgumentChecker.notNull(info, "info");
@@ -478,7 +478,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       // register into data structures
       final Object current = _instanceMap.putIfAbsent(key, instance);
       if (current != null) {
-        throw new IllegalArgumentException("Component already registered for specified information: " + key);
+        throw new ComponentConfigException("Component already registered for specified information: " + key);
       }
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
       final ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
@@ -491,7 +491,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       }
     } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
-      throw new RuntimeException("Failed during registration: " + key, ex);
+      throw new OpenGammaRuntimeException("Failed during registration: " + key, ex);
     }
   }
 
@@ -510,7 +510,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param type  the type to register under, not null
    * @param classifier  the classifier that distinguishes the component, empty for default, not null
    * @param instance  the component instance to register, not null
-   * @throws IllegalArgumentException if unable to register
+   * @throws OpenGammaRuntimeException if an error occurs
    */
   public <T> void registerComponent(final Class<T> type, final String classifier, final T instance) {
     ArgumentChecker.notNull(type, "type");
@@ -641,6 +641,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * If it implements {@code Phased} then the phase is used.
    *
    * @param lifecycleObject  the object that has a lifecycle, not null
+   * @throws OpenGammaRuntimeException if an error occurs
    */
   public void registerLifecycle(final Lifecycle lifecycleObject) {
     ArgumentChecker.notNull(lifecycleObject, "lifecycleObject");
@@ -653,7 +654,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
     } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
-      throw new RuntimeException("Failed during registering Lifecycle: " + lifecycleObject, ex);
+      throw new OpenGammaRuntimeException("Failed during registering Lifecycle: " + lifecycleObject, ex);
     }
   }
 
@@ -684,6 +685,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * as though using {@link #initialize(InitializingBean)}.
    *
    * @param servletContextAware  the object that requires a servlet context, not null
+   * @throws OpenGammaRuntimeException if an error occurs
    */
   public void registerServletContextAware(final ServletContextAware servletContextAware) {
     ArgumentChecker.notNull(servletContextAware, "servletContextAware");
@@ -696,7 +698,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
     } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
-      throw new RuntimeException("Failed during registering ServletContextAware: " + servletContextAware, ex);
+      throw new OpenGammaRuntimeException("Failed during registering ServletContextAware: " + servletContextAware, ex);
     }
   }
 
@@ -726,6 +728,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param managedResource the object that should be treated as an MBean
    * @param name The fully qualified JMX ObjectName
+   * @throws OpenGammaRuntimeException if an error occurs
    */
   public void registerMBean(final Object managedResource, final ObjectName name) {
     ArgumentChecker.notNull(managedResource, "managedResource");
@@ -739,7 +742,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
     } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
-      throw new RuntimeException("Failed during registering ManagedResource: " + managedResource, ex);
+      throw new OpenGammaRuntimeException("Failed during registering ManagedResource: " + managedResource, ex);
     }
   }
 
@@ -757,6 +760,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param managedResource  the object that should be treated as an MBean, not null
    * @return the object name, not null
+   * @throws OpenGammaRuntimeException if an error occurs
    */
   private ObjectName generateObjectName(final Object managedResource) {
     ObjectName objectName;

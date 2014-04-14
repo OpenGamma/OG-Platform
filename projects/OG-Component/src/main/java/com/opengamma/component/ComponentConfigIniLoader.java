@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ResourceUtils;
 
@@ -61,6 +60,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
    * @param config  the config being loaded, not null
+   * @throws ComponentConfigException if the resource cannot be read
    */
   public void load(final Resource resource, final int depth, final ComponentConfig config) {
     ArgumentChecker.notNull(resource, "resource");
@@ -70,7 +70,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       overrideProperties(config);
       
     } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to load INI file: " + resource, ex);
+      throw new ComponentConfigException("Unable to load INI file: " + resource, ex);
     }
   }
 
@@ -83,6 +83,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param depth  the depth of the properties file, used for logging
    * @param config  the config being loaded, not null
    * @return the config, not null
+   * @throws ComponentConfigException if the resource has an invalid format
    */
   private void doLoad(final Resource resource, final int depth, final ComponentConfig config) {
     List<String> lines = readLines(resource);
@@ -96,22 +97,23 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       }
       if (line.startsWith("[") && line.endsWith("]")) {
         group = line.substring(1, line.length() - 1);
+        config.addGroup(group);
         
       } else if (group == null) {
-        throw new OpenGammaRuntimeException("Invalid format, properties must be specified within a [group], line " + lineNum);
+        throw new ComponentConfigException("Invalid format, properties must be specified within a [group], line " + lineNum);
         
       } else {
         int equalsPosition = line.indexOf('=');
         if (equalsPosition < 0) {
-          throw new OpenGammaRuntimeException("Invalid format, line " + lineNum);
+          throw new ComponentConfigException("Invalid format, line " + lineNum);
         }
         String key = line.substring(0, equalsPosition).trim();
         String value = line.substring(equalsPosition + 1).trim();
         if (key.length() == 0) {
-          throw new IllegalArgumentException("Invalid empty key, line " + lineNum);
+          throw new ComponentConfigException("Invalid empty key, line " + lineNum);
         }
         if (config.contains(group, key)) {
-          throw new IllegalArgumentException("Invalid file, key '" + key + "' specified twice, line " + lineNum);
+          throw new ComponentConfigException("Invalid file, key '" + key + "' specified twice, line " + lineNum);
         }
         
         // resolve ${} references
@@ -123,7 +125,8 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
         } else {
           // store property
           config.put(group, key, value);
-          if (group.equals("global")) {
+          // global section treated as setup of properties (which do not override)
+          if (group.equals("global") && getProperties().containsKey(key) == false) {
             getProperties().put(key, value);
           }
         }
@@ -138,6 +141,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param includeFile  the resource to include, not null
    * @param depth  the depth of the properties file, used for logging
    * @param config  the config being loaded, not null
+   * @throws ComponentConfigException if the included resource cannot be found or read
    */
   private void handleInclude(final Resource baseResource, String includeFile, final int depth, final ComponentConfig config) {
     // find resource
@@ -148,7 +152,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       try {
         include = baseResource.createRelative(includeFile);
       } catch (Exception ex2) {
-        throw new OpenGammaRuntimeException(ex2.getMessage(), ex2);
+        throw new ComponentConfigException(ex2.getMessage(), ex2);
       }
     }
     
@@ -157,7 +161,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
     try {
       doLoad(include, depth + 1, config);
     } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to load INI file: " + include, ex);
+      throw new ComponentConfigException("Unable to load INI file: " + include, ex);
     }
   }
 

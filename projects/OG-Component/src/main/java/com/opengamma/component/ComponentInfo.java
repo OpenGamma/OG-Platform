@@ -112,6 +112,7 @@ public class ComponentInfo implements Bean {
    * 
    * @param key  the attribute key, not null
    * @return the value of the attribute, not null
+   * @throws IllegalArgumentException if there is no attribute mapped to the key
    */
   public String getAttribute(String key) {
     String attr = _attributes.get(key);
