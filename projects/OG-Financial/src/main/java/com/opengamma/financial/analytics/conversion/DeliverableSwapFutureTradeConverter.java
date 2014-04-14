@@ -12,36 +12,37 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Interest rate future trade converter.
+ * Converts
  */
-public class InterestRateFutureTradeConverter implements TradeConverter {
+public class DeliverableSwapFutureTradeConverter implements TradeConverter {
 
-  private final InterestRateFutureSecurityConverter _securityConverter;
+  /**
+   * Deliverable swap future security converter.
+   */
+  private final DeliverableSwapFutureSecurityConverter _securityConverter;
   
-  public InterestRateFutureTradeConverter(SecuritySource securitySource,
-                                          HolidaySource holidaySource,
-                                          ConventionSource conventionSource,
-                                          RegionSource regionSource) {
-    _securityConverter = new InterestRateFutureSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
+  public DeliverableSwapFutureTradeConverter(SecuritySource securitySource,
+                                             SwapSecurityConverter swapSecurityConverter) {
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(swapSecurityConverter, "swapSecurityConverter");
+    _securityConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapSecurityConverter);
   }
   
   public InstrumentDefinitionWithData<?, Double> convert(Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     final Security security = trade.getSecurity();
     if (security instanceof InterestRateFutureSecurity) {
-      final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) ((InterestRateFutureSecurity) security).accept(_securityConverter);
+      final SwapFuturesPriceDeliverableSecurityDefinition securityDefinition = (SwapFuturesPriceDeliverableSecurityDefinition) ((DeliverableSwapFutureSecurity) security).accept(_securityConverter);
       Double tradePrice = trade.getPremium(); // TODO: [PLAT-1958] The trade price is stored in the trade premium. 
       if (tradePrice == null) {
         throw new OpenGammaRuntimeException("Trade premium should not be null.");
@@ -56,8 +57,8 @@ public class InterestRateFutureTradeConverter implements TradeConverter {
       }
       final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final int quantity = trade.getQuantity().intValue();
-      return new InterestRateFutureTransactionDefinition(securityDefinition, quantity, tradeDateTime, tradePrice);
+      return new SwapFuturesPriceDeliverableTransactionDefinition(securityDefinition, quantity, tradeDateTime, tradePrice);
     }
-    throw new IllegalArgumentException("Can only handle InterestRateFutureSecurity");
+    throw new IllegalArgumentException("Can only handle DeliverableSwapFutureSecurityDefinition");
   }
 }

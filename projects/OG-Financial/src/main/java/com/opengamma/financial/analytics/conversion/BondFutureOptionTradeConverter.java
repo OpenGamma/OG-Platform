@@ -26,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class BondFutureOptionTradeConverter {
+public class BondFutureOptionTradeConverter implements TradeConverter {
   private final BondFutureOptionSecurityConverter _securityConverter;
 
   public BondFutureOptionTradeConverter(final BondFutureOptionSecurityConverter securityConverter) {

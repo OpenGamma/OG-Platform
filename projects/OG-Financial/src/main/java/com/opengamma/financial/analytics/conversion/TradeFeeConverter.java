@@ -29,7 +29,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Convert fees on a trade to an instrument definition.
  */
-public class TradeFeeConverter {
+public class TradeFeeConverter implements TradeConverter {
 
   private static final TradeFeeConverter INSTANCE = new TradeFeeConverter();
   private static final String FEE_DATE = "FEE_%d_DATE";

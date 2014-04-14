@@ -35,21 +35,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>
     implements FinancialSecurityVisitorWithData<Double, InstrumentDefinitionWithData<?, Double>> {
-  
-  /** Converts interest rate futures */
-  private final InterestRateFutureSecurityConverter _irFutureConverter;
-  /** Converts deliverable swap futures */
-  private final DeliverableSwapFutureSecurityConverter _dsfConverter;
 
   /**
-   * @param irFutureConverter The interest rate future converter, not null
-   * @param dsfConverter The deliverable swap future converter, not null
+   * Constructor.
    */
-  public FutureSecurityConverter(final InterestRateFutureSecurityConverter irFutureConverter, final DeliverableSwapFutureSecurityConverter dsfConverter) {
-    ArgumentChecker.notNull(irFutureConverter, "interest rate future converter");
-    ArgumentChecker.notNull(dsfConverter, "deliverable swap future converter");
-    _irFutureConverter = irFutureConverter;
-    _dsfConverter = dsfConverter;
+  public FutureSecurityConverter() {
   }
 
   @Override

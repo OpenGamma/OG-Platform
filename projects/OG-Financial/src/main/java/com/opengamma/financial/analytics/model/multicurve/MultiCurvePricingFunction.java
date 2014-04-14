@@ -57,7 +57,7 @@ import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InflationSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -131,7 +131,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
    * @param context The compilation context, not null
    * @return The converter
    */
-  protected TradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
+  protected DefaultTradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
@@ -150,8 +150,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         .cashFlowSecurityVisitor(cashFlowSecurityConverter).deliverableSwapFutureSecurityVisitor(dsfConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .fxForwardVisitor(fxForwardSecurityConverter).nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).zeroCouponInflationSwapSecurityVisitor(inflationSwapConverter)
         .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
-    return new TradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, securityConverter);
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter();
+    return new DefaultTradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, null, null, securityConverter);
   }
 
   /**
@@ -172,7 +172,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
    */
   public abstract class MultiCurveCompiledFunction extends AbstractInvokingCompiledFunction {
     /** Converts targets to definitions */
-    private final TradeConverter _tradeToDefinitionConverter;
+    private final DefaultTradeConverter _tradeToDefinitionConverter;
     /** Converts definitions to derivatives */
     private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
 
@@ -180,7 +180,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      * @param tradeToDefinitionConverter Converts trades to definitions, not null
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      */
-    protected MultiCurveCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter) {
+    protected MultiCurveCompiledFunction(final DefaultTradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter) {
       ArgumentChecker.notNull(tradeToDefinitionConverter, "target to definition converter");
       ArgumentChecker.notNull(definitionToDerivativeConverter, "definition to derivative converter");
       _tradeToDefinitionConverter = tradeToDefinitionConverter;

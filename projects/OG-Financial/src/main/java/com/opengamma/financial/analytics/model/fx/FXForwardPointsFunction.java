@@ -69,7 +69,7 @@ import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -133,7 +133,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
    * @param context The compilation context, not null
    * @return The converter
    */
-  protected TradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
+  protected DefaultTradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
@@ -143,8 +143,8 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .fxForwardVisitor(fxForwardSecurityConverter).nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
-    return new TradeConverter(futureTradeConverter, securityConverter);
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter();
+    return new DefaultTradeConverter(futureTradeConverter, securityConverter);
   }
 
   /**
@@ -165,7 +165,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
    */
   public abstract class FXForwardPointsCompiledFunction extends AbstractInvokingCompiledFunction {
     /** Converts targets to definitions */
-    private final TradeConverter _tradeToDefinitionConverter;
+    private final DefaultTradeConverter _tradeToDefinitionConverter;
     /** Converts definitions to derivatives */
     private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
     /** Indicates whether the results set {@link ValuePropertyNames#CURRENCY} */
@@ -176,7 +176,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if this function sets {@link ValuePropertyNames#CURRENCY}
      */
-    protected FXForwardPointsCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+    protected FXForwardPointsCompiledFunction(final DefaultTradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
         final boolean withCurrency) {
       ArgumentChecker.notNull(tradeToDefinitionConverter, "target to definition converter");
       ArgumentChecker.notNull(definitionToDerivativeConverter, "definition to derivative converter");

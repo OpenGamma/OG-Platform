@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.EquityTotalReturnSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
@@ -50,13 +50,13 @@ public abstract class EquityTotalReturnSwapFunction extends DiscountingFunction 
   }
 
   @Override
-  protected TradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
+  protected DefaultTradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = new EquityTotalReturnSwapSecurityConverter(conventionSource,
         holidaySource, securitySource);
-    return new TradeConverter(securityConverter);
+    return new DefaultTradeConverter(securityConverter);
   }
 
   /**
@@ -69,7 +69,7 @@ public abstract class EquityTotalReturnSwapFunction extends DiscountingFunction 
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the {@link ValuePropertyNames#CURRENCY} result property is set
      */
-    protected EquityTotalReturnSwapCompiledFunction(final TradeConverter tradeToDefinitionConverter,
+    protected EquityTotalReturnSwapCompiledFunction(final DefaultTradeConverter tradeToDefinitionConverter,
         final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }

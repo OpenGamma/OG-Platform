@@ -31,7 +31,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
   private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
   private final BondFutureTradeConverter _bondFutureConverter;
   private final BondTradeConverter _bondTradeConverter;
-  private final InterestRateFutureTradeConverter _interestRateFutureTradeConverter;
+  private final InterestRateFutureTradeConverterDeprecated _interestRateFutureTradeConverter;
   private final InterestRateFutureOptionTradeConverterDeprecated _interestRateFutureOptionTradeConverter;
 
   public InterestRateInstrumentTradeOrSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
@@ -59,7 +59,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
         .periodicZeroDepositSecurityVisitor(zeroDepositConverter).create();
     _bondTradeConverter = new BondTradeConverter(bondConverter);
     _bondFutureConverter = new BondFutureTradeConverter(bondFutureConverter);
-    _interestRateFutureTradeConverter = new InterestRateFutureTradeConverter(irFutureConverter);
+    _interestRateFutureTradeConverter = new InterestRateFutureTradeConverterDeprecated(irFutureConverter);
     _interestRateFutureOptionTradeConverter = new InterestRateFutureOptionTradeConverterDeprecated(irFutureOptionConverter);
   }
 

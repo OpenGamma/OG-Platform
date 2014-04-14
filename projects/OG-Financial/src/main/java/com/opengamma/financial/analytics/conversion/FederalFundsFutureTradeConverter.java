@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Converts Federal funds future trades into the definition form used by the analytics library.
  */
-public class FederalFundsFutureTradeConverter {
+public class FederalFundsFutureTradeConverter implements TradeConverter {
   /** The security converter */
   private final FederalFundsFutureSecurityConverter _securityConverter;
 

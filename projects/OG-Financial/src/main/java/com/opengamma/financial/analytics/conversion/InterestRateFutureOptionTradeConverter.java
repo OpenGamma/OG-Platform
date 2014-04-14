@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Converts interest rate future option trades into the form used by the analytics library
  */
-public class InterestRateFutureOptionTradeConverter {
+public class InterestRateFutureOptionTradeConverter implements TradeConverter {
   /** Converter for the interest rate future option security */
   private final InterestRateFutureOptionSecurityConverter _securityConverter;
 

@@ -16,17 +16,8 @@ import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDiv
 import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
@@ -35,25 +26,16 @@ import com.opengamma.util.time.DateUtils;
  * Visits a Trade containing a {@link FutureSecurity} (OG-Financial)
  * Converts it to an {@link InstrumentDefinitionWithData} (OG-Analytics)
  */
-public class FutureTradeConverter {
+public class FutureTradeConverter implements TradeConverter {
   /**
    * The security converter (to convert the trade underlying).
    */
   private final FutureSecurityConverter _futureSecurityConverter;
 
   /**
-   * @param securitySource The security source.
-   * @param holidaySource The holiday source.
-   * @param conventionSource The convention source.
-   * @param conventionBundleSource The convention bundle source.
-   * @param regionSource The region source.
    */
-  public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,
-      final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
-    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
-    final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
-    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, dsfConverter);
+  public FutureTradeConverter() {
+    _futureSecurityConverter = new FutureSecurityConverter();
   }
 
   /**
@@ -120,16 +102,6 @@ public class FutureTradeConverter {
           @Override
           public InstrumentDefinitionWithData<?, Double> visitEquityFutureDefinition(final EquityFutureDefinition futures) {
             return new EquityFutureDefinition(futures.getExpiryDate(), futures.getSettlementDate(), tradePrice, futures.getCurrency(), futures.getUnitAmount());
-          }
-
-          @Override // [PLAT-5535] Futures security should not be of the type "InstrumentDefinitionWithData"; no data is required at the security level, only at the transaction level.
-          public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
-            return new InterestRateFutureTransactionDefinition(futures, quantity, tradeDate, tradePrice);
-          }
-
-          @Override // [PLAT-5535] Futures security should not be of the type "InstrumentDefinitionWithData"; no data is required at the security level, only at the transaction level.
-          public InstrumentDefinitionWithData<?, Double> visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesPriceDeliverableSecurityDefinition future) {
-            return new SwapFuturesPriceDeliverableTransactionDefinition(future, quantity, tradeDate, tradePrice);
           }
 
           @Override

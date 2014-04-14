@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Converts bond trades into {@link BondFixedTransactionDefinition}s.
  */
-public class BondTradeConverter {
+public class BondTradeConverter implements TradeConverter {
   /** Converts the underlying security */
   private final BondSecurityConverter _securityConverter;
 
