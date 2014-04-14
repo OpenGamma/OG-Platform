@@ -47,7 +47,7 @@ public class VolatilityWeightedFXForwardCurveNodeReturnSeriesFunction extends FX
   protected LocalDateDoubleTimeSeries getReturnSeries(final LocalDateDoubleTimeSeries ts, final ValueRequirement desiredValue) {
     final LocalDateDoubleTimeSeries differenceSeries = super.getReturnSeries(ts, desiredValue);
     final double lambda = Double.parseDouble(desiredValue.getConstraint(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_LAMBDA_PROPERTY));
-    final TimeSeriesWeightedVolatilityOperator weightedVol = new TimeSeriesWeightedVolatilityOperator(lambda);
+    final TimeSeriesWeightedVolatilityOperator weightedVol = TimeSeriesWeightedVolatilityOperator.relative(lambda);
     final LocalDateDoubleTimeSeries weightedVolSeries = (LocalDateDoubleTimeSeries) weightedVol.evaluate(ts);
     final int n = weightedVolSeries.size();
     final double endDateWeightedVol = weightedVolSeries.getLatestValueFast();
