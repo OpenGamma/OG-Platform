@@ -21,7 +21,7 @@ public class TimeSeriesOperatorTest {
   @Test
   public void testWeightedVol() {
     DateDoubleTimeSeries<?> priceSeries = getTestPriceSeries();
-    TimeSeriesWeightedVolatilityOperator weightedVolOperator = new TimeSeriesWeightedVolatilityOperator(0.94);
+    TimeSeriesWeightedVolatilityOperator weightedVolOperator = TimeSeriesWeightedVolatilityOperator.relative(0.94);
     DateDoubleTimeSeries<?> weightedVolSeries = weightedVolOperator.evaluate(priceSeries);
     DateDoubleTimeSeries<?> expectedWeightedVolSeries = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {ld(2), ld(3), ld(4), ld(5), ld(6), ld(7), ld(8), ld(9), ld(10)}, new double[] {0.010840108, 0.012469726, 0.012089848, 0.011794118, 0.011732656, 0.012375053, 0.013438035, 0.013028659, 0.013433833});
     TimeSeriesDataTestUtils.testCloseEquals(expectedWeightedVolSeries, weightedVolSeries, 0.000000001);
@@ -30,7 +30,7 @@ public class TimeSeriesOperatorTest {
   @Test
   public void testRelativeVolatilityWeighting() {
     DateDoubleTimeSeries<?> priceSeries = getTestPriceSeries();
-    TimeSeriesWeightedVolatilityOperator weightedVolOperator = new TimeSeriesWeightedVolatilityOperator(0.94);
+    TimeSeriesWeightedVolatilityOperator weightedVolOperator = TimeSeriesWeightedVolatilityOperator.relative(0.94);
     DateDoubleTimeSeries<?> weightedVolSeries = weightedVolOperator.evaluate(priceSeries);
     TimeSeriesRelativeWeightedDifferenceOperator relativeWeightedDifferenceOperator = new TimeSeriesRelativeWeightedDifferenceOperator();
     DateDoubleTimeSeries<?> relativeWeightedDifferenceSeries = relativeWeightedDifferenceOperator.evaluate(priceSeries, weightedVolSeries);
