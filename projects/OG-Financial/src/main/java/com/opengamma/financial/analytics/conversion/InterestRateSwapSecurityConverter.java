@@ -157,12 +157,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       accrualPeriodParameters = new AdjustedDateParameters(accrualPeriodCalendar, leg.getAccrualPeriodBusinessDayConvention());
     }
 
-    RollDateAdjuster rollDateAdjuster = null;
-    if (leg.getRollConvention() == RollConvention.EOM) {
-      rollDateAdjuster = EndOfMonthRollDateAdjuster.getAdjuster();
-    } else {
-      rollDateAdjuster = leg.getRollConvention().getRollDateAdjuster(0);
-    }
+    final RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(leg.getRollConvention());
 
     AdjustedDateParameters resetDateParameters = null;
     if (floatLeg.getResetPeriodCalendars() != null && floatLeg.getResetPeriodBusinessDayConvention() != null) {
@@ -303,12 +298,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           leg.getPaymentDateBusinessDayConvention());
     }
 
-    RollDateAdjuster rollDateAdjuster = null;
-    if (leg.getRollConvention() == RollConvention.EOM) {
-      rollDateAdjuster = EndOfMonthRollDateAdjuster.getAdjuster();
-    } else {
-      rollDateAdjuster = leg.getRollConvention().getRollDateAdjuster(0);
-    }
+    final RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(leg.getRollConvention());
 
     final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
     final CouponStub startStub = stubs.getFirst();
@@ -451,5 +441,27 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         return adjustednotional.accept(visitor, date);
       }
     };
+  }
+
+  private RollDateAdjuster getRollDateAdjuster(final RollConvention rollConvention) {
+    //Impl note: We set months to adjust to 0 as the roll period is set by the specific period variables.
+    //TODO: We ignore day of month and day of week adjustments, check this
+    RollDateAdjuster rollDateAdjuster;
+    switch (rollConvention) {
+      case EOM:
+      case IMM:
+      case IMM_AUD:
+      case IMM_CAD:
+      case IMM_NZD:
+      case FRN:
+      case SFE:
+      case TBILL:
+        rollDateAdjuster = rollConvention.getRollDateAdjuster(0);
+        break;
+      case NONE:
+      default:
+        rollDateAdjuster = RollConvention.NONE.getRollDateAdjuster(0);
+    }
+    return rollDateAdjuster;
   }
 }

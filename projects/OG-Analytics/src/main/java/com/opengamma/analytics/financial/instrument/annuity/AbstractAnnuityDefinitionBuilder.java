@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.util.money.Currency;
 
@@ -460,7 +460,8 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
           stubType,
           _adjustedAccrualDateParameters.getBusinessDayConvention(),
           _adjustedAccrualDateParameters.getCalendar(),
-          _rollDateAdjuster instanceof EndOfMonthRollDateAdjuster ? _rollDateAdjuster : null);
+          getRollDateAdjuster());
+          //_rollDateAdjuster instanceof GeneralRollDateAdjuster ? null : _rollDateAdjuster);
     } else {
       accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(
           startDate, endDate, _accrualPeriodFrequency, stubType);
