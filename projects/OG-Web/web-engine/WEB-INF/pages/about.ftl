@@ -80,7 +80,7 @@
 <@section title="Links">
   <p>
     <a href="${uris.home()}">Return home</a><br />
-<#if security.isPermitted('WebComponents:view')>
+<#if userSecurity.isPermitted('WebComponents:view')>
     <a href="${uris.components()}">View the components</a><br />
 </#if>
   </p>

@@ -7,7 +7,7 @@
     Use this form to change your preferences.
   </p>
   <#if err_unexpected??><div class="err">An unexpected error occurred</div></#if>
-  <@form method="POST" action="${security.profileUri}">
+  <@form method="POST" action="${userSecurity.profileUri}">
   <p>
     <#if err_emailMissing??><div class="err">The email address must be entered</div></#if>
     <#if err_emailToolLong??><div class="err">The email address is too long</div></#if>
@@ -82,7 +82,7 @@
     Use this form to change your password.
   </p>
   <#if err_unexpected??><div class="err">An unexpected error occurred</div></#if>
-  <@form method="POST" action="${security.profileUri}">
+  <@form method="POST" action="${userSecurity.profileUri}">
   <p>
     <#if err_passwordMissing??><div class="err">The password must be entered</div></#if>
     <#if err_passwordTooShort??><div class="err">The password is too short, minimum of 6 characters</div></#if>

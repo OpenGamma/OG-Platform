@@ -23,26 +23,26 @@
       <@link text="Portfolios" uriObj=portfolioUris!""/>
       <@link text="Positions" uriObj=positionUris!""/>
       <@link text="Regions" uriObj=regionUris!""/>
-<#if security.isPermitted('RoleMaster:view')>
+<#if userSecurity.isPermitted('RoleMaster:view')>
       <@link text="Roles" uriObj=roleUris!""/>
 </#if>
       <@link text="Securities" uriObj=securityUris!""/>
       <@link text="Snapshots" uriObj=snapshotUris!""/>
       <@link text="Time Series" uriObj=timeseriesUris!""/>
-<#if security.isPermitted('UserMaster:view')>
+<#if userSecurity.isPermitted('UserMaster:view')>
       <@link text="Users" uriObj=userUris!""/>
 </#if>
     </ul>
   </p>
 </@section>
-<#if security.isPermitted('WebAbout:view') || security.isPermitted('WebComponents:view')>
+<#if userSecurity.isPermitted('WebAbout:view') || userSecurity.isPermitted('WebComponents:view')>
 <#-- SECTION Links -->
 <@section title="Links">
   <p>
-<#if security.isPermitted('WebAbout:view')>
+<#if userSecurity.isPermitted('WebAbout:view')>
     <a href="${uris.about()}">View information about the system</a><br />
 </#if>
-<#if security.isPermitted('WebComponents:view')>
+<#if userSecurity.isPermitted('WebComponents:view')>
     <a href="${uris.components()}">View the components</a><br />
 </#if>
   </p>

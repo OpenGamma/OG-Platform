@@ -7,7 +7,7 @@
     Register to use OpenGamma risk analytics.
   </p>
   <#if err_unexpected??><div class="err">An unexpected error occurred</div></#if>
-  <@form method="POST" action="${security.registerUri}">
+  <@form method="POST" action="${userSecurity.registerUri}">
   <p>
     <#if err_usernameMissing??><div class="err">The user name must be entered</div></#if>
     <#if err_usernameTooShort??><div class="err">The user name is too short, it must be between 5 and 20 characters</div></#if>
@@ -39,7 +39,7 @@
 <#-- SECTION Links -->
 <@section title="Links">
   <p>
-    <a href="${security.loginUri}">Login</a><br />
+    <a href="${userSecurity.loginUri}">Login</a><br />
     <a href="${homeUris.home()}">Return home</a><br />
   </p>
 </@section>

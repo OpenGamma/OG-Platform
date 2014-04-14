@@ -149,7 +149,7 @@ public class FreemarkerOutputter {
       out.put("dateFormatter", dateFormatter);
       out.put("timeFormatter", timeFormatter);
     }
-    out.put("security", user);
+    out.put("userSecurity", user);
     return out;
   }
 

@@ -31,11 +31,11 @@
             <a href="/jax"><img src="/images/opengamma.png" width="289" height="51" alt="OpenGamma - Financial Analytics and Risk Management" /></a>
           </td>
           <td id="topright">
-<#if security.enabled>
- <#if security.loggedIn>
-            Logged in as <a href="${security.profileUri}">${security.userName}</a> : <a href="${security.logoutUri}">Logout</a>
+<#if userSecurity.enabled>
+ <#if userSecurity.loggedIn>
+            Logged in as <a href="${userSecurity.profileUri}">${userSecurity.userName}</a> : <a href="${userSecurity.logoutUri}">Logout</a>
  <#else>
-            <a href="${security.registerUri}">Register</a> : <a href="${security.loginUri}">Login</a>
+            <a href="${userSecurity.registerUri}">Register</a> : <a href="${userSecurity.loginUri}">Login</a>
  </#if>
 </#if>
             <br />

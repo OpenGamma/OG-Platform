@@ -140,7 +140,7 @@ $(function () {
 </@subsection>
 </@section>
 
-<#-- SECTION Update security -->
+<#-- SECTION Update time series -->
 <@section title="Update Timeseries">
   <@form method="PUT" action="${uris.oneTimeSeries()}">
   <p>
@@ -149,7 +149,7 @@ $(function () {
   </@form>
 </@section>
 
-<#-- SECTION Delete Timeseries -->
+<#-- SECTION Delete time series -->
 <@section title="Delete Timeseries">
   <@form method="DELETE" action="${uris.oneTimeSeries()}">
   <p>

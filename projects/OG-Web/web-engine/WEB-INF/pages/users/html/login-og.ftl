@@ -8,7 +8,7 @@
   <body onload="document.getElementById('username').focus()">
     <div class="OG-login">
       <img class="og-logo" src="/prototype/images/common/logos/opengamma_shiny.png" alt="OpenGamma Logo" />
-      <form id="og-login" method="POST" action="${security.loginUri}/og">
+      <form id="og-login" method="POST" action="${userSecurity.loginUri}/og">
         <table>
 <#if err_invalidLogin??>
           <tr><td></td><td class="err">

@@ -35,7 +35,7 @@ ${item}<#if item_has_next>,</#if>
 <#if role.associatedUsers?has_content>
     <@rowout label="Users">
 <#list role.associatedUsers as item>
-<#if security.isPermitted('UserMaster:view')>
+<#if userSecurity.isPermitted('UserMaster:view')>
 <a href="${uris.user(item)}">${item}</a><#if item_has_next>,</#if>
 <#else>
 ${item}<#if item_has_next>,</#if>

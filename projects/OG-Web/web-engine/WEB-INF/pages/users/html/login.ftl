@@ -6,7 +6,7 @@
   <p>
     Please login to OpenGamma risk analytics.
   </p>
-  <@form method="POST" action="${security.loginUri}">
+  <@form method="POST" action="${userSecurity.loginUri}">
   <p>
     <#if err_invalidLogin??>
      <div class="err">
@@ -29,7 +29,7 @@
 <#-- SECTION Links -->
 <@section title="Links">
   <p>
-    <a href="${security.registerUri}">Register</a><br />
+    <a href="${userSecurity.registerUri}">Register</a><br />
     <a href="${homeUris.home()}">Return home</a><br />
   </p>
 </@section>
