@@ -121,6 +121,50 @@ public class ArgumentCheckerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_notBlank_String_ok() {
+    String str = "Kirk";
+    assertEquals("Kirk", ArgumentChecker.notBlank(str, "name"));
+  }
+
+  public void test_notBlank_String_ok_trimmed() {
+    String str = " Kirk ";
+    assertEquals("Kirk", ArgumentChecker.notBlank(str, "name"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notBlank_String_null() {
+    String str = null;
+    try {
+      ArgumentChecker.notBlank(str, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notBlank_String_empty() {
+    String str = "";
+    try {
+      ArgumentChecker.notBlank(str, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notBlank_String_spaces() {
+    String str = "  ";
+    try {
+      ArgumentChecker.notBlank(str, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_notEmpty_String_ok() {
     String str = "Kirk";
     ArgumentChecker.notEmpty(str, "name");

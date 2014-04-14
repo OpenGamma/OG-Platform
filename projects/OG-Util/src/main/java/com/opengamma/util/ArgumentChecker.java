@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.helpers.MessageFormatter;
 
 /**
@@ -121,6 +122,28 @@ public final class ArgumentChecker {
   public static <T> T notNullInjected(T parameter, String name) {
     if (parameter == null) {
       throw new IllegalArgumentException("Injected input parameter '" + name + "' must not be null");
+    }
+    return parameter;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the specified parameter is non-null and not blank.
+   * <p>
+   * The parameter is trimmed using {@link StringUtil#strip()} before testing for length zero.
+   * This matches the definition of {@link StringUtils#isBlank(String)}.
+   * the trimmed parameter is returned.
+   * 
+   * @param parameter  the parameter to check, may be null
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is null or blank
+   * @return the trimmed input {@code parameter}, not null
+   */
+  public static String notBlank(String parameter, String name) {
+    notNull(parameter, name);
+    parameter = StringUtils.strip(parameter);
+    if (parameter.length() == 0) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be empty");
     }
     return parameter;
   }
