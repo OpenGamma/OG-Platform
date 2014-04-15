@@ -99,7 +99,7 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           paymentDates[c],
           accrualStartDates[c],
           accrualEndDates[c],
-          AnnuityDefinitionBuilder.getDayCountFraction(null, accrualCalendar, getDayCount(), null, accrualStartDates[c], accrualEndDates[c], c == accrualEndDates.length - 1),
+          AnnuityDefinitionBuilder.getDayCountFraction(getAccrualPeriodFrequency(), accrualCalendar, getDayCount(), getStartStub() != null ? getStartStub().getStubType() : StubType.NONE, getEndStub() != null ? getEndStub().getStubType() : StubType.NONE, accrualStartDates[c], accrualEndDates[c], c == 0, c == accrualEndDates.length - 1),
           (isPayer() ? -1 : 1) * getNotional().getAmount(accrualStartDates[c].toLocalDate()),
           _rate);
     }
@@ -152,8 +152,8 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
       ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(getStartDate(), accrualEndDates);
       double[] paymentYearFractions = new double[accrualEndDates.length];
       for (int i = 0; i < accrualEndDates.length; i++) {
-        paymentYearFractions[i] = AnnuityDefinitionBuilder.getDayCountFraction(null, accrualCalendar, getDayCount(), null,
-            accrualStartDates[i], accrualEndDates[i], i == accrualEndDates.length - 1);
+        paymentYearFractions[i] = AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), accrualCalendar, getDayCount(), stubType, stubType,
+            accrualStartDates[i], accrualEndDates[i], i == 0, i == accrualEndDates.length - 1);
       }
       
       final ZonedDateTime adjustedEndDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
@@ -165,8 +165,8 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           paymentDate, // pmt
           getStartDate(), // acc start
           adjustedEndDate, // acc end
-          AnnuityDefinitionBuilder.getDayCountFraction(null, getPaymentDateAdjustmentParameters().getCalendar(), getDayCount(), null,
-              getStartDate(), adjustedEndDate, true), // pmt yf
+          AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), getPaymentDateAdjustmentParameters().getCalendar(), getDayCount(), stubType, stubType,
+                                                       getStartDate(), adjustedEndDate, true, true), // pmt yf
           (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
           _rate,
           accrualStartDates,
