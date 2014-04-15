@@ -5,9 +5,12 @@
  */
 package com.opengamma.component.factory.master;
 
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import org.joda.beans.Bean;
@@ -20,19 +23,24 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.util.db.management.jmx.DatabaseMBean;
 
 /**
- * Component factory for a data source. This has some default values designed for the masters. 
+ * Component factory for a data source. This has some default values designed for the masters.
  * <p>
  * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
 public class DataSourceComponentFactory extends AbstractComponentFactory {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(DataSourceComponentFactory.class);
 
   /**
    * The classifier that the factory should publish under.
@@ -104,6 +112,18 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     final DataSource dataSource = createDataSource(repo);
     final ComponentInfo info = new ComponentInfo(DataSource.class, getClassifier());
     repo.registerComponent(info, dataSource);
+    DatabaseMBean.Local mbeanLocal = new DatabaseMBean.Local(getDriverClass(), dataSource);
+    mbeanLocal.setLocalJdbc(getJdbcUrl());
+    mbeanLocal.setUsername(getUsername());
+    final Hashtable<String, String> mbeanName = new Hashtable<String, String>();
+    mbeanName.put("type", "DataSourceComponent");
+    mbeanName.put("name", getClassifier());
+    try {
+      repo.registerMBean(mbeanLocal.mbean(), new ObjectName("com.opengamma", mbeanName));
+    } catch (MalformedObjectNameException e) {
+      s_logger.error("Couldn't register MBEAN for {}: {}", this, e.getMessage());
+      s_logger.warn("Caught exception", e);
+    }
     return dataSource;
   }
 
