@@ -493,7 +493,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     if (!_exchangeInitialNotional) {
       return null;
     }
-    ZonedDateTime startDate = getStartDate();
+    ZonedDateTime startDate = getStartDateAdjustmentParameters().getBusinessDayConvention().adjustDate(getStartDateAdjustmentParameters().getCalendar(), getStartDate());
     
     return new CouponFixedDefinition(
         _currency,
@@ -506,7 +506,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
   }
   
   protected CouponFixedDefinition getExchangeFinalNotionalCoupon() {
-    ZonedDateTime endDate = getEndDate();
+    ZonedDateTime endDate = getEndDateAdjustmentParameters().getBusinessDayConvention().adjustDate(getEndDateAdjustmentParameters().getCalendar(), getEndDate());
     
     return new CouponFixedDefinition(_currency,
         endDate, // payment
