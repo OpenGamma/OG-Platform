@@ -204,8 +204,9 @@ public class AnnuityDefinitionBuilderTest {
     }
     for (int loopcpn = 1; loopcpn < leg.getNumberOfPayments(); loopcpn++) {
       assertEquals("AnnuityDefinitionBuilder: couponFixed", expectedPaymentDates[loopcpn - 1], leg.getNthPayment(loopcpn).getAccrualStartDate());
+      // TODO: check this. Assumption is that stubs only affect first (and last if end stub) coupon payment - should be verified.
       assertEquals("AnnuityDefinitionBuilder: couponFixed",
-          ACT_ACT_ICMA.getAccruedInterest(expectedPaymentDates[loopcpn - 1], expectedPaymentDates[loopcpn], expectedPaymentDates[loopcpn], 1.0d, couponPerYear, stub),
+          ACT_ACT_ICMA.getAccruedInterest(expectedPaymentDates[loopcpn - 1], expectedPaymentDates[loopcpn], expectedPaymentDates[loopcpn], 1.0d, couponPerYear, StubType.NONE),
           leg.getNthPayment(loopcpn).getPaymentYearFraction());
     }
   }
