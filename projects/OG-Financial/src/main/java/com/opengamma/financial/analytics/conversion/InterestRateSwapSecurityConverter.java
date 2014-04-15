@@ -15,6 +15,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
 import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
 import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
@@ -23,7 +25,10 @@ import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -40,7 +45,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -99,7 +103,39 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     LocalDate endDate = security.getUnadjustedMaturityDate();
     AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
     AnnuityDefinition<?> receiveLeg = getAnnuityDefinition(false, startDate, endDate, security.getNotionalExchange(), security.getReceiveLeg());
+    return getDefinition(security, payLeg, receiveLeg);
+  }
+
+  private SwapDefinition getDefinition(final InterestRateSwapSecurity swap, final AnnuityDefinition<?> payLeg, final AnnuityDefinition<?> receiveLeg) {
+
+    final boolean payLegFixed = isLegFixed(swap.getPayLeg(), payLeg);
+    final boolean receiveLegFixed = isLegFixed(swap.getReceiveLeg(), receiveLeg);
+    if (payLegFixed && !receiveLegFixed) {
+      final AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(payLeg);
+      final FloatingInterestRateSwapLeg leg = (FloatingInterestRateSwapLeg) swap.getReceiveLeg();
+      if (leg.getFloatingRateType().isIbor()) {
+        return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(receiveLeg));
+      }
+    } else if (!payLegFixed && !receiveLegFixed) {
+      final AnnuityCouponFixedDefinition fixedLegAnnuity = getFixedLegAnnuity(receiveLeg);
+      final FloatingInterestRateSwapLeg floatLeg = (FloatingInterestRateSwapLeg) swap.getPayLeg();
+      if (floatLeg.getFloatingRateType().isIbor()) {
+        return new SwapFixedIborDefinition(fixedLegAnnuity, getIborLegAnnuity(payLeg));
+      }
+    }
     return new SwapDefinition(payLeg, receiveLeg);
+  }
+
+  private boolean isLegFixed(final InterestRateSwapLeg leg, final AnnuityDefinition<?> annuity) {
+    return leg instanceof FixedInterestRateSwapLeg && annuity.getPayments() instanceof CouponFixedDefinition[];
+  }
+
+  private AnnuityCouponFixedDefinition getFixedLegAnnuity(final AnnuityDefinition<?> leg) {
+    return new AnnuityCouponFixedDefinition((CouponFixedDefinition[]) leg.getPayments(), leg.getCalendar());
+  }
+
+  private AnnuityCouponIborDefinition getIborLegAnnuity(final AnnuityDefinition<?> leg) {
+    return new AnnuityCouponIborDefinition((CouponIborDefinition[]) leg.getPayments(), ((CouponIborDefinition) leg.getNthPayment(0)).getIndex(), leg.getCalendar());
   }
 
   private AnnuityDefinition<?> getAnnuityDefinition(boolean payer, LocalDate startDate, LocalDate endDate, NotionalExchange notionalExchange, InterestRateSwapLeg leg) {
@@ -223,18 +259,16 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   }
 
   private IndexDeposit getONIndex(FloatingInterestRateSwapLeg floatLeg) {
-    // Remove convention lookup when all code using new security based lookup
-    Convention convention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
-    if (convention == null) {
-      // try security lookup
-      final Security sec = _securitySource.getSingle(floatLeg.getFloatingReferenceRateId().toBundle());
-      if (sec == null) {
-        throw new OpenGammaRuntimeException("No convention or security for " + floatLeg.getFloatingReferenceRateId());
-      }
+    // try security lookup
+    final Security sec = _securitySource.getSingle(floatLeg.getFloatingReferenceRateId().toBundle());
+    if (sec != null) {
       final OvernightIndex indexSecurity = (OvernightIndex) sec;
       OvernightIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), OvernightIndexConvention.class);
       return ConverterUtils.indexON(indexSecurity.getName(), indexConvention);
     }
+
+    // Fallback to convention lookup for old behaviour
+    Convention convention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
     if (!(convention instanceof OvernightIndexConvention)) {
       throw new OpenGammaRuntimeException("Mis-match between floating rate type " + floatLeg.getFloatingRateType() + " and convention " + convention.getClass());
     }
@@ -247,17 +281,17 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   }
 
   private IndexDeposit getIborIndex(FloatingInterestRateSwapLeg floatLeg) {
-    // Remove convention lookup when all code using new security based lookup
-    Convention iborLegConvention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
-    if (iborLegConvention == null) {
-      // try security lookup
-      final Security sec = _securitySource.getSingle(floatLeg.getFloatingReferenceRateId().toBundle());
-      if (sec == null) {
-        throw new OpenGammaRuntimeException("No convention or security for " + floatLeg.getFloatingReferenceRateId());
-      }
+    // try security lookup
+    final Security sec = _securitySource.getSingle(floatLeg.getFloatingReferenceRateId().toBundle());
+    if (sec != null) {
       final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
       IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
       return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
+    }
+    
+    // Fallback to convention lookup for old behaviour
+    Convention iborLegConvention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
+    if (iborLegConvention == null) {
     }
     if (!(iborLegConvention instanceof VanillaIborLegConvention)) {
       throw new OpenGammaRuntimeException("Mis-match between floating rate type " + floatLeg.getFloatingRateType() + " and convention " + iborLegConvention.getClass());
