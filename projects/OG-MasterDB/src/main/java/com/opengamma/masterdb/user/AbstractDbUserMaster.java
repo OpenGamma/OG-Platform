@@ -13,7 +13,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
@@ -41,6 +40,7 @@ import com.opengamma.master.user.HistoryEventType;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.masterdb.ConfigurableDbChangeProvidingMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -333,8 +333,8 @@ public abstract class AbstractDbUserMaster<T extends UniqueIdentifiable>
 
   void insertEvent(HistoryEvent event, String eventIdSequence) {
     Long eventId = nextId(eventIdSequence);
-    Object principal = SecurityUtils.getSubject().getPrincipal();
-    String activeUser = (principal instanceof String ? (String) principal : "system");
+    String userName = AuthUtils.getUserName();
+    String activeUser = (userName != null ? userName : "system");
     final DbMapSqlParameterSource eventArgs = createParameterSource()
         .addValue("id", eventId)
         .addValue("doc_id", extractOid(event.getUniqueId()))

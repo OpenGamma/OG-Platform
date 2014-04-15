@@ -19,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.PasswordService;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ import com.opengamma.master.user.UserFormException;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.AbstractSingletonWebResource;
 
 /**
@@ -100,7 +100,7 @@ public class WebRegisterResource extends AbstractSingletonWebResource {
     try {
       UserForm form = new UserForm(userName, password, email, displayName, locale, zone, dateStyle, timeStyle);
       form.add(_userMaster, _pwService);
-      SecurityUtils.getSubject().getSession().setAttribute(WebLoginResource.LOGIN_USERNAME, userName);
+      AuthUtils.getSubject().getSession().setAttribute(WebLoginResource.LOGIN_USERNAME, userName);
       return Response.seeOther(WebLoginResource.uri(uriInfo)).build();
       
     } catch (UserFormException ex) {

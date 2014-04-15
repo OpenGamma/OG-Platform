@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.mgt.SecurityManager;
@@ -20,6 +19,8 @@ import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.apache.shiro.web.env.IniWebEnvironment;
 import org.apache.shiro.web.env.WebEnvironment;
 import org.apache.shiro.web.mgt.WebSecurityManager;
+
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Servlet context listener that sets up the web environment.
@@ -49,7 +50,7 @@ public final class ShiroSecurityEnvironmentLoader extends EnvironmentLoaderListe
     protected WebSecurityManager createWebSecurityManager() {
       ShiroFactory factory = new ShiroFactory();
       Ini ini = getIni();
-      if (SecurityUtils.getSecurityManager().getClass().getName().contains("Permissive")) {
+      if (AuthUtils.isPermissive()) {
         ini.addSection("main").put("shiro.enabled", "false");
       }
       factory.setIni(ini);
@@ -70,7 +71,7 @@ public final class ShiroSecurityEnvironmentLoader extends EnvironmentLoaderListe
     @Override
     protected SecurityManager createDefaultInstance() {
       try {
-        SecurityManager sm = SecurityUtils.getSecurityManager();
+        SecurityManager sm = AuthUtils.getSecurityManager();
         if (sm instanceof WebSecurityManager) {
           return sm;
         }

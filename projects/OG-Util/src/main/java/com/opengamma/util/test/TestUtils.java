@@ -5,9 +5,10 @@
  */
 package com.opengamma.util.test;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.mgt.DefaultSecurityManager;
+
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Utility methods for working with tests.
@@ -26,9 +27,9 @@ public final class TestUtils {
    */
   public static void initSecurity() {
     try {
-      SecurityUtils.getSecurityManager();
+      AuthUtils.getSecurityManager();
     } catch (UnavailableSecurityManagerException ex) {
-      SecurityUtils.setSecurityManager(new DefaultSecurityManager());
+      AuthUtils.setSecurityManager(new DefaultSecurityManager());
     }
   }
 

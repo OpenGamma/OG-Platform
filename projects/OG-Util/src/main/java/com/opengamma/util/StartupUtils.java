@@ -5,9 +5,7 @@
  */
 package com.opengamma.util;
 
-import org.apache.shiro.SecurityUtils;
-
-import com.opengamma.util.auth.PermissiveSecurityManager;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Utility method to be run at system startup.
@@ -34,7 +32,7 @@ public final class StartupUtils {
         System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
       }
       // setup permissive security manager
-      SecurityUtils.setSecurityManager(new PermissiveSecurityManager());
+      AuthUtils.initPermissive();
       
     } catch (SecurityException ex) {
       // ignore silently

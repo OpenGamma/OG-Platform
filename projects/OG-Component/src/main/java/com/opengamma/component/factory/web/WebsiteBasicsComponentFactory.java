@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.PasswordService;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -65,7 +64,7 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.auth.PermissiveSecurityManager;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.WebAboutResource;
 import com.opengamma.web.WebHomeResource;
 import com.opengamma.web.config.WebConfigsResource;
@@ -279,7 +278,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected void initBasics(ComponentRepository repo, Set<Class<?>> publishedTypes) {
-    if (SecurityUtils.getSecurityManager() instanceof PermissiveSecurityManager == false) {
+    if (AuthUtils.isPermissive() == false) {
       ArgumentChecker.notNull(getUserMaster(), "UserMaster");
       ArgumentChecker.notNull(getPasswordService(), "PasswordService");
       repo.getRestComponents().publishResource(new WebLoginResource());

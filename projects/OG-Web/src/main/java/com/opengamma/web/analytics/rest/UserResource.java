@@ -11,10 +11,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.SessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * REST resource for the user sessions. This resource class specifies the endpoints for user requests.
@@ -29,7 +30,7 @@ public class UserResource {
   @Path("logout")
   public Response get(@Context HttpServletRequest hsr) {
     try {
-      SecurityUtils.getSubject().logout();
+      AuthUtils.getSubject().logout();
       hsr.getSession().invalidate();
     } catch (SessionException ex) {
       s_logger.debug("Ignoring session exception during logout", ex);

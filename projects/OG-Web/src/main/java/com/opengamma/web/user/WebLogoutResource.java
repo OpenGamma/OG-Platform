@@ -17,11 +17,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.SessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeResource;
 
@@ -49,7 +49,7 @@ public class WebLogoutResource extends AbstractWebResource {
       @QueryParam("redirect") String redirectUri) {
     redirectUri = StringUtils.trimToNull(redirectUri);
     try {
-      SecurityUtils.getSubject().logout();
+      AuthUtils.getSubject().logout();
       hsr.getSession().invalidate();
     } catch (SessionException ex) {
       s_logger.debug("Ignoring session exception during logout", ex);

@@ -19,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.PasswordService;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ import com.opengamma.master.user.UserFormError;
 import com.opengamma.master.user.UserFormException;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.AbstractSingletonWebResource;
 import com.opengamma.web.WebHomeUris;
 
@@ -92,7 +92,7 @@ public class WebProfileResource extends AbstractSingletonWebResource {
       @FormParam("datestyle") String dateStyle,
       @FormParam("timestyle") String timeStyle) {
     try {
-      String userName = (String) SecurityUtils.getSubject().getPrincipal();
+      String userName = AuthUtils.getUserName();
       ManageableUser user = _userMaster.getByName(userName);
       UserForm form = new UserForm(user, email, displayName, locale, zone, dateStyle, timeStyle);
       form.update(_userMaster, _pwService);
@@ -123,7 +123,7 @@ public class WebProfileResource extends AbstractSingletonWebResource {
       @Context UriInfo uriInfo,
       @FormParam("password") String password) {
     try {
-      String userName = (String) SecurityUtils.getSubject().getPrincipal();
+      String userName = AuthUtils.getUserName();
       ManageableUser user = _userMaster.getByName(userName);
       UserForm form = new UserForm(user, password);
       form.update(_userMaster, _pwService);
@@ -141,7 +141,7 @@ public class WebProfileResource extends AbstractSingletonWebResource {
   }
 
   private FlexiBean createStandardRootData(UriInfo uriInfo) {
-    String userName = (String) SecurityUtils.getSubject().getPrincipal();
+    String userName = AuthUtils.getUserName();
     ManageableUser user = _userMaster.getByName(userName);
     FlexiBean out = createRootData(uriInfo);
     out.put("username", user.getUserName());

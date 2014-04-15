@@ -17,13 +17,12 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.StartupUtils;
-import com.opengamma.util.auth.PermissiveSecurityManager;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Main entry point for OpenGamma component-based servers.
@@ -372,10 +371,10 @@ public class OpenGammaComponentServer {
    */
   protected void checkSecurityManager() {
     try {
-      if (SecurityUtils.getSecurityManager() instanceof PermissiveSecurityManager) {
-        _logger.logWarn("****************************************************************");
-        _logger.logWarn(" Warning: Server running without an appropriate SecurityManager ");
-        _logger.logWarn("****************************************************************");
+      if (AuthUtils.isPermissive()) {
+        _logger.logWarn("*********************************************************");
+        _logger.logWarn(" Warning: Server running with permissive SecurityManager ");
+        _logger.logWarn("*********************************************************");
       }
     } catch (UnavailableSecurityManagerException ex) {
       _logger.logError("***************************************************");

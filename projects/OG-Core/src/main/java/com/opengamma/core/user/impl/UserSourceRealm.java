@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -37,6 +36,7 @@ import com.opengamma.core.user.UserAccount;
 import com.opengamma.core.user.UserProfile;
 import com.opengamma.core.user.UserSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * A security {@code Realm} that accesses the user source.
@@ -114,7 +114,7 @@ public class UserSourceRealm extends AuthorizingRealm {
       UserAccount account = loadUserByName(userName);
       account.getStatus().check();
       _profiles.put(userName, account.getProfile());
-      SecurityUtils.getSubject().getSession().setAttribute(UserProfile.class.getName(), new ProxyProfile(userName));
+      AuthUtils.getSubject().getSession().setAttribute(UserProfile.class.getName(), new ProxyProfile(userName));
       SimplePrincipalCollection principals = new SimplePrincipalCollection();
       principals.add(account.getUserName(), getName());
       return new SimpleAuthenticationInfo(principals, account.getPasswordHash());

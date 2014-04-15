@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.DefaultPasswordService;
 import org.apache.shiro.authc.credential.PasswordMatcher;
 import org.apache.shiro.authc.credential.PasswordService;
@@ -36,6 +35,7 @@ import com.opengamma.core.user.UserSource;
 import com.opengamma.core.user.impl.UserSourceRealm;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.util.auth.PermissiveSecurityManager;
 
 /**
@@ -96,10 +96,10 @@ public class ShiroSecurityComponentFactory extends AbstractComponentFactory {
       ArgumentChecker.notNull(getPrivateSalt(), "privateSalt");
       PasswordService pwService = initPasswordService(repo);
       SecurityManager securityManager = initSecurityManager(repo, pwService);
-      SecurityUtils.setSecurityManager(securityManager);
+      AuthUtils.setSecurityManager(securityManager);
     } else {
       SecurityManager securityManager = initPermissiveSecurityManager(repo);
-      SecurityUtils.setSecurityManager(securityManager);
+      AuthUtils.setSecurityManager(securityManager);
     }
   }
 

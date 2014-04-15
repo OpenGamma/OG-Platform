@@ -20,7 +20,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.session.Session;
@@ -30,6 +29,7 @@ import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.AbstractSingletonWebResource;
 import com.opengamma.web.WebHomeResource;
 
@@ -80,7 +80,7 @@ public class WebLoginResource extends AbstractSingletonWebResource {
 
   private String get(ServletContext servletContext, UriInfo uriInfo, String ftlFile) {
     FlexiBean out = createRootData(uriInfo);
-    Subject subject = SecurityUtils.getSubject();
+    Subject subject = AuthUtils.getSubject();
     Session session = subject.getSession(false);
     if (session != null && session.getAttribute(LOGIN_USERNAME) != null) {
       out.put("username", session.getAttribute(LOGIN_USERNAME));
@@ -132,7 +132,7 @@ public class WebLoginResource extends AbstractSingletonWebResource {
     
     UsernamePasswordToken token = new UsernamePasswordToken(username, password, false, request.getRemoteHost());
     try {
-      Subject subject = SecurityUtils.getSubject();
+      Subject subject = AuthUtils.getSubject();
       subject.login(token);
       token.clear();
       

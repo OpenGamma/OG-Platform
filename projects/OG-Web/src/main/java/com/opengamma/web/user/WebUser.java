@@ -9,12 +9,12 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
 import com.opengamma.core.user.UserProfile;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Wrapper of user and security information for Freemarker.
@@ -37,7 +37,7 @@ public class WebUser {
    */
   public WebUser(UriInfo uriInfo) {
     ArgumentChecker.notNull(uriInfo, "uriInfo");
-    Subject subject = SecurityUtils.getSubject();
+    Subject subject = AuthUtils.getSubject();
     _subject = subject;
     _uriInfo = uriInfo;
   }
@@ -49,7 +49,7 @@ public class WebUser {
    * @return true if enabled, not null
    */
   public boolean isEnabled() {
-    return (SecurityUtils.getSecurityManager().getClass().getName().contains("Permissive") == false);
+    return (AuthUtils.isPermissive() == false);
   }
 
   /**
