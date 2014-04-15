@@ -14,6 +14,8 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -43,6 +45,10 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
    */
   private FuturesPriceCurveSensitivityMulticurveCalculator() {
   }
+
+  /** Implementation note: The pricing of some futures is done by calling the PresentValueCurveSensitivityDiscountingCalculator on the underlying. 
+   *    The present value curve sensitivity calculator refers to the futures calculator, that creates a circular reference of static methods.              */
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 
   //     -----     Futures     -----
 
@@ -85,6 +91,14 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
     }
     resultMap.put(multicurve.getMulticurveProvider().getName(index), listON);
     return MulticurveSensitivity.ofForward(resultMap);
+  }
+
+  @Override
+  public MulticurveSensitivity visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final ParameterProviderInterface multicurve) {
+    ArgumentChecker.notNull(futures, "futures");
+    ArgumentChecker.notNull(multicurve, "multi-curve provider");
+    MulticurveSensitivity pvcs = futures.getUnderlyingSwap().accept(PVCSDC, multicurve.getMulticurveProvider()).getSensitivity(futures.getCurrency());
+    return pvcs;
   }
 
 }

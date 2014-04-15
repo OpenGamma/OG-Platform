@@ -104,7 +104,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FUTURE_TRANSACTION, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FUTURE_TRANSACTION, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensivityObjects.assertEquals("FederalFundsFutureTransactionDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -115,7 +115,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
     final double parSpreadMQ = FUTURE_TRANSACTION.accept(PSMQDC, MULTICURVES);
     final FederalFundsFutureTransaction futures0 = new FederalFundsFutureTransaction(FUTURE_SECURITY, QUANTITY, FUTURE_TRANSACTION.getReferencePrice() + parSpreadMQ);
     final MultipleCurrencyAmount pv0 = METHOD_TRANSACTION.presentValue(futures0, MULTICURVES);
-    assertEquals("Fed Funds Futures par spread market quote", pv0.getAmount(USD), 0, TOLERANCE_PV);
+    assertEquals("FederalFundsFutureTransactionDiscountingMethod: par spread market quote", pv0.getAmount(USD), 0, TOLERANCE_PV);
   }
 
   @Test
@@ -125,7 +125,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   public void parSpreadRate() {
     final double parSpreadRate = FUTURE_TRANSACTION.accept(PSRDC, MULTICURVES);
     final double parSpreadMQ = FUTURE_TRANSACTION.accept(PSMQDC, MULTICURVES);
-    assertEquals("Fed Funds Futures par spread market quote", -parSpreadMQ, parSpreadRate, TOLERANCE_RATE);
+    assertEquals("FederalFundsFutureTransactionDiscountingMethod: par spread market quote", -parSpreadMQ, parSpreadRate, TOLERANCE_RATE);
   }
 
 }

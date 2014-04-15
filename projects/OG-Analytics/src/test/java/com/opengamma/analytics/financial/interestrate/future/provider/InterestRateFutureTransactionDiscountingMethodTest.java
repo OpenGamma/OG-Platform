@@ -120,4 +120,5 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
     AssertSensivityObjects.assertEquals("InterestRateFutureTransactionDiscountingMethod: parSpreadRateCurveSensitivity", pscsFD.multipliedBy(-1).cleaned(),
         pscsAD.cleaned(), TOLERANCE_PRICE_DELTA);
   }
+
 }

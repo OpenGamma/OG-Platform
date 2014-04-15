@@ -23,8 +23,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureTransactionDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.provider.FuturesTransactionMulticurveMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -116,10 +116,9 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
       CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
-  private static final FederalFundsFutureTransactionDiscountingMethod METHOD_FFFUT_TRA = FederalFundsFutureTransactionDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
-  private static final InterestRateFutureTransactionDiscountingMethod METHOD_STIR_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final FuturesTransactionMulticurveMethod METHOD_FUT = new FuturesTransactionMulticurveMethod();
   private static final CouponFixedAccruedCompoundingDiscountingMethod METHOD_CPN_FIXED_ACCRUED_COMPOUNDING = CouponFixedAccruedCompoundingDiscountingMethod.getInstance();
   private static final CouponONCompoundedDiscountingMethod METHOD_CPN_ON_COMPOUNDING = CouponONCompoundedDiscountingMethod.getInstance();
   private static final InterpolatedStubPresentValueDiscountingCalculator METHOD_CPN_INTERP_STUB = InterpolatedStubPresentValueDiscountingCalculator.getInstance();
@@ -281,12 +280,17 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
 
   @Override
   public MultipleCurrencyAmount visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_FFFUT_TRA.presentValue(futures, multicurves);
+    return METHOD_FUT.presentValue(futures, multicurves);
   }
 
   @Override
   public MultipleCurrencyAmount visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final MulticurveProviderInterface multicurves) {
-    return METHOD_STIR_FUTURE.presentValue(future, multicurves);
+    return METHOD_FUT.presentValue(future, multicurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction future, final MulticurveProviderInterface multicurves) {
+    return METHOD_FUT.presentValue(future, multicurves);
   }
 
   // -----     Forex     ------
