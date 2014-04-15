@@ -6,7 +6,6 @@
 package com.opengamma.web.analytics.rest;
 
 import java.net.URI;
-import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,7 +22,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -44,6 +42,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.util.rest.RestUtils;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.AnalyticsView;
@@ -89,8 +88,7 @@ public class WebUiResource {
   }
 
   @POST
-  public Response createView(@Context SecurityContext securityContext,
-                             @Context UriInfo uriInfo,
+  public Response createView(@Context UriInfo uriInfo,
                              @Context HttpServletRequest httpRequest,
                              @FormParam("requestId") String requestId,
                              @FormParam("viewDefinitionId") String viewDefinitionId,
@@ -122,8 +120,8 @@ public class WebUiResource {
         .path(viewId)
         .path("primitives")
         .build();
-    Principal userPrincipal = securityContext.getUserPrincipal();
-    String userName = userPrincipal != null ? userPrincipal.getName() : null;
+    
+    String userName = (AuthUtils.isPermissive() ? null : AuthUtils.getUserName());
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     ImmutableMap<String, Object> callbackMap =
