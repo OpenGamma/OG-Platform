@@ -65,7 +65,7 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
   private static final double TRADE_PRICE = 0.999;
   private static final InterestRateFutureTransactionDefinition ERZ4_TRA_DEFINITION =
       new InterestRateFutureTransactionDefinition(ERZ4_SEC_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
-  private static final double LAST_MARGIN_PRICE = 0.99735; // Closing on (2014, 2, 17)
+  private static final double LAST_MARGIN_PRICE = 0.9973; // Closing on (2014, 2, 18); Using the last fixing before or on valuation date.
   private static final InterestRateFutureTransaction ERZ4_TRA = ERZ4_TRA_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_PRICE);
   /** Calculators */
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -83,10 +83,9 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
    * Test present value with a standard set of data against hard-coded values.
    */
   public void presentValue() {
-    // Present Value
     final MultipleCurrencyAmount pvComputed = ERZ4_TRA.accept(PVDC, MULTICURVE);
     assertTrue("STIRFuturesTransactionDiscountingMethod: present value from standard curves", pvComputed.size() == 1);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.EUR, 1299.732828);
+    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.EUR, -262.767172);
     assertEquals("STIRFuturesTransactionDiscountingMethod: present value from standard curves", pvExpected.getAmount(EUR), pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -95,7 +94,6 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
    * Tests bucketed PV01 with a standard set of data against hard-coded values.
    */
   public void BucketedPV01() {
-    // Delta
     final double[] deltaDsc = {0.0003, 0.0003, 0.0000, 0.0000, 1.7334, 3.0714, 4.6402, -18.8887, -0.9835, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
     final double[] deltaFwd = {-2398.5241, -2479.7772, -2479.1440, 9422.5946, 912.6277, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
