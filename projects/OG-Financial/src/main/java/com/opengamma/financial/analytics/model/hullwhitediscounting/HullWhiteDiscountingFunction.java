@@ -40,11 +40,13 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CashFlowSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FederalFundsFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
@@ -116,7 +118,9 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
         .cashFlowSecurityVisitor(cashFlowConverter).deliverableSwapFutureSecurityVisitor(dsfConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .fxForwardVisitor(fxForwardSecurityConverter).nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).swaptionVisitor(swaptionConverter).create();
     final FutureTradeConverter futureTradeConverter = new FutureTradeConverter();
-    return new DefaultTradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, null, null, securityConverter);
+    final InterestRateFutureTradeConverter irFutureTradeConveter = new InterestRateFutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
+    final DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter = new DeliverableSwapFutureTradeConverter(securitySource, swapConverter);
+    return new DefaultTradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, irFutureTradeConveter, deliverableSwapFutureTradeConverter, securityConverter);
   }
 
   /**
