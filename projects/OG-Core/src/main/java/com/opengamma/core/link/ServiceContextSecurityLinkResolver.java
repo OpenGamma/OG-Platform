@@ -1,10 +1,10 @@
-package com.opengamma.core.link;
-
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
+package com.opengamma.core.link;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -21,10 +21,16 @@ import com.opengamma.service.VersionCorrectionProvider;
 /* package */ final class ServiceContextSecurityLinkResolver<S extends Security>
     extends SourceLinkResolver<S, ExternalIdBundle, SecuritySource> {
 
+  /**
+   * Creates the resolver using the default service context.
+   */
   /* package */ ServiceContextSecurityLinkResolver() {
     super();
   }
 
+  /**
+   * Creates the resolver using the supplied service context.
+   */
    /* package */ ServiceContextSecurityLinkResolver(ServiceContext serviceContext) {
     super(serviceContext);
   }
@@ -40,13 +46,11 @@ import com.opengamma.service.VersionCorrectionProvider;
   }
 
   @Override
-  public LinkResolver<S, ExternalIdBundle> withTargetType(Class<S> targetType) {
-    return null;
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
-  protected S executeQuery(SecuritySource source, ExternalIdBundle identifier, VersionCorrection versionCorrection) {
+  protected S executeQuery(SecuritySource source,
+                           Class<S> type,
+                           ExternalIdBundle identifier,
+                           VersionCorrection versionCorrection) {
     final S result = (S) source.getSingle(identifier, versionCorrection);
     if (result != null) {
       return result;

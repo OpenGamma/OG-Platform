@@ -37,8 +37,8 @@ public abstract class ConventionLink<T extends Convention> implements Link<T> {
    * @param bundle the external id bundle to be resolved into the target object, not null
    * @return a convention link
    */
-  public static <C extends Convention> ConventionLink<C> of(ExternalIdBundle bundle) {
-    return new ResolvableConventionLink<>(bundle, new ServiceContextConventionLinkResolver<C>());
+  public static <C extends Convention> ConventionLink<C> of(Class<C> type, ExternalIdBundle bundle) {
+    return new ResolvableConventionLink<>(type, bundle, new ServiceContextConventionLinkResolver<C>());
   }
   
   /**
@@ -48,17 +48,17 @@ public abstract class ConventionLink<T extends Convention> implements Link<T> {
    * into the target object.  Try to use the bundle version of this call bundles
    * where possible rather than a single externalId.
    *
-   * @param <C> the type of the object being linked to
+   * @param type the type of object being linked to
    * @param externalId the external id to be resolved into the target object, not null
-   * @return a convention link  
+   * @return a convention link
    */
-  public static <C extends Convention> ConventionLink<C> of(ExternalId externalId) {
-    return of(externalId.toBundle());
+  public static <C extends Convention> ConventionLink<C> of(Class<C> type, ExternalId externalId) {
+    return of(type, externalId.toBundle());
   }
   
   /**
-   * Creates a link that embeds the provided object directly.  This should only
-   * be used for testing as it will not update if the underlying object is updated
+   * Creates a link that embeds the provided object directly. This should be used
+   * with cautionas it will not update if the underlying object is updated
    * via another data source or by a change in the VersionCorrection environment.
    *
    * @param <C> the type of the underlying Convention the link refers to
@@ -76,13 +76,15 @@ public abstract class ConventionLink<T extends Convention> implements Link<T> {
    * the current VersionCorrection threadlocal environment.
    *
    * @param <C> the type of the underlying Convention the link refers to
+   * @param type the type of object being linked to
    * @param bundle the external id bundle to use as the link reference, not null
    * @param serviceContext a service context containing the ConventionSource and
    * VersionCorrectionProvider necessary to resolve, not null
    * @return the convention link
    */
-  public static <C extends Convention> ConventionLink<C> of(ExternalIdBundle bundle, ServiceContext serviceContext) {
-    return new ResolvableConventionLink<>(bundle, new ServiceContextConventionLinkResolver<C>(serviceContext));
+  public static <C extends Convention> ConventionLink<C> of(Class<C> type, ExternalIdBundle bundle,
+                                                            ServiceContext serviceContext) {
+    return new ResolvableConventionLink<>(type, bundle, new ServiceContextConventionLinkResolver<C>(serviceContext));
   }
   
   /**
@@ -93,12 +95,14 @@ public abstract class ConventionLink<T extends Convention> implements Link<T> {
    * alternatively created from bundles where possible.
    *
    * @param <C> the type of the underlying Convention the link refers to
+   * @param type the type of object being linked to
    * @param externalId a single ExternalId to use as the link reference, not null
    * @param serviceContext a service context containing the ConvenetionSource and
    * VersionCorrectionProvider necessary to resolve, not null
    * @return the convention link
    */
-  public static <C extends Convention> ConventionLink<C> of(ExternalId externalId, ServiceContext serviceContext) {
-    return of(externalId.toBundle(), serviceContext);
+  public static <C extends Convention> ConventionLink<C> of(Class<C> type, ExternalId externalId,
+                                                            ServiceContext serviceContext) {
+    return of(type, externalId.toBundle(), serviceContext);
   }
 }

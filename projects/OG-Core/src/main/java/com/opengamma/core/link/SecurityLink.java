@@ -9,7 +9,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.service.ServiceContext;
-import com.sun.javaws.OperaPreferences;
 
 /**
  * Represents a link to a Security object using an ExternalId or ExternalIdBundle
@@ -31,8 +30,8 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * @param bundle the external id bundle to be resolved into the target object, not null
    * @return a security link
    */
-  public static <S extends Security> SecurityLink<S> of(ExternalIdBundle bundle) {
-    return of(bundle, null);
+  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalIdBundle bundle) {
+    return new ResolvableSecurityLink<>(type, bundle, new ServiceContextSecurityLinkResolver<S>());
   }
 
   /**
@@ -46,8 +45,8 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * @param externalId the external id to be resolved into the target object, not null
    * @return a security link
    */
-  public static <S extends Security> SecurityLink<S> of(ExternalId externalId) {
-    return of(externalId.toBundle());
+  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalId externalId) {
+    return of(type, externalId.toBundle());
   }
 
   /**
@@ -62,8 +61,9 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * VersionCorrectionProvider necessary to resolve, not null
    * @return the security link
    */
-  public static <S extends Security> SecurityLink<S> of(ExternalIdBundle bundle, final ServiceContext serviceContext) {
-    return new ResolvableSecurityLink<>(bundle, new ServiceContextSecurityLinkResolver<S>(serviceContext));
+  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalIdBundle bundle,
+                                                        ServiceContext serviceContext) {
+    return new ResolvableSecurityLink<>(type, bundle, new ServiceContextSecurityLinkResolver<S>(serviceContext));
   }
 
   /**
@@ -79,8 +79,8 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * resolve, not null
    * @return the security link
    */
-  public static <S extends Security> SecurityLink<S> of(ExternalId externalId, ServiceContext serviceContext) {
-    return of(externalId.toBundle(), serviceContext);
+  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalId externalId, ServiceContext serviceContext) {
+    return of(type, externalId.toBundle(), serviceContext);
   }
 
   /**

@@ -18,45 +18,33 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * Private link resolver to resolve links using a ServiceContext.
+ * Link resolver to resolve config links using a ServiceContext.
  *
  * @param <T> the type of config object to be resolved
  */
 /* package */ final class ServiceContextConfigLinkResolver<T> extends SourceLinkResolver<T, String, ConfigSource> {
-
-  private final Class<T> _type;
 
   /**
    * Logger for the class.
    */
   private static final Logger s_logger = LoggerFactory.getLogger(ServiceContextConfigLinkResolver.class);
 
-  public ServiceContextConfigLinkResolver() {
+  /**
+   * Creates the resolver using the default service context.
+   */
+  /* package */ ServiceContextConfigLinkResolver() {
     super();
-    _type = null;
   }
 
-  public ServiceContextConfigLinkResolver(Class<T> type) {
-    super();
-    _type = ArgumentChecker.notNull(type, "type");
-  }
-
-  public ServiceContextConfigLinkResolver(ServiceContext serviceContext) {
+  /**
+   * Creates the resolver using the supplied service context.
+   *
+   * @param serviceContext the service context to use when resolving the link
+   */
+  /* package */ ServiceContextConfigLinkResolver(ServiceContext serviceContext) {
     super(serviceContext);
-    _type = null;
-  }
-
-  public ServiceContextConfigLinkResolver(ServiceContext serviceContext, Class<T> type) {
-    super(serviceContext);
-    _type = ArgumentChecker.notNull(type, "type");
-  }
-
-  @Override
-  public LinkResolver<T, String> withTargetType(Class<T> targetType) {
-    return new ServiceContextConfigLinkResolver<>(getServiceContext(), targetType);
   }
 
   @Override
@@ -70,23 +58,19 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  protected T executeQuery(ConfigSource configSource, String name, VersionCorrection versionCorrection) {
-
-    if (_type == null) {
-      throw new IllegalStateException("Unable to perform resolution without a target type");
-    }
+  protected T executeQuery(ConfigSource configSource, Class<T> type,  String name, VersionCorrection versionCorrection) {
 
     // The database stores config items with exact type, but we may want to search
     // with a more general type. We therefore may need to try the search twice.
-    final T result = findWithMatchingType(configSource, _type, name, versionCorrection);
+    final T result = findWithMatchingType(configSource, type, name, versionCorrection);
     return result != null ?
         result :
-        findWithGeneralType(configSource, _type, name, versionCorrection);
+        findWithGeneralType(configSource, type, name, versionCorrection);
   }
 
   private T findWithMatchingType(ConfigSource configSource, Class<T> type,
                                  String identifier, VersionCorrection versionCorrection) {
-    return selectResult(identifier, configSource.get(type, identifier, versionCorrection));
+    return selectResult(type, identifier, configSource.get(type, identifier, versionCorrection));
   }
 
   @SuppressWarnings("unchecked")
@@ -103,7 +87,7 @@ import com.opengamma.util.ArgumentChecker;
         }
     );
 
-    final T result = (T) selectResult(identifier, results);
+    final T result = (T) selectResult(type, identifier, results);
     if (result != null) {
       return result;
     } else {
@@ -112,16 +96,16 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  private <R> R selectResult(String identifier, Iterable<ConfigItem<R>> results) {
+  private <R> R selectResult(Class<T> type, String identifier, Iterable<ConfigItem<R>> results) {
     final Iterator<ConfigItem<R>> iterator = results.iterator();
-    return iterator.hasNext() ? selectFirst(identifier, iterator) : null;
+    return iterator.hasNext() ? selectFirst(type, identifier, iterator) : null;
   }
 
-  private <R> R selectFirst(String identifier, Iterator<ConfigItem<R>> iterator) {
+  private <R> R selectFirst(Class<T> type, String identifier, Iterator<ConfigItem<R>> iterator) {
     R result = iterator.next().getValue();
     if (iterator.hasNext()) {
       s_logger.warn("Found multiple matching config results for type: {} and name: {} - returning first found",
-                    _type.getName(), identifier);
+                    type.getName(), identifier);
     }
     return result;
   }

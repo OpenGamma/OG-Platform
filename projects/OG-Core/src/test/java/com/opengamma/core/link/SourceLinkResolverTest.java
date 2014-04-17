@@ -33,7 +33,11 @@ public class SourceLinkResolverTest {
   public void noThreadLocalContextGivesError() {
 
     SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver();
-    resolver.resolve("id");
+    resolver.resolve(createIdentifier("id"));
+  }
+
+  private LinkIdentifier<Object, String> createIdentifier(String id) {
+    return LinkIdentifier.of(Object.class, id);
   }
 
   public void threadLocalContextGetsUsed() {
@@ -43,7 +47,7 @@ public class SourceLinkResolverTest {
     ThreadLocalServiceContext.init(serviceContext);
     SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver();
 
-    resolver.resolve("id");
+    resolver.resolve(createIdentifier("id"));
   }
 
   private ServiceContext createContext(Class<?>... services) {
@@ -61,7 +65,7 @@ public class SourceLinkResolverTest {
     ServiceContext serviceContext = createContext(ConfigSource.class);
     SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
 
-    resolver.resolve("id");
+    resolver.resolve(createIdentifier("id"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -70,7 +74,7 @@ public class SourceLinkResolverTest {
     ServiceContext serviceContext = createContext(VersionCorrectionProvider.class);
     SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
 
-    resolver.resolve("id");
+    resolver.resolve(createIdentifier("id"));
   }
 
   private SourceLinkResolver<Object, String, ConfigSource> createSourceLinkResolver() {
@@ -86,13 +90,8 @@ public class SourceLinkResolverTest {
         }
 
         @Override
-        protected Object executeQuery(ConfigSource source, String identifier, VersionCorrection versionCorrection) {
+        protected Object executeQuery(ConfigSource source, Class<Object> type, String identifier, VersionCorrection versionCorrection) {
           return source.getLatestByName(Object.class, identifier);
-        }
-
-        @Override
-        public LinkResolver<Object, String> withTargetType(Class<Object> targetType) {
-          return this;
         }
     };
   }
@@ -110,13 +109,8 @@ public class SourceLinkResolverTest {
         }
 
         @Override
-        protected Object executeQuery(ConfigSource source, String identifier, VersionCorrection versionCorrection) {
+        protected Object executeQuery(ConfigSource source, Class<Object> type, String identifier, VersionCorrection versionCorrection) {
           return source.getLatestByName(Object.class, identifier);
-        }
-
-        @Override
-        public LinkResolver<Object, String> withTargetType(Class<Object> targetType) {
-          return this;
         }
     };
   }

@@ -13,26 +13,27 @@ import com.opengamma.service.ServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 
 /**
- * Private link resolver to resolve links using a ServiceContext.
+ * Link resolver to resolve links using a ServiceContext.
  *
  * @param <C> the type of convention object to be resolved
  */
 /* package */ final class ServiceContextConventionLinkResolver<C extends Convention>
     extends SourceLinkResolver<C, ExternalIdBundle, ConventionSource> {
 
-  // Private constructor as only for use by enclosing class
-  ServiceContextConventionLinkResolver() {
-    super(null);
+  /**
+   * Creates the resolver using the default service context.
+   */
+   /* package */ ServiceContextConventionLinkResolver() {
+    super();
   }
 
-  // Private constructor as only for use by enclosing class
-  ServiceContextConventionLinkResolver(ServiceContext serviceContext) {
+  /**
+   * Creates the resolver using the supplied service context.
+   *
+   * @param serviceContext the service context to use when resolving the link
+   */
+  /* package */ServiceContextConventionLinkResolver(ServiceContext serviceContext) {
     super(serviceContext);
-  }
-
-  @Override
-  public LinkResolver<C, ExternalIdBundle> withTargetType(Class<C> targetType) {
-    return this;
   }
 
   @Override
@@ -47,7 +48,8 @@ import com.opengamma.service.VersionCorrectionProvider;
 
   @Override
   @SuppressWarnings("unchecked")
-  protected C executeQuery(ConventionSource source, ExternalIdBundle identifier, VersionCorrection versionCorrection) {
+  protected C executeQuery(ConventionSource source, Class<C> type, ExternalIdBundle identifier,
+                           VersionCorrection versionCorrection) {
     // ConfigSource already throws DataNotFoundException when there is no data
     return (C) source.getSingle(identifier, versionCorrection);
   }

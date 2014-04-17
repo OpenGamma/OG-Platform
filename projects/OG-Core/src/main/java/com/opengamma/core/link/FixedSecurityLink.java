@@ -22,7 +22,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.convention.Convention;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -33,9 +32,17 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class FixedSecurityLink<S extends Security> extends SecurityLink<S> implements ImmutableBean {
 
+  /**
+   * The security instance.
+   */
   @PropertyDefinition(validate = "notNull")
   private final S _security;
 
+  /**
+   * Create the link, embedding the provided object.
+   *
+   * @param security the security object to be embedded
+   */
   @ImmutableConstructor
   /* package */ FixedSecurityLink(S security) {
     _security = ArgumentChecker.notNull(security, "security");
@@ -44,6 +51,12 @@ public final class FixedSecurityLink<S extends Security> extends SecurityLink<S>
   @Override
   public S resolve() {
     return _security;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Class<S> getTargetType() {
+    return (Class<S>) _security.getClass();
   }
 
   /**
@@ -113,7 +126,7 @@ public final class FixedSecurityLink<S extends Security> extends SecurityLink<S>
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security.
+   * Gets the security instance.
    * @return the value of the property, not null
    */
   public S getSecurity() {
