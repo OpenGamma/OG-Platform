@@ -8,6 +8,7 @@ package com.opengamma.component.factory.test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -126,59 +127,6 @@ public class TestsComponentFactory extends AbstractComponentFactory {
     return TestsComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1339404737:  // enableSecurities
-        return isEnableSecurities();
-      case -1983160084:  // enableSnapshots
-        return isEnableSnapshots();
-      case 1436798414:  // enableYieldCurves
-        return isEnableYieldCurves();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1339404737:  // enableSecurities
-        setEnableSecurities((Boolean) newValue);
-        return;
-      case -1983160084:  // enableSnapshots
-        setEnableSnapshots((Boolean) newValue);
-        return;
-      case 1436798414:  // enableYieldCurves
-        setEnableYieldCurves((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      TestsComponentFactory other = (TestsComponentFactory) obj;
-      return JodaBeanUtils.equal(isEnableSecurities(), other.isEnableSecurities()) &&
-          JodaBeanUtils.equal(isEnableSnapshots(), other.isEnableSnapshots()) &&
-          JodaBeanUtils.equal(isEnableYieldCurves(), other.isEnableYieldCurves()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSecurities());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSnapshots());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableYieldCurves());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the enableSecurities.
@@ -252,6 +200,57 @@ public class TestsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<Boolean> enableYieldCurves() {
     return metaBean().enableYieldCurves().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public TestsComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      TestsComponentFactory other = (TestsComponentFactory) obj;
+      return (isEnableSecurities() == other.isEnableSecurities()) &&
+          (isEnableSnapshots() == other.isEnableSnapshots()) &&
+          (isEnableYieldCurves() == other.isEnableYieldCurves()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSecurities());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSnapshots());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableYieldCurves());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("TestsComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("enableSecurities").append('=').append(JodaBeanUtils.toString(isEnableSecurities())).append(',').append(' ');
+    buf.append("enableSnapshots").append('=').append(JodaBeanUtils.toString(isEnableSnapshots())).append(',').append(' ');
+    buf.append("enableYieldCurves").append('=').append(JodaBeanUtils.toString(isEnableYieldCurves())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -345,6 +344,36 @@ public class TestsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Boolean> enableYieldCurves() {
       return _enableYieldCurves;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1339404737:  // enableSecurities
+          return ((TestsComponentFactory) bean).isEnableSecurities();
+        case -1983160084:  // enableSnapshots
+          return ((TestsComponentFactory) bean).isEnableSnapshots();
+        case 1436798414:  // enableYieldCurves
+          return ((TestsComponentFactory) bean).isEnableYieldCurves();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1339404737:  // enableSecurities
+          ((TestsComponentFactory) bean).setEnableSecurities((Boolean) newValue);
+          return;
+        case -1983160084:  // enableSnapshots
+          ((TestsComponentFactory) bean).setEnableSnapshots((Boolean) newValue);
+          return;
+        case 1436798414:  // enableYieldCurves
+          ((TestsComponentFactory) bean).setEnableYieldCurves((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

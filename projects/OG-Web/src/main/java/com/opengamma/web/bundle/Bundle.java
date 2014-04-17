@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -119,59 +120,6 @@ public class Bundle extends DirectBean implements BundleNode {
     return Bundle.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 3575610:  // type
-        return getType();
-      case 1339293429:  // childNodes
-        return getChildNodes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((String) newValue);
-        return;
-      case 3575610:  // type
-        setType((BundleType) newValue);
-        return;
-      case 1339293429:  // childNodes
-        setChildNodes((List<BundleNode>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      Bundle other = (Bundle) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getChildNodes(), other.getChildNodes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the ID for the bundle.
@@ -225,7 +173,7 @@ public class Bundle extends DirectBean implements BundleNode {
   //-----------------------------------------------------------------------
   /**
    * Gets the ordered list of nodes, consisting of bundles and fragments.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<BundleNode> getChildNodes() {
     return _childNodes;
@@ -233,9 +181,10 @@ public class Bundle extends DirectBean implements BundleNode {
 
   /**
    * Sets the ordered list of nodes, consisting of bundles and fragments.
-   * @param childNodes  the new value of the property
+   * @param childNodes  the new value of the property, not null
    */
   public void setChildNodes(List<BundleNode> childNodes) {
+    JodaBeanUtils.notNull(childNodes, "childNodes");
     this._childNodes.clear();
     this._childNodes.addAll(childNodes);
   }
@@ -246,6 +195,54 @@ public class Bundle extends DirectBean implements BundleNode {
    */
   public final Property<List<BundleNode>> childNodes() {
     return metaBean().childNodes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public Bundle clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      Bundle other = (Bundle) obj;
+      return JodaBeanUtils.equal(getId(), other.getId()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getChildNodes(), other.getChildNodes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("Bundle{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("childNodes").append('=').append(JodaBeanUtils.toString(getChildNodes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -340,6 +337,42 @@ public class Bundle extends DirectBean implements BundleNode {
      */
     public final MetaProperty<List<BundleNode>> childNodes() {
       return _childNodes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((Bundle) bean).getId();
+        case 3575610:  // type
+          return ((Bundle) bean).getType();
+        case 1339293429:  // childNodes
+          return ((Bundle) bean).getChildNodes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((Bundle) bean).setId((String) newValue);
+          return;
+        case 3575610:  // type
+          ((Bundle) bean).setType((BundleType) newValue);
+          return;
+        case 1339293429:  // childNodes
+          ((Bundle) bean).setChildNodes((List<BundleNode>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((Bundle) bean)._childNodes, "childNodes");
     }
 
   }

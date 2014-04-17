@@ -36,7 +36,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A computation target resolver implementation that caches another implementation.
@@ -182,7 +182,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         }
       }
     }
-    final Object key = isDeep ? Pair.of(uid, versionCorrection) : uid;
+    final Object key = isDeep ? Pairs.of(uid, versionCorrection) : uid;
     final Element e = _computationTarget.get(key);
     if (e != null) {
       target = (UniqueIdentifiable) e.getObjectValue();
@@ -327,7 +327,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     for (final UniqueIdentifiable target : targets) {
       final UniqueId uid = target.getUniqueId();
       if (_frontObjectCacheDeep.putIfAbsent(versionCorrection, uid, target) == null) {
-        addToCacheImpl(Pair.of(uid, versionCorrection), target);
+        addToCacheImpl(Pairs.of(uid, versionCorrection), target);
       }
     }
   }

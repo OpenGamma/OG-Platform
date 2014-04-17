@@ -48,6 +48,7 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 @Test(groups = TestGroup.UNIT)
 public class ViewClientTest {
@@ -64,65 +65,61 @@ public class ViewClientTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testListenerNotifications() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
-    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 0);
-    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 0);
-    env.setMarketDataProvider(marketDataProvider);
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      final SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+      marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 0);
+      marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 0);
+      env.setMarketDataProvider(marketDataProvider);
 
-    env.setViewResultListenerFactory(viewResultListenerFactoryStub);
-    env.init();
+      env.setViewResultListenerFactory(viewResultListenerFactoryStub);
+      env.init();
 
-    final ViewProcessorImpl vp = env.getViewProcessor();
+      final ViewProcessorImpl vp = env.getViewProcessor();
 
-    vp.start();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setFragmentResultMode(ViewResultMode.FULL_ONLY);
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      client.setFragmentResultMode(ViewResultMode.FULL_ONLY);
 
-    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
-    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
+      marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
+      marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
 
-    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(null, MarketData.live(), null);
+      final ViewExecutionOptions executionOptions = ExecutionOptions.batch(null, MarketData.live(), null);
 
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
-    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
-    client.waitForCompletion();
-    //
-    final ArgumentCaptor<ViewCycleMetadata> argument = ArgumentCaptor.forClass(ViewCycleMetadata.class);
-    verify(viewResultListenerMock).cycleStarted(argument.capture());
+      final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+      assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
+      client.waitForCompletion();
+      //
+      final ArgumentCaptor<ViewCycleMetadata> argument = ArgumentCaptor.forClass(ViewCycleMetadata.class);
+      verify(viewResultListenerMock).cycleStarted(argument.capture());
 
-    assertEquals("boo~far", argument.getValue().getViewDefinitionId().toString());
-    assertEquals(1, argument.getValue().getAllCalculationConfigurationNames().size());
-    assertEquals("Test Calc Config", functional(argument.getValue().getAllCalculationConfigurationNames()).first());
+      assertEquals("boo~far", argument.getValue().getViewDefinitionId().toString());
+      assertEquals(1, argument.getValue().getAllCalculationConfigurationNames().size());
+      assertEquals("Test Calc Config", functional(argument.getValue().getAllCalculationConfigurationNames()).first());
 
-    final ArgumentCaptor<ViewComputationResultModel> fullFragment = ArgumentCaptor.forClass(ViewComputationResultModel.class);
-    final ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);
-    verify(viewResultListenerMock, times(2)).cycleFragmentCompleted(fullFragment.capture(), deltaFragment.capture());
+      final ArgumentCaptor<ViewComputationResultModel> fullFragment = ArgumentCaptor.forClass(ViewComputationResultModel.class);
+      final ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);
+      verify(viewResultListenerMock, times(2)).cycleFragmentCompleted(fullFragment.capture(), deltaFragment.capture());
 
-    ViewComputationResultModel resultModel = fullFragment.getAllValues().get(0);
-    assertEquals(UniqueId.of("ViewProcess", client.getUniqueId().getValue()), resultModel.getViewProcessId());
-    assertEquals(UniqueId.of("ViewCycle", client.getUniqueId().getValue(), "1"), resultModel.getViewCycleId());
+      ViewComputationResultModel resultModel = fullFragment.getAllValues().get(0);
+      assertEquals(UniqueId.of("ViewProcess", client.getUniqueId().getValue()), resultModel.getViewProcessId());
+      assertEquals(UniqueId.of("ViewCycle", client.getUniqueId().getValue(), "1"), resultModel.getViewCycleId());
 
-    assertEquals(
-        newHashSet(
-            new ComputedValueResult(
-                new ValueSpecification(
-                    "Value2",
-                    ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")),
-                    ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-                (byte) 2, AggregatedExecutionLog.EMPTY),
-            new ComputedValueResult(
-                new ValueSpecification(
-                    "Value1",
-                    ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")),
-                    ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-                (byte) 1, AggregatedExecutionLog.EMPTY)
-        ),
-        resultModel.getAllMarketData());
+      assertEquals(
+          newHashSet(
+              new ComputedValueResult(new ValueSpecification("Value2", ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")), ValueProperties.with("Function",
+                  newHashSet("MarketDataSourcingFunction")).get()), (byte) 2, AggregatedExecutionLog.EMPTY), new ComputedValueResult(new ValueSpecification("Value1",
+                  ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")), ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()), (byte) 1,
+                  AggregatedExecutionLog.EMPTY)), resultModel.getAllMarketData());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   /**

@@ -12,10 +12,11 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Describes a generic single currency bond issue.
@@ -38,7 +39,11 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
   /**
    * The bond issuer name.
    */
-  private final String _issuer;
+  private final String _issuerName;
+  /**
+   * The bond issuer.
+   */
+  private final LegalEntity _issuer;
   /**
    * The name of the curve used for settlement amount discounting.
    */
@@ -55,6 +60,20 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    */
   @Deprecated
   public BondSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final String discountingCurveName, final String issuer) {
+    this(nominal, coupon, settlementTime, discountingCurveName, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Bond constructor from the bond nominal and coupon.
+   * @param nominal The notional payments.
+   * @param coupon The bond coupons.
+   * @param settlementTime The time (in years) to settlement date.
+   * @param discountingCurveName The name of the curve used for settlement amount discounting.
+   * @param issuer The bond issuer name.
+   * @deprecated Use the constructor that does not take a curve name
+   */
+  @Deprecated
+  public BondSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final String discountingCurveName, final LegalEntity issuer) {
     ArgumentChecker.notNull(nominal, "Nominal");
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(discountingCurveName, "Repo curve name");
@@ -64,6 +83,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     _settlementTime = settlementTime;
     _discountingCurveName = discountingCurveName;
     _issuer = issuer;
+    _issuerName = issuer.getShortName();
   }
 
   /**
@@ -74,6 +94,17 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * @param issuer The bond issuer name.
    */
   public BondSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final String issuer) {
+    this(nominal, coupon, settlementTime, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Bond constructor from the bond nominal and coupon.
+   * @param nominal The notional payments.
+   * @param coupon The bond coupons.
+   * @param settlementTime The time (in years) to settlement date.
+   * @param issuer The bond issuer.
+   */
+  public BondSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final LegalEntity issuer) {
     ArgumentChecker.notNull(nominal, "Nominal");
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(issuer, "Issuer");
@@ -81,6 +112,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     _coupon = coupon;
     _settlementTime = settlementTime;
     _discountingCurveName = null;
+    _issuerName = issuer.getShortName();
     _issuer = issuer;
   }
 
@@ -134,15 +166,25 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * @return The issuer name.
    */
   public String getIssuer() {
+    return _issuerName;
+  }
+
+  /**
+   * Gets the issuer.
+   * @return The issuer
+   */
+  public LegalEntity getIssuerEntity() {
     return _issuer;
   }
 
   /**
    * Gets the bond issuer name and currency.
    * @return The name/currency.
+   * @deprecated This information is no longer used in the curve providers.
    */
+  @Deprecated
   public Pair<String, Currency> getIssuerCcy() {
-    return new ObjectsPair<>(_issuer, _nominal.getCurrency());
+    return Pairs.of(_issuerName, _nominal.getCurrency());
   }
 
   /**

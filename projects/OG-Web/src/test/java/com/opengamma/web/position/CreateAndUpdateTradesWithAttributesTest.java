@@ -63,7 +63,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   public void updateTradeWithAttributes() throws Exception {
     WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
     
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithAttributes.txt").toString());
+    Response response = positionResource.putJSON(QUANTITY.toString(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithAttributes.txt").toString(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     assertTradeWithAttributes(_positionID);
@@ -71,7 +72,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   
   @Test
   public void createTradeWithAttributes() throws Exception {
-    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithAttributes.txt").toString());
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithAttributes.txt").toString(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     String actualURL = getActualURL(response);
@@ -95,7 +97,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   public void updateTradeWithEmptyDealAttributes() throws Exception {
     WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
     
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyDealAttributes.txt").toString());
+    Response response = positionResource.putJSON(QUANTITY.toString(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyDealAttributes.txt").toString(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     assertTradeWithEmptyDealAttributes(_positionID);
@@ -103,7 +106,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
 
   @Test
   public void createTradeWithEmptyDealAttributes() throws Exception {
-    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyDealAttributes.txt").toString());
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyDealAttributes.txt").toString(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     String actualURL = getActualURL(response);
@@ -117,7 +121,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   public void updateTradeWithNoDealAttributes() throws Exception {
     WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
     
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoDealAttributes.txt").toString());
+    Response response = positionResource.putJSON(QUANTITY.toString(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoDealAttributes.txt").toString(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     assertTradeWithEmptyDealAttributes(_positionID);
@@ -125,7 +130,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   
   @Test
   public void createTradeWithNoDealAttributes() throws Exception {
-    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoDealAttributes.txt").toString());
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoDealAttributes.txt").toString(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     String actualURL = getActualURL(response);
@@ -148,7 +154,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   public void updateTradeWithEmptyUserAttributes() throws Exception {
     WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
     
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyUserAttributes.txt").toString());
+    Response response = positionResource.putJSON(QUANTITY.toString(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyUserAttributes.txt").toString(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     assertTradeWithEmptyUserAttributes(_positionID);
@@ -157,7 +164,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   
   @Test
   public void createTradeWithEmptyUserAttributes() throws Exception {
-    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyUserAttributes.txt").toString());
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyUserAttributes.txt").toString(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     String actualURL = getActualURL(response);
@@ -171,7 +179,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   public void updateTradeWithNoUserAttributes() throws Exception {
     WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
     
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoUserAttributes.txt").toString());
+    Response response = positionResource.putJSON(QUANTITY.toString(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoUserAttributes.txt").toString(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     assertTradeWithEmptyUserAttributes(_positionID);
@@ -179,7 +188,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   
   @Test
   public void createTradeWithNoUserAttributes() throws Exception {
-    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoUserAttributes.txt").toString());
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoUserAttributes.txt").toString(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     String actualURL = getActualURL(response);
@@ -213,7 +223,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   @Test
   public void updateTradeWithEmptyAttributes() throws Exception {
     WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyAttributes.txt").toString());
+    Response response = positionResource.putJSON(QUANTITY.toString(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyAttributes.txt").toString(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     
@@ -222,7 +233,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   
   @Test
   public void createTradeWithEmptyAttributes() throws Exception {
-    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyAttributes.txt").toString());
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyAttributes.txt").toString(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     String actualURL = getActualURL(response);
@@ -236,7 +248,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   @Test
   public void updateTradeWithNoAttributes() throws Exception {
     WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoAttributes.txt").toString());
+    Response response = positionResource.putJSON(QUANTITY.toString(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoAttributes.txt").toString(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     
@@ -245,7 +258,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   
   @Test
   public void createTradeWithNoAttributes() throws Exception {
-    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoAttributes.txt").toString());
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), 
+        WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoAttributes.txt").toString(), null, null, null);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
     String actualURL = getActualURL(response);

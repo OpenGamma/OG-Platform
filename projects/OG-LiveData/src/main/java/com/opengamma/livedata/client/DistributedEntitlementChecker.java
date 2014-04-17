@@ -20,7 +20,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
@@ -61,16 +60,10 @@ public class DistributedEntitlementChecker {
       Collection<LiveDataSpecification> specifications) {
     s_logger.info("Checking entitlements by {} to {}", user, specifications);
 
-    // The entitlement check completely and utterly screws up the market data
-    // server for Activ, wiping out valid resolved ids. As the result of the
-    // entitlement check is currently ignored, we'll just avoid doing it at all!
-    if (true) {
-      return ImmutableMap.of();
-    }
+    final Map<LiveDataSpecification, Boolean> returnValue = new HashMap<>();
 
-    final Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
-
-    if (specifications == null || specifications.size() == 0) {
+    // User null indicates that we are an internal client that doesn't need permissioning (e.g JMX)
+    if (specifications.isEmpty() || user == null) {
       // Nothing to check
       return returnValue;
     }

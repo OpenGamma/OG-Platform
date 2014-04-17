@@ -78,7 +78,7 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
 
   private static SwapFixedCompoundedONCompoundedDefinition from(final CouponONCompoundedDefinition onCoupon, final double notionalSigned, final double fixedRate, final Calendar calendar) {
     final CouponFixedAccruedCompoundingDefinition cpnFixed = new CouponFixedAccruedCompoundingDefinition(onCoupon.getCurrency(), onCoupon.getPaymentDate(), onCoupon.getAccrualStartDate(), onCoupon
-        .getAccrualEndDate(), onCoupon.getPaymentYearFraction(), notionalSigned, fixedRate);
+        .getAccrualEndDate(), onCoupon.getPaymentYearFraction(), notionalSigned, fixedRate, calendar);
     return new SwapFixedCompoundedONCompoundedDefinition(cpnFixed, onCoupon, calendar);
   }
 

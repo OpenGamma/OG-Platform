@@ -125,11 +125,11 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
     final double dfPayBar = deltaP / deltaF * omega * (dfForwardT0 / dfForwardT1 * n0 - (1.0 + deltaF * k) * n1) * cap.getNotional() * pvBar;
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(cap.getPaymentTime(), -cap.getPaymentTime() * dfPay * dfPayBar));
+    listDiscounting.add(DoublesPair.of(cap.getPaymentTime(), -cap.getPaymentTime() * dfPay * dfPayBar));
     result = result.plus(cap.getFundingCurveName(), listDiscounting);
     final List<DoublesPair> listForward = new ArrayList<>();
-    listForward.add(new DoublesPair(cap.getFixingPeriodStartTime(), -cap.getFixingPeriodStartTime() * dfForwardT0 * dfForwardT0Bar));
-    listForward.add(new DoublesPair(cap.getFixingPeriodEndTime(), -cap.getFixingPeriodEndTime() * dfForwardT1 * dfForwardT1Bar));
+    listForward.add(DoublesPair.of(cap.getFixingPeriodStartTime(), -cap.getFixingPeriodStartTime() * dfForwardT0 * dfForwardT0Bar));
+    listForward.add(DoublesPair.of(cap.getFixingPeriodEndTime(), -cap.getFixingPeriodEndTime() * dfForwardT1 * dfForwardT1Bar));
     result = result.plus(cap.getForwardCurveName(), listForward);
     return result;
   }

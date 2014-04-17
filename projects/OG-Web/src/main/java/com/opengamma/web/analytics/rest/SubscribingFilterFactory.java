@@ -9,6 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -52,6 +53,11 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   @Override
   public List<ResourceFilter> create(AbstractMethod abstractMethod) {
+    
+    if (!WebPushServletContextUtils.isConnectionManagerAvailable(_servletContext)) {
+      return Collections.emptyList();
+    }
+    
     List<ResourceFilter> filters = new ArrayList<ResourceFilter>();
     ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod);
     if (entityFilter != null) {

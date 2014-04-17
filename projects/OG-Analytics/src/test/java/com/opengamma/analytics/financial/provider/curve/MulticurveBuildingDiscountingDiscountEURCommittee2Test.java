@@ -72,6 +72,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -79,6 +80,7 @@ import com.opengamma.util.tuple.Pair;
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Two curves in EUR; no futures; EONIA curve with ECB metting dates.
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -365,7 +367,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, TARGET);
         final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
         final double accrualFactor = EONIA.getDayCount().getDayCountFraction(startDate, endDate);
-        rateDsc[loopdate] = multicurve.getForwardRate(EONIA, startTime[loopdate], endTime, accrualFactor); // EONIA curve
+        rateDsc[loopdate] = multicurve.getSimplyCompoundForwardRate(EONIA, startTime[loopdate], endTime, accrualFactor); // EONIA curve
         //        rateDsc[loopdate] = multicurve.getForwardRate(EURIBOR6M, startTime[loopdate], endTime, accrualFactor); // EURIBOR6M curve
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, TARGET);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
@@ -396,7 +398,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR6M, TARGET);
         final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
         final double accrualFactor = EURIBOR6M.getDayCount().getDayCountFraction(startDate, endDate);
-        rateDsc[loopdate] = multicurve.getForwardRate(EURIBOR6M, startTime[loopdate], endTime, accrualFactor);
+        rateDsc[loopdate] = multicurve.getSimplyCompoundForwardRate(EURIBOR6M, startTime[loopdate], endTime, accrualFactor);
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, TARGET);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
       }
@@ -420,7 +422,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
         final double[] rates = new double[nInstruments];
-        for(int k = 0; k < nInstruments; k++) {
+        for (int k = 0; k < nInstruments; k++) {
           derivatives[k] = convert(definitions[i][j][k], withToday);
           rates[k] = initialRateGuess(definitions[i][j][k]);
         }
@@ -499,7 +501,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
       return ((CashDefinition) instrument).getRate();
     }
     if (instrument instanceof InterestRateFutureTransactionDefinition) {
-      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTransactionPrice();
+      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTradePrice();
     }
     return 0.01;
   }

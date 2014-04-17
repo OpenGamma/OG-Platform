@@ -47,7 +47,7 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   public CurrencyAmount presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final double pv = presentValueFromPrice(future, METHOD_SECURITY.price(future.getUnderlying(), curves));
+    final double pv = presentValueFromPrice(future, METHOD_SECURITY.price(future.getUnderlyingSecurity(), curves));
     return CurrencyAmount.of(future.getCurrency(), pv);
   }
 
@@ -66,15 +66,16 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   public double parRate(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
-    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1)
-        / future.getFixingPeriodAccrualFactor();
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getUnderlyingSecurity().getForwardCurveName());
+    final double forward = (forwardCurve.getDiscountFactor(future.getUnderlyingSecurity().getFixingPeriodStartTime()) /
+        forwardCurve.getDiscountFactor(future.getUnderlyingSecurity().getFixingPeriodEndTime()) - 1)
+        / future.getUnderlyingSecurity().getFixingPeriodAccrualFactor();
     return forward;
   }
 
   @Override
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return presentValueCurveSensitivity(future, METHOD_SECURITY.priceCurveSensitivity(future.getUnderlying(), curves));
+    return presentValueCurveSensitivity(future, METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingSecurity(), curves));
   }
 
 }

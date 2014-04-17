@@ -7,6 +7,7 @@ package com.opengamma.master.holiday;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -60,45 +61,6 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
     return HolidayMetaDataRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 15120129:  // holidayTypes
-        return isHolidayTypes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 15120129:  // holidayTypes
-        setHolidayTypes((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HolidayMetaDataRequest other = (HolidayMetaDataRequest) obj;
-      return JodaBeanUtils.equal(isHolidayTypes(), other.isHolidayTypes()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isHolidayTypes());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets whether to fetch the holiday types meta-data, true by default.
@@ -122,6 +84,51 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
    */
   public final Property<Boolean> holidayTypes() {
     return metaBean().holidayTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HolidayMetaDataRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidayMetaDataRequest other = (HolidayMetaDataRequest) obj;
+      return (isHolidayTypes() == other.isHolidayTypes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isHolidayTypes());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("HolidayMetaDataRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("holidayTypes").append('=').append(JodaBeanUtils.toString(isHolidayTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -183,6 +190,26 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
      */
     public final MetaProperty<Boolean> holidayTypes() {
       return _holidayTypes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 15120129:  // holidayTypes
+          return ((HolidayMetaDataRequest) bean).isHolidayTypes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 15120129:  // holidayTypes
+          ((HolidayMetaDataRequest) bean).setHolidayTypes((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

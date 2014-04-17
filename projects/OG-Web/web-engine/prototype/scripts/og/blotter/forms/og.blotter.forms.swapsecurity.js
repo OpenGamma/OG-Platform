@@ -34,8 +34,8 @@ $.register_module({
                         data.security.receiveLeg.notional.type = 'InterestRateNotional';
                         data.security.name = util.create_name(data);
                         data.security.tradeDate = data.trade.tradeDate;
-                        data.security.exchangeInitialNotional = 'false';
-                        data.security.exchangeFinalNotional = 'false';
+                        data.security.exchangeInitialNotional = util.get_checkbox('security.exchangeInitialNotional');
+                        data.security.exchangeFinalNotional = util.get_checkbox('security.exchangeFinalNotional');
                         util.cleanup(data);
                     }
                 });
@@ -52,14 +52,14 @@ $.register_module({
                     }),
                     pay_select = new ui.Dropdown({
                         form: form, placeholder: 'Select Swap Type',
-                        data_generator: function (handler) {handler(util.swap_types);}
+                        data_generator: function (handler) {handler(util.swap_types); }
                     }),
-                    pay_block = new form.Block({content:"<div id='" + pay_index + "'></div>"}),
+                    pay_block = new form.Block({content: "<div id='" + pay_index + "'></div>"}),
                     receive_select = new ui.Dropdown({
                         form: form, placeholder: 'Select Swap Type',
-                        data_generator: function (handler) {handler(util.swap_types);}
+                        data_generator: function (handler) {handler(util.swap_types); }
                     }),
-                    receive_block = new form.Block({content:"<div id='" + receive_index + "'></div>"}),
+                    receive_block = new form.Block({content: "<div id='" + receive_index + "'></div>"}),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })
@@ -71,18 +71,20 @@ $.register_module({
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
-                    if(typeof data.security.payLeg != 'undefined') {
+                    util.check_checkbox('security.exchangeInitialNotional', data.security.exchangeInitialNotional);
+                    util.check_checkbox('security.exchangeFinalNotional', data.security.exchangeFinalNotional);
+                    if (typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
                             pay_edit: true});
                         $pay_select.val(data.security.payLeg.type);
                     }
-                    if(typeof data.security.receiveLeg != 'undefined'){
-                        swap_leg({type: data.security.receiveLeg.type, index: receive_index,leg: receive_leg,
+                    if (typeof data.security.receiveLeg != 'undefined') {
+                        swap_leg({type: data.security.receiveLeg.type, index: receive_index, leg: receive_leg,
                             child: 6, receive_edit: true});
                         $receive_select.val(data.security.receiveLeg.type);
                     }
                 });
-                form.on('form:submit', function (result){
+                form.on('form:submit', function (result) {
                     $.when(config.handler(result.data)).then(validate);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
@@ -94,8 +96,9 @@ $.register_module({
             };
             swap_leg = function (swap) {
                 var new_block;
-                if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
-                else if(!~swap.type.indexOf('Floating')){
+                if (!swap.type.length) {
+                    new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});
+                } else if (!~swap.type.indexOf('Floating')) {
                     new_block = new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: swap.leg,
                         index: swap.index});
                 } else {
@@ -104,11 +107,10 @@ $.register_module({
                 }
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
-                    if(swap.receive_edit) {
+                    if (swap.receive_edit) {
                         util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
                         util.set_select(receive_leg + "notional.currency", data.security.receiveLeg.notional.currency);
-                    }
-                    else if(swap.pay_edit) {
+                    } else if (swap.pay_edit) {
                         util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
                         util.set_select(pay_leg + "notional.currency", data.security.payLeg.notional.currency);
                     }

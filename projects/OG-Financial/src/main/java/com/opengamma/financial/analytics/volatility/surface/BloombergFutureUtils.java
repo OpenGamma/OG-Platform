@@ -18,10 +18,10 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
-import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
-import com.opengamma.financial.convention.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
-import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
-import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.SoybeanFutureExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.util.OpenGammaClock;
 
 /**

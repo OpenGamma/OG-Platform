@@ -62,11 +62,11 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       private String _curveConfiguration;
       private String _surfaceName;
       private String _smileFittingMethod = SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES;
-   
+
       public String getCurveName() {
         return _curveName;
       }
-      
+
       public void setCurveName(final String curveName) {
         _curveName = curveName;
       }
@@ -136,8 +136,8 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     // TODO Needs improvement: defaultNumberOfDaysForward should not be hardcoded here
     protected void addIRFutureOptionBlackThetaDefaults(final List<FunctionConfiguration> functions) {
 
-      int defaultNumberOfDaysForward = 1;       // TODO !!! Hardcode
-      
+      final int defaultNumberOfDaysForward = 1;       // TODO !!! Hardcode
+
       final String[] daysPlusBlackArgs = new String[getPerCurrencyInfo().size() * 3 + 1];
       int i = 0;
       daysPlusBlackArgs[i++] = Integer.toString(defaultNumberOfDaysForward);
@@ -148,12 +148,12 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       }
       functions.add(functionConfiguration(InterestRateFutureOptionBlackThetaDefaults.class, daysPlusBlackArgs));
     }
-    
+
     // TODO Default is hardcoded here. Where should this be done?
     protected void addIRFutureOptionBlackPositionDeltaGammaScaleDefaults(final List<FunctionConfiguration> functions) {
 
-      double defaultScaleFactor = 0.0001; // scale to basis point moves in underlying 
-      
+      final double defaultScaleFactor = 0.0001; // scale to basis point moves in underlying
+
       final String[] scalePlusBlackArgs = new String[getPerCurrencyInfo().size() * 3 + 1];
       int i = 0;
       scalePlusBlackArgs[i++] = Double.toString(defaultScaleFactor);
@@ -164,12 +164,12 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       }
       functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaGammaScaleDefaults.class, scalePlusBlackArgs));
     }
-    
+
     protected void addIRFutureOptionBlackCurveSpecificDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[getPerCurrencyInfo().size() * 4];
       int i = 0;
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
-        args[i++] = e.getKey();        
+        args[i++] = e.getKey();
         args[i++] = e.getValue().getCurveName();
         args[i++] = e.getValue().getCurveConfiguration();
         args[i++] = e.getValue().getSurfaceName();
@@ -225,6 +225,8 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackDeltaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackVegaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackThetaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionGammaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionVegaFunction.class));
@@ -233,6 +235,8 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateFutureOptionBlackForwardFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueGammaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackValueGammaPFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackValueThetaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackScenarioPnLFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));

@@ -32,7 +32,9 @@ public class ViewCycleExecutionOptions {
    * Helper for constructing {@link ViewCycleExecutionOptions} instances.
    */
   public static class Builder {
-
+    
+    private String _name;
+    
     private Instant _valuationTime;
 
     private List<MarketDataSpecification> _marketDataSpecifications;
@@ -50,6 +52,7 @@ public class ViewCycleExecutionOptions {
     }
 
     public Builder(final ViewCycleExecutionOptions copyFrom) {
+      _name = copyFrom.getName();
       _valuationTime = copyFrom.getValuationTime();
       _marketDataSpecifications = copyFrom.getMarketDataSpecifications();
       _marketDataSelector = copyFrom.getMarketDataSelector();
@@ -57,6 +60,17 @@ public class ViewCycleExecutionOptions {
       _functionParameters = copyFrom.getFunctionParameters();
     }
 
+    /**
+     * Sets the name of the view cycle
+     * 
+     * @param name name of the view cycle
+     * @return this instance
+     */
+    public Builder setName(final String name) {
+      _name = name;
+      return this;
+    }
+    
     /**
      * Sets the valuation time for the view cycle. If set to null then a time implied by the data source will be used - if no time is implied the view process' clock will be used.
      * 
@@ -116,6 +130,14 @@ public class ViewCycleExecutionOptions {
       return this;
     }
 
+    /**
+     * Returns the name of the view cycle
+     * @return name of the view cycle
+     */
+    public String getName() {
+      return _name;
+    }
+    
     /**
      * Returns the market data specifications for the view cycle.
      * 
@@ -186,6 +208,8 @@ public class ViewCycleExecutionOptions {
     }
   }
 
+  private final String _name;
+  
   private final Instant _valuationTime;
 
   private final List<MarketDataSpecification> _marketDataSpecifications;
@@ -211,6 +235,7 @@ public class ViewCycleExecutionOptions {
    * @param builder the values to populate the instance from
    */
   protected ViewCycleExecutionOptions(final Builder builder) {
+    _name = builder.getName();
     _valuationTime = builder.getValuationTime();
     _marketDataSpecifications = builder.getMarketDataSpecifications();
     _marketDataSelector = builder.getMarketDataSelector();
@@ -231,6 +256,15 @@ public class ViewCycleExecutionOptions {
     return new Builder();
   }
 
+  /**
+   * Returns the name of the view cycle
+   * 
+   * @return the name of the view cycle, or null if not specified
+   */
+  public String getName() {
+    return _name;
+  }
+  
   /**
    * Returns the valuation time for the view cycle. If set to null then a time implied by the data source will be used - if no time is implied the view process' clock will be used.
    * 
@@ -280,12 +314,15 @@ public class ViewCycleExecutionOptions {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("ViewCycleExecutionOptions[");
+    
+    sb.append("name=").append(getName()).append(", ");
     if (getValuationTime() != null) {
       sb.append("valuationTime=").append(getValuationTime()).append(", ");
     }
     if (getResolverVersionCorrection() != null) {
       sb.append("portfolioVersionCorrection=").append(getResolverVersionCorrection()).append(", ");
     }
+    
     sb.append("marketDataSpecifications=")
         .append(getMarketDataSpecifications())
         .append(", marketDataShiftSpecification=")
@@ -299,6 +336,7 @@ public class ViewCycleExecutionOptions {
   @Override
   public int hashCode() {
     int result = 1;
+    result += (result << 4) + ObjectUtils.nullSafeHashCode(getName());
     result += (result << 4) + getMarketDataSpecifications().hashCode();
     result += (result << 4) + getMarketDataSelector().hashCode();
     result += (result << 4) + getFunctionParameters().hashCode();
@@ -316,7 +354,8 @@ public class ViewCycleExecutionOptions {
       return false;
     }
     final ViewCycleExecutionOptions other = (ViewCycleExecutionOptions) obj;
-    return getMarketDataSpecifications().equals(other.getMarketDataSpecifications())
+    return ObjectUtils.nullSafeEquals(getName(), other.getName())
+        && getMarketDataSpecifications().equals(other.getMarketDataSpecifications())
         && getMarketDataSelector().equals(other.getMarketDataSelector())
         && getFunctionParameters().equals(other.getFunctionParameters())
         && ObjectUtils.nullSafeEquals(getValuationTime(), other.getValuationTime())

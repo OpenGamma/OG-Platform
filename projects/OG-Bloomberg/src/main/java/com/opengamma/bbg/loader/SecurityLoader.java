@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.threeten.bp.LocalDate;
@@ -22,6 +23,7 @@ import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeParseException;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
@@ -126,9 +128,22 @@ public abstract class SecurityLoader {
         continue;
       }
       // get field data
-      ManageableSecurity security = createSecurity(fieldData);
-      if (security != null) {
-        result.put(securityDes, security);
+      try {
+        ManageableSecurity security = createSecurity(fieldData);
+        if (security != null) {
+          result.put(securityDes, security);
+          String eidDataName = BloombergConstants.EID_DATA.toString();
+          if (fieldData.hasField(eidDataName)) {
+            for (FudgeField fudgeField : fieldData.getAllByName(eidDataName)) {
+              Object eidValue = fudgeField.getValue();
+              if (eidValue instanceof Integer) {
+                security.getPermissions().add(String.format("%s:%d", BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, (int) eidValue));
+              }
+            }
+          }
+        }
+      } catch (Exception e) {
+        _logger.error("Exception while trying to create security", e);
       }
     }
     return result;

@@ -40,8 +40,7 @@ public class ComponentConfigIniLoaderTest {
         "m = p" + NEWLINE +
         "n = ${a}" + NEWLINE +  // property from [global]
         "o = ${input}" + NEWLINE;  // property from injected properties
-    Resource resource = new InMemoryResource(text.getBytes(Charsets.UTF_8), "Test"
-    );
+    Resource resource = new InMemoryResource(text.getBytes(Charsets.UTF_8), "Test");
     properties.put("input", "text");
     
     ComponentConfig test = new ComponentConfig();
@@ -60,7 +59,50 @@ public class ComponentConfigIniLoaderTest {
     assertEquals("text", testBlock.get("o"));
   }
 
-  @Test(expectedExceptions = RuntimeException.class)
+  public void test_loadValid_emptyGlobal() {
+    ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
+    ComponentConfigIniLoader loader = new ComponentConfigIniLoader(LOGGER, properties );
+    String text =
+        "# comment" + NEWLINE +
+        "[global]" + NEWLINE +
+        "" + NEWLINE +
+        "[block]" + NEWLINE +
+        "m = p" + NEWLINE;
+    Resource resource = new InMemoryResource(text.getBytes(Charsets.UTF_8), "Test");
+    
+    ComponentConfig test = new ComponentConfig();
+    loader.load(resource, 0, test);
+    assertEquals(2, test.getGroups().size());
+    
+    LinkedHashMap<String, String> testGlobal = test.getGroup("global");
+    assertEquals(0, testGlobal.size());
+    
+    LinkedHashMap<String, String> testBlock = test.getGroup("block");
+    assertEquals(1, testBlock.size());
+    assertEquals("p", testBlock.get("m"));
+  }
+
+  public void test_loadValid_groupPropertyOverride() {
+    ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
+    ComponentConfigIniLoader loader = new ComponentConfigIniLoader(LOGGER, properties );
+    String text =
+        "# comment" + NEWLINE +
+        "[block]" + NEWLINE +
+        "m = p" + NEWLINE;
+    Resource resource = new InMemoryResource(text.getBytes(Charsets.UTF_8), "Test");
+    properties.put("[block].m", "override");
+    
+    ComponentConfig test = new ComponentConfig();
+    loader.load(resource, 0, test);
+    assertEquals(1, test.getGroups().size());
+    
+    LinkedHashMap<String, String> testBlock = test.getGroup("block");
+    assertEquals(1, testBlock.size());
+    assertEquals("override", testBlock.get("m"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test(expectedExceptions = ComponentConfigException.class)
   public void test_loadInvalid_doubleKey() {
     ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
     ComponentConfigIniLoader loader = new ComponentConfigIniLoader(LOGGER, properties );
@@ -73,7 +115,7 @@ public class ComponentConfigIniLoaderTest {
     loader.load(resource, 0, new ComponentConfig());
   }
 
-  @Test(expectedExceptions = RuntimeException.class)
+  @Test(expectedExceptions = ComponentConfigException.class)
   public void test_loadInvalid_replacementNotFound() {
     ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
     ComponentConfigIniLoader loader = new ComponentConfigIniLoader(LOGGER, properties );
@@ -85,7 +127,7 @@ public class ComponentConfigIniLoaderTest {
     loader.load(resource, 0, new ComponentConfig());
   }
 
-  @Test(expectedExceptions = RuntimeException.class)
+  @Test(expectedExceptions = ComponentConfigException.class)
   public void test_loadInvalid_propertyNotInGroup() {
     ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
     ComponentConfigIniLoader loader = new ComponentConfigIniLoader(LOGGER, properties );
@@ -96,7 +138,7 @@ public class ComponentConfigIniLoaderTest {
     loader.load(resource, 0, new ComponentConfig());
   }
 
-  @Test(expectedExceptions = RuntimeException.class)
+  @Test(expectedExceptions = ComponentConfigException.class)
   public void test_loadInvalid_propertyNoEquals() {
     ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
     ComponentConfigIniLoader loader = new ComponentConfigIniLoader(LOGGER, properties );
@@ -108,7 +150,7 @@ public class ComponentConfigIniLoaderTest {
     loader.load(resource, 0, new ComponentConfig());
   }
 
-  @Test(expectedExceptions = RuntimeException.class)
+  @Test(expectedExceptions = ComponentConfigException.class)
   public void test_loadInvalid_propertyEmptyKey() {
     ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
     ComponentConfigIniLoader loader = new ComponentConfigIniLoader(LOGGER, properties );

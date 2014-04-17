@@ -19,21 +19,20 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Provides sensitivity of EquitySecurity price with respect to itself, i.e. always unity.
- * This is essential in order to show aggregate position in this underlying in a derivatives portfolio.
+ * Provides sensitivity of EquitySecurity price with respect to itself, i.e. always unity. This is essential in order to show aggregate position in this underlying in a derivatives portfolio.
+ * 
  * @author casey
- *
  */
-public class EquitySecurityDeltaFunction  extends AbstractFunction.NonCompiledInvoker {
+public class EquitySecurityDeltaFunction extends AbstractFunction.NonCompiledInvoker {
 
   private String getValueRequirementName() {
     return ValueRequirementNames.DELTA;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -41,18 +40,10 @@ public class EquitySecurityDeltaFunction  extends AbstractFunction.NonCompiledIn
     final ComputedValue result = new ComputedValue(valueSpecification, 1.0);
     return Sets.newHashSet(result);
   }
-  
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getSecurity() instanceof EquitySecurity) {
-      return true;
-    }
-    return false;
-  }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.EQUITY_SECURITY;
   }
 
   @Override

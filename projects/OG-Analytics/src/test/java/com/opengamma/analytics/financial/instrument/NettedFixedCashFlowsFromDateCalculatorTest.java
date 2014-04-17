@@ -37,10 +37,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NettedFixedCashFlowsFromDateCalculatorTest {
   private static final NettedFixedCashFlowFromDateCalculator CALCULATOR = NettedFixedCashFlowFromDateCalculator.getInstance();
   private static final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> ALL_CASH_FLOWS = NettedFixedCashFlowVisitor.getVisitor();

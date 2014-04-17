@@ -41,6 +41,7 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
  */
 public final class ToolContextUtils {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ToolContextUtils.class);
 
   /**
@@ -61,11 +62,12 @@ public final class ToolContextUtils {
    * <p>
    * The context should be closed after use.
    * 
+   * @param <T>  the tool context type
    * @param configResourceLocation  the location of the context resource file, not null
    * @param toolContextClazz  the type of tool context to return, not null
    * @return the context, not null
    */
-  public static ToolContext getToolContext(String configResourceLocation, Class<? extends ToolContext> toolContextClazz) {
+  public static <T extends ToolContext> T getToolContext(String configResourceLocation, Class<T> toolContextClazz) {
     return getToolContext(configResourceLocation, toolContextClazz, DEFAULT_CLASSIFIER_CHAIN);
   }
 
@@ -75,12 +77,13 @@ public final class ToolContextUtils {
    * <p>
    * The context should be closed after use.
    *
+   * @param <T>  the tool context type
    * @param configResourceLocation  the location of the context resource file, not null
    * @param toolContextClazz  the type of tool context to return, not null
    * @param classifierChain  the classifier chain to use when determining which components to select
    * @return the context, not null
    */
-  public static ToolContext getToolContext(String configResourceLocation, Class<? extends ToolContext> toolContextClazz, List<String> classifierChain) {
+  public static <T extends ToolContext> T getToolContext(String configResourceLocation, Class<T> toolContextClazz, List<String> classifierChain) {
     configResourceLocation = configResourceLocation.trim();
     
     if (configResourceLocation.startsWith("http://")) {
@@ -90,11 +93,11 @@ public final class ToolContextUtils {
       ComponentManager manager = new ComponentManager("toolcontext");
       manager.start(configResourceLocation);
       ComponentRepository repo = manager.getRepository();
-      return repo.getInstance(ToolContext.class, "tool");
+      return toolContextClazz.cast(repo.getInstance(ToolContext.class, "tool"));
     }
   }
 
-  private static ToolContext createToolContextByHttp(String configResourceLocation, Class<? extends ToolContext> toolContextClazz, List<String> classifierChain) {
+  private static <T extends ToolContext> T createToolContextByHttp(String configResourceLocation, Class<T> toolContextClazz, List<String> classifierChain) {
     configResourceLocation = StringUtils.stripEnd(configResourceLocation, "/");
     if (configResourceLocation.endsWith("/jax") == false) {
       configResourceLocation += "/jax";
@@ -105,7 +108,7 @@ public final class ToolContextUtils {
     ComponentServer componentServer = remoteComponentServer.getComponentServer();
     
     // Attempt to build a tool context of the specified type
-    ToolContext toolContext;
+    T toolContext;
     try {
       toolContext = toolContextClazz.newInstance();
     } catch (Throwable t) {
@@ -114,7 +117,9 @@ public final class ToolContextUtils {
     
     // Populate the tool context from the remote component server
     for (MetaProperty<?> metaProperty : toolContext.metaBean().metaPropertyIterable()) {
-      if (!metaProperty.name().equals("contextManager")) {
+      if (metaProperty.propertyType().equals(ComponentServer.class)) {
+        metaProperty.set(toolContext, componentServer);
+      } else if (!metaProperty.name().equals("contextManager")) {
         try {
           ComponentInfo componentInfo = getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
           if (componentInfo == null) {

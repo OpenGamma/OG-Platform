@@ -131,11 +131,13 @@
     <subclass name="LegacyFixedRecoveryCDSSecurityBean"
       discriminator-value="LEGACY_FIXED_RECOVERY_CDS">
       <property name="parSpread" type="double" column="legacy_par_spread" />
+      <property name="recoveryRate" type="double" column="recovery_rate" />
     </subclass>
 
     <subclass name="LegacyRecoveryLockCDSSecurityBean"
       discriminator-value="LEGACY_RECOVERY_LOCK_CDS">
       <property name="parSpread" type="double" column="legacy_par_spread" />
+      <property name="recoveryRate" type="double" column="recovery_rate" />
     </subclass>
 
     <subclass name="LegacyVanillaCDSSecurityBean"
@@ -166,10 +168,12 @@
 
       <subclass name="StandardFixedRecoveryCDSSecurityBean"
         discriminator-value="STANDARD_FIXED_RECOVERY_CDS">
+        <property name="recoveryRate" type="double" column="recovery_rate" />
       </subclass>
 
       <subclass name="StandardRecoveryLockCDSSecurityBean"
         discriminator-value="STANDARD_RECOVERY_LOCK_CDS">
+        <property name="recoveryRate" type="double" column="recovery_rate" />
       </subclass>
 
       <subclass name="StandardVanillaCDSSecurityBean"

@@ -22,9 +22,14 @@ import com.opengamma.analytics.financial.model.option.definition.StandardOptionD
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry ONE_YEAR = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));

@@ -26,15 +26,15 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.MasterUtils;
-import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An in-memory master for yield curve definitions, backed by a hash-map.
  */
-public class InMemoryInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster, InterpolatedYieldCurveDefinitionSource, VersionedSource, ChangeProvider {
+public class InMemoryInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster, InterpolatedYieldCurveDefinitionSource, ChangeProvider {
 
   /**
    * Default scheme used for identifiers created.
@@ -48,15 +48,11 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   /**
    * The change manager.
    */
-  private final ChangeManager _changeManager = new BasicChangeManager();  // TODO make possible to pass the change manager in constructor
+  private final ChangeManager _changeManager = new BasicChangeManager(); // TODO make possible to pass the change manager in constructor
   /**
    * The unique id scheme
    */
   private String _uniqueIdScheme;
-  /**
-   * The active version-correction.
-   */
-  private VersionCorrection _sourceVersionCorrection = VersionCorrection.LATEST;
 
   /**
    * Creates an instance.
@@ -69,7 +65,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
 
   /**
    * Gets the scheme in use for unique identifier.
-   *
+   * 
    * @return the scheme, not null
    */
   public String getUniqueIdScheme() {
@@ -78,8 +74,8 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
 
   /**
    * Sets the scheme in use for unique identifier.
-   *
-   * @param scheme  the scheme for unique identifier, not null
+   * 
+   * @param scheme the scheme for unique identifier, not null
    */
   public void setUniqueIdScheme(final String scheme) {
     ArgumentChecker.notNull(scheme, "scheme");
@@ -88,40 +84,20 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
 
   //-------------------------------------------------------------------------
   @Override
-  public synchronized void setVersionCorrection(final VersionCorrection versionCorrection) {
-    _sourceVersionCorrection = VersionCorrection.of(versionCorrection);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public synchronized YieldCurveDefinition getDefinition(Currency currency, String name) {
-    ArgumentChecker.notNull(currency, "currency");
-    ArgumentChecker.notNull(name, "name");
-    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
-    if (definitions == null) {
-      return null;
-    }
-    final Map.Entry<Instant, YieldCurveDefinition> entry;
-    if (_sourceVersionCorrection.getVersionAsOf() == null) {
-      entry = definitions.lastEntry();
-    } else {
-      entry = definitions.floorEntry(_sourceVersionCorrection.getVersionAsOf());
-    }
-    if (entry == null) {
-      return null;
-    }
-    return entry.getValue();
+    return getDefinition(currency, name, VersionCorrection.LATEST);
   }
 
   @Override
   public YieldCurveDefinition getDefinition(final Currency currency, final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
-    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
+    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pairs.of(currency, name));
     if (definitions == null) {
       return null;
     }
-    final Map.Entry<Instant, YieldCurveDefinition> entry = definitions.floorEntry(versionCorrection.getVersionAsOf());
+    final Map.Entry<Instant, YieldCurveDefinition> entry = (versionCorrection.getVersionAsOf() == null) ? definitions.lastEntry() : definitions
+        .floorEntry(versionCorrection.getVersionAsOf());
     if (entry == null) {
       return null;
     }
@@ -135,7 +111,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
     final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
-    final Pair<Currency, String> key = Pair.of(currency, name);
+    final Pair<Currency, String> key = Pairs.of(currency, name);
     if (_definitions.containsKey(key)) {
       throw new IllegalArgumentException("Duplicate definition");
     }
@@ -155,21 +131,12 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
     final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
-    final Pair<Currency, String> key = Pair.of(currency, name);
+    final Pair<Currency, String> key = Pairs.of(currency, name);
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     final UniqueId uid = UniqueId.of(getUniqueIdScheme(), name + "_" + currency.getCode());
     Instant now = Instant.now();
     if (value != null) {
-      if (_sourceVersionCorrection.getVersionAsOf() != null) {
-        // Don't need to keep the old values before the one needed by "versionAsOfInstant"
-        final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
-        if (oldestNeeded != null) {
-          value.headMap(oldestNeeded).clear();
-        }
-      } else {
-        // Don't need any old values
-        value.clear();
-      }
+      // TODO: Need to housekeep the map to release memory from old entries; this was previously done based on the latch version, but we've taken that out
       value.put(now, document.getYieldCurveDefinition());
       changeManager().entityChanged(ChangeType.CHANGED, uid.getObjectId(), null, null, now);
     } else {
@@ -208,7 +175,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     } catch (IllegalArgumentException e) {
       throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getUniqueIdScheme() + "'", e);
     }
-    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
+    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pairs.of(currency, name));
     if (definitions == null) {
       throw new DataNotFoundException("Curve definition not found");
     }
@@ -238,7 +205,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     } catch (IllegalArgumentException e) {
       throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getUniqueIdScheme() + "'", e);
     }
-    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
+    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pairs.of(currency, name));
     if (definitions == null) {
       throw new DataNotFoundException("Curve definition not found");
     }
@@ -251,7 +218,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
 
   @Override
   public synchronized void remove(ObjectIdentifiable objectIdentifiable) {
-    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");    
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
     if (!getUniqueIdScheme().equals(objectIdentifiable.getObjectId().getScheme())) {
       throw new DataNotFoundException("Scheme '" + objectIdentifiable.getObjectId().getScheme() + "' not valid for '" + getUniqueIdScheme() + "'");
     }
@@ -267,25 +234,16 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     } catch (IllegalArgumentException e) {
       throw new DataNotFoundException("Identifier '" + objectIdentifiable.getObjectId().getValue() + "' not valid for '" + getUniqueIdScheme() + "'", e);
     }
-    final Pair<Currency, String> key = Pair.of(currency, name);
-    if (_sourceVersionCorrection.getVersionAsOf() != null) {
-      final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
-      if (value == null) {
-        throw new DataNotFoundException("Curve definition not found");
-      }
-      // Don't need to keep the old values before the one needed by "versionAsOfInstant"
-      final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
-      if (oldestNeeded != null) {
-        value.headMap(oldestNeeded).clear();
-      }
-      // Store a null to indicate the delete
-      value.put(Instant.now(), null);
-    } else {
-      if (_definitions.remove(key) == null) {
-        throw new DataNotFoundException("Curve definition not found");
-      }
+    final Pair<Currency, String> key = Pairs.of(currency, name);
+    // TODO: Need to housekeep the map to release memory from old entries; this was previously done based on the latch version, but we've taken that out
+    final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
+    if (value == null) {
+      throw new DataNotFoundException("Curve definition not found");
     }
-    changeManager().entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
+    // Store a null to indicate the delete
+    final Instant now = Instant.now();
+    value.put(now, null);
+    changeManager().entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, now);
   }
 
   @Override
@@ -298,19 +256,12 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     if (!uid.equals(document.getUniqueId())) {
       throw new IllegalArgumentException("Invalid unique identifier");
     }
-    final Pair<Currency, String> key = Pair.of(currency, name);
+    final Pair<Currency, String> key = Pairs.of(currency, name);
     final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     if (value == null) {
       throw new DataNotFoundException("UID '" + uid + "' not found");
     }
-    if (_sourceVersionCorrection.getVersionAsOf() != null) {
-      // Don't need to keep the old values before the one needed by "versionAsOfInstant"
-      final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
-      value.headMap(oldestNeeded).clear();
-    } else {
-      // Don't need any old values
-      value.clear();
-    }
+    // TODO: Need to housekeep the map to release memory from old entries; this was previously done based on the latch version, but we've taken that out
     Instant now = Instant.now();
     value.put(now, document.getYieldCurveDefinition());
     document.setUniqueId(uid);
@@ -322,7 +273,6 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public ChangeManager changeManager() {
     return _changeManager;
   }
-
 
   @Override
   public List<UniqueId> replaceVersions(ObjectIdentifiable objectIdentifiable, List<YieldCurveDefinitionDocument> replacementDocuments) {
@@ -346,21 +296,13 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     }
     final Currency currency = storedDocument.getYieldCurveDefinition().getCurrency();
     final String name = storedDocument.getYieldCurveDefinition().getName();
-    Pair<Currency, String> key = Pair.of(currency, name);
-
+    Pair<Currency, String> key = Pairs.of(currency, name);
 
     final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     if (value == null) {
       throw new DataNotFoundException("OID '" + objectIdentifiable + "' not found");
     }
-    if (_sourceVersionCorrection.getVersionAsOf() != null) {
-      // Don't need to keep the old values before the one needed by "versionAsOfInstant"
-      final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
-      value.headMap(oldestNeeded).clear();
-    } else {
-      // Don't need any old values
-      value.clear();
-    }
+    // TODO: Need to housekeep the map to release memory from old entries; this was previously done based on the latch version, but we've taken that out
 
     Instant lowestCurrentVersionFrom = value.firstKey();
 
@@ -403,8 +345,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     }
     final Currency currency = storedDocument.getYieldCurveDefinition().getCurrency();
     final String name = storedDocument.getYieldCurveDefinition().getName();
-    Pair<Currency, String> key = Pair.of(currency, name);
-
+    Pair<Currency, String> key = Pairs.of(currency, name);
 
     final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     if (value == null) {

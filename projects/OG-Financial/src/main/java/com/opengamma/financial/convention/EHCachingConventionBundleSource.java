@@ -73,7 +73,9 @@ public class EHCachingConventionBundleSource implements ConventionBundleSource {
   protected ConventionBundle frontCache(final ConventionBundle bundle) {
     final ConventionBundle existing = _frontCache.putIfAbsent(bundle.getUniqueId(), bundle);
     if (existing == null) {
-      _frontCache.put(bundle.getIdentifiers(), bundle);
+      if (bundle.getIdentifiers() != null) {
+        _frontCache.put(bundle.getIdentifiers(), bundle);
+      }
       return bundle;
     }
     return existing;

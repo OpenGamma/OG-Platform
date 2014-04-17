@@ -8,6 +8,7 @@ package com.opengamma.component.factory;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -154,51 +155,6 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
     return AbstractSpringComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1361354025:  // springFile
-        return getSpringFile();
-      case 1613702479:  // propertiesFile
-        return getPropertiesFile();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1361354025:  // springFile
-        setSpringFile((Resource) newValue);
-        return;
-      case 1613702479:  // propertiesFile
-        setPropertiesFile((Resource) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractSpringComponentFactory other = (AbstractSpringComponentFactory) obj;
-      return JodaBeanUtils.equal(getSpringFile(), other.getSpringFile()) &&
-          JodaBeanUtils.equal(getPropertiesFile(), other.getPropertiesFile());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpringFile());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertiesFile());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the config for the Spring file.
@@ -247,6 +203,51 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    */
   public final Property<Resource> propertiesFile() {
     return metaBean().propertiesFile().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public AbstractSpringComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractSpringComponentFactory other = (AbstractSpringComponentFactory) obj;
+      return JodaBeanUtils.equal(getSpringFile(), other.getSpringFile()) &&
+          JodaBeanUtils.equal(getPropertiesFile(), other.getPropertiesFile());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpringFile());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertiesFile());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("AbstractSpringComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("springFile").append('=').append(JodaBeanUtils.toString(getSpringFile())).append(',').append(' ');
+    buf.append("propertiesFile").append('=').append(JodaBeanUtils.toString(getPropertiesFile())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -324,6 +325,31 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
      */
     public final MetaProperty<Resource> propertiesFile() {
       return _propertiesFile;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1361354025:  // springFile
+          return ((AbstractSpringComponentFactory) bean).getSpringFile();
+        case 1613702479:  // propertiesFile
+          return ((AbstractSpringComponentFactory) bean).getPropertiesFile();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1361354025:  // springFile
+          ((AbstractSpringComponentFactory) bean).setSpringFile((Resource) newValue);
+          return;
+        case 1613702479:  // propertiesFile
+          ((AbstractSpringComponentFactory) bean).setPropertiesFile((Resource) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

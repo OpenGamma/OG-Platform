@@ -13,11 +13,13 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoublesCubeTest {
   static final String NAME = "a";
   static final double[] X_PRIMITIVE;

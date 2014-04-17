@@ -6,11 +6,16 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -25,12 +30,16 @@ import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutput;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Portfolio tree traversal callback methods that construct value requirements for the specified portfolio's nodes, positions and trades (as per options specified in the result model definition). The
@@ -39,6 +48,8 @@ import com.opengamma.util.tuple.Pair;
  * the result model definition), and then added to the dependency graph's list of targets in the post-order method for that portfolio node.
  */
 /* package */final class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioCompilerTraversalCallback.class);
 
   private static final class NodeData {
 
@@ -72,6 +83,8 @@ import com.opengamma.util.tuple.Pair;
   private final Set<UniqueId> _includeEvents;
   private final Set<UniqueId> _excludeEvents;
   private Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType;
+  private final List<MergedOutput> _mergedOutputs;
+  private final Set<ValueRequirement> _alreadyAdded;
   private final DependencyGraphBuilder _builder;
   private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
   private final boolean _outputAggregates;
@@ -85,13 +98,16 @@ import com.opengamma.util.tuple.Pair;
   private final ConcurrentMap<UniqueId, NodeData> _nodeData = new ConcurrentHashMap<UniqueId, NodeData>();
 
   public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
+      final Set<ValueRequirement> alreadyAdded, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents,
+      final Set<UniqueId> excludeEvents) {
     _portfolioRequirementsBySecurityType = calculationConfiguration.getPortfolioRequirementsBySecurityType();
+    _mergedOutputs = calculationConfiguration.getMergedOutputs();
     final ResultModelDefinition resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     _outputAggregates = resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE;
     _outputPositions = resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE;
     _outputTrades = resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE;
     _builder = builder;
+    _alreadyAdded = alreadyAdded;
     _resolutions = resolutions;
     _includeEvents = includeEvents;
     _excludeEvents = excludeEvents;
@@ -110,12 +126,19 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Add the specified value requirement to the dep graph builder, triggering graph building by background threads
+   * Add the specified value requirement to the dep graph builder, triggering graph building by background threads.
+   * <p>
+   * If supplied, the {@link #_alreadyAdded} set member is used to identify anything that has already been added from the specific requirements of a view or as part of invalidating a previous graph.
+   * See the notes in {@link DependencyGraphBuilder} for the hazards of requesting the same value requirement multiple times.
    * 
    * @param valueRequirement the value requirement to add
    */
   protected void addValueRequirement(final ValueRequirement valueRequirement) {
-    _builder.addTarget(valueRequirement);
+    if ((_alreadyAdded == null) || !_alreadyAdded.contains(valueRequirement)) {
+      _builder.addTarget(valueRequirement);
+    } else {
+      s_logger.debug("Suppressing {} from the incremental requirement set", valueRequirement);
+    }
   }
 
   /**
@@ -253,6 +276,19 @@ import com.opengamma.util.tuple.Pair;
           }
         }
       }
+      for (MergedOutput mergedOutput : _mergedOutputs) {
+        if (nodeData == null) {
+          nodeData = _nodeData.get(parentNode.getUniqueId());
+        }
+        final ValueProperties constraints = ValueProperties.with(ValuePropertyNames.NAME, mergedOutput.getMergedOutputName()).get();
+        if (_outputAggregates) {
+          nodeData.addRequirements(ImmutableSet.of(Pairs.of(ValueRequirementNames.MERGED_OUTPUT, constraints)));
+        }
+        if (_outputPositions && !positionExcluded) {
+          final ComputationTargetSpecification positionSpec = nodeData.getTargetSpecification().containing(ComputationTargetType.POSITION, position.getUniqueId().toLatest());
+          addValueRequirement(new ValueRequirement(ValueRequirementNames.MERGED_OUTPUT, positionSpec, constraints));
+        }
+      }
     }
     if (_outputTrades && !positionExcluded) {
       final Collection<Trade> trades = position.getTrades();
@@ -270,6 +306,13 @@ import com.opengamma.util.tuple.Pair;
             for (final Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
               addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), tradeSpec, requiredOutput.getSecond()));
             }
+          }
+        }
+        for (MergedOutput mergedOutput : _mergedOutputs) {
+          for (final Trade trade : trades) {
+            final ValueProperties constraints = ValueProperties.with(ValuePropertyNames.NAME, mergedOutput.getMergedOutputName()).get();
+            final ComputationTargetSpecification tradeSpec = ComputationTargetSpecification.of(trade);
+            addValueRequirement(new ValueRequirement(ValueRequirementNames.MERGED_OUTPUT, tradeSpec, constraints));
           }
         }
         for (final Trade trade : trades) {

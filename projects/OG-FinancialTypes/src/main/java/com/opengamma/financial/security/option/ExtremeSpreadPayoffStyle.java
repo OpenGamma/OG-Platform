@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -80,58 +81,6 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
     return ExtremeSpreadPayoffStyle.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 566572890:  // periodEnd
-        return getPeriodEnd();
-      case 1099846370:  // reverse
-        return isReverse();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 566572890:  // periodEnd
-        setPeriodEnd((ZonedDateTime) newValue);
-        return;
-      case 1099846370:  // reverse
-        setReverse((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_periodEnd, "periodEnd");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ExtremeSpreadPayoffStyle other = (ExtremeSpreadPayoffStyle) obj;
-      return JodaBeanUtils.equal(getPeriodEnd(), other.getPeriodEnd()) &&
-          JodaBeanUtils.equal(isReverse(), other.isReverse()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPeriodEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isReverse());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the period end.
@@ -181,6 +130,54 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
    */
   public final Property<Boolean> reverse() {
     return metaBean().reverse().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExtremeSpreadPayoffStyle clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExtremeSpreadPayoffStyle other = (ExtremeSpreadPayoffStyle) obj;
+      return JodaBeanUtils.equal(getPeriodEnd(), other.getPeriodEnd()) &&
+          (isReverse() == other.isReverse()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPeriodEnd());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isReverse());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ExtremeSpreadPayoffStyle{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("periodEnd").append('=').append(JodaBeanUtils.toString(getPeriodEnd())).append(',').append(' ');
+    buf.append("reverse").append('=').append(JodaBeanUtils.toString(isReverse())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -258,6 +255,37 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
      */
     public final MetaProperty<Boolean> reverse() {
       return _reverse;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 566572890:  // periodEnd
+          return ((ExtremeSpreadPayoffStyle) bean).getPeriodEnd();
+        case 1099846370:  // reverse
+          return ((ExtremeSpreadPayoffStyle) bean).isReverse();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 566572890:  // periodEnd
+          ((ExtremeSpreadPayoffStyle) bean).setPeriodEnd((ZonedDateTime) newValue);
+          return;
+        case 1099846370:  // reverse
+          ((ExtremeSpreadPayoffStyle) bean).setReverse((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ExtremeSpreadPayoffStyle) bean)._periodEnd, "periodEnd");
+      super.validate(bean);
     }
 
   }

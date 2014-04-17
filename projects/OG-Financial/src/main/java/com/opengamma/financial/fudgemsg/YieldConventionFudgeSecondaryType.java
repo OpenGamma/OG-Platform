@@ -32,7 +32,7 @@ public final class YieldConventionFudgeSecondaryType extends SecondaryFieldType<
 
   @Override
   public String secondaryToPrimary(YieldConvention object) {
-    return object.getConventionName();
+    return object.getName();
   }
 
   @Override

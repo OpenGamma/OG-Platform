@@ -37,9 +37,10 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -47,6 +48,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR with extrapolation method.
  * The SABR smile is extrapolated above a certain cut-off strike.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -69,7 +71,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final double RATE = 0.02;
   private static final double RATE_HIGH = 0.10;
   private static final boolean FIXED_IS_PAYER = true;
@@ -80,13 +82,13 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER, CALENDAR);
   private static final SwapFixedIborDefinition SWAP_PAYER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE_HIGH, FIXED_IS_PAYER, CALENDAR);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE_HIGH, !FIXED_IS_PAYER, CALENDAR);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_PAYER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_RECEIVER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_SHORT_PAYER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_SHORT_RECEIVER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_PAYER_HIGH_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_HIGH_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_RECEIVER_HIGH_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_HIGH_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_SHORT_PAYER_HIGH_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_HIGH_DEFINITION, !IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_PAYER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_RECEIVER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, false, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_SHORT_PAYER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, !IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_SHORT_RECEIVER_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, false, !IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_PAYER_HIGH_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_HIGH_DEFINITION, true, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_LONG_RECEIVER_HIGH_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_HIGH_DEFINITION, false, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_SHORT_PAYER_HIGH_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_HIGH_DEFINITION, true, !IS_LONG);
   // to derivatives
   private static final SwaptionCashFixedIbor SWAPTION_LONG_PAYER = SWAPTION_LONG_PAYER_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final SwaptionCashFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_LONG_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE);
@@ -176,7 +178,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD_EXTRAPOLATION.presentValue(SWAPTION_LONG_PAYER_HIGH, SABR_MULTICURVES).getAmount(EUR);
-    final DoublesPair expectedExpiryTenor = new DoublesPair(SWAPTION_LONG_PAYER_HIGH.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(SWAPTION_LONG_PAYER_HIGH.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
     final double shift = 0.000005;
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shift);

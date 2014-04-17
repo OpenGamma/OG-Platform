@@ -17,17 +17,19 @@ import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.cube.InterpolatedFromSurfacesDoublesCube.SurfacePlane;
+import com.opengamma.analytics.math.Plane;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.LogLinearInterpolator1D;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedFromSurfacesDoublesCubeTest {
   private static final double A0 = 0;
   private static final double A1 = 2;
@@ -93,9 +95,9 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
       UNSORTED_SURFACE_LIST.add(UNSORTED_SURFACE_ARRAY[i]);
       UNSORTED_SURFACE_MAP.put(UNSORTED_POINTS_PRIMITIVE[i], UNSORTED_SURFACE_ARRAY[i]);
     }
-    XY_CUBE = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, SURFACE_MAP, INTERPOLATOR, NAME);
-    XZ_CUBE = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XZ, SURFACE_MAP, INTERPOLATOR, NAME);
-    YZ_CUBE = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.YZ, SURFACE_MAP, INTERPOLATOR, NAME);
+    XY_CUBE = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, SURFACE_MAP, INTERPOLATOR, NAME);
+    XZ_CUBE = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.ZX, SURFACE_MAP, INTERPOLATOR, NAME);
+    YZ_CUBE = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.YZ, SURFACE_MAP, INTERPOLATOR, NAME);
   }
 
   @Test
@@ -137,93 +139,93 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
 
   @Test
   public void testHashCodeAndEquals() {
-    InterpolatedFromSurfacesDoublesCube other = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, SURFACE_MAP, INTERPOLATOR, NAME);
+    InterpolatedFromSurfacesDoublesCube other = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, SURFACE_MAP, INTERPOLATOR, NAME);
     assertEquals(other, XY_CUBE);
     assertEquals(other.hashCode(), XY_CUBE.hashCode());
     assertEquals(other.getInterpolator(), INTERPOLATOR);
     assertArrayEquals(other.getPoints(), POINTS_PRIMITIVE, 0);
     assertArrayEquals(other.getSurfaces(), SURFACE_ARRAY);
     assertEquals(other.getName(), NAME);
-    assertEquals(other.getPlane(), SurfacePlane.XY);
+    assertEquals(other.getPlane(), Plane.XY);
     assertFalse(other.equals(XZ_CUBE));
     TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<>();
     m.put(1., S1);
     m.put(2.5, S2);
     m.put(3., S3);
-    other = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, m, INTERPOLATOR, NAME);
+    other = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, m, INTERPOLATOR, NAME);
     assertFalse(other.equals(XY_CUBE));
     m = new TreeMap<>();
     m.put(1., S1);
     m.put(2., S1);
     m.put(3., S3);
-    other = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, m, INTERPOLATOR, NAME);
+    other = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, m, INTERPOLATOR, NAME);
     assertFalse(other.equals(XY_CUBE));
-    other = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, SURFACE_MAP, new LogLinearInterpolator1D(), NAME);
+    other = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, SURFACE_MAP, new LogLinearInterpolator1D(), NAME);
     assertFalse(other.equals(XY_CUBE));
-    other = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, SURFACE_MAP, INTERPOLATOR, NAME + "_");
+    other = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, SURFACE_MAP, INTERPOLATOR, NAME + "_");
     assertFalse(other.equals(XY_CUBE));
   }
 
   @Test
   public void testConstructors() {
-    final InterpolatedFromSurfacesDoublesCube cube1 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, SURFACE_MAP, INTERPOLATOR, true, NAME);
-    InterpolatedFromSurfacesDoublesCube cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, SURFACE_MAP, INTERPOLATOR, true);
+    final InterpolatedFromSurfacesDoublesCube cube1 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, SURFACE_MAP, INTERPOLATOR, true, NAME);
+    InterpolatedFromSurfacesDoublesCube cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, SURFACE_MAP, INTERPOLATOR, true);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
     assertArrayEquals(cube1.getSurfaces(), cube2.getSurfaces());
     assertEquals(cube1.getPlane(), cube2.getPlane());
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
     assertEquals(cube1, cube2);
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, true);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, true);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
     assertArrayEquals(cube1.getSurfaces(), cube2.getSurfaces());
     assertEquals(cube1.getPlane(), cube2.getPlane());
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
     assertEquals(cube1, cube2);
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, true);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, true);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
     assertArrayEquals(cube1.getSurfaces(), cube2.getSurfaces());
     assertEquals(cube1.getPlane(), cube2.getPlane());
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, true, NAME);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, true, NAME);
     assertEquals(cube1, cube2);
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, true);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, true);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
     assertArrayEquals(cube1.getSurfaces(), cube2.getSurfaces());
     assertEquals(cube1.getPlane(), cube2.getPlane());
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR, false, NAME);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR, false, NAME);
     assertEquals(cube1, cube2);
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR, false);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR, false);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
     assertArrayEquals(cube1.getSurfaces(), cube2.getSurfaces());
     assertEquals(cube1.getPlane(), cube2.getPlane());
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false, NAME);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false, NAME);
     assertEquals(cube1, cube2);
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
     assertArrayEquals(cube1.getSurfaces(), cube2.getSurfaces());
     assertEquals(cube1.getPlane(), cube2.getPlane());
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false, NAME);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false, NAME);
     assertEquals(cube1, cube2);
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, false);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
     assertArrayEquals(cube1.getSurfaces(), cube2.getSurfaces());
     assertEquals(cube1.getPlane(), cube2.getPlane());
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR, false, NAME);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR, false, NAME);
     assertEquals(cube1, cube2);
-    cube2 = new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR, false);
+    cube2 = new InterpolatedFromSurfacesDoublesCube(Plane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR, false);
     assertFalse(cube1.equals(cube2));
     assertEquals(cube1.getInterpolator(), cube2.getInterpolator());
     assertArrayEquals(cube1.getPoints(), cube2.getPoints(), 0);
@@ -233,65 +235,65 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
 
   @Test
   public void testStaticConstruction() {
-    InterpolatedFromSurfacesDoublesCube cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, SURFACE_MAP, INTERPOLATOR, NAME);
+    InterpolatedFromSurfacesDoublesCube cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, SURFACE_MAP, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR, NAME);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, SURFACE_MAP, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, SURFACE_MAP, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
     assertArrayEquals(cube.getSurfaces(), XY_CUBE.getSurfaces());
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_SURFACE_MAP, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
     assertArrayEquals(cube.getSurfaces(), XY_CUBE.getSurfaces());
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
-    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, NAME);
+    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, NAME);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
     assertArrayEquals(cube.getSurfaces(), XY_CUBE.getSurfaces());
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_POINTS_PRIMITIVE, UNSORTED_SURFACE_ARRAY, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
     assertArrayEquals(cube.getSurfaces(), XY_CUBE.getSurfaces());
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
-    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, NAME);
+    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR, NAME);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, POINTS_LIST, SURFACE_LIST, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
     assertArrayEquals(cube.getSurfaces(), XY_CUBE.getSurfaces());
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_POINTS_LIST, UNSORTED_SURFACE_LIST, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
     assertArrayEquals(cube.getSurfaces(), XY_CUBE.getSurfaces());
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
-    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, NAME);
+    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, NAME);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR, NAME);
     assertEquals(cube, XY_CUBE);
-    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.fromSorted(Plane.XY, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
     assertArrayEquals(cube.getSurfaces(), XY_CUBE.getSurfaces());
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
-    cube = InterpolatedFromSurfacesDoublesCube.from(SurfacePlane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR);
+    cube = InterpolatedFromSurfacesDoublesCube.from(Plane.XY, UNSORTED_POINTS_OBJECT, UNSORTED_SURFACE_ARRAY, INTERPOLATOR);
     assertFalse(cube.equals(XY_CUBE));
     assertEquals(cube.getInterpolator(), XY_CUBE.getInterpolator());
     assertArrayEquals(cube.getPoints(), XY_CUBE.getPoints(), 0);
@@ -341,92 +343,92 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints1() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (double[]) null, SURFACE_ARRAY, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, (double[]) null, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints2() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (double[]) null, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, (double[]) null, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints3() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (Double[]) null, SURFACE_ARRAY, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, (Double[]) null, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints4() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (Double[]) null, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, (Double[]) null, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints5() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (List<Double>) null, SURFACE_LIST, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, (List<Double>) null, SURFACE_LIST, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints6() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (List<Double>) null, SURFACE_LIST, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, (List<Double>) null, SURFACE_LIST, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces1() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, null, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_PRIMITIVE, null, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces2() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, null, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_PRIMITIVE, null, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces3() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, null, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_OBJECT, null, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces4() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, null, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_OBJECT, null, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces5() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, null, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_LIST, null, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces6() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, null, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_LIST, null, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue1() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., null}, SURFACE_ARRAY, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, new Double[] {1., 2., null}, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue2() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., null}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, new Double[] {1., 2., null}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue3() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., null), SURFACE_LIST, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, Arrays.asList(1., 2., null), SURFACE_LIST, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue4() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., null), SURFACE_LIST, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, Arrays.asList(1., 2., null), SURFACE_LIST, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMap1() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, null, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, null, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMap2() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, null, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, null, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -435,7 +437,7 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
     m.put(1., S1);
     m.put(2., null);
     m.put(3., S3);
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, m, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, m, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -444,77 +446,77 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
     m.put(1., S1);
     m.put(2., null);
     m.put(3., S3);
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, m, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, m, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength1() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new double[] {1, 2, 3, 4, 5}, SURFACE_ARRAY, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, new double[] {1, 2, 3, 4, 5}, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength2() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new double[] {1, 2, 3, 4, 5}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, new double[] {1, 2, 3, 4, 5}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength3() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., 3., 4., 5.}, SURFACE_ARRAY, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, new Double[] {1., 2., 3., 4., 5.}, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength4() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., 3., 4., 5.}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, new Double[] {1., 2., 3., 4., 5.}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength5() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., 3., 4.), SURFACE_LIST, INTERPOLATOR, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, Arrays.asList(1., 2., 3., 4.), SURFACE_LIST, INTERPOLATOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength6() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., 3., 4.), SURFACE_LIST, INTERPOLATOR, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, Arrays.asList(1., 2., 3., 4.), SURFACE_LIST, INTERPOLATOR, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, null, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator2() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, null, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, null, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator3() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, null, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_OBJECT, SURFACE_ARRAY, null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator4() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, null, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_OBJECT, SURFACE_ARRAY, null, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator5() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, null, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_LIST, SURFACE_LIST, null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator6() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, null, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, POINTS_LIST, SURFACE_LIST, null, true, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator7() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, SURFACE_MAP, null, true);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, SURFACE_MAP, null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator8() {
-    new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, SURFACE_MAP, null, true, NAME);
+    new InterpolatedFromSurfacesDoublesCube(Plane.XY, SURFACE_MAP, null, true, NAME);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)

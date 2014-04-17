@@ -177,7 +177,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final double deltaPD = price / discountFactor;
     final double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
+    list.add(DoublesPair.of(cmsCapFloor.getPaymentTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
@@ -228,7 +228,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
       totalSensi[loopparameter] = (strikePartPrice[loopparameter] + integralPart[loopparameter]) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     }
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cmsCapFloor.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, totalSensi[0]);
     sensi.addBeta(expiryMaturity, totalSensi[1]);
     sensi.addRho(expiryMaturity, totalSensi[2]);
@@ -250,7 +250,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - cmsCapFloor.getSettlementTime();
-    final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cmsCapFloor.getFixingTime(), maturity);
 
     final CMSStrikeIntegrant integrant = new CMSStrikeIntegrant(cmsCapFloor, sabrParameter, forward);
     final double factor = discountFactor * integrant.g(forward) / integrant.h(forward);
@@ -326,7 +326,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
       final AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
       _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
       _forward = forward;
-      final DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(_timeToExpiry, _maturity);
       final double alpha = sabrParameter.getAlpha(expiryMaturity);
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);

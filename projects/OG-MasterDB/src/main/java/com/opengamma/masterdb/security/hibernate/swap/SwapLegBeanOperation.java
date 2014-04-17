@@ -36,18 +36,18 @@ public final class SwapLegBeanOperation {
   }
 
   public static SwapLegBean createBean(final HibernateSecurityMasterDao secMasterSession, final SwapLeg swapLeg) {
-    Converters.validateBusinessDayConvention(swapLeg.getBusinessDayConvention().getConventionName());
-    Converters.validateFrequency(swapLeg.getFrequency().getConventionName());
-    Converters.validateDayCount(swapLeg.getDayCount().getConventionName());
+    Converters.validateBusinessDayConvention(swapLeg.getBusinessDayConvention().getName());
+    Converters.validateFrequency(swapLeg.getFrequency().getName());
+    Converters.validateDayCount(swapLeg.getDayCount().getName());
     
     return swapLeg.accept(new SwapLegVisitor<SwapLegBean>() {
 
       private SwapLegBean createSwapLegBean(SwapLeg swapLeg) {
         final SwapLegBean bean = new SwapLegBean();
         bean.setSwapLegType(SwapLegType.identify(swapLeg));
-        bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(swapLeg.getBusinessDayConvention().getConventionName()));
-        bean.setDayCount(secMasterSession.getOrCreateDayCountBean(swapLeg.getDayCount().getConventionName()));
-        bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(swapLeg.getFrequency().getConventionName()));
+        bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(swapLeg.getBusinessDayConvention().getName()));
+        bean.setDayCount(secMasterSession.getOrCreateDayCountBean(swapLeg.getDayCount().getName()));
+        bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(swapLeg.getFrequency().getName()));
         bean.setNotional(NotionalBeanOperation.createBean(secMasterSession, swapLeg.getNotional()));
         bean.setRegion(externalIdToExternalIdBean(swapLeg.getRegionId()));
         bean.setEom(swapLeg.isEom());
@@ -68,8 +68,8 @@ public final class SwapLegBeanOperation {
           bean.setSettlementDays(swapLeg.getSettlementDays());
         }
         if (swapLeg.getOffsetFixing() != null) {
-          Converters.validateFrequency(swapLeg.getOffsetFixing().getConventionName());
-          bean.setOffsetFixing(secMasterSession.getOrCreateFrequencyBean(swapLeg.getOffsetFixing().getConventionName()));
+          Converters.validateFrequency(swapLeg.getOffsetFixing().getName());
+          bean.setOffsetFixing(secMasterSession.getOrCreateFrequencyBean(swapLeg.getOffsetFixing().getName()));
         }
       }
 
@@ -117,8 +117,8 @@ public final class SwapLegBeanOperation {
         bean.setUnderlyingId(externalIdToExternalIdBean(swapLeg.getUnderlyingId()));
         Frequency monitoringFrequency = swapLeg.getMonitoringFrequency();
         if (monitoringFrequency != null) {
-          Converters.validateFrequency(monitoringFrequency.getConventionName());
-          bean.setMonitoringFrequency(secMasterSession.getOrCreateFrequencyBean(monitoringFrequency.getConventionName()));
+          Converters.validateFrequency(monitoringFrequency.getName());
+          bean.setMonitoringFrequency(secMasterSession.getOrCreateFrequencyBean(monitoringFrequency.getName()));
         }
         bean.setAnnualizationFactor(swapLeg.getAnnualizationFactor());
         return bean;

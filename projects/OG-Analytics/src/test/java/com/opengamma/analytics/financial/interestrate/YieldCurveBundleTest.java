@@ -16,11 +16,13 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveBundleTest {
   private static final String[] NAMES = new String[] {"A", "B", "C"};
   private static final YieldAndDiscountCurve[] CURVES = new YieldAndDiscountCurve[3];

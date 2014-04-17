@@ -23,6 +23,10 @@ import com.opengamma.id.VersionCorrection;
 
   private static final long serialVersionUID = 1L;
 
+  public NullComputationTargetType() {
+    super(NullComputationTargetType.class.getName().hashCode());
+  }
+
   // ComputationTargetType
 
   @Override
@@ -109,11 +113,6 @@ import com.opengamma.id.VersionCorrection;
   @Override
   public boolean isTargetType(final Class<? extends UniqueIdentifiable> type) {
     return false;
-  }
-
-  @Override
-  public int hashCode() {
-    return NullComputationTargetType.class.hashCode();
   }
 
   // ObjectResolver

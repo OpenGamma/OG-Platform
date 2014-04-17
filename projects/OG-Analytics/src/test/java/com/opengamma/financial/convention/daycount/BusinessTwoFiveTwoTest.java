@@ -16,11 +16,13 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.ExceptionCalendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BusinessTwoFiveTwoTest {
   private static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
   private static final ZonedDateTime D2 = DateUtils.getUTCDate(2010, 4, 1);
@@ -91,7 +93,7 @@ public class BusinessTwoFiveTwoTest {
 
   @Test
   public void test() {
-    assertEquals(DC.getConventionName(), "Business/252");
+    assertEquals(DC.getName(), "Business/252");
     final LocalDate d1 = LocalDate.of(2012, 7, 16);
     final LocalDate d2 = LocalDate.of(2012, 7, 17);
     final LocalDate d3 = LocalDate.of(2012, 7, 23);

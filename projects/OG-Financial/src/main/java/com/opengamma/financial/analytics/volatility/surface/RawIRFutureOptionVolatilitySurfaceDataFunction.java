@@ -12,6 +12,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Constructs volatility surface data objects for IR future options if the target is the currency of the option.
@@ -33,9 +34,10 @@ public class RawIRFutureOptionVolatilitySurfaceDataFunction extends RawVolatilit
   }
 
   @Override
-  protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final ComputationTarget target, final String definitionName) {
+  protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final VersionCorrection versionCorrection, final ComputationTarget target,
+      final String definitionName) {
     final String fullDefinitionName = definitionName + "_" + target.getUniqueId().getValue();
-    final VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.IR_FUTURE_OPTION);
+    final VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.IR_FUTURE_OPTION, versionCorrection);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + InstrumentTypeProperties.IR_FUTURE_OPTION);
     }
@@ -43,9 +45,10 @@ public class RawIRFutureOptionVolatilitySurfaceDataFunction extends RawVolatilit
   }
 
   @Override
-  protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final ComputationTarget target, final String specificationName) {
+  protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final VersionCorrection versionCorrection, final ComputationTarget target,
+      final String specificationName) {
     final String fullSpecificationName = specificationName + "_" + target.getUniqueId().getValue();
-    final VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.IR_FUTURE_OPTION);
+    final VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.IR_FUTURE_OPTION, versionCorrection);
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + InstrumentTypeProperties.IR_FUTURE_OPTION);
     }

@@ -63,7 +63,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   private final String _costOfCarryField;
   private final String _closingPriceField;
 
-  public MarkToMarketPnLFunction(String closingPriceField, String costOfCarryField) {
+  public MarkToMarketPnLFunction(final String closingPriceField, final String costOfCarryField) {
     ArgumentChecker.notNull(costOfCarryField, "costOfCarryField");
     ArgumentChecker.notNull(closingPriceField, "closingPriceField");
     _closingPriceField = closingPriceField;
@@ -80,7 +80,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
 
     final Security security = target.getPositionOrTrade().getSecurity();
     if (FXUtils.isFXSecurity(security)) {
@@ -90,23 +90,23 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
-                                    FunctionInputs inputs,
-                                    ComputationTarget target,
-                                    Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext,
+                                    final FunctionInputs inputs,
+                                    final ComputationTarget target,
+                                    final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Unpack
     final Trade trade = target.getTrade();
     final Security security = trade.getSecurity();
     final LocalDate tradeDate = trade.getTradeDate();
-    LocalDate valuationDate = ZonedDateTime.now(executionContext.getValuationClock()).toLocalDate();
+    final LocalDate valuationDate = ZonedDateTime.now(executionContext.getValuationClock()).toLocalDate();
     final boolean isNewTrade = tradeDate.equals(valuationDate);
 
     // Get desired TradeType: Open (traded before today), New (traded today) or All
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String tradeType = desiredValue.getConstraint(PnLFunctionUtils.PNL_TRADE_TYPE_CONSTRAINT);
     if (tradeType == null) {
-      s_logger.error("TradeType not set for: " + security.getName() +
-          ". Choose one of {" + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_ALL + "}");
+      throw new OpenGammaRuntimeException("TradeType not set for: " + security.getName() +
+          ". Choose one of {" + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_NEW + "," + PnLFunctionUtils.PNL_TRADE_TYPE_ALL + "}");
     }
 
     // Create output specification. Check for trivial cases
@@ -118,7 +118,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
 
     // 2. Get inputs
     // For all TradeTypes, we'll require the live Price
-    Double livePrice = calculateLivePrice(inputs, target);
+    final Double livePrice = calculateLivePrice(inputs, target);
 
     // For PNL, we need a reference price. We have two cases:
     // Open: will need the closing price and any carry
@@ -140,7 +140,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
         final ComputedValue result = new ComputedValue(valueSpecification, MissingInput.MISSING_MARKET_DATA);
         return Sets.newHashSet(result);
       }
-      Object carryValue = inputs.getValue(_costOfCarryField);
+      final Object carryValue = inputs.getValue(_costOfCarryField);
       if (carryValue != null) {
         costOfCarry = (Double) carryValue;
       }
@@ -189,14 +189,14 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(getValueRequirementName(),
                                                         target.toSpecification(),
                                                         createValueProperties(target).get()));
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<>();
     final Security security = target.getPositionOrTrade().getSecurity();
     requirements.addAll(createLivePriceRequirement(security));
@@ -207,42 +207,42 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     return requirements;
   }
 
-  /** 
+  /**
    * @param security the target's security
-   * @return Engine Function requirements for the current / live price 
+   * @return Engine Function requirements for the current / live price
    */
-  protected Set<ValueRequirement> createLivePriceRequirement(Security security) {
+  protected Set<ValueRequirement> createLivePriceRequirement(final Security security) {
     final ComputationTargetReference securityTarget = new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId());
     final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
     return Collections.singleton(securityValueReq);
   }
-  
-  /** 
+
+  /**
    * @param security the target's security
    * @return Engine Function requirements for the closing / reference price
    */
-  protected Set<ValueRequirement> createReferencePriceRequirement(Security security) {
-    ValueRequirement htsReq =
+  protected Set<ValueRequirement> createReferencePriceRequirement(final Security security) {
+    final ValueRequirement htsReq =
         HistoricalTimeSeriesFunctionUtils.createHTSLatestRequirement(security, getClosingPriceField(), null);
     return Collections.singleton(htsReq);
   }
-  
-  // Provides the current / live price 
-  protected Double calculateLivePrice(FunctionInputs inputs, ComputationTarget target) {  
+
+  // Provides the current / live price
+  protected Double calculateLivePrice(final FunctionInputs inputs, final ComputationTarget target) {
     final ComputedValue valLivePrice = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
     if (valLivePrice == null) {
-      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + target);
+      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + target.getTrade().getSecurity().getName());
     }
     return (Double) valLivePrice.getValue();
   }
-  
+
   // Provides the closing / reference price
-  protected Double calculateReferencePrice(FunctionInputs inputs, ComputationTarget target) {
-    for (ComputedValue input : inputs.getAllValues()) {
+  protected Double calculateReferencePrice(final FunctionInputs inputs, final ComputationTarget target) {
+    for (final ComputedValue input : inputs.getAllValues()) {
       if (input.getSpecification().getValueName().equals(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST)) {
-        String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
+        final String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
         if (field.equals(getClosingPriceField())) {
-          Object value = input.getValue();
+          final Object value = input.getValue();
           if (value == null) {
             return null;
           }

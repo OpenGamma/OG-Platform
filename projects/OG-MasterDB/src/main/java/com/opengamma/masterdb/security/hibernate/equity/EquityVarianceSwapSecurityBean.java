@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -113,75 +114,6 @@ public class EquityVarianceSwapSecurityBean extends SecurityBean {
   @Override
   public EquityVarianceSwapSecurityBean.Meta metaBean() {
     return EquityVarianceSwapSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 663363412:  // annualizationFactor
-        return getAnnualizationFactor();
-      case 575402001:  // currency
-        return getCurrency();
-      case -1644595926:  // firstObservationDate
-        return getFirstObservationDate();
-      case -1362285436:  // lastObservationDate
-        return getLastObservationDate();
-      case 1585636160:  // notional
-        return getNotional();
-      case -213041520:  // observationFrequency
-        return getObservationFrequency();
-      case -752533291:  // parameterisedAsVariance
-        return isParameterisedAsVariance();
-      case -934795532:  // region
-        return getRegion();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case -714106872:  // spotUnderlyingIdentifier
-        return getSpotUnderlyingIdentifier();
-      case -891985998:  // strike
-        return getStrike();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 663363412:  // annualizationFactor
-        setAnnualizationFactor((Double) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case -1644595926:  // firstObservationDate
-        setFirstObservationDate((ZonedDateTimeBean) newValue);
-        return;
-      case -1362285436:  // lastObservationDate
-        setLastObservationDate((ZonedDateTimeBean) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -213041520:  // observationFrequency
-        setObservationFrequency((FrequencyBean) newValue);
-        return;
-      case -752533291:  // parameterisedAsVariance
-        setParameterisedAsVariance((Boolean) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((ExternalIdBean) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTimeBean) newValue);
-        return;
-      case -714106872:  // spotUnderlyingIdentifier
-        setSpotUnderlyingIdentifier((ExternalIdBean) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -460,6 +392,12 @@ public class EquityVarianceSwapSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EquityVarianceSwapSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EquityVarianceSwapSecurityBean}.
    */
@@ -678,6 +616,76 @@ public class EquityVarianceSwapSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Double> strike() {
       return _strike;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 663363412:  // annualizationFactor
+          return ((EquityVarianceSwapSecurityBean) bean).getAnnualizationFactor();
+        case 575402001:  // currency
+          return ((EquityVarianceSwapSecurityBean) bean).getCurrency();
+        case -1644595926:  // firstObservationDate
+          return ((EquityVarianceSwapSecurityBean) bean).getFirstObservationDate();
+        case -1362285436:  // lastObservationDate
+          return ((EquityVarianceSwapSecurityBean) bean).getLastObservationDate();
+        case 1585636160:  // notional
+          return ((EquityVarianceSwapSecurityBean) bean).getNotional();
+        case -213041520:  // observationFrequency
+          return ((EquityVarianceSwapSecurityBean) bean).getObservationFrequency();
+        case -752533291:  // parameterisedAsVariance
+          return ((EquityVarianceSwapSecurityBean) bean).isParameterisedAsVariance();
+        case -934795532:  // region
+          return ((EquityVarianceSwapSecurityBean) bean).getRegion();
+        case -295948169:  // settlementDate
+          return ((EquityVarianceSwapSecurityBean) bean).getSettlementDate();
+        case -714106872:  // spotUnderlyingIdentifier
+          return ((EquityVarianceSwapSecurityBean) bean).getSpotUnderlyingIdentifier();
+        case -891985998:  // strike
+          return ((EquityVarianceSwapSecurityBean) bean).getStrike();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 663363412:  // annualizationFactor
+          ((EquityVarianceSwapSecurityBean) bean).setAnnualizationFactor((Double) newValue);
+          return;
+        case 575402001:  // currency
+          ((EquityVarianceSwapSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case -1644595926:  // firstObservationDate
+          ((EquityVarianceSwapSecurityBean) bean).setFirstObservationDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1362285436:  // lastObservationDate
+          ((EquityVarianceSwapSecurityBean) bean).setLastObservationDate((ZonedDateTimeBean) newValue);
+          return;
+        case 1585636160:  // notional
+          ((EquityVarianceSwapSecurityBean) bean).setNotional((Double) newValue);
+          return;
+        case -213041520:  // observationFrequency
+          ((EquityVarianceSwapSecurityBean) bean).setObservationFrequency((FrequencyBean) newValue);
+          return;
+        case -752533291:  // parameterisedAsVariance
+          ((EquityVarianceSwapSecurityBean) bean).setParameterisedAsVariance((Boolean) newValue);
+          return;
+        case -934795532:  // region
+          ((EquityVarianceSwapSecurityBean) bean).setRegion((ExternalIdBean) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((EquityVarianceSwapSecurityBean) bean).setSettlementDate((ZonedDateTimeBean) newValue);
+          return;
+        case -714106872:  // spotUnderlyingIdentifier
+          ((EquityVarianceSwapSecurityBean) bean).setSpotUnderlyingIdentifier((ExternalIdBean) newValue);
+          return;
+        case -891985998:  // strike
+          ((EquityVarianceSwapSecurityBean) bean).setStrike((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

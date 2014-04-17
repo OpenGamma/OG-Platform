@@ -43,8 +43,13 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -145,7 +150,7 @@ public class InterestRateFutureOptionMarginHullWhiteMethodTest {
    * Tests the price versus an explicit formula.
    */
   public void price() {
-    final double t0 = ERH3.getLastTradingTime();
+    final double t0 = ERH3.getTradingLastTime();
     final double delta = ERH3.getFixingPeriodAccrualFactor();
     final double t1 = ERH3.getFixingPeriodStartTime();
     final double t2 = ERH3.getFixingPeriodEndTime();
@@ -153,7 +158,7 @@ public class InterestRateFutureOptionMarginHullWhiteMethodTest {
     final double alphaOpt = MODEL_HW.alpha(HW_PARAMETERS, 0.0, expiry, t1, t2);
     final double gammaFut = MODEL_HW.futuresConvexityFactor(HW_PARAMETERS, t0, t1, t2);
     final double ktilde = 1 - STRIKE_1;
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t1, t2, delta);
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, t1, t2, delta);
     final double exerciseBoundary = -1.0 / alphaOpt * (Math.log((1.0 + delta * ktilde) / (1 + delta * forward) / gammaFut) + alphaOpt * alphaOpt / 2.0);
     final double nKC = NORMAL.getCDF(-exerciseBoundary);
     final double nAKC = NORMAL.getCDF(-alphaOpt - exerciseBoundary);

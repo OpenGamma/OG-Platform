@@ -36,6 +36,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Manages the lifecycle of aggregated view definitions. There is really no such thing as an aggregated view
@@ -98,8 +99,8 @@ public class AggregatedViewDefinitionManager {
     if (aggregatorNames.isEmpty() || basePortfolioId == null) {
       return baseViewDefinitionId;
     }
-    Pair<UniqueId, List<String>> aggregatedViewDefinitionKey = Pair.of(baseViewDefinition.getUniqueId(), aggregatorNames);
-    Pair<UniqueId, List<String>> aggregatedPortfolioKey = Pair.of(basePortfolioId, aggregatorNames);
+    Pair<UniqueId, List<String>> aggregatedViewDefinitionKey = Pairs.of(baseViewDefinition.getUniqueId(), aggregatorNames);
+    Pair<UniqueId, List<String>> aggregatedPortfolioKey = Pairs.of(basePortfolioId, aggregatorNames);
     _lock.lock();
     try {
       ViewDefinitionReference aggregatedViewDefinitionReference = _aggregatedViewDefinitions.get(aggregatedViewDefinitionKey);
@@ -141,7 +142,7 @@ public class AggregatedViewDefinitionManager {
   }
 
   public void releaseViewDefinition(UniqueId baseViewDefinitionId, List<String> aggregatorNames) {
-    Pair<UniqueId, List<String>> aggregatedViewDefinitionKey = Pair.of(baseViewDefinitionId, aggregatorNames);
+    Pair<UniqueId, List<String>> aggregatedViewDefinitionKey = Pairs.of(baseViewDefinitionId, aggregatorNames);
     ViewDefinitionReference viewDefinitionReference = _aggregatedViewDefinitions.get(aggregatedViewDefinitionKey);
     if (viewDefinitionReference == null) {
       return;
@@ -152,7 +153,7 @@ public class AggregatedViewDefinitionManager {
         PortfolioReference portfolioReference = viewDefinitionReference.getPortfolioReference();
         if (portfolioReference.decrementReferenceCount() <= 0) {
           _userPortfolioMaster.remove(portfolioReference.getPortfolioId());
-          Pair<UniqueId, List<String>> aggregatedPortfolioKey = Pair.of(portfolioReference.getBasePortfolioId(), aggregatorNames);
+          Pair<UniqueId, List<String>> aggregatedPortfolioKey = Pairs.of(portfolioReference.getBasePortfolioId(), aggregatorNames);
           _aggregatedPortfolios.remove(aggregatedPortfolioKey);
         }
         _userConfigMaster.remove(viewDefinitionReference.getViewDefinitionId());

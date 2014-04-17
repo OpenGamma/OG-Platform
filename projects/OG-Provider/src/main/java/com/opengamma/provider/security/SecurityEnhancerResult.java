@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -99,24 +100,40 @@ public class SecurityEnhancerResult extends DirectBean {
     return SecurityEnhancerResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -572090789:  // resultList
-        return getResultList();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the securities that were enhanced.
+   * These are in the same order as the securities passed to the request.
+   * @return the value of the property, not null
+   */
+  public List<Security> getResultList() {
+    return _resultList;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets the securities that were enhanced.
+   * These are in the same order as the securities passed to the request.
+   * @param resultList  the new value of the property, not null
+   */
+  public void setResultList(List<Security> resultList) {
+    JodaBeanUtils.notNull(resultList, "resultList");
+    this._resultList.clear();
+    this._resultList.addAll(resultList);
+  }
+
+  /**
+   * Gets the the {@code resultList} property.
+   * These are in the same order as the securities passed to the request.
+   * @return the property, not null
+   */
+  public final Property<List<Security>> resultList() {
+    return metaBean().resultList().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -572090789:  // resultList
-        setResultList((List<Security>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  public SecurityEnhancerResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -138,33 +155,21 @@ public class SecurityEnhancerResult extends DirectBean {
     return hash;
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the securities that were enhanced.
-   * These are in the same order as the securities passed to the request.
-   * @return the value of the property
-   */
-  public List<Security> getResultList() {
-    return _resultList;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("SecurityEnhancerResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the securities that were enhanced.
-   * These are in the same order as the securities passed to the request.
-   * @param resultList  the new value of the property
-   */
-  public void setResultList(List<Security> resultList) {
-    this._resultList.clear();
-    this._resultList.addAll(resultList);
-  }
-
-  /**
-   * Gets the the {@code resultList} property.
-   * These are in the same order as the securities passed to the request.
-   * @return the property, not null
-   */
-  public final Property<List<Security>> resultList() {
-    return metaBean().resultList().createProperty(this);
+  protected void toString(StringBuilder buf) {
+    buf.append("resultList").append('=').append(JodaBeanUtils.toString(getResultList())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -227,6 +232,32 @@ public class SecurityEnhancerResult extends DirectBean {
      */
     public final MetaProperty<List<Security>> resultList() {
       return _resultList;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -572090789:  // resultList
+          return ((SecurityEnhancerResult) bean).getResultList();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -572090789:  // resultList
+          ((SecurityEnhancerResult) bean).setResultList((List<Security>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityEnhancerResult) bean)._resultList, "resultList");
     }
 
   }

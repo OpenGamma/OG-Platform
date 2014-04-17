@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceVisitor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.integration.Integrator1D;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -25,8 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * We assume the existence of a smooth function of these option prices / implied volatilities.
  * The portfolio weighting is 1/k^2. As such, this method is especially sensitive to strike near zero.
  * <p>
- * Note: This is not intended to handle large payment delays between last observation date and payment. No convexity adjustment has been applied.<p>
- * Note: Forward variance (forward starting observations) is intended to consider periods beginning more than A_FEW_WEEKS from trade inception
+ * Note: This is not intended to handle large payment delays between last observation date and payment. No convexity adjustment has been applied.
  */
 public class VarianceSwapStaticReplication {
   /** Calculates the expected annualised variance of an instrument with a log payoff */

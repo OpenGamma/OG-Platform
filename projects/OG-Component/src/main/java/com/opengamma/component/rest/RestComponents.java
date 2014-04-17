@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -206,93 +207,6 @@ public class RestComponents extends DirectBean {
     return RestComponents.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        return getBaseUri();
-      case 727200993:  // localComponents
-        return getLocalComponents();
-      case 329529340:  // remoteComponents
-        return getRemoteComponents();
-      case -392070920:  // rootResourceSingletons
-        return getRootResourceSingletons();
-      case -122531336:  // rootResourceFactories
-        return getRootResourceFactories();
-      case 805824133:  // helpers
-        return getHelpers();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: baseUri");
-      case 727200993:  // localComponents
-        setLocalComponents((List<RestComponent>) newValue);
-        return;
-      case 329529340:  // remoteComponents
-        setRemoteComponents((List<ComponentInfo>) newValue);
-        return;
-      case -392070920:  // rootResourceSingletons
-        setRootResourceSingletons((Set<Object>) newValue);
-        return;
-      case -122531336:  // rootResourceFactories
-        setRootResourceFactories((Set<RestResourceFactory>) newValue);
-        return;
-      case 805824133:  // helpers
-        setHelpers((Set<Object>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_baseUri, "baseUri");
-    JodaBeanUtils.notNull(_localComponents, "localComponents");
-    JodaBeanUtils.notNull(_remoteComponents, "remoteComponents");
-    JodaBeanUtils.notNull(_rootResourceSingletons, "rootResourceSingletons");
-    JodaBeanUtils.notNull(_rootResourceFactories, "rootResourceFactories");
-    JodaBeanUtils.notNull(_helpers, "helpers");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RestComponents other = (RestComponents) obj;
-      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
-          JodaBeanUtils.equal(getLocalComponents(), other.getLocalComponents()) &&
-          JodaBeanUtils.equal(getRemoteComponents(), other.getRemoteComponents()) &&
-          JodaBeanUtils.equal(getRootResourceSingletons(), other.getRootResourceSingletons()) &&
-          JodaBeanUtils.equal(getRootResourceFactories(), other.getRootResourceFactories()) &&
-          JodaBeanUtils.equal(getHelpers(), other.getHelpers());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLocalComponents());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRemoteComponents());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceSingletons());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceFactories());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHelpers());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the base URI.
@@ -325,9 +239,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the managed components.
    * These will be controlled by {@link DataComponentServerResource}.
-   * @param localComponents  the new value of the property
+   * @param localComponents  the new value of the property, not null
    */
   public void setLocalComponents(List<RestComponent> localComponents) {
+    JodaBeanUtils.notNull(localComponents, "localComponents");
     this._localComponents.clear();
     this._localComponents.addAll(localComponents);
   }
@@ -354,9 +269,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the remote components.
    * These have been imported from another server and are being re-exposed.
-   * @param remoteComponents  the new value of the property
+   * @param remoteComponents  the new value of the property, not null
    */
   public void setRemoteComponents(List<ComponentInfo> remoteComponents) {
+    JodaBeanUtils.notNull(remoteComponents, "remoteComponents");
     this._remoteComponents.clear();
     this._remoteComponents.addAll(remoteComponents);
   }
@@ -383,9 +299,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the set of root resources.
    * These are not managed by {@link DataComponentServerResource}.
-   * @param rootResourceSingletons  the new value of the property
+   * @param rootResourceSingletons  the new value of the property, not null
    */
   public void setRootResourceSingletons(Set<Object> rootResourceSingletons) {
+    JodaBeanUtils.notNull(rootResourceSingletons, "rootResourceSingletons");
     this._rootResourceSingletons.clear();
     this._rootResourceSingletons.addAll(rootResourceSingletons);
   }
@@ -412,9 +329,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the set of root resource factories.
    * These are not managed by {@link DataComponentServerResource}.
-   * @param rootResourceFactories  the new value of the property
+   * @param rootResourceFactories  the new value of the property, not null
    */
   public void setRootResourceFactories(Set<RestResourceFactory> rootResourceFactories) {
+    JodaBeanUtils.notNull(rootResourceFactories, "rootResourceFactories");
     this._rootResourceFactories.clear();
     this._rootResourceFactories.addAll(rootResourceFactories);
   }
@@ -441,9 +359,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the set of additional singleton JAX-RS helper objects that are used by JAX-RS.
    * This may include filters, providers and consumers that should be used directly by JAX-RS.
-   * @param helpers  the new value of the property
+   * @param helpers  the new value of the property, not null
    */
   public void setHelpers(Set<Object> helpers) {
+    JodaBeanUtils.notNull(helpers, "helpers");
     this._helpers.clear();
     this._helpers.addAll(helpers);
   }
@@ -455,6 +374,63 @@ public class RestComponents extends DirectBean {
    */
   public final Property<Set<Object>> helpers() {
     return metaBean().helpers().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RestComponents clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RestComponents other = (RestComponents) obj;
+      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
+          JodaBeanUtils.equal(getLocalComponents(), other.getLocalComponents()) &&
+          JodaBeanUtils.equal(getRemoteComponents(), other.getRemoteComponents()) &&
+          JodaBeanUtils.equal(getRootResourceSingletons(), other.getRootResourceSingletons()) &&
+          JodaBeanUtils.equal(getRootResourceFactories(), other.getRootResourceFactories()) &&
+          JodaBeanUtils.equal(getHelpers(), other.getHelpers());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLocalComponents());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRemoteComponents());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceSingletons());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceFactories());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHelpers());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("RestComponents{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("baseUri").append('=').append(JodaBeanUtils.toString(getBaseUri())).append(',').append(' ');
+    buf.append("localComponents").append('=').append(JodaBeanUtils.toString(getLocalComponents())).append(',').append(' ');
+    buf.append("remoteComponents").append('=').append(JodaBeanUtils.toString(getRemoteComponents())).append(',').append(' ');
+    buf.append("rootResourceSingletons").append('=').append(JodaBeanUtils.toString(getRootResourceSingletons())).append(',').append(' ');
+    buf.append("rootResourceFactories").append('=').append(JodaBeanUtils.toString(getRootResourceFactories())).append(',').append(' ');
+    buf.append("helpers").append('=').append(JodaBeanUtils.toString(getHelpers())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -601,6 +577,64 @@ public class RestComponents extends DirectBean {
      */
     public final MetaProperty<Set<Object>> helpers() {
       return _helpers;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          return ((RestComponents) bean).getBaseUri();
+        case 727200993:  // localComponents
+          return ((RestComponents) bean).getLocalComponents();
+        case 329529340:  // remoteComponents
+          return ((RestComponents) bean).getRemoteComponents();
+        case -392070920:  // rootResourceSingletons
+          return ((RestComponents) bean).getRootResourceSingletons();
+        case -122531336:  // rootResourceFactories
+          return ((RestComponents) bean).getRootResourceFactories();
+        case 805824133:  // helpers
+          return ((RestComponents) bean).getHelpers();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          if (quiet) {
+            return;
+          }
+          throw new UnsupportedOperationException("Property cannot be written: baseUri");
+        case 727200993:  // localComponents
+          ((RestComponents) bean).setLocalComponents((List<RestComponent>) newValue);
+          return;
+        case 329529340:  // remoteComponents
+          ((RestComponents) bean).setRemoteComponents((List<ComponentInfo>) newValue);
+          return;
+        case -392070920:  // rootResourceSingletons
+          ((RestComponents) bean).setRootResourceSingletons((Set<Object>) newValue);
+          return;
+        case -122531336:  // rootResourceFactories
+          ((RestComponents) bean).setRootResourceFactories((Set<RestResourceFactory>) newValue);
+          return;
+        case 805824133:  // helpers
+          ((RestComponents) bean).setHelpers((Set<Object>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RestComponents) bean)._baseUri, "baseUri");
+      JodaBeanUtils.notNull(((RestComponents) bean)._localComponents, "localComponents");
+      JodaBeanUtils.notNull(((RestComponents) bean)._remoteComponents, "remoteComponents");
+      JodaBeanUtils.notNull(((RestComponents) bean)._rootResourceSingletons, "rootResourceSingletons");
+      JodaBeanUtils.notNull(((RestComponents) bean)._rootResourceFactories, "rootResourceFactories");
+      JodaBeanUtils.notNull(((RestComponents) bean)._helpers, "helpers");
     }
 
   }

@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -215,50 +216,6 @@ public class SimplePortfolio extends DirectBean
     return SimplePortfolio.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case -167026172:  // rootNode
-        return getRootNode();
-      case 405645655:  // attributes
-        return getAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -167026172:  // rootNode
-        setRootNode((SimplePortfolioNode) newValue);
-        return;
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_uniqueId, "uniqueId");
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_rootNode, "rootNode");
-    JodaBeanUtils.notNull(_attributes, "attributes");
-    super.validate();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the portfolio.
@@ -350,9 +307,10 @@ public class SimplePortfolio extends DirectBean
   /**
    * Sets the general purpose portfolio attributes.
    * These can be used to add arbitrary additional information to the object.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -364,6 +322,12 @@ public class SimplePortfolio extends DirectBean
    */
   public final Property<Map<String, String>> attributes() {
     return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimplePortfolio clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   //-----------------------------------------------------------------------
@@ -474,6 +438,50 @@ public class SimplePortfolio extends DirectBean
      */
     public final MetaProperty<Map<String, String>> attributes() {
       return _attributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimplePortfolio) bean).getUniqueId();
+        case 3373707:  // name
+          return ((SimplePortfolio) bean).getName();
+        case -167026172:  // rootNode
+          return ((SimplePortfolio) bean).getRootNode();
+        case 405645655:  // attributes
+          return ((SimplePortfolio) bean).getAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimplePortfolio) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((SimplePortfolio) bean).setName((String) newValue);
+          return;
+        case -167026172:  // rootNode
+          ((SimplePortfolio) bean).setRootNode((SimplePortfolioNode) newValue);
+          return;
+        case 405645655:  // attributes
+          ((SimplePortfolio) bean).setAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimplePortfolio) bean)._uniqueId, "uniqueId");
+      JodaBeanUtils.notNull(((SimplePortfolio) bean)._name, "name");
+      JodaBeanUtils.notNull(((SimplePortfolio) bean)._rootNode, "rootNode");
+      JodaBeanUtils.notNull(((SimplePortfolio) bean)._attributes, "attributes");
     }
 
   }

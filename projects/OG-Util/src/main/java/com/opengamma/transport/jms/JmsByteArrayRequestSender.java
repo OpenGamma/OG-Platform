@@ -25,6 +25,7 @@ import org.springframework.jms.core.SessionCallback;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
  * An RPC message sender/receiver that uses JMS.
@@ -44,20 +45,19 @@ public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implem
   /**
    * Creates an instance associated with a destination and template.
    * 
-   * @param destinationName  the destination name, not null
-   * @param jmsTemplate  the template, not null
+   * @param destinationName the destination name, not null
+   * @param jmsTemplate the template, not null
    */
   public JmsByteArrayRequestSender(final String destinationName, final JmsTemplate jmsTemplate) {
-    this(destinationName, jmsTemplate, Executors.newCachedThreadPool());
+    this(destinationName, jmsTemplate, Executors.newCachedThreadPool(new NamedThreadPoolFactory("JMS-request")));
   }
 
   /**
-   * Creates an instance associated with a destination and template, specifying
-   * the executor to use.
+   * Creates an instance associated with a destination and template, specifying the executor to use.
    * 
-   * @param destinationName  the destination name, not null
-   * @param jmsTemplate  the template, not null
-   * @param executor  the executor, not null
+   * @param destinationName the destination name, not null
+   * @param jmsTemplate the template, not null
+   * @param executor the executor, not null
    */
   public JmsByteArrayRequestSender(final String destinationName, final JmsTemplate jmsTemplate, final ExecutorService executor) {
     super(destinationName, jmsTemplate);
@@ -67,8 +67,7 @@ public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implem
 
   //-------------------------------------------------------------------------
   @Override
-  public void sendRequest(final byte[] request,
-      final ByteArrayMessageReceiver responseReceiver) {
+  public void sendRequest(final byte[] request, final ByteArrayMessageReceiver responseReceiver) {
     s_logger.debug("Dispatching request of size {} to destination {}", request.length, getDestinationName());
     _executor.execute(new Runnable() {
       @Override
@@ -80,7 +79,7 @@ public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implem
               final TemporaryTopic tempTopic = session.createTemporaryTopic();
               s_logger.debug("Requesting response to temp topic {}", tempTopic);
               final byte[] bytes;
-              
+
               final MessageConsumer consumer = session.createConsumer(tempTopic);
               try {
                 final BytesMessage bytesMessage = session.createBytesMessage();
@@ -93,7 +92,7 @@ public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implem
                 } finally {
                   producer.close();
                 }
-                final  Message response = consumer.receive(getJmsTemplate().getReceiveTimeout());
+                final Message response = consumer.receive(getJmsTemplate().getReceiveTimeout());
                 if (response == null) {
                   // TODO UTL-37.
                   s_logger.error("Timeout reached while waiting for a response to send to {}", responseReceiver);

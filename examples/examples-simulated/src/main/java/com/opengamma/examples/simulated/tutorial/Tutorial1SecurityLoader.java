@@ -32,16 +32,16 @@ import com.opengamma.util.money.Currency;
  */
 public class Tutorial1SecurityLoader extends AbstractTool<ToolContext> {
 
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) { // CSIGNORE
-    try {
-      new Tutorial1SecurityLoader().initAndRun(args, ToolContext.class);
-      System.exit(0);
-    } catch (final Throwable t) {
-      t.printStackTrace();
-      System.exit(1);
-    }
+    new Tutorial1SecurityLoader().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates five sample instances of {@link Tutorial1Security}.
    * <p>

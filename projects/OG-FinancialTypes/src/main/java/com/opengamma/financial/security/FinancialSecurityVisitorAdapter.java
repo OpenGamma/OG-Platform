@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -22,15 +25,22 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -44,7 +54,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -53,6 +65,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -61,6 +74,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
@@ -96,6 +111,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
   }
 
   @Override
+  public T visitBillSecurity(final BillSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
   public T visitCorporateBondSecurity(final CorporateBondSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
@@ -109,7 +129,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
-  
+
   @Override
   public T visitInflationBondSecurity(final InflationBondSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
@@ -122,6 +142,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitCapFloorSecurity(final CapFloorSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitCashBalanceSecurity(final CashBalanceSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
@@ -177,6 +202,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitFRASecurity(final FRASecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
@@ -335,6 +365,66 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
+  @Override
+  public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitIndexCDSSecurity(final IndexCDSSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
   /**
    * Generic message for unsupported methods in FinancialSecurityVisitor implementations
    *
@@ -372,6 +462,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
     private FinancialSecurityVisitor<T> _visitor;
 
+    public Builder<T> billSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitBillSecurity(final BillSecurity security) {
+          return visitor.visitBillSecurity(security);
+        }
+      };
+      return this;
+    }
+
     public Builder<T> municipalBondSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -402,6 +502,26 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> inflationBondSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitInflationBondSecurity(final InflationBondSecurity security) {
+          return visitor.visitInflationBondSecurity(security);
+        }
+      };
+      return this;
+    }
+    
+    public Builder<T> cashBalanceSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitCashBalanceSecurity(final CashBalanceSecurity security) {
+          return visitor.visitCashBalanceSecurity(security);
+        }
+      };
+      return this;
+    }
+
     public Builder<T> cashSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -421,11 +541,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
-    
+
     public Builder<T> deliverableSwapFutureSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
-        public T visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
+        public T visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
           return visitor.visitDeliverableSwapFutureSecurity(security);
         }
       };
@@ -448,6 +568,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         public T visitFRASecurity(final FRASecurity security) {
           return visitor.visitFRASecurity(security);
         }
+
+        @Override
+        public T visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+          return visitor.visitForwardRateAgreementSecurity(security);
+        }
       };
       return this;
     }
@@ -457,6 +582,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         @Override
         public T visitSwapSecurity(final SwapSecurity security) {
           return visitor.visitSwapSecurity(security);
+        }
+
+        @Override
+        public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          return visitor.visitInterestRateSwapSecurity(security);
         }
       };
       return this;
@@ -511,7 +641,6 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
-
 
     public Builder<T> equityIndexDividendFutureOptionVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
@@ -744,7 +873,6 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
-
     public Builder<T> fxFutureSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -785,7 +913,6 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
-
     public Builder<T> agricultureFutureSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -825,7 +952,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
-    
+
     public Builder<T> federalFundsFutureSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -866,7 +993,6 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
-
     // simple values
 
     public Builder<T> municipalBondSecurityVisitor(final T value) {
@@ -893,6 +1019,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
         public T visitCorporateBondSecurity(final CorporateBondSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> cashBalanceSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitCashBalanceSecurity(final CashBalanceSecurity security) {
           return value;
         }
       };
@@ -1230,7 +1366,6 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
-
     public Builder<T> fxFutureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -1270,7 +1405,6 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
-
 
     public Builder<T> agricultureFutureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
@@ -1321,7 +1455,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
-    
+
     public Builder<T> agricultureForwardSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -1442,6 +1576,113 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> interestRateSwapSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> fxVolatilitySwapSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> exchangeTradedFundSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> americanDepositaryReceiptSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> equityWarrantSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> floatingRateNoteSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> equityTotalReturnSwapSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> bondTotalReturnSwapSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> creditSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitIndexCDSSecurity(final IndexCDSSecurity security) {
+          return value;
+        }
+
+      };
+      return this;
+    }
+
     public Builder<T> futureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -1515,12 +1756,21 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         public T visitCorporateBondSecurity(final CorporateBondSecurity security) {
           return visitor.visitCorporateBondSecurity(security);
         }
+        @Override
+        public T visitInflationBondSecurity(final InflationBondSecurity security) {
+          return visitor.visitInflationBondSecurity(security);
+        }
       };
       return this;
     }
 
     public Builder<T> sameValueForSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitBillSecurity(final BillSecurity security) {
+          return value;
+        }
+
         @Override
         public T visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
           return value;
@@ -1548,6 +1798,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
         @Override
         public T visitCapFloorSecurity(final CapFloorSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitCashBalanceSecurity(final CashBalanceSecurity security) {
           return value;
         }
 
@@ -1781,6 +2036,65 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
           return value;
         }
 
+        @Override
+        public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitIndexCDSSecurity(final IndexCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+          return value;
+        }
       };
       return this;
     }

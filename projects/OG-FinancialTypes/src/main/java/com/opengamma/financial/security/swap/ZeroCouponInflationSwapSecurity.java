@@ -16,12 +16,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A security for a zero-coupon inflation swap.
  */
 @BeanDefinition
+@SecurityDescription(type = ZeroCouponInflationSwapSecurity.SECURITY_TYPE, description = "Zero coupon inflation swap")
 public class ZeroCouponInflationSwapSecurity extends SwapSecurity {
 
   /** Serialization version */
@@ -79,14 +81,10 @@ public class ZeroCouponInflationSwapSecurity extends SwapSecurity {
     return ZeroCouponInflationSwapSecurity.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public ZeroCouponInflationSwapSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -104,6 +102,24 @@ public class ZeroCouponInflationSwapSecurity extends SwapSecurity {
   public int hashCode() {
     int hash = 7;
     return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("ZeroCouponInflationSwapSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------

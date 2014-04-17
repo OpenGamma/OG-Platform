@@ -17,14 +17,24 @@ import com.opengamma.analytics.math.surface.Surface;
  */
 @Deprecated
 public final class ConstantSpreadInterestRateFutureOptionBlackDataRolldown implements RolldownFunction<YieldCurveWithBlackCubeBundle> {
+  /** Rolls down the yield curves without slide */
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
+  /** Rolls down the volatility surface without slide */
   private static final ConstantSpreadSurfaceRolldownFunction SURFACE_ROLLDOWN = ConstantSpreadSurfaceRolldownFunction.getInstance();
+  /** The singleton instance */
   private static final ConstantSpreadInterestRateFutureOptionBlackDataRolldown INSTANCE = new ConstantSpreadInterestRateFutureOptionBlackDataRolldown();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static ConstantSpreadInterestRateFutureOptionBlackDataRolldown getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private ConstantSpreadInterestRateFutureOptionBlackDataRolldown() {
   }
 

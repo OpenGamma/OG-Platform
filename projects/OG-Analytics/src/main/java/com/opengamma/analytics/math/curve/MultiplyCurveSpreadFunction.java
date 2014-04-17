@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.math.curve;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A function that performs multiplication on each of the constituent curves.
@@ -22,8 +21,25 @@ import com.opengamma.analytics.math.function.Function;
  */
 
 public class MultiplyCurveSpreadFunction implements CurveSpreadFunction {
-  private static final String NAME = "*";
+  /** The operation name */
+  public static final String NAME = "*";
+  /** An instance of this function */
+  private static final MultiplyCurveSpreadFunction INSTANCE = new MultiplyCurveSpreadFunction();
 
+  /**
+   * Gets an instance of this function
+   * @return The instance
+   */
+  public static CurveSpreadFunction getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * @deprecated Use {@link #getInstance()}
+   */
+  @Deprecated
+  public MultiplyCurveSpreadFunction() {
+  }
   /**
    * @param curves An array of curves, not null or empty
    * @return A function that will find the value of each curve at the given input <i>x</i> and multiply each in turn
@@ -31,14 +47,14 @@ public class MultiplyCurveSpreadFunction implements CurveSpreadFunction {
   @SuppressWarnings("unchecked")
   @Override
   public Function<Double, Double> evaluate(final Curve<Double, Double>... curves) {
-    Validate.notNull(curves, "x");
-    Validate.notEmpty(curves, "curves");
+    ArgumentChecker.notNull(curves, "x");
+    ArgumentChecker.notEmpty(curves, "curves");
     return new Function<Double, Double>() {
 
       @Override
       public Double evaluate(final Double... x) {
-        Validate.notNull(x, "x");
-        Validate.notEmpty(x, "x");
+        ArgumentChecker.notNull(x, "x");
+        ArgumentChecker.notEmpty(x, "x");
         final double x0 = x[0];
         double y = curves[0].getYValue(x0);
         for (int i = 1; i < curves.length; i++) {
@@ -50,11 +66,14 @@ public class MultiplyCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getOperationName() {
     return NAME;
   }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
 }

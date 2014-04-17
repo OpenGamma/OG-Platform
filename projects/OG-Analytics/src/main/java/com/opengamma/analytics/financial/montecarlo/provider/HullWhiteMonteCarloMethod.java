@@ -298,10 +298,10 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     }
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(numeraireTime, -numeraireTime * pDN * pDNBar));
+    listDiscounting.add(DoublesPair.of(numeraireTime, -numeraireTime * pDN * pDNBar));
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {
-        listDiscounting.add(new DoublesPair(impactTime[loopjump][loopimp], -impactTime[loopjump][loopimp] * pDI[loopjump][loopimp] * pDIBar[loopjump][loopimp]));
+        listDiscounting.add(DoublesPair.of(impactTime[loopjump][loopimp], -impactTime[loopjump][loopimp] * pDI[loopjump][loopimp] * pDIBar[loopjump][loopimp]));
       }
     }
     resultMap.put(multicurves.getName(ccy), listDiscounting);

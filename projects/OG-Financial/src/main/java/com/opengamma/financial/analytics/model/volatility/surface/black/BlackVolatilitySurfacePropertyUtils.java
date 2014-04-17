@@ -357,9 +357,9 @@ public class BlackVolatilitySurfacePropertyUtils {
   public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final ValueProperties additionalConstraints, final String surfaceName,
       final String forwardCurveName, final String instrumentType, final ComputationTargetType targetType, final ExternalId surfaceId) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
-    if (calculationMethod != null && calculationMethod.size() == 1) {
-      if (!BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL.equals(Iterables.getOnlyElement(calculationMethod))) {
+    final String calculationMethod = constraints.getStrictValue(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+    if (calculationMethod != null) {
+      if (!BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL.equals(calculationMethod)) {
         return null;
       }
     }
@@ -386,15 +386,15 @@ public class BlackVolatilitySurfacePropertyUtils {
     for (final String constraint : constraints.getProperties()) {
       if (!constraints.getValues(constraint).isEmpty() && interpolationPropertyNames.contains(constraint)) {
         allProperties
-          .withoutAny(constraint)
-          .with(constraint, constraints.getValues(constraint));
+            .withoutAny(constraint)
+            .with(constraint, constraints.getValues(constraint));
       }
     }
     if (constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME) != null) {
       allProperties
-        .withoutAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CURVE, forwardCurveName)
-        .get();
+          .withoutAny(ValuePropertyNames.CURVE)
+          .with(ValuePropertyNames.CURVE, forwardCurveName)
+          .get();
     }
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, targetType, surfaceId, allProperties.get());
   }

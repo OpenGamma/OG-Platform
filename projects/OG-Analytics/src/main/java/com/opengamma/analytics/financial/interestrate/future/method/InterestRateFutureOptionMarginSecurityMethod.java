@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

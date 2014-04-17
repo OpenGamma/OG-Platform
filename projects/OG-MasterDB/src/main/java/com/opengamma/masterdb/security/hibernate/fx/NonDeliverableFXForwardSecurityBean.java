@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -92,55 +93,6 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
   @Override
   public NonDeliverableFXForwardSecurityBean.Meta metaBean() {
     return NonDeliverableFXForwardSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1652755475:  // forwardDate
-        return getForwardDate();
-      case -934795532:  // region
-        return getRegion();
-      case -295641895:  // payCurrency
-        return getPayCurrency();
-      case -1338781920:  // payAmount
-        return getPayAmount();
-      case -1228590060:  // receiveCurrency
-        return getReceiveCurrency();
-      case 984267035:  // receiveAmount
-        return getReceiveAmount();
-      case 2073187722:  // deliverInReceiveCurrency
-        return isDeliverInReceiveCurrency();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1652755475:  // forwardDate
-        setForwardDate((ZonedDateTimeBean) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((ExternalIdBean) newValue);
-        return;
-      case -295641895:  // payCurrency
-        setPayCurrency((CurrencyBean) newValue);
-        return;
-      case -1338781920:  // payAmount
-        setPayAmount((Double) newValue);
-        return;
-      case -1228590060:  // receiveCurrency
-        setReceiveCurrency((CurrencyBean) newValue);
-        return;
-      case 984267035:  // receiveAmount
-        setReceiveAmount((Double) newValue);
-        return;
-      case 2073187722:  // deliverInReceiveCurrency
-        setDeliverInReceiveCurrency((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -319,6 +271,37 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public NonDeliverableFXForwardSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("NonDeliverableFXForwardSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("forwardDate").append('=').append(JodaBeanUtils.toString(getForwardDate())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("payCurrency").append('=').append(JodaBeanUtils.toString(getPayCurrency())).append(',').append(' ');
+    buf.append("payAmount").append('=').append(JodaBeanUtils.toString(getPayAmount())).append(',').append(' ');
+    buf.append("receiveCurrency").append('=').append(JodaBeanUtils.toString(getReceiveCurrency())).append(',').append(' ');
+    buf.append("receiveAmount").append('=').append(JodaBeanUtils.toString(getReceiveAmount())).append(',').append(' ');
+    buf.append("deliverInReceiveCurrency").append('=').append(JodaBeanUtils.toString(isDeliverInReceiveCurrency())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code NonDeliverableFXForwardSecurityBean}.
    */
@@ -473,6 +456,56 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Boolean> deliverInReceiveCurrency() {
       return _deliverInReceiveCurrency;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1652755475:  // forwardDate
+          return ((NonDeliverableFXForwardSecurityBean) bean).getForwardDate();
+        case -934795532:  // region
+          return ((NonDeliverableFXForwardSecurityBean) bean).getRegion();
+        case -295641895:  // payCurrency
+          return ((NonDeliverableFXForwardSecurityBean) bean).getPayCurrency();
+        case -1338781920:  // payAmount
+          return ((NonDeliverableFXForwardSecurityBean) bean).getPayAmount();
+        case -1228590060:  // receiveCurrency
+          return ((NonDeliverableFXForwardSecurityBean) bean).getReceiveCurrency();
+        case 984267035:  // receiveAmount
+          return ((NonDeliverableFXForwardSecurityBean) bean).getReceiveAmount();
+        case 2073187722:  // deliverInReceiveCurrency
+          return ((NonDeliverableFXForwardSecurityBean) bean).isDeliverInReceiveCurrency();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1652755475:  // forwardDate
+          ((NonDeliverableFXForwardSecurityBean) bean).setForwardDate((ZonedDateTimeBean) newValue);
+          return;
+        case -934795532:  // region
+          ((NonDeliverableFXForwardSecurityBean) bean).setRegion((ExternalIdBean) newValue);
+          return;
+        case -295641895:  // payCurrency
+          ((NonDeliverableFXForwardSecurityBean) bean).setPayCurrency((CurrencyBean) newValue);
+          return;
+        case -1338781920:  // payAmount
+          ((NonDeliverableFXForwardSecurityBean) bean).setPayAmount((Double) newValue);
+          return;
+        case -1228590060:  // receiveCurrency
+          ((NonDeliverableFXForwardSecurityBean) bean).setReceiveCurrency((CurrencyBean) newValue);
+          return;
+        case 984267035:  // receiveAmount
+          ((NonDeliverableFXForwardSecurityBean) bean).setReceiveAmount((Double) newValue);
+          return;
+        case 2073187722:  // deliverInReceiveCurrency
+          ((NonDeliverableFXForwardSecurityBean) bean).setDeliverInReceiveCurrency((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

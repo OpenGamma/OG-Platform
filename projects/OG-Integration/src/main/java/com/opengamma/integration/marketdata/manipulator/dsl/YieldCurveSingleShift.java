@@ -13,11 +13,13 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * {@link StructureManipulator} that shifts all points on a curve up or down by the same amount.
- * Uses {@link YieldAndDiscountCurve#withParallelShift(double)} to perform the transformation.
+ * Uses {@link YieldAndDiscountCurve#withSingleShift} to perform the transformation.
+ * TODO can this be deleted in favour of pointShift with a single point?
  */
 public class YieldCurveSingleShift implements StructureManipulator<YieldAndDiscountCurve> {
 
@@ -37,7 +39,9 @@ public class YieldCurveSingleShift implements StructureManipulator<YieldAndDisco
   }
 
   @Override
-  public YieldAndDiscountCurve execute(YieldAndDiscountCurve structure) {
+  public YieldAndDiscountCurve execute(YieldAndDiscountCurve structure,
+                                       ValueSpecification valueSpecification,
+                                       FunctionExecutionContext executionContext) {
     return structure.withSingleShift(_t, _shift);
   }
 

@@ -11,6 +11,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
@@ -30,6 +31,10 @@ import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
  */
 @FudgeBuilderFor(DoubleTimeSeries.class)
 public class DoubleTimeSeriesFudgeBuilder implements FudgeBuilder<DoubleTimeSeries<?>> {
+
+  private static final int[] EMPTY_INTEGER_ARRAY = new int[0];
+  private static final long[] EMPTY_LONG_ARRAY = new long[0];
+  private static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
 
   /** Field name. */
   public static final String DATES = "dates";
@@ -62,32 +67,62 @@ public class DoubleTimeSeriesFudgeBuilder implements FudgeBuilder<DoubleTimeSeri
   }
 
   void buildMessage(final MutableFudgeMsg message, DateDoubleTimeSeries<?> series) {
-    message.add(DATES, null, FudgeWireType.INT_ARRAY, series.timesArrayFast());
-    message.add(VALUES, null, FudgeWireType.DOUBLE_ARRAY, series.valuesArrayFast());
+    final double[] values = series.valuesArrayFast();
+    if (values.length > 0) {
+      message.add(DATES, null, FudgeWireType.INT_ARRAY, series.timesArrayFast());
+      message.add(VALUES, null, FudgeWireType.DOUBLE_ARRAY, values);
+    } else {
+      message.add(DATES, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+      message.add(VALUES, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+    }
   }
 
   void buildMessage(final MutableFudgeMsg message, PreciseDoubleTimeSeries<?> series) {
-    message.add(INSTANTS, null, FudgeWireType.LONG_ARRAY, series.timesArrayFast());
-    message.add(VALUES, null, FudgeWireType.DOUBLE_ARRAY, series.valuesArrayFast());
+    final double[] values = series.valuesArrayFast();
+    if (values.length > 0) {
+      message.add(INSTANTS, null, FudgeWireType.LONG_ARRAY, series.timesArrayFast());
+      message.add(VALUES, null, FudgeWireType.DOUBLE_ARRAY, values);
+    } else {
+      message.add(INSTANTS, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+      message.add(VALUES, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+    }
   }
 
   void buildMessage(final MutableFudgeMsg message, ZonedDateTimeDoubleTimeSeries series) {
-    message.add(INSTANTS, null, FudgeWireType.LONG_ARRAY, series.timesArrayFast());
-    message.add(VALUES, null, FudgeWireType.DOUBLE_ARRAY, series.valuesArrayFast());
-    message.add(ZONE, null, FudgeWireType.STRING, series.getZone().getId());
+    final double[] values = series.valuesArrayFast();
+    if (values.length > 0) {
+      message.add(INSTANTS, null, FudgeWireType.LONG_ARRAY, series.timesArrayFast());
+      message.add(VALUES, null, FudgeWireType.DOUBLE_ARRAY, values);
+      message.add(ZONE, null, FudgeWireType.STRING, series.getZone().getId());
+    } else {
+      message.add(INSTANTS, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+      message.add(VALUES, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+      message.add(ZONE, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T value(final FudgeMsg message, final String field, final T indicator) {
+    final Object value = message.getValue(field);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof IndicatorType) {
+      return indicator;
+    }
+    return (T) value;
   }
 
   @Override
   public DoubleTimeSeries<?> buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     // read old LocalDateDoubleTimeSeries, see OpenGammaFudgeContext
-    if (message.getByOrdinal(0).toString().contains("ArrayLocalDateDoubleTimeSeries") ||
-        message.getByOrdinal(0).toString().contains("ListLocalDateDoubleTimeSeries") ||
+    if (message.getByOrdinal(0).toString().contains("ArrayLocalDateDoubleTimeSeries") || message.getByOrdinal(0).toString().contains("ListLocalDateDoubleTimeSeries") ||
         message.getByOrdinal(0).toString().contains("MapLocalDateDoubleTimeSeries")) {
       FudgeMsg fastSeries = message.getMessage(2);
       String encoding = fastSeries.getMessage(1).getString(1);
       int[] dates = (int[]) fastSeries.getValue(2);
       double[] values = (double[]) fastSeries.getValue(3);
-      if (encoding.equals("DATE_DDMMYYYY")) {  // CSIGNORE
+      if (encoding.equals("DATE_DDMMYYYY")) { // CSIGNORE
         // correct encoding
       } else if (encoding.equals("DATE_EPOCH_DAYS")) {
         for (int i = 0; i < dates.length; i++) {
@@ -99,7 +134,7 @@ public class DoubleTimeSeriesFudgeBuilder implements FudgeBuilder<DoubleTimeSeri
       }
       return ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     }
-    
+
     // read old ZonedDateTimeDoubleTimeSeries, see OpenGammaFudgeContext
     if (message.getByOrdinal(0).toString().contains("ZonedDateTimeDoubleTimeSeries")) {
       ZoneId zone = ZoneOffset.UTC;
@@ -113,7 +148,7 @@ public class DoubleTimeSeriesFudgeBuilder implements FudgeBuilder<DoubleTimeSeri
       String encoding = fastSeries.getMessage(1).getString(1);
       long[] instants = (long[]) fastSeries.getValue(2);
       double[] values = (double[]) fastSeries.getValue(3);
-      if (encoding.equals("TIME_EPOCH_NANOS")) {  // CSIGNORE
+      if (encoding.equals("TIME_EPOCH_NANOS")) { // CSIGNORE
         // correct encoding
       } else if (encoding.equals("TIME_EPOCH_MILLIS")) {
         for (int i = 0; i < instants.length; i++) {
@@ -128,11 +163,11 @@ public class DoubleTimeSeriesFudgeBuilder implements FudgeBuilder<DoubleTimeSeri
       }
       return ImmutableZonedDateTimeDoubleTimeSeries.of(instants, values, zone);
     }
-    
+
     // read new format
-    int[] dates = (int[]) message.getValue(DATES);
-    long[] instants = (long[]) message.getValue(INSTANTS);
-    double[] values = (double[]) message.getValue(VALUES);
+    int[] dates = value(message, DATES, EMPTY_INTEGER_ARRAY);
+    long[] instants = value(message, INSTANTS, EMPTY_LONG_ARRAY);
+    double[] values = value(message, VALUES, EMPTY_DOUBLE_ARRAY);
     String zoneId = message.getString(ZONE);
     if (dates != null) {
       return ImmutableLocalDateDoubleTimeSeries.of(dates, values);

@@ -74,7 +74,7 @@ public class DataBatchMasterResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response searchMarketData(PagingRequest pagingRequest) {
     Pair<List<MarketData>, Paging> result = getMaster().getMarketData(pagingRequest);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /*
@@ -92,7 +92,7 @@ public class DataBatchMasterResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response searchBatchRuns(BatchRunSearchRequest request) {
     Pair<List<RiskRun>, Paging> result = getMaster().searchRiskRun(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }  
 
   @Path("run/{id}")

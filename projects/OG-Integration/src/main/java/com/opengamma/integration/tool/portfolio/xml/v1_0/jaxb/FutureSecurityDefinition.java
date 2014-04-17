@@ -6,24 +6,25 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.YearMonth;
-import java.util.Map;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.YearMonth;
 
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedFutureSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedSecurityExtractor;
@@ -85,88 +86,6 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
   @Override
   public FutureSecurityDefinition.Meta metaBean() {
     return FutureSecurityDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 537589661:  // futureType
-        return getFutureType();
-      case 106934601:  // price
-        return getPrice();
-      case 797235414:  // futureExpiry
-        return getFutureExpiry();
-      case 389497452:  // settlementExchange
-        return getSettlementExchange();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case -673825823:  // futureCategory
-        return getFutureCategory();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 537589661:  // futureType
-        setFutureType((ListedFutureType) newValue);
-        return;
-      case 106934601:  // price
-        setPrice((BigDecimal) newValue);
-        return;
-      case 797235414:  // futureExpiry
-        setFutureExpiry((YearMonth) newValue);
-        return;
-      case 389497452:  // settlementExchange
-        setSettlementExchange((String) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((LocalDate) newValue);
-        return;
-      case -673825823:  // futureCategory
-        setFutureCategory((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_futureType, "futureType");
-    JodaBeanUtils.notNull(_price, "price");
-    JodaBeanUtils.notNull(_futureExpiry, "futureExpiry");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FutureSecurityDefinition other = (FutureSecurityDefinition) obj;
-      return JodaBeanUtils.equal(getFutureType(), other.getFutureType()) &&
-          JodaBeanUtils.equal(getPrice(), other.getPrice()) &&
-          JodaBeanUtils.equal(getFutureExpiry(), other.getFutureExpiry()) &&
-          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
-          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(getFutureCategory(), other.getFutureCategory()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPrice());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureCategory());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -323,6 +242,66 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FutureSecurityDefinition clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FutureSecurityDefinition other = (FutureSecurityDefinition) obj;
+      return JodaBeanUtils.equal(getFutureType(), other.getFutureType()) &&
+          JodaBeanUtils.equal(getPrice(), other.getPrice()) &&
+          JodaBeanUtils.equal(getFutureExpiry(), other.getFutureExpiry()) &&
+          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getFutureCategory(), other.getFutureCategory()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPrice());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureCategory());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("FutureSecurityDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("futureType").append('=').append(JodaBeanUtils.toString(getFutureType())).append(',').append(' ');
+    buf.append("price").append('=').append(JodaBeanUtils.toString(getPrice())).append(',').append(' ');
+    buf.append("futureExpiry").append('=').append(JodaBeanUtils.toString(getFutureExpiry())).append(',').append(' ');
+    buf.append("settlementExchange").append('=').append(JodaBeanUtils.toString(getSettlementExchange())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("futureCategory").append('=').append(JodaBeanUtils.toString(getFutureCategory())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FutureSecurityDefinition}.
    */
@@ -461,6 +440,59 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
      */
     public final MetaProperty<String> futureCategory() {
       return _futureCategory;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 537589661:  // futureType
+          return ((FutureSecurityDefinition) bean).getFutureType();
+        case 106934601:  // price
+          return ((FutureSecurityDefinition) bean).getPrice();
+        case 797235414:  // futureExpiry
+          return ((FutureSecurityDefinition) bean).getFutureExpiry();
+        case 389497452:  // settlementExchange
+          return ((FutureSecurityDefinition) bean).getSettlementExchange();
+        case -295948169:  // settlementDate
+          return ((FutureSecurityDefinition) bean).getSettlementDate();
+        case -673825823:  // futureCategory
+          return ((FutureSecurityDefinition) bean).getFutureCategory();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 537589661:  // futureType
+          ((FutureSecurityDefinition) bean).setFutureType((ListedFutureType) newValue);
+          return;
+        case 106934601:  // price
+          ((FutureSecurityDefinition) bean).setPrice((BigDecimal) newValue);
+          return;
+        case 797235414:  // futureExpiry
+          ((FutureSecurityDefinition) bean).setFutureExpiry((YearMonth) newValue);
+          return;
+        case 389497452:  // settlementExchange
+          ((FutureSecurityDefinition) bean).setSettlementExchange((String) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((FutureSecurityDefinition) bean).setSettlementDate((LocalDate) newValue);
+          return;
+        case -673825823:  // futureCategory
+          ((FutureSecurityDefinition) bean).setFutureCategory((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FutureSecurityDefinition) bean)._futureType, "futureType");
+      JodaBeanUtils.notNull(((FutureSecurityDefinition) bean)._price, "price");
+      JodaBeanUtils.notNull(((FutureSecurityDefinition) bean)._futureExpiry, "futureExpiry");
+      super.validate(bean);
     }
 
   }

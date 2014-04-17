@@ -88,6 +88,10 @@ public enum SecurityType {
    */
   FX_FUTURE,
   /**
+   * Index
+   */
+  INDEX,
+  /**
    * Index future.
    */
   INDEX_FUTURE,

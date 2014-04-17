@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -47,7 +47,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setSecurityMaster(remoteComponentFactory.getSecurityMaster(classifierPreferences));
     setPositionMaster(remoteComponentFactory.getPositionMaster(classifierPreferences));
     setPortfolioMaster(remoteComponentFactory.getPortfolioMaster(classifierPreferences));
-    setOrganizationMaster(remoteComponentFactory.getOrganizationMaster(classifierPreferences));
+    setLegalEntityMaster(remoteComponentFactory.getLegalEntityMaster(classifierPreferences));
     setHistoricalTimeSeriesMaster(remoteComponentFactory.getHistoricalTimeSeriesMaster(classifierPreferences));
     setMarketDataSnapshotMaster(remoteComponentFactory.getMarketDataSnapshotMaster(classifierPreferences));
     
@@ -57,7 +57,7 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     setRegionSource(remoteComponentFactory.getRegionSource(classifierPreferences));
     setSecuritySource(remoteComponentFactory.getSecuritySource(classifierPreferences));
     setPositionSource(remoteComponentFactory.getPositionSource(classifierPreferences));
-    setOrganizationSource(remoteComponentFactory.getOrganizationSource(classifierPreferences));
+    setLegalEntitySource(remoteComponentFactory.getLegalEntitySource(classifierPreferences));
     setHistoricalTimeSeriesSource(remoteComponentFactory.getHistoricalTimeSeriesSource(classifierPreferences));
     setMarketDataSnapshotSource(remoteComponentFactory.getMarketDataSnapshotSource(classifierPreferences));
     

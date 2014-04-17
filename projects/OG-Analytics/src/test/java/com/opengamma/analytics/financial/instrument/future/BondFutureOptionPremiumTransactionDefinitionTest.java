@@ -14,8 +14,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BondFutureOptionPremiumTransactionDefinitionTest {
 
   // 5-Year U.S. Treasury Note Futures: FVU1

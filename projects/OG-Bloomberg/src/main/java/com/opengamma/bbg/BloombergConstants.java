@@ -66,6 +66,7 @@ public final class BloombergConstants {
   public static final String MARKET_SECTOR_MTGE = "Mtge";
 
   public static final String FIELD_SECURITY_TYPE = "SECURITY_TYP";
+  public static final String FIELD_SECURITY_TYPE2 = "SECURITY_TYP2";
   public static final String FIELD_OPT_EXERCISE_TYP = "OPT_EXER_TYP";
   public static final String FIELD_OPT_PUT_CALL = "OPT_PUT_CALL";
   public static final String FIELD_OPT_STRIKE_PX = "OPT_STRIKE_PX";
@@ -95,10 +96,12 @@ public final class BloombergConstants {
   public static final String FIELD_TICKER_AND_EXCH_CODE = "TICKER_AND_EXCH_CODE";
   public static final String FIELD_MARKET_SECTOR_DES = "MARKET_SECTOR_DES";
   public static final String FIELD_ISSUER = "ISSUER";
+  public static final String FIELD_ISSUE_DT = "ISSUE_DT";
   public static final String FIELD_ID_CUSIP = "ID_CUSIP";
   public static final String FIELD_ID_ISIN = "ID_ISIN";
   public static final String FIELD_ID_SEDOL1 = "ID_SEDOL1";
   public static final String FIELD_ID_BBG_UNIQUE = "ID_BB_UNIQUE";
+  public static final String FIELD_ID_BB_SEC_NUM_DES = "ID_BB_SEC_NUM_DES";
   public static final String FIELD_UNDL_ID_BB_UNIQUE = "UNDL_ID_BB_UNIQUE";
   public static final String FIELD_FUT_LAST_TRADE_DT = "FUT_LAST_TRADE_DT";
   public static final String FIELD_FUT_FIRST_TRADE_DT = "FUT_FIRST_TRADE_DT";
@@ -114,8 +117,8 @@ public final class BloombergConstants {
    */
   public static final String FIELD_FUT_VAL_PT = "FUT_VAL_PT";
   public static final String FIELD_GICS_SUB_INDUSTRY = "GICS_SUB_INDUSTRY";
-  public static final String FIELD_FUT_DELIVERABLE_BONDS = "FUT_DELIVERABLE_BONDS";
   public static final String FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE = "FUT_DLVRBLE_BNDS_BB_UNIQUE";
+  public static final String FIELD_FUT_DELIVERABLE_BONDS = "FUT_DELIVERABLE_BONDS";
   public static final String FIELD_QUOTE_TYP = "QUOTE_TYP";
   public static final String FIELD_QUOTE_UNITS = "QUOTE_UNITS";
   public static final String FIELD_QUOTED_CRNCY = "QUOTED_CRNCY";
@@ -128,10 +131,15 @@ public final class BloombergConstants {
 
   //bonds
   public static final String FIELD_INDUSTRY_GROUP = "INDUSTRY_GROUP";
+  public static final String FIELD_INDUSTRY_SECTOR = "INDUSTRY_SECTOR";
   public static final String FIELD_CNTRY_ISSUE_ISO = "CNTRY_ISSUE_ISO";
   public static final String FIELD_SECURITY_TYP = "SECURITY_TYP";
   public static final String FIELD_CALC_TYP_DES = "CALC_TYP_DES";
   public static final String FIELD_INFLATION_LINKED_INDICATOR = "INFLATION_LINKED_INDICATOR";
+  public static final String FIELD_MTY_TYP = "MTY_TYP";
+  public static final String FIELD_CALLABLE = "CALLABLE";
+  public static final String FIELD_IS_PERPETUAL = "IS_PERPETUAL";
+  public static final String FIELD_BULLET = "BULLET";
 
   public static final String FIELD_GUARANTOR = "GUARANTOR"; // maybe?
   public static final String FIELD_MATURITY = "MATURITY";
@@ -151,6 +159,20 @@ public final class BloombergConstants {
   public static final String FIELD_PAR_AMT = "PAR_AMT";
   public static final String FIELD_REDEMP_VAL = "REDEMP_VAL";
   public static final String FIELD_FLOATER = "FLOATER";
+  public static final String FIELD_RTG_FITCH = "RTG_FITCH";
+  public static final String FIELD_RTG_MOODY = "RTG_MOODY";
+  public static final String FIELD_RTG_SP = "RTG_SP";
+  public static final String FIELD_BB_COMPOSITE = "BB_COMPOSITE";
+  public static final String FIELD_DAYS_TO_SETTLE = "DAYS_TO_SETTLE";
+  public static final String FIELD_FLT_DAYS_PRIOR = "FLT_DAYS_PRIOR";
+  public static final String FIELD_FLT_SPREAD = "FLT_SPREAD";
+  public static final String FIELD_FLT_BENCH_MULTIPLIER = "FLT_BENCH_MULTIPLIER";
+  public static final String FIELD_RESET_IDX = "RESET_IDX";
+  public static final String FIELD_INDX_SOURCE = "INDX_SOURCE";
+  public static final String FIELD_BASE_CPI = "BASE_CPI";
+  public static final String FIELD_REFERENCE_INDEX = "REFERENCE_INDEX";
+  public static final String FIELD_INFLATION_LAG = "INFLATION_LAG";
+  public static final String FIELD_INTERPOLATION_FOR_COUPON_CALC = "INTERPOLATION_FOR_COUPON_CALC";
 
   public static final String BLOOMBERG_FIELDS_REQUEST = "fields";
   public static final String BLOOMBERG_SECURITIES_REQUEST = "securities";
@@ -239,6 +261,7 @@ public final class BloombergConstants {
    * Rates
    */
   public static final String BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE = "NON-DELIVERABLE IRS SWAP";
+  public static final String BLOOMBERG_IMM_SWAP_TYPE = "IMM SWAP";
 
   public static final Name RESPONSE_ERROR = new Name("responseError");
   public static final Name SECURITY_DATA = new Name("securityData");

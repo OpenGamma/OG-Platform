@@ -6,6 +6,7 @@
 package com.opengamma.master.portfolio.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNull;
@@ -146,6 +147,11 @@ public class InMemoryPortfolioMasterTest {
     assertEquals(_populatedMaster.get(_prt1.getUniqueId()), _populatedMaster.get(_prt1.getUniqueId()));
   }
   
+  public void test_getIsNotClone() {
+    _populatedMaster.setCloneResults(false);
+    assertSame(_populatedMaster.get(_prt1.getUniqueId()), _populatedMaster.get(_prt1.getUniqueId()));
+  }
+  
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getNode_emptyMaster() {
     _emptyMaster.getNode(UniqueId.of("MemPrt", "1"));
@@ -189,6 +195,39 @@ public class InMemoryPortfolioMasterTest {
   
   public void test_search_populatedMaster_all() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();    
+    PortfolioSearchResult result = _populatedMaster.search(request);
+    assertEquals(3, result.getPaging().getTotalItems());
+    assertEquals(3, result.getDocuments().size());
+    assertTrue(result.getDocuments().contains(_prt1));
+    assertTrue(result.getDocuments().contains(_prt2));
+    assertTrue(result.getDocuments().contains(_prt3));
+  }
+  
+  public void test_search_populatedMaster_name() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setName(_prt1.getValue().getName());
+    PortfolioSearchResult result = _populatedMaster.search(request);
+    assertEquals(1, result.getPaging().getTotalItems());
+    assertEquals(1, result.getDocuments().size());
+    assertTrue(result.getDocuments().contains(_prt1));
+    assertFalse(result.getDocuments().contains(_prt2));
+    assertFalse(result.getDocuments().contains(_prt3));
+  }
+  
+  public void test_search_populatedMaster_nameWildcardStar() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setName("Port*");
+    PortfolioSearchResult result = _populatedMaster.search(request);
+    assertEquals(3, result.getPaging().getTotalItems());
+    assertEquals(3, result.getDocuments().size());
+    assertTrue(result.getDocuments().contains(_prt1));
+    assertTrue(result.getDocuments().contains(_prt2));
+    assertTrue(result.getDocuments().contains(_prt3));
+  }
+  
+  public void test_search_populatedMaster_nameWildcardQuestion() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setName("Port?");
     PortfolioSearchResult result = _populatedMaster.search(request);
     assertEquals(3, result.getPaging().getTotalItems());
     assertEquals(3, result.getDocuments().size());

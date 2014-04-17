@@ -54,6 +54,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -70,285 +71,326 @@ public class SingleThreadViewProcessWorkerTest {
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testAttachToUnknownView() {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    client.attachToViewProcess(UniqueId.of("not", "here"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      client.attachToViewProcess(UniqueId.of("not", "here"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testInterruptJobBetweenCycles() throws InterruptedException {
-    // Due to all the dependencies between components for execution to take place, it's easiest to test it in a
-    // realistic environment. In its default configuration, only live data can trigger a computation cycle (after the
-    // initial cycle).
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
+    TestLifecycle.begin();
+    try {
+      // Due to all the dependencies between components for execution to take place, it's easiest to test it in a
+      // realistic environment. In its default configuration, only live data can trigger a computation cycle (after the
+      // initial cycle).
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
 
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
 
-    // Consume the initial result
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
+      // Consume the initial result
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertCycleCompleted(TIMEOUT);
 
-    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final SingleThreadViewProcessWorker worker = (SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess);
-    final BorrowedThread recalcThread = worker.getThread();
-    assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
+      final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+      final SingleThreadViewProcessWorker worker = (SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess);
+      final BorrowedThread recalcThread = worker.getThread();
+      assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
-    // We're now 'between cycles', waiting for the arrival of live data.
-    // Interrupting should terminate the job gracefully
-    worker.getJob().terminate();
-    recalcThread.interrupt();
+      // We're now 'between cycles', waiting for the arrival of live data.
+      // Interrupting should terminate the job gracefully
+      worker.getJob().terminate();
+      recalcThread.interrupt();
 
-    recalcThread.join(TIMEOUT);
-    assertEquals(Thread.State.TERMINATED, recalcThread.getState());
+      recalcThread.join(TIMEOUT);
+      assertEquals(Thread.State.TERMINATED, recalcThread.getState());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testWaitForMarketData() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
-    final MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
-    env.setMarketDataProvider(marketDataProvider);
-    env.init();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      final InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
+      final MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
+      env.setMarketDataProvider(marketDataProvider);
+      env.init();
 
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    final ViewCycleExecutionOptions cycleExecutionOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).setMarketDataSpecification(MarketData.live()).create();
-    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().awaitMarketData().get();
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      final ViewCycleExecutionOptions cycleExecutionOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).setMarketDataSpecification(MarketData.live()).create();
+      final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().awaitMarketData().get();
+      final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
 
-    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final BorrowedThread recalcThread = ((SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess)).getThread();
-    assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
+      final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+      final BorrowedThread recalcThread = ((SingleThreadViewProcessWorker) env.getCurrentWorker(viewProcess)).getThread();
+      assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
-    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
-    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
-    recalcThread.join();
-    resultListener.assertCycleCompleted(TIMEOUT);
+      underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
+      underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
+      recalcThread.join();
+      resultListener.assertCycleCompleted(TIMEOUT);
 
-    final Map<String, Object> resultValues = new HashMap<String, Object>();
-    final ViewComputationResultModel result = client.getLatestResult();
-    final ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
-    for (final ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
-      resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
+      final Map<String, Object> resultValues = new HashMap<String, Object>();
+      final ViewComputationResultModel result = client.getLatestResult();
+      final ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
+      for (final ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
+        resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
+      }
+
+      assertEquals(123d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+      assertEquals(456d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+
+      resultListener.assertProcessCompleted(TIMEOUT);
+
+      assertThreadReachesState(recalcThread, Thread.State.TERMINATED);
+    } finally {
+      TestLifecycle.end();
     }
-
-    assertEquals(123d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
-    assertEquals(456d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
-
-    resultListener.assertProcessCompleted(TIMEOUT);
-
-    assertThreadReachesState(recalcThread, Thread.State.TERMINATED);
   }
-  
-  @Test(groups = TestGroup.INTEGRATION)  // randomly fails
+
+  @Test(groups = TestGroup.INTEGRATION)
+  // randomly fails
   public void testSkipCycleOnNoMarketData() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
-    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
-    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
-    final MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
-    env.setMarketDataProvider(marketDataProvider);
-    env.init();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      final InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
+      underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
+      underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
+      final MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
+      env.setMarketDataProvider(marketDataProvider);
+      env.init();
 
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().skipCycleOnNoMarketData().get();
-    final ViewExecutionOptions executionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().skipCycleOnNoMarketData().get();
+      final ViewExecutionOptions executionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
 
-    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final ViewProcessWorker currentWorker = env.getCurrentWorker(viewProcess);
-    final BorrowedThread recalcThread = ((SingleThreadViewProcessWorker) currentWorker).getThread();
-    assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
+      final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+      final ViewProcessWorker currentWorker = env.getCurrentWorker(viewProcess);
+      final BorrowedThread recalcThread = ((SingleThreadViewProcessWorker) currentWorker).getThread();
+      assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
 
-    // Cycle 1
-    currentWorker.triggerCycle();
-    resultListener.assertCycleCompleted(TIMEOUT);
+      // Cycle 1
+      currentWorker.triggerCycle();
+      resultListener.assertCycleCompleted(TIMEOUT);
 
-    ViewComputationResultModel result = client.getLatestResult();
-    Map<String, Object> resultValues = extractResults(result);
-    assertEquals(123d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
-    assertEquals(456d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
-    
-    // Cycle 2
-    underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive1());
-    underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive2());
-    currentWorker.triggerCycle();
-    resultListener.assertCycleCompleted(TIMEOUT);
-    
-    result = client.getLatestResult();
-    resultValues = extractResults(result);
-    assertEquals(MissingOutput.SUPPRESSED, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
-    assertEquals(MissingOutput.SUPPRESSED, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+      ViewComputationResultModel result = client.getLatestResult();
+      Map<String, Object> resultValues = extractResults(result);
+      assertEquals(123d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+      assertEquals(456d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
 
-    // Cycle 3
-    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 789d);
-    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 543d);
-    currentWorker.triggerCycle();
-    resultListener.assertCycleCompleted(TIMEOUT);
+      // Cycle 2
+      underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive1());
+      underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive2());
+      currentWorker.triggerCycle();
+      resultListener.assertCycleCompleted(TIMEOUT);
 
-    result = client.getLatestResult();
-    resultValues = extractResults(result);
-    assertEquals(789d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
-    assertEquals(543d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
-    
-    // Cycle 4
-    underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive1());
-    currentWorker.triggerCycle();
-    resultListener.assertCycleCompleted(TIMEOUT);
+      result = client.getLatestResult();
+      resultValues = extractResults(result);
+      assertEquals(MissingOutput.SUPPRESSED, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+      assertEquals(MissingOutput.SUPPRESSED, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
 
-    result = client.getLatestResult();
-    resultValues = extractResults(result);
-    assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
-    assertEquals(543d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
-    
-    client.shutdown();
+      // Cycle 3
+      underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 789d);
+      underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 543d);
+      currentWorker.triggerCycle();
+      resultListener.assertCycleCompleted(TIMEOUT);
+
+      result = client.getLatestResult();
+      resultValues = extractResults(result);
+      assertEquals(789d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+      assertEquals(543d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+
+      // Cycle 4
+      underlyingProvider.removeValue(ViewProcessorTestEnvironment.getPrimitive1());
+      currentWorker.triggerCycle();
+      resultListener.assertCycleCompleted(TIMEOUT);
+
+      result = client.getLatestResult();
+      resultValues = extractResults(result);
+      assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+      assertEquals(543d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+
+      client.shutdown();
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testDoNotWaitForMarketData() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
-    final MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
-    env.setMarketDataProvider(marketDataProvider);
-    env.init();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      final InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
+      final MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
+      env.setMarketDataProvider(marketDataProvider);
+      env.init();
 
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    final ViewCycleExecutionOptions cycleExecutionOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).setMarketDataSpecification(MarketData.live()).create();
-    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      final ViewCycleExecutionOptions cycleExecutionOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.now()).setMarketDataSpecification(MarketData.live()).create();
+      final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
+      final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    resultListener.assertProcessCompleted(TIMEOUT);
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertCycleCompleted(TIMEOUT);
+      resultListener.assertProcessCompleted(TIMEOUT);
 
-    final Map<String, Object> resultValues = new HashMap<String, Object>();
-    final ViewComputationResultModel result = client.getLatestResult();
-    final ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
-    for (final ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
-      resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
+      final Map<String, Object> resultValues = new HashMap<String, Object>();
+      final ViewComputationResultModel result = client.getLatestResult();
+      final ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
+      for (final ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
+        resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
+      }
+      assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+      assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+    } finally {
+      TestLifecycle.end();
     }
-    assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
-    assertEquals(MissingInput.MISSING_MARKET_DATA, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
   }
 
   @Test
   public void testChangeMarketDataProviderBetweenCycles() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, new InMemoryLKVMarketDataProvider());
-    final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, new InMemoryLKVMarketDataProvider());
-    final MarketDataProvider provider3 = new TestLiveMarketDataProvider(SOURCE_3_NAME, new InMemoryLKVMarketDataProvider(), new FixedMarketDataAvailabilityProvider());
-    env.setMarketDataProviderResolver(new MockMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2, SOURCE_3_NAME, provider3));
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    final Instant valuationTime = Instant.now();
-    final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime);
-    final ViewCycleExecutionOptions cycle1 = builder.setMarketDataSpecification(MarketData.live(SOURCE_1_NAME)).create();
-    final ViewCycleExecutionOptions cycle2 = builder.setMarketDataSpecification(MarketData.live(SOURCE_2_NAME)).create();
-    final ViewCycleExecutionOptions cycle3 = builder.setMarketDataSpecification(MarketData.live(SOURCE_3_NAME)).create();
-    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2, cycle3), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    // The providers have the same data availability - shouldn't recompile the view
-    resultListener.assertCycleCompleted(TIMEOUT);
-    // The third provider doesn't - expect a recompilation
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    resultListener.assertProcessCompleted(TIMEOUT);
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, new InMemoryLKVMarketDataProvider());
+      final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, new InMemoryLKVMarketDataProvider());
+      final MarketDataProvider provider3 = new TestLiveMarketDataProvider(SOURCE_3_NAME, new InMemoryLKVMarketDataProvider(), new FixedMarketDataAvailabilityProvider());
+      env.setMarketDataProviderResolver(new MockMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2, SOURCE_3_NAME, provider3));
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      final Instant valuationTime = Instant.now();
+      final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime);
+      final ViewCycleExecutionOptions cycle1 = builder.setMarketDataSpecification(MarketData.live(SOURCE_1_NAME)).create();
+      final ViewCycleExecutionOptions cycle2 = builder.setMarketDataSpecification(MarketData.live(SOURCE_2_NAME)).create();
+      final ViewCycleExecutionOptions cycle3 = builder.setMarketDataSpecification(MarketData.live(SOURCE_3_NAME)).create();
+      final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
+      final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2, cycle3), flags);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertCycleCompleted(TIMEOUT);
+      // The providers have the same data availability - shouldn't recompile the view
+      resultListener.assertCycleCompleted(TIMEOUT);
+      // The third provider doesn't - expect a recompilation
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertCycleCompleted(TIMEOUT);
+      resultListener.assertProcessCompleted(TIMEOUT);
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testChangeMarketDataProviderBetweenCyclesWithCycleFragmentCompletedCalls() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, new InMemoryLKVMarketDataProvider());
-    final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, new InMemoryLKVMarketDataProvider());
-    final MarketDataProvider provider3 = new TestLiveMarketDataProvider(SOURCE_3_NAME, new InMemoryLKVMarketDataProvider(), new FixedMarketDataAvailabilityProvider());
-    env.setMarketDataProviderResolver(new MockMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2, SOURCE_3_NAME, provider3));
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    final Instant valuationTime = Instant.now();
-    final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime);
-    final ViewCycleExecutionOptions cycle1 = builder.setMarketDataSpecification(MarketData.live(SOURCE_1_NAME)).create();
-    final ViewCycleExecutionOptions cycle2 = builder.setMarketDataSpecification(MarketData.live(SOURCE_2_NAME)).create();
-    final ViewCycleExecutionOptions cycle3 = builder.setMarketDataSpecification(MarketData.live(SOURCE_3_NAME)).create();
-    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2, cycle3), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    // The providers have the same data availability - shouldn't recompile the view
-    resultListener.assertCycleCompleted(TIMEOUT);
-    // The third provider doesn't - expect a recompilation
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    resultListener.assertProcessCompleted(TIMEOUT);
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      final MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, new InMemoryLKVMarketDataProvider());
+      final MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, new InMemoryLKVMarketDataProvider());
+      final MarketDataProvider provider3 = new TestLiveMarketDataProvider(SOURCE_3_NAME, new InMemoryLKVMarketDataProvider(), new FixedMarketDataAvailabilityProvider());
+      env.setMarketDataProviderResolver(new MockMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2, SOURCE_3_NAME, provider3));
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      final Instant valuationTime = Instant.now();
+      final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime);
+      final ViewCycleExecutionOptions cycle1 = builder.setMarketDataSpecification(MarketData.live(SOURCE_1_NAME)).create();
+      final ViewCycleExecutionOptions cycle2 = builder.setMarketDataSpecification(MarketData.live(SOURCE_2_NAME)).create();
+      final ViewCycleExecutionOptions cycle3 = builder.setMarketDataSpecification(MarketData.live(SOURCE_3_NAME)).create();
+      final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
+      final ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2, cycle3), flags);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertCycleCompleted(TIMEOUT);
+      // The providers have the same data availability - shouldn't recompile the view
+      resultListener.assertCycleCompleted(TIMEOUT);
+      // The third provider doesn't - expect a recompilation
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertCycleCompleted(TIMEOUT);
+      resultListener.assertProcessCompleted(TIMEOUT);
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testTriggerCycle() {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
 
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final TestViewResultListener resultListener = new TestViewResultListener();
-    client.setResultListener(resultListener);
-    final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
-    final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final TestViewResultListener resultListener = new TestViewResultListener();
+      client.setResultListener(resultListener);
+      final EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
+      final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
 
-    final ViewProcessWorker worker = env.getCurrentWorker(env.getViewProcess(vp, client.getUniqueId()));
+      final ViewProcessWorker worker = env.getCurrentWorker(env.getViewProcess(vp, client.getUniqueId()));
 
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.assertCycleCompleted(TIMEOUT);
-    worker.triggerCycle();
-    resultListener.assertCycleCompleted(TIMEOUT);
+      resultListener.assertViewDefinitionCompiled(TIMEOUT);
+      resultListener.assertCycleCompleted(TIMEOUT);
+      worker.triggerCycle();
+      resultListener.assertCycleCompleted(TIMEOUT);
 
-    client.shutdown();
+      client.shutdown();
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   private void assertThreadReachesState(final BorrowedThread recalcThread, final Thread.State state) throws InterruptedException {
@@ -360,7 +402,7 @@ public class SingleThreadViewProcessWorkerTest {
       }
     }
   }
-  
+
   private Map<String, Object> extractResults(ViewComputationResultModel result) {
     Map<String, Object> resultValues = new HashMap<String, Object>();
     ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
@@ -454,7 +496,7 @@ public class SingleThreadViewProcessWorkerTest {
     }
 
     @Override
-    public boolean isFailed(ValueSpecification specification) {
+    public boolean isActive(ValueSpecification specification) {
       return false;
     }
 

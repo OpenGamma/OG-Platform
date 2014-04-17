@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 
 /**
- * Interface for swaption SABR parameters provider for one underlying.
+ * Interface for cap/floor SABR parameters provider for one underlying.
  */
 public interface SABRCapProviderInterface extends ParameterProviderInterface {
 

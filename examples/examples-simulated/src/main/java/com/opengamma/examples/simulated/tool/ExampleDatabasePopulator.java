@@ -11,9 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -24,34 +21,33 @@ import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.examples.simulated.convention.SyntheticInMemoryConventionMasterInitializer;
 import com.opengamma.examples.simulated.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.simulated.loader.ExampleCurrencyConfigurationLoader;
 import com.opengamma.examples.simulated.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.simulated.loader.ExampleCurveConfigurationLoader;
+import com.opengamma.examples.simulated.loader.ExampleCurveConfigurationsLoader;
 import com.opengamma.examples.simulated.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.simulated.loader.ExampleExchangeLoader;
+import com.opengamma.examples.simulated.loader.ExampleExposureFunctionLoader;
 import com.opengamma.examples.simulated.loader.ExampleFXImpliedCurveConfigurationLoader;
+import com.opengamma.examples.simulated.loader.ExampleFXImpliedCurveConfigurationsLoader;
 import com.opengamma.examples.simulated.loader.ExampleFunctionConfigurationPopulator;
 import com.opengamma.examples.simulated.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.simulated.loader.ExampleHolidayLoader;
 import com.opengamma.examples.simulated.loader.ExampleTimeSeriesRatingLoader;
+import com.opengamma.examples.simulated.loader.ExampleUgandanBondCurveConfigurationsLoader;
 import com.opengamma.examples.simulated.loader.ExampleViewsPopulator;
-import com.opengamma.examples.simulated.loader.PortfolioLoaderHelper;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.tool.portfolio.PortfolioLoader;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigMasterUtils;
+import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Single class that populates the database with data for running the example server.
@@ -90,6 +86,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    */
   public static final String VANILLA_FX_OPTION_PORTFOLIO_NAME = "Vanilla FX Option Portfolio";
   /**
+   * The name of a FX volatility swap portfolio
+   */
+  public static final String FX_VOLATILITY_SWAP_PORTFOLIO_NAME = "FX Volatility Swap Portfolio";
+  /**
    * The name of a EUR fixed income portfolio
    */
   public static final String EUR_SWAP_PORTFOLIO_NAME = "EUR Fixed Income Portfolio";
@@ -113,10 +113,23 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * The name of an ER future portfolio.
    */
   public static final String ER_PORTFOLIO_NAME = "ER Portfolio";
-  /** 
+  /**
    * The name of a US Government bond portfolio.
    */
   public static final String US_GOVERNMENT_BOND_PORTFOLIO_NAME = "Government Bonds";
+  /**
+   * The name of an index portfolio.
+   */
+  public static final String INDEX_PORTFOLIO_NAME = "Index Portfolio";
+  /**
+   * The name of a bond total return swap portfolio.
+   */
+  public static final String BOND_TRS_PORTFOLIO_NAME = "Bond Total Return Swaps";
+  /** 
+   * The name of an equity total return swap portfolio.
+   */
+  public static final String EQUITY_TRS_PORTFOLIO_NAME = "Equity Total Return Swaps";
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
@@ -126,18 +139,13 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
-    try {
-      new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, ToolContext.class);
-    } catch (final Exception ex) {
-      s_logger.error("Caught exception", ex);
-      ex.printStackTrace();
-    }
+    new ExampleDatabasePopulator().invokeAndTerminate(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null);
   }
 
   //-------------------------------------------------------------------------
@@ -145,10 +153,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   protected void doRun() {
     loadExchanges();
     loadHolidays();
+    loadConventions();
     loadCurrencyConfiguration();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
-    loadDefaultVolatilityCubeDefinition();
     loadTimeSeriesRating();
     loadSimulatedHistoricalData();
     loadMultiCurrencySwapPortfolio();
@@ -160,14 +168,21 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadEquityOptionPortfolio();
     loadFuturePortfolio();
     loadBondPortfolio();
-    loadLiborRawSecurities();
     loadSwaptionPortfolio();
     loadEURFixedIncomePortfolio();
     loadFXForwardPortfolio();
     loadERFuturePortfolio();
+    loadFXVolatilitySwapPortfolio();
+    loadIndexPortfolio();
+    loadBondTotalReturnSwapPortfolio();
+    loadEquityTotalReturnSwapPortfolio();
     loadFXImpliedCurveCalculationConfigurations();
     loadViews();
     loadFunctionConfigurations();
+    loadExposureFunctions();
+    loadFXImpliedCurveConfigurations();
+    loadCurveConfigurations();
+    loadUgandanBondCurveConfigurations();
   }
 
   private void loadFunctionConfigurations() {
@@ -203,6 +218,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       throw e;
     }
 
+  }
+
+  private void loadConventions() {
+    final Log log = new Log("Creating convention data");
+    try {
+      final ConventionMaster master = getToolContext().getConventionMaster();
+      SyntheticInMemoryConventionMasterInitializer.INSTANCE.init(master);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   private void loadCurrencyConfiguration() {
@@ -246,39 +272,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
-    }    
-  }
-  
-  private void loadDefaultVolatilityCubeDefinition() {
-    final Log log = new Log("Creating volatility cube definitions");
-    try {
-      final ToolContext toolContext = getToolContext();
-      final ConfigMaster configMaster = toolContext.getConfigMaster();
-      final ConfigItem<VolatilityCubeDefinition> item = ConfigItem.of(createDefaultVolatilityCubeDefinition(), "SECONDARY_USD", VolatilityCubeDefinition.class);
-      ConfigMasterUtils.storeByName(configMaster, item);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
     }
-  }
-
-  private static VolatilityCubeDefinition createDefaultVolatilityCubeDefinition() {
-    final VolatilityCubeDefinition volatilityCubeDefinition = new VolatilityCubeDefinition();
-    volatilityCubeDefinition.setSwapTenors(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15), Tenor.ofYears(20),
-        Tenor.ofYears(30)));
-    volatilityCubeDefinition.setOptionExpiries(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(4), Tenor.ofYears(5), Tenor.ofYears(10),
-        Tenor.ofYears(15), Tenor.ofYears(20)));
-    final int[] values = new int[] {0, 20, 25, 50, 70, 75, 100, 200, 5 };
-    final List<Double> relativeStrikes = new ArrayList<Double>(values.length * 2 - 1);
-    for (final int value : values) {
-      relativeStrikes.add(Double.valueOf(value));
-      if (value != 0) {
-        relativeStrikes.add(Double.valueOf(-value));
-      }
-    }
-    Collections.sort(relativeStrikes);
-    volatilityCubeDefinition.setRelativeStrikes(relativeStrikes);
-    return volatilityCubeDefinition;
   }
 
   private void loadTimeSeriesRating() {
@@ -317,11 +311,11 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private void loadEquityOptionPortfolio() {
     final Log log = new Log("Creating example equity option portfolio");
     try {
-      URL resource = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip");
-      final String file = unpackJar(resource); 
+      final URL resource = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip");
+      final String file = unpackJar(resource);
       final PortfolioLoader equityOptionLoader = new PortfolioLoader(getToolContext(), EQUITY_OPTION_PORTFOLIO_NAME, null,
-              file, true,
-              true, true, false, true, false, null);
+          file, true,
+          true, true, false, true, false, null);
       equityOptionLoader.execute();
       log.done();
     } catch (final RuntimeException t) {
@@ -332,10 +326,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private void loadFuturePortfolio() {
     final Log log = new Log("Creating example future portfolio");
     try {
-      URL resource = ExampleEquityPortfolioLoader.class.getResource("futures.zip");
-      final String file = unpackJar(resource); 
+      final URL resource = ExampleEquityPortfolioLoader.class.getResource("futures.zip");
+      final String file = unpackJar(resource);
       final PortfolioLoader futureLoader = new PortfolioLoader(getToolContext(), FUTURE_PORTFOLIO_NAME, null,
-              file, true, true, true, false, true, false, null);
+          file, true, true, true, false, true, false, null);
       futureLoader.execute();
       log.done();
     } catch (final RuntimeException t) {
@@ -399,6 +393,29 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
+  /**
+   * Loads a portfolio of FX volatility swaps.
+   */
+  private void loadFXVolatilitySwapPortfolio() {
+    final Log log = new Log("Creating example FX volatility swap portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), FX_VOLATILITY_SWAP_PORTFOLIO_NAME, "FXVolatilitySwap", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadIndexPortfolio() {
+    final Log log = new Log("Creating example indices");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), INDEX_PORTFOLIO_NAME, "Index", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
   private void loadSwaptionPortfolio() {
     final Log log = new Log("Creating example swaption portfolio");
     try {
@@ -418,27 +435,27 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.fail(t);
     }
   }
-  
+
   private void loadFXForwardPortfolio() {
-    Log log = new Log("Creating example FX forward portfolio");
+    final Log log = new Log("Creating example FX forward portfolio");
     try {
       portfolioGeneratorTool().run(getToolContext(), FX_FORWARD_PORTFOLIO_NAME, "FxForward", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
 
   private void loadERFuturePortfolio() {
-    Log log = new Log("Creating example ER future portfolio");
+    final Log log = new Log("Creating example ER future portfolio");
     try {
       portfolioGeneratorTool().run(getToolContext(), ER_PORTFOLIO_NAME, "ERFutureForCurve", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
-  
+
   private void loadBondPortfolio() {
     final Log log = new Log("Creating example bond portfolio");
     try {
@@ -449,10 +466,82 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
-  private void loadLiborRawSecurities() {
-    final Log log = new Log("Creating libor raw securities");
+  /**
+   * Loads a portfolio of bond TRS.
+   */
+  private void loadBondTotalReturnSwapPortfolio() {
+    final Log log = new Log("Creating example bond total return swap portfolio");
     try {
-      PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext());
+      portfolioGeneratorTool().run(getToolContext(), BOND_TRS_PORTFOLIO_NAME, "BondTotalReturnSwap", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads a portfolio of equity TRS.
+   */
+  private void loadEquityTotalReturnSwapPortfolio() {
+    final Log log = new Log("Creating example equity total return swap portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), EQUITY_TRS_PORTFOLIO_NAME, "EquityTotalReturnSwap", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example exposure functions.
+   */
+  private void loadExposureFunctions() {
+    final Log log = new Log("Creating exposure functions");
+    try {
+      final ExampleExposureFunctionLoader exposureFunctionLoader = new ExampleExposureFunctionLoader();
+      exposureFunctionLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example FX implied curve construction configurations.
+   */
+  private void loadFXImpliedCurveConfigurations() {
+    final Log log = new Log("Creating FX implied curve construction configurations");
+    try {
+      final ExampleFXImpliedCurveConfigurationsLoader loader = new ExampleFXImpliedCurveConfigurationsLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example curve construction configurations.
+   */
+  private void loadCurveConfigurations() {
+    final Log log = new Log("Creating curve construction configurations");
+    try {
+      final ExampleCurveConfigurationsLoader loader = new ExampleCurveConfigurationsLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  /**
+   * Loads example Ugandan bond curve construction configurations.
+   */
+  private void loadUgandanBondCurveConfigurations() {
+    final Log log = new Log("Creating Ugandan bond curve construction configurations");
+    try {
+      final ExampleUgandanBondCurveConfigurationsLoader loader = new ExampleUgandanBondCurveConfigurationsLoader();
+      loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
@@ -498,7 +587,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   // workaround for poor handling of resources, see PLAT-3919
-  private static String unpackJar(URL resource) {
+  private static String unpackJar(final URL resource) {
     String file = resource.getPath();
     if (file.contains(".jar!/")) {
       s_logger.info("Unpacking zip file located within a jar file: {}", resource);
@@ -516,18 +605,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       innerFileName = StringUtils.replace(innerFileName, "%20", " ");
       s_logger.info("Unpacking zip file found jar file: {}", jarFileName);
       s_logger.info("Unpacking zip file found zip file: {}", innerFileName);
-      try {
-        JarFile jar = new JarFile(jarFileName);
-        JarEntry jarEntry = jar.getJarEntry(innerFileName);
+      try (JarFile jar = new JarFile(jarFileName)) {
+        final JarEntry jarEntry = jar.getJarEntry(innerFileName);
         try (InputStream in = jar.getInputStream(jarEntry)) {
-          File tempFile = File.createTempFile("simulated-examples-database-populator-", ".zip");
+          final File tempFile = File.createTempFile("simulated-examples-database-populator-", ".zip");
           tempFile.deleteOnExit();
           try (OutputStream out = new FileOutputStream(tempFile)) {
             IOUtils.copy(in, out);
           }
           file = tempFile.getCanonicalPath();
         }
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
         throw new OpenGammaRuntimeException("Unable to open file within jar file: " + resource, ex);
       }
       s_logger.debug("Unpacking zip file extracted to: {}", file);

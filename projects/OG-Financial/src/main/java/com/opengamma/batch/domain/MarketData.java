@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -89,65 +90,6 @@ public class MarketData extends DirectBean implements ObjectIdentifiable {
   @Override
   public MarketData.Meta metaBean() {
     return MarketData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case -1887986108:  // baseUidScheme
-        return getBaseUidScheme();
-      case 2020022514:  // baseUidValue
-        return getBaseUidValue();
-      case 36423705:  // baseUidVersion
-        return getBaseUidVersion();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case -1887986108:  // baseUidScheme
-        setBaseUidScheme((String) newValue);
-        return;
-      case 2020022514:  // baseUidValue
-        setBaseUidValue((String) newValue);
-        return;
-      case 36423705:  // baseUidVersion
-        setBaseUidVersion((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      MarketData other = (MarketData) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getBaseUidScheme(), other.getBaseUidScheme()) &&
-          JodaBeanUtils.equal(getBaseUidValue(), other.getBaseUidValue()) &&
-          JodaBeanUtils.equal(getBaseUidVersion(), other.getBaseUidVersion());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUidScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUidValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUidVersion());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -248,6 +190,57 @@ public class MarketData extends DirectBean implements ObjectIdentifiable {
    */
   public final Property<String> baseUidVersion() {
     return metaBean().baseUidVersion().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public MarketData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MarketData other = (MarketData) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getBaseUidScheme(), other.getBaseUidScheme()) &&
+          JodaBeanUtils.equal(getBaseUidValue(), other.getBaseUidValue()) &&
+          JodaBeanUtils.equal(getBaseUidVersion(), other.getBaseUidVersion());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUidScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUidValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUidVersion());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("MarketData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("baseUidScheme").append('=').append(JodaBeanUtils.toString(getBaseUidScheme())).append(',').append(' ');
+    buf.append("baseUidValue").append('=').append(JodaBeanUtils.toString(getBaseUidValue())).append(',').append(' ');
+    buf.append("baseUidVersion").append('=').append(JodaBeanUtils.toString(getBaseUidVersion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -357,6 +350,41 @@ public class MarketData extends DirectBean implements ObjectIdentifiable {
      */
     public final MetaProperty<String> baseUidVersion() {
       return _baseUidVersion;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((MarketData) bean).getId();
+        case -1887986108:  // baseUidScheme
+          return ((MarketData) bean).getBaseUidScheme();
+        case 2020022514:  // baseUidValue
+          return ((MarketData) bean).getBaseUidValue();
+        case 36423705:  // baseUidVersion
+          return ((MarketData) bean).getBaseUidVersion();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((MarketData) bean).setId((Long) newValue);
+          return;
+        case -1887986108:  // baseUidScheme
+          ((MarketData) bean).setBaseUidScheme((String) newValue);
+          return;
+        case 2020022514:  // baseUidValue
+          ((MarketData) bean).setBaseUidValue((String) newValue);
+          return;
+        case 36423705:  // baseUidVersion
+          ((MarketData) bean).setBaseUidVersion((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

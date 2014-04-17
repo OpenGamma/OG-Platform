@@ -15,7 +15,12 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BlackFormulaRepositoryTest {
 
   private static final double EPS = 1.e-10;
@@ -28,15 +33,15 @@ public class BlackFormulaRepositoryTest {
   private static final double[] VOLS = new double[] {0.1, 0.12, 0.15, 0.2, 0.3, 0.5, 0.8 };
 
   private static final double[][] PRE_COMPUTER_PRICES = new double[][] {
-      {20.816241352493662, 21.901361401145017, 23.739999392248883, 27.103751052550102, 34.22506482807403, 48.312929458905, 66.87809290575849 },
-      {17.01547107842069, 18.355904456594594, 20.492964568435653, 24.216799858954104, 31.81781516125381, 46.52941355755593, 65.73985671517116 },
-      {13.655000481751557, 15.203913570037663, 17.57850003037605, 21.58860329455819, 29.58397731664536, 44.842632571211, 64.65045683512315 },
-      {10.76221357246159, 12.452317171280882, 14.990716295389468, 19.207654124402573, 27.51258894693435, 43.24555444486169, 63.606185385322505 },
-      {9.251680464551534, 10.990050517334176, 13.589326615797177, 17.892024398947207, 26.343236303647927, 42.327678792768694, 62.99989771948578 },
-      {7.094602606393259, 8.852863501660629, 11.492701186228047, 15.876921735149438, 24.50948746286295, 40.86105495729011, 62.02112426294542 },
-      {3.523029591534474, 5.0769317175689395, 7.551079210499658, 11.857770325364342, 20.641589813250427, 37.63447312094027, 59.81944968154744 },
-      {0.4521972353043875, 1.0637022636084144, 2.442608010436077, 5.613178543779881, 13.579915684294491, 31.040979917191127, 55.062112340600244 },
-      {1.328198130230618E-4, 0.0029567128738985232, 0.04468941116428932, 0.47558224046532205, 3.8091577630027356, 18.03481967011267, 43.99634090899799 } };
+    {20.816241352493662, 21.901361401145017, 23.739999392248883, 27.103751052550102, 34.22506482807403, 48.312929458905, 66.87809290575849 },
+    {17.01547107842069, 18.355904456594594, 20.492964568435653, 24.216799858954104, 31.81781516125381, 46.52941355755593, 65.73985671517116 },
+    {13.655000481751557, 15.203913570037663, 17.57850003037605, 21.58860329455819, 29.58397731664536, 44.842632571211, 64.65045683512315 },
+    {10.76221357246159, 12.452317171280882, 14.990716295389468, 19.207654124402573, 27.51258894693435, 43.24555444486169, 63.606185385322505 },
+    {9.251680464551534, 10.990050517334176, 13.589326615797177, 17.892024398947207, 26.343236303647927, 42.327678792768694, 62.99989771948578 },
+    {7.094602606393259, 8.852863501660629, 11.492701186228047, 15.876921735149438, 24.50948746286295, 40.86105495729011, 62.02112426294542 },
+    {3.523029591534474, 5.0769317175689395, 7.551079210499658, 11.857770325364342, 20.641589813250427, 37.63447312094027, 59.81944968154744 },
+    {0.4521972353043875, 1.0637022636084144, 2.442608010436077, 5.613178543779881, 13.579915684294491, 31.040979917191127, 55.062112340600244 },
+    {1.328198130230618E-4, 0.0029567128738985232, 0.04468941116428932, 0.47558224046532205, 3.8091577630027356, 18.03481967011267, 43.99634090899799 } };
 
   @Test
   public void zeroVolTest() {
@@ -311,35 +316,32 @@ public class BlackFormulaRepositoryTest {
             true)) / 2. / FORWARD / DELTA;
         assertEquals(finGamma, BlackFormulaRepository.gamma(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finGamma) * DELTA);
 
-        final double finDualGamma = (BlackFormulaRepository.dualDelta(FORWARD, upStrikes[i], TIME_TO_EXPIRY, VOLS[j], true) - BlackFormulaRepository.dualDelta(FORWARD, dwStrikes[i],
-            TIME_TO_EXPIRY, VOLS[j],
-            true)) / 2. / STRIKES_INPUT[i] / DELTA;
+        final double finDualGamma = (BlackFormulaRepository.dualDelta(FORWARD, upStrikes[i], TIME_TO_EXPIRY, VOLS[j], true) - BlackFormulaRepository.dualDelta(FORWARD, dwStrikes[i], TIME_TO_EXPIRY,
+            VOLS[j], true)) / 2. / STRIKES_INPUT[i] / DELTA;
         assertEquals(finDualGamma, BlackFormulaRepository.dualGamma(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finDualGamma) * DELTA);
 
         final double finCrossGamma = (BlackFormulaRepository.dualDelta(upFwd, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], true) - BlackFormulaRepository.dualDelta(dwFwd, STRIKES_INPUT[i],
-            TIME_TO_EXPIRY, VOLS[j],
-            true)) / 2. / FORWARD / DELTA;
+            TIME_TO_EXPIRY, VOLS[j], true)) / 2. / FORWARD / DELTA;
         assertEquals(finCrossGamma, BlackFormulaRepository.crossGamma(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finCrossGamma) * DELTA);
 
-        final double finThetaC = -(BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], upTime, VOLS[j], true) - BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], dwTime, VOLS[j],
-            true)) / 2. / TIME_TO_EXPIRY / DELTA;
+        final double finThetaC = -(BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], upTime, VOLS[j], true) - BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], dwTime, VOLS[j], true)) /
+            2. / TIME_TO_EXPIRY / DELTA;
         assertEquals(finThetaC, BlackFormulaRepository.driftlessTheta(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finThetaC) * DELTA);
 
-        final double finVega = (BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], true) - BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i],
-            TIME_TO_EXPIRY, dwVOLS[j],
-            true)) / 2. / VOLS[j] / DELTA;
+        final double finVega = (BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], true) - BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY,
+            dwVOLS[j], true)) / 2. / VOLS[j] / DELTA;
         assertEquals(finVega, BlackFormulaRepository.vega(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finVega) * DELTA);
 
-        final double finVanna = (BlackFormulaRepository.delta(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], true) - BlackFormulaRepository.delta(FORWARD, STRIKES_INPUT[i],
-            TIME_TO_EXPIRY, dwVOLS[j], true)) / 2. / VOLS[j] / DELTA;
+        final double finVanna = (BlackFormulaRepository.delta(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], true) - BlackFormulaRepository.delta(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY,
+            dwVOLS[j], true)) / 2. / VOLS[j] / DELTA;
         assertEquals(finVanna, BlackFormulaRepository.vanna(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finVanna) * DELTA);
 
         final double finDualVanna = (BlackFormulaRepository.dualDelta(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], true) - BlackFormulaRepository.dualDelta(FORWARD, STRIKES_INPUT[i],
             TIME_TO_EXPIRY, dwVOLS[j], true)) / 2. / VOLS[j] / DELTA;
         assertEquals(finDualVanna, BlackFormulaRepository.dualVanna(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finDualVanna) * DELTA);
 
-        final double finVomma = (BlackFormulaRepository.vega(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j]) - BlackFormulaRepository.vega(FORWARD, STRIKES_INPUT[i],
-            TIME_TO_EXPIRY, dwVOLS[j])) / 2. / VOLS[j] / DELTA;
+        final double finVomma = (BlackFormulaRepository.vega(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j]) - BlackFormulaRepository.vega(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, dwVOLS[j])) /
+            2. / VOLS[j] / DELTA;
         assertEquals(finVomma, BlackFormulaRepository.vomma(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j]), Math.abs(finVomma) * DELTA);
       }
     }
@@ -916,7 +918,7 @@ public class BlackFormulaRepositoryTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSimpleOptionDataArrayTest() {
     SimpleOptionData[] data = new SimpleOptionData[] {new SimpleOptionData(FORWARD, STRIKES_INPUT[1], TIME_TO_EXPIRY, 1., true),
-        new SimpleOptionData(FORWARD, STRIKES_INPUT[0], TIME_TO_EXPIRY, 1., true) };
+      new SimpleOptionData(FORWARD, STRIKES_INPUT[0], TIME_TO_EXPIRY, 1., true) };
     data = null;
     BlackFormulaRepository.price(data, VOLS[0]);
   }
@@ -8727,6 +8729,39 @@ public class BlackFormulaRepositoryTest {
     }
   }
 
+  @Test
+  public void impliedVolTest() {
+
+    final double vol = 0.4342; //Deliberately picked an arbitrary vol 
+    final double t = 0.1;
+    final double f = 0.01;
+    final double p = 4.1;
+    double ivCall = 0;
+    double ivPut = 0;
+    double iv = 0;
+
+    for (int i = 0; i < 100; i++) {
+      final double k = 0.004 + 0.022 * i / 100.;
+      //final double k = 0.0327;
+      final double cPrice = p * BlackFormulaRepository.price(f, k, t, vol, true);
+      final double pPrice = p * BlackFormulaRepository.price(f, k, t, vol, false);
+
+      ivCall = BlackFormulaRepository.impliedVolatility(cPrice / p, f, k, t, true);
+      ivPut = BlackFormulaRepository.impliedVolatility(pPrice / p, f, k, t, false);
+      final boolean isCall = k > f;
+      final double otmP = (isCall ? cPrice : pPrice) / p;
+      iv = BlackFormulaRepository.impliedVolatility(otmP, f, k, t, isCall);
+
+      // System.out.println(k + "\t" + cPrice + "\t" + pPrice + "\t" + ivCall + "\t" + ivPut + "\t" + iv);
+
+      //this is why we should compute OTM prices if an implied vol is required 
+      assertEquals(vol, ivCall, 5e-4);
+      assertEquals(vol, ivPut, 2e-3);
+      assertEquals(vol, iv, 1e-9);
+    }
+
+  }
+
   /**
    *
    */
@@ -8848,9 +8883,8 @@ public class BlackFormulaRepositoryTest {
   /**
    *
    */
-  @Test
-      (enabled = false)
-      public void sampleTest() {
+  @Test(enabled = false)
+  public void sampleTest() {
     final double inf = Double.POSITIVE_INFINITY;
     //    final double nan = Double.NaN;
     final double resC0 = BlackFormulaRepository.crossGamma(inf, FORWARD, 0.01, VOLS[2]);
@@ -8914,9 +8948,8 @@ public class BlackFormulaRepositoryTest {
   /**
    *
    */
-  @Test
-      (enabled = false)
-      public void sample2Test() {
+  @Test(enabled = false)
+  public void sample2Test() {
     final double inf = Double.POSITIVE_INFINITY;
     //    final double nan = Double.NaN;
     final double resC0 = BlackFormulaRepository.price(inf, FORWARD, 0.01, VOLS[2], true);
@@ -8984,9 +9017,8 @@ public class BlackFormulaRepositoryTest {
   /**
    *
    */
-  @Test
-      (enabled = false)
-      public void sample3Test() {
+  @Test(enabled = false)
+  public void sample3Test() {
     final double inf = Double.POSITIVE_INFINITY;
     //    final double nan = Double.NaN;
     final double resC0 = BlackFormulaRepository.theta(inf, FORWARD, 0.01, VOLS[2], true, 0.05);
@@ -9058,9 +9090,8 @@ public class BlackFormulaRepositoryTest {
   /**
    *
    */
-  @Test
-      (enabled = false)
-      public void sample4Test() {
+  @Test(enabled = false)
+  public void sample4Test() {
     final double inf = Double.POSITIVE_INFINITY;
     //    final double nan = Double.NaN;
     final double resC0 = BlackFormulaRepository.vomma(inf, FORWARD, 0.01, VOLS[2]);

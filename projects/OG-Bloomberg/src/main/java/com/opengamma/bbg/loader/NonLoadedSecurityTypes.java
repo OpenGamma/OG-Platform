@@ -35,7 +35,8 @@ public final class NonLoadedSecurityTypes {
       BLOOMBERG_FWD_SWAP_TYPE,
       BLOOMBERG_NDF_SWAP_TYPE,
       BLOOMBERG_ONSHORE_SWAP_TYPE,
-      BloombergConstants.BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE);
+      BloombergConstants.BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE,
+      BloombergConstants.BLOOMBERG_IMM_SWAP_TYPE);
   /**
    * The valid Bloomberg security types for basis swaps
    */
@@ -65,7 +66,6 @@ public final class NonLoadedSecurityTypes {
   private static final String BLOOMBERG_SPOT_TYPE = "SPOT";
   private static final String BLOOMBERG_CROSS_TYPE = "CROSS";
   private static final String BLOOMBERG_DEPOSIT_TYPE = "DEPOSIT";
-  private static final String BLOOMBERG_INDEX_TYPE = "Index";
   private static final String BLOOMBERG_FX_FORWARD_TYPE = "FORWARD";
   private static final String BLOOMBERG_FX_ONSHORE_FORWARD_TYPE = "ONSHORE FORWARD";
   private static final String BLOOMBERG_FX_NDF = "NON-DELIVERABLE FORWARD";
@@ -90,7 +90,6 @@ public final class NonLoadedSecurityTypes {
    */
   public static final Set<String> VALID_RATE_TYPES = ImmutableSet.of(
       BLOOMBERG_DEPOSIT_TYPE,
-      BLOOMBERG_INDEX_TYPE,
       BloombergConstants.BLOOMBERG_PHYSICAL_INDEX_FUTURE_TYPE);
 
   // Equity Indices

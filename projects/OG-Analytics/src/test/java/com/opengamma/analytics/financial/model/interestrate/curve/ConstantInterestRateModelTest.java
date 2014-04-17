@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.InterestRateModel;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConstantInterestRateModelTest {
   private static final double EPS = 1e-15;
   private static final double RATE = 0.05;

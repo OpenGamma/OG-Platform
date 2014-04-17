@@ -27,7 +27,6 @@ public class CubeFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(RawSwaptionVolatilityCubeDataFunction.class));
     functions.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class));
   }
 

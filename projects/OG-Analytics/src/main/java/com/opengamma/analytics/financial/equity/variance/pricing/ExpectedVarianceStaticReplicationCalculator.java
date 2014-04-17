@@ -20,9 +20,10 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculate the expected annualised variance where the underlying is a diffusion (i.e. no jumps) using static replication of a log-payoff. This implicitly assumes continuing
- * monitoring of the realised variance, while in practice the daily squared returns are used (the difference is normally negligible). <p>Situations where the underlying contains jumps
- * (other than equity dividend payments) are not currently handled.
+ * Calculate the expected annualised variance where the underlying is a diffusion (i.e. no jumps) using static replication of a log-payoff. This implicitly assumes continuous
+ * monitoring of the realised variance, while in practice the daily squared returns are used (the difference is normally negligible). 
+ * <p>
+ * Situations where the underlying contains jumps (other than equity dividend payments) are not currently handled.
  */
 public class ExpectedVarianceStaticReplicationCalculator {
   /** The cutoff time */
@@ -84,7 +85,7 @@ public class ExpectedVarianceStaticReplicationCalculator {
   }
 
   /**
-   * Calculate the expected annualised variance using static replication of a log payoff,where the underlying is a diffusion (i.e. no jumps) and the Black volatility
+   * Calculate the expected annualised variance using static replication of a log payoff, where the underlying is a diffusion (i.e. no jumps) and the Black volatility
    * surface is parameterised by strike.
    * <p>
    * Note: the Black volatility surface must be fitted externally and be well defined for strikes down to zero ({@link ShiftedLogNormalTailExtrapolation} can be useful for this)

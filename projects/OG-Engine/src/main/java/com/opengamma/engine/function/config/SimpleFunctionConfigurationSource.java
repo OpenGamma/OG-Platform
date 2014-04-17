@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.function.config;
 
+import org.threeten.bp.Instant;
+
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,7 +24,7 @@ public class SimpleFunctionConfigurationSource implements FunctionConfigurationS
   /**
    * Creates an instance.
    * 
-   * @param repoConfig  the config, not null
+   * @param repoConfig the config, not null
    */
   public SimpleFunctionConfigurationSource(final FunctionConfigurationBundle repoConfig) {
     ArgumentChecker.notNull(repoConfig, "repoConfig");
@@ -28,8 +32,13 @@ public class SimpleFunctionConfigurationSource implements FunctionConfigurationS
   }
 
   @Override
-  public FunctionConfigurationBundle getFunctionConfiguration() {
+  public FunctionConfigurationBundle getFunctionConfiguration(final Instant version) {
     return _repoConfig;
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
   //-------------------------------------------------------------------------

@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of price index.
  */
+@Test(groups = TestGroup.UNIT)
 public class PriceIndexTest {
 
   private static final String NAME = "Euro HICP x";

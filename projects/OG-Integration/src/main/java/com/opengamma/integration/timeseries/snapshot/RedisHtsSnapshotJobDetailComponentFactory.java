@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -133,136 +134,6 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   @Override
   public RedisHtsSnapshotJobDetailComponentFactory.Meta metaBean() {
     return RedisHtsSnapshotJobDetailComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case 3373707:  // name
-        return getName();
-      case -332642308:  // baseDir
-        return getBaseDir();
-      case 98629247:  // group
-        return getGroup();
-      case -160710469:  // scheduler
-        return getScheduler();
-      case 1272470629:  // dataSource
-        return getDataSource();
-      case 650692196:  // normalizationRuleSetId
-        return getNormalizationRuleSetId();
-      case -747889643:  // globalPrefix
-        return getGlobalPrefix();
-      case -1707859415:  // htsMaster
-        return getHtsMaster();
-      case -745461486:  // redisConnector
-        return getRedisConnector();
-      case 836243736:  // schemeBlackList
-        return getSchemeBlackList();
-      case 1058119597:  // dataFieldBlackList
-        return getDataFieldBlackList();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -332642308:  // baseDir
-        setBaseDir((String) newValue);
-        return;
-      case 98629247:  // group
-        setGroup((String) newValue);
-        return;
-      case -160710469:  // scheduler
-        setScheduler((Scheduler) newValue);
-        return;
-      case 1272470629:  // dataSource
-        setDataSource((String) newValue);
-        return;
-      case 650692196:  // normalizationRuleSetId
-        setNormalizationRuleSetId((String) newValue);
-        return;
-      case -747889643:  // globalPrefix
-        setGlobalPrefix((String) newValue);
-        return;
-      case -1707859415:  // htsMaster
-        setHtsMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case -745461486:  // redisConnector
-        setRedisConnector((RedisConnector) newValue);
-        return;
-      case 836243736:  // schemeBlackList
-        setSchemeBlackList((String) newValue);
-        return;
-      case 1058119597:  // dataFieldBlackList
-        setDataFieldBlackList((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_baseDir, "baseDir");
-    JodaBeanUtils.notNull(_scheduler, "scheduler");
-    JodaBeanUtils.notNull(_dataSource, "dataSource");
-    JodaBeanUtils.notNull(_normalizationRuleSetId, "normalizationRuleSetId");
-    JodaBeanUtils.notNull(_globalPrefix, "globalPrefix");
-    JodaBeanUtils.notNull(_htsMaster, "htsMaster");
-    JodaBeanUtils.notNull(_redisConnector, "redisConnector");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RedisHtsSnapshotJobDetailComponentFactory other = (RedisHtsSnapshotJobDetailComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
-          JodaBeanUtils.equal(getGroup(), other.getGroup()) &&
-          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
-          JodaBeanUtils.equal(getNormalizationRuleSetId(), other.getNormalizationRuleSetId()) &&
-          JodaBeanUtils.equal(getGlobalPrefix(), other.getGlobalPrefix()) &&
-          JodaBeanUtils.equal(getHtsMaster(), other.getHtsMaster()) &&
-          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
-          JodaBeanUtils.equal(getSchemeBlackList(), other.getSchemeBlackList()) &&
-          JodaBeanUtils.equal(getDataFieldBlackList(), other.getDataFieldBlackList()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGroup());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -575,6 +446,84 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public RedisHtsSnapshotJobDetailComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RedisHtsSnapshotJobDetailComponentFactory other = (RedisHtsSnapshotJobDetailComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
+          JodaBeanUtils.equal(getGroup(), other.getGroup()) &&
+          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getNormalizationRuleSetId(), other.getNormalizationRuleSetId()) &&
+          JodaBeanUtils.equal(getGlobalPrefix(), other.getGlobalPrefix()) &&
+          JodaBeanUtils.equal(getHtsMaster(), other.getHtsMaster()) &&
+          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
+          JodaBeanUtils.equal(getSchemeBlackList(), other.getSchemeBlackList()) &&
+          JodaBeanUtils.equal(getDataFieldBlackList(), other.getDataFieldBlackList()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGroup());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(416);
+    buf.append("RedisHtsSnapshotJobDetailComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("baseDir").append('=').append(JodaBeanUtils.toString(getBaseDir())).append(',').append(' ');
+    buf.append("group").append('=').append(JodaBeanUtils.toString(getGroup())).append(',').append(' ');
+    buf.append("scheduler").append('=').append(JodaBeanUtils.toString(getScheduler())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("normalizationRuleSetId").append('=').append(JodaBeanUtils.toString(getNormalizationRuleSetId())).append(',').append(' ');
+    buf.append("globalPrefix").append('=').append(JodaBeanUtils.toString(getGlobalPrefix())).append(',').append(' ');
+    buf.append("htsMaster").append('=').append(JodaBeanUtils.toString(getHtsMaster())).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(JodaBeanUtils.toString(getRedisConnector())).append(',').append(' ');
+    buf.append("schemeBlackList").append('=').append(JodaBeanUtils.toString(getSchemeBlackList())).append(',').append(' ');
+    buf.append("dataFieldBlackList").append('=').append(JodaBeanUtils.toString(getDataFieldBlackList())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code RedisHtsSnapshotJobDetailComponentFactory}.
    */
@@ -809,6 +758,95 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
      */
     public final MetaProperty<String> dataFieldBlackList() {
       return _dataFieldBlackList;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getClassifier();
+        case 3373707:  // name
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getName();
+        case -332642308:  // baseDir
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getBaseDir();
+        case 98629247:  // group
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getGroup();
+        case -160710469:  // scheduler
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getScheduler();
+        case 1272470629:  // dataSource
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getDataSource();
+        case 650692196:  // normalizationRuleSetId
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getNormalizationRuleSetId();
+        case -747889643:  // globalPrefix
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getGlobalPrefix();
+        case -1707859415:  // htsMaster
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getHtsMaster();
+        case -745461486:  // redisConnector
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getRedisConnector();
+        case 836243736:  // schemeBlackList
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getSchemeBlackList();
+        case 1058119597:  // dataFieldBlackList
+          return ((RedisHtsSnapshotJobDetailComponentFactory) bean).getDataFieldBlackList();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case 3373707:  // name
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setName((String) newValue);
+          return;
+        case -332642308:  // baseDir
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setBaseDir((String) newValue);
+          return;
+        case 98629247:  // group
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setGroup((String) newValue);
+          return;
+        case -160710469:  // scheduler
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setScheduler((Scheduler) newValue);
+          return;
+        case 1272470629:  // dataSource
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setDataSource((String) newValue);
+          return;
+        case 650692196:  // normalizationRuleSetId
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setNormalizationRuleSetId((String) newValue);
+          return;
+        case -747889643:  // globalPrefix
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setGlobalPrefix((String) newValue);
+          return;
+        case -1707859415:  // htsMaster
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setHtsMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case -745461486:  // redisConnector
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setRedisConnector((RedisConnector) newValue);
+          return;
+        case 836243736:  // schemeBlackList
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setSchemeBlackList((String) newValue);
+          return;
+        case 1058119597:  // dataFieldBlackList
+          ((RedisHtsSnapshotJobDetailComponentFactory) bean).setDataFieldBlackList((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._name, "name");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._baseDir, "baseDir");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._scheduler, "scheduler");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._dataSource, "dataSource");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._normalizationRuleSetId, "normalizationRuleSetId");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._globalPrefix, "globalPrefix");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._htsMaster, "htsMaster");
+      JodaBeanUtils.notNull(((RedisHtsSnapshotJobDetailComponentFactory) bean)._redisConnector, "redisConnector");
+      super.validate(bean);
     }
 
   }

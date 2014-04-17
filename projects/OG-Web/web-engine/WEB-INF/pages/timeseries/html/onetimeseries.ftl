@@ -12,7 +12,7 @@
   <p>
     <@rowout label="Reference">${info.uniqueId.value}</@rowout>
    	<#list info.externalIdBundle.externalIds as item>
-    <@rowout label="Identifier">${item}</@rowout>
+    <@rowout label="Identifier">${item.externalId}</@rowout>
    	</#list>
     <@rowout label="Data source">${info.dataSource}</@rowout>
     <@rowout label="Data provider">${info.dataProvider}</@rowout>
@@ -140,7 +140,7 @@ $(function () {
 </@subsection>
 </@section>
 
-<#-- SECTION Update security -->
+<#-- SECTION Update time series -->
 <@section title="Update Timeseries">
   <@form method="PUT" action="${uris.oneTimeSeries()}">
   <p>
@@ -149,7 +149,7 @@ $(function () {
   </@form>
 </@section>
 
-<#-- SECTION Delete Timeseries -->
+<#-- SECTION Delete time series -->
 <@section title="Delete Timeseries">
   <@form method="DELETE" action="${uris.oneTimeSeries()}">
   <p>

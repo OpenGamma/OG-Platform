@@ -9,11 +9,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class ScheduleCalculatorTestCase {
   private static final LocalDate START1 = LocalDate.of(2000, 1, 1);
   private static final ZonedDateTime START2 = DateUtils.getUTCDate(2000, 1, 1);

@@ -18,6 +18,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -30,21 +31,22 @@ public class JsonBeanStructureVisitorTest {
     JodaBeanConverters.getInstance();
   }
 
-  @Test
+  @Test(enabled = false)
   public void fxForward() {
-    Set<MetaBean> metaBeans = ImmutableSet.<MetaBean>of(FXForwardSecurity.meta());
+    Set<MetaBean> metaBeans = ImmutableSet.<MetaBean>of(FXForwardSecurity.meta(), ExternalIdBundle.meta());
     JsonBeanStructureVisitor visitor = new JsonBeanStructureVisitor(metaBeans);
     System.out.println(new BeanTraverser().traverse(FXForwardSecurity.meta(), visitor));
   }
 
-  @Test
+  @Test(enabled = false)
   public void swap() {
     Set<MetaBean> metaBeans = ImmutableSet.<MetaBean>of(
         SwapSecurity.meta(),
         SwapLeg.meta(),
         FixedInterestRateLeg.meta(),
         FloatingInterestRateLeg.meta(),
-        InterestRateNotional.meta());
+        InterestRateNotional.meta(),
+        ExternalIdBundle.meta());
     JsonBeanStructureVisitor visitor = new JsonBeanStructureVisitor(metaBeans);
     System.out.println(new BeanTraverser().traverse(SwapSecurity.meta(), visitor));
     System.out.println(new BeanTraverser().traverse(FixedInterestRateLeg.meta(), visitor));

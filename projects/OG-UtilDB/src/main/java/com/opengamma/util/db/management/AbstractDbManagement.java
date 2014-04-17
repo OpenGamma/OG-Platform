@@ -26,8 +26,9 @@ import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Abstract implementation of database management.
@@ -374,7 +375,7 @@ public abstract class AbstractDbManagement implements DbManagement {
     if (sql != null) {
       final ResultSet rs = stmt.executeQuery(sql);
       while (rs.next()) {
-        sequences.add(Pair.of(rs.getString("name"), rs.getString("table_name")));
+        sequences.add(Pairs.of(rs.getString("name"), rs.getString("table_name")));
       }
       rs.close();
     }
@@ -613,6 +614,27 @@ public abstract class AbstractDbManagement implements DbManagement {
       }
     }
     return description.toString();
+  }
+
+  @Override
+  public List<String> listTables(final String catalog) {
+    Connection conn = null;
+    try {
+      conn = connect(catalog);
+      final Statement stmt = conn.createStatement();
+      return getAllTables(catalog, null, stmt);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      System.err.println("e.getMessage: " + e.getMessage());
+      throw new OpenGammaRuntimeException("SQL exception", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+      }
+    }
   }
 
   @Override

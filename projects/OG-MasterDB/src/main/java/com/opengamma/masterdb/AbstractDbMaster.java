@@ -22,6 +22,7 @@ import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.JdkUtils;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -34,7 +35,7 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public abstract class AbstractDbMaster {
+public abstract class AbstractDbMaster implements ConfigurableDbMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbMaster.class);
@@ -88,6 +89,7 @@ public abstract class AbstractDbMaster {
    *
    * @return the maximum number of retries, not null
    */
+  @Override
   public int getMaxRetries() {
     return _maxRetries;
   }
@@ -98,6 +100,7 @@ public abstract class AbstractDbMaster {
    *
    * @param maxRetries  the maximum number of retries, not negative
    */
+  @Override
   public void setMaxRetries(final int maxRetries) {
     ArgumentChecker.notNegative(maxRetries, "maxRetries");
     _maxRetries = maxRetries;
@@ -109,6 +112,7 @@ public abstract class AbstractDbMaster {
    * 
    * @return the database connector, not null
    */
+  @Override
   public DbConnector getDbConnector() {
     return _dbConnector;
   }
@@ -137,6 +141,7 @@ public abstract class AbstractDbMaster {
    * 
    * @return the external SQL bundle, not null
    */
+  @Override
   public ElSqlBundle getElSqlBundle() {
     return _externalSqlBundle;
   }
@@ -146,27 +151,18 @@ public abstract class AbstractDbMaster {
    * 
    * @param bundle  the external SQL bundle, not null
    */
+  @Override
   public void setElSqlBundle(ElSqlBundle bundle) {
     _externalSqlBundle = bundle;
   }
   
   //-------------------------------------------------------------------------
   /**
-   * Gets the next database id.
-   * 
-   * @param sequenceName  the name of the sequence to query, not null
-   * @return the next database id
-   */
-  protected long nextId(String sequenceName) {
-    return getJdbcTemplate().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(sequenceName), Long.class);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the clock that determines the current time.
    * 
    * @return the clock, not null
    */
+  @Override
   public Clock getClock() {
     return _clock;
   }
@@ -176,6 +172,7 @@ public abstract class AbstractDbMaster {
    * 
    * @param clock  the clock, not null
    */
+  @Override
   public void setClock(final Clock clock) {
     ArgumentChecker.notNull(clock, "clock");
     s_logger.debug("installed Clock: {}", clock);
@@ -196,6 +193,25 @@ public abstract class AbstractDbMaster {
    */
   protected Instant now() {
     return Instant.now(getClock());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the parameter source.
+   * @return the source, not null
+   */
+  protected DbMapSqlParameterSource createParameterSource() {
+    return new DbMapSqlParameterSource();
+  }
+
+  /**
+   * Gets the next database id.
+   * 
+   * @param sequenceName  the name of the sequence to query, not null
+   * @return the next database id
+   */
+  protected long nextId(String sequenceName) {
+    return getJdbcTemplate().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(sequenceName), Long.class);
   }
 
   //-------------------------------------------------------------------------
@@ -261,6 +277,7 @@ public abstract class AbstractDbMaster {
    * 
    * @return the scheme, not null
    */
+  @Override
   public String getUniqueIdScheme() {
     return _uniqueIdScheme;
   }
@@ -270,6 +287,7 @@ public abstract class AbstractDbMaster {
    * 
    * @param scheme  the scheme for unique identifier, not null
    */
+  @Override
   public void setUniqueIdScheme(final String scheme) {
     ArgumentChecker.notNull(scheme, "scheme");
     s_logger.debug("installed scheme: {}", scheme);
@@ -352,11 +370,8 @@ public abstract class AbstractDbMaster {
     if (value == null) {
       return null;
     }
-    BigDecimal stripped = value.stripTrailingZeros();  // Derby, and maybe others, add trailing zeroes
-    if (stripped.scale() < 0) {
-      return stripped.setScale(0);
-    }
-    return stripped;
+    BigDecimal stripped = JdkUtils.stripTrailingZeros(value);  // Derby, and maybe others, add trailing zeroes
+    return stripped.scale() < 0 ? stripped.setScale(0) : stripped;
   }
   
   //-------------------------------------------------------------------------
@@ -365,9 +380,10 @@ public abstract class AbstractDbMaster {
    *  
    * @return the schema version, or null if not found
    */
+  @Override
   public Integer getSchemaVersion() {
     try {
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
+      final DbMapSqlParameterSource args = createParameterSource().addValue("version_key", "schema_patch");
       final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
       String version = getJdbcTemplate().queryForObject(sql, args, String.class);
       return Integer.parseInt(version);

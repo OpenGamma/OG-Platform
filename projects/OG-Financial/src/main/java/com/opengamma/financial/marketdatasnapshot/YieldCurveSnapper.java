@@ -30,16 +30,13 @@ public class YieldCurveSnapper extends
   YieldCurveKey getKey(ValueSpecification spec) {
     Currency currency = Currency.parse(spec.getTargetSpecification().getUniqueId().getValue());
     String curve = getSingleProperty(spec, ValuePropertyNames.CURVE);
-    return new YieldCurveKey(currency, curve);
+    return YieldCurveKey.of(currency, curve);
   }
 
   @Override
   ManageableYieldCurveSnapshot buildSnapshot(ViewComputationResultModel resultModel, YieldCurveKey key,
       SnapshotDataBundle bundle) {
     ManageableUnstructuredMarketDataSnapshot values = getUnstructured(bundle);
-    ManageableYieldCurveSnapshot ret = new ManageableYieldCurveSnapshot();
-    ret.setValues(values);
-    ret.setValuationTime(resultModel.getViewCycleExecutionOptions().getValuationTime());
-    return ret;
+    return ManageableYieldCurveSnapshot.of(resultModel.getViewCycleExecutionOptions().getValuationTime(), values);
   }
 }

@@ -204,6 +204,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param xVector The x data of the grid. Not null.
    * @param yVector The x data of the grid. Not null.
    * @param zData The z data. Not null. Contains a number of entries which is the product of the number of entries of xVector and yVector.
+   * The z data should be in the order of xVector repeated yVector.length times, i.e. x[0]-y[0], x[1]-y[0], x[2]-y[0], ..., x[0]-y[1], x[1], y[1], etc.
    * @param interpolator  The interpolator, not null
    * @return An interpolated surface with automatically-generated name.
    */
@@ -465,7 +466,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   public Double getZValue(final Double x, final Double y) {
     ArgumentChecker.notNull(x, "x");
     ArgumentChecker.notNull(y, "y");
-    return _interpolator.interpolate(_data, new DoublesPair(x, y));
+    return _interpolator.interpolate(_data, DoublesPair.of(x.doubleValue(), y.doubleValue()));
   }
 
   /**

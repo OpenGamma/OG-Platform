@@ -43,7 +43,7 @@ public class HistoricalTimeSeriesRatingFudgeBuilder implements FudgeBuilder<Hist
       HistoricalTimeSeriesRatingRule rule = deserializer.fudgeMsgToObject(HistoricalTimeSeriesRatingRule.class, (FudgeMsg) field.getValue());
       rules.add(rule);
     }
-    return new HistoricalTimeSeriesRating(rules);
+    return HistoricalTimeSeriesRating.of(rules);
   }
 
 }

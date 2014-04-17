@@ -57,7 +57,7 @@ public class InterestRateCurveSensitivityUtils {
       t = pair.first;
       if (t > tOld) {
         if (Math.abs(sum) > absTol && Math.abs(sum) / scale > relTol) {
-          res.add(new DoublesPair(tOld, sum));
+          res.add(DoublesPair.of(tOld, sum));
         }
         tOld = t;
         sum = pair.getSecondDouble();
@@ -69,7 +69,7 @@ public class InterestRateCurveSensitivityUtils {
     }
 
     if (Math.abs(sum) > absTol && Math.abs(sum) / scale > relTol) {
-      res.add(new DoublesPair(t, sum));
+      res.add(DoublesPair.of(t, sum));
     }
 
     return res;
@@ -187,7 +187,7 @@ public class InterestRateCurveSensitivityUtils {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
     final List<DoublesPair> curveSensi = new ArrayList<>();
     for (final DoublesPair pair : sensitivity) {
-      curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
+      curveSensi.add(DoublesPair.of(pair.first, pair.second * factor));
     }
     return curveSensi;
   }

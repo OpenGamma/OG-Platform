@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security.hibernate.cds;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -65,102 +66,6 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
   @Override
   public CreditDefaultSwapIndexDefinitionSecurityBean.Meta metaBean() {
     return CreditDefaultSwapIndexDefinitionSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        return getName();
-      case 351608024:  // version
-        return getVersion();
-      case -905838985:  // series
-        return getSeries();
-      case -1281860764:  // family
-        return getFamily();
-      case 575402001:  // currency
-        return getCurrency();
-      case 2002873877:  // recoveryRate
-        return getRecoveryRate();
-      case -877322829:  // tenors
-        return getTenors();
-      case -447446250:  // components
-        return getComponents();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 351608024:  // version
-        setVersion((String) newValue);
-        return;
-      case -905838985:  // series
-        setSeries((String) newValue);
-        return;
-      case -1281860764:  // family
-        setFamily((CDSIndexFamilyBean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 2002873877:  // recoveryRate
-        setRecoveryRate((Double) newValue);
-        return;
-      case -877322829:  // tenors
-        setTenors((Set<TenorBean>) newValue);
-        return;
-      case -447446250:  // components
-        setComponents((Set<CDSIndexComponentBean>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_tenors, "tenors");
-    JodaBeanUtils.notNull(_components, "components");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CreditDefaultSwapIndexDefinitionSecurityBean other = (CreditDefaultSwapIndexDefinitionSecurityBean) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getVersion(), other.getVersion()) &&
-          JodaBeanUtils.equal(getSeries(), other.getSeries()) &&
-          JodaBeanUtils.equal(getFamily(), other.getFamily()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
-          JodaBeanUtils.equal(getTenors(), other.getTenors()) &&
-          JodaBeanUtils.equal(getComponents(), other.getComponents()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSeries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFamily());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComponents());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -366,6 +271,72 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CreditDefaultSwapIndexDefinitionSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CreditDefaultSwapIndexDefinitionSecurityBean other = (CreditDefaultSwapIndexDefinitionSecurityBean) obj;
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getVersion(), other.getVersion()) &&
+          JodaBeanUtils.equal(getSeries(), other.getSeries()) &&
+          JodaBeanUtils.equal(getFamily(), other.getFamily()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
+          JodaBeanUtils.equal(getTenors(), other.getTenors()) &&
+          JodaBeanUtils.equal(getComponents(), other.getComponents()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSeries());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFamily());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTenors());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComponents());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("CreditDefaultSwapIndexDefinitionSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("version").append('=').append(JodaBeanUtils.toString(getVersion())).append(',').append(' ');
+    buf.append("series").append('=').append(JodaBeanUtils.toString(getSeries())).append(',').append(' ');
+    buf.append("family").append('=').append(JodaBeanUtils.toString(getFamily())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate())).append(',').append(' ');
+    buf.append("tenors").append('=').append(JodaBeanUtils.toString(getTenors())).append(',').append(' ');
+    buf.append("components").append('=').append(JodaBeanUtils.toString(getComponents())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CreditDefaultSwapIndexDefinitionSecurityBean}.
    */
@@ -538,6 +509,69 @@ public class CreditDefaultSwapIndexDefinitionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Set<CDSIndexComponentBean>> components() {
       return _components;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getName();
+        case 351608024:  // version
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getVersion();
+        case -905838985:  // series
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getSeries();
+        case -1281860764:  // family
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getFamily();
+        case 575402001:  // currency
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getCurrency();
+        case 2002873877:  // recoveryRate
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getRecoveryRate();
+        case -877322829:  // tenors
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getTenors();
+        case -447446250:  // components
+          return ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).getComponents();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setName((String) newValue);
+          return;
+        case 351608024:  // version
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setVersion((String) newValue);
+          return;
+        case -905838985:  // series
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setSeries((String) newValue);
+          return;
+        case -1281860764:  // family
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setFamily((CDSIndexFamilyBean) newValue);
+          return;
+        case 575402001:  // currency
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 2002873877:  // recoveryRate
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setRecoveryRate((Double) newValue);
+          return;
+        case -877322829:  // tenors
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setTenors((Set<TenorBean>) newValue);
+          return;
+        case -447446250:  // components
+          ((CreditDefaultSwapIndexDefinitionSecurityBean) bean).setComponents((Set<CDSIndexComponentBean>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexDefinitionSecurityBean) bean)._tenors, "tenors");
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexDefinitionSecurityBean) bean)._components, "components");
+      super.validate(bean);
     }
 
   }

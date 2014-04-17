@@ -33,6 +33,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.web.FreemarkerOutputter;
+import com.opengamma.web.WebHomeUris;
 
 /**
  * RESTful resource for exposing managed components.
@@ -114,32 +115,34 @@ public class DataComponentServerResource extends AbstractDataResource {
 
   @GET
   public Response getComponentInfos() {
-    ComponentServer server = new ComponentServer(URI.create("components"));
-    server.getComponentInfos().addAll(_remoteComponents);
-    for (RestComponent component : _localComponents) {
-      server.getComponentInfos().add(component.getInfo());
-    }
-    return responseOkFudge(server);
+    ComponentServer server = createServerInfo();
+    return responseOkObject(server);
   }
 
   @GET
   @Produces(value = MediaType.TEXT_HTML)
   public String getComponentInfosHtml(@Context ServletContext servletContext, @Context UriInfo uriInfo) {
-    ComponentServer server = new ComponentServer(URI.create("components"));
-    server.getComponentInfos().addAll(_remoteComponents);
-    for (RestComponent component : _localComponents) {
-      server.getComponentInfos().add(component.getInfo());
-    }
+    ComponentServer server = createServerInfo();
     server.setUri(uriInfo.getBaseUri());
     Multimap<Class<?>, ComponentInfo> byType = TreeMultimap.create(ORDER_CLASS, ORDER_CLASSIFIER);
     for (ComponentInfo info : server.getComponentInfos()) {
       byType.put(info.getType(), info);
     }
     FreemarkerOutputter freemarker = new FreemarkerOutputter(servletContext);
-    FlexiBean data = freemarker.createRootData();
-    data.put("componentServer", server);
-    data.put("infosByType", byType);
-    return freemarker.build("data/componentserver.ftl", data);
+    FlexiBean out = FreemarkerOutputter.createRootData(uriInfo);
+    out.put("componentServer", server);
+    out.put("infosByType", byType);
+    out.put("uris", new WebHomeUris(uriInfo));
+    return freemarker.build("data/componentserver.ftl", out);
+  }
+
+  private ComponentServer createServerInfo() {
+    ComponentServer server = new ComponentServer(URI.create("components"));
+    server.getComponentInfos().addAll(_remoteComponents);
+    for (RestComponent component : _localComponents) {
+      server.getComponentInfos().add(component.getInfo());
+    }
+    return server;
   }
 
   @Path("{type}/{classifier}")

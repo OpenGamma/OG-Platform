@@ -18,22 +18,25 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class to test the PresentValueSensitivity class.
  */
+@Test(groups = TestGroup.UNIT)
 public class InflationSensitivityTest {
 
-  private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30), new DoublesPair(4, 40)});
-  private static final List<DoublesPair> SENSI_DATA_2 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 40), new DoublesPair(2, 30), new DoublesPair(3, 20), new DoublesPair(4, 10)});
-  private static final List<DoublesPair> SENSI_DATA_3 = Arrays.asList(new DoublesPair[] {new DoublesPair(11, 40), new DoublesPair(12, 30), new DoublesPair(13, 20), new DoublesPair(14, 10)});
+  private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 10d), DoublesPair.of(2d, 20d), DoublesPair.of(3d, 30d), DoublesPair.of(4d, 40d) });
+  private static final List<DoublesPair> SENSI_DATA_2 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 40d), DoublesPair.of(2d, 30d), DoublesPair.of(3d, 20d), DoublesPair.of(4d, 10d) });
+  private static final List<DoublesPair> SENSI_DATA_3 = Arrays.asList(new DoublesPair[] {DoublesPair.of(11d, 40d), DoublesPair.of(12d, 30d), DoublesPair.of(13d, 20d), DoublesPair.of(14d, 10d) });
   private static final List<ForwardSensitivity> SENSI_FWD_1 = new ArrayList<>();
   static {
-    SENSI_FWD_1.add(new ForwardSensitivity(0.5, 0.75, 0.26, 11));
-    SENSI_FWD_1.add(new ForwardSensitivity(0.75, 1.00, 0.26, 12));
-    SENSI_FWD_1.add(new ForwardSensitivity(1.00, 1.25, 0.24, 13));
+    SENSI_FWD_1.add(new SimplyCompoundedForwardSensitivity(0.5, 0.75, 0.26, 11));
+    SENSI_FWD_1.add(new SimplyCompoundedForwardSensitivity(0.75, 1.00, 0.26, 12));
+    SENSI_FWD_1.add(new SimplyCompoundedForwardSensitivity(1.00, 1.25, 0.24, 13));
   }
   private static final String CURVE_NAME_1 = "A";
   private static final String CURVE_NAME_2 = "B";
@@ -112,7 +115,7 @@ public class InflationSensitivityTest {
     assertEquals(expectedSensi11add22, pvSensi_11.plus(pvSensi_22).getYieldDiscountingSensitivities());
     assertEquals(InflationSensitivity.ofYieldDiscounting(expectedSensi11add22), pvSensi_11.plus(pvSensi_22));
     // Multiply
-    final List<DoublesPair> sensiData1Multiply050 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 5.0), new DoublesPair(2, 10.0), new DoublesPair(3, 15.0), new DoublesPair(4, 20.0)});
+    final List<DoublesPair> sensiData1Multiply050 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 5.0d), DoublesPair.of(2d, 10.0d), DoublesPair.of(3d, 15.0d), DoublesPair.of(4d, 20.0d) });
     final Map<String, List<DoublesPair>> expectedSensi1Multiply05 = new HashMap<>();
     expectedSensi1Multiply05.put(CURVE_NAME_1, sensiData1Multiply050);
     assertEquals(expectedSensi1Multiply05, pvSensi_11.multipliedBy(0.5).getYieldDiscountingSensitivities());
@@ -152,7 +155,7 @@ public class InflationSensitivityTest {
     final InflationSensitivity pvSensi_11 = InflationSensitivity.ofYieldDiscounting(sensi11);
     sensi12.put(CURVE_NAME_1, SENSI_DATA_2);
     final InflationSensitivity pvSensi_12 = InflationSensitivity.ofYieldDiscounting(sensi12);
-    final List<DoublesPair> expectedSensiDataClean12 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 50), new DoublesPair(2, 50), new DoublesPair(3, 50), new DoublesPair(4, 50)});
+    final List<DoublesPair> expectedSensiDataClean12 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 50d), DoublesPair.of(2d, 50d), DoublesPair.of(3d, 50d), DoublesPair.of(4d, 50d) });
     final Map<String, List<DoublesPair>> expectedSensiClean12 = new HashMap<>();
     expectedSensiClean12.put(CURVE_NAME_1, expectedSensiDataClean12);
     assertEquals(InflationSensitivity.ofYieldDiscounting(expectedSensiClean12).getYieldDiscountingSensitivities(), pvSensi_11.plus(pvSensi_12).cleaned().getYieldDiscountingSensitivities());

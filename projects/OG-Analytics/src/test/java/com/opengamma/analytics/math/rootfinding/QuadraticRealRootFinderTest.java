@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class QuadraticRealRootFinderTest {
   private static final double EPS = 1e-9;
   private static final RealPolynomialFunction1D F = new RealPolynomialFunction1D(new double[] {12., 7., 1.});

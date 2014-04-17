@@ -80,6 +80,7 @@ public class GeneratorSwapFixedON extends GeneratorInstrument<GeneratorAttribute
     ArgumentChecker.notNull(fixedLegDayCount, "Fixed leg day count");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(index, "Index ON");
+    ArgumentChecker.isFalse(legsPeriod.isZero(), "legsPeriod must be non zero");
     _index = index;
     _legsPeriod = legsPeriod;
     _fixedLegDayCount = fixedLegDayCount;
@@ -111,6 +112,7 @@ public class GeneratorSwapFixedON extends GeneratorInstrument<GeneratorAttribute
     ArgumentChecker.notNull(fixedLegDayCount, "Fixed leg day count");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(index, "Index ON");
+    ArgumentChecker.isFalse(legsPeriod.isZero(), "legsPeriod must be non zero");
     _index = index;
     _legsPeriod = legsPeriod;
     _fixedLegDayCount = fixedLegDayCount;

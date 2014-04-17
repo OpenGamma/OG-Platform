@@ -51,4 +51,5 @@ public class DeliverableSwapFutureSecurityConverter extends FinancialSecurityVis
     final double notional = security.getNotional();
     return new SwapFuturesPriceDeliverableSecurityDefinition(lastTradingDate, (SwapFixedIborDefinition) underlyingSwap, notional);
   }
+  
 }

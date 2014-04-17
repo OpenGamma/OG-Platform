@@ -15,10 +15,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BermudanOptionFunctionProviderTest {
   private static final TreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();

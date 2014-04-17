@@ -21,7 +21,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
@@ -39,8 +38,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -56,7 +56,9 @@ public class ImpliedYieldCurveSpecificationFunction extends AbstractFunction {
   private final ComputationTargetSpecification _targetSpec;
   private ValueSpecification _resultSpec;
   private static final LocalTime CASH_EXPIRY_TIME = LocalTime.of(11, 00);
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Act/Act");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
+
+  private ConfigSourceQuery<YieldCurveDefinition> _yieldCurveDefinition;
 
   public ImpliedYieldCurveSpecificationFunction(final String currency, final String curveDefinitionName) {
     this(Currency.of(currency), curveDefinitionName);
@@ -71,6 +73,7 @@ public class ImpliedYieldCurveSpecificationFunction extends AbstractFunction {
   @Override
   public void init(final FunctionCompilationContext context) {
     _resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SPEC, _targetSpec, createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get());
+    _yieldCurveDefinition = ConfigSourceQuery.init(context, this, YieldCurveDefinition.class);
   }
 
   private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
@@ -126,8 +129,7 @@ public class ImpliedYieldCurveSpecificationFunction extends AbstractFunction {
     final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final LocalDate curveDate = atInstantZDT.toLocalDate();
     final InterpolatedYieldCurveSpecificationBuilder curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final YieldCurveDefinition definition = configSource.getLatestByName(YieldCurveDefinition.class, _curveName + "_" + _currency.getCode());
+    final YieldCurveDefinition definition = _yieldCurveDefinition.get(_curveName + "_" + _currency.getCode());
     final InterpolatedYieldCurveSpecification curveSpecification = buildDummyCurve(curveDate, definition);
     return new CompiledImpl(atInstantZDT.with(LocalTime.MIDNIGHT).toInstant(), atInstantZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000).toInstant(), curveSpecification);
   }
@@ -146,8 +148,7 @@ public class ImpliedYieldCurveSpecificationFunction extends AbstractFunction {
     final String rightExtrapolatorName = definition.getRightExtrapolatorName();
     final boolean interpolateYield = definition.isInterpolateYields();
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    return new InterpolatedYieldCurveSpecification(curveDate, definition.getName(), definition.getCurrency(), interpolator, interpolateYield,
-        ids, definition.getRegionId());
+    return new InterpolatedYieldCurveSpecification(curveDate, definition.getName(), definition.getCurrency(), interpolator, interpolateYield, ids, definition.getRegionId());
   }
 
   private static InterpolatedYieldCurveSpecificationWithSecurities resolveToDummySecurity(final InterpolatedYieldCurveSpecification curveSpecification, final SnapshotDataBundle marketData,

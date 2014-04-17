@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -54,45 +55,6 @@ public class RiskValueRequirement extends RiskValueProperties {
     return RiskValueRequirement.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1307197699:  // specification
-        return getSpecification();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1307197699:  // specification
-        setSpecification((RiskValueSpecification) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RiskValueRequirement other = (RiskValueRequirement) obj;
-      return JodaBeanUtils.equal(getSpecification(), other.getSpecification()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpecification());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the specification.
@@ -116,6 +78,51 @@ public class RiskValueRequirement extends RiskValueProperties {
    */
   public final Property<RiskValueSpecification> specification() {
     return metaBean().specification().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RiskValueRequirement clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RiskValueRequirement other = (RiskValueRequirement) obj;
+      return JodaBeanUtils.equal(getSpecification(), other.getSpecification()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpecification());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("RiskValueRequirement{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("specification").append('=').append(JodaBeanUtils.toString(getSpecification())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -177,6 +184,26 @@ public class RiskValueRequirement extends RiskValueProperties {
      */
     public final MetaProperty<RiskValueSpecification> specification() {
       return _specification;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1307197699:  // specification
+          return ((RiskValueRequirement) bean).getSpecification();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1307197699:  // specification
+          ((RiskValueRequirement) bean).setSpecification((RiskValueSpecification) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

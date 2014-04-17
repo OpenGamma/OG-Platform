@@ -24,7 +24,6 @@ import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test.
@@ -82,7 +81,7 @@ public class UnionFakeSubscriptionSelectorTest {
       public ObjectsPair<Collection<LiveDataSpecification>, Collection<LiveDataSpecification>> splitShouldFake(
           FakeSubscriptionBloombergLiveDataServer server, Collection<LiveDataSpecification> uniqueIds) {
         assertTrue(swap.splitShouldFake(server, uniqueIds).second.isEmpty());
-        return Pair.of((Collection<LiveDataSpecification>) new HashSet<LiveDataSpecification>(), uniqueIds);
+        return ObjectsPair.of((Collection<LiveDataSpecification>) new HashSet<LiveDataSpecification>(), uniqueIds);
       }
     };
     ByTypeFakeSubscriptionSelector swaptionVol = new ByTypeFakeSubscriptionSelector("SWAPTION VOLATILITY ");

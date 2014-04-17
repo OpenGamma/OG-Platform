@@ -64,6 +64,7 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
     assertEncodeDecodeCycle(Trade.class, trade);
   }
   
+  @SuppressWarnings("deprecation")
   public void testTrade_withPremium() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));

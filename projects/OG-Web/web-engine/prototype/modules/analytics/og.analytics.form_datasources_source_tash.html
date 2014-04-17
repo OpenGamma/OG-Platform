@@ -5,14 +5,24 @@
   {{/each}}
 </select>
 {{#if historical.fixed}}
-  <div class="extra-opts">
+  <div class="og-historical-opts extra-opts">
     <input class="latest" type="button" value="Latest" />
     <input class="OG-js-datetimepicker custom active date-selected" type="button" value="{{historical.date}}" />
   </div>
 {{/if}}
 {{#if historical.latest}}
-  <div class="extra-opts">
+  <div class="og-historical-opts extra-opts">
     <input class="latest active" type="button" value="Latest" />
     <input class="OG-js-datetimepicker custom" type="button" value="Custom" />
+  </div>
+{{/if}}
+{{#if randomizedsnapshot}}
+  <div class="og-randomized-opts extra-opts">
+    <span>Update Probability:</span>
+      <input type="text" class="updateProbability" name="updateProbability" value="{{randomizedsnapshot.updateProbability}}" />
+    <span>Max % Change:</span>
+      <input type="text" class="maxPercentageChange" name="maxPercentageChange" value="{{randomizedsnapshot.maxPercentageChange}}"/>
+    <span>Avg. Cycle Interval:</span>
+      <input type="text" class="averageCycleInterval" name="averageCycleInterval" value="{{randomizedsnapshot.averageCycleInterval}}" />
   </div>
 {{/if}}

@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,21 +14,21 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.SwaptionTradeSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.TradeSecurityExtractor;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -117,116 +118,6 @@ public class SwaptionTrade extends Trade {
   @Override
   public SwaptionTrade.Meta metaBean() {
     return SwaptionTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 244977400:  // buySell
-        return getBuySell();
-      case -299417201:  // paymentCalendars
-        return getPaymentCalendars();
-      case 1844059645:  // exerciseCalendars
-        return getExerciseCalendars();
-      case -668811523:  // expirationDate
-        return getExpirationDate();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-      case -1686629399:  // stubPeriodType
-        return getStubPeriodType();
-      case -295448573:  // settlementType
-        return getSettlementType();
-      case 74953646:  // cashSettlementCalculationMethod
-        return getCashSettlementCalculationMethod();
-      case -1222573960:  // cashSettlementPaymentDate
-        return getCashSettlementPaymentDate();
-      case -1757113107:  // cashSettlementCurrency
-        return getCashSettlementCurrency();
-      case -1771846476:  // underlyingSwapTrade
-        return getUnderlyingSwapTrade();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 244977400:  // buySell
-        setBuySell((BuySell) newValue);
-        return;
-      case -299417201:  // paymentCalendars
-        setPaymentCalendars((Set<Calendar>) newValue);
-        return;
-      case 1844059645:  // exerciseCalendars
-        setExerciseCalendars((Set<Calendar>) newValue);
-        return;
-      case -668811523:  // expirationDate
-        setExpirationDate((LocalDate) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((ExerciseType) newValue);
-        return;
-      case -1686629399:  // stubPeriodType
-        setStubPeriodType((StubPeriodType) newValue);
-        return;
-      case -295448573:  // settlementType
-        setSettlementType((SettlementType) newValue);
-        return;
-      case 74953646:  // cashSettlementCalculationMethod
-        setCashSettlementCalculationMethod((CashSettlementCalculationMethod) newValue);
-        return;
-      case -1222573960:  // cashSettlementPaymentDate
-        setCashSettlementPaymentDate((LocalDate) newValue);
-        return;
-      case -1757113107:  // cashSettlementCurrency
-        setCashSettlementCurrency((Currency) newValue);
-        return;
-      case -1771846476:  // underlyingSwapTrade
-        setUnderlyingSwapTrade((SwapTrade) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SwaptionTrade other = (SwaptionTrade) obj;
-      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getPaymentCalendars(), other.getPaymentCalendars()) &&
-          JodaBeanUtils.equal(getExerciseCalendars(), other.getExerciseCalendars()) &&
-          JodaBeanUtils.equal(getExpirationDate(), other.getExpirationDate()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(getStubPeriodType(), other.getStubPeriodType()) &&
-          JodaBeanUtils.equal(getSettlementType(), other.getSettlementType()) &&
-          JodaBeanUtils.equal(getCashSettlementCalculationMethod(), other.getCashSettlementCalculationMethod()) &&
-          JodaBeanUtils.equal(getCashSettlementPaymentDate(), other.getCashSettlementPaymentDate()) &&
-          JodaBeanUtils.equal(getCashSettlementCurrency(), other.getCashSettlementCurrency()) &&
-          JodaBeanUtils.equal(getUnderlyingSwapTrade(), other.getUnderlyingSwapTrade()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubPeriodType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCalculationMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementPaymentDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapTrade());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -505,6 +396,81 @@ public class SwaptionTrade extends Trade {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SwaptionTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SwaptionTrade other = (SwaptionTrade) obj;
+      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
+          JodaBeanUtils.equal(getPaymentCalendars(), other.getPaymentCalendars()) &&
+          JodaBeanUtils.equal(getExerciseCalendars(), other.getExerciseCalendars()) &&
+          JodaBeanUtils.equal(getExpirationDate(), other.getExpirationDate()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          JodaBeanUtils.equal(getStubPeriodType(), other.getStubPeriodType()) &&
+          JodaBeanUtils.equal(getSettlementType(), other.getSettlementType()) &&
+          JodaBeanUtils.equal(getCashSettlementCalculationMethod(), other.getCashSettlementCalculationMethod()) &&
+          JodaBeanUtils.equal(getCashSettlementPaymentDate(), other.getCashSettlementPaymentDate()) &&
+          JodaBeanUtils.equal(getCashSettlementCurrency(), other.getCashSettlementCurrency()) &&
+          JodaBeanUtils.equal(getUnderlyingSwapTrade(), other.getUnderlyingSwapTrade()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubPeriodType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCalculationMethod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementPaymentDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapTrade());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("SwaptionTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("paymentCalendars").append('=').append(JodaBeanUtils.toString(getPaymentCalendars())).append(',').append(' ');
+    buf.append("exerciseCalendars").append('=').append(JodaBeanUtils.toString(getExerciseCalendars())).append(',').append(' ');
+    buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(getExpirationDate())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("stubPeriodType").append('=').append(JodaBeanUtils.toString(getStubPeriodType())).append(',').append(' ');
+    buf.append("settlementType").append('=').append(JodaBeanUtils.toString(getSettlementType())).append(',').append(' ');
+    buf.append("cashSettlementCalculationMethod").append('=').append(JodaBeanUtils.toString(getCashSettlementCalculationMethod())).append(',').append(' ');
+    buf.append("cashSettlementPaymentDate").append('=').append(JodaBeanUtils.toString(getCashSettlementPaymentDate())).append(',').append(' ');
+    buf.append("cashSettlementCurrency").append('=').append(JodaBeanUtils.toString(getCashSettlementCurrency())).append(',').append(' ');
+    buf.append("underlyingSwapTrade").append('=').append(JodaBeanUtils.toString(getUnderlyingSwapTrade())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SwaptionTrade}.
    */
@@ -725,6 +691,77 @@ public class SwaptionTrade extends Trade {
      */
     public final MetaProperty<SwapTrade> underlyingSwapTrade() {
       return _underlyingSwapTrade;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          return ((SwaptionTrade) bean).getBuySell();
+        case -299417201:  // paymentCalendars
+          return ((SwaptionTrade) bean).getPaymentCalendars();
+        case 1844059645:  // exerciseCalendars
+          return ((SwaptionTrade) bean).getExerciseCalendars();
+        case -668811523:  // expirationDate
+          return ((SwaptionTrade) bean).getExpirationDate();
+        case -466331342:  // exerciseType
+          return ((SwaptionTrade) bean).getExerciseType();
+        case -1686629399:  // stubPeriodType
+          return ((SwaptionTrade) bean).getStubPeriodType();
+        case -295448573:  // settlementType
+          return ((SwaptionTrade) bean).getSettlementType();
+        case 74953646:  // cashSettlementCalculationMethod
+          return ((SwaptionTrade) bean).getCashSettlementCalculationMethod();
+        case -1222573960:  // cashSettlementPaymentDate
+          return ((SwaptionTrade) bean).getCashSettlementPaymentDate();
+        case -1757113107:  // cashSettlementCurrency
+          return ((SwaptionTrade) bean).getCashSettlementCurrency();
+        case -1771846476:  // underlyingSwapTrade
+          return ((SwaptionTrade) bean).getUnderlyingSwapTrade();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          ((SwaptionTrade) bean).setBuySell((BuySell) newValue);
+          return;
+        case -299417201:  // paymentCalendars
+          ((SwaptionTrade) bean).setPaymentCalendars((Set<Calendar>) newValue);
+          return;
+        case 1844059645:  // exerciseCalendars
+          ((SwaptionTrade) bean).setExerciseCalendars((Set<Calendar>) newValue);
+          return;
+        case -668811523:  // expirationDate
+          ((SwaptionTrade) bean).setExpirationDate((LocalDate) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((SwaptionTrade) bean).setExerciseType((ExerciseType) newValue);
+          return;
+        case -1686629399:  // stubPeriodType
+          ((SwaptionTrade) bean).setStubPeriodType((StubPeriodType) newValue);
+          return;
+        case -295448573:  // settlementType
+          ((SwaptionTrade) bean).setSettlementType((SettlementType) newValue);
+          return;
+        case 74953646:  // cashSettlementCalculationMethod
+          ((SwaptionTrade) bean).setCashSettlementCalculationMethod((CashSettlementCalculationMethod) newValue);
+          return;
+        case -1222573960:  // cashSettlementPaymentDate
+          ((SwaptionTrade) bean).setCashSettlementPaymentDate((LocalDate) newValue);
+          return;
+        case -1757113107:  // cashSettlementCurrency
+          ((SwaptionTrade) bean).setCashSettlementCurrency((Currency) newValue);
+          return;
+        case -1771846476:  // underlyingSwapTrade
+          ((SwaptionTrade) bean).setUnderlyingSwapTrade((SwapTrade) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

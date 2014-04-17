@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -78,12 +77,11 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureOptionSABRFunction.class);
   /** The SABR function */
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
-  /** Converts a {@link Trade} to an {@link InstrumentDefinition} */
-  private InterestRateFutureOptionTradeConverterDeprecated _converter;
   /** Converts an {@link InstrumentDefinition} to {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _dataConverter;
   /** The values that the function can calculate */
   private final String[] _valueRequirementNames;
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
   /**
    * @param valueRequirementNames The value requirement names, not null or empty
@@ -93,22 +91,41 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     _valueRequirementNames = valueRequirementNames;
   }
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource,
+        context.getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _converter = new InterestRateFutureOptionTradeConverterDeprecated(
-        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource,
+        context.getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  protected ConfigDBCurveCalculationConfigSource getCurveCalculationConfigSource() {
+    return _curveCalculationConfigSource;
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public void init(final FunctionCompilationContext context) {
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, 
+      final Set<ValueRequirement> desiredValues)
+    throws AsynchronousExecution {
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
@@ -116,14 +133,12 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final Trade trade = target.getTrade();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, _curveCalculationConfigSource);
     final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
     final String conventionName = currency.getCode() + "_IR_FUTURE";
     final ConventionBundle convention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
@@ -135,7 +150,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       throw new OpenGammaRuntimeException("Could not get daycount");
     }
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs, dayCount), curves);
-    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
+    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) getConverter(executionContext).convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, curveNames, timeSeries);
     return getResult(executionContext, desiredValues, inputs, target, irFutureOption, data);
   }
@@ -223,7 +238,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       return null;
     }
      */
-    final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(trade);
+    final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(context, trade);
     if (timeSeriesRequirement == null) {
       return null;
     }
@@ -236,18 +251,14 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     String surfaceName = null;
     boolean curvePropertiesSet = false;
     boolean surfacePropertiesSet = false;
-    ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingPropertyNamesAndValues.SABR)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
+    ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingPropertyNamesAndValues.SABR).with(ValuePropertyNames.CURRENCY,
+        FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification value = entry.getKey();
       final String inputName = value.getValueName();
       if (inputName.equals(ValueRequirementNames.YIELD_CURVE) && !curvePropertiesSet) {
-        final ValueProperties curveProperties = value.getProperties().copy()
-            .withoutAny(ValuePropertyNames.FUNCTION)
-            .withoutAny(ValuePropertyNames.CURVE)
-            .withoutAny(ValuePropertyNames.CURRENCY)
-            .get();
+        final ValueProperties curveProperties = value.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).withoutAny(ValuePropertyNames.CURVE)
+            .withoutAny(ValuePropertyNames.CURRENCY).get();
         for (final String property : curveProperties.getProperties()) {
           properties.with(property, curveProperties.getValues(property));
         }
@@ -255,13 +266,9 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       } else if (inputName.equals(ValueRequirementNames.SABR_SURFACES) && !surfacePropertiesSet) {
         final String fullSurfaceName = value.getProperty(ValuePropertyNames.SURFACE);
         surfaceName = fullSurfaceName.substring(0, fullSurfaceName.length() - 3);
-        final ValueProperties surfaceFittingProperties = value.getProperties().copy()
-            .withoutAny(ValuePropertyNames.FUNCTION)
-            .withoutAny(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL)
-            .withoutAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
-            .withoutAny(ValuePropertyNames.CURRENCY)
-            .withoutAny(ValuePropertyNames.SURFACE)
-            .get();
+        final ValueProperties surfaceFittingProperties = value.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION)
+            .withoutAny(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL).withoutAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+            .withoutAny(ValuePropertyNames.CURRENCY).withoutAny(ValuePropertyNames.SURFACE).get();
         for (final String property : surfaceFittingProperties.getProperties()) {
           properties.with(property, surfaceFittingProperties.getValues(property));
         }
@@ -288,8 +295,8 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
    * @param data The SABR parameter surfaces and yield curve data
    * @return The results
    */
-  protected abstract Set<ComputedValue> getResult(FunctionExecutionContext context, Set<ValueRequirement> desiredValues, FunctionInputs inputs,
-      ComputationTarget target, InstrumentDerivative irFutureOption, SABRInterestRateDataBundle data);
+  protected abstract Set<ComputedValue> getResult(FunctionExecutionContext context, Set<ValueRequirement> desiredValues, FunctionInputs inputs, ComputationTarget target,
+      InstrumentDerivative irFutureOption, SABRInterestRateDataBundle data);
 
   /**
    * @return The value requirement names
@@ -300,9 +307,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
 
   private Set<ValueRequirement> getCurveRequirement(final Trade trade, final String curveCalculationConfigName, final FunctionCompilationContext context) {
     final Set<ValueRequirement> requirements = new HashSet<>();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -312,12 +317,12 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
       return null;
     }
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, _curveCalculationConfigSource));
     return requirements;
   }
 
-  private Set<ValueRequirement> getTimeSeriesRequirement(final Trade trade) {
-    return _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade));
+  private Set<ValueRequirement> getTimeSeriesRequirement(final FunctionCompilationContext context, final Trade trade) {
+    return _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), getConverter(context).convert(trade));
   }
 
   private SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final DayCount dayCount) {

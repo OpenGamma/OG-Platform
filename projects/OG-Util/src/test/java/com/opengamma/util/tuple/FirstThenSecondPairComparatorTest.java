@@ -19,8 +19,8 @@ import com.opengamma.util.test.TestGroup;
 public class FirstThenSecondPairComparatorTest {
 
   public void testSingleton() {
-    Pair<Integer, String> a = Pair.of(1, "A");
-    Pair<Integer, String> b = Pair.of(1, "B");
+    Pair<Integer, String> a = ObjectsPair.of(1, "A");
+    Pair<Integer, String> b = ObjectsPair.of(1, "B");
     assertTrue(FirstThenSecondPairComparator.INSTANCE.compare(a, a) == 0);
     assertTrue(FirstThenSecondPairComparator.INSTANCE.compare(a, b) < 0);
     
@@ -29,8 +29,8 @@ public class FirstThenSecondPairComparatorTest {
   }
 
   public void testSingleton_doubles() {
-    Pair<Double, Double> a = Pair.of(1.0, 1.0);
-    Pair<Double, Double> b = Pair.of(1.0, 2.0);
+    Pair<Double, Double> a = DoublesPair.of(1.0, 1.0);
+    Pair<Double, Double> b = DoublesPair.of(1.0, 2.0);
     assertTrue(FirstThenSecondPairComparator.INSTANCE_DOUBLES.compare(a, a) == 0);
     assertTrue(FirstThenSecondPairComparator.INSTANCE_DOUBLES.compare(a, b) < 0);
     
@@ -39,10 +39,10 @@ public class FirstThenSecondPairComparatorTest {
   }
 
   public void testCompare() {
-    final Pair<Double, Double> first = Pair.of(1.0, 3.0);
-    final Pair<Double, Double> second = Pair.of(1.0, 5.0);
-    final Pair<Double, Double> third = Pair.of(1.0, 6.0);
-    final Pair<Double, Double> fourth = Pair.of(2.0, 1.0);
+    final Pair<Double, Double> first = DoublesPair.of(1.0, 3.0);
+    final Pair<Double, Double> second = DoublesPair.of(1.0, 5.0);
+    final Pair<Double, Double> third = DoublesPair.of(1.0, 6.0);
+    final Pair<Double, Double> fourth = DoublesPair.of(2.0, 1.0);
     
     final FirstThenSecondPairComparator<Double, Double> test = new FirstThenSecondPairComparator<Double, Double>();
     

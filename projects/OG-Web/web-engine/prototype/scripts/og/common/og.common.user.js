@@ -9,10 +9,9 @@ $.register_module({
         var api = og.api.rest.user;
         return {
             init : function () {
-                //console.log('init users');
                 $('.OG-masthead .og-logout').on('click', function () {
-                    api.logout.put().pipe(function () {
-                        window.location = '/jax/bundles/fm/prototype/login.ftl';
+                    api.logout.get().pipe(function () {
+                        window.location = '/jax/login/og';
                     });
                 });
             }

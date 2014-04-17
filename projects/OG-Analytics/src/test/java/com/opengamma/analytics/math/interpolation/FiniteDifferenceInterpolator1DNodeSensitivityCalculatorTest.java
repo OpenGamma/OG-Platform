@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FiniteDifferenceInterpolator1DNodeSensitivityCalculatorTest {
   private static final StepInterpolator1D STEP_INTERPOLATOR = new StepInterpolator1D();
   private static final Interpolator1DDataBundle DATA;

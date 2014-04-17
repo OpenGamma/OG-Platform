@@ -40,11 +40,20 @@
             <tr><td><span>Announcement Date</span></td><td>${announcementDate}</td></tr>
             <tr>
               <td><span>Interest Accrual Date</span></td>
-              <td>${interestAccrualDate.date} - ${interestAccrualDate.zone}</td>
+              <td>{{if interestAccrualDate}}${interestAccrualDate.date} - ${interestAccrualDate.zone}{{else}}(no value){{/if}}</td>
             </tr>
-            <tr><td><span>Settlement Date</span></td><td>${settlementDate.date} - ${settlementDate.zone}</td></tr>
-            <tr><td><span>First Coupon Date</span></td><td>${firstCouponDate.date} - ${firstCouponDate.zone}</td></tr>
-            <tr><td><span>Issuance Price</span></td><td>${issuancePrice}</td></tr>
+            <tr>
+                <td><span>Settlement Date</span></td>
+                <td>{{if settlementDate}}${settlementDate.date} - ${settlementDate.zone}{{else}}(no value){{/if}}</td>
+            </tr>
+            <tr>
+                <td><span>First Coupon Date</span></td>
+                <td>{{if firstCouponDate}}${firstCouponDate.date} - ${firstCouponDate.zone}{{else}}(no value){{/if}}</td>
+            </tr>
+            <tr>
+                <td><span>Issuance Price</span></td>
+                <td>{{if issuancePrice}}${issuancePrice.date} - ${issuancePrice.zone}{{else}}(no value){{/if}}</td>
+            </tr>
             <tr><td><span>Total Amount Issued</span></td><td>${totalAmountIssued}</td></tr>
             <tr><td><span>Minimum Amount</span></td><td>${minimumAmount}</td></tr>
             <tr><td><span>Minimum Increment</span></td><td>${minimumIncrement}</td></tr>

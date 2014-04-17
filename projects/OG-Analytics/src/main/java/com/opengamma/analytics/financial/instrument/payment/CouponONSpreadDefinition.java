@@ -253,13 +253,13 @@ public class CouponONSpreadDefinition extends CouponDefinition implements Instru
     final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate());
     if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
       // Check to see if a fixing is available on current date
-      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod].toLocalDate());
+      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate());
       if (fixedRate != null) { // There is!
         accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * (fixedRate + _spread);
         fixedPeriod++;
       }
       if (fixedPeriod < _fixingPeriodDate.length - 1) { // More OIS period left
-        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDate[fixedPeriod]);
+        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
         final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
         double fixingAccrualFactorLeft = 0.0;
         for (int loopperiod = fixedPeriod; loopperiod < _fixingPeriodAccrualFactor.length; loopperiod++) {

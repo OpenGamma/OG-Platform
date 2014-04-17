@@ -3,7 +3,7 @@
 <html>
   <head>
     <title>${title} - OpenGamma</title>
-    <link type="text/css" rel="stylesheet" href="/css/og-base.css" />
+    <link type="text/css" rel="stylesheet" href="/css/og-base.css"/>
   </head>
   <body>
     <div id="header">
@@ -106,9 +106,9 @@
 </#macro>
 
 <#-- Macro to produce a standard input row -->
-<#macro rowin label="" if=true>
+<#macro rowin id="" label="" if=true>
 <#if if>
-<div class="row in"><#if label?has_content><div class="lbl">${label}</div></#if><div class="dat"><#nested></div></div><#rt>
+<div class="row in" <#if id?has_content>id="${id}"</#if>><#if label?has_content><div class="lbl">${label}</div></#if><div class="dat"><#nested></div></div><#rt>
 </#if>
 </#macro>
 

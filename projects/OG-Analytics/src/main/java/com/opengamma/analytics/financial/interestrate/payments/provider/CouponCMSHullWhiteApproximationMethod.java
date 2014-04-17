@@ -183,18 +183,18 @@ public final class CouponCMSHullWhiteApproximationMethod {
 
     final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < nbIbor; loopcf++) {
-      final DoublesPair dfSensi = new DoublesPair(cfeIbor.getNthPayment(loopcf).getPaymentTime(), -cfeIbor.getNthPayment(loopcf).getPaymentTime() * dfIbor[loopcf] * dfIborBar[loopcf]);
+      final DoublesPair dfSensi = DoublesPair.of(cfeIbor.getNthPayment(loopcf).getPaymentTime(), -cfeIbor.getNthPayment(loopcf).getPaymentTime() * dfIbor[loopcf] * dfIborBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
-      final DoublesPair dfSensi = new DoublesPair(swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime(), -swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime() * dfFixed[loopcf] *
+      final DoublesPair dfSensi = DoublesPair.of(swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime(), -swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime() * dfFixed[loopcf] *
           dfFixedBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(multicurvesHW.getMulticurveProvider().getName(ccy), listDfSensi);
     final double dfPaymentBar = (a0 + a2 / 2) * cms.getNotional() * cms.getPaymentYearFraction() * pvBar;
-    final DoublesPair dfPaymentSensi = new DoublesPair(payTimeCMS, -payTimeCMS * dfPayment * dfPaymentBar); // Sensi to dfPayment
+    final DoublesPair dfPaymentSensi = DoublesPair.of(payTimeCMS, -payTimeCMS * dfPayment * dfPaymentBar); // Sensi to dfPayment
     listDfSensi.add(dfPaymentSensi);
     MulticurveSensitivity sensitivity = MulticurveSensitivity.ofYieldDiscounting(pvsDF);
     sensitivity = sensitivity.cleaned();

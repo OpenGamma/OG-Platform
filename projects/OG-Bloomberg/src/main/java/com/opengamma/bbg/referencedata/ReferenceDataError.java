@@ -8,6 +8,7 @@ package com.opengamma.bbg.referencedata;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -108,72 +109,6 @@ public class ReferenceDataError extends DirectBean {
   @Override
   public ReferenceDataError.Meta metaBean() {
     return ReferenceDataError.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97427706:  // field
-        return getField();
-      case 3059181:  // code
-        return getCode();
-      case 50511102:  // category
-        return getCategory();
-      case 1300380478:  // subcategory
-        return getSubcategory();
-      case 954925063:  // message
-        return getMessage();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97427706:  // field
-        setField((String) newValue);
-        return;
-      case 3059181:  // code
-        setCode((Integer) newValue);
-        return;
-      case 50511102:  // category
-        setCategory((String) newValue);
-        return;
-      case 1300380478:  // subcategory
-        setSubcategory((String) newValue);
-        return;
-      case 954925063:  // message
-        setMessage((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ReferenceDataError other = (ReferenceDataError) obj;
-      return JodaBeanUtils.equal(getField(), other.getField()) &&
-          JodaBeanUtils.equal(getCode(), other.getCode()) &&
-          JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
-          JodaBeanUtils.equal(getSubcategory(), other.getSubcategory()) &&
-          JodaBeanUtils.equal(getMessage(), other.getMessage());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubcategory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -302,6 +237,60 @@ public class ReferenceDataError extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ReferenceDataError clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ReferenceDataError other = (ReferenceDataError) obj;
+      return JodaBeanUtils.equal(getField(), other.getField()) &&
+          (getCode() == other.getCode()) &&
+          JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
+          JodaBeanUtils.equal(getSubcategory(), other.getSubcategory()) &&
+          JodaBeanUtils.equal(getMessage(), other.getMessage());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSubcategory());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("ReferenceDataError{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("field").append('=').append(JodaBeanUtils.toString(getField())).append(',').append(' ');
+    buf.append("code").append('=').append(JodaBeanUtils.toString(getCode())).append(',').append(' ');
+    buf.append("category").append('=').append(JodaBeanUtils.toString(getCategory())).append(',').append(' ');
+    buf.append("subcategory").append('=').append(JodaBeanUtils.toString(getSubcategory())).append(',').append(' ');
+    buf.append("message").append('=').append(JodaBeanUtils.toString(getMessage())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ReferenceDataError}.
    */
@@ -424,6 +413,46 @@ public class ReferenceDataError extends DirectBean {
      */
     public final MetaProperty<String> message() {
       return _message;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97427706:  // field
+          return ((ReferenceDataError) bean).getField();
+        case 3059181:  // code
+          return ((ReferenceDataError) bean).getCode();
+        case 50511102:  // category
+          return ((ReferenceDataError) bean).getCategory();
+        case 1300380478:  // subcategory
+          return ((ReferenceDataError) bean).getSubcategory();
+        case 954925063:  // message
+          return ((ReferenceDataError) bean).getMessage();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97427706:  // field
+          ((ReferenceDataError) bean).setField((String) newValue);
+          return;
+        case 3059181:  // code
+          ((ReferenceDataError) bean).setCode((Integer) newValue);
+          return;
+        case 50511102:  // category
+          ((ReferenceDataError) bean).setCategory((String) newValue);
+          return;
+        case 1300380478:  // subcategory
+          ((ReferenceDataError) bean).setSubcategory((String) newValue);
+          return;
+        case 954925063:  // message
+          ((ReferenceDataError) bean).setMessage((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

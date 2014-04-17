@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
@@ -26,8 +27,7 @@ import org.joda.beans.Bean;
 /**
  * A JAX-RS provider to convert RESTful responses to Fudge binary encoded messages.
  * <p>
- * This converts directly to Fudge from the RESTful resource without the need to manually
- * create the message in application code.
+ * This converts directly to Fudge from the RESTful resource without the need to manually create the message in application code.
  */
 @Provider
 @Produces(FudgeRest.MEDIA)
@@ -40,12 +40,20 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
     super();
   }
 
+  /**
+   * Creates the producer.
+   * 
+   * @param context the Fudge context to use, not null
+   */
+  public FudgeObjectBinaryProducer(final FudgeContext context) {
+    super(context);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return FudgeRest.MEDIA_TYPE.equals(mediaType) ||
-        type == FudgeResponse.class || Bean.class.isAssignableFrom(type) ||
-        FudgeMsgEnvelope.class.isAssignableFrom(type) || FudgeMsg.class.isAssignableFrom(type);
+    return FudgeRest.MEDIA_TYPE.equals(mediaType) || type == FudgeResponse.class || Bean.class.isAssignableFrom(type) || FudgeMsgEnvelope.class.isAssignableFrom(type) ||
+        FudgeMsg.class.isAssignableFrom(type);
   }
 
   @Override
@@ -54,15 +62,9 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
   }
 
   @Override
-  public void writeTo(
-      Object obj,
-      Class<?> type,
-      Type genericType,
-      Annotation[] annotations,
-      MediaType mediaType,
-      MultivaluedMap<String, Object> httpHeaders,
-      OutputStream entityStream) throws IOException, WebApplicationException {
-    
+  public void writeTo(Object obj, Class<?> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+
     FudgeMsgEnvelope msg;
     if (obj instanceof FudgeResponse) {
       FudgeResponse wrapper = (FudgeResponse) obj;
@@ -74,7 +76,7 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
     } else {
       msg = getFudgeContext().toFudgeMsg(obj);
     }
-    
+
     @SuppressWarnings("resource")
     final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeDataOutputStreamWriter(getFudgeContext(), entityStream));
     writer.writeMessageEnvelope(msg, getFudgeTaxonomyId());

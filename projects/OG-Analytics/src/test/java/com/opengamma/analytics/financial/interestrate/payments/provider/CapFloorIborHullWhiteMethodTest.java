@@ -35,11 +35,13 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests on the Hull-White one factor method to price Cap/Floor on Ibor.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -89,7 +91,7 @@ public class CapFloorIborHullWhiteMethodTest {
     final double alpha0 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t0);
     final double alpha1 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t1);
     final double ptp = MULTICURVES.getDiscountFactor(EUR, tp);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
     double kappa = Math.log((1.0 + deltaF * STRIKE) / (1.0 + deltaF * forward));
     kappa += -(alpha1 * alpha1 - alpha0 * alpha0) / 2.0;
     kappa /= alpha1 - alpha0;

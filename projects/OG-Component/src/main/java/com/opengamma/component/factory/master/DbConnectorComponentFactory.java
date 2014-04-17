@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -257,116 +258,6 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   public DbConnectorComponentFactory.Meta metaBean() {
     return DbConnectorComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case 1272470629:  // dataSource
-        return getDataSource();
-      case 1655014950:  // dialect
-        return getDialect();
-      case 1110639547:  // hibernateMappingFiles
-        return getHibernateMappingFiles();
-      case 257395935:  // hibernateShowSql
-        return isHibernateShowSql();
-      case 1850252619:  // allowHibernateThreadBoundSession
-        return isAllowHibernateThreadBoundSession();
-      case 1321533396:  // transactionIsolationLevel
-        return getTransactionIsolationLevel();
-      case 230249600:  // transactionPropagationBehavior
-        return getTransactionPropagationBehavior();
-      case -1923367773:  // transactionTimeout
-        return getTransactionTimeout();
-      case 3373707:  // name
-        return getName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case 1272470629:  // dataSource
-        setDataSource((DataSource) newValue);
-        return;
-      case 1655014950:  // dialect
-        setDialect((String) newValue);
-        return;
-      case 1110639547:  // hibernateMappingFiles
-        setHibernateMappingFiles((String) newValue);
-        return;
-      case 257395935:  // hibernateShowSql
-        setHibernateShowSql((Boolean) newValue);
-        return;
-      case 1850252619:  // allowHibernateThreadBoundSession
-        setAllowHibernateThreadBoundSession((Boolean) newValue);
-        return;
-      case 1321533396:  // transactionIsolationLevel
-        setTransactionIsolationLevel((String) newValue);
-        return;
-      case 230249600:  // transactionPropagationBehavior
-        setTransactionPropagationBehavior((String) newValue);
-        return;
-      case -1923367773:  // transactionTimeout
-        setTransactionTimeout((Integer) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_dataSource, "dataSource");
-    JodaBeanUtils.notNull(_dialect, "dialect");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DbConnectorComponentFactory other = (DbConnectorComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
-          JodaBeanUtils.equal(getDialect(), other.getDialect()) &&
-          JodaBeanUtils.equal(getHibernateMappingFiles(), other.getHibernateMappingFiles()) &&
-          JodaBeanUtils.equal(isHibernateShowSql(), other.isHibernateShowSql()) &&
-          JodaBeanUtils.equal(isAllowHibernateThreadBoundSession(), other.isAllowHibernateThreadBoundSession()) &&
-          JodaBeanUtils.equal(getTransactionIsolationLevel(), other.getTransactionIsolationLevel()) &&
-          JodaBeanUtils.equal(getTransactionPropagationBehavior(), other.getTransactionPropagationBehavior()) &&
-          JodaBeanUtils.equal(getTransactionTimeout(), other.getTransactionTimeout()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDialect());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHibernateMappingFiles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isHibernateShowSql());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAllowHibernateThreadBoundSession());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionIsolationLevel());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionPropagationBehavior());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionTimeout());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -623,6 +514,78 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public DbConnectorComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DbConnectorComponentFactory other = (DbConnectorComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDialect(), other.getDialect()) &&
+          JodaBeanUtils.equal(getHibernateMappingFiles(), other.getHibernateMappingFiles()) &&
+          (isHibernateShowSql() == other.isHibernateShowSql()) &&
+          (isAllowHibernateThreadBoundSession() == other.isAllowHibernateThreadBoundSession()) &&
+          JodaBeanUtils.equal(getTransactionIsolationLevel(), other.getTransactionIsolationLevel()) &&
+          JodaBeanUtils.equal(getTransactionPropagationBehavior(), other.getTransactionPropagationBehavior()) &&
+          (getTransactionTimeout() == other.getTransactionTimeout()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDialect());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHibernateMappingFiles());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isHibernateShowSql());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isAllowHibernateThreadBoundSession());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionIsolationLevel());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionPropagationBehavior());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionTimeout());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("DbConnectorComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dialect").append('=').append(JodaBeanUtils.toString(getDialect())).append(',').append(' ');
+    buf.append("hibernateMappingFiles").append('=').append(JodaBeanUtils.toString(getHibernateMappingFiles())).append(',').append(' ');
+    buf.append("hibernateShowSql").append('=').append(JodaBeanUtils.toString(isHibernateShowSql())).append(',').append(' ');
+    buf.append("allowHibernateThreadBoundSession").append('=').append(JodaBeanUtils.toString(isAllowHibernateThreadBoundSession())).append(',').append(' ');
+    buf.append("transactionIsolationLevel").append('=').append(JodaBeanUtils.toString(getTransactionIsolationLevel())).append(',').append(' ');
+    buf.append("transactionPropagationBehavior").append('=').append(JodaBeanUtils.toString(getTransactionPropagationBehavior())).append(',').append(' ');
+    buf.append("transactionTimeout").append('=').append(JodaBeanUtils.toString(getTransactionTimeout())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DbConnectorComponentFactory}.
    */
@@ -825,6 +788,79 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((DbConnectorComponentFactory) bean).getClassifier();
+        case 1272470629:  // dataSource
+          return ((DbConnectorComponentFactory) bean).getDataSource();
+        case 1655014950:  // dialect
+          return ((DbConnectorComponentFactory) bean).getDialect();
+        case 1110639547:  // hibernateMappingFiles
+          return ((DbConnectorComponentFactory) bean).getHibernateMappingFiles();
+        case 257395935:  // hibernateShowSql
+          return ((DbConnectorComponentFactory) bean).isHibernateShowSql();
+        case 1850252619:  // allowHibernateThreadBoundSession
+          return ((DbConnectorComponentFactory) bean).isAllowHibernateThreadBoundSession();
+        case 1321533396:  // transactionIsolationLevel
+          return ((DbConnectorComponentFactory) bean).getTransactionIsolationLevel();
+        case 230249600:  // transactionPropagationBehavior
+          return ((DbConnectorComponentFactory) bean).getTransactionPropagationBehavior();
+        case -1923367773:  // transactionTimeout
+          return ((DbConnectorComponentFactory) bean).getTransactionTimeout();
+        case 3373707:  // name
+          return ((DbConnectorComponentFactory) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((DbConnectorComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case 1272470629:  // dataSource
+          ((DbConnectorComponentFactory) bean).setDataSource((DataSource) newValue);
+          return;
+        case 1655014950:  // dialect
+          ((DbConnectorComponentFactory) bean).setDialect((String) newValue);
+          return;
+        case 1110639547:  // hibernateMappingFiles
+          ((DbConnectorComponentFactory) bean).setHibernateMappingFiles((String) newValue);
+          return;
+        case 257395935:  // hibernateShowSql
+          ((DbConnectorComponentFactory) bean).setHibernateShowSql((Boolean) newValue);
+          return;
+        case 1850252619:  // allowHibernateThreadBoundSession
+          ((DbConnectorComponentFactory) bean).setAllowHibernateThreadBoundSession((Boolean) newValue);
+          return;
+        case 1321533396:  // transactionIsolationLevel
+          ((DbConnectorComponentFactory) bean).setTransactionIsolationLevel((String) newValue);
+          return;
+        case 230249600:  // transactionPropagationBehavior
+          ((DbConnectorComponentFactory) bean).setTransactionPropagationBehavior((String) newValue);
+          return;
+        case -1923367773:  // transactionTimeout
+          ((DbConnectorComponentFactory) bean).setTransactionTimeout((Integer) newValue);
+          return;
+        case 3373707:  // name
+          ((DbConnectorComponentFactory) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DbConnectorComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((DbConnectorComponentFactory) bean)._dataSource, "dataSource");
+      JodaBeanUtils.notNull(((DbConnectorComponentFactory) bean)._dialect, "dialect");
+      super.validate(bean);
     }
 
   }

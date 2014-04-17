@@ -6,6 +6,7 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -13,22 +14,21 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.YearMonth;
 
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedOptionSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedSecurityExtractor;
-
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @BeanDefinition
 @XmlRootElement(name = "optionSecurity")
@@ -83,73 +83,6 @@ public class OptionSecurityDefinition extends ListedSecurityDefinition {
   @Override
   public OptionSecurityDefinition.Meta metaBean() {
     return OptionSecurityDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1985615124:  // listedOptionType
-        return getListedOptionType();
-      case 1373587791:  // optionType
-        return getOptionType();
-      case -891985998:  // strike
-        return getStrike();
-      case 1032553992:  // optionExpiry
-        return getOptionExpiry();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1985615124:  // listedOptionType
-        setListedOptionType((ListedOptionType) newValue);
-        return;
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((BigDecimal) newValue);
-        return;
-      case 1032553992:  // optionExpiry
-        setOptionExpiry((YearMonth) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((ExerciseType) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      OptionSecurityDefinition other = (OptionSecurityDefinition) obj;
-      return JodaBeanUtils.equal(getListedOptionType(), other.getListedOptionType()) &&
-          JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getOptionExpiry(), other.getOptionExpiry()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListedOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -278,6 +211,63 @@ public class OptionSecurityDefinition extends ListedSecurityDefinition {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public OptionSecurityDefinition clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      OptionSecurityDefinition other = (OptionSecurityDefinition) obj;
+      return JodaBeanUtils.equal(getListedOptionType(), other.getListedOptionType()) &&
+          JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getOptionExpiry(), other.getOptionExpiry()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getListedOptionType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("OptionSecurityDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("listedOptionType").append('=').append(JodaBeanUtils.toString(getListedOptionType())).append(',').append(' ');
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("optionExpiry").append('=').append(JodaBeanUtils.toString(getOptionExpiry())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code OptionSecurityDefinition}.
    */
@@ -400,6 +390,46 @@ public class OptionSecurityDefinition extends ListedSecurityDefinition {
      */
     public final MetaProperty<ExerciseType> exerciseType() {
       return _exerciseType;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1985615124:  // listedOptionType
+          return ((OptionSecurityDefinition) bean).getListedOptionType();
+        case 1373587791:  // optionType
+          return ((OptionSecurityDefinition) bean).getOptionType();
+        case -891985998:  // strike
+          return ((OptionSecurityDefinition) bean).getStrike();
+        case 1032553992:  // optionExpiry
+          return ((OptionSecurityDefinition) bean).getOptionExpiry();
+        case -466331342:  // exerciseType
+          return ((OptionSecurityDefinition) bean).getExerciseType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1985615124:  // listedOptionType
+          ((OptionSecurityDefinition) bean).setListedOptionType((ListedOptionType) newValue);
+          return;
+        case 1373587791:  // optionType
+          ((OptionSecurityDefinition) bean).setOptionType((OptionType) newValue);
+          return;
+        case -891985998:  // strike
+          ((OptionSecurityDefinition) bean).setStrike((BigDecimal) newValue);
+          return;
+        case 1032553992:  // optionExpiry
+          ((OptionSecurityDefinition) bean).setOptionExpiry((YearMonth) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((OptionSecurityDefinition) bean).setExerciseType((ExerciseType) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

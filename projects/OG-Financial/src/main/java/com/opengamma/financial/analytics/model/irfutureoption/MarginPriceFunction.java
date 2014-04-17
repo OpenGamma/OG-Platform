@@ -23,14 +23,19 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 @Deprecated
 public class MarginPriceFunction extends InterestRateFutureOptionBlackFunction {
+  /** The calculator */
   private static MarginPriceVisitor s_priceVisitor = MarginPriceVisitor.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#DAILY_PRICE}
+   */
   public MarginPriceFunction() {
-    super(ValueRequirementNames.DAILY_PRICE);
+    super(ValueRequirementNames.DAILY_PRICE, true);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     final Double price = irFutureOption.accept(s_priceVisitor);
     return Collections.singleton(new ComputedValue(spec, price));
   }

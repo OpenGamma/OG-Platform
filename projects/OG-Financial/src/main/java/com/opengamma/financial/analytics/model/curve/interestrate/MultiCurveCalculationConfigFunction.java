@@ -13,7 +13,6 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -27,7 +26,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 
@@ -36,9 +34,11 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
  */
 public class MultiCurveCalculationConfigFunction extends AbstractFunction {
 
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
+
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
@@ -53,8 +53,7 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties properties = createValueProperties()
-            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
+        final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, target.toSpecification(), properties);
         return Collections.singleton(spec);
       }
@@ -65,14 +64,12 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-        final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-        final ConfigDBCurveCalculationConfigSource source = new ConfigDBCurveCalculationConfigSource(configSource);
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues) {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-        final MultiCurveCalculationConfig config = source.getConfig(curveConfigName);
-        final ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName).get();
+        final MultiCurveCalculationConfig config = _curveCalculationConfigSource.getConfig(curveConfigName);
+        final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName).get();
         return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, target.toSpecification(), properties), config));
       }
 

@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BroydenMatrixUpdateFunctionTest {
   private static final BroydenMatrixUpdateFunction UPDATE = new BroydenMatrixUpdateFunction();
   private static final DoubleMatrix1D V = new DoubleMatrix1D(new double[] {1, 2});

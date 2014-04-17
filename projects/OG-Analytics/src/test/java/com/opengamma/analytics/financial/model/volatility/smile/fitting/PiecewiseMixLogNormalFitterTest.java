@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLo
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PiecewiseMixLogNormalFitterTest {
 
   private static final double FORWARD = 1172.011012;

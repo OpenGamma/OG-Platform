@@ -19,7 +19,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedAccruedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -36,15 +35,17 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the methods related to fixed accrued compounding coupons.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedAccruedCompoundingDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -55,7 +56,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
   private static final Period TENOR_3M = Period.ofMonths(3);
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
   private static final double NOTIONAL = 123454321;
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Business/252");
+  private static final DayCount DAY_COUNT = DayCounts.BUSINESS_252;
 
   private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, TENOR_3M, NYC);
 
@@ -106,7 +107,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvpcsComputed = METHOD.presentValueCurveSensitivity(CPN_PAY, MULTICURVES);
     final double pvpcsExpectedDouble = -CPN_PAY.getPaymentTime() * CPN_PAY.getAmount() * MULTICURVES.getDiscountFactor(CPN_PAY.getCurrency(), CPN_PAY.getPaymentTime());
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
-    final DoublesPair s = new DoublesPair(CPN_PAY.getPaymentTime(), pvpcsExpectedDouble);
+    final DoublesPair s = DoublesPair.of(CPN_PAY.getPaymentTime(), pvpcsExpectedDouble);
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     mapDsc.put(MULTICURVES.getName(CPN_PAY.getCurrency()), list);
@@ -158,7 +159,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
     final double pvpcsExpectedDouble = -CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime() * CPN_PAY_WITH_ACCRUAL_DATES.getAmount() *
         MULTICURVES.getDiscountFactor(CPN_PAY_WITH_ACCRUAL_DATES.getCurrency(), CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime());
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
-    final DoublesPair s = new DoublesPair(CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime(), pvpcsExpectedDouble);
+    final DoublesPair s = DoublesPair.of(CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime(), pvpcsExpectedDouble);
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     mapDsc.put(MULTICURVES.getName(CPN_PAY_WITH_ACCRUAL_DATES.getCurrency()), list);

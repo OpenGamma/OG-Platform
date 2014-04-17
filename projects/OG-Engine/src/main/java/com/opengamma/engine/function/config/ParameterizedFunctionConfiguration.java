@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -101,46 +102,6 @@ public class ParameterizedFunctionConfiguration extends StaticFunctionConfigurat
     return ParameterizedFunctionConfiguration.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1954460585:  // parameter
-        return getParameter();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1954460585:  // parameter
-        setParameter((List<String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ParameterizedFunctionConfiguration other = (ParameterizedFunctionConfiguration) obj;
-      return JodaBeanUtils.equal(getParameter(), other.getParameter()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParameter());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the parameter.
@@ -165,6 +126,51 @@ public class ParameterizedFunctionConfiguration extends StaticFunctionConfigurat
    */
   public final Property<List<String>> parameter() {
     return metaBean().parameter().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ParameterizedFunctionConfiguration clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ParameterizedFunctionConfiguration other = (ParameterizedFunctionConfiguration) obj;
+      return JodaBeanUtils.equal(getParameter(), other.getParameter()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParameter());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ParameterizedFunctionConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("parameter").append('=').append(JodaBeanUtils.toString(getParameter())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -227,6 +233,27 @@ public class ParameterizedFunctionConfiguration extends StaticFunctionConfigurat
      */
     public final MetaProperty<List<String>> parameter() {
       return _parameter;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1954460585:  // parameter
+          return ((ParameterizedFunctionConfiguration) bean).getParameter();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1954460585:  // parameter
+          ((ParameterizedFunctionConfiguration) bean).setParameter((List<String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

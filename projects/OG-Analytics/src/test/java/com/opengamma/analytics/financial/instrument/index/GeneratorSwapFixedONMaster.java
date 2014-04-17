@@ -12,11 +12,11 @@ import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  * A list of generators for swaps Fixed/ON available for tests.
@@ -47,9 +47,9 @@ public final class GeneratorSwapFixedONMaster {
   private GeneratorSwapFixedONMaster() {
     final IndexONMaster indexONMaster = IndexONMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-    final BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount act365 = DayCounts.ACT_365;
+    final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
     _generatorSwap = new HashMap<>();
     final IndexON fedFund = indexONMaster.getIndex("FED FUND");
     _generatorSwap.put("USD1YFEDFUND", new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, Period.ofMonths(12), act360, modFol, true, 2, 2, baseCalendar));

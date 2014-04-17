@@ -27,6 +27,22 @@ public class BeanCompare {
   private final Map<MetaProperty<?>, Comparator<Object>> _propertyComparators;
   private final Map<Class<?>, Comparator<Object>> _typeComparators;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if two beans are equal ignoring one or more properties.
+   * 
+   * @param bean1  the first bean, not null
+   * @param bean2  the second bean, not null
+   * @param properties  the properties to ignore, not null
+   * @return true if equal
+   * @deprecated Use JodaBeanUtils.equalIgnoring
+   */
+  @Deprecated
+  public static boolean equalIgnoring(Bean bean1, Bean bean2, MetaProperty<?>... properties) {
+    return JodaBeanUtils.equalIgnoring(bean1, bean2, properties);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates a new instance that uses the default comparison logic when comparing bean property values.
    */
@@ -86,8 +102,11 @@ public class BeanCompare {
       Object value1 = property.get(bean1);
       Object value2 = property.get(bean2);
       if (value1 instanceof Bean && value2 instanceof Bean && sameClass(value1, value2)) {
-        List<MetaProperty<?>> newPath = ImmutableList.<MetaProperty<?>>builder().addAll(path).add(property).build();
-        differences.addAll(compare(((Bean) value1), ((Bean) value2), newPath));
+        Comparator<Object> comparator = _propertyComparators.get(property);
+        if (comparator == null || comparator.compare(value1, value2) != 0) {
+          List<MetaProperty<?>> newPath = ImmutableList.<MetaProperty<?>>builder().addAll(path).add(property).build();
+          differences.addAll(compare(((Bean) value1), ((Bean) value2), newPath));
+        }
       } else {
         if (!equal(property, value1, value2)) {
           differences.add(new BeanDifference<Object>(property, value1, value2, path));

@@ -14,10 +14,12 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFor
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.PSplineFitter;
 import com.opengamma.analytics.math.statistics.leastsquare.GeneralizedLeastSquareResults;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SmileInterpolatorSABRTest extends SmileInterpolatorTestCase {
 
   private static final double BETA = 0.75;

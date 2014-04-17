@@ -248,7 +248,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    final DbMapSqlParameterSource args = createParameterSource();
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
     args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
@@ -323,6 +323,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesInfoDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    checkScheme(objectId.getObjectId());
     return doGetByOidInstants(objectId, versionCorrection, new HistoricalTimeSeriesDocumentExtractor(), "HistoricalTimeSeries");
   }
 
@@ -350,7 +351,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       request.setDataSource(document.getInfo().getDataSource());
       request.setDataProvider(document.getInfo().getDataProvider());
       request.setObservationTime(document.getInfo().getObservationTime());
-      request.setExternalIdSearch(new ExternalIdSearch(document.getInfo().getExternalIdBundle().toBundle(), ExternalIdSearchType.EXACT));
+      request.setExternalIdSearch(ExternalIdSearch.of(ExternalIdSearchType.EXACT, document.getInfo().getExternalIdBundle().toBundle()));
       HistoricalTimeSeriesInfoSearchResult result = search(request);
       if (result.getDocuments().size() > 0) {
         throw new DataDuplicationException("Unable to add as similar row exists already: " + result.getDocuments().get(0).getObjectId() + " matched " + request);
@@ -380,7 +381,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
       // the arguments for inserting into the table
       final ManageableHistoricalTimeSeriesInfo info = document.getInfo();
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -397,7 +398,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
       final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
       for (ExternalIdWithDates id : info.getExternalIdBundle()) {
-        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource assocArgs = createParameterSource()
           .addValue("doc_id", docId)
           .addValue("key_scheme", id.getExternalId().getScheme().getName())
           .addValue("key_value", id.getExternalId().getValue())
@@ -407,12 +408,18 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
           // select avoids creating unecessary id, but id may still not be used
           final long idKeyId = nextId("hts_idkey_seq");
-          final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+          final DbMapSqlParameterSource idkeyArgs = createParameterSource()
             .addValue("idkey_id", idKeyId)
             .addValue("key_scheme", id.getExternalId().getScheme().getName())
             .addValue("key_value", id.getExternalId().getValue());
           idKeyList.add(idkeyArgs);
         }
+      }
+      // the arguments for inserting into permission table
+      final List<DbMapSqlParameterSource> permissionList = new ArrayList<DbMapSqlParameterSource>();
+      for (String permission : info.getPermissions()) {
+        final DbMapSqlParameterSource permissionArgs = createParameterSource().addValue("doc_id", docId).addValue("permission", permission);
+        permissionList.add(permissionArgs);
       }
 
       // insert
@@ -422,6 +429,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       getJdbcTemplate().update(sqlDoc, docArgs);
       getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
       getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+      if (!info.getPermissions().isEmpty()) {
+        final String sqlPermission = getElSqlBundle().getSql("InsertPermission");
+        getJdbcTemplate().batchUpdate(sqlPermission, permissionList.toArray(new DbMapSqlParameterSource[permissionList.size()]));
+      }
 
       // set the uniqueId
       final UniqueId uniqueId = createUniqueId(docOid, docId);
@@ -559,6 +570,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
           final LocalDate validTo = DbDateUtils.fromSqlDateNullFarFuture(rs.getDate("KEY_VALID_TO"));
           ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of(idScheme, idValue), validFrom, validTo);
           _info.setExternalIdBundle(_info.getExternalIdBundle().withExternalId(id));
+        }
+        final String permission = rs.getString("PERMISSION");
+        if (permission != null) {
+          _info.getPermissions().add(permission);
         }
       }
       return _documents;

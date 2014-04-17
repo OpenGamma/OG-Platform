@@ -5,14 +5,14 @@
  */
 package com.opengamma.master.cache;
 
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.master.AbstractLink;
-
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 
 /**
  * Strategy based on Joda beans.
@@ -27,12 +27,14 @@ public class JodaBeanCopyStrategy implements ReadWriteCopyStrategy<Element> {
     if (element == null) {
       return null;
     } else {
-      Element result = new Element(element.getObjectKey(), JodaBeanUtils.clone((Bean) element.getObjectValue()));
+      Bean bean = (Bean) element.getObjectValue();
+      Element result = new Element(element.getObjectKey(), JodaBeanUtils.clone(bean));
 
       // Clear any resolved links that point to other documents (e.g. positions linking to securities)
-      for (MetaProperty<?> metaProperty :((Bean) element.getObjectValue()).metaBean().metaPropertyIterable()) {
+      for (MetaProperty<?> metaProperty : bean.metaBean().metaPropertyIterable()) {
         if (AbstractLink.class.isAssignableFrom(metaProperty.propertyType())) {
-          ((AbstractLink<?>) metaProperty.get((Bean) element.getObjectValue())).setTarget(null);
+          AbstractLink<?> link = (AbstractLink<?>) metaProperty.get(bean);
+          link.setTarget(null);
         }
       }
       return result;
@@ -44,7 +46,9 @@ public class JodaBeanCopyStrategy implements ReadWriteCopyStrategy<Element> {
     if (element == null) {
       return null;
     } else {
-      return new Element(element.getObjectKey(), JodaBeanUtils.clone((Bean) element.getObjectValue()));
+      Bean bean = (Bean) element.getObjectValue();
+      return new Element(element.getObjectKey(), JodaBeanUtils.clone(bean));
     }
   }
+
 }

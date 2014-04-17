@@ -23,6 +23,8 @@ import com.opengamma.util.time.Tenor;
  * Generates synthetic tickers for use in FX forward curves.
  */
 public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveInstrumentProvider {
+  /** This provider uses market data directly */
+  private static final boolean USE_SPOT_RATE_FROM_GRAPH = false;
   /** The data field type, not used */
   private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
   /** The data field, not used */
@@ -41,14 +43,14 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
   private final String _spotName;
   /** The spot external id */
   private final ExternalId _spotId;
-  
+
   /**
    * @param prefix The FX forward prefix, not null
    * @param postfix The postfix, not null
    * @param spotPrefix The FX spot prefix, not null
    * @param dataFieldName The data field name, not null
    */
-  public ExampleFXForwardCurveInstrumentProvider(final String prefix, final String postfix, final String spotPrefix, 
+  public ExampleFXForwardCurveInstrumentProvider(final String prefix, final String postfix, final String spotPrefix,
       final String dataFieldName) {
     ArgumentChecker.notNull(prefix, "prefix");
     ArgumentChecker.notNull(postfix, "postfix");
@@ -61,7 +63,7 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
     _spotName = spotPrefix;
     _spotId = ExternalId.of(SCHEME, _spotName);
   }
-  
+
   /**
    * Gets the prefix.
    * @return The prefix
@@ -69,7 +71,7 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
   public String getPrefix() {
     return _prefix;
   }
-  
+
   /**
    * Gets the postfix.
    * @return The postfix
@@ -77,7 +79,7 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
   public String getPostfix() {
     return _postfix;
   }
-  
+
   /**
    * Gets the spot prefix.
    * @return The spot prefix
@@ -85,12 +87,12 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
   public String getSpotPrefix() {
     return _spotPrefix;
   }
-  
+
   @Override
   public String getDataFieldName() {
     return _dataFieldName;
   }
-  
+
   /**
    * Gets the spot name.
    * @return The spot name
@@ -113,7 +115,12 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
   public DataFieldType getDataFieldType() {
     return FIELD_TYPE;
   }
-  
+
+  @Override
+  public boolean useSpotRateFromGraph() {
+    return USE_SPOT_RATE_FROM_GRAPH;
+  }
+
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor) {
     final StringBuffer ticker = new StringBuffer();
@@ -168,6 +175,11 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
 
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFutureFromTenor) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
     throw new UnsupportedOperationException();
   }
 

@@ -17,10 +17,12 @@ import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EuropeanSingleBarrierOptionFunctionProviderTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
@@ -41,6 +43,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
     final double[] vols = new double[] {0.02 };
 
     final int nSteps = 3121;
+    final int nStepsAdm = 165;
     final double[] barrierSet = new double[] {90., 112. };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
     final boolean[] tfSet = new boolean[] {true, false };
@@ -56,6 +59,12 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                   double exact = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
                   final double res = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
                   assertEquals(res, exact, Math.max(exact, 1.) * 1.e-2);
+
+                  final OptionFunctionProvider1D functionAdm = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nStepsAdm, isCall, barrier,
+                      EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                  final LatticeSpecification latticeAdm = new AdaptiveLatticeSpecification(functionAdm);
+                  final double resAdm = _modelTrinomial.getPrice(latticeAdm, functionAdm, SPOT, vol, interest, dividend);
+                  assertEquals(resAdm, exact, Math.max(exact, 1.) * 1.e-2);
                 }
               }
             }

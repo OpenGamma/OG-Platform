@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityUtils;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -18,9 +19,13 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
 /**
  *
@@ -36,7 +41,9 @@ public enum InterestRateInstrumentType {
   SWAP_FIXED_CMS,
   /** A swap, one ibor leg, one CMS leg */
   SWAP_IBOR_CMS,
-  /** A swap, two CMS legs */
+  /** A swap, one ibor leg, one CMS leg */
+  SWAP_IBOR_OIS,
+  /** A swap, one ibor leg, one OIS leg */
   SWAP_CMS_CMS,
   /** A swap, one fixed leg, one OIS leg */
   SWAP_FIXED_OIS,
@@ -50,10 +57,14 @@ public enum InterestRateInstrumentType {
   FRA,
   /** Interest rate future */
   IR_FUTURE,
+  /** Fed fund future */
+  FED_FUND_FUTURE,
   /** Coupon bond */
   COUPON_BOND,
   /** Bond future */
-  BOND_FUTURE;
+  BOND_FUTURE,
+  /** Zero coupon inflation swap */
+  ZERO_COUPON_INFLATION_SWAP;
 
   @SuppressWarnings("synthetic-access")
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
@@ -111,8 +122,18 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
+    public InterestRateInstrumentType visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+      return FRA;
+    }
+
+    @Override
     public InterestRateInstrumentType visitBondFutureSecurity(final BondFutureSecurity security) {
       return BOND_FUTURE;
+    }
+
+    @Override
+    public InterestRateInstrumentType visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+      return ZERO_COUPON_INFLATION_SWAP;
     }
 
     @Override
@@ -125,6 +146,15 @@ public enum InterestRateInstrumentType {
       return SwapSecurityUtils.getSwapType(security);
     }
 
+    @Override
+    public InterestRateInstrumentType visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+      return InterestRateSwapSecurityUtils.getSwapType(security);
+    }
+
+    @Override
+    public InterestRateInstrumentType visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+      return FED_FUND_FUTURE;
+    }
   }
 
   /**
@@ -132,7 +162,10 @@ public enum InterestRateInstrumentType {
    */
   public static final ComputationTargetType FIXED_INCOME_INSTRUMENT_TARGET_TYPE = FinancialSecurityTypes.CASH_SECURITY
       .or(FinancialSecurityTypes.FRA_SECURITY)
+      .or(FinancialSecurityTypes.FORWARD_RATE_AGREEMENT_SECURITY)
       .or(FinancialSecurityTypes.INTEREST_RATE_FUTURE_SECURITY)
-      .or(FinancialSecurityTypes.SWAP_SECURITY);
+      .or(FinancialSecurityTypes.SWAP_SECURITY)
+      .or(FinancialSecurityTypes.INTEREST_RATE_SWAP_SECURITY)
+      .or(FinancialSecurityTypes.CASH_FLOW_SECURITY);
 
 }

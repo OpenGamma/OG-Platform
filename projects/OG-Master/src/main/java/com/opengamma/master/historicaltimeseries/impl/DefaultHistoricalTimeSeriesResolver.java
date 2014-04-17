@@ -9,14 +9,20 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolverWithBasicChangeManager;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.paging.PagingRequest;
@@ -24,7 +30,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * Simple implementation of {@link HistoricalTimeSeriesResolver} which backs directly onto retrieves candidates from an underlying master.
  */
-public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeriesResolver {
+public class DefaultHistoricalTimeSeriesResolver extends HistoricalTimeSeriesResolverWithBasicChangeManager {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalTimeSeriesResolver.class);
 
@@ -34,6 +40,19 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
   public DefaultHistoricalTimeSeriesResolver(HistoricalTimeSeriesSelector selector, HistoricalTimeSeriesMaster master) {
     _selector = selector;
     _master = master;
+
+    _master.changeManager().addChangeListener(new ChangeListener() {
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        ObjectId oid = event.getObjectId();
+        ChangeType type = event.getType();
+        Instant vFrom = event.getVersionFrom();
+        Instant vInstant = event.getVersionInstant();
+        Instant vTo = event.getVersionTo();
+        DefaultHistoricalTimeSeriesResolver.this.changeManager().entityChanged(type, oid, vFrom, vTo, vInstant);
+      }
+    });
+
   }
 
   @Override

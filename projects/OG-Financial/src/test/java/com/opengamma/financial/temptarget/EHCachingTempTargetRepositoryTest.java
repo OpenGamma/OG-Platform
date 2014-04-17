@@ -25,7 +25,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests the {@link EHCachingTempTargetRepository} class.
  */
-@Test(groups = TestGroup.UNIT_DB)
+@Test(groups = TestGroup.UNIT)
 public class EHCachingTempTargetRepositoryTest {
 
   private CacheManager _cacheManager;

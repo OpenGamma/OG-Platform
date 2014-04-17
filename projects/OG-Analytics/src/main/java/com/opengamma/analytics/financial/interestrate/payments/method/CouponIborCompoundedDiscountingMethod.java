@@ -110,12 +110,12 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
     }
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * dfPayment * dfPaymentBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * dfPayment * dfPaymentBar));
     result = result.plus(coupon.getFundingCurveName(), listDiscounting);
     final List<DoublesPair> listForward = new ArrayList<>();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      listForward.add(new DoublesPair(coupon.getFixingPeriodStartTimes()[loopsub], -coupon.getFixingPeriodStartTimes()[loopsub] * dfStart[loopsub] * dfStartBar[loopsub]));
-      listForward.add(new DoublesPair(coupon.getFixingPeriodEndTimes()[loopsub], -coupon.getFixingPeriodEndTimes()[loopsub] * dfEnd[loopsub] * dfEndBar[loopsub]));
+      listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTimes()[loopsub], -coupon.getFixingPeriodStartTimes()[loopsub] * dfStart[loopsub] * dfStartBar[loopsub]));
+      listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTimes()[loopsub], -coupon.getFixingPeriodEndTimes()[loopsub] * dfEnd[loopsub] * dfEndBar[loopsub]));
     }
     result = result.plus(coupon.getForwardCurveName(), listForward);
     return result;

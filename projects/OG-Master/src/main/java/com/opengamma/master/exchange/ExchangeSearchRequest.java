@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -144,9 +145,9 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public void addExternalIds(ExternalId... exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExternalIdSearch().addExternalIds(exchangeIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(exchangeIds));
     }
   }
 
@@ -160,9 +161,22 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public void addExternalIds(Iterable<ExternalId> exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExternalIdSearch().addExternalIds(exchangeIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(exchangeIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch}.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
   }
 
@@ -203,73 +217,6 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   @Override
   public ExchangeSearchRequest.Meta metaBean() {
     return ExchangeSearchRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        return getObjectIds();
-      case -265376882:  // externalIdSearch
-        return getExternalIdSearch();
-      case 3373707:  // name
-        return getName();
-      case -26774448:  // sortOrder
-        return getSortOrder();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        setObjectIds((List<ObjectId>) newValue);
-        return;
-      case -265376882:  // externalIdSearch
-        setExternalIdSearch((ExternalIdSearch) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -26774448:  // sortOrder
-        setSortOrder((ExchangeSearchSortOrder) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ExchangeSearchRequest other = (ExchangeSearchRequest) obj;
-      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
-          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -365,6 +312,60 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    */
   public final Property<ExchangeSearchSortOrder> sortOrder() {
     return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExchangeSearchRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExchangeSearchRequest other = (ExchangeSearchRequest) obj;
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ExchangeSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -475,6 +476,48 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<ExchangeSearchSortOrder> sortOrder() {
       return _sortOrder;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          return ((ExchangeSearchRequest) bean).getObjectIds();
+        case -265376882:  // externalIdSearch
+          return ((ExchangeSearchRequest) bean).getExternalIdSearch();
+        case 3373707:  // name
+          return ((ExchangeSearchRequest) bean).getName();
+        case -26774448:  // sortOrder
+          return ((ExchangeSearchRequest) bean).getSortOrder();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          ((ExchangeSearchRequest) bean).setObjectIds((List<ObjectId>) newValue);
+          return;
+        case -265376882:  // externalIdSearch
+          ((ExchangeSearchRequest) bean).setExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case 3373707:  // name
+          ((ExchangeSearchRequest) bean).setName((String) newValue);
+          return;
+        case -26774448:  // sortOrder
+          ((ExchangeSearchRequest) bean).setSortOrder((ExchangeSearchSortOrder) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ExchangeSearchRequest) bean)._sortOrder, "sortOrder");
+      super.validate(bean);
     }
 
   }

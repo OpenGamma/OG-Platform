@@ -18,28 +18,37 @@ $.register_module({
             var draggable = function ($elm) {
                 window.elm = $elm;
                 $elm.each(function (i) {
-                    $(this).draggable({
-                        cursor: 'move', zIndex: 5, cursorAt: {top: 25, left: 25}, scroll: false,
-                        iframeFix: true, appendTo: 'body', distance: 20,
-                        revert: new_window.partial(i),
-                        start: function () {og.analytics.grid.cellmenu.setdrag(true);},
-                        stop: function () {$(this).draggable('option', 'revert', new_window.partial(i));},
-                        helper: function () {return dropbox_template({label: $(this).text().trim()});}
-
-                    }).data({
-                        gadget: function () {return gadgets[i];},
-                        handler: function () {container.del(gadgets[i]);},
-                        source: pane
-                    });
+                    $(this).draggable({cursor: 'move', zIndex: 5, cursorAt: {top: 25, left: 25}, scroll: false,
+                        iframeFix: true, appendTo: 'body', distance: 20, revert: new_window.partial(i),
+                        start: function () {
+                            if (og.analytics.grid) {
+                                og.analytics.grid.cellmenu.setdrag(true);
+                            }
+                        },
+                        stop: function () {
+                            $(this).draggable('option', 'revert', new_window.partial(i));
+                        },
+                        helper: function () {
+                            return dropbox_template({label: $(this).text().trim()});
+                        }
+                        })
+                        .data({
+                            gadget: function () {return gadgets[i]; },
+                            handler: function () {container.del(gadgets[i]); },
+                            source: pane
+                        });
                 });
             };
-            var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
+            var extract_id = function (str) {
+                return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');
+            };
             var extract_index = function (id) {
-                return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0);
+                return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0); }, 0);
             };
             var inplace_header = function (id) {
-
-                if (!gadgets[0]) return;
+                if (!gadgets[0]) {
+                    return;
+                }
                 var $header = $(header), val = gadgets[0], config = val.config,
                     depgraph = config.options.source.depgraph,
                     tmpl_data = mapping.available_types(config.data_type, depgraph, config.gadget_type),
@@ -49,19 +58,19 @@ $.register_module({
                 $header.html(inplace_template(template_obj))
                     .off('mousedown').on('mousedown', '.og-js-icon', function () {
                         var gadget_type = $(this).attr('data-gadget_type'),
-                            gadget_name = $(this).attr('data-gadget_name'), swap_config;
+                            gadget_name = $(this).attr('data-gadget_name'),
+                            swap_config;
                         if (gadget_type === 'dock') {
                             og.analytics.url.add('south', gadgets[0].config);
                             og.common.gadgets.manager.clean();
                             return;
-                        };
-                        if (gadget_type === config.gadget_type) return false;
-                        swap_config = {
-                            gadget: 'og.common.gadgets.' + gadget_type, options: config.options,
-                            gadget_name: gadget_name, col_name: config.col_name,
-                            gadget_type: gadget_type, row_name: config.row_name,
-                            data_type: config.data_type
-                        };
+                        }
+                        if (gadget_type === config.gadget_type) {
+                            return false;
+                        }
+                        swap_config = { gadget: 'og.common.gadgets.' + gadget_type, options: config.options,
+                            gadget_name: gadget_name, col_name: config.col_name, gadget_type: gadget_type,
+                            row_name: config.row_name, data_type: config.data_type };
                         container.swap(swap_config, 0, true);
                         return false;
                     });
@@ -82,7 +91,9 @@ $.register_module({
              *        if id is null set tabs to a single empty tab
              */
             var update_tabs = function (id) {
-                if (!!container.inplace) return inplace_header(id);
+                if (!!container.inplace) {
+                    return inplace_header(id);
+                }
                 var $header = $(header), tabs;
                 /**
                  * @param id Id of gadget to show, hide all others
@@ -118,7 +129,7 @@ $.register_module({
                         full_width = $tabs_container.width() - (overflow_buffer + (buttons_buffer[pane] || 0)),
                         // the full width of all the tabs
                         tabs_width = Array.prototype.reduce.apply($tabs
-                            .map(function () {return $(this).outerWidth();}), [function (a, b) {return a + b;}, 0]);
+                            .map(function () {return $(this).outerWidth(); }), [function (a, b) {return a + b; }, 0]);
                     // stage 1
                     if (tabs_width > full_width) {
                         new_tab_width = ~~((full_width - active_tab_width) / num_inactive_tabs);
@@ -131,24 +142,31 @@ $.register_module({
                                     e.stopPropagation();
                                     $overflow_panel.toggle();
                                     var wins = [window].concat(Array.prototype.slice.call(window.frames));
-                                    if ($overflow_panel.is(':visible'))
+                                    if ($overflow_panel.is(':visible')) {
                                         $(wins).on('click.overflow_handler', function () {
                                             $overflow_panel.hide();
                                             $(wins).off('click.overflow_handler');
                                         });
-                                    else $(wins).off('click.overflow_handler');
+                                    } else {
+                                        $(wins).off('click.overflow_handler');
+                                    }
                                 });
                             }
                             space_needed = full_width - compressed_tabs_width;
                             num_tabs_to_hide = Math.ceil(Math.abs(space_needed) / new_tab_width);
-                            if (num_tabs_to_hide) $overflow_panel.find('ul').html(
-                                $tabs_to_move = $tabs.filter(':not(.og-active):lt(' + num_tabs_to_hide + ')')
-                            );
+                            if (num_tabs_to_hide) {
+                                $overflow_panel.find('ul').html(
+                                    $tabs_to_move = $tabs.filter(':not(.og-active):lt(' + num_tabs_to_hide + ')')
+                                );
+                            }
                             // stage 3
-                            if (num_tabs_to_hide >= num_tabs) $active_tab.width(
-                                active_tab_width
-                                + (space_needed + ((num_inactive_tabs * min_tab_width) - overflow_buffer)) + 'px'
-                            );
+                            if (num_tabs_to_hide >= num_tabs) {
+                                $active_tab.width(
+                                    active_tab_width
+                                        + (space_needed + ((num_inactive_tabs * min_tab_width) - overflow_buffer))
+                                        + 'px'
+                                );
+                            }
                         } else {
                             $overflow_panel.hide();
                         }
@@ -156,9 +174,11 @@ $.register_module({
                         $tabs.each(function () {if (!$(this).hasClass('og-active')) {
                             var original_width = $(this).outerWidth();
                             $(this).outerWidth(original_width < new_tab_width ? original_width : new_tab_width);
-                        }});
+                        } });
                         // unset width of tabs in overflow panel
-                        if ($tabs_to_move) $tabs_to_move.each(function () {$(this).attr('style', '');});
+                        if ($tabs_to_move) {
+                            $tabs_to_move.each(function () {$(this).attr('style', ''); });
+                        }
                         // set position of overflow panel
                         overflow.right = $(document).width() - ($overflow_button.offset().left + 25 - 5);
                         overflow.height = $overflow_button.height();
@@ -166,23 +186,27 @@ $.register_module({
                         $overflow_panel.css({'right': overflow.right + 'px', 'top': overflow.top + 'px'});
                         $tabs.each(function () { // add tooltips to truncated tabs only
                             var $this = $(this);
-                            if (!!$this.attr('style')) $this.find('.OG-gadget-tabs-label')
-                                .attr('title', $this.text().replace(/\s+/g , ' ').trim());
+                            if (!!$this.attr('style')) {
+                                $this.find('.OG-gadget-tabs-label').attr('title', $this.text().replace(/\s+/g, ' ')
+                                    .trim());
+                            }
                         });
-                    };
+                    }
                     draggable($tabs);
                     container.focus();
                 };
-                if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
-                else {
-                    if (id === void 0) id = live_id;
+                if (id === null) { // empty tabs
+                    $header.html(tabs_template({'tabs': [{'name': 'empty'}]}));
+                } else {
+                    if (id === void 0) {
+                        id = live_id;
+                    }
                     tabs = gadgets.reduce(function (acc, val, idx) {
-                        return acc.push({
-                            'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
-                            'col_name': val.config.col_name, 'active': gadgets[idx].active = id === val.id,
-                            'id': val.id, 'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
-                            'gadget': val, 'gadget_index': idx
-                        }) && acc;
+                        return acc.push({'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name,
+                                            'delete': true, 'col_name': val.config.col_name,
+                                            'active': gadgets[idx].active = id === val.id, 'id': val.id,
+                                            'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
+                                            'gadget': val, 'gadget_index': idx}) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
                     $.each(tabs, function (key, val) {
@@ -202,16 +226,17 @@ $.register_module({
                             var gadget_type = $(this).attr('data-gadget_type'), $icon,
                                 gadget_name = $(this).attr('data-gadget_name'), swap_config;
                             menu.close();
-                            if (gadget_type === val.gadget_type) return false;
+                            if (gadget_type === val.gadget_type) {
+                                return false;
+                            }
                             $icon = $('<div class="OG-icon og-icon-' + (val.gadget_type = gadget_type) + '"></div>')
                                 .css({width: '13px', height: '14px'});
                             menu.$dom.toggle.html($icon);
-                            swap_config = {
-                                gadget: 'og.common.gadgets.' + gadget_type, gadget_name: gadget_name,
-                                options: val.gadget.config.options, gadget_type: gadget_type,
-                                col_name: val.gadget.config.col_name, data_type: val.gadget.config.data_type,
-                                row_name: val.gadget.config.row_name
-                            };
+                            swap_config = { gadget: 'og.common.gadgets.' + gadget_type, gadget_name: gadget_name,
+                                    options: val.gadget.config.options, gadget_type: gadget_type,
+                                    col_name: val.gadget.config.col_name, data_type: val.gadget.config.data_type,
+                                    row_name: val.gadget.config.row_name
+                                };
                             container.swap(swap_config, val.gadget_index);
                             return false;
                         });
@@ -233,37 +258,53 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, index, inplace) {
-                if (!!inplace) container.inplace = inplace;
+                if (!!inplace) {
+                    container.inplace = inplace;
+                }
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
-                if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(data, index, inplace), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(data, index, inplace), 10), container;
-                if (!data) return container; // no gadgets for this container
-                if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
+                if (!loading && !initialized) {
+                    container.init();
+                    setTimeout(container.add.partial(data, index, inplace), 10);
+                    return container;
+                }
+                if (!initialized) {
+                    setTimeout(container.add.partial(data, index, inplace), 10);
+                    return container;
+                }
+                if (!data) {
+                    return container;
+                } // no gadgets for this container
+                if (!selector) {
+                    throw new TypeError('GadgetsContainer has not been initialized');
+                }
                 new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget, options = Object.clone(obj.options),
-                        constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
+                        constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val]; }, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
-                    $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
-                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                        display: idx === data.length - 1 ? 'block' : 'none'
-                    });
+                    $(panel_container).append('<div class="' + gadget_class + '" />')
+                        .find('.' + gadget_class)
+                        .css({position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                                                     display: idx === data.length - 1 ? 'block' : 'none' });
                     options.selector = panel_container + ' .' + gadget_class;
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
                     if (typeof index === 'number') {
                         if (gadgets[index]) {
                             $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
-                            if (gadgets[index]) gadgets[index].gadget.alive();
+                            if (gadgets[index]) {
+                                gadgets[index].gadget.alive();
+                            }
                         }
                         gadgets.splice(index, 1, gadget);
-                    } else gadgets.push(gadget);
+                    } else {
+                        gadgets.push(gadget);
+                    }
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {
-                gadgets.forEach(function (obj) {obj.gadget.alive();});
+                gadgets.forEach(function (obj) {obj.gadget.alive(); });
                 return $(selector).length ? true : !$('.og-js-overflow-' + pane).remove(); // clean up overflow panel
             };
             container.del = function (obj, silent) {
@@ -275,8 +316,12 @@ $.register_module({
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
                     : null;
                 update_tabs(id); // new active tab or empty
-                if (!silent && id) gadgets[extract_index(id)].gadget.resize();
-                if (!silent) container.fire('del', index);
+                if (!silent && id) {
+                    gadgets[extract_index(id)].gadget.resize();
+                }
+                if (!silent) {
+                    container.fire('del', index);
+                }
             };
             container.gadgets = function () {
                 return gadgets;
@@ -291,20 +336,30 @@ $.register_module({
                 for (cont in containers) {
                     $tab = $(selector_prefix + cont + ' .og-active');
                     $box = $(selector_prefix + cont + ' .OG-gadget-container');
-                    if (cont === pane) $tab.addClass('og-focus'), $box.addClass('og-focus');
-                    else $tab.removeClass('og-focus'), $box.removeClass('og-focus');
-                };
+                    if (cont === pane) {
+                        $tab.addClass('og-focus');
+                        $box.addClass('og-focus');
+                    } else {
+                        $tab.removeClass('og-focus');
+                        $box.removeClass('og-focus');
+                    }
+                }
                 // Highlight grid cell
-                if (!container.gadgets().length) return;
+                if (!container.gadgets().length) {
+                    return;
+                }
                 options = Object
-                    .clone(container.gadgets().filter(function (val) {return !!val.active})[0].config.options);
+                    .clone(container.gadgets().filter(function (val) {return !!val.active; })[0].config.options);
                 containers.fire(event_type, options.source, options.row, options.col, event_type);
             };
             container.init = function (data) {
                 var toggle_dropbox = function () {
                         var $db = $('.og-drop').length, $dbs_span = $('.OG-dropbox span');
-                        if ($db) $dbs_span.removeClass('og-icon-new-window').addClass('og-icon-drop');
-                        else $dbs_span.removeClass('og-icon-drop').addClass('og-icon-new-window');
+                        if ($db) {
+                            $dbs_span.removeClass('og-icon-new-window').addClass('og-icon-drop');
+                        } else {
+                            $dbs_span.removeClass('og-icon-drop').addClass('og-icon-new-window');
+                        }
                     };
                 loading = true;
                 $.when(
@@ -314,12 +369,24 @@ $.register_module({
                     api.text({module: 'og.analytics.typemenu_tash'}),
                     api.text({module: 'og.analytics.inplace_header_tash'})
                 ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl, inplace_tmpl) {
-                    if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
-                    if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
-                    if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
-                    if (!typemenu_template) typemenu_template = Handlebars.compile(typemenu_tmpl);
-                    if (!inplace_template) inplace_template = Handlebars.compile(inplace_tmpl);
-                    if (!$overflow_panel) $overflow_panel = $(overflow_template({pane: pane})).appendTo('body');
+                    if (!tabs_template) {
+                        tabs_template = Handlebars.compile(tabs_tmpl);
+                    }
+                    if (!overflow_template) {
+                        overflow_template = Handlebars.compile(overflow_tmpl);
+                    }
+                    if (!dropbox_template) {
+                        dropbox_template = Handlebars.compile(dropbox_tmpl);
+                    }
+                    if (!typemenu_template) {
+                        typemenu_template = Handlebars.compile(typemenu_tmpl);
+                    }
+                    if (!inplace_template) {
+                        inplace_template = Handlebars.compile(inplace_tmpl);
+                    }
+                    if (!$overflow_panel) {
+                        $overflow_panel = $(overflow_template({pane: pane})).appendTo('body');
+                    }
                     initialized = true;
                     loading = false;
                     // setup click handlers
@@ -327,24 +394,33 @@ $.register_module({
                         // handler for tabs (including the ones in the overflow pane)
                         .off('click').on('click', '.ui-layout-header [class^=og-tab-]', function (e) {
                             var id = extract_id($(this).attr('class')), menu, index = extract_index(id);
-                            if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
-                            else if (!$(this).hasClass('og-active')) {
+                            if ($(e.target).hasClass('og-delete')) {
+                                container.del(gadgets[index]);
+                            } else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
-                                if (id) gadgets[index].gadget.resize();
+                                if (id) {
+                                    gadgets[index].gadget.resize();
+                                }
                             }
-                            if (!$(this).hasClass('og-focus')) container.focus();
+                            if (!$(this).hasClass('og-focus')) {
+                                container.focus();
+                            }
                         });
-                    if (!data) update_tabs(null); else container.add(data);
+                    if (!data) {
+                        update_tabs(null);
+                    } else {
+                        container.add(data);
+                    }
                     // implement drop
                     $selector.droppable({
                         hoverClass: 'og-drop',
                         accept: function (draggable) {return $(draggable)
-                            .is('.ui-layout-header [class*=og-tab-], .OG-tab-overflow-panel [class*=og-tab-]');},
+                            .is('.ui-layout-header [class*=og-tab-], .OG-tab-overflow-panel [class*=og-tab-]'); },
                         tolerance: 'pointer',
-                        over: function(e, ui) {setTimeout(toggle_dropbox);},//can't be sure over and out fire in correct
-                        out: function(e, ui) {setTimeout(toggle_dropbox);},//order, toggle function seems to solve issue
+                        over: function (e, ui) {setTimeout(toggle_dropbox); },//can't be sure over and out fire in correct
+                        out: function (e, ui) {setTimeout(toggle_dropbox); },//order, toggle function seems to solve issue
                         drop: function (e, ui) {
-                            var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
+                            var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length; },
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
                                 data = ui.draggable.data();
@@ -352,8 +428,9 @@ $.register_module({
                                 ui.draggable.draggable('option', 'revert', true);
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
-                                if (false !== container.fire('drop', data.gadget().config, data.source))
+                                if (false !== container.fire('drop', data.gadget().config, data.source)) {
                                     container.add([data.gadget().config]);
+                                }
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }
@@ -376,12 +453,21 @@ $.register_module({
                 container.fire('swap', config, index);
             };
             container.verify = function (new_gadgets) {
-                if (!initialized) return setTimeout(container.verify.partial(new_gadgets), 10), container;
+                if (!initialized) {
+                    setTimeout(container.verify.partial(new_gadgets), 10);
+                    return container;
+                }
                 var keep = gadgets.pluck('config').reduce(function (acc, cfg, idx) {
-                    if (new_gadgets.some(function (gadget) {return Object.equals(cfg, gadget);})) acc[idx] = null;
+                    if (new_gadgets.some(function (gadget) {return Object.equals(cfg, gadget); })) {
+                        acc[idx] = null;
+                    }
                     return acc;
                 }, {});
-                gadgets.forEach(function (gadget, index) {if (!(index in keep)) container.del(gadgets[index], true);});
+                gadgets.forEach(function (gadget, index) {
+                    if (!(index in keep)) {
+                        container.del(gadgets[index], true);
+                    }
+                });
                 return container;
             };
         };

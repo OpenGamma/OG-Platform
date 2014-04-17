@@ -10,7 +10,6 @@ import java.util.Collection;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
@@ -18,36 +17,24 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A {@code FinancialSecuritySource} implemented using an underlying {@code SecurityMaster}.
  * <p>
- * The {@link SecuritySource} interface provides securities to the engine via a narrow API.
- * This class provides the source on top of a standard {@link SecurityMaster}.
+ * The {@link SecuritySource} interface provides securities to the engine via a narrow API. This class provides the source on top of a standard {@link SecurityMaster}.
  */
 public class MasterFinancialSecuritySource extends MasterSecuritySource implements FinancialSecuritySource {
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
+   * Creates an instance with an underlying master.
    * 
-   * @param master  the master, not null
+   * @param master the master, not null
    */
   public MasterFinancialSecuritySource(final SecurityMaster master) {
     super(master);
   }
 
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   * 
-   * @param master  the master, not null
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
-   */
-  public MasterFinancialSecuritySource(final SecurityMaster master, VersionCorrection versionCorrection) {
-    super(master, versionCorrection);
-  }
-
   //-------------------------------------------------------------------------
   /**
-   * Finds the all the available bonds with an issuer type of the provided string.  
-   * This would be used, for example, to construct a bond curve.
+   * Finds the all the available bonds with an issuer type of the provided string. This would be used, for example, to construct a bond curve.
    * 
-   * @param issuerName  the issuer name, wildcards allowed, may be null
+   * @param issuerName the issuer name, wildcards allowed, may be null
    * @return a collection of bond securities with the issuerType specified, not null
    */
   @SuppressWarnings({"unchecked", "rawtypes" })
@@ -56,8 +43,7 @@ public class MasterFinancialSecuritySource extends MasterSecuritySource implemen
     ArgumentChecker.notNull(issuerName, "issuerName");
     final BondSecuritySearchRequest request = new BondSecuritySearchRequest();
     request.setIssuerName(issuerName);
-    request.setVersionCorrection(getVersionCorrection());
-    return (Collection) search(request).getSecurities();  // cast safe as supplied list will not be altered
+    return (Collection) search(request).getSecurities(); // cast safe as supplied list will not be altered
   }
 
 }

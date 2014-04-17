@@ -27,7 +27,7 @@ public class NormalBinomialTreeBuilder<T extends GeneralNormalOptionDataBundle> 
     Validate.isTrue(root >= 0, "can't find upper node - root negative");
     final double upper = (b + Math.sqrt(root)) / 2;
     final double lower = 2 * centreLevel - upper;
-    return new DoublesPair(lower, upper);
+    return DoublesPair.of(lower, upper);
   }
 
   @Override

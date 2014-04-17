@@ -19,6 +19,7 @@ import org.fudgemsg.mapping.BuilderUtil;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -29,7 +30,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.bloomberglp.blpapi.Element;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -226,14 +226,14 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   static class PerSecurityReferenceDataResult {
     private final String _security;
     private FudgeMsg _fieldData;
-    private Element _eidData;
+    private Set<Integer> _eidData;
     private final List<String> _exceptions = Lists.newArrayList();
     private final Map<String, ReferenceDataError> _fieldExceptions = Maps.newLinkedHashMap();
 
     PerSecurityReferenceDataResult(ReferenceData refData) {
       _security = refData.getIdentifier();
       _fieldData = refData.getFieldValues();
-      _eidData = refData.getEntitlementInfo();
+      _eidData = refData.getEidValues();
       for (ReferenceDataError error : refData.getErrors()) {
         if (error.isFieldBased()) {
           _fieldExceptions.put(error.getField(), error);
@@ -252,7 +252,8 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
     public FudgeMsg getFieldData() {
       return _fieldData;
     }
-    public Element getEidData() {
+
+    public Set<Integer> getEidData() {
       return _eidData;
     }
     public List<String> getExceptions() {
@@ -280,90 +281,6 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   @Override
   public OldBloombergRemoteAccessComponentFactory.Meta metaBean() {
     return OldBloombergRemoteAccessComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1788671322:  // referenceDataProvider
-        return getReferenceDataProvider();
-      case -1592479713:  // historicalTimeSeriesProvider
-        return getHistoricalTimeSeriesProvider();
-      case -917704420:  // fudgeContext
-        return getFudgeContext();
-      case 625005695:  // jettyPort
-        return getJettyPort();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case -1416126390:  // jmsReferenceDataTopic
-        return getJmsReferenceDataTopic();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1788671322:  // referenceDataProvider
-        setReferenceDataProvider((ReferenceDataProvider) newValue);
-        return;
-      case -1592479713:  // historicalTimeSeriesProvider
-        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
-        return;
-      case -917704420:  // fudgeContext
-        setFudgeContext((FudgeContext) newValue);
-        return;
-      case 625005695:  // jettyPort
-        setJettyPort((Integer) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case -1416126390:  // jmsReferenceDataTopic
-        setJmsReferenceDataTopic((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
-    JodaBeanUtils.notNull(_historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
-    JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
-    JodaBeanUtils.notNull(_jmsReferenceDataTopic, "jmsReferenceDataTopic");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      OldBloombergRemoteAccessComponentFactory other = (OldBloombergRemoteAccessComponentFactory) obj;
-      return JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          JodaBeanUtils.equal(getJettyPort(), other.getJettyPort()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getJmsReferenceDataTopic(), other.getJmsReferenceDataTopic()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJettyPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsReferenceDataTopic());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -522,6 +439,66 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public OldBloombergRemoteAccessComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      OldBloombergRemoteAccessComponentFactory other = (OldBloombergRemoteAccessComponentFactory) obj;
+      return JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
+          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          (getJettyPort() == other.getJettyPort()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsReferenceDataTopic(), other.getJmsReferenceDataTopic()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJettyPort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsReferenceDataTopic());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("OldBloombergRemoteAccessComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesProvider())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("jettyPort").append('=').append(JodaBeanUtils.toString(getJettyPort())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsReferenceDataTopic").append('=').append(JodaBeanUtils.toString(getJmsReferenceDataTopic())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code OldBloombergRemoteAccessComponentFactory}.
    */
@@ -660,6 +637,61 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
      */
     public final MetaProperty<String> jmsReferenceDataTopic() {
       return _jmsReferenceDataTopic;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1788671322:  // referenceDataProvider
+          return ((OldBloombergRemoteAccessComponentFactory) bean).getReferenceDataProvider();
+        case -1592479713:  // historicalTimeSeriesProvider
+          return ((OldBloombergRemoteAccessComponentFactory) bean).getHistoricalTimeSeriesProvider();
+        case -917704420:  // fudgeContext
+          return ((OldBloombergRemoteAccessComponentFactory) bean).getFudgeContext();
+        case 625005695:  // jettyPort
+          return ((OldBloombergRemoteAccessComponentFactory) bean).getJettyPort();
+        case -1495762275:  // jmsConnector
+          return ((OldBloombergRemoteAccessComponentFactory) bean).getJmsConnector();
+        case -1416126390:  // jmsReferenceDataTopic
+          return ((OldBloombergRemoteAccessComponentFactory) bean).getJmsReferenceDataTopic();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1788671322:  // referenceDataProvider
+          ((OldBloombergRemoteAccessComponentFactory) bean).setReferenceDataProvider((ReferenceDataProvider) newValue);
+          return;
+        case -1592479713:  // historicalTimeSeriesProvider
+          ((OldBloombergRemoteAccessComponentFactory) bean).setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
+          return;
+        case -917704420:  // fudgeContext
+          ((OldBloombergRemoteAccessComponentFactory) bean).setFudgeContext((FudgeContext) newValue);
+          return;
+        case 625005695:  // jettyPort
+          ((OldBloombergRemoteAccessComponentFactory) bean).setJettyPort((Integer) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((OldBloombergRemoteAccessComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case -1416126390:  // jmsReferenceDataTopic
+          ((OldBloombergRemoteAccessComponentFactory) bean).setJmsReferenceDataTopic((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((OldBloombergRemoteAccessComponentFactory) bean)._referenceDataProvider, "referenceDataProvider");
+      JodaBeanUtils.notNull(((OldBloombergRemoteAccessComponentFactory) bean)._historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+      JodaBeanUtils.notNull(((OldBloombergRemoteAccessComponentFactory) bean)._fudgeContext, "fudgeContext");
+      JodaBeanUtils.notNull(((OldBloombergRemoteAccessComponentFactory) bean)._jmsConnector, "jmsConnector");
+      JodaBeanUtils.notNull(((OldBloombergRemoteAccessComponentFactory) bean)._jmsReferenceDataTopic, "jmsReferenceDataTopic");
+      super.validate(bean);
     }
 
   }

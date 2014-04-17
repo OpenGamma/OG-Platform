@@ -7,7 +7,10 @@ package com.opengamma.master.historicaltimeseries;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -82,6 +85,12 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    */
   @PropertyDefinition
   private ObjectId _timeSeriesObjectId;
+  /**
+   * Set of permissions
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Set<String> _permissions = new TreeSet<>();
 
   /**
    * Creates an instance.
@@ -106,93 +115,6 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   @Override
   public ManageableHistoricalTimeSeriesInfo.Meta metaBean() {
     return ManageableHistoricalTimeSeriesInfo.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-      case 3373707:  // name
-        return getName();
-      case -386794640:  // dataField
-        return getDataField();
-      case 1272470629:  // dataSource
-        return getDataSource();
-      case 339742651:  // dataProvider
-        return getDataProvider();
-      case 951232793:  // observationTime
-        return getObservationTime();
-      case 2129430654:  // timeSeriesObjectId
-        return getTimeSeriesObjectId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundleWithDates) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -386794640:  // dataField
-        setDataField((String) newValue);
-        return;
-      case 1272470629:  // dataSource
-        setDataSource((String) newValue);
-        return;
-      case 339742651:  // dataProvider
-        setDataProvider((String) newValue);
-        return;
-      case 951232793:  // observationTime
-        setObservationTime((String) newValue);
-        return;
-      case 2129430654:  // timeSeriesObjectId
-        setTimeSeriesObjectId((ObjectId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableHistoricalTimeSeriesInfo other = (ManageableHistoricalTimeSeriesInfo) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
-          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(getTimeSeriesObjectId(), other.getTimeSeriesObjectId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesObjectId());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -397,6 +319,102 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
+   * Gets set of permissions
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   * @return the value of the property, not null
+   */
+  public Set<String> getPermissions() {
+    return _permissions;
+  }
+
+  /**
+   * Sets set of permissions
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   * @param permissions  the new value of the property, not null
+   */
+  public void setPermissions(Set<String> permissions) {
+    JodaBeanUtils.notNull(permissions, "permissions");
+    this._permissions.clear();
+    this._permissions.addAll(permissions);
+  }
+
+  /**
+   * Gets the the {@code permissions} property.
+   * This is a set of permissions that a user needs to be able to view a timeSeries.
+   * @return the property, not null
+   */
+  public final Property<Set<String>> permissions() {
+    return metaBean().permissions().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ManageableHistoricalTimeSeriesInfo clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableHistoricalTimeSeriesInfo other = (ManageableHistoricalTimeSeriesInfo) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getTimeSeriesObjectId(), other.getTimeSeriesObjectId()) &&
+          JodaBeanUtils.equal(getPermissions(), other.getPermissions());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesObjectId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissions());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("ManageableHistoricalTimeSeriesInfo{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
+    buf.append("timeSeriesObjectId").append('=').append(JodaBeanUtils.toString(getTimeSeriesObjectId())).append(',').append(' ');
+    buf.append("permissions").append('=').append(JodaBeanUtils.toString(getPermissions())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ManageableHistoricalTimeSeriesInfo}.
    */
   public static class Meta extends DirectMetaBean {
@@ -446,6 +464,12 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     private final MetaProperty<ObjectId> _timeSeriesObjectId = DirectMetaProperty.ofReadWrite(
         this, "timeSeriesObjectId", ManageableHistoricalTimeSeriesInfo.class, ObjectId.class);
     /**
+     * The meta-property for the {@code permissions} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<String>> _permissions = DirectMetaProperty.ofReadWrite(
+        this, "permissions", ManageableHistoricalTimeSeriesInfo.class, (Class) Set.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -457,7 +481,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
         "dataSource",
         "dataProvider",
         "observationTime",
-        "timeSeriesObjectId");
+        "timeSeriesObjectId",
+        "permissions");
 
     /**
      * Restricted constructor.
@@ -484,6 +509,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
           return _observationTime;
         case 2129430654:  // timeSeriesObjectId
           return _timeSeriesObjectId;
+        case 1133704324:  // permissions
+          return _permissions;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -566,6 +593,80 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
      */
     public final MetaProperty<ObjectId> timeSeriesObjectId() {
       return _timeSeriesObjectId;
+    }
+
+    /**
+     * The meta-property for the {@code permissions} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<String>> permissions() {
+      return _permissions;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getExternalIdBundle();
+        case 3373707:  // name
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getName();
+        case -386794640:  // dataField
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getDataField();
+        case 1272470629:  // dataSource
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getDataSource();
+        case 339742651:  // dataProvider
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getDataProvider();
+        case 951232793:  // observationTime
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getObservationTime();
+        case 2129430654:  // timeSeriesObjectId
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getTimeSeriesObjectId();
+        case 1133704324:  // permissions
+          return ((ManageableHistoricalTimeSeriesInfo) bean).getPermissions();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageableHistoricalTimeSeriesInfo) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((ManageableHistoricalTimeSeriesInfo) bean).setExternalIdBundle((ExternalIdBundleWithDates) newValue);
+          return;
+        case 3373707:  // name
+          ((ManageableHistoricalTimeSeriesInfo) bean).setName((String) newValue);
+          return;
+        case -386794640:  // dataField
+          ((ManageableHistoricalTimeSeriesInfo) bean).setDataField((String) newValue);
+          return;
+        case 1272470629:  // dataSource
+          ((ManageableHistoricalTimeSeriesInfo) bean).setDataSource((String) newValue);
+          return;
+        case 339742651:  // dataProvider
+          ((ManageableHistoricalTimeSeriesInfo) bean).setDataProvider((String) newValue);
+          return;
+        case 951232793:  // observationTime
+          ((ManageableHistoricalTimeSeriesInfo) bean).setObservationTime((String) newValue);
+          return;
+        case 2129430654:  // timeSeriesObjectId
+          ((ManageableHistoricalTimeSeriesInfo) bean).setTimeSeriesObjectId((ObjectId) newValue);
+          return;
+        case 1133704324:  // permissions
+          ((ManageableHistoricalTimeSeriesInfo) bean).setPermissions((Set<String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableHistoricalTimeSeriesInfo) bean)._permissions, "permissions");
     }
 
   }

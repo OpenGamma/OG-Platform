@@ -18,10 +18,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.Matrix;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ParametricVaRDataBundleTest {
   private static final List<String> NAMES = Arrays.asList("A", "B", "C");
   private static final DoubleMatrix1D ZERO = new DoubleMatrix1D(new double[] {0, 0, 0});

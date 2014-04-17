@@ -18,11 +18,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test of fixed compounding coupon class.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedCompoundingTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -90,7 +92,7 @@ public class CouponFixedCompoundingTest {
     assertEquals("CouponFixedCompounding: getter", PAYMENT_ACCRUAL_FACTORS, CPN.getPaymentAccrualFactors());
     assertEquals("CouponFixedCompounding: getter", PAYMENT_TIME, CPN.getPaymentTime());
     assertEquals("CouponFixedCompounding: getter", PAYMENT_ACCRUAL_FACTOR, CPN.getPaymentYearFraction());
-    assertEquals("CouponFixedCompounding: getter", FIXED_RATE, CPN.getRate());
+    assertEquals("CouponFixedCompounding: getter", FIXED_RATE, CPN.getFixedRate());
   }
 
   @Test

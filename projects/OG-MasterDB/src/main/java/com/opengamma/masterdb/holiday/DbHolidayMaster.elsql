@@ -17,6 +17,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_scheme,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -45,6 +47,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_scheme,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -75,6 +79,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_scheme,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -82,7 +88,7 @@
     INNER JOIN cte_docs ON main.id = cte_docs.id
     LEFT JOIN hol_date d ON (d.holiday_id = main.id)
   ORDER BY
-    main.@INCLUDE(:sort_order),
+    main.@VALUE(:sort_order),
     main.id,
     d.hol_date
 
@@ -96,7 +102,7 @@
       hol_holiday
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order),
+      @VALUE(:sort_order),
       id
 
 
@@ -114,7 +120,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
     @AND(:hol_type)
       hol_type = :hol_type
     @AND(:provider_scheme)
@@ -126,9 +132,9 @@
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_region_ids)
-      ( @INCLUDE(:sql_search_region_ids) )
+      ( @VALUE(:sql_search_region_ids) )
     @AND(:sql_search_exchange_ids)
-      ( @INCLUDE(:sql_search_exchange_ids) )
+      ( @VALUE(:sql_search_exchange_ids) )
 
 
 -- ==========================================================================
@@ -149,6 +155,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_scheme,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -206,10 +214,10 @@
 @NAME(Insert)
   INSERT INTO hol_holiday
     (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, hol_type,
-    provider_scheme, provider_value, region_scheme, region_value, exchange_scheme, exchange_value, currency_iso)
+    provider_scheme, provider_value, region_scheme, region_value, exchange_scheme, exchange_value, custom_scheme, custom_value, currency_iso)
   VALUES
     (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :hol_type,
-    :provider_scheme, :provider_value, :region_scheme, :region_value, :exchange_scheme, :exchange_value, :currency_iso)
+    :provider_scheme, :provider_value, :region_scheme, :region_value, :exchange_scheme, :exchange_value, :custom_scheme, :custom_value, :currency_iso)
 
 
 -- ==========================================================================

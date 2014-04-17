@@ -59,7 +59,7 @@ public class IndexON extends IndexDeposit {
 
   @Override
   public String toString() {
-    return super.toString() + "-" + _dayCount.getConventionName();
+    return super.toString() + "-" + _dayCount.getName();
   }
 
   @Override

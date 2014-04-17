@@ -10,6 +10,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -41,7 +42,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompounded extends EuropeanV
   private final double _maturityTime;
 
   /**
-   * Constructor from the expiry date, the underlying swap and the long/short flqg.
+   * Constructor from the expiry date, the underlying swap and the long/short flag.
    * @param expiryTime The expiry time.
    * @param strike The strike
    * @param underlyingSwap The underlying swap.
@@ -68,13 +69,33 @@ public final class SwaptionPhysicalFixedCompoundedONCompounded extends EuropeanV
    * @param settlementTime Time to swap settlement.
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
+   * @deprecated This relies on the {@link AnnuityCouponFixed#isPayer()} method to determine if the swaption is a call or a put, which is deprecated
    */
+  @Deprecated
   public static SwaptionPhysicalFixedCompoundedONCompounded from(final double expiryTime, final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap,
       final double settlementTime, final boolean isLong) {
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final double strike = underlyingSwap.getFirstLeg().getNthPayment(0).getFixedRate();
     // Implementation comment: The strike is working only for swap with same rate on all coupons and standard conventions. The strike equivalent is computed in the pricing methods.
     return new SwaptionPhysicalFixedCompoundedONCompounded(expiryTime, strike, underlyingSwap, settlementTime, underlyingSwap.getFirstLeg().isPayer(), isLong);
+  }
+
+  /**
+   * Builder from the expiry date, the underlying swap and the long/short flag. The strike stored in the EuropeanVanillaOption should not be used for pricing as the
+   * strike can be different for each coupon and need to be computed at the pricing method level.
+   * @param expiryTime The expiry time.
+   * @param underlyingSwap The underlying swap.
+   * @param settlementTime Time to swap settlement.
+   * @param isLong The long (true) / short (false) flag.
+   * @param isCall True if the swaption is a call
+   * @return The swaption.
+   */
+  public static SwaptionPhysicalFixedCompoundedONCompounded from(final double expiryTime, final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap,
+      final double settlementTime, final boolean isCall, final boolean isLong) {
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    final double strike = underlyingSwap.getFirstLeg().getNthPayment(0).getFixedRate();
+    // Implementation comment: The strike is working only for swap with same rate on all coupons and standard conventions. The strike equivalent is computed in the pricing methods.
+    return new SwaptionPhysicalFixedCompoundedONCompounded(expiryTime, strike, underlyingSwap, settlementTime, isCall, isLong);
   }
 
   /**
@@ -86,8 +107,8 @@ public final class SwaptionPhysicalFixedCompoundedONCompounded extends EuropeanV
   }
 
   /**
-   * Gets the _isLong flag.
-   * @return The Long (true)/Short (false) flag.
+   * Gets the long / short flag.
+   * @return True if the swaption is long
    */
   public boolean isLong() {
     return _isLong;

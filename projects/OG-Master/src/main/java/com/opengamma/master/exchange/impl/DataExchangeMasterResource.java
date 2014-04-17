@@ -76,7 +76,7 @@ public class DataExchangeMasterResource extends AbstractDataResource {
   @Path("exchangeSearches")
   public Response search(ExchangeSearchRequest request) {
     ExchangeSearchResult result = getExchangeMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -84,7 +84,7 @@ public class DataExchangeMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, ExchangeDocument request) {
     ExchangeDocument result = getExchangeMaster().add(request);
     URI createdUri = (new DataExchangeResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

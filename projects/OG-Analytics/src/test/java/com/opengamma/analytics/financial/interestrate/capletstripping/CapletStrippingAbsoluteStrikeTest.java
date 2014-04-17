@@ -10,12 +10,16 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingSetup {
 
   public abstract CapletStrippingAbsoluteStrike getStripper(final List<CapFloor> caps);

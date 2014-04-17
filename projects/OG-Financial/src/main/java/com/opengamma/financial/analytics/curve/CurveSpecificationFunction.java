@@ -13,7 +13,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.core.config.ConfigSource;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -28,8 +28,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -39,6 +40,10 @@ import com.opengamma.util.async.AsynchronousExecution;
 public class CurveSpecificationFunction extends AbstractFunction {
   /** The curve name */
   private final String _curveName;
+  /** The curve definition source */
+  private CurveDefinitionSource _curveDefinitionSource;
+  /** The curve specification builder */
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   /**
    * @param curveName The curve name, not null
@@ -50,6 +55,7 @@ public class CurveSpecificationFunction extends AbstractFunction {
 
   /**
    * Gets the curve name.
+   *
    * @return The curve name
    */
   public String getCurveName() {
@@ -58,20 +64,21 @@ public class CurveSpecificationFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = ConfigDBCurveSpecificationBuilder.init(context, this);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, _curveName)
-        .get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties);
-    return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveSpecification, spec);
+    try {
+      final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), _curveName);
+      final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
+      final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties);
+      return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveSpecification, spec);
+    } catch (final Exception e) {
+      throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveSpecification called " + _curveName);
+    }
   }
 
   /**
@@ -83,8 +90,13 @@ public class CurveSpecificationFunction extends AbstractFunction {
     /** The result */
     private final Set<ComputedValue> _result;
 
-    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final CurveSpecification specification,
-        final ValueSpecification spec) {
+    /**
+     * @param earliestInvocation The earliest time at which this function is valid
+     * @param latestInvocation The latest time at which this function is valid
+     * @param specification The curve specification
+     * @param spec The result specification
+     */
+    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification, final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
       _spec = spec;
       _result = Collections.singleton(new ComputedValue(spec, specification));

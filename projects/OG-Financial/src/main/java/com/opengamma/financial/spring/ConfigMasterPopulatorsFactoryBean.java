@@ -7,6 +7,7 @@ package com.opengamma.financial.spring;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfigPopulator;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator;
@@ -114,9 +114,6 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     if (isEquityOptionSurface()) {
       new EquityOptionSurfaceConfigPopulator(cm);
     }
-    if (isVolatilityCube()) {
-      new VolatilityCubeConfigPopulator(cm);
-    }
     if (isFxForwardCurve()) {
       new FXForwardCurveConfigPopulator(cm);
     }
@@ -142,107 +139,6 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   @Override
   public ConfigMasterPopulatorsFactoryBean.Meta metaBean() {
     return ConfigMasterPopulatorsFactoryBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 10395716:  // configMaster
-        return getConfigMaster();
-      case 1112236386:  // yieldCurve
-        return isYieldCurve();
-      case -506174670:  // currencyMatrix
-        return isCurrencyMatrix();
-      case -1209267103:  // swaptionVolatilitySurface
-        return isSwaptionVolatilitySurface();
-      case -1409170036:  // irFutureOptionSurface
-        return isIrFutureOptionSurface();
-      case -973280351:  // fxOptionVolatilitySurface
-        return isFxOptionVolatilitySurface();
-      case 1198258099:  // equityOptionSurface
-        return isEquityOptionSurface();
-      case 69583354:  // volatilityCube
-        return isVolatilityCube();
-      case -1016191204:  // fxForwardCurve
-        return isFxForwardCurve();
-      case 364174524:  // curveCalculationConfiguration
-        return isCurveCalculationConfiguration();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-      case 1112236386:  // yieldCurve
-        setYieldCurve((Boolean) newValue);
-        return;
-      case -506174670:  // currencyMatrix
-        setCurrencyMatrix((Boolean) newValue);
-        return;
-      case -1209267103:  // swaptionVolatilitySurface
-        setSwaptionVolatilitySurface((Boolean) newValue);
-        return;
-      case -1409170036:  // irFutureOptionSurface
-        setIrFutureOptionSurface((Boolean) newValue);
-        return;
-      case -973280351:  // fxOptionVolatilitySurface
-        setFxOptionVolatilitySurface((Boolean) newValue);
-        return;
-      case 1198258099:  // equityOptionSurface
-        setEquityOptionSurface((Boolean) newValue);
-        return;
-      case 69583354:  // volatilityCube
-        setVolatilityCube((Boolean) newValue);
-        return;
-      case -1016191204:  // fxForwardCurve
-        setFxForwardCurve((Boolean) newValue);
-        return;
-      case 364174524:  // curveCalculationConfiguration
-        setCurveCalculationConfiguration((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConfigMasterPopulatorsFactoryBean other = (ConfigMasterPopulatorsFactoryBean) obj;
-      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(isYieldCurve(), other.isYieldCurve()) &&
-          JodaBeanUtils.equal(isCurrencyMatrix(), other.isCurrencyMatrix()) &&
-          JodaBeanUtils.equal(isSwaptionVolatilitySurface(), other.isSwaptionVolatilitySurface()) &&
-          JodaBeanUtils.equal(isIrFutureOptionSurface(), other.isIrFutureOptionSurface()) &&
-          JodaBeanUtils.equal(isFxOptionVolatilitySurface(), other.isFxOptionVolatilitySurface()) &&
-          JodaBeanUtils.equal(isEquityOptionSurface(), other.isEquityOptionSurface()) &&
-          JodaBeanUtils.equal(isVolatilityCube(), other.isVolatilityCube()) &&
-          JodaBeanUtils.equal(isFxForwardCurve(), other.isFxForwardCurve()) &&
-          JodaBeanUtils.equal(isCurveCalculationConfiguration(), other.isCurveCalculationConfiguration());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isYieldCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCurrencyMatrix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSwaptionVolatilitySurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIrFutureOptionSurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFxOptionVolatilitySurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEquityOptionSurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isVolatilityCube());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFxForwardCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCurveCalculationConfiguration());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -496,6 +392,75 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ConfigMasterPopulatorsFactoryBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConfigMasterPopulatorsFactoryBean other = (ConfigMasterPopulatorsFactoryBean) obj;
+      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          (isYieldCurve() == other.isYieldCurve()) &&
+          (isCurrencyMatrix() == other.isCurrencyMatrix()) &&
+          (isSwaptionVolatilitySurface() == other.isSwaptionVolatilitySurface()) &&
+          (isIrFutureOptionSurface() == other.isIrFutureOptionSurface()) &&
+          (isFxOptionVolatilitySurface() == other.isFxOptionVolatilitySurface()) &&
+          (isEquityOptionSurface() == other.isEquityOptionSurface()) &&
+          (isVolatilityCube() == other.isVolatilityCube()) &&
+          (isFxForwardCurve() == other.isFxForwardCurve()) &&
+          (isCurveCalculationConfiguration() == other.isCurveCalculationConfiguration());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isYieldCurve());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCurrencyMatrix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSwaptionVolatilitySurface());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIrFutureOptionSurface());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFxOptionVolatilitySurface());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEquityOptionSurface());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isVolatilityCube());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFxForwardCurve());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCurveCalculationConfiguration());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("ConfigMasterPopulatorsFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("yieldCurve").append('=').append(JodaBeanUtils.toString(isYieldCurve())).append(',').append(' ');
+    buf.append("currencyMatrix").append('=').append(JodaBeanUtils.toString(isCurrencyMatrix())).append(',').append(' ');
+    buf.append("swaptionVolatilitySurface").append('=').append(JodaBeanUtils.toString(isSwaptionVolatilitySurface())).append(',').append(' ');
+    buf.append("irFutureOptionSurface").append('=').append(JodaBeanUtils.toString(isIrFutureOptionSurface())).append(',').append(' ');
+    buf.append("fxOptionVolatilitySurface").append('=').append(JodaBeanUtils.toString(isFxOptionVolatilitySurface())).append(',').append(' ');
+    buf.append("equityOptionSurface").append('=').append(JodaBeanUtils.toString(isEquityOptionSurface())).append(',').append(' ');
+    buf.append("volatilityCube").append('=').append(JodaBeanUtils.toString(isVolatilityCube())).append(',').append(' ');
+    buf.append("fxForwardCurve").append('=').append(JodaBeanUtils.toString(isFxForwardCurve())).append(',').append(' ');
+    buf.append("curveCalculationConfiguration").append('=').append(JodaBeanUtils.toString(isCurveCalculationConfiguration())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ConfigMasterPopulatorsFactoryBean}.
    */
@@ -698,6 +663,71 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
      */
     public final MetaProperty<Boolean> curveCalculationConfiguration() {
       return _curveCalculationConfiguration;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          return ((ConfigMasterPopulatorsFactoryBean) bean).getConfigMaster();
+        case 1112236386:  // yieldCurve
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isYieldCurve();
+        case -506174670:  // currencyMatrix
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isCurrencyMatrix();
+        case -1209267103:  // swaptionVolatilitySurface
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isSwaptionVolatilitySurface();
+        case -1409170036:  // irFutureOptionSurface
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isIrFutureOptionSurface();
+        case -973280351:  // fxOptionVolatilitySurface
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isFxOptionVolatilitySurface();
+        case 1198258099:  // equityOptionSurface
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isEquityOptionSurface();
+        case 69583354:  // volatilityCube
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isVolatilityCube();
+        case -1016191204:  // fxForwardCurve
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isFxForwardCurve();
+        case 364174524:  // curveCalculationConfiguration
+          return ((ConfigMasterPopulatorsFactoryBean) bean).isCurveCalculationConfiguration();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          ((ConfigMasterPopulatorsFactoryBean) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+        case 1112236386:  // yieldCurve
+          ((ConfigMasterPopulatorsFactoryBean) bean).setYieldCurve((Boolean) newValue);
+          return;
+        case -506174670:  // currencyMatrix
+          ((ConfigMasterPopulatorsFactoryBean) bean).setCurrencyMatrix((Boolean) newValue);
+          return;
+        case -1209267103:  // swaptionVolatilitySurface
+          ((ConfigMasterPopulatorsFactoryBean) bean).setSwaptionVolatilitySurface((Boolean) newValue);
+          return;
+        case -1409170036:  // irFutureOptionSurface
+          ((ConfigMasterPopulatorsFactoryBean) bean).setIrFutureOptionSurface((Boolean) newValue);
+          return;
+        case -973280351:  // fxOptionVolatilitySurface
+          ((ConfigMasterPopulatorsFactoryBean) bean).setFxOptionVolatilitySurface((Boolean) newValue);
+          return;
+        case 1198258099:  // equityOptionSurface
+          ((ConfigMasterPopulatorsFactoryBean) bean).setEquityOptionSurface((Boolean) newValue);
+          return;
+        case 69583354:  // volatilityCube
+          ((ConfigMasterPopulatorsFactoryBean) bean).setVolatilityCube((Boolean) newValue);
+          return;
+        case -1016191204:  // fxForwardCurve
+          ((ConfigMasterPopulatorsFactoryBean) bean).setFxForwardCurve((Boolean) newValue);
+          return;
+        case 364174524:  // curveCalculationConfiguration
+          ((ConfigMasterPopulatorsFactoryBean) bean).setCurveCalculationConfiguration((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

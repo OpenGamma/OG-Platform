@@ -40,8 +40,7 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
 
 /**
- * Function produces a FORWARD_CURVE given YIELD_CURVE and Equity MARKET_VALUE
- * Simple implementation does not include any Dividend treatment
+ * Function produces a FORWARD_CURVE given YIELD_CURVE and Equity MARKET_VALUE Simple implementation does not include any Dividend treatment
  */
 public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -78,12 +77,12 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
   /* Spot value of the equity index or name */
   private ValueRequirement getSpotRequirement(final ComputationTarget target) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
+    return (new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification()));
   }
 
   /* Funding curve of the equity's currency */
   private ValueRequirement getFundingCurveRequirement(final Currency ccy, final String curveName, final String curveCalculationConfig) {
-    final ValueProperties fundingProperties = ValueProperties.builder()  // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
+    final ValueProperties fundingProperties = ValueProperties.builder() // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
@@ -100,36 +99,33 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     requirements.add(getSpotRequirement(target));
 
     // Funding Curve Currency
-    final Set<String> ccyConstraint = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
-    if (ccyConstraint == null || ccyConstraint.size() != 1) {
+    final String ccyConstraint = constraints.getStrictValue(ValuePropertyNames.CURVE_CURRENCY);
+    if (ccyConstraint == null) {
       return null;
     }
-    final Currency currency = Currency.of(ccyConstraint.iterator().next());
+    final Currency currency = Currency.of(ccyConstraint);
     // Funding Curve Name
-    final Set<String> fundingCurveNameSet = constraints.getValues(ValuePropertyNames.CURVE);
-    if (fundingCurveNameSet  == null || fundingCurveNameSet.size() != 1) {
+    final String fundingCurveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
+    if (fundingCurveName == null) {
       return null;
     }
-    final String fundingCurveName = fundingCurveNameSet.iterator().next();
-    final Set<String> curveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
+    final String curveCalculationConfig = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfig == null) {
       return null;
     }
-    final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
     // Funding Curve Requirement
     requirements.add(getFundingCurveRequirement(currency, fundingCurveName, curveCalculationConfig));
 
     // Dividend Requirements depend on type
-    final Set<String> dividendTypeSet = constraints.getValues(ValuePropertyNames.DIVIDEND_TYPE);
-    if (dividendTypeSet == null || dividendTypeSet.size() != 1) {
+    final String dividendType = constraints.getStrictValue(ValuePropertyNames.DIVIDEND_TYPE);
+    if (dividendType == null) {
       return null;
     }
-    final String dividendType = dividendTypeSet.iterator().next();
     if (ValuePropertyNames.DIVIDEND_TYPE_DISCRETE.equalsIgnoreCase(dividendType)) {
-      requirements.add(new ValueRequirement(ValueRequirementNames.AFFINE_DIVIDENDS, ComputationTargetType.PRIMITIVE, target.getUniqueId()));  
+      requirements.add(new ValueRequirement(ValueRequirementNames.AFFINE_DIVIDENDS, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
     } else if (ValuePropertyNames.DIVIDEND_TYPE_CONTINUOUS.equalsIgnoreCase(dividendType)) {
       requirements.add(new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, target.getUniqueId()));
-    } 
+    }
     return requirements;
   }
 
@@ -167,17 +163,17 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
       final Double dividendYieldObject = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_YIELD);
       final double dividendYield = dividendYieldObject == null ? 0.0 : dividendYieldObject.doubleValue();
       final YieldCurve costOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(dividendYield, "CostOfCarry"));
-      forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);      
+      forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, costOfCarryCurve);
     } else {
       Object discreteDividendsInput = inputs.getValue(ValueRequirementNames.AFFINE_DIVIDENDS);
       if ((discreteDividendsInput != null) && (discreteDividendsInput instanceof AffineDividends)) {
         final AffineDividends discreteDividends = (AffineDividends) discreteDividendsInput;
         forwardCurve = new ForwardCurveAffineDividends(spot, fundingCurve, discreteDividends);
       } else {
-        forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"))); 
+        forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry")));
       }
     }
-    
+
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(ValuePropertyNames.CURVE, fundingCurveName)

@@ -16,14 +16,14 @@ import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
-import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.MasterPositionReader;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.copier.portfolio.rowparser.RowParser;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.ZippedPositionWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.scripts.Scriptable;
 
@@ -47,16 +47,15 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
   private static final String INCLUDE_TRADES_OPT = "t";
 
   private static ToolContext s_context;
-  
+
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioSaverTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new PortfolioSaverTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -68,12 +67,12 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
     s_context = getToolContext();
 
     // Construct portfolio reader
-    PortfolioReader portfolioReader = constructPortfolioReader(
+    PositionReader positionReader = constructPortfolioReader(
         getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT)
     );
 
     // Create portfolio writer
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(
+    PositionWriter positionWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
         getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
         getCommandLine().hasOption(WRITE_OPT),
@@ -92,14 +91,14 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
     }
     
     // Call the portfolio loader with the supplied arguments
-    portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
+    portfolioCopier.copy(positionReader, positionWriter, portfolioCopierVisitor);
 
     // close stuff
-    portfolioReader.close();
-    portfolioWriter.close();
+    positionReader.close();
+    positionWriter.close();
   }
   
-  private static PortfolioWriter constructPortfolioWriter(String filename, String securityType, boolean write,
+  private static PositionWriter constructPortfolioWriter(String filename, String securityType, boolean write,
                                                           boolean includeTrades) {
     if (write) {  
       // Check that the file name was specified on the command line
@@ -109,30 +108,30 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
        
       if (SheetFormat.of(filename) == SheetFormat.CSV || SheetFormat.of(filename) == SheetFormat.XLS) {
 //        if (securityType.equalsIgnoreCase("exchangetraded")) {
-//          return new SingleSheetSimplePortfolioWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
+//          return new SingleSheetSimplePositionWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
 //        } else {
         
         RowParser rowParser = JodaBeanRowParser.newJodaBeanRowParser(securityType);
         if (rowParser != null) {
-          return new SingleSheetSimplePortfolioWriter(filename, rowParser, includeTrades);
+          return new SingleSheetSimplePositionWriter(filename, rowParser, includeTrades);
         } else {
           throw new OpenGammaRuntimeException("Could not create a row parser for security type " + securityType);
         }
 //        }
       } else if (SheetFormat.of(filename) == SheetFormat.ZIP) {
-        return new ZippedPortfolioWriter(filename, includeTrades);
+        return new ZippedPositionWriter(filename, includeTrades);
       } else {
         throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
       }
 
     } else {      
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new PrettyPrintingPortfolioWriter(true);
+      return new PrettyPrintingPositionWriter(true);
     }
   }
 
-  private static PortfolioReader constructPortfolioReader(String portfolioName) {
-    return new MasterPortfolioReader(
+  private static PositionReader constructPortfolioReader(String portfolioName) {
+    return new MasterPositionReader(
         portfolioName, s_context.getPortfolioMaster(), 
         s_context.getPositionMaster(), 
         s_context.getSecuritySource()

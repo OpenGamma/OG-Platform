@@ -157,8 +157,8 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     ArgumentChecker.notNull(priceIndex, "Price index");
     final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
     final ZonedDateTime refInterpolatedStartDate = accrualStartDate.minusMonths(monthLag);
-    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth());
-    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
     return from(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag, monthLag, referenceStartDates, referenceEndDate, payNotional);
   }
 
@@ -177,13 +177,13 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
     final ZonedDateTime refInterpolatedStartDate = accrualStartDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
-    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth());
-    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
 
     final ZonedDateTime refInterpolatedEndDate = paymentDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceEndDates = new ZonedDateTime[2];
-    referenceEndDates[0] = refInterpolatedEndDate.with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDates[1] = referenceEndDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDates[0] = refInterpolatedEndDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    referenceEndDates[1] = referenceEndDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
     return from(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag, monthLag, referenceStartDates, referenceEndDates, payNotional);
   }
 
@@ -273,7 +273,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
       final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
       return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), 100.0, referenceEndTime,
           naturalPaymentTime, _weight, _payNotional);*/
-    throw new OpenGammaRuntimeException("a time serie is needed");
+    throw new OpenGammaRuntimeException("a time series is needed");
   }
 
   @Override

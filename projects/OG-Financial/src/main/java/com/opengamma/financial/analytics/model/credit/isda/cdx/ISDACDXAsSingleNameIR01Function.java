@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cdx;
@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifier
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * 
+ *
  */
 public abstract class ISDACDXAsSingleNameIR01Function extends ISDACDXAsSingleNameFunction {
 
@@ -48,11 +48,6 @@ public abstract class ISDACDXAsSingleNameIR01Function extends ISDACDXAsSingleNam
     if (yieldCurveBumpTypes == null || yieldCurveBumpTypes.size() != 1) {
       return null;
     }
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
-
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = "CDS_INDEX_" + security.accept(new CreditSecurityToIdentifierVisitor(
         OpenGammaCompilationContext.getSecuritySource(context))).getUniqueId().getValue();
@@ -80,8 +75,7 @@ public abstract class ISDACDXAsSingleNameIR01Function extends ISDACDXAsSingleNam
   protected ValueProperties.Builder getCommonResultProperties() {
     return createValueProperties()
         .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
   }
 
   @Override

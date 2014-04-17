@@ -23,6 +23,7 @@ import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -53,7 +54,7 @@ public class ViewCalculationResultModelFudgeBuilder implements FudgeBuilder<View
       if (!mapNames.containsKey(target)) {
         mapNames.put(target, new HashMap<Pair<String, ValueProperties>, ComputedValueResult>());
       }
-      mapNames.get(target).put(Pair.of(value.getSpecification().getValueName(), value.getSpecification().getProperties()), value);
+      mapNames.get(target).put(Pairs.of(value.getSpecification().getValueName(), value.getSpecification().getProperties()), value);
     }
     return new ViewCalculationResultModel() {
       

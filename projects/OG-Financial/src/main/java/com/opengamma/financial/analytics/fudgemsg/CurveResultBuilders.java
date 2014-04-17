@@ -23,30 +23,33 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.AnnuallyCompoundedForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Contains results of calculations associated with curves
  */
-/* package */ final class CurveResultBuilders {
+/* package */final class CurveResultBuilders {
 
   private CurveResultBuilders() {
   }
 
   /**
-   * Fudge builder for {@link ForwardSensitivity}
+   * Fudge builder for {@link SimplyCompoundedForwardSensitivity}
    */
-  @FudgeBuilderFor(ForwardSensitivity.class)
-  public static final class ForwardSensitivityBuilder extends AbstractFudgeBuilder<ForwardSensitivity> {
+  @FudgeBuilderFor(SimplyCompoundedForwardSensitivity.class)
+  public static final class SimplyCompoundedForwardSensitivityBuilder extends AbstractFudgeBuilder<SimplyCompoundedForwardSensitivity> {
     /** The start time field */
     private static final String START_TIME = "startTime";
     /** The end time field */
@@ -57,16 +60,49 @@ import com.opengamma.util.tuple.Pair;
     private static final String VALUE = "value";
 
     @Override
-    public ForwardSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public SimplyCompoundedForwardSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double startTime = message.getDouble(START_TIME);
       final double endTime = message.getDouble(END_TIME);
       final double accrualFactor = message.getDouble(ACCRUAL_FACTOR);
       final double value = message.getDouble(VALUE);
-      return new ForwardSensitivity(startTime, endTime, accrualFactor, value);
+      return new SimplyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, value);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ForwardSensitivity object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SimplyCompoundedForwardSensitivity object) {
+      message.add(START_TIME, object.getStartTime());
+      message.add(END_TIME, object.getEndTime());
+      message.add(ACCRUAL_FACTOR, object.getAccrualFactor());
+      message.add(VALUE, object.getValue());
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link AnnuallyCompoundedForwardSensitivity}
+   */
+  @FudgeBuilderFor(AnnuallyCompoundedForwardSensitivity.class)
+  public static final class AnnuallyCompoundedForwardSensitivityBuilder extends AbstractFudgeBuilder<AnnuallyCompoundedForwardSensitivity> {
+    /** The start time field */
+    private static final String START_TIME = "startTime";
+    /** The end time field */
+    private static final String END_TIME = "endTime";
+    /** The accrual factor */
+    private static final String ACCRUAL_FACTOR = "accrualFactor";
+    /** The value */
+    private static final String VALUE = "value";
+
+    @Override
+    public AnnuallyCompoundedForwardSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double startTime = message.getDouble(START_TIME);
+      final double endTime = message.getDouble(END_TIME);
+      final double accrualFactor = message.getDouble(ACCRUAL_FACTOR);
+      final double value = message.getDouble(VALUE);
+      return new AnnuallyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, value);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final AnnuallyCompoundedForwardSensitivity object) {
       message.add(START_TIME, object.getStartTime());
       message.add(END_TIME, object.getEndTime());
       message.add(ACCRUAL_FACTOR, object.getAccrualFactor());
@@ -112,7 +148,7 @@ import com.opengamma.util.tuple.Pair;
         for (int i = 0; i < timeFields.size(); i++) {
           final Double time = deserializer.fieldValueToObject(Double.class, timeFields.get(i));
           final Double sensitivity = deserializer.fieldValueToObject(Double.class, valueFields.get(i));
-          sensitivities.add(new DoublesPair(time, sensitivity));
+          sensitivities.add(DoublesPair.of(time.doubleValue(), sensitivity.doubleValue()));
         }
         yieldCurveSensitivities.put(yieldCurveName, sensitivities);
       }
@@ -277,7 +313,7 @@ import com.opengamma.util.tuple.Pair;
         for (int j = 0; j < perCurveFields.size(); j++) {
           values[j] = (Double) perCurveFields.get(j).getValue();
         }
-        sensitivities.put(Pair.of(curve, currency), new DoubleMatrix1D(values));
+        sensitivities.put(Pairs.of(curve, currency), new DoubleMatrix1D(values));
       }
       return MultipleCurrencyParameterSensitivity.of(sensitivities);
     }
@@ -330,7 +366,7 @@ import com.opengamma.util.tuple.Pair;
         final Number nParametersNumber = (Number) nParametersFields.get(i).getValue();
         final Integer startPoint = startPointNumber.intValue();
         final Integer nParameters = nParametersNumber.intValue();
-        data.put(curveName, Pair.of(startPoint, nParameters));
+        data.put(curveName, Pairs.of(startPoint, nParameters));
       }
       return new CurveBuildingBlock(data);
     }
@@ -375,7 +411,7 @@ import com.opengamma.util.tuple.Pair;
         final String curveName = (String) curveNameFields.get(i).getValue();
         final CurveBuildingBlock curveBuildingBlock = deserializer.fieldValueToObject(CurveBuildingBlock.class, curveBuildingBlockFields.get(i));
         final DoubleMatrix2D jacobian = deserializer.fieldValueToObject(DoubleMatrix2D.class, jacobianFields.get(i));
-        data.put(curveName, Pair.of(curveBuildingBlock, jacobian));
+        data.put(curveName, Pairs.of(curveBuildingBlock, jacobian));
       }
       return new CurveBuildingBlockBundle(data);
     }
@@ -426,7 +462,9 @@ import com.opengamma.util.tuple.Pair;
           throw new OpenGammaRuntimeException("Should have one sensitivity per time");
         }
         for (int j = 0; j < times.size(); j++) {
-          sensitivities.add(new DoublesPair((Double) times.get(j).getValue(), (Double) sensitivity.get(j).getValue()));
+          Double time = (Double) times.get(j).getValue();
+          Double sens = (Double) sensitivity.get(j).getValue();
+          sensitivities.add(DoublesPair.of(time.doubleValue(), sens.doubleValue()));
         }
         priceCurveSensitivity.put(priceCurveName, sensitivities);
       }

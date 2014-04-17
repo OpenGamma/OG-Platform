@@ -34,8 +34,8 @@ public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
   public BlackFlatSwaptionParameters(final Surface<Double, Double, Double> volatility, final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
-    ArgumentChecker.notNull(volatility, "volatility surface");
-    ArgumentChecker.notNull(generatorSwap, "Swap generator");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(generatorSwap, "generatorSwap");
     _volatility = volatility;
     _generatorSwap = generatorSwap;
   }

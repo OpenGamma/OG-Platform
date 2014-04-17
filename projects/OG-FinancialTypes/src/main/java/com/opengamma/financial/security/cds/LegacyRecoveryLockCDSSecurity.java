@@ -7,6 +7,7 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,11 +28,13 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  *
  */
 @BeanDefinition
+@SecurityDescription(type = LegacyRecoveryLockCDSSecurity.SECURITY_TYPE, description = "Legacy recovery lock cds")
 public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
 
   /** Serialization version. */
@@ -93,59 +96,6 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
     return LegacyRecoveryLockCDSSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1556795764:  // parSpread
-        return getParSpread();
-      case 2002873877:  // recoveryRate
-        return getRecoveryRate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1556795764:  // parSpread
-        setParSpread((Double) newValue);
-        return;
-      case 2002873877:  // recoveryRate
-        setRecoveryRate((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_parSpread, "parSpread");
-    JodaBeanUtils.notNull(_recoveryRate, "recoveryRate");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LegacyRecoveryLockCDSSecurity other = (LegacyRecoveryLockCDSSecurity) obj;
-      return JodaBeanUtils.equal(getParSpread(), other.getParSpread()) &&
-          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParSpread());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the par spread.
@@ -196,6 +146,54 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
    */
   public final Property<Double> recoveryRate() {
     return metaBean().recoveryRate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public LegacyRecoveryLockCDSSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LegacyRecoveryLockCDSSecurity other = (LegacyRecoveryLockCDSSecurity) obj;
+      return JodaBeanUtils.equal(getParSpread(), other.getParSpread()) &&
+          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParSpread());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("LegacyRecoveryLockCDSSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("parSpread").append('=').append(JodaBeanUtils.toString(getParSpread())).append(',').append(' ');
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -273,6 +271,38 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
      */
     public final MetaProperty<Double> recoveryRate() {
       return _recoveryRate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1556795764:  // parSpread
+          return ((LegacyRecoveryLockCDSSecurity) bean).getParSpread();
+        case 2002873877:  // recoveryRate
+          return ((LegacyRecoveryLockCDSSecurity) bean).getRecoveryRate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1556795764:  // parSpread
+          ((LegacyRecoveryLockCDSSecurity) bean).setParSpread((Double) newValue);
+          return;
+        case 2002873877:  // recoveryRate
+          ((LegacyRecoveryLockCDSSecurity) bean).setRecoveryRate((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LegacyRecoveryLockCDSSecurity) bean)._parSpread, "parSpread");
+      JodaBeanUtils.notNull(((LegacyRecoveryLockCDSSecurity) bean)._recoveryRate, "recoveryRate");
+      super.validate(bean);
     }
 
   }

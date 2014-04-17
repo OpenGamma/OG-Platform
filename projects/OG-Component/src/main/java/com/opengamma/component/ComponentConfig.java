@@ -45,14 +45,28 @@ public class ComponentConfig {
    * 
    * @param groupKey  the group key, not null
    * @return a modifiable copy of the configured group, not null
-   * @throws IllegalArgumentException if the group is not found
+   * @throws ComponentConfigException if the group is not found
    */
   public LinkedHashMap<String, String> getGroup(String groupKey) {
     LinkedHashMap<String, String> config = _config.get(groupKey);
     if (config == null) {
-      throw new IllegalArgumentException("Config group not found: [" + groupKey + "]");
+      throw new ComponentConfigException("Config group not found: [" + groupKey + "]");
     }
     return new LinkedHashMap<String, String>(config);
+  }
+
+  /**
+   * Adds an empty group into the config, throwing an exception if it already exists.
+   * 
+   * @param groupKey  the group key, not null
+   * @throws ComponentConfigException if the group already exists
+   */
+  public void addGroup(String groupKey) {
+    ArgumentChecker.notNull(groupKey, "groupKey");
+    if (_config.containsKey(groupKey)) {
+      throw new ComponentConfigException("Group cannot be added as it already exists: " + groupKey);
+    }
+    _config.put(groupKey, new LinkedHashMap<String, String>());
   }
 
   /**

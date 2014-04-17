@@ -6,30 +6,26 @@
 package com.opengamma.engine.view.compilation;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
-import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.target.ComputationTargetReference;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -48,135 +44,84 @@ public class CompiledViewDefinitionTest {
   private final Instant _time4 = _time0.plusMillis(4);
   private final Instant _time5 = _time0.plusMillis(5);
 
-  private DependencyNode createDependencyNode(final Instant functionStart, final Instant functionEnd) {
-    final DependencyNode node = new DependencyNode(new ComputationTarget(ComputationTargetType.NULL, null));
-    node.setFunction(new CompiledFunctionDefinition() {
-
-      @Override
-      public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-        return false;
-      }
-
-      @Override
-      public Instant getEarliestInvocationTime() {
-        return functionStart;
-      }
-
-      @Override
-      public FunctionDefinition getFunctionDefinition() {
-        return new FunctionDefinition() {
-
-          @Override
-          public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
-            return null;
-          }
-
-          @Override
-          public FunctionParameters getDefaultParameters() {
-            return new EmptyFunctionParameters();
-          }
-
-          @Override
-          public String getShortName() {
-            return null;
-          }
-
-          @Override
-          public String getUniqueId() {
-            return null;
-          }
-
-          @Override
-          public void init(FunctionCompilationContext context) {
-          }
-
-        };
-      }
-
-      @Override
-      public FunctionInvoker getFunctionInvoker() {
-        return null;
-      }
-
-      @Override
-      public Instant getLatestInvocationTime() {
-        return functionEnd;
-      }
-
-      @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
-        return null;
-      }
-
-      @Override
-      public Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
-        return null;
-      }
-
-      @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return null;
-      }
-
-      @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-        return null;
-      }
-
-      @Override
-      public ComputationTargetType getTargetType() {
-        return ComputationTargetType.NULL;
-      }
-
-      @Override
-      public boolean canHandleMissingRequirements() {
-        return false;
-      }
-
-    });
-    return node;
+  private void createDependencyNode(final TestDependencyGraphBuilder builder, final Instant functionStart, final Instant functionEnd) {
+    final String function;
+    if (functionStart != null) {
+      assert functionEnd == null;
+      function = "start" + functionStart.toString();
+    } else if (functionEnd != null) {
+      function = "end" + functionEnd.toString();
+    } else {
+      function = "foo";
+    }
+    builder.addNode(function, ComputationTargetSpecification.NULL);
   }
 
   private DependencyGraph graphNoStartEndTimes() {
-    final DependencyGraph graph = new DependencyGraph("no start/end");
-    graph.addDependencyNode(createDependencyNode(null, null));
-    graph.addDependencyNode(createDependencyNode(null, null));
-    return graph;
+    final TestDependencyGraphBuilder gb = new TestDependencyGraphBuilder("no start/end");
+    createDependencyNode(gb, null, null);
+    createDependencyNode(gb, null, null);
+    return gb.buildGraph();
   }
 
   private DependencyGraph graphOneEndTime(final Instant end) {
-    final DependencyGraph graph = new DependencyGraph("one end");
-    graph.addDependencyNode(createDependencyNode(null, null));
-    graph.addDependencyNode(createDependencyNode(null, end));
-    return graph;
+    final TestDependencyGraphBuilder gb = new TestDependencyGraphBuilder("one end");
+    createDependencyNode(gb, null, null);
+    createDependencyNode(gb, null, end);
+    return gb.buildGraph();
   }
 
   private DependencyGraph graphTwoEndTimes(final Instant end1, final Instant end2) {
-    final DependencyGraph graph = new DependencyGraph("two ends");
-    graph.addDependencyNode(createDependencyNode(null, null));
-    graph.addDependencyNode(createDependencyNode(null, end1));
-    graph.addDependencyNode(createDependencyNode(null, end2));
-    return graph;
+    final TestDependencyGraphBuilder gb = new TestDependencyGraphBuilder("two ends");
+    createDependencyNode(gb, null, null);
+    createDependencyNode(gb, null, end1);
+    createDependencyNode(gb, null, end2);
+    return gb.buildGraph();
   }
 
   private DependencyGraph graphOneStartTime(final Instant start) {
-    final DependencyGraph graph = new DependencyGraph("one start");
-    graph.addDependencyNode(createDependencyNode(null, null));
-    graph.addDependencyNode(createDependencyNode(start, null));
-    return graph;
+    final TestDependencyGraphBuilder gb = new TestDependencyGraphBuilder("one start");
+    createDependencyNode(gb, null, null);
+    createDependencyNode(gb, start, null);
+    return gb.buildGraph();
   }
 
   private DependencyGraph graphTwoStartTimes(final Instant start1, final Instant start2) {
-    final DependencyGraph graph = new DependencyGraph("two starts");
-    graph.addDependencyNode(createDependencyNode(null, null));
-    graph.addDependencyNode(createDependencyNode(start1, null));
-    graph.addDependencyNode(createDependencyNode(start2, null));
-    return graph;
+    final TestDependencyGraphBuilder gb = new TestDependencyGraphBuilder("two starts");
+    createDependencyNode(gb, null, null);
+    createDependencyNode(gb, start1, null);
+    createDependencyNode(gb, start2, null);
+    return gb.buildGraph();
   }
 
   private CompiledViewDefinitionWithGraphsImpl buildCompiledViewDefinition(final DependencyGraph... graphs) {
-    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", mock(ViewDefinition.class), Arrays.asList(graphs), Collections.<ComputationTargetReference, UniqueId>emptyMap(),
-        null, 0);
+    final CompiledFunctionResolver compiledResolver = mock(CompiledFunctionResolver.class);
+    when(compiledResolver.getFunction(Mockito.<String>any())).thenAnswer(new Answer<CompiledFunctionDefinition>() {
+      @Override
+      public CompiledFunctionDefinition answer(final InvocationOnMock invocation) throws Throwable {
+        final CompiledFunctionDefinition cfd = mock(CompiledFunctionDefinition.class);
+        final String function = (String) invocation.getArguments()[0];
+        if (function.startsWith("start")) {
+          final Instant validFrom = Instant.parse(function.substring(5));
+          when(cfd.getEarliestInvocationTime()).thenReturn(validFrom);
+        } else if (function.startsWith("end")) {
+          final Instant validTo = Instant.parse(function.substring(3));
+          when(cfd.getLatestInvocationTime()).thenReturn(validTo);
+        }
+        return cfd;
+      }
+    });
+    final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    compilationContext.setFunctionInitId(0);
+    final ViewCompilationServices vcs = mock(ViewCompilationServices.class);
+    when(vcs.getFunctionCompilationContext()).thenReturn(compilationContext);
+    final ViewCompilationContext context = mock(ViewCompilationContext.class);
+    when(context.getActiveResolutions()).thenReturn(new ConcurrentHashMap<ComputationTargetReference, UniqueId>());
+    when(context.getCompiledFunctionResolver()).thenReturn(compiledResolver);
+    when(context.getResolverVersionCorrection()).thenReturn(VersionCorrection.of(_time0, _time0));
+    when(context.getServices()).thenReturn(vcs);
+    when(context.getViewDefinition()).thenReturn(mock(ViewDefinition.class));
+    return CompiledViewDefinitionWithGraphsImpl.of(context, "", Arrays.asList(graphs), null);
   }
 
   @Test
@@ -220,9 +165,8 @@ public class CompiledViewDefinitionTest {
 
   @Test
   public void testStartEndTime() {
-    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time0), graphTwoStartTimes(_time1, _time2), graphOneEndTime(_time3),
-        graphTwoEndTimes(
-            _time4, _time5));
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time0), graphTwoStartTimes(_time1, _time2),
+        graphOneEndTime(_time3), graphTwoEndTimes(_time4, _time5));
     assertFalse(CompiledViewDefinitionWithGraphsImpl.isValidFor(model, _time1));
     assertTrue(CompiledViewDefinitionWithGraphsImpl.isValidFor(model, _time2));
     assertTrue(CompiledViewDefinitionWithGraphsImpl.isValidFor(model, _time3));
