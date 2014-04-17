@@ -95,6 +95,15 @@ public class PermissionCheckProviderRequest extends DirectBean {
     return createGet(ExternalIdBundle.of(userId), ipAddress, requestedPermissions);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance to get user permissions check request.
+   * 
+   * @param userIdBundle  the external id bundle of user credentials, not null
+   * @param ipAddress  the user ip address, not null
+   * @param requestedPermissions  the requested permissions, not null
+   * @return the request, not null
+   */
   public static PermissionCheckProviderRequest createGet(ExternalIdBundle userIdBundle, String ipAddress, Iterable<String> requestedPermissions) {
     ArgumentChecker.notNull(requestedPermissions, "requestedPermissions");
 
