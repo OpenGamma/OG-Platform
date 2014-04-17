@@ -11,8 +11,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
@@ -26,10 +24,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class ShiroPermission implements Permission {
 
-  /**
-   * The cached permissions.
-   */
-  private static final ConcurrentMap<String, ShiroPermission> s_cache = new ConcurrentHashMap<>();
   /**
    * The wildcard segment.
    */
@@ -53,21 +47,11 @@ public final class ShiroPermission implements Permission {
    * 
    * @param permissionStr  the permission string, not null
    * @return the permission object, not null
+   * @throws IllegalArgumentException if the permission string is invalid
    */
   public static Permission of(String permissionStr) {
-    try {
-      ShiroPermission perm = s_cache.get(permissionStr);
-      if (perm == null) {
-        s_cache.putIfAbsent(permissionStr, new ShiroPermission(permissionStr));
-        perm = s_cache.get(permissionStr);
-      }
-      return perm;
-      
-    } catch (NullPointerException ex) {
-      // this is done to avoid null check in common case
-      ArgumentChecker.notNull(permissionStr, "permissionStr");
-      throw ex;
-    }
+    ArgumentChecker.notNull(permissionStr, "permissionStr");
+    return new ShiroPermission(permissionStr);
   }
 
   //-------------------------------------------------------------------------
@@ -75,6 +59,7 @@ public final class ShiroPermission implements Permission {
    * Creates an instance.
    * 
    * @param permissionStr  the permission string, not null
+   * @throws IllegalArgumentException if the permission string is invalid
    */
   private ShiroPermission(final String permissionStr) {
     String permStr = StringUtils.stripToNull(permissionStr);
