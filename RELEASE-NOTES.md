@@ -14,6 +14,35 @@ PortfolioTool was simplified as per the JIRA above
 Upgrading from 2.1.0
 ====================
 
+
+To 2.2.0-M19
+------------
+
+* Security manager and user database
+    * Various minor fixes to M18 release
+    * It is recommended to upgrade from M18 to M19
+    * The ability to run in permissive security mode is also better supported, see M18 notes
+* Bug
+    * [PLAT-6385] - Fixing period start date not adjusted for fixing calendar in ibor coupons
+    * [PLAT-6390] - FutureConverter fails for InterestRateFutures
+    * [PLAT-6392] - Accrual end period adjustment not applied for IMM swaps
+    * [PLAT-6395] - CurveNodeCurrencyVisitor: bill node refers to bondsNodeId
+    * [PLAT-6399] - CurveNodeIdMapperBuilder does not handel calendarSwapIds
+    * [PLAT-6400] - Running views create permission error
+    * [PLAT-6401] - Payment date for notional exchange swap cashflow not adjusted
+* Improvement
+    * [PLAT-6391] - Create rates trade converters to replace functionality from FutureTradeConverter
+    * [PLAT-6393] - Enhance component-based configuration
+    * [PLAT-6394] - Reduce connections used in example servers
+    * [PLAT-6396] - Add vol weighted calculation on absolute returns
+    * [PLAT-6402] - Wire in support for exotic daycounts for swaps
+* New Feature
+    * [PLAT-6358] - OG-Analytics: Pricing DSF by discounting
+* Task
+    * [PLAT-6167] - Add Permissions field to ManageableSecurity and ManageableHistoricalTimeSeries
+    * [PLAT-6379] - OG-Analytics: end-to-end test for STIR futures
+
+
 To 2.2.0-M18
 ------------
 
@@ -41,6 +70,10 @@ Security manager and user database [PLAT-6341, PLAT-6348]
  shiro.hashIterations = <an integer number of your choosing, say between 4,000 and 10,000>
  shiro.cryptoSalt = <a string phrase of your choosing, say between 8 and 30 characters>
 
+ If you want to run with open permissive security, then add
+ MANAGER.INCLUDE = classpath:common/common-shiro-permissive.ini
+  before:
+ MANAGER.INCLUDE = classpath:common/common-dbmasters.ini
 
 Configuration compatibility
 - No changes
