@@ -24,6 +24,8 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.ISDACashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ISDASwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
@@ -52,7 +54,6 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
    */
   public CurveNodeWithIdentifierBuilder(final LocalDate curveDate, final CurveNodeIdMapper nodeIdMapper) {
     ArgumentChecker.notNull(curveDate, "curve date");
-    ArgumentChecker.notNull(nodeIdMapper, "node id mapper");
     _curveDate = curveDate;
     _nodeIdMapper = nodeIdMapper;
   }
@@ -75,6 +76,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitBillNode(final BillNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getMaturityTenor();
     final ExternalId identifier = _nodeIdMapper.getBillNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getBillNodeDataField(tenor);
@@ -84,6 +86,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitBondNode(final BondNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getMaturityTenor();
     final ExternalId identifier = _nodeIdMapper.getBondNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getBondNodeDataField(tenor);
@@ -93,6 +96,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitCalendarSwapNode(final CalendarSwapNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor startTenor = node.getStartTenor();
     final ExternalId identifier = _nodeIdMapper.getCalendarSwapNodeId(_curveDate, startTenor, node.getStartDateNumber(), node.getEndDateNumber());
     final String dataField = _nodeIdMapper.getCalendarSwapNodeDataField(startTenor);
@@ -102,6 +106,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitCashNode(final CashNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getMaturityTenor();
     final ExternalId identifier = _nodeIdMapper.getCashNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getCashNodeDataField(tenor);
@@ -111,6 +116,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getTenor();
     final ExternalId identifier = _nodeIdMapper.getContinuouslyCompoundedRateNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getContinuouslyCompoundedRateNodeDataField(tenor);
@@ -120,6 +126,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitPeriodicallyCompoundedRateNode(final PeriodicallyCompoundedRateNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getTenor();
     final ExternalId identifier = _nodeIdMapper.getPeriodicallyCompoundedRateNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getPeriodicallyCompoundedRateNodeDataField(tenor);
@@ -129,6 +136,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitCreditSpreadNode(final CreditSpreadNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getTenor();
     final ExternalId identifier = _nodeIdMapper.getCreditSpreadNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getCreditSpreadNodeDataField(tenor);
@@ -138,6 +146,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor startTenor = node.getStartTenor();
     final ExternalId identifier = _nodeIdMapper.getDeliverableSwapFutureNodeId(_curveDate, startTenor,
         node.getFutureTenor(), node.getFutureNumber());
@@ -148,6 +157,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitDiscountFactorNode(final DiscountFactorNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getTenor();
     final ExternalId identifier = _nodeIdMapper.getDiscountFactorNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getDiscountFactorNodeDataField(tenor);
@@ -157,6 +167,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitFRANode(final FRANode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getFixingEnd();
     final ExternalId identifier = _nodeIdMapper.getFRANodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getFRANodeDataField(tenor);
@@ -166,6 +177,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitFXForwardNode(final FXForwardNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Map<Tenor, CurveInstrumentProvider> ids = _nodeIdMapper.getFXForwardNodeIds();
     final Tenor tenor = node.getMaturityTenor();
     if (ids.get(tenor) instanceof StaticCurvePointsInstrumentProvider) {
@@ -185,6 +197,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitRollDateFRANode(final RollDateFRANode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor startTenor = node.getStartTenor();
     final ExternalId identifier = _nodeIdMapper.getIMMFRANodeId(_curveDate, startTenor, node.getRollDateStartNumber(), node.getRollDateEndNumber());
     final String dataField = _nodeIdMapper.getIMMFRANodeDataField(startTenor);
@@ -194,6 +207,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitRollDateSwapNode(final RollDateSwapNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor startTenor = node.getStartTenor();
     final ExternalId identifier = _nodeIdMapper.getIMMSwapNodeId(_curveDate, startTenor, node.getRollDateStartNumber(), node.getRollDateEndNumber());
     final String dataField = _nodeIdMapper.getIMMSwapNodeDataField(startTenor);
@@ -203,6 +217,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitRateFutureNode(final RateFutureNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor startTenor = node.getStartTenor();
     final ExternalId identifier = _nodeIdMapper.getRateFutureNodeId(_curveDate, startTenor, node.getFutureTenor(), node.getFutureNumber());
     final String dataField = _nodeIdMapper.getRateFutureNodeDataField(startTenor);
@@ -212,6 +227,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitSwapNode(final SwapNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getMaturityTenor();
     final ExternalId identifier = _nodeIdMapper.getSwapNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getSwapNodeDataField(tenor);
@@ -221,6 +237,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getMaturityTenor();
     final ExternalId identifier = _nodeIdMapper.getThreeLegBasisSwapNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getThreeLegBasisSwapNodeDataField(tenor);
@@ -230,11 +247,34 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
 
   @Override
   public CurveNodeWithIdentifier visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
+    checkCurveNodeIdMapperDefined(node.getClass());
     final Tenor tenor = node.getTenor();
     final ExternalId identifier = _nodeIdMapper.getZeroCouponInflationNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getZeroCouponInflationNodeDataField(tenor);
     final DataFieldType fieldType = _nodeIdMapper.getZeroCouponInflationNodeDataFieldType(tenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
+  }
+
+  private void checkCurveNodeIdMapperDefined(Class<?> clazz) {
+    if (_nodeIdMapper == null) {
+      throw new IllegalStateException(clazz + " requires a nodeIdMapper to be defined.");
+    }
+  }
+  
+  @Override
+  public CurveNodeWithIdentifier visitISDACashNode(ISDACashNode node) {
+    ExternalId ticker = node.getTicker();
+    String dataField = node.getDataField();
+    DataFieldType dataFieldType = DataFieldType.OUTRIGHT;
+    return new CurveNodeWithIdentifier(node, ticker, dataField, dataFieldType);
+  }
+
+  @Override
+  public CurveNodeWithIdentifier visitISDASwapNode(ISDASwapNode node) {
+    ExternalId ticker = node.getTicker();
+    String dataField = node.getDataField();
+    DataFieldType dataFieldType = DataFieldType.OUTRIGHT;
+    return new CurveNodeWithIdentifier(node, ticker, dataField, dataFieldType);
   }
 
 }

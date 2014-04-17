@@ -27,6 +27,8 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.ISDACashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ISDASwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
@@ -48,6 +50,8 @@ import com.opengamma.financial.convention.FinancialConventionVisitor;
 import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.FixedLegRollDateConvention;
 import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
+import com.opengamma.financial.convention.ISDACashNodeConvention;
+import com.opengamma.financial.convention.ISDASwapNodeConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -496,6 +500,18 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
       throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegRollDateConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
     }
     return indexConvention.accept(this);
+  }
+
+  @Override
+  public Set<Currency> visitISDACashNode(ISDACashNode node) {
+    ISDACashNodeConvention cashNodeConvention = node.getConventionLink().resolve();
+    return Collections.singleton(cashNodeConvention.getCurrency());
+  }
+
+  @Override
+  public Set<Currency> visitISDASwapNode(ISDASwapNode node) {
+    ISDASwapNodeConvention convention = node.getFixedLegConventionLink().resolve();
+    return Collections.singleton(convention.getCurrency());
   }
 
 }

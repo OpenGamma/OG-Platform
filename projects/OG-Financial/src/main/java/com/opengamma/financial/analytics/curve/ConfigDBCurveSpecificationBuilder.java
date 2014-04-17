@@ -13,7 +13,6 @@ import java.util.Map;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
@@ -106,9 +105,6 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     for (final CurveNode node : curveDefinition.getNodes()) {
       final String curveSpecificationName = node.getCurveNodeIdMapperName();
       final CurveNodeIdMapper builderConfig = getCurveNodeIdMapper(valuationTime, cache, curveSpecificationName);
-      if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get curve node id mapper " + curveSpecificationName + " for curve named " + curveName);
-      }
       final CurveNodeWithIdentifierBuilder identifierBuilder = new CurveNodeWithIdentifierBuilder(curveDate, builderConfig);
       identifiers.add(node.accept(identifierBuilder));
     }
@@ -130,9 +126,6 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     for (final CurveNode node : curveDefinition.getNodes()) {
       final String curveSpecificationName = node.getCurveNodeIdMapperName();
       final CurveNodeIdMapper builderConfig = getCurveNodeIdMapper(valuationTime, cache, curveSpecificationName);
-      if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName + " for node " + node);
-      }
       final CurveNodeWithIdentifierBuilder identifierBuilder = new CurveNodeWithIdentifierBuilder(curveDate, builderConfig);
       identifiers.add(node.accept(identifierBuilder));
     }

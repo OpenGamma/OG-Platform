@@ -32,9 +32,9 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   private static final long serialVersionUID = 1L;
 
   /**
-   * The curve node id mapper name.
+   * The curve node id mapper name, can be null.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private String _curveNodeIdMapperName;
 
   /**
@@ -110,19 +110,18 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve node id mapper name.
-   * @return the value of the property, not null
+   * Gets the curve node id mapper name, can be null.
+   * @return the value of the property
    */
   public String getCurveNodeIdMapperName() {
     return _curveNodeIdMapperName;
   }
 
   /**
-   * Sets the curve node id mapper name.
-   * @param curveNodeIdMapperName  the new value of the property, not null
+   * Sets the curve node id mapper name, can be null.
+   * @param curveNodeIdMapperName  the new value of the property
    */
   public void setCurveNodeIdMapperName(String curveNodeIdMapperName) {
-    JodaBeanUtils.notNull(curveNodeIdMapperName, "curveNodeIdMapperName");
     this._curveNodeIdMapperName = curveNodeIdMapperName;
   }
 
@@ -304,11 +303,6 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
-    }
-
-    @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((CurveNode) bean)._curveNodeIdMapperName, "curveNodeIdMapperName");
     }
 
   }

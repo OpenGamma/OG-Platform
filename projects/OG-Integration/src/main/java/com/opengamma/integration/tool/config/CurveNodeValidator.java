@@ -30,6 +30,8 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.ISDACashNode;
+import com.opengamma.financial.analytics.ircurve.strips.ISDASwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
@@ -583,6 +585,18 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     } else {
       billNodeValidationNode = createInvalidCurveNodeValidationNode(node.getMaturityTenor(), BillNode.class, _validationNode, "Entry missing for this tenor in CurveNodeIdMapper");
     }
+    return null;
+  }
+
+
+  @Override
+  public Void visitISDACashNode(ISDACashNode node) {
+    return null;
+  }
+
+
+  @Override
+  public Void visitISDASwapNode(ISDASwapNode node) {
     return null;
   }
 }

@@ -129,4 +129,18 @@ public interface CurveNodeVisitor<T> {
    * @return The return value
    */
   T visitZeroCouponInflationNode(ZeroCouponInflationNode node);
+  
+  /**
+   * Visits an {@link ISDACashNode}
+   * @param node An ISDA cash node
+   * @return The return value
+   */
+  T visitISDACashNode(ISDACashNode node);
+  
+  /**
+   * Visits an {@link ISDASwapNode}
+   * @param node An ISDA swap node
+   * @return The return value
+   */
+  T visitISDASwapNode(ISDASwapNode node);
 }

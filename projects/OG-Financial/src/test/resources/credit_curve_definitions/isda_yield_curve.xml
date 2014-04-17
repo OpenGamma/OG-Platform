@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.credit.ISDAYieldCurveDefinition">
+ <uniqueId>DbCfg~2261220~543</uniqueId>
+ <name>ISDA YC EUR</name>
+ <!-- 
+  curve-level convention includes:
+    - ccy
+    - business day convention ('bad day convention')
+    - holiday calendar (w/e only for most calendars)
+    - spot date
+  -->
+ <convention>CONVENTION~ISDA YC EUR</convention>
+ <nodes>
+  <item type="com.opengamma.financial.analytics.curve.credit.node.ISDACashNode">
+   <tenor>P1D</tenor>
+   <!-- 
+    cash convention includes:
+     - ccy
+     - day count
+   -->
+   <convention>CONVENTION~ISDA YC EUR MM</convention>
+   <ticker>BLOOMBERG_TICKER~EUDR1T Curncy</ticker>
+   <dataField></dataField>
+   <dataFieldType></dataFieldType>
+  </item>
+  <item type="com.opengamma.financial.analytics.curve.credit.node.ISDASwapNode">
+   <tenor>P3M</tenor>
+   <!-- 
+    fixed leg convention includes:
+      - ccy
+      - payment frequency
+      - day count
+   -->
+   <fixedLegConvention>CONVENTION~ISDA YC EUR SWAP FIX</fixedLegConvention>
+   <ticker>BLOOMBERG_TICKER~EUDRC Curncy</ticker>
+   <dataField></dataField>
+   <dataFieldType></dataFieldType>
+  </item>
+ </nodes>
+</bean>
