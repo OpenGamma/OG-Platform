@@ -9,11 +9,11 @@ import com.opengamma.DataNotFoundException;
 
 /**
  * Responsible for actually performing the resolve operation
- * for a {@link Link} instance.
+ * for a {@link ResolvableLink} instance.
  *
  * @param <T> the type of object provided by the resolver
  */
-public interface LinkResolver<T> {
+public interface LinkResolver<T, I> {
 
   /**
    * Resolves the contents of a Link returning a concrete
@@ -22,7 +22,10 @@ public interface LinkResolver<T> {
    * exception will be thrown.
    *
    * @return an instance of the type a Link actually points to
+   * @param identifier
    * @throws DataNotFoundException if the link cannot be resolved
    */
-  T resolve();
+  T resolve(I identifier);
+
+  LinkResolver<T,I> withTargetType(Class<T> targetType);
 }

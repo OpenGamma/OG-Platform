@@ -5,13 +5,11 @@
  */
 package com.opengamma.core.link;
 
+
 import com.opengamma.core.convention.Convention;
-import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
-import com.opengamma.service.VersionCorrectionProvider;
 
 /**
  * Represents a link to a Convention object using an ExternalId or ExternalIdBundle
@@ -21,11 +19,12 @@ import com.opengamma.service.VersionCorrectionProvider;
  *
  * @param <T> type of the convention
  */
-public final class ConventionLink<T extends Convention> extends AbstractLink<ExternalIdBundle, T> {
+public abstract class ConventionLink<T extends Convention> implements Link<T> {
 
-  @SuppressWarnings("unchecked")
-  private ConventionLink(ExternalIdBundle bundle, LinkResolver<T> resolver) {
-    super(bundle, (Class<T>) Convention.class, resolver);
+  /**
+   * Package protected no arg constructor so only subclasses in the package can use.
+   */
+  /* package */ ConventionLink() {
   }
   
   /**
@@ -39,7 +38,7 @@ public final class ConventionLink<T extends Convention> extends AbstractLink<Ext
    * @return a convention link
    */
   public static <C extends Convention> ConventionLink<C> of(ExternalIdBundle bundle) {
-    return new ConventionLink<>(bundle, new ServiceContextConventionLinkResolver<C>(bundle));
+    return new ResolvableConventionLink<>(bundle, new ServiceContextConventionLinkResolver<C>());
   }
   
   /**
@@ -67,7 +66,7 @@ public final class ConventionLink<T extends Convention> extends AbstractLink<Ext
    * @return the convention link
    */
   public static <C extends Convention> ConventionLink<C> of(C convention) {
-    return new ConventionLink<>(convention.getExternalIdBundle(), new FixedLinkResolver<>(convention));
+    return new FixedConventionLink<>(convention);
   }
   
   /**
@@ -83,7 +82,7 @@ public final class ConventionLink<T extends Convention> extends AbstractLink<Ext
    * @return the convention link
    */
   public static <C extends Convention> ConventionLink<C> of(ExternalIdBundle bundle, ServiceContext serviceContext) {
-    return new ConventionLink<>(bundle, new ServiceContextConventionLinkResolver<C>(bundle, serviceContext));
+    return new ResolvableConventionLink<>(bundle, new ServiceContextConventionLinkResolver<C>(serviceContext));
   }
   
   /**
@@ -101,55 +100,5 @@ public final class ConventionLink<T extends Convention> extends AbstractLink<Ext
    */
   public static <C extends Convention> ConventionLink<C> of(ExternalId externalId, ServiceContext serviceContext) {
     return of(externalId.toBundle(), serviceContext);
-  }
-  
-  /**
-   * Create a new ConventionLink, with the same ID bundle as this one that uses
-   * a newly provided serviceContext.  This should only be necessary when you
-   * need to use resolution outside of the current VersionCorrection threadlocal
-   * environment.
-   *
-   * @param serviceContext a service context containing the ConventionSource and
-   * VersionCorrectionProvider necessary to resolve, not null
-   * @return a new convention link
-   */
-  public ConventionLink<T> with(ServiceContext serviceContext) {
-    return of(getIdentifier(), serviceContext);
-  }
-
-  /**
-   * Private link resolver to resolve links using a ServiceContext.
-   *
-   * @param <C> the type of convention object to be resolved
-   */
-  private static final class ServiceContextConventionLinkResolver<C extends Convention>
-      extends SourceLinkResolver<ExternalIdBundle, C, ConventionSource> {
-
-    // Private constructor as only for use by enclosing class
-    private ServiceContextConventionLinkResolver(ExternalIdBundle bundle) {
-      this(bundle, null);
-    }
-
-    // Private constructor as only for use by enclosing class
-    private ServiceContextConventionLinkResolver(ExternalIdBundle bundle, ServiceContext serviceContext) {
-      super(bundle, serviceContext);
-    }
-
-    @Override
-    protected Class<ConventionSource> getSourceClass() {
-      return ConventionSource.class;
-    }
-
-    @Override
-    protected VersionCorrection getVersionCorrection(VersionCorrectionProvider vcProvider) {
-      return vcProvider.getPortfolioVersionCorrection();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected C executeQuery(ConventionSource source, VersionCorrection versionCorrection) {
-      // ConfigSource already throws DataNotFoundException when there is no data
-      return (C) source.getSingle(getIdentifier(), versionCorrection);
-    }
   }
 }

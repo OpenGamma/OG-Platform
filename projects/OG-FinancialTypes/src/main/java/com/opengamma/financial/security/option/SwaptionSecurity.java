@@ -154,12 +154,12 @@ public class SwaptionSecurity extends FinancialSecurity {
   }
 
   /**
-   * Gets the underlying security.
+   * Gets the underlying security link.
    *
    * @return the underlying link, not null
    */
-  public FinancialSecurity getUnderlying() {
-    return _underlyingLink.resolve();
+  public SecurityLink<FinancialSecurity> getUnderlyingLink() {
+    return _underlyingLink;
   }
 
   /**
