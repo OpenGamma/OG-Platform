@@ -52,7 +52,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
    * The types for each curve, where each curve is resolved.
    * In the future we may want to expose the links directly.
    */
-  private Map<ConfigLink<CurveDefinition>, List<? extends CurveTypeConfiguration>> _typesForCurvesLinks;
+  private Map<ConfigLink<AbstractCurveDefinition>, List<? extends CurveTypeConfiguration>> _typesForCurvesLinks;
 
   /**
    * For the builder.
@@ -77,9 +77,9 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
   public void setTypesForCurves(Map<String, List<? extends CurveTypeConfiguration>> typesForCurves) {
     _typesForCurves = ArgumentChecker.notNull(typesForCurves, "typesForCurves");
 
-    ImmutableMap.Builder<ConfigLink<CurveDefinition>, List<? extends CurveTypeConfiguration>> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<ConfigLink<AbstractCurveDefinition>, List<? extends CurveTypeConfiguration>> builder = ImmutableMap.builder();
     for (Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : _typesForCurves.entrySet()) {
-      builder.put(ConfigLink.of(entry.getKey(), CurveDefinition.class), entry.getValue());
+      builder.put(ConfigLink.of(entry.getKey(), AbstractCurveDefinition.class), entry.getValue());
     }
     _typesForCurvesLinks = builder.build();
   }
@@ -88,10 +88,10 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
    * Resolves the types for each curve.
    * @return map of CurveDefinition -> List<CurveTypeConfiguration>, not null
    */
-  public Map<CurveDefinition, List<? extends CurveTypeConfiguration>> resolveTypesForCurves() {
+  public Map<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> resolveTypesForCurves() {
 
-    ImmutableMap.Builder<CurveDefinition, List<? extends CurveTypeConfiguration>> builder = ImmutableMap.builder();
-    for (Map.Entry<ConfigLink<CurveDefinition>, List<? extends CurveTypeConfiguration>> entry : _typesForCurvesLinks.entrySet()) {
+    ImmutableMap.Builder<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> builder = ImmutableMap.builder();
+    for (Map.Entry<ConfigLink<AbstractCurveDefinition>, List<? extends CurveTypeConfiguration>> entry : _typesForCurvesLinks.entrySet()) {
       builder.put(entry.getKey().resolve(), entry.getValue());
     }
     return builder.build();
