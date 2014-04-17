@@ -51,7 +51,7 @@ public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<I
     ArgumentChecker.notNull(swaptionSecurity, "swaption security");
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
 
-    final FinancialSecurity underlyingSecurity = swaptionSecurity.getUnderlying();
+    final FinancialSecurity underlyingSecurity = swaptionSecurity.getUnderlyingLink().resolve();
 
     final FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> converter;
     final boolean isCall;
