@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,15 +8,14 @@ package com.opengamma.core.link;
 import com.opengamma.DataNotFoundException;
 
 /**
- * Represents a link to an object using an identifier for the object. The link can be
- * resolved on demand. Use of links allows provision of objects by remote servers while
- * maintaining the ability to capture updates to the linked resources on each subsequent
- * resolution.
+ * Represents a link to an object using the object's identifier and type which
+ * can be resolved on demand. Use of links allows provision of  objects by remote
+ * servers while maintaining the ability to capture updates to the linked resources
+ * on each subsequent resolution.
  *
- * @param <I> the type of the identifier for the linked object
- * @param <T> the type of the object being linked to
+ * @param <T> type of the config
  */
-public interface Link<I, T> {
+public interface Link<T> {
 
   /**
    * Resolve the link and get the underlying object.
@@ -27,16 +26,11 @@ public interface Link<I, T> {
   T resolve();
 
   /**
-   * Get the identifier on which the link is based
+   * Get the type of the object that this link targets.
    *
-   * @return the identifier, not null
+   * @return the type of the object, not null
    */
-  I getIdentifier();
+  Class<T> getTargetType();
 
-  /**
-   * Get the type on which the link is based
-   *
-   * @return the type, not null
-   */
-  Class<T> getType();
+  // todo - do we want a method to generate a resolved version of a config object e.g. new FixedConfigLink(resolver.resolve())
 }

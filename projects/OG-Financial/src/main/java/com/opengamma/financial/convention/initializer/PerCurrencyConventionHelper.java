@@ -145,8 +145,6 @@ public class PerCurrencyConventionHelper {
   }
 
   public static ConventionLink<Convention> getConventionLink(Currency ccy, String instrumentName) {
-    return ConventionLink.of(getId(ccy, instrumentName));
+    return ConventionLink.of(Convention.class, getId(ccy, instrumentName));
   }
-  
-  
 }

@@ -21,12 +21,8 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> the type of object provided by the resolver
  * @param <S> the source used to resolve the link
  */
-/* package */ abstract class SourceLinkResolver<I, T, S extends Source<?>> implements LinkResolver<T> {
+/* package */ abstract class SourceLinkResolver<T, I, S extends Source<?>> implements LinkResolver<T, I> {
 
-  /**
-   * The identifier to use when resolving.
-   */
-  private final I _identifier;
   /**
    * The specific service context to be used to look up service providers.
    * May be null in which case a thread-local context will be used.
@@ -36,36 +32,28 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Create the link resolver.
    *
-   * @param identifier the identifier to be used for resolution, not null.
-   * @param serviceContext the context to use for service-providers, may be null.
+   * @param serviceContext the context to use for service-providers, not null.
    */
-  protected SourceLinkResolver(I identifier, ServiceContext serviceContext) {
-    _identifier = ArgumentChecker.notNull(identifier, "identifier");
-    _serviceContext = serviceContext;
+  /* package */ SourceLinkResolver(ServiceContext serviceContext) {
+    _serviceContext = ArgumentChecker.notNull(serviceContext, "serviceContext");
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Return the identifier to be used.
-   *
-   * @return the identifier
-   */
-  public I getIdentifier() {
-    return _identifier;
-  }
-
-  @Override
-  public T resolve() {
-    VersionCorrectionProvider vcProvider = lookupService(VersionCorrectionProvider.class);
-    S source = lookupService(getSourceClass());
-    return executeQuery(source, getVersionCorrection(vcProvider));
+  /* package */ SourceLinkResolver() {
+    _serviceContext = null;
   }
 
   private <R> R lookupService(Class<R> serviceClass) {
     return getServiceContext().get(serviceClass);
   }
 
-  private ServiceContext getServiceContext() {
+  @Override
+  public T resolve(LinkIdentifier<T, I> identifier) {
+    VersionCorrectionProvider vcProvider = lookupService(VersionCorrectionProvider.class);
+    S source = lookupService(getSourceClass());
+    return executeQuery(source, identifier.getType(), identifier.getIdentifier(), getVersionCorrection(vcProvider));
+  }
+
+  protected ServiceContext getServiceContext() {
     ServiceContext serviceContext = _serviceContext;
     if (serviceContext == null) {
       serviceContext = ThreadLocalServiceContext.getInstance();
@@ -101,6 +89,5 @@ import com.opengamma.util.ArgumentChecker;
    * @return the target of the link
    * @throws DataNotFoundException if the link is not resolvable
    */
-  protected abstract T executeQuery(S source, VersionCorrection versionCorrection);
-
+  protected abstract T executeQuery(S source, Class<T> type, I identifier, VersionCorrection versionCorrection);
 }
