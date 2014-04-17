@@ -49,7 +49,7 @@ public class InterestRateFuturesTransactionDefinitionTest {
   private static final InterestRateFutureTransactionDefinition ERU2_TRA_DEFINITION =
       new InterestRateFutureTransactionDefinition(ERU2_SEC_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 18);
 
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
@@ -119,4 +119,5 @@ public class InterestRateFuturesTransactionDefinitionTest {
     final InterestRateFutureTransaction convertedERU2 = ERU2_TRA_DEFINITION.toDerivative(REFERENCE_DATE, TRADE_PRICE);
     assertTrue("Rate future security converter", ERU2_TRA.equals(convertedERU2));
   }
+
 }

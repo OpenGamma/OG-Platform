@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -63,17 +62,8 @@ public class BondFuturesOptionMarginTransactionDefinition extends FuturesTransac
    */
   @Override
   public BondFuturesOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
-    ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate date = dateTime.toLocalDate();
-    final LocalDate tradeDateLocal = getTradeDate().toLocalDate();
-    ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
+    final double referencePrice = referencePrice(dateTime, lastMarginPrice);
     final BondFuturesOptionMarginSecurity underlyingOption = getUnderlyingSecurity().toDerivative(dateTime);
-    double referencePrice;
-    if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before reference date.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction date is reference date
-      referencePrice = getTradePrice();
-    }
     final BondFuturesOptionMarginTransaction optionTransaction = new BondFuturesOptionMarginTransaction(underlyingOption, getQuantity(), referencePrice);
     return optionTransaction;
   }

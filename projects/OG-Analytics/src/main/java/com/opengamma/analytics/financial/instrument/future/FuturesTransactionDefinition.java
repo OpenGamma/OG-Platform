@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.instrument.future;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesSecurity;
@@ -81,6 +82,29 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
    */
   public double getTradePrice() {
     return _tradePrice;
+  }
+
+  /**
+   * Returns the reference price of a futures transaction.
+   * On the trade date, it is the trade price, on the dates (strictly) after the trade date, it is the last margin price.
+   * @param dateTime The valuation date.
+   * @param lastMarginPrice The lat margin price.
+   * @return The price.
+   */
+  public double referencePrice(final ZonedDateTime dateTime, final Double lastMarginPrice) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate dateLocal = dateTime.toLocalDate();
+    final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
+    ArgumentChecker.isTrue(!dateTime.isBefore(getTradeDate()), "Valuation date, {}, is before the trade date, {} ", dateTime, getTradeDate());
+    final LocalDate lastTradingDateLocal = getUnderlyingSecurity().getLastTradingDate().toLocalDate();
+    ArgumentChecker.isFalse(dateLocal.isAfter(lastTradingDateLocal), "Valuation date, {}, is after last trading date, ", dateLocal, lastTradingDateLocal);
+    double referencePrice;
+    if (transactionDateLocal.isBefore(dateLocal)) { // Transaction was before valuation date.
+      referencePrice = lastMarginPrice;
+    } else { // Transaction is today
+      referencePrice = getTradePrice();
+    }
+    return referencePrice;
   }
 
   @Override

@@ -20,8 +20,8 @@ import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.Pr
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.blackstirfutures.ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -60,7 +60,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9850;
   private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, TARGET);
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18, 10, 0);
   private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE);
   // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);

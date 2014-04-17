@@ -11,7 +11,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of a bond future transaction (definition version).
@@ -46,17 +45,9 @@ public class BondFuturesTransactionDefinition extends FuturesTransactionDefiniti
    */
   @Deprecated
   @Override
-  public BondFuturesTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingSecurity().getDeliveryLastDate()), "Date is after last delivery date");
-    ArgumentChecker.isTrue(!date.isBefore(getTradeDate()), "Date is before trade date");
-    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(date, yieldCurveNames);
-    double referencePrice;
-    if (getTradeDate().isBefore(date)) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
+  public BondFuturesTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
+    final double referencePrice = referencePrice(dateTime, lastMarginPrice);
+    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
     final BondFuturesTransaction futureTransaction = new BondFuturesTransaction(underlyingFuture, getQuantity(), referencePrice);
     return futureTransaction;
   }
@@ -67,17 +58,9 @@ public class BondFuturesTransactionDefinition extends FuturesTransactionDefiniti
   }
 
   @Override
-  public BondFuturesTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingSecurity().getDeliveryLastDate()), "Date is after last delivery date");
-    ArgumentChecker.isTrue(!date.isBefore(getTradeDate()), "Date is before trade date");
-    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(date);
-    final double referencePrice;
-    if (getTradeDate().isBefore(date)) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
+  public BondFuturesTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
+    final double referencePrice = referencePrice(dateTime, lastMarginPrice);
+    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(dateTime);
     final BondFuturesTransaction futureTransaction = new BondFuturesTransaction(underlyingFuture, getQuantity(), referencePrice);
     return futureTransaction;
   }

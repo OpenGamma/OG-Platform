@@ -61,7 +61,7 @@ public class InterestRateFutureOptionMarginHullWhiteMethodTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = HullWhiteDataSets.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 12, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 12, 18, 10, 0);
   // Dates and names
   private static final ZonedDateTime FUT_SPOT_MAR13 = DateUtils.getUTCDate(2013, 3, 20);
   private static final ZonedDateTime FUT_LAST_MAR13 = ScheduleCalculator.getAdjustedDate(FUT_SPOT_MAR13, -EURIBOR3M.getSpotLag(), TARGET);

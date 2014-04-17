@@ -6,14 +6,12 @@
 package com.opengamma.analytics.financial.instrument.future;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageTransaction;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Transaction on a bond future security with cash settlement against a price deduced from a yield average. 
@@ -36,18 +34,8 @@ public class BondFuturesYieldAverageTransactionDefinition extends FuturesTransac
 
   @Override
   public BondFuturesYieldAverageTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
-    ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingSecurity().getLastTradingDate().toLocalDate()), "Date is after last trade date");
-    final LocalDate tradeDate = getTradeDate().toLocalDate();
-    ArgumentChecker.isTrue(!date.isBefore(tradeDate), "Date is before trade date");
+    final double referencePrice = referencePrice(dateTime, lastMarginPrice);
     final BondFuturesYieldAverageSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(dateTime);
-    final double referencePrice;
-    if (tradeDate.isBefore(date)) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
     return new BondFuturesYieldAverageTransaction(underlyingFuture, getQuantity(), referencePrice);
   }
 
