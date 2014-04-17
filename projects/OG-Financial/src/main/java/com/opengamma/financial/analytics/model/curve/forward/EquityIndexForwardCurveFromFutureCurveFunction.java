@@ -9,25 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.curve.NodalDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 
 /**
@@ -68,7 +49,7 @@ public class EquityIndexForwardCurveFromFutureCurveFunction extends AbstractFunc
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.CURRENCY;
+    return ComputationTargetType.PRIMITIVE;
   }
 
   @Override

@@ -5,23 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
-import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
-
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 
@@ -29,6 +14,8 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePr
  *
  */
 public abstract class EquityFutureBlackVolatilitySurfaceFunction extends BlackVolatilitySurfaceFunction {
+  /** The supported schemes */
+  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
 
   /**
    * Spline interpolator function for Black volatility surfaces
@@ -110,10 +97,11 @@ public abstract class EquityFutureBlackVolatilitySurfaceFunction extends BlackVo
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String targetScheme = target.getUniqueId().getScheme();
-    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
-        || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())
-        || targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+    if (target.getValue() instanceof ExternalIdentifiable) {
+      final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+      return s_validSchemes.contains(identifier.getScheme());
+    }
+    return false;
   }
 
   @Override
