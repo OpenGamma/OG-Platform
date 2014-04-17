@@ -36,17 +36,17 @@ import com.opengamma.util.ArgumentChecker;
 public class EquityFutureOptionBlackLognormalDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(EquityFutureOptionBlackLognormalDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.VALUE_DELTA,
-      ValueRequirementNames.VALUE_GAMMA,
-      ValueRequirementNames.VALUE_THETA,
-      ValueRequirementNames.VALUE_VEGA,
-      ValueRequirementNames.FORWARD_DELTA,
-      ValueRequirementNames.FORWARD_GAMMA,
-      ValueRequirementNames.DELTA,
-      ValueRequirementNames.GAMMA,
-      ValueRequirementNames.VEGA,
-      ValueRequirementNames.THETA
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.THETA
   };
   private final PriorityClass _priority;
   private final Map<String, Set<String>> _currencyToCurveName;

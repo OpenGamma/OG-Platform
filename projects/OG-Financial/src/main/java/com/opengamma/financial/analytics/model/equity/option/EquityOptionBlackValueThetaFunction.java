@@ -8,6 +8,21 @@ package com.opengamma.financial.analytics.model.equity.option;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.riskfactor.ValueThetaCalculator;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+
 /**
  * Calculates the value theta of an equity index or equity option using the Black theta.
  */
