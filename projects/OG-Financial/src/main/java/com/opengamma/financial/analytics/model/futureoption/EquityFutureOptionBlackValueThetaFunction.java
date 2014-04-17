@@ -3,22 +3,22 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.option;
+package com.opengamma.financial.analytics.model.futureoption;
 
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * Calculates the value theta of an equity index or equity option using the Black theta.
+ * Calculates the value theta of an equity index future option using the Black theta.
  */
-public class EquityOptionBlackValueThetaFunction extends EquityOptionBlackFunction {
+public class EquityFutureOptionBlackValueThetaFunction extends EquityFutureOptionBlackFunction {
   /** Value theta calculator */
   private static final ValueThetaCalculator CALCULATOR = ValueThetaCalculator.getInstance();
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#VALUE_THETA}
    */
-  public EquityOptionBlackValueThetaFunction() {
+  public EquityFutureOptionBlackValueThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
 

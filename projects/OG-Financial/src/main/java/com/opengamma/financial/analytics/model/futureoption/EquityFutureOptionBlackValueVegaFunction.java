@@ -3,36 +3,36 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.option;
+package com.opengamma.financial.analytics.model.futureoption;
 
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * Calculates the value theta of an equity index or equity option using the Black theta.
+ * Calculates the value vega of an equity index future option using the Black vega.
  */
-public class EquityOptionBlackValueThetaFunction extends EquityOptionBlackFunction {
-  /** Value theta calculator */
-  private static final ValueThetaCalculator CALCULATOR = ValueThetaCalculator.getInstance();
+public class EquityFutureOptionBlackValueVegaFunction extends EquityFutureOptionBlackFunction {
+  /** Value vega calculator */
+  private static final ValueVegaCalculator CALCULATOR = ValueVegaCalculator.getInstance();
 
   /**
-   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_THETA}
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_VEGA}
    */
-  public EquityOptionBlackValueThetaFunction() {
-    super(ValueRequirementNames.VALUE_THETA);
+  public EquityFutureOptionBlackValueVegaFunction() {
+    super(ValueRequirementNames.VALUE_VEGA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final Object thetaObject = inputs.getValue(ValueRequirementNames.THETA);
-    if (thetaObject == null) {
-      throw new OpenGammaRuntimeException("Could not get theta");
+    final Object vegaObject = inputs.getValue(ValueRequirementNames.VEGA);
+    if (vegaObject == null) {
+      throw new OpenGammaRuntimeException("Could not get vega");
     }
-    final double theta = (Double) thetaObject;
-    final double valueTheta = CALCULATOR.valueGreek(derivative, market, theta);
-    return Collections.singleton(new ComputedValue(resultSpec, valueTheta));
+    final double vega = (Double) vegaObject;
+    final double valueVega = CALCULATOR.valueGreek(derivative, market, vega);
+    return Collections.singleton(new ComputedValue(resultSpec, valueVega));
   }
 
   @Override
@@ -44,7 +44,7 @@ public class EquityOptionBlackValueThetaFunction extends EquityOptionBlackFuncti
     final ValueProperties properties = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.CURRENCY)
         .get();
-    requirements.add(new ValueRequirement(ValueRequirementNames.THETA, target.toSpecification(), properties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.VEGA, target.toSpecification(), properties));
     return requirements;
   }
 
