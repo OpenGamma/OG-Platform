@@ -7,8 +7,18 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Constructs volatility surface data objects for equity options (single-name and index) if the target is a Bloomberg ticker or weak ticker.

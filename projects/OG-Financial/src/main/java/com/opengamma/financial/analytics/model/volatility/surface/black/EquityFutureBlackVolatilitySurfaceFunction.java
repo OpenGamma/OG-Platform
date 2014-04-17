@@ -5,10 +5,29 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
+import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalScheme;
 
 /**
  *
