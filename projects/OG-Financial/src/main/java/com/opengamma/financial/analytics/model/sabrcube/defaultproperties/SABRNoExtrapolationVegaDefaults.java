@@ -30,8 +30,8 @@ public class SABRNoExtrapolationVegaDefaults extends SABRNoExtrapolationDefaults
 
   public SABRNoExtrapolationVegaDefaults(final String fittingMethod, final String xInterpolator, final String xLeftExtrapolator,
       final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator,
-      final String... currencyCurveConfigAndCubeNames) {
-    super(fittingMethod, currencyCurveConfigAndCubeNames);
+      final String... currencyAndConfigNames) {
+    super(fittingMethod, currencyAndConfigNames);
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(xLeftExtrapolator, "x left extrapolator");
     ArgumentChecker.notNull(xRightExtrapolator, "x right extrapolator");

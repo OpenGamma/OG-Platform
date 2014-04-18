@@ -11,8 +11,10 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_IBOR_LEG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OIS_FIXED_LEG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OIS_ON_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.TENOR_STR_3M;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getId;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;
 
 import org.threeten.bp.LocalTime;
@@ -24,12 +26,15 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
+import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.initializer.ConventionMasterInitializer;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -93,6 +98,15 @@ public class ExampleUSConventions extends ConventionMasterInitializer {
         oisONLegConventionName, getIds(Currency.USD, OIS_ON_LEG), overnightConventionId,
         Tenor.ONE_YEAR, BusinessDayConventions.MODIFIED_FOLLOWING, 2, false, StubType.NONE, false, 2);
 
+    // Swap and swap index index conventions
+    final String swapConventionName = "USD Vanilla Ibor Swap";
+    final ExternalId swapConventionId = ExternalId.of(SCHEME_NAME, swapConventionName);
+    final String swapIndexName = "USD ISDA Fixing";
+    final SwapConvention swapConvention = new SwapConvention(swapConventionName, ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId(swapConventionName)),
+        getId(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG), liborConventionId);
+    final SwapIndexConvention swapIndexConvention = new SwapIndexConvention(swapIndexName,
+        ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId(swapIndexName)), LocalTime.of(11, 0), swapConventionId);
+
     addConvention(master, depositConvention);
     addConvention(master, depositONConvention);
     addConvention(master, liborIndexConvention);
@@ -102,6 +116,8 @@ public class ExampleUSConventions extends ConventionMasterInitializer {
     addConvention(master, overnightConvention);
     addConvention(master, oisFixedLegConvention);
     addConvention(master, oisONLegConvention);
+    addConvention(master, swapConvention);
+    addConvention(master, swapIndexConvention);
   }
 
 }

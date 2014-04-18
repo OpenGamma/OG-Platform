@@ -106,7 +106,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
    *  valueRequirementNameClasses = com.opengamma.engine.value.ValueRequirementNames,com.opengamma.yourproject.function.YourProjectValueRequirementNames
    * @param functions Extends this List<FunctionConfiguration>
    */
-  protected void addValueRenamingFunctions(List<FunctionConfiguration> functions) {
+  protected void addValueRenamingFunctions(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(SimpleRenamingFunction.class, ValueRequirementNames.VALUE_DELTA, ValueRequirementNames.NET_MARKET_VALUE));
   }
 
@@ -266,7 +266,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setSurfaceName("model/futureoption", "BBG");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
     i.setSurfaceName("model/volatility/surface/black", "BBG");
-    i.setCubeName(null, "BLOOMBERG");
+    i.setCubeDefinitionName("model/sabrcube", "BLOOMBERG");
+    i.setCubeSpecificationName("model/sabrcube", "BLOOMBERG");
+    i.setSurfaceDefinitionName("model/sabrcube", "BLOOMBERG");
+    i.setSurfaceSpecificationName("model/sabrcube", "BLOOMBERG");
     i.setForwardCurveName("model/futureoption", "BBG");
     i.setForwardCurveName("model/curve/commodityforward", "BBG");
     i.setForwardCurveName("model/curve/equityforward", "BBG");
@@ -605,7 +608,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
         CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD); // (American) EquityIndexFutureOptions
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionCalculationMethodDefaultFunction.class.getName(), defaults));
   }
-  
+
   protected void addListedEquityOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(ListedEquityOptionPerSecurityTypeDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         EquityOptionSecurity.SECURITY_TYPE, "OIS", "DefaultTwoCurveUSDConfig", "Forward3M", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD,

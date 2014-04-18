@@ -126,7 +126,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveName("model/fxoption/black", "Discounting");
     i.setCurveName("model/bond/riskFree", "Discounting");
     i.setCurveName("model/bond/credit", "Discounting");
-    i.setCubeName(null, "BLOOMBERG");
+    i.setCubeDefinitionName("model/sabrcube", "BLOOMBERG");
+    i.setCubeSpecificationName("model/sabrcube", "BLOOMBERG");
+    i.setSurfaceDefinitionName("model/sabrcube", "BLOOMBERG");
+    i.setSurfaceSpecificationName("model/sabrcube", "BLOOMBERG");
     i.setForwardCurveName(null, "Forward3M");
     i.setSurfaceName(null, "DEFAULT");
     i.setSurfaceName("model/swaption/black", "DEFAULT");
@@ -279,10 +282,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     defaults.setPayCurveName("Discounting");
     defaults.setReceiveCurveName("Discounting");
   }
-  
+
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions(), multicurvePricingFunctions());
   }
-  
+
 }

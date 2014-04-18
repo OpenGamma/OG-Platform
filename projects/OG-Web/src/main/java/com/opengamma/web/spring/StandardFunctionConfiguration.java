@@ -18,6 +18,8 @@ import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
+import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
@@ -84,17 +86,32 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
    * Constants for a particular currency.
    */
   public static class CurrencyInfo {
-
+    /** The currency string */
     private final String _currency;
-
+    /** Usually the default value of the {@link ValuePropertyNames#CURVE_CONSTRUCTION_CONFIG} property */
     private final Value _curveConfiguration = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#CURVE} property */
     private final Value _curveName = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#CURVE_CALCULATION_METHOD} property */
     private final Value _curveCalculationMethodName = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#SURFACE} property */
     private final Value _surfaceName = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#CUBE} property */
     private final Value _cubeName = new Value();
+    /** The forward curve name */
     private final Value _forwardCurveName = new Value();
+    /** The forward curve calculation method */
     private final Value _forwardCurveCalculationMethod = new Value();
+    /** The surface calculation method */
     private final Value _surfaceCalculationMethod = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_CUBE_DEFINITION} property */
+    private final Value _cubeDefinitionName = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_CUBE_SPECIIFICATION} property */
+    private final Value _cubeSpecificationName = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_SURFACE_DEFINITION} property */
+    private final Value _surfaceDefinitionName = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_SURFACE_SPECIIFICATION} property */
+    private final Value _surfaceSpecificationName = new Value();
 
     public CurrencyInfo(final String currency) {
       _currency = currency;
@@ -166,6 +183,78 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
     public String getSurfaceCalculationMethod(final String key) {
       return _surfaceCalculationMethod.get(key);
+    }
+
+    /**
+     * Gets the cube definition name for a key.
+     * @param key The key
+     * @return The cube definition name
+     */
+    public String getCubeDefinitionName(final String key) {
+      return _cubeDefinitionName.get(key);
+    }
+
+    /**
+     * Sets a cube definition name for a key.
+     * @param key The key
+     * @param cubeDefinitionName The cube definition name
+     */
+    public void setCubeDefinitionName(final String key, final String cubeDefinitionName) {
+      _cubeDefinitionName.set(key, cubeDefinitionName);
+    }
+
+    /**
+     * Gets the cube specification name for a key.
+     * @param key The key
+     * @return The cube specification name
+     */
+    public String getCubeSpecificationName(final String key) {
+      return _cubeSpecificationName.get(key);
+    }
+
+    /**
+     * Sets a cube specification name for a key.
+     * @param key The key
+     * @param cubeSpecificationName The cube specification name
+     */
+    public void setCubeSpecificationName(final String key, final String cubeSpecificationName) {
+      _cubeSpecificationName.set(key, cubeSpecificationName);
+    }
+
+    /**
+     * Gets the surface definition name for a key.
+     * @param key The key
+     * @return The surface definition name
+     */
+    public String getSurfaceDefinitionName(final String key) {
+      return _surfaceDefinitionName.get(key);
+    }
+
+    /**
+     * Sets a surface definition name for a key.
+     * @param key The key
+     * @param surfaceDefinitionName The surface definition name
+     */
+    public void setSurfaceDefinitionName(final String key, final String surfaceDefinitionName) {
+      _surfaceDefinitionName.set(key, surfaceDefinitionName);
+    }
+
+    /**
+     * Gets the surface specification name for a key.
+     * @param key The key
+     * @return The surface specification name
+     */
+    public String getSurfaceSpecificationName(final String key) {
+      return _surfaceSpecificationName.get(key);
+    }
+
+    /**
+     * Sets a surface specification name for a key.
+     * @param key The key
+     * @param surfaceSpecificationName The surface specification name
+     */
+    public void setSurfaceSpecificationName(final String key, final String surfaceSpecificationName) {
+      _surfaceSpecificationName.set(key, surfaceSpecificationName);
     }
   }
 
@@ -1146,7 +1235,10 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
   protected void setSABRCubeDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/sabrcube"));
-    defaults.setCubeName(i.getCubeName("model/sabrcube"));
+    defaults.setCubeDefinitionName(i.getCubeDefinitionName("model/sabrcube"));
+    defaults.setCubeSpecificationName(i.getCubeSpecificationName("model/sabrcube"));
+    defaults.setSurfaceDefinitionName(i.getSurfaceDefinitionName("model/sabrcube"));
+    defaults.setSurfaceSpecificationName(i.getSurfaceSpecificationName("model/sabrcube"));
   }
 
   protected void setSABRCubeDefaults(final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions defaults) {
@@ -1159,6 +1251,15 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
         return d;
       }
     }));
+    final Object temp = getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
+      @Override
+      public com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
+            new com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
+        setSABRCubeDefaults(i, d);
+        return d;
+      }
+    });
   }
 
   protected FunctionConfigurationSource sabrCubeFunctions() {
@@ -1225,26 +1326,26 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
   protected void setVolatilitySurfaceBlackDefaults(final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions defaults) {
     defaults
-    .setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
-      @Override
-      public com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
-        final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
-            new com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
-        setVolatilitySurfaceBlackDefaults(i, d);
-        return d;
-      }
-    }));
+        .setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
+          @Override
+          public com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
+            final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
+                new com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
+            setVolatilitySurfaceBlackDefaults(i, d);
+            return d;
+          }
+        }));
     defaults
-    .setPerCurrencyPairInfo(getCurrencyPairInfo(new Function1<CurrencyPairInfo,
+        .setPerCurrencyPairInfo(getCurrencyPairInfo(new Function1<CurrencyPairInfo,
         com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo>() {
-      @Override
-      public com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo execute(final CurrencyPairInfo i) {
-        final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo d =
-            new com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo();
-        setVolatilitySurfaceBlackDefaults(i, d);
-        return d;
-      }
-    }));
+          @Override
+          public com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo execute(final CurrencyPairInfo i) {
+            final com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo d =
+                new com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo();
+            setVolatilitySurfaceBlackDefaults(i, d);
+            return d;
+          }
+        }));
   }
 
   protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults defaults) {

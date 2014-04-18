@@ -529,7 +529,7 @@ public class FixedIncomeConverterDataProvider {
       final ExternalId id = security.getUnderlyingId();
       final ZonedDateTime capStartDate = security.getStartDate();
       final LocalDate startDate = capStartDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
-      final ValueRequirement requirement = getIndexTimeSeriesRequirement(getIndexIborIdBundle(id), startDate);
+      final ValueRequirement requirement = getIndexTimeSeriesRequirement(getIndexSwapIdBundle(id), startDate);
       if (requirement == null) {
         return null;
       }
@@ -541,7 +541,7 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
-      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexIborIdBundle(id), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexSwapIdBundle(id), now.getZone(), timeSeries);
       return definition.toDerivative(now, indexTS, curveNames);
     }
 
@@ -550,7 +550,7 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
-      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexIborIdBundle(id), now.getZone(), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexSwapIdBundle(id), now.getZone(), timeSeries);
       return definition.toDerivative(now, indexTS);
     }
   };

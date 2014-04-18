@@ -65,7 +65,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.util.money.Currency;
 
 /**
  * Base function for all pricing and risk functions that use SABR parameter surfaces and curves constructed using the discounting method.
@@ -116,10 +115,17 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
       return security instanceof SwaptionSecurity;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(PROPERTY_VOLATILITY_MODEL, SABR).withAny(PROPERTY_CUBE_DEFINITION)
-          .withAny(PROPERTY_CUBE_SPECIFICATION).withAny(PROPERTY_SURFACE_DEFINITION).withAny(PROPERTY_SURFACE_SPECIFICATION).with(CALCULATION_METHOD, getCalculationMethod())
+      final ValueProperties.Builder properties = createValueProperties()
+          .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+          .with(PROPERTY_VOLATILITY_MODEL, SABR)
+          .withAny(PROPERTY_CUBE_DEFINITION)
+          .withAny(PROPERTY_CUBE_SPECIFICATION)
+          .withAny(PROPERTY_SURFACE_DEFINITION)
+          .withAny(PROPERTY_SURFACE_SPECIFICATION)
+          .with(CALCULATION_METHOD, getCalculationMethod())
           .withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
         final Security security = target.getTrade().getSecurity();
@@ -137,17 +143,15 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
         return null;
       }
       final ValueProperties constraints = desiredValue.getConstraints();
-      final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
       final Set<String> cubeDefinition = constraints.getValues(PROPERTY_CUBE_DEFINITION);
       final Set<String> cubeSpecification = constraints.getValues(PROPERTY_CUBE_SPECIFICATION);
       final Set<String> surfaceDefinition = constraints.getValues(PROPERTY_SURFACE_DEFINITION);
       final Set<String> surfaceSpecification = constraints.getValues(PROPERTY_SURFACE_SPECIFICATION);
-      final ValueProperties properties = ValueProperties.builder().with(PROPERTY_CUBE_DEFINITION, cubeDefinition).with(PROPERTY_CUBE_SPECIFICATION, cubeSpecification)
-          .with(PROPERTY_SURFACE_DEFINITION, surfaceDefinition).with(PROPERTY_SURFACE_SPECIFICATION, surfaceSpecification)
-          //          .with(CURRENCY, currency.getCode())
+      final ValueProperties properties = ValueProperties.builder().with(PROPERTY_CUBE_DEFINITION, cubeDefinition)
+          .with(PROPERTY_CUBE_SPECIFICATION, cubeSpecification)
+          .with(PROPERTY_SURFACE_DEFINITION, surfaceDefinition)
+          .with(PROPERTY_SURFACE_SPECIFICATION, surfaceSpecification)
           .with(PROPERTY_VOLATILITY_MODEL, SABR).get();
-      //      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES,
-      //          ComputationTargetSpecification.of(currency), properties);
       final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.NULL, properties);
       requirements.add(surfacesRequirement);
       return requirements;
@@ -176,7 +180,7 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
 
     /**
      * Gets the calculation method.
-     * 
+     *
      * @return The calculation method
      */
     protected abstract String getCalculationMethod();
