@@ -27,14 +27,16 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test the Bermuda swaption pricing in the Hull-White one factor model.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -51,7 +53,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   private static final double NOTIONAL = 123000000;
   private static final boolean FIXED_IS_PAYER = true;
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR3M, SWAP_TENOR, CALENDAR);
   private static final double RATE = 0.0200;
   private static final SwapFixedIborDefinition TOTAL_SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
@@ -91,7 +93,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     final SwaptionPhysicalFixedIbor[] swaptionEuropean = new SwaptionPhysicalFixedIbor[NB_EXPIRY];
     final MultipleCurrencyAmount[] pvEuropean = new MultipleCurrencyAmount[NB_EXPIRY];
     for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
-      swaptionEuropeanDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], EXPIRY_SWAP_DEFINITION[loopexp], IS_LONG);
+      swaptionEuropeanDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], EXPIRY_SWAP_DEFINITION[loopexp], FIXED_IS_PAYER, IS_LONG);
       swaptionEuropean[loopexp] = swaptionEuropeanDefinition[loopexp].toDerivative(REFERENCE_DATE);
       pvEuropean[loopexp] = METHOD_VANILLA.presentValue(swaptionEuropean[loopexp], HW_MULTICURVES);
       assertTrue("Bermuda swaption vs European", pv.getAmount(CUR) >= pvEuropean[loopexp].getAmount(CUR));

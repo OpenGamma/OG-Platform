@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeChangeCharacteristicExponentTest {
   private static final double SMALL_ALPHA1 = -1;
   private static final double SMALL_ALPHA2 = -6;

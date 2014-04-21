@@ -1,3 +1,4 @@
+projects/OG-Financial/src/main/java/com/opengamma/financial/analytics/model/volatility/cube/CaseysSabrSurfacePrototypeFunction.java
 /db/
 *.log
 .project
@@ -63,6 +64,7 @@ docs.sqlite3
 *.pyc
 .settings/
 /target/
+/examples/target/
 
 # IntelliJ config files
 *.iws

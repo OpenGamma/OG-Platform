@@ -51,7 +51,8 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   /**
    * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index. The payment currency is the index currency.
-   * @param currency The coupn currency.
+   * The fixing dates and accrual factors are inferred from the index.
+   * @param currency The coupon currency.
    * @param paymentDate The coupon payment date.
    * @param accrualStartDate The start date of the accrual period.
    * @param accrualEndDate The end date of the accrual period.

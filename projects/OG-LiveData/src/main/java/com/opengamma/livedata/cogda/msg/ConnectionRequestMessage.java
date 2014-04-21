@@ -10,6 +10,7 @@ import java.util.Map;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -69,65 +70,6 @@ public class ConnectionRequestMessage extends DirectBean {
   @Override
   public ConnectionRequestMessage.Meta metaBean() {
     return ConnectionRequestMessage.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -266666762:  // userName
-        return getUserName();
-      case 1216985755:  // password
-        return getPassword();
-      case -1487597642:  // capabilities
-        return getCapabilities();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -266666762:  // userName
-        setUserName((String) newValue);
-        return;
-      case 1216985755:  // password
-        setPassword((String) newValue);
-        return;
-      case -1487597642:  // capabilities
-        setCapabilities((MutableFudgeMsg) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_userName, "userName");
-    JodaBeanUtils.notNull(_capabilities, "capabilities");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConnectionRequestMessage other = (ConnectionRequestMessage) obj;
-      return JodaBeanUtils.equal(getUserName(), other.getUserName()) &&
-          JodaBeanUtils.equal(getPassword(), other.getPassword()) &&
-          JodaBeanUtils.equal(getCapabilities(), other.getCapabilities());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -211,6 +153,54 @@ public class ConnectionRequestMessage extends DirectBean {
    */
   public final Property<MutableFudgeMsg> capabilities() {
     return metaBean().capabilities().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ConnectionRequestMessage clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConnectionRequestMessage other = (ConnectionRequestMessage) obj;
+      return JodaBeanUtils.equal(getUserName(), other.getUserName()) &&
+          JodaBeanUtils.equal(getPassword(), other.getPassword()) &&
+          JodaBeanUtils.equal(getCapabilities(), other.getCapabilities());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ConnectionRequestMessage{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("userName").append('=').append(JodaBeanUtils.toString(getUserName())).append(',').append(' ');
+    buf.append("password").append('=').append(JodaBeanUtils.toString(getPassword())).append(',').append(' ');
+    buf.append("capabilities").append('=').append(JodaBeanUtils.toString(getCapabilities())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -304,6 +294,42 @@ public class ConnectionRequestMessage extends DirectBean {
      */
     public final MetaProperty<MutableFudgeMsg> capabilities() {
       return _capabilities;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -266666762:  // userName
+          return ((ConnectionRequestMessage) bean).getUserName();
+        case 1216985755:  // password
+          return ((ConnectionRequestMessage) bean).getPassword();
+        case -1487597642:  // capabilities
+          return ((ConnectionRequestMessage) bean).getCapabilities();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -266666762:  // userName
+          ((ConnectionRequestMessage) bean).setUserName((String) newValue);
+          return;
+        case 1216985755:  // password
+          ((ConnectionRequestMessage) bean).setPassword((String) newValue);
+          return;
+        case -1487597642:  // capabilities
+          ((ConnectionRequestMessage) bean).setCapabilities((MutableFudgeMsg) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConnectionRequestMessage) bean)._userName, "userName");
+      JodaBeanUtils.notNull(((ConnectionRequestMessage) bean)._capabilities, "capabilities");
     }
 
   }

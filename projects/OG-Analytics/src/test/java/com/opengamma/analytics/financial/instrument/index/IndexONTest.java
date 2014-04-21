@@ -11,25 +11,27 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the IndexOIS class.
  */
+@Test(groups = TestGroup.UNIT)
 public class IndexONTest {
 
   // USD OIS
   private static final String US_OIS_NAME = "US OIS";
   private static final Currency US_CUR = Currency.USD;
-  private static final DayCount US_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount US_DAY_COUNT = DayCounts.ACT_360;
   private static final int US_PUBLICATION_LAG = 1;
   private static final IndexON US_OIS = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
   //EUR Eonia
   private static final String EUR_OIS_NAME = "EUR EONIA";
   private static final Currency EUR_CUR = Currency.EUR;
   private static final int EUR_PUBLICATION_LAG = 0;
-  private static final DayCount EUR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount EUR_DAY_COUNT = DayCounts.ACT_360;
   private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -79,7 +81,7 @@ public class IndexONTest {
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
     modified = new IndexON(US_OIS_NAME, EUR_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
-    modified = new IndexON(US_OIS_NAME, US_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), US_PUBLICATION_LAG);
+    modified = new IndexON(US_OIS_NAME, US_CUR, DayCounts.ACT_365, US_PUBLICATION_LAG);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
     modified = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, 0);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));

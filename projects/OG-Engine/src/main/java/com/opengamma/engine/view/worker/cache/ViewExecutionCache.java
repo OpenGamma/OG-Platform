@@ -31,4 +31,8 @@ public interface ViewExecutionCache {
    */
   void setCompiledViewDefinitionWithGraphs(ViewExecutionCacheKey key, CompiledViewDefinitionWithGraphs viewDefinition);
 
+  /**
+   * Clears the cache
+   */
+  void clear();
 }

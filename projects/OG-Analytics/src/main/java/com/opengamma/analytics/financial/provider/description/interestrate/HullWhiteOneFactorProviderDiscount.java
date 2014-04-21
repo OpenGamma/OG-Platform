@@ -19,13 +19,10 @@ import com.opengamma.util.money.Currency;
 public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvider {
 
   /**
-   *
-   */
-  /**
    * Constructor from existing multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
-   * @param multicurves The multi-curves provider.
-   * @param parameters The Hull-White one factor parameters.
-   * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
+   * @param multicurves The multi-curves provider, not null
+   * @param parameters The Hull-White one factor parameters, not null
+   * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve), not null
    */
   public HullWhiteOneFactorProviderDiscount(final MulticurveProviderDiscount multicurves, final HullWhiteOneFactorPiecewiseConstantParameters parameters, final Currency ccyHW) {
     super(multicurves, parameters, ccyHW);
@@ -134,16 +131,34 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
     getMulticurveProvider().replaceCurve(index, curve);
   }
 
+  /**
+   * Replaces a discounting curve for a currency.
+   * @param ccy The currency
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied discounting curve
+   */
   public HullWhiteOneFactorProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
     return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
+  /**
+   * Replaces an ibor curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied ibor curve
+   */
   public HullWhiteOneFactorProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
     final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
+  /**
+   * Replaces an overnight curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied overnight curve
+   */
   public HullWhiteOneFactorProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
     final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());

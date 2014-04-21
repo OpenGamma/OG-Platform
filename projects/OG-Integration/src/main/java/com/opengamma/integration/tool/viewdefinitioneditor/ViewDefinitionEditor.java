@@ -5,101 +5,48 @@
  */
 package com.opengamma.integration.tool.viewdefinitioneditor;
 
-import java.awt.EventQueue;
-
-import javax.swing.Action;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
-
-import javax.swing.JScrollPane;
-
-import java.awt.GridBagConstraints;
-
-import javax.swing.JTree;
-
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
-import java.beans.PropertyChangeListener;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.SynchronousQueue;
 
-import javax.swing.JTextPane;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.position.Trade;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.financial.depgraph.rest.DependencyGraphBuildTrace;
-import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperties;
-import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.integration.swing.PortfolioTreeModel;
 import com.opengamma.integration.swing.ViewEntry;
 import com.opengamma.integration.swing.ViewListCellRenderer;
 import com.opengamma.integration.swing.ViewListModel;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.scripts.Scriptable;
 
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-
-import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.JSplitPane;
-
 /**
  * Debugging tool for engine functions.
  */
 @Scriptable
 public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinitionEditor.class);
 
   private JFrame _frame;
@@ -108,14 +55,17 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
 
   private ViewListModel _viewListModel;
 
+  //-------------------------------------------------------------------------
   /**
-   * Launch the application.
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {
-    //new EngineDebugger().initialize();
-    new ViewDefinitionEditor().initAndRun(args, IntegrationToolContext.class);
+    new ViewDefinitionEditor().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Initialize the contents of the frame.
    * @wbp.parser.entryPoint
@@ -137,9 +87,6 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
     _viewList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     final ConfigSource configSource = getToolContext().getConfigSource();
-    final PositionSource positionSource = getToolContext().getPositionSource();
-    final SecuritySource securitySource = getToolContext().getSecuritySource();
-    
     
     JPanel panel = new JPanel();
     mainPanel.add(panel, BorderLayout.CENTER);
@@ -222,9 +169,6 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
 
   private JList<ViewEntry> _viewList;
 
-  private JButton _goButton;
-
-  private JTree _portfolioTree;
   @Override
   protected void doRun() throws Exception {
     initialize();

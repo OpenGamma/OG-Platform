@@ -52,14 +52,14 @@ public class RedisSimulationSeriesLoaderTool extends AbstractTool<ToolContext> {
   /** Write option flag */
   public static final String WRITE_OPT = "w";
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new RedisSimulationSeriesLoaderTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new RedisSimulationSeriesLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -69,7 +69,9 @@ public class RedisSimulationSeriesLoaderTool extends AbstractTool<ToolContext> {
   @Override 
   protected void doRun() {
     if (!(getToolContext().getHistoricalTimeSeriesSource() instanceof RedisSimulationSeriesSource)) {
-      throw new OpenGammaRuntimeException("HistoricalTimeSeriesSource from conrtext is not a RedisSimulationSeriesSource, got " + getToolContext().getHistoricalTimeSeriesSource() + ": note this tool must be run with a toolcontext config file not via -c http://localhost");
+      throw new OpenGammaRuntimeException("HistoricalTimeSeriesSource from conrtext is not a RedisSimulationSeriesSource, got " +
+          getToolContext().getHistoricalTimeSeriesSource() +
+          ": note this tool must be run with a toolcontext config file not via -c http://localhost");
     }
     final RedisSimulationSeriesSource source = (RedisSimulationSeriesSource) getToolContext().getHistoricalTimeSeriesSource();
 
@@ -83,7 +85,7 @@ public class RedisSimulationSeriesLoaderTool extends AbstractTool<ToolContext> {
     String observationTime = getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT);
     String idScheme = getCommandLine().getOptionValue(TIME_SERIES_IDSCHEME_OPT);
     String dateFormat = getCommandLine().getOptionValue(TIME_SERIES_DATEFORMAT_OPT);
-    boolean write = getCommandLine().hasOption(WRITE_OPT);
+    // boolean write = getCommandLine().hasOption(WRITE_OPT);
     try {
       InputStream portfolioFileStream = new BufferedInputStream(new FileInputStream(fileName));
 

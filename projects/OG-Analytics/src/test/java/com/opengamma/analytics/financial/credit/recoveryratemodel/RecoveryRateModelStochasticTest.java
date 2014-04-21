@@ -5,10 +5,14 @@
  */
 package com.opengamma.analytics.financial.credit.recoveryratemodel;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RecoveryRateModelStochasticTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -22,7 +26,7 @@ public class RecoveryRateModelStochasticTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  //@Test
+  @Test(enabled = false)
   public void ConstantRecoveryRateModelTest() {
 
     System.out.println("Running constant recovery rate model test ...");

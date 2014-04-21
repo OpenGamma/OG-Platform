@@ -68,7 +68,7 @@ public class RemoteManageableFunctionBlacklistProviderTest {
               throw new UniformInterfaceException404NotFound(new ClientResponse(404, null, null, null), false);
             }
           }
-        }).when(builder).post(Mockito.any());
+        }).when(builder).post(Mockito.<UniformInterface>any());
         return builder;
       }
     };

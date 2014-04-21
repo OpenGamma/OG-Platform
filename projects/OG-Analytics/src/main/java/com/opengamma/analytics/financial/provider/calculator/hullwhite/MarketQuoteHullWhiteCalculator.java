@@ -62,11 +62,11 @@ public class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorS
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
-    return METHOD_STIRFUT.price(futures.getUnderlying(), hullWhite);
+    return METHOD_STIRFUT.price(futures.getUnderlyingSecurity(), hullWhite);
   }
 
   @Override
-  public Double visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAP_FUT.price(futures, hullWhite);
   }
 

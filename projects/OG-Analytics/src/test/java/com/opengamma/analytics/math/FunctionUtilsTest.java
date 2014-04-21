@@ -11,9 +11,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FunctionUtilsTest {
   private static final double EPS = 1e-15;
 
@@ -35,17 +38,17 @@ public class FunctionUtilsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndices() {
-    FunctionUtils.toTensorIndex(null, new int[] {1, 2, 3});
+    FunctionUtils.toTensorIndex(null, new int[] {1, 2, 3 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDimensions1() {
-    FunctionUtils.toTensorIndex(new int[] {1, 2, 3}, null);
+    FunctionUtils.toTensorIndex(new int[] {1, 2, 3 }, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength() {
-    FunctionUtils.toTensorIndex(new int[] {1, 2}, new int[] {1, 2, 3});
+    FunctionUtils.toTensorIndex(new int[] {1, 2 }, new int[] {1, 2, 3 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -56,8 +59,8 @@ public class FunctionUtilsTest {
   @Test
   public void testTensorIndexTest1() {
 
-    final int[] indices = new int[] {2};
-    final int[] dimensions = new int[] {5};
+    final int[] indices = new int[] {2 };
+    final int[] dimensions = new int[] {5 };
     final int index = toTensorIndex(indices, dimensions);
     assertEquals(indices[0], index, 0);
 
@@ -69,8 +72,8 @@ public class FunctionUtilsTest {
   @Test
   public void testTensorIndexTest2() {
 
-    final int[] indices = new int[] {2, 3};
-    final int[] dimensions = new int[] {5, 7};
+    final int[] indices = new int[] {2, 3 };
+    final int[] dimensions = new int[] {5, 7 };
     final int index = toTensorIndex(indices, dimensions);
     final int[] res = fromTensorIndex(index, dimensions);
     assertEquals(indices[0], res[0], 0);
@@ -80,8 +83,8 @@ public class FunctionUtilsTest {
   @Test
   public void testTensorIndexTest3() {
 
-    final int[] indices = new int[] {2, 3, 1};
-    final int[] dimensions = new int[] {5, 7, 3};
+    final int[] indices = new int[] {2, 3, 1 };
+    final int[] dimensions = new int[] {5, 7, 3 };
     final int index = toTensorIndex(indices, dimensions);
     final int[] res = fromTensorIndex(index, dimensions);
     assertEquals(indices[0], res[0], 0);
@@ -91,8 +94,46 @@ public class FunctionUtilsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfBounds() {
-    final int[] indices = new int[] {2, 7, 1};
-    final int[] dimensions = new int[] {5, 7, 3};
+    final int[] indices = new int[] {2, 7, 1 };
+    final int[] dimensions = new int[] {5, 7, 3 };
     toTensorIndex(indices, dimensions);
+  }
+
+  @Test
+  public void getLowerBoundIndexTest() {
+    int i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1. }, -0.);
+    assertEquals(i, 1);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2. }, -0.);
+    assertEquals(i, 0);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2., 3. }, 2.5);
+    assertEquals(i, 1);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2., 3. }, 2.);
+    assertEquals(i, 1);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2., 3. }, -2.);
+    assertEquals(i, 0);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., 0. }, -0.);
+    assertEquals(i, 2);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., 0. }, 0.);
+    assertEquals(i, 2);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., 0. }, -0.);
+    assertEquals(i, 2);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., -0. }, -0.);
+    assertEquals(i, 2);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., 0., 1. }, -0.);
+    assertEquals(i, 1);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., 0., 1. }, 0.);
+    assertEquals(i, 1);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., -0., 1. }, 0.);
+    assertEquals(i, 1);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., -0., 1. }, -0.);
+    assertEquals(i, 1);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {0., 1., 2. }, -0.);
+    assertEquals(i, 0);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {0., 1., 2. }, 0.);
+    assertEquals(i, 0);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-0., 1., 2. }, 0.);
+    assertEquals(i, 0);
+    i = FunctionUtils.getLowerBoundIndex(new double[] {-0., 1., 2. }, -0.);
+    assertEquals(i, 0);
   }
 }

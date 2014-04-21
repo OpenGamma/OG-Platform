@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -26,7 +27,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class describing a "market" with discounting, forward, price index and credit curves.
+ * Class describing a "market" with discounting and forward curves.
  * The forward rate are computed directly.
  */
 public class MulticurveProviderForward implements MulticurveProviderInterface {
@@ -119,6 +120,9 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
     return new MulticurveProviderForward(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
   }
 
+  /**
+   * Adds all curves to a single map.
+   */
   private void setAllCurves() {
     _allCurves = new LinkedHashMap<>();
     final Set<Currency> ccySet = _discountingCurves.keySet();
@@ -245,7 +249,39 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
   }
 
   @Override
-  public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
+  public double getInvestmentFactor(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return 1 + accrualFactor * _forwardIborCurves.get(index).getYValue(startTime);
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
+  public double getSimplyCompoundForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return _forwardIborCurves.get(index).getYValue(startTime);
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
+  public double getSimplyCompoundForwardRate(final IborIndex index, final double startTime, final double endTime) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return _forwardIborCurves.get(index).getYValue(startTime);
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
+  public double getAnnuallyCompoundForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return _forwardIborCurves.get(index).getYValue(startTime);
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
+  public double getAnnuallyCompoundForwardRate(final IborIndex index, final double startTime, final double endTime) {
     if (_forwardIborCurves.containsKey(index)) {
       return _forwardIborCurves.get(index).getYValue(startTime);
     }
@@ -266,11 +302,44 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
   }
 
   @Override
-  public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
+  public double getInvestmentFactor(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
+    if (_forwardONCurves.containsKey(index)) {
+      return _forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime);
+    }
+    throw new IllegalArgumentException("Forward ON curve not found: " + index);
+  }
+
+  @Override
+  public double getSimplyCompoundForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
     if (_forwardONCurves.containsKey(index)) {
       return (_forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
     }
     throw new IllegalArgumentException("Forward ON curve not found: " + index);
+  }
+
+  @Override
+  public double getSimplyCompoundForwardRate(final IndexON index, final double startTime, final double endTime) {
+    ArgumentChecker.isFalse(startTime == endTime, "sart time should be different from end time");
+    if (_forwardONCurves.containsKey(index)) {
+      return (_forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime) - 1) / (endTime - startTime);
+    }
+    throw new IllegalArgumentException("Forward ON curve not found: " + index);
+  }
+
+  @Override
+  public double getAnnuallyCompoundForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
+    ArgumentChecker.isFalse(accrualFactor == 0.0, "The accrual factor can't be null");
+    if (_forwardONCurves.containsKey(index)) {
+      return (Math.pow(_forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime), 1 / accrualFactor) - 1);
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
+  public double getAnnuallyCompoundForwardRate(final IndexON index, final double startTime, final double endTime) {
+    ArgumentChecker.isFalse(startTime == endTime, "Start time should be different from end time");
+    final double accrualFactor = endTime - startTime;
+    return getAnnuallyCompoundForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
@@ -346,7 +415,12 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
 
   @Override
   public Set<String> getAllNames() {
-    return _allCurves.keySet();
+    return getAllCurveNames();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return Collections.unmodifiableSortedSet(new TreeSet<>(_allCurves.keySet()));
   }
 
   /**
@@ -455,6 +529,12 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
     return Collections.unmodifiableMap(_forwardONCurves);
   }
 
+  /**
+   * Replaces a discounting curve for a currency.
+   * @param ccy The currency
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied discounting curve
+   */
   public MulticurveProviderForward withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     // REVIEW: Is this too slow for the pricing of cash-flows?
     final Map<Currency, YieldAndDiscountCurve> newDiscountCurves = new LinkedHashMap<>(_discountingCurves);
@@ -463,6 +543,12 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
     return decorated;
   }
 
+  /**
+   * Replaces an ibor curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied ibor curve
+   */
   public MulticurveProviderForward withForward(final IborIndex index, final DoublesCurve replacement) {
     final Map<IborIndex, DoublesCurve> newForwardCurves = new LinkedHashMap<>(_forwardIborCurves);
     newForwardCurves.put(index, replacement);
@@ -470,6 +556,12 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
     return decorated;
   }
 
+  /**
+   * Replaces an overnight curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied overnight curve
+   */
   public MulticurveProviderForward withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
     final Map<IndexON, YieldAndDiscountCurve> newForwardCurves = new LinkedHashMap<>(_forwardONCurves);
     newForwardCurves.put(index, replacement);

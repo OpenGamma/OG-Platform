@@ -29,6 +29,7 @@
     <property name="viewDefinitionUidVersion" column="viewdef_version"/>
 
     <property name="versionCorrection" column="version_correction" not-null="true" type="version_correction"/>
+    <property name="name" column="cycle_name" not-null="false"/>
     
     <property name="createInstant" column="create_instant" not-null="true" type="instant"/>
     <property name="startInstant" column="start_instant" not-null="true" type="instant"/>

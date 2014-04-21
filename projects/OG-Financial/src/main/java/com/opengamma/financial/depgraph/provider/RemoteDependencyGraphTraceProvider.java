@@ -18,7 +18,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.value.ValueProperties;

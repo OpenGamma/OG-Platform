@@ -16,7 +16,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
@@ -44,20 +44,22 @@ public final class DefaultAggregatedExecutionLog implements AggregatedExecutionL
   /**
    * Constructs an instance for a root level with possible logs from its dependencies when the full logging mode is being used.
    * 
-   * @param node the node this log has come from, not null
+   * @param functionName the name of the function, not null
+   * @param target the computation target specification, not null
    * @param rootLog the root log, not null
    * @param dependentLogs the dependent logs, if any, may be null or empty
    * @return the log instance
    */
-  public static DefaultAggregatedExecutionLog fullLogMode(DependencyNode node, ExecutionLog rootLog, Collection<AggregatedExecutionLog> dependentLogs) {
-    ArgumentChecker.notNull(node, "node");
+  public static DefaultAggregatedExecutionLog fullLogMode(String functionName, ComputationTargetSpecification target, ExecutionLog rootLog, Collection<AggregatedExecutionLog> dependentLogs) {
+    ArgumentChecker.notNull(functionName, "functionName");
+    ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(rootLog, "rootLog");
     EnumSet<LogLevel> logLevels = rootLog.getLogLevels();
     boolean logLevelsCopied = false;
     final List<ExecutionLogWithContext> logs = new ArrayList<ExecutionLogWithContext>();
     boolean emptyRoot = rootLog.isEmpty();
     if (!emptyRoot) {
-      logs.add(ExecutionLogWithContext.of(node, rootLog));
+      logs.add(ExecutionLogWithContext.of(functionName, target, rootLog));
     }
     if (dependentLogs != null) {
       for (AggregatedExecutionLog dependentLog : dependentLogs) {
@@ -71,7 +73,7 @@ public final class DefaultAggregatedExecutionLog implements AggregatedExecutionL
             logLevelsCopied = true;
           }
         }
-        if (logs != null && dependentLog.getLogs() != null) {
+        if (dependentLog.getLogs() != null) {
           logs.addAll(dependentLog.getLogs());
         }
       }

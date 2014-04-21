@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Sets;
@@ -328,7 +329,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return jobResult;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   private static <T> AsynchronousOperation<Deferred<T>> deferredOperation() {
     return (AsynchronousOperation) AsynchronousOperation.create(Deferred.class);
   }
@@ -462,10 +463,14 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       } else {
         getMaxJobItemExecution().jobExecutionStarted(jobItem);
         attachLog(executionLog);
+        boolean logAttached = true;
         try {
           invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration(), jobItem.getFunctionUniqueIdentifier()), resultItemBuilder);
         } catch (final AsynchronousExecution e) {
           s_logger.debug("Asynchronous job item invocation at {}", _nodeId);
+          detachLog();
+          getMaxJobItemExecution().jobExecutionStopped();
+          logAttached = false;
           final AsynchronousOperation<Deferred<Void>> async = deferredOperation();
           final ExecuteJobItemsInvoke invoke = new ExecuteJobItemsInvoke(jobItem, executionLog, resultItemBuilder);
           e.setResultListener(new ResultListener<Deferred<Void>>() {
@@ -488,8 +493,10 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         } catch (final Throwable t) {
           invocationFailure(t, jobItem, resultItemBuilder);
         } finally {
-          detachLog();
-          getMaxJobItemExecution().jobExecutionStopped();
+          if (logAttached) {
+            detachLog();
+            getMaxJobItemExecution().jobExecutionStopped();
+          }
         }
       }
       resultItems.add(resultItemBuilder.toResultItem());
@@ -647,6 +654,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return cache;
   }
 
+  @SuppressWarnings("deprecation")
   private static Set<ValueRequirement> plat2290(final ValueSpecification[] outputs) {
     final Set<ValueRequirement> result = Sets.newHashSetWithExpectedSize(outputs.length);
     for (final ValueSpecification output : outputs) {
@@ -664,6 +672,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     statistics.endInvocation();
     statistics.setExpectedDataOutputSamples(results.size());
+    removeInvocationLoggingInfo();
     // store results
     missing.clear();
     for (ValueSpecification output : outputs) {
@@ -801,6 +810,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     // Execute
     statistics.beginInvocation();
+    recordInvocationLoggingInfo(target);
     Set<ComputedValue> result;
     try {
       result = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));
@@ -841,6 +851,24 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       return;
     }
     invokeResult(invoker, statistics, missing, outputs, result, resultItemBuilder);
+  }
+
+  private void recordInvocationLoggingInfo(ComputationTarget target) {
+    if (target != null && target.getUniqueId() != null) {
+      try {      // make target available to logging
+        MDC.put("target", target.getUniqueId().toString());
+      } catch (Throwable ex) {
+        // pass
+      }
+    }
+  }
+
+  private void removeInvocationLoggingInfo() {
+    try {
+      MDC.remove("target");
+    } catch (Throwable ex) {
+      // pass
+    }
   }
 
 }

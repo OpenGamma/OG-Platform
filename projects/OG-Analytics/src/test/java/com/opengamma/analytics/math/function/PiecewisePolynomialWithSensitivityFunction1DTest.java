@@ -18,10 +18,12 @@ import com.opengamma.analytics.math.interpolation.PiecewiseCubicHermiteSplineInt
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialInterpolator;
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResultsWithSensitivity;
 import com.opengamma.analytics.math.interpolation.SemiLocalCubicSplineInterpolator;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PiecewisePolynomialWithSensitivityFunction1DTest {
   private static final double EPS = 1.e-7;
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNCTION = new PiecewisePolynomialWithSensitivityFunction1D();

@@ -33,7 +33,7 @@ public final class SwaptionBlackImpliedVolatilityCalculator extends InstrumentDe
   /**
    * Constructor.
    */
-  SwaptionBlackImpliedVolatilityCalculator() {
+  private SwaptionBlackImpliedVolatilityCalculator() {
   }
 
   /** The implied volatility calculator for physically-settled swaptions */

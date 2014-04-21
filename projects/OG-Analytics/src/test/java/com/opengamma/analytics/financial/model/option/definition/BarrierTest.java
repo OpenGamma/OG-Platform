@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BarrierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

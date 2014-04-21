@@ -58,6 +58,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -232,7 +233,7 @@ public abstract class FXOptionVannaVolgaFunction extends AbstractFunction.NonCom
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
-    final Pair<Currency, Currency> ccyPair = Pair.of(ccy1, ccy2);
+    final Pair<Currency, Currency> ccyPair = Pairs.of(ccy1, ccy2);
     return new SmileDeltaTermStructureVannaVolgaDataBundle(curvesWithFX, resultSmiles, ccyPair);
   }
 

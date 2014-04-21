@@ -42,7 +42,7 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
     ExternalIdBean regionIdentifier = externalIdToExternalIdBean(security.getRegionId());
     ZonedDateTimeBean startBean = dateTimeWithZoneToZonedDateTimeBean(security.getStart());
     ZonedDateTimeBean maturityBean = dateTimeWithZoneToZonedDateTimeBean(security.getMaturity());
-    DayCountBean dayCountBean = secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName());
+    DayCountBean dayCountBean = secMasterSession.getOrCreateDayCountBean(security.getDayCount().getName());
     final CashSecurityBean bean = new CashSecurityBean();
     bean.setCurrency(currencyBean);
     bean.setRegion(regionIdentifier);

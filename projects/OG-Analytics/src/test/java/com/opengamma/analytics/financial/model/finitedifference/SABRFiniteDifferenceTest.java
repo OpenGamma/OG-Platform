@@ -33,11 +33,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SABRFiniteDifferenceTest {
   private static final boolean DEBUG = false; //set to false before commit
 

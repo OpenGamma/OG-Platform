@@ -8,6 +8,9 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,17 +25,18 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.convention.ConventionMaster;
-import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.convention.DefaultConventionSource;
-import com.opengamma.financial.convention.InMemoryConventionMaster;
-import com.opengamma.financial.convention.rest.DataConventionMasterResource;
-import com.opengamma.financial.convention.rest.DataConventionSourceResource;
-import com.opengamma.financial.convention.rest.RemoteConventionMaster;
-import com.opengamma.financial.convention.rest.RemoteConventionSource;
+import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.convention.impl.DataConventionSourceResource;
+import com.opengamma.core.convention.impl.EHCachingConventionSource;
+import com.opengamma.core.convention.impl.RemoteConventionSource;
+import com.opengamma.financial.convention.initializer.DefaultConventionMasterInitializer;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.impl.DataConventionMasterResource;
+import com.opengamma.master.convention.impl.MasterConventionSource;
+import com.opengamma.master.convention.impl.RemoteConventionMaster;
 
 /**
- * Component factory provider the {@link ConventionSource}.
+ * Component factory providing the {@link ConventionSource}.
  */
 @BeanDefinition
 public class ConventionSourceComponentFactory extends AbstractComponentFactory {
@@ -42,12 +46,21 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
   /**
-   * A flag determining whether the component should be published by REST (default true).
+   * The flag determining whether the component should be published by REST (default true).
    */
   @PropertyDefinition
   private boolean _publishRest = true;
+  /**
+   * The underlying convention master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ConventionMaster _conventionMaster;
+  /**
+   * The cache manager.
+   */
+  @PropertyDefinition
+  private CacheManager _cacheManager;
 
   //-------------------------------------------------------------------------
   /**
@@ -58,10 +71,10 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
    * @param configuration  the remaining configuration, not null
    */
   @Override
-  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final ConventionSource source = createConventionSource(repo);
-
-    final ComponentInfo info = new ComponentInfo(ConventionSource.class, getClassifier());
+  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+    ConventionSource source = createConventionSource(repo);
+    
+    ComponentInfo info = new ComponentInfo(ConventionSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteConventionSource.class);
     repo.registerComponent(info, source);
@@ -77,7 +90,11 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
    * @return the convention source, not null
    */
   protected ConventionSource createConventionSource(final ComponentRepository repo) {
-    return new DefaultConventionSource(createConventionMaster(repo));
+    ConventionSource source = new MasterConventionSource(getConventionMaster());
+    if (getCacheManager() != null) {
+      source = new EHCachingConventionSource(source, getCacheManager());
+    }
+    return source;
   }
 
   /**
@@ -87,7 +104,7 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
    * @return the convention master, not null
    */
   protected ConventionMaster createConventionMaster(final ComponentRepository repo) {
-    ConventionMaster master = new InMemoryConventionMaster();
+    ConventionMaster master = DefaultConventionMasterInitializer.createPopulated();
     final ComponentInfo info = new ComponentInfo(ConventionMaster.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteConventionMaster.class);
@@ -115,58 +132,6 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
   @Override
   public ConventionSourceComponentFactory.Meta metaBean() {
     return ConventionSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConventionSourceComponentFactory other = (ConventionSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -197,7 +162,7 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets a flag determining whether the component should be published by REST (default true).
+   * Gets the flag determining whether the component should be published by REST (default true).
    * @return the value of the property
    */
   public boolean isPublishRest() {
@@ -205,7 +170,7 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets a flag determining whether the component should be published by REST (default true).
+   * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
   public void setPublishRest(boolean publishRest) {
@@ -218,6 +183,111 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying convention master.
+   * @return the value of the property, not null
+   */
+  public ConventionMaster getConventionMaster() {
+    return _conventionMaster;
+  }
+
+  /**
+   * Sets the underlying convention master.
+   * @param conventionMaster  the new value of the property, not null
+   */
+  public void setConventionMaster(ConventionMaster conventionMaster) {
+    JodaBeanUtils.notNull(conventionMaster, "conventionMaster");
+    this._conventionMaster = conventionMaster;
+  }
+
+  /**
+   * Gets the the {@code conventionMaster} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionMaster> conventionMaster() {
+    return metaBean().conventionMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cache manager.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ConventionSourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConventionSourceComponentFactory other = (ConventionSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ConventionSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -241,12 +311,24 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", ConventionSourceComponentFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code conventionMaster} property.
+     */
+    private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
+        this, "conventionMaster", ConventionSourceComponentFactory.class, ConventionMaster.class);
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", ConventionSourceComponentFactory.class, CacheManager.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "publishRest");
+        "publishRest",
+        "conventionMaster",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -261,6 +343,10 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
+        case 41113907:  // conventionMaster
+          return _conventionMaster;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -295,6 +381,64 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionMaster> conventionMaster() {
+      return _conventionMaster;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((ConventionSourceComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((ConventionSourceComponentFactory) bean).isPublishRest();
+        case 41113907:  // conventionMaster
+          return ((ConventionSourceComponentFactory) bean).getConventionMaster();
+        case -1452875317:  // cacheManager
+          return ((ConventionSourceComponentFactory) bean).getCacheManager();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((ConventionSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((ConventionSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 41113907:  // conventionMaster
+          ((ConventionSourceComponentFactory) bean).setConventionMaster((ConventionMaster) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((ConventionSourceComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConventionSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((ConventionSourceComponentFactory) bean)._conventionMaster, "conventionMaster");
+      super.validate(bean);
     }
 
   }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.future;
 
-import com.opengamma.analytics.financial.equity.future.pricing.DividendYieldFuturesCalculator;
 import com.opengamma.analytics.financial.future.CostOfCarryFuturesCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 

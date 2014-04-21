@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -39,6 +40,7 @@ import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.live.InMemoryLKVLiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.live.LiveDataAvailabilityNotificationListener;
 import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.id.ExternalScheme;
@@ -50,6 +52,7 @@ import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
@@ -80,6 +83,11 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
    */
   @PropertyDefinition(validate = "notNull")
   private String _defaultProviders;
+  /**
+   * JMS topic for notifications when market data providers become available
+   */
+  @PropertyDefinition
+  private String _jmsMarketDataAvailabilityTopic;
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -123,6 +131,12 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     // REVIEW jonathan 2013-08-23 -- Didn't want to break backwards compatibility, but shouldn't the repository take care of supertypes?
     info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, liveMarketDataProviderFactory);
+    
+    if (!StringUtils.isBlank(getJmsMarketDataAvailabilityTopic())) {
+      LiveDataAvailabilityNotificationListener availabilityNotificationListener =
+          new LiveDataAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), factories.values(), getJmsConnector());
+      repo.registerLifecycle(availabilityNotificationListener);
+    }
 
     return liveMarketDataProviderFactory;
   }
@@ -133,27 +147,38 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
    * @param provider the metadata provider, null returns null
    * @return the client
    */
+  protected LiveDataClient createLiveDataClient(LiveDataMetaDataProvider provider) {
+    return createLiveDataClient(provider, getJmsConnector());
+  }
+  
+  /**
+   * Creates a live data client based on the information in the remote metadata.
+   * 
+   * @param provider the metadata provider, null returns null
+   * @param jmsConnector the JMS connector, not null
+   * @return the client
+   */
   @SuppressWarnings("deprecation")
-  protected LiveDataClient createLiveDataClient(final LiveDataMetaDataProvider provider) {
+  public static LiveDataClient createLiveDataClient(LiveDataMetaDataProvider provider, JmsConnector jmsConnector) {
+    ArgumentChecker.notNull(jmsConnector, "jmsConnector");
     LiveDataMetaData metaData = provider.metaData();
     URI jmsUri = metaData.getJmsBrokerUri();
     if (metaData.getServerType() != LiveDataServerTypes.STANDARD || jmsUri == null) {
       s_logger.warn("Unsupported live data server type " + metaData.getServerType() + " for " + metaData.getDescription() + " live data provider. This provider will not be available.");
       return null;
     }
-    JmsConnector jmsConnector = getJmsConnector();
     if (!jmsConnector.getClientBrokerUri().equals(jmsUri)) {
       JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean(jmsConnector);
       jmsFactory.setClientBrokerUri(jmsUri);
       jmsConnector = jmsFactory.getObjectCreating();
     }
     
-    JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
+    JmsTemplate jmsTemplate = jmsConnector.getJmsTemplateTopic();
     
     JmsByteArrayRequestSender jmsSubscriptionRequestSender;
 
     if (metaData.getJmsSubscriptionQueue() != null) {
-      JmsTemplate subscriptionRequestTemplate = getJmsConnector().getJmsTemplateQueue();
+      JmsTemplate subscriptionRequestTemplate = jmsConnector.getJmsTemplateQueue();
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionQueue(), subscriptionRequestTemplate);
     } else {
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionTopic(), jmsTemplate);
@@ -164,7 +189,7 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     ByteArrayFudgeRequestSender fudgeEntitlementRequestSender = new ByteArrayFudgeRequestSender(jmsEntitlementRequestSender);
     
     final JmsLiveDataClient liveDataClient = new JmsLiveDataClient(fudgeSubscriptionRequestSender,
-        fudgeEntitlementRequestSender, getJmsConnector(), OpenGammaFudgeContext.getInstance(), JmsLiveDataClient.DEFAULT_NUM_SESSIONS);
+        fudgeEntitlementRequestSender, jmsConnector, OpenGammaFudgeContext.getInstance(), JmsLiveDataClient.DEFAULT_NUM_SESSIONS);
     liveDataClient.setFudgeContext(OpenGammaFudgeContext.getInstance());
     if (metaData.getJmsHeartbeatTopic() != null) {
       JmsByteArrayMessageSender jmsHeartbeatSender = new JmsByteArrayMessageSender(metaData.getJmsHeartbeatTopic(), jmsTemplate);
@@ -213,67 +238,6 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
   @Override
   public LiveMarketDataProviderFactoryComponentFactory.Meta metaBean() {
     return LiveMarketDataProviderFactoryComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case 1263631201:  // defaultProviders
-        return getDefaultProviders();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case 1263631201:  // defaultProviders
-        setDefaultProviders((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
-    JodaBeanUtils.notNull(_defaultProviders, "defaultProviders");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LiveMarketDataProviderFactoryComponentFactory other = (LiveMarketDataProviderFactoryComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getDefaultProviders(), other.getDefaultProviders()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultProviders());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -362,6 +326,85 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
 
   //-----------------------------------------------------------------------
   /**
+   * Gets jMS topic for notifications when market data providers become available
+   * @return the value of the property
+   */
+  public String getJmsMarketDataAvailabilityTopic() {
+    return _jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Sets jMS topic for notifications when market data providers become available
+   * @param jmsMarketDataAvailabilityTopic  the new value of the property
+   */
+  public void setJmsMarketDataAvailabilityTopic(String jmsMarketDataAvailabilityTopic) {
+    this._jmsMarketDataAvailabilityTopic = jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Gets the the {@code jmsMarketDataAvailabilityTopic} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsMarketDataAvailabilityTopic() {
+    return metaBean().jmsMarketDataAvailabilityTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public LiveMarketDataProviderFactoryComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LiveMarketDataProviderFactoryComponentFactory other = (LiveMarketDataProviderFactoryComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getDefaultProviders(), other.getDefaultProviders()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultProviders());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("LiveMarketDataProviderFactoryComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("defaultProviders").append('=').append(JodaBeanUtils.toString(getDefaultProviders())).append(',').append(' ');
+    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(JodaBeanUtils.toString(getJmsMarketDataAvailabilityTopic())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code LiveMarketDataProviderFactoryComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -386,13 +429,19 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     private final MetaProperty<String> _defaultProviders = DirectMetaProperty.ofReadWrite(
         this, "defaultProviders", LiveMarketDataProviderFactoryComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     */
+    private final MetaProperty<String> _jmsMarketDataAvailabilityTopic = DirectMetaProperty.ofReadWrite(
+        this, "jmsMarketDataAvailabilityTopic", LiveMarketDataProviderFactoryComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "jmsConnector",
-        "defaultProviders");
+        "defaultProviders",
+        "jmsMarketDataAvailabilityTopic");
 
     /**
      * Restricted constructor.
@@ -409,6 +458,8 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
           return _jmsConnector;
         case 1263631201:  // defaultProviders
           return _defaultProviders;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return _jmsMarketDataAvailabilityTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -451,6 +502,57 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
      */
     public final MetaProperty<String> defaultProviders() {
       return _defaultProviders;
+    }
+
+    /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
+      return _jmsMarketDataAvailabilityTopic;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getClassifier();
+        case -1495762275:  // jmsConnector
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getJmsConnector();
+        case 1263631201:  // defaultProviders
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getDefaultProviders();
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getJmsMarketDataAvailabilityTopic();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case 1263631201:  // defaultProviders
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setDefaultProviders((String) newValue);
+          return;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setJmsMarketDataAvailabilityTopic((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LiveMarketDataProviderFactoryComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((LiveMarketDataProviderFactoryComponentFactory) bean)._jmsConnector, "jmsConnector");
+      JodaBeanUtils.notNull(((LiveMarketDataProviderFactoryComponentFactory) bean)._defaultProviders, "defaultProviders");
+      super.validate(bean);
     }
 
   }

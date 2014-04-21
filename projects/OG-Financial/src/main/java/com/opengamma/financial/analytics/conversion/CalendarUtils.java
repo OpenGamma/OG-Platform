@@ -34,16 +34,42 @@ public class CalendarUtils {
   //-------------------------------------------------------------------------
   public static Calendar getCalendar(final RegionSource regionSource, final HolidaySource holidaySource,
       final ExternalId regionId) {
-    if (regionId.isScheme(ExternalSchemes.FINANCIAL) && regionId.getValue().contains("+")) {
-      final String[] regions = regionId.getValue().split("\\+");
+    String separator = getMultipleRegionSeparator(regionId);
+    if (separator != null) {
+      String[] regions = regionId.getValue().split(separator);
       final Set<Region> resultRegions = new HashSet<>();
       for (final String region : regions) {
-        resultRegions.add(regionSource.getHighestLevelRegion(ExternalSchemes.financialRegionId(region)));
+        if (regionId.isScheme(ExternalSchemes.FINANCIAL)) {
+          resultRegions.add(regionSource.getHighestLevelRegion(ExternalSchemes.financialRegionId(region)));
+        } else if (regionId.isScheme(ExternalSchemes.ISDA_HOLIDAY)) {
+          resultRegions.add(regionSource.getHighestLevelRegion(ExternalSchemes.isdaHoliday(region)));
+        }
       }
-      return new HolidaySourceCalendarAdapter(holidaySource, resultRegions.toArray(new Region[] {}));
+      return new HolidaySourceCalendarAdapter(holidaySource, resultRegions.toArray(new Region[resultRegions.size()]));
     }
     final Region region = regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
     return new HolidaySourceCalendarAdapter(holidaySource, region);
+  }
+  
+  /**
+   * Returns the escaped separator character for parsing multiple regions
+   * 
+   * @param regionId the region id to parse.
+   * @return the escaped separator charactor.
+   */
+  private static String getMultipleRegionSeparator(ExternalId regionId) {
+    if (!(regionId.isScheme(ExternalSchemes.FINANCIAL) || regionId.isScheme(ExternalSchemes.ISDA_HOLIDAY))) {
+      return null;
+    }
+    
+    String regions = regionId.getValue();
+    if (regions.contains("+")) {
+      return "\\+";
+    } else if (regions.contains(",")) {
+      return ",";
+    } else {
+      return null;
+    }
   }
 
   public static Calendar getCalendar(final HolidaySource holidaySource, final Currency... currencies) {

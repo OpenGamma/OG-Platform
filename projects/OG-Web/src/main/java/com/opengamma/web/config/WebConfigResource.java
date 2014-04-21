@@ -54,7 +54,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
   public String getHTML() {
     final FlexiBean out = createRootData();
     final ConfigDocument doc = data().getConfig();
-    out.put("configXml", createXML(doc));
+    out.put(CONFIG_XML, StringEscapeUtils.escapeJava(createBeanXML(doc.getConfig().getValue())));
     return getFreemarker().build(HTML_DIR + "config.ftl", out);
   }
 
@@ -72,7 +72,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     }
-    out.put("configXML", StringEscapeUtils.escapeJava(createXML(doc)));
+    out.put(CONFIG_XML, StringEscapeUtils.escapeJava(createBeanXML(doc.getConfig().getValue())));
     out.put("type", doc.getType().getSimpleName());
     final String json = getFreemarker().build(JSON_DIR + "config.ftl", out);
     return Response.ok(json).tag(etag).build();
@@ -96,26 +96,27 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @Produces(MediaType.TEXT_HTML)
   public Response putHTML(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam(CONFIG_XML) String configXml) {
     if (data().getConfig().isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
 
     name = StringUtils.trimToNull(name);
-    xml = StringUtils.trimToNull(xml);
-    if (name == null || xml == null) {
+    configXml = StringUtils.trimToNull(configXml);
+    if (name == null || configXml == null) {
       final FlexiBean out = createRootData();
+      out.put(CONFIG_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(configXml)));
       if (name == null) {
         out.put("err_nameMissing", true);
       }
-      if (xml == null) {
+      if (configXml == null) {
         out.put("err_xmlMissing", true);
       }
       final String html = getFreemarker().build(HTML_DIR + "config-update.ftl", out);
       return Response.ok(html).build();
     }
 
-    Object parsed = parseXML(xml, data().getConfig().getConfig().getType());
+    Object parsed = parseXML(configXml, data().getConfig().getConfig().getType());
     final URI uri = updateConfig(name, parsed);
     return Response.seeOther(uri).build();
   }
@@ -126,14 +127,14 @@ public class WebConfigResource extends AbstractWebConfigResource {
   public Response putJSON(
       @FormParam("name") String name,
       @FormParam("configJSON") String json,
-      @FormParam("configXML") String xml) {
+      @FormParam(CONFIG_XML) String configXml) {
     if (data().getConfig().isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
 
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
-    xml = StringUtils.trimToNull(xml);
+    configXml = StringUtils.trimToNull(configXml);
     // JSON allows a null config to just change the name
     if (name == null) {
       return Response.status(Status.BAD_REQUEST).build();
@@ -141,8 +142,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
     Object configValue = null;
     if (json != null) {
       configValue = parseJSON(json);
-    } else if (xml != null) {
-      Object parsed = parseXML(xml, data().getConfig().getConfig().getType());
+    } else if (configXml != null) {
+      Object parsed = parseXML(configXml, data().getConfig().getConfig().getType());
       configValue = parsed;
     }
     updateConfig(name, configValue);

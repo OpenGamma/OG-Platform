@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.credit.recoveryratemodel.RecoveryRateModel;
 import com.opengamma.analytics.financial.credit.underlyingpool.UnderlyingPoolDummyPool;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ScenarioGeneratorTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

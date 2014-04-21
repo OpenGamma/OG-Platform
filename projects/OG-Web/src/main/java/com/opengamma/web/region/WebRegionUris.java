@@ -33,6 +33,14 @@ public class WebRegionUris {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the base URI.
+   * @return the URI
+   */
+  public URI base() {
+    return regions();
+  }
+
+  /**
    * Gets the URI.
    * @return the URI
    */

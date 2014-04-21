@@ -5,118 +5,102 @@
  */
 package com.opengamma.financial.convention.yield;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import org.joda.convert.FromString;
 
+import com.opengamma.financial.convention.AbstractNamedInstanceFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Factory to obtain instances of {@code YieldConvention}.
  */
-public final class YieldConventionFactory {
+public final class YieldConventionFactory
+    extends AbstractNamedInstanceFactory<YieldConvention> {
 
   /**
    * Singleton instance.
    */
   public static final YieldConventionFactory INSTANCE = new YieldConventionFactory();
 
-  /**
-   * Map of convention name to convention.
-   */
-  private final Map<String, YieldConvention> _conventionMap = new HashMap<>();
-
   //-------------------------------------------------------------------------
   /**
-   * Gets a convention by name.
-   * Matching is case insensitive.
+   * Finds a convention by name, ignoring case.
    *
-   * @param name  the name, not null
+   * @param name  the name of the instance to find, not null
    * @return the convention, not null
-   * @throws IllegalArgumentException if not found
+   * @throws IllegalArgumentException if the name is not found
    */
   @FromString
   public static YieldConvention of(final String name) {
-    final YieldConvention result = YieldConventionFactory.INSTANCE.getYieldConvention(name);
-    if (result == null) {
-      throw new IllegalArgumentException("Unknown YieldConvention: " + name);
+    try {
+      return INSTANCE.instance(name);
+    } catch (final IllegalArgumentException ex) {
+      ArgumentChecker.notNull(name, "name");
+      final YieldConvention yc = new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH));
+      return INSTANCE.addInstance(yc);
     }
-    return result;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Creates the factory.
+   * Restricted constructor, hard coding the conventions.
    */
   private YieldConventionFactory() {
-    store(SimpleYieldConvention.UK_BUMP_DMO_METHOD, "UK:BUMP/DMO METHOD");
-    store(SimpleYieldConvention.UK_STRIP_METHOD, "UK STRIP METHOD");
-    store(SimpleYieldConvention.US_STREET);
-    store(SimpleYieldConvention.US_IL_REAL);
-    store(SimpleYieldConvention.US_IL_REAL);
-    store(SimpleYieldConvention.US_IL_REAL, "U.S. I/L REAL YLD");
-    store(SimpleYieldConvention.US_STREET, "STREET CONVENTION");
-    store(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
-    store(SimpleYieldConvention.JGB_SIMPLE);
-    store(SimpleYieldConvention.MONEY_MARKET);
-    store(SimpleYieldConvention.TRUE);
-    store(SimpleYieldConvention.US_BOND);
-    store(SimpleYieldConvention.GERMAN_BOND);
-    store(SimpleYieldConvention.DISCOUNT);
-    store(SimpleYieldConvention.INTERESTATMTY);
-    store(SimpleYieldConvention.STEP_FLOATER);
-    store(SimpleYieldConvention.JAPAN_SIMPLE);
-    store(SimpleYieldConvention.BANK_OF_CANADA, "BANK OF CANADA YLD");
-    store(SimpleYieldConvention.CANADA_COMPND_METHOD, "CANADA:COMPND METH");
-    store(SimpleYieldConvention.PAY_IN_KIND);
-    store(SimpleYieldConvention.FLOAT_RATE_NOTE);
-    store(SimpleYieldConvention.TOGGLE_PIK_NOTES);
-    store(SimpleYieldConvention.INTEREST_AT_MATURITY);
-    store(SimpleYieldConvention.FRANCE_COMPOUND_METHOD);
-    store(SimpleYieldConvention.SPAIN_GOVERNMENT_BONDS);
-    store(SimpleYieldConvention.GREEK_GOVERNMENT_BONDS);
-    store(SimpleYieldConvention.FINLAND_GOVERNMENT_BONDS);
-    store(SimpleYieldConvention.AUSTRIA_ISMA_METHOD);
-    store(SimpleYieldConvention.ITALY_TREASURY_BONDS);
-    store(SimpleYieldConvention.SPANISH_T_BILLS);
-    store(SimpleYieldConvention.PORTUGAL_DOMESTIC_SETTLE);
-    store(SimpleYieldConvention.ITALY_TREASURY_BILL);
-  }
-
-  /**
-   * Stores the convention.
-   *
-   * @param convention  the convention to store, not null
-   */
-  private void store(final YieldConvention convention) {
-    ArgumentChecker.notNull(convention, "YieldConvention");
-    _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
-  }
-
-  /**
-   * Stores the convention with an alternative string name.
-   *
-   * @param convention  the convention to store, not null
-   * @param name the alternative name for the convention, not null
-   */
-  private void store(final YieldConvention convention, final String name) {
-    ArgumentChecker.notNull(convention, "YieldConvention");
-    _conventionMap.put(name.toLowerCase(Locale.ENGLISH), convention);
+    super(YieldConvention.class);
+    addInstance(SimpleYieldConvention.UK_BUMP_DMO_METHOD, "UK:BUMP/DMO METHOD");
+    addInstance(SimpleYieldConvention.UK_STRIP_METHOD, "UK STRIP METHOD");
+    addInstance(SimpleYieldConvention.US_STREET);
+    addInstance(SimpleYieldConvention.US_IL_REAL);
+    addInstance(SimpleYieldConvention.US_IL_REAL);
+    addInstance(SimpleYieldConvention.US_IL_REAL, "U.S. I/L REAL YLD");
+    addInstance(SimpleYieldConvention.US_STREET, "STREET CONVENTION");
+    addInstance(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
+    addInstance(SimpleYieldConvention.JGB_SIMPLE);
+    addInstance(SimpleYieldConvention.MONEY_MARKET);
+    addInstance(SimpleYieldConvention.TRUE);
+    addInstance(SimpleYieldConvention.US_BOND);
+    addInstance(SimpleYieldConvention.GERMAN_BOND);
+    addInstance(SimpleYieldConvention.DISCOUNT);
+    addInstance(SimpleYieldConvention.INTERESTATMTY);
+    addInstance(SimpleYieldConvention.STEP_FLOATER);
+    addInstance(SimpleYieldConvention.JAPAN_SIMPLE);
+    addInstance(SimpleYieldConvention.BANK_OF_CANADA, "BANK OF CANADA YLD");
+    addInstance(SimpleYieldConvention.CANADA_COMPND_METHOD, "CANADA:COMPND METH");
+    addInstance(SimpleYieldConvention.PAY_IN_KIND);
+    addInstance(SimpleYieldConvention.FLOAT_RATE_NOTE);
+    addInstance(SimpleYieldConvention.TOGGLE_PIK_NOTES);
+    addInstance(SimpleYieldConvention.INTEREST_AT_MATURITY);
+    addInstance(SimpleYieldConvention.FRANCE_COMPOUND_METHOD);
+    addInstance(SimpleYieldConvention.SPAIN_GOVERNMENT_BONDS);
+    addInstance(SimpleYieldConvention.GREEK_GOVERNMENT_BONDS);
+    addInstance(SimpleYieldConvention.FINLAND_GOVERNMENT_BONDS);
+    addInstance(SimpleYieldConvention.AUSTRIA_ISMA_METHOD);
+    addInstance(SimpleYieldConvention.ITALY_TREASURY_BONDS);
+    addInstance(SimpleYieldConvention.SPANISH_T_BILLS);
+    addInstance(SimpleYieldConvention.PORTUGAL_DOMESTIC_SETTLE);
+    addInstance(SimpleYieldConvention.ITALY_TREASURY_BILL);
+    addInstance(SimpleYieldConvention.MEXICAN_BONOS);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
+   * <p>
+   * This method dynamically creates the convention if it is missing.
    *
    * @param name  the name, not null
    * @return the convention, null if not found
    */
   public YieldConvention getYieldConvention(final String name) {
-    ArgumentChecker.notNull(name, "name");
-    return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
+    try {
+      return instance(name);
+    } catch (final IllegalArgumentException ex) {
+      ArgumentChecker.notNull(name, "name");
+      final YieldConvention yc = new SimpleYieldConvention(name.toUpperCase(Locale.ENGLISH));
+      return addInstance(yc);
+    }
   }
 
 }

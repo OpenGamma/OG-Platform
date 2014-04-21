@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ChiSquareDistributionTest extends ProbabilityDistributionTestCase {
   private static final double[] X = new double[] {1.9, 5.8, 9.0, 15.5, 39};
   private static final double[] DOF = new double[] {3, 6, 7, 16, 28};

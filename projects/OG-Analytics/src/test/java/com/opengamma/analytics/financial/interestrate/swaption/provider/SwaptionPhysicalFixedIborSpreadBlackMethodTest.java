@@ -35,11 +35,13 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing and sensitivities of Swaption physical delivary on swaps with spread. The option is priced with a Black implied volatility.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
   // Data
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -70,10 +72,10 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
       .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final SwapFixedIborDefinition SWAP_NOSPREAD_EUR3M3M_DEFINITION = SwapFixedIborDefinition.from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE - SPREAD, IS_PAYER);
   private static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_SPREAD_EUR1Y3M_DEFINITION = SwaptionPhysicalFixedIborSpreadDefinition.from(EXPIRY_DATE, SWAP_SPREAD_EUR1Y3M_DEFINITION,
-      IS_LONG);
+      IS_PAYER, IS_LONG);
   private static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_SPREAD_EUR3M3M_DEFINITION = SwaptionPhysicalFixedIborSpreadDefinition.from(EXPIRY_DATE, SWAP_SPREAD_EUR3M3M_DEFINITION,
-      IS_LONG);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_NOSPREAD_EUR3M3M_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_NOSPREAD_EUR3M3M_DEFINITION, IS_LONG);
+      IS_PAYER, IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_NOSPREAD_EUR3M3M_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_NOSPREAD_EUR3M3M_DEFINITION, IS_PAYER, IS_LONG);
 
   private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR1Y3M = SWAP_SPREAD_EUR1Y3M_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final SwaptionPhysicalFixedIbor SWAPTION_SPREAD_EUR1Y3M = SWAPTION_SPREAD_EUR1Y3M_DEFINITION.toDerivative(REFERENCE_DATE);

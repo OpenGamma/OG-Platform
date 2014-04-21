@@ -19,10 +19,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PolynomialsLeastSquaresFitterTest {
   private static final double EPS = 1e-14;
   private static final Random randObj = new Random();

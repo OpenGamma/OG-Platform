@@ -15,11 +15,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MetalForwardDefinitionTest {
 
   private final static ExternalId AN_UNDERLYING= ExternalId.of("Scheme", "value");

@@ -21,6 +21,16 @@ import com.opengamma.util.tuple.Triple;
 
   private ResolutionPump _pump;
 
+  /**
+   * Creates a new instance.
+   * <p>
+   * The {@code resolvedOutput} parameter must be normalized.
+   * 
+   * @param task the resolve task this step is part of, not null
+   * @param base the superclass data, not null
+   * @param resolved the resolved function information, not null
+   * @param resolvedOutput the provisional resolved value specification, not null
+   */
   public ExistingResolutionsStep(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base,
       final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
     super(task, base, resolved, resolvedOutput);

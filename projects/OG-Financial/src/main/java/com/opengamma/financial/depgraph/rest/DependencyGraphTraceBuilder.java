@@ -18,8 +18,6 @@ import com.opengamma.engine.depgraph.ResolutionFailureAccumulator;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
-import com.opengamma.engine.marketdata.CombinedMarketDataProvider;
-import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketData;

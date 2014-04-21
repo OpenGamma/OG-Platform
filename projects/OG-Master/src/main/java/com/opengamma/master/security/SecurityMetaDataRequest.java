@@ -7,6 +7,7 @@ package com.opengamma.master.security;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -66,52 +67,6 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
     return SecurityMetaDataRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -714180327:  // securityTypes
-        return isSecurityTypes();
-      case -233564169:  // schemaVersion
-        return isSchemaVersion();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -714180327:  // securityTypes
-        setSecurityTypes((Boolean) newValue);
-        return;
-      case -233564169:  // schemaVersion
-        setSchemaVersion((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityMetaDataRequest other = (SecurityMetaDataRequest) obj;
-      return JodaBeanUtils.equal(isSecurityTypes(), other.isSecurityTypes()) &&
-          JodaBeanUtils.equal(isSchemaVersion(), other.isSchemaVersion()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSecurityTypes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSchemaVersion());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets whether to fetch the security types meta-data, true by default.
@@ -160,6 +115,54 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
    */
   public final Property<Boolean> schemaVersion() {
     return metaBean().schemaVersion().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SecurityMetaDataRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityMetaDataRequest other = (SecurityMetaDataRequest) obj;
+      return (isSecurityTypes() == other.isSecurityTypes()) &&
+          (isSchemaVersion() == other.isSchemaVersion()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSecurityTypes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSchemaVersion());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SecurityMetaDataRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("securityTypes").append('=').append(JodaBeanUtils.toString(isSecurityTypes())).append(',').append(' ');
+    buf.append("schemaVersion").append('=').append(JodaBeanUtils.toString(isSchemaVersion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -237,6 +240,31 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
      */
     public final MetaProperty<Boolean> schemaVersion() {
       return _schemaVersion;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -714180327:  // securityTypes
+          return ((SecurityMetaDataRequest) bean).isSecurityTypes();
+        case -233564169:  // schemaVersion
+          return ((SecurityMetaDataRequest) bean).isSchemaVersion();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -714180327:  // securityTypes
+          ((SecurityMetaDataRequest) bean).setSecurityTypes((Boolean) newValue);
+          return;
+        case -233564169:  // schemaVersion
+          ((SecurityMetaDataRequest) bean).setSchemaVersion((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

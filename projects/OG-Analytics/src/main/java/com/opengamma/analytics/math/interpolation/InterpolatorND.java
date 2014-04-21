@@ -14,6 +14,7 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -47,7 +48,7 @@ public abstract class InterpolatorND implements Interpolator<InterpolatorNDDataB
     ArgumentChecker.isTrue(values.length == n, "number of values {} is not equal to number of xs {}", values.length, n);
     final List<Pair<double[], Double>> data = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
-      data.add(Pair.of(new double[] {x[i], y[i], z[i]}, values[i]));
+      data.add(Pairs.of(new double[] {x[i], y[i], z[i]}, values[i]));
     }
     return data;
   }

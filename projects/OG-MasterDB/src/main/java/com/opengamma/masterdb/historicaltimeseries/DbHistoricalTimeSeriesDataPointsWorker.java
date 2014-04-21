@@ -43,6 +43,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 
 /**
@@ -109,7 +110,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     final VersionCorrection vc = versionCorrection.withLatestFixed(now());
 
     // Set up the basic query arguments
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", oid)
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -180,7 +181,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
         insertDataPointsCheckMaxDate(uniqueId, series);
-        return Pair.of(insertDataPoints(uniqueId, series, now), now);
+        return Pairs.of(insertDataPoints(uniqueId, series, now), now);
       }
     });
     getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
@@ -196,7 +197,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
   protected void insertDataPointsCheckMaxDate(final UniqueId uniqueId, final LocalDateDoubleTimeSeries series) {
     final Long docOid = extractOid(uniqueId);
     final VersionCorrection vc = getMaster().extractTimeSeriesInstants(uniqueId);
-    final DbMapSqlParameterSource queryArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource queryArgs = createParameterSource()
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_instant", vc.getVersionAsOf())
       .addTimestamp("corr_instant", vc.getCorrectedTo());
@@ -230,7 +231,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       if (date == null || value == null) {
         throw new IllegalArgumentException("Time-series must not contain a null value");
       }
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource args = createParameterSource()
         .addValue("doc_oid", docOid)
         .addDate("point_date", date)
         .addValue("ver_instant", nowTS)
@@ -256,7 +257,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       @Override
       public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
-        return Pair.of(correctDataPoints(uniqueId, series, now), now);
+        return Pairs.of(correctDataPoints(uniqueId, series, now), now);
       }
     });
     getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
@@ -281,7 +282,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       if (date == null || value == null) {
         throw new IllegalArgumentException("Time-series must not contain a null value");
       }
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource args = createParameterSource()
         .addValue("doc_oid", docOid)
         .addDate("point_date", date)
         .addValue("corr_instant", nowTS)
@@ -306,7 +307,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       @Override
       public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
-        return Pair.of(removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now), now);
+        return Pairs.of(removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now), now);
       }
     });
     getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
@@ -325,7 +326,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
   protected UniqueId removeDataPoints(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive, Instant now) {
     final Long docOid = extractOid(uniqueId);
     // query dates to remove
-    final DbMapSqlParameterSource queryArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource queryArgs = createParameterSource()
       .addValue("doc_oid", docOid)
       .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
       .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(toDateInclusive));
@@ -335,7 +336,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     final Timestamp nowTS = DbDateUtils.toSqlTimestamp(now);
     final List<DbMapSqlParameterSource> argsList = new ArrayList<DbMapSqlParameterSource>();
     for (Map<String, Object> date : dates) {
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource args = createParameterSource()
         .addValue("doc_oid", docOid)
         .addValue("point_date", date.get("POINT_DATE"))
         .addValue("corr_instant", nowTS)
@@ -399,7 +400,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     checkScheme(objectId);
     final long oid = extractOid(objectId);
     versionCorrection = versionCorrection.withLatestFixed(now());
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", oid)
       .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
       .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());

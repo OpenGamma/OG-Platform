@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -73,21 +74,21 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final double paymentTime = payment.getPaymentTime();
     final double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final double af = payment.getFixingAccrualFactor();
-    final double beta = (1.0 + af * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
+    final double beta = (1.0 + af * multicurves.getSimplyCompoundForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
     final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
     final double forwardBar = af * dfRatio * betaBar;
 
     final Map<Double, MulticurveSensitivity> result = new HashMap<>();
     final Map<String, List<ForwardSensitivity>> resultFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
     resultFwd.put(multicurves.getName(payment.getIndex()), listForward);
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<>();
     final List<DoublesPair> listDisc = new ArrayList<>();
-    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = DoublesPair.of(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = DoublesPair.of(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultDsc.put(multicurves.getName(ccy), listDisc);
 
@@ -105,21 +106,21 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final double paymentTime = payment.getPaymentTime();
     final double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final double af = payment.getFixingAccrualFactor();
-    final double beta = (1.0 + af * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
+    final double beta = (1.0 + af * multicurves.getSimplyCompoundForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
     final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
     final double forwardBar = af * dfRatio * betaBar;
 
     final Map<Double, MulticurveSensitivity> result = new HashMap<>();
     final Map<String, List<ForwardSensitivity>> resultFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
     resultFwd.put(multicurves.getName(payment.getIndex()), listForward);
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<>();
     final List<DoublesPair> listDisc = new ArrayList<>();
-    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = DoublesPair.of(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = DoublesPair.of(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultDsc.put(multicurves.getName(ccy), listDisc);
 

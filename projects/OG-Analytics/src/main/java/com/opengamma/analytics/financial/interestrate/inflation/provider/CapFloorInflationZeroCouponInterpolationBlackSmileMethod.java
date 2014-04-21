@@ -120,8 +120,8 @@ public final class CapFloorInflationZeroCouponInterpolationBlackSmileMethod {
     final double df = black.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<>();
     final List<DoublesPair> listPrice = new ArrayList<>();
-    listPrice.add(new DoublesPair(cap.getReferenceEndTime()[0], cap.getWeight() / cap.getIndexStartValue()));
-    listPrice.add(new DoublesPair(cap.getReferenceEndTime()[1], (1 - cap.getWeight()) / cap.getIndexStartValue()));
+    listPrice.add(DoublesPair.of(cap.getReferenceEndTime()[0], cap.getWeight() / cap.getIndexStartValue()));
+    listPrice.add(DoublesPair.of(cap.getReferenceEndTime()[1], (1 - cap.getWeight()) / cap.getIndexStartValue()));
     resultMapPrice.put(inflation.getName(cap.getPriceIndex()), listPrice);
     final InflationSensitivity forwardDi = InflationSensitivity.ofPriceIndex(resultMapPrice);
     final double dfDr = -cap.getPaymentTime() * df;
@@ -129,7 +129,7 @@ public final class CapFloorInflationZeroCouponInterpolationBlackSmileMethod {
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
+    list.add(DoublesPair.of(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(inflation.getName(cap.getCurrency()), list);
     InflationSensitivity result = InflationSensitivity.ofYieldDiscounting(resultMap);

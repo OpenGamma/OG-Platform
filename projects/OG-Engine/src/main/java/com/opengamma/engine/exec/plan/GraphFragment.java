@@ -19,6 +19,8 @@ import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.calcnode.stats.FunctionInvocationStatistics;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.impl.DependencyNodeImpl;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 
@@ -104,15 +106,17 @@ import com.opengamma.engine.view.ExecutionLogMode;
     _nodes.add(node);
     _invocationCost = (long) statistics.getInvocationCost();
     final Integer inputCost = (Integer) (int) (statistics.getDataInputCost() * NANOS_PER_BYTE);
-    for (ValueSpecification input : node.getInputValues()) {
-      _inputValues.put(input, inputCost);
+    int count = node.getInputCount();
+    for (int i = 0; i < count; i++) {
+      _inputValues.put(node.getInputValue(i), inputCost);
     }
-    _dataInputCost = node.getInputValues().size() * inputCost;
+    _dataInputCost = count * inputCost;
     final Integer outputCost = (Integer) (int) (statistics.getDataOutputCost() * NANOS_PER_BYTE);
-    for (ValueSpecification output : node.getOutputValues()) {
-      _outputValues.put(output, outputCost);
+    count = node.getOutputCount();
+    for (int i = 0; i < count; i++) {
+      _outputValues.put(node.getOutputValue(i), outputCost);
     }
-    _dataOutputCost = node.getOutputValues().size() * outputCost;
+    _dataOutputCost = count * outputCost;
   }
 
   private LinkedList<DependencyNode> getNodes() {
@@ -389,14 +393,22 @@ import com.opengamma.engine.view.ExecutionLogMode;
   }
 
   private PlannedJob createJob(final GraphFragmentContext context) {
+    final String calculationConfig = context.getCalculationConfig();
     final List<DependencyNode> nodes = getNodes();
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>(nodes.size());
+    final Map<ValueSpecification, FunctionParameters> parameters = context.getParameters();
     for (final DependencyNode node : nodes) {
-      final Set<ValueSpecification> inputs = node.getInputValues();
-      final ExecutionLogMode logMode = context.getLogModeSource().getLogMode(node);
-      final CalculationJobItem jobItem = new CalculationJobItem(
-          node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget(), inputs, node.getOutputValues(), logMode);
+      final ExecutionLogMode logMode = context.getLogModeSource().getLogMode(calculationConfig, node.getOutputValue(0));
+      FunctionParameters functionParameters = node.getFunction().getParameters();
+      final ValueSpecification[] outputs = DependencyNodeImpl.getOutputValueArray(node);
+      for (ValueSpecification output : outputs) {
+        FunctionParameters newParameters = parameters.get(output);
+        if (newParameters != null) {
+          functionParameters = newParameters;
+        }
+      }
+      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunctionId(), functionParameters, node.getTarget(),
+          DependencyNodeImpl.getInputValueArray(node), outputs, logMode);
       items.add(jobItem);
     }
     final CacheSelectHint hint = createCacheSelectHint(context);

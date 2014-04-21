@@ -19,10 +19,12 @@ import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.sensitivity.PositionGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GreekConverterTest {
   private static final double N = 123.;
   private static final double PV = 456;

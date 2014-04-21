@@ -26,11 +26,13 @@ import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutput;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -189,6 +191,10 @@ public class PortfolioGridStructure extends MainGridStructure {
       for (Pair<String, ValueProperties> output : calcConfig.getAllPortfolioRequirements()) {
         allSpecs.add(new ColumnSpecification(calcConfig.getName(), output.getFirst(), output.getSecond()));
       }
+      for (MergedOutput output : calcConfig.getMergedOutputs()) {
+        ValueProperties constraints = ValueProperties.with(ValuePropertyNames.NAME, output.getMergedOutputName()).get();
+        allSpecs.add(new ColumnSpecification(calcConfig.getName(), ValueRequirementNames.MERGED_OUTPUT, constraints, output.getMergedOutputName()));
+      }
       List<GridColumn> columns = Lists.newArrayList();
       for (ColumnSpecification columnSpec : allSpecs) {
         Class<?> columnType = ValueTypes.getTypeForValueName(columnSpec.getValueName());
@@ -290,12 +296,8 @@ public class PortfolioGridStructure extends MainGridStructure {
    * @return true if the security is fungible, false if OTC
    */
   private static boolean isFungible(Security security) {
-    if (security instanceof FinancialSecurity) {      
-      Boolean isOTC = ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
-      if (isOTC == null) {
-        return false;
-      }
-      return !isOTC;
+    if (security instanceof FinancialSecurity) {
+      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
     } else {
       return false;
     }

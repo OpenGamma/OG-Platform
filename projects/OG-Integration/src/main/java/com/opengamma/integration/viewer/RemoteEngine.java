@@ -241,6 +241,11 @@ public class RemoteEngine {
     return new RemoteHistoricalTimeSeriesLoader(uri);
   }
   
+  public RemoteFunctionConfigurationSource getFunctionConfigurationSource(final String name) {
+    final URI uri = _components.getComponentInfo(FunctionConfigurationSource.class, name).getUri();
+    return new RemoteFunctionConfigurationSource(uri);
+  }
+  
   public void shutDown() {
     if (_scheduler != null) {
       _scheduler.shutdownNow();

@@ -13,26 +13,35 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * A Variance Swap is a forward contract on the realised variance of a generic underlying. This could be a single equity price, the value of an equity index,
+ * A variance swap is a forward contract on the realised variance of a generic underlying. This could be a single equity price, the value of an equity index,
  * an FX rate or <b>any</b> other financial metric on which a variance swap contract is based.<p>
- * The floating leg of a Variance Swap is the realized variance and is calculate using the second moment of log returns of the underlying asset
- * 
- * Because variance is additive in time, the value of a VarianceSwap can be decomposed at any point in time between realized and implied variance as
+ * The floating leg of a variance swap is the realized variance and is calculated using the second moment of log returns of the underlying asset.
+ * <p>
+ * Because variance is additive in time, the value of a variance swap can be decomposed at any point in time between realized and implied variance as
  * _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2 + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ]
  */
 public class VarianceSwap implements InstrumentDerivative {
+  /** The time in years to the start of variance observations */
   private final double _timeToObsStart;
+  /** The time in years to the end of variance observations */
   private final double _timeToObsEnd;
+  /** The time year years to settlement */
   private final double _timeToSettlement;
-
-  private final double _varStrike; // volStrike^2
-  private final double _varNotional; // := 0.5 * _volNotional / _volStrike
+  /** The variance strike. volStrike ^ 2 */
+  private final double _varStrike;
+  /** The variance notional. 0.5 * _volNotional / _volStrike */
+  private final double _varNotional;
+  /** The currency */
   private final Currency _currency;
+  /** The annualization factor */
   private final double _annualizationFactor; // typically 252 with daily observations
-
+  /** The number of expected observations */
   private final int _nObsExpected;
+  /** The number of missing observations */
   private final int _nObsDisrupted;
+  /** The observed variances */
   private final double[] _observations;
+  /** The observation weights */
   private final double[] _observationWeights;
 
   /**
@@ -70,9 +79,7 @@ public class VarianceSwap implements InstrumentDerivative {
           "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
               + " Found {} weights and {} observations.", nWeights, nObs);
     }
-
-    ArgumentChecker.isTrue(_nObsExpected > 0, "Encountered a VarianceSwap with 0 nObsExpected! "
-        + "If it is impractical to count, contact Quant to default this value in VarianceSwap constructor.");
+    ArgumentChecker.isTrue(_nObsExpected > 0, "Encountered a VarianceSwap with 0 expected observations");
   }
 
   /**

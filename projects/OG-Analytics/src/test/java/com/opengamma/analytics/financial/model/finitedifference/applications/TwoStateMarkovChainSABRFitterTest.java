@@ -35,12 +35,14 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TwoStateMarkovChainSABRFitterTest {
 
   private static final PDE1DCoefficientsProvider PDE_PROVIDER = new PDE1DCoefficientsProvider();
@@ -143,7 +145,7 @@ public class TwoStateMarkovChainSABRFitterTest {
     SABR_VOLS = new ArrayList<>(EXPIRY_AND_STRIKES.size());
     for (int i = 0; i < EXPIRY_AND_STRIKES.size(); i++) {
       final double[] tk = EXPIRY_AND_STRIKES.get(i);
-      final Pair<double[], Double> pair = new ObjectsPair<>(tk, SABR_VOL_FUNCTION.evaluate(tk[0], tk[1]));
+      final Pair<double[], Double> pair = Pairs.of(tk, SABR_VOL_FUNCTION.evaluate(tk[0], tk[1]));
       SABR_VOLS.add(pair);
     }
 

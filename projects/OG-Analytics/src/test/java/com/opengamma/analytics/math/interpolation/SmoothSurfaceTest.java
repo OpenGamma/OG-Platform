@@ -23,14 +23,16 @@ import com.opengamma.analytics.math.minimization.ConjugateGradientVectorMinimize
 import com.opengamma.analytics.math.minimization.ScalarMinimizer;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
-//FIXME this test does nothing - either delete or add some real tests
+@Test(groups = TestGroup.UNIT)
 public class SmoothSurfaceTest {
+//FIXME this test does nothing - either delete or add some real tests
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, RANDOM);
   private static final double EPS = 1e-5;
@@ -48,8 +50,8 @@ public class SmoothSurfaceTest {
       x = 10 * RANDOM.nextDouble();
       y = 10 * RANDOM.nextDouble();
       NODE_POS.add(new double[] {x, y});
-      FLAT_DATA.add(new ObjectsPair<>(new double[] {x, y}, VALUE));
-      NOISY_DATA.add(new ObjectsPair<>(new double[] {x, y}, VALUE + 0.1 * NORMAL.nextRandom()));
+      FLAT_DATA.add(Pairs.of(new double[] {x, y}, VALUE));
+      NOISY_DATA.add(Pairs.of(new double[] {x, y}, VALUE + 0.1 * NORMAL.nextRandom()));
     }
   }
 
@@ -102,7 +104,7 @@ public class SmoothSurfaceTest {
     Validate.isTrue(n == weights.getNumberOfElements());
     final List<Pair<double[], Double>> weightsAndPos = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
-      weightsAndPos.add(new ObjectsPair<>(nodePos.get(i), weights.getEntry(i)));
+      weightsAndPos.add(Pairs.of(nodePos.get(i), weights.getEntry(i)));
     }
     return weightsAndPos;
   }

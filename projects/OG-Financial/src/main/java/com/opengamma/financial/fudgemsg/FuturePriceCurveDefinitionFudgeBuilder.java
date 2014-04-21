@@ -50,6 +50,7 @@ public class FuturePriceCurveDefinitionFudgeBuilder implements FudgeBuilder<Futu
       final Object x = deserializer.fieldValueToObject(xField);
       xs.add(x);
     }
-    return new FuturePriceCurveDefinition<Object>(name, target, xs.toArray());
+    return FuturePriceCurveDefinition.of(name, target, xs);
   }
+
 }

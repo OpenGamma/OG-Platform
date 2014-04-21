@@ -17,7 +17,6 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
@@ -86,7 +85,7 @@ public class SABRCMSSpreadNoExtrapolationVegaFunction extends SABRVegaFunction {
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION)
         .withAny(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD)
         .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
-        .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
+        .get();
   }
 
   @Override
@@ -113,7 +112,7 @@ public class SABRCMSSpreadNoExtrapolationVegaFunction extends SABRVegaFunction {
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION)
         .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
-        .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
+        .get();
   }
 
   private static DoubleFunction1D getCorrelationFunction() {

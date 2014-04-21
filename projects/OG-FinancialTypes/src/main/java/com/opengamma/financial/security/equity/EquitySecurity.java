@@ -7,6 +7,7 @@ package com.opengamma.financial.security.equity;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,12 +20,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for equities.
  */
 @BeanDefinition
+@SecurityDescription(type = EquitySecurity.SECURITY_TYPE, description = "Equity")
 public class EquitySecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -117,96 +120,6 @@ public class EquitySecurity extends FinancialSecurity {
   @Override
   public EquitySecurity.Meta metaBean() {
     return EquitySecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2028219097:  // shortName
-        return getShortName();
-      case 1989774883:  // exchange
-        return getExchange();
-      case 1429202608:  // exchangeCode
-        return getExchangeCode();
-      case -508582744:  // companyName
-        return getCompanyName();
-      case 575402001:  // currency
-        return getCurrency();
-      case 762040799:  // gicsCode
-        return getGicsCode();
-      case -1294005119:  // preferred
-        return isPreferred();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2028219097:  // shortName
-        setShortName((String) newValue);
-        return;
-      case 1989774883:  // exchange
-        setExchange((String) newValue);
-        return;
-      case 1429202608:  // exchangeCode
-        setExchangeCode((String) newValue);
-        return;
-      case -508582744:  // companyName
-        setCompanyName((String) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 762040799:  // gicsCode
-        setGicsCode((GICSCode) newValue);
-        return;
-      case -1294005119:  // preferred
-        setPreferred((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_exchange, "exchange");
-    JodaBeanUtils.notNull(_exchangeCode, "exchangeCode");
-    JodaBeanUtils.notNull(_companyName, "companyName");
-    JodaBeanUtils.notNull(_currency, "currency");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      EquitySecurity other = (EquitySecurity) obj;
-      return JodaBeanUtils.equal(getShortName(), other.getShortName()) &&
-          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
-          JodaBeanUtils.equal(getExchangeCode(), other.getExchangeCode()) &&
-          JodaBeanUtils.equal(getCompanyName(), other.getCompanyName()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getGicsCode(), other.getGicsCode()) &&
-          JodaBeanUtils.equal(isPreferred(), other.isPreferred()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPreferred());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -389,6 +302,69 @@ public class EquitySecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EquitySecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EquitySecurity other = (EquitySecurity) obj;
+      return JodaBeanUtils.equal(getShortName(), other.getShortName()) &&
+          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getExchangeCode(), other.getExchangeCode()) &&
+          JodaBeanUtils.equal(getCompanyName(), other.getCompanyName()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getGicsCode(), other.getGicsCode()) &&
+          (isPreferred() == other.isPreferred()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getShortName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPreferred());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("EquitySecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("shortName").append('=').append(JodaBeanUtils.toString(getShortName())).append(',').append(' ');
+    buf.append("exchange").append('=').append(JodaBeanUtils.toString(getExchange())).append(',').append(' ');
+    buf.append("exchangeCode").append('=').append(JodaBeanUtils.toString(getExchangeCode())).append(',').append(' ');
+    buf.append("companyName").append('=').append(JodaBeanUtils.toString(getCompanyName())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("gicsCode").append('=').append(JodaBeanUtils.toString(getGicsCode())).append(',').append(' ');
+    buf.append("preferred").append('=').append(JodaBeanUtils.toString(isPreferred())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EquitySecurity}.
    */
@@ -543,6 +519,65 @@ public class EquitySecurity extends FinancialSecurity {
      */
     public final MetaProperty<Boolean> preferred() {
       return _preferred;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2028219097:  // shortName
+          return ((EquitySecurity) bean).getShortName();
+        case 1989774883:  // exchange
+          return ((EquitySecurity) bean).getExchange();
+        case 1429202608:  // exchangeCode
+          return ((EquitySecurity) bean).getExchangeCode();
+        case -508582744:  // companyName
+          return ((EquitySecurity) bean).getCompanyName();
+        case 575402001:  // currency
+          return ((EquitySecurity) bean).getCurrency();
+        case 762040799:  // gicsCode
+          return ((EquitySecurity) bean).getGicsCode();
+        case -1294005119:  // preferred
+          return ((EquitySecurity) bean).isPreferred();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2028219097:  // shortName
+          ((EquitySecurity) bean).setShortName((String) newValue);
+          return;
+        case 1989774883:  // exchange
+          ((EquitySecurity) bean).setExchange((String) newValue);
+          return;
+        case 1429202608:  // exchangeCode
+          ((EquitySecurity) bean).setExchangeCode((String) newValue);
+          return;
+        case -508582744:  // companyName
+          ((EquitySecurity) bean).setCompanyName((String) newValue);
+          return;
+        case 575402001:  // currency
+          ((EquitySecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case 762040799:  // gicsCode
+          ((EquitySecurity) bean).setGicsCode((GICSCode) newValue);
+          return;
+        case -1294005119:  // preferred
+          ((EquitySecurity) bean).setPreferred((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EquitySecurity) bean)._exchange, "exchange");
+      JodaBeanUtils.notNull(((EquitySecurity) bean)._exchangeCode, "exchangeCode");
+      JodaBeanUtils.notNull(((EquitySecurity) bean)._companyName, "companyName");
+      JodaBeanUtils.notNull(((EquitySecurity) bean)._currency, "currency");
+      super.validate(bean);
     }
 
   }

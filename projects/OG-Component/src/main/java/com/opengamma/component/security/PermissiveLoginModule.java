@@ -5,6 +5,8 @@
  */
 package com.opengamma.component.security;
 
+import javax.security.auth.spi.LoginModule;
+
 import org.eclipse.jetty.plus.jaas.spi.AbstractLoginModule;
 import org.eclipse.jetty.plus.jaas.spi.UserInfo;
 import org.eclipse.jetty.util.security.Credential;

@@ -8,6 +8,7 @@ package com.opengamma.core.exchange.impl;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -101,79 +102,6 @@ public class SimpleExchange extends DirectBean
   @Override
   public SimpleExchange.Meta metaBean() {
     return SimpleExchange.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-      case 979697809:  // regionIdBundle
-        return getRegionIdBundle();
-      case -2077180903:  // timeZone
-        return getTimeZone();
-      case 3373707:  // name
-        return getName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundle) newValue);
-        return;
-      case 979697809:  // regionIdBundle
-        setRegionIdBundle((ExternalIdBundle) newValue);
-        return;
-      case -2077180903:  // timeZone
-        setTimeZone((ZoneId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalIdBundle, "externalIdBundle");
-    JodaBeanUtils.notNull(_name, "name");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleExchange other = (SimpleExchange) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
-          JodaBeanUtils.equal(getRegionIdBundle(), other.getRegionIdBundle()) &&
-          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -304,6 +232,60 @@ public class SimpleExchange extends DirectBean
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SimpleExchange clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleExchange other = (SimpleExchange) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getRegionIdBundle(), other.getRegionIdBundle()) &&
+          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("SimpleExchange{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("regionIdBundle").append('=').append(JodaBeanUtils.toString(getRegionIdBundle())).append(',').append(' ');
+    buf.append("timeZone").append('=').append(JodaBeanUtils.toString(getTimeZone())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SimpleExchange}.
    */
@@ -426,6 +408,52 @@ public class SimpleExchange extends DirectBean
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimpleExchange) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((SimpleExchange) bean).getExternalIdBundle();
+        case 979697809:  // regionIdBundle
+          return ((SimpleExchange) bean).getRegionIdBundle();
+        case -2077180903:  // timeZone
+          return ((SimpleExchange) bean).getTimeZone();
+        case 3373707:  // name
+          return ((SimpleExchange) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimpleExchange) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((SimpleExchange) bean).setExternalIdBundle((ExternalIdBundle) newValue);
+          return;
+        case 979697809:  // regionIdBundle
+          ((SimpleExchange) bean).setRegionIdBundle((ExternalIdBundle) newValue);
+          return;
+        case -2077180903:  // timeZone
+          ((SimpleExchange) bean).setTimeZone((ZoneId) newValue);
+          return;
+        case 3373707:  // name
+          ((SimpleExchange) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleExchange) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((SimpleExchange) bean)._name, "name");
     }
 
   }

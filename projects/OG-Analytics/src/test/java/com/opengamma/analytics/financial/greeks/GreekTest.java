@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GreekTest {
   private static final String NAME = "GREEK";
   private static final Underlying UNDERLYING = new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE);

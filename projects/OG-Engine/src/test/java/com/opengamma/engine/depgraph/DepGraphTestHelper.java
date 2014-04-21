@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  *
@@ -154,8 +155,8 @@ public class DepGraphTestHelper {
   }
 
   public void make2AvailableFromLiveData() {
-    _liveDataAvailabilityProvider.addAvailableData(new ValueSpecification(_req2.getValueName(), _req2.getTargetReference().getSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION,
-        "LiveData").get()));
+    _liveDataAvailabilityProvider.addAvailableData(new ValueSpecification(_req2.getValueName(), _req2.getTargetReference().getSpecification(), ValueProperties.with(
+        ValuePropertyNames.FUNCTION, "LiveData").get()));
   }
 
   public DependencyGraphBuilder createBuilder(final FunctionPriority prioritizer) {
@@ -168,6 +169,7 @@ public class DepGraphTestHelper {
     context.setComputationTargetResolver(targetResolver.atVersionCorrection(VersionCorrection.of(now, now)));
     builder.setCompilationContext(context);
     final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
+    TestLifecycle.register(compilationService);
     compilationService.initialize();
     final DefaultFunctionResolver resolver;
     if (prioritizer != null) {

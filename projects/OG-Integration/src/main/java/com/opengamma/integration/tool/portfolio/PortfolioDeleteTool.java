@@ -18,12 +18,11 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.integration.copier.portfolio.DeletingPortfolioCopier;
-import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.MasterPositionReader;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPositionWriter;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.scripts.Scriptable;
 
 /**
  * The portfolio loader tool
@@ -52,11 +51,10 @@ public class PortfolioDeleteTool extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioDeleteTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new PortfolioDeleteTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -88,12 +86,12 @@ public class PortfolioDeleteTool extends AbstractTool<ToolContext> {
               getCommandLine().hasOption(WRITE_OPT));
       
       deletingPortfolioCopier.copy(
-          new MasterPortfolioReader(
+          new MasterPositionReader(
               portfolioDocument.getPortfolio().getName(), 
               getToolContext().getPortfolioMaster(), 
               getToolContext().getPositionMaster(), 
               getToolContext().getSecuritySource()), 
-          new PrettyPrintingPortfolioWriter(false),
+          new PrettyPrintingPositionWriter(false),
           getCommandLine().hasOption(DELETE_POSITIONS_OPT),
           getCommandLine().hasOption(DELETE_SECURITIES_OPT));
       

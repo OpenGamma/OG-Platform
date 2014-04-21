@@ -13,8 +13,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
-import com.opengamma.OpenGammaRuntimeException;
-
 /**
  * Abstract class for loading component configuration.
  */
@@ -66,12 +64,13 @@ public abstract class AbstractComponentConfigLoader {
    * @param value  the value to resolve, not null
    * @param lineNum  the line number, for error messages
    * @return the resolved value, not null
+   * @throws ComponentConfigException if a variable expansion is not found
    */
   protected String resolveProperty(String value, int lineNum) {
     String variable = findVariable(value);
     while (variable != null) {
       if (_properties.containsKey(variable) == false) {
-        throw new OpenGammaRuntimeException("Variable expansion not found: ${" + variable + "}, line " + lineNum);
+        throw new ComponentConfigException("Variable expansion not found: ${" + variable + "}, line " + lineNum);
       }
       value = StringUtils.replaceOnce(value, "${" + variable + "}", _properties.get(variable));
       variable = findVariable(value);
@@ -102,12 +101,13 @@ public abstract class AbstractComponentConfigLoader {
    * 
    * @param resource  the resource to read, not null
    * @return the lines, not null
+   * @throws ComponentConfigException if the resource cannot be read
    */
   protected List<String> readLines(Resource resource) {
     try {
       return IOUtils.readLines(resource.getInputStream(), "UTF8");
     } catch (IOException ex) {
-      throw new OpenGammaRuntimeException("Unable to read resource: " + resource, ex);
+      throw new ComponentConfigException("Unable to read resource: " + resource, ex);
     }
   }
 

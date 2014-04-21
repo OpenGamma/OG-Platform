@@ -25,7 +25,7 @@ public class EquityOptionSurfaceCalculationMethodPerEquityDefaults extends Equit
 
   @Override
   protected String getId(final Security security) {
-    final String id = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
+    final String id = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security, true);
     if (id != null) {
       return id.toUpperCase();
     }

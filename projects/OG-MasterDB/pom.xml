@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform-public</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>og-masterdb</artifactId>
@@ -36,9 +36,25 @@
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
     </dependency>
+    <!--dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency-->
+    <!--dependency>
+      <groupId>com.opengamma.external.microsoft</groupId>
+      <artifactId>sqljdbc</artifactId>
+      <scope>test</scope>
+    </dependency-->
+    <!--dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ojdbc7</artifactId>
+      <version>12.1.0.1</version>
+    </dependency-->
   </dependencies>
 
   <properties>
+    <tests.testng.threads>1</tests.testng.threads>
   </properties>
 
 </project>

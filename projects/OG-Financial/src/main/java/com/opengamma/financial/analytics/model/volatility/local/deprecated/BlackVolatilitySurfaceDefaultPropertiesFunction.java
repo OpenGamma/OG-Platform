@@ -23,13 +23,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 @Deprecated
 public class BlackVolatilitySurfaceDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private final String _forwardCurveCalculationMethod;
-  private final String _forwardCurveName;
-  private final String _surfaceType;
-  private final String _xAxis;
-  private final String _yAxis;
-  private final String _yAxisType;
-  private final String _surfaceName;
+
+  private final Set<String> _forwardCurveCalculationMethod;
+  private final Set<String> _forwardCurveName;
+  private final Set<String> _surfaceType;
+  private final Set<String> _xAxis;
+  private final Set<String> _yAxis;
+  private final Set<String> _yAxisType;
+  private final Set<String> _surfaceName;
 
   public BlackVolatilitySurfaceDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis, final String yAxis,
       final String yAxisType, final String surfaceName) {
@@ -41,13 +42,13 @@ public class BlackVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
     ArgumentChecker.notNull(yAxis, "y axis");
     ArgumentChecker.notNull(yAxisType, "y axis type");
     ArgumentChecker.notNull(surfaceName, "surface name");
-    _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
-    _forwardCurveName = forwardCurveName;
-    _surfaceType = surfaceType;
-    _xAxis = xAxis;
-    _yAxis = yAxis;
-    _yAxisType = yAxisType;
-    _surfaceName = surfaceName;
+    _forwardCurveCalculationMethod = Collections.singleton(forwardCurveCalculationMethod);
+    _forwardCurveName = Collections.singleton(forwardCurveName);
+    _surfaceType = Collections.singleton(surfaceType);
+    _xAxis = Collections.singleton(xAxis);
+    _yAxis = Collections.singleton(yAxis);
+    _yAxisType = Collections.singleton(yAxisType);
+    _surfaceName = Collections.singleton(surfaceName);
   }
 
   @Override
@@ -63,28 +64,24 @@ public class BlackVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethod);
+    switch (propertyName) {
+      case ValuePropertyNames.CURVE_CALCULATION_METHOD:
+        return _forwardCurveCalculationMethod;
+      case ValuePropertyNames.CURVE:
+        return _forwardCurveName;
+      case LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE:
+        return _surfaceType;
+      case LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS:
+        return _xAxis;
+      case LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS:
+        return _yAxis;
+      case LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE:
+        return _yAxisType;
+      case ValuePropertyNames.SURFACE:
+        return _surfaceName;
+      default:
+        return null;
     }
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveName);
-    }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE.equals(propertyName)) {
-      return Collections.singleton(_surfaceType);
-    }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS.equals(propertyName)) {
-      return Collections.singleton(_xAxis);
-    }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS.equals(propertyName)) {
-      return Collections.singleton(_yAxis);
-    }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE.equals(propertyName)) {
-      return Collections.singleton(_yAxisType);
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_surfaceName);
-    }
-    return null;
   }
 
   @Override

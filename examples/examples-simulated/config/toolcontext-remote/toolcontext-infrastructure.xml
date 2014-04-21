@@ -11,6 +11,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
     <constructor-arg ref="activeMQConnectionFactory"/>
+    <property name="idleTimeout" value="0" /> <!-- AMQ-4366 -->
   </bean>
 
   <bean id="standardJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">

@@ -12,30 +12,16 @@ $.register_module({
             get: common.not_implemented_get,
             put: common.not_implemented_put,
             del: common.not_implemented_del,
-            login: {
-                root: 'user/login',
-                get: common.not_implemented_put,
-                put: function (config) {
-                    config = config || {};
-                    var root = this.root, method = root.split('/'), data = {}, meta;
-                    meta = check({
-                        bundle: {method: root + '#put', config: config}
-                    });
-                    meta.type = 'PUT';
-                    return api.request(method, {data: data, meta: meta});
-                },
-                del: common.not_implemented_del
-            },
             logout: {
                 root: 'user/logout',
-                get: common.not_implemented_get,
-                put: function (config) {
+                put: common.not_implemented_put,
+                get: function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), data = {}, meta;
                     meta = check({
                         bundle: {method: root + '#put', config: config}
                     });
-                    meta.type = 'PUT';
+                    meta.type = 'GET';
                     return api.request(method, {data: data, meta: meta});
                 },
                 del: common.not_implemented_del

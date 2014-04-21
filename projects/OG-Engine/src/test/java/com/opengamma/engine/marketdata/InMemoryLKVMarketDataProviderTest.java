@@ -38,7 +38,7 @@ public class InMemoryLKVMarketDataProviderTest {
 
   public void testCompatible() {
     final InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider();
-    assertTrue(provider.isCompatible(new LiveMarketDataSpecification()));
+    assertTrue(provider.isCompatible(LiveMarketDataSpecification.LIVE_SPEC));
   }
 
   public void testAddRemoveValues() {

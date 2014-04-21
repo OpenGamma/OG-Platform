@@ -71,12 +71,12 @@ public class SnapshotManager {
    * Initialise the snapshot, only returning once it has been initialized with all
    * required market data results. In order to achieve this, all required subscriptions
    * will be requested.
+   * 
+   * @param timeoutMillis  the timeout in milliseconds
    */
-  public void initialiseSnapshotWithSubscriptionResults() {
+  public void initialiseSnapshotWithSubscriptionResults(long timeoutMillis) {
     requestSubscriptions();
-    // REVIEW jonathan/andrew -- 2013-03-28 -- if the user wants to wait for market data, then assume they mean
-    // it and wait as long as it takes. There are mechanisms for cancelling the job.
-    _snapshot.init(_cycleMarketDataRequirements, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+    _snapshot.init(_cycleMarketDataRequirements, timeoutMillis, TimeUnit.MILLISECONDS);
   }
 
   public Instant getSnapshotTime() {

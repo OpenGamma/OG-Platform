@@ -22,9 +22,6 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -76,7 +73,7 @@ public class DataCurveSpecificationBuilderResource extends AbstractDataResource 
     final Instant valuationTime = Instant.parse(valuationTimeStr);
     final LocalDate curveDate = LocalDate.parse(curveDateStr);
     CurveSpecification result = getCurveSpecificationBuilder().buildCurve(valuationTime, curveDate, definition);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /**

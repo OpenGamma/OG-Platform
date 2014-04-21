@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -77,59 +78,6 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
     return IborCurveTypeConfiguration.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2039569265:  // convention
-        return getConvention();
-      case 110246592:  // tenor
-        return getTenor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2039569265:  // convention
-        setConvention((ExternalId) newValue);
-        return;
-      case 110246592:  // tenor
-        setTenor((Tenor) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_convention, "convention");
-    JodaBeanUtils.notNull(_tenor, "tenor");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      IborCurveTypeConfiguration other = (IborCurveTypeConfiguration) obj;
-      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
-          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the convention of the index.
@@ -180,6 +128,54 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
    */
   public final Property<Tenor> tenor() {
     return metaBean().tenor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public IborCurveTypeConfiguration clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IborCurveTypeConfiguration other = (IborCurveTypeConfiguration) obj;
+      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
+          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("IborCurveTypeConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention())).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -257,6 +253,38 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
      */
     public final MetaProperty<Tenor> tenor() {
       return _tenor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          return ((IborCurveTypeConfiguration) bean).getConvention();
+        case 110246592:  // tenor
+          return ((IborCurveTypeConfiguration) bean).getTenor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          ((IborCurveTypeConfiguration) bean).setConvention((ExternalId) newValue);
+          return;
+        case 110246592:  // tenor
+          ((IborCurveTypeConfiguration) bean).setTenor((Tenor) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((IborCurveTypeConfiguration) bean)._convention, "convention");
+      JodaBeanUtils.notNull(((IborCurveTypeConfiguration) bean)._tenor, "tenor");
+      super.validate(bean);
     }
 
   }

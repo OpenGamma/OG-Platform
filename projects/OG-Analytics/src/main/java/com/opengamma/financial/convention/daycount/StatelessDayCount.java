@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Base class providing a hash and equality test based on the class.
  */
-/* package */abstract class StatelessDayCount extends DayCount implements Serializable {
+/* package */abstract class StatelessDayCount extends AbstractDayCount implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -91,7 +91,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public String toString() {
-    return "DayCount [" + getConventionName() + "]";
+    return "DayCount [" + getName() + "]";
   }
 
 }

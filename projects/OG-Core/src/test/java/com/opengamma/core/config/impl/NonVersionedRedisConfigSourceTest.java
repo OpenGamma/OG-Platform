@@ -23,9 +23,9 @@ import com.opengamma.util.test.AbstractRedisTestCase;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
-@Test(enabled=false, groups=TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class NonVersionedRedisConfigSourceTest extends AbstractRedisTestCase {
   
   public void putDeleteGetAll() {

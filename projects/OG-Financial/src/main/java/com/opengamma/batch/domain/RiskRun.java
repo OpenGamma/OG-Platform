@@ -5,13 +5,14 @@
  */
 package com.opengamma.batch.domain;
 
+import static com.opengamma.lambdava.streams.Lambdava.functional;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.lambdava.functions.Function1;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,13 +29,13 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Sets;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.SnapshotMode;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-
-import static com.opengamma.lambdava.streams.Lambdava.functional;
+import com.opengamma.lambdava.functions.Function1;
 
 /**
  * Bean to hold data about a risk run.
@@ -89,6 +90,9 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   @PropertyDefinition
   private ComputationTargetResolver _computationTargetResolver;
+  
+  @PropertyDefinition
+  private String _name;
 
   /**
    * Gets the viewDefinitionUid.
@@ -118,7 +122,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   public RiskRun(MarketData marketData, Instant createInstant, Instant valuationTime, int numRestarts,
       Set<CalculationConfiguration> calculationConfigurations, Set<RiskRunProperty> properties, boolean complete,
-      VersionCorrection versionCorrection, UniqueId viewDefinitionUid) {
+      VersionCorrection versionCorrection, UniqueId viewDefinitionUid, String name) {
     this._marketData = marketData;
     this._createInstant = createInstant;
     this._valuationTime = valuationTime;
@@ -127,6 +131,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     this._properties = properties;
     this._complete = complete;
     this._versionCorrection = versionCorrection;
+    this._name = name;
     setViewDefinitionUid(viewDefinitionUid);
     //
     for (RiskRunProperty property : properties) {
@@ -148,7 +153,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
         Sets.<RiskRunProperty>newHashSet(),
         false,
         cycleMetadata.getVersionCorrection(),
-        cycleMetadata.getViewDefinitionId());
+        cycleMetadata.getViewDefinitionId(),
+        cycleMetadata.getName());
   }
 
   public Map<String, String> getPropertiesMap() {
@@ -190,150 +196,6 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
   @Override
   public RiskRun.Meta metaBean() {
     return RiskRun.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 1116764678:  // marketData
-        return getMarketData();
-      case -90879675:  // createInstant
-        return getCreateInstant();
-      case 1823123231:  // startInstant
-        return getStartInstant();
-      case -2109892474:  // endInstant
-        return getEndInstant();
-      case 113591406:  // valuationTime
-        return getValuationTime();
-      case -1329836566:  // numRestarts
-        return getNumRestarts();
-      case -1619672730:  // calculationConfigurations
-        return getCalculationConfigurations();
-      case -926053069:  // properties
-        return getProperties();
-      case -599445191:  // complete
-        return isComplete();
-      case -2031293866:  // versionCorrection
-        return getVersionCorrection();
-      case -250012899:  // viewDefinitionUidScheme
-        return getViewDefinitionUidScheme();
-      case -559538951:  // viewDefinitionUidValue
-        return getViewDefinitionUidValue();
-      case -726014368:  // viewDefinitionUidVersion
-        return getViewDefinitionUidVersion();
-      case -931724921:  // snapshotMode
-        return getSnapshotMode();
-      case 1562222174:  // computationTargetResolver
-        return getComputationTargetResolver();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case 1116764678:  // marketData
-        setMarketData((MarketData) newValue);
-        return;
-      case -90879675:  // createInstant
-        setCreateInstant((Instant) newValue);
-        return;
-      case 1823123231:  // startInstant
-        setStartInstant((Instant) newValue);
-        return;
-      case -2109892474:  // endInstant
-        setEndInstant((Instant) newValue);
-        return;
-      case 113591406:  // valuationTime
-        setValuationTime((Instant) newValue);
-        return;
-      case -1329836566:  // numRestarts
-        setNumRestarts((Integer) newValue);
-        return;
-      case -1619672730:  // calculationConfigurations
-        setCalculationConfigurations((Set<CalculationConfiguration>) newValue);
-        return;
-      case -926053069:  // properties
-        setProperties((Set<RiskRunProperty>) newValue);
-        return;
-      case -599445191:  // complete
-        setComplete((Boolean) newValue);
-        return;
-      case -2031293866:  // versionCorrection
-        setVersionCorrection((VersionCorrection) newValue);
-        return;
-      case -250012899:  // viewDefinitionUidScheme
-        setViewDefinitionUidScheme((String) newValue);
-        return;
-      case -559538951:  // viewDefinitionUidValue
-        setViewDefinitionUidValue((String) newValue);
-        return;
-      case -726014368:  // viewDefinitionUidVersion
-        setViewDefinitionUidVersion((String) newValue);
-        return;
-      case -931724921:  // snapshotMode
-        setSnapshotMode((SnapshotMode) newValue);
-        return;
-      case 1562222174:  // computationTargetResolver
-        setComputationTargetResolver((ComputationTargetResolver) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RiskRun other = (RiskRun) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getMarketData(), other.getMarketData()) &&
-          JodaBeanUtils.equal(getCreateInstant(), other.getCreateInstant()) &&
-          JodaBeanUtils.equal(getStartInstant(), other.getStartInstant()) &&
-          JodaBeanUtils.equal(getEndInstant(), other.getEndInstant()) &&
-          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
-          JodaBeanUtils.equal(getNumRestarts(), other.getNumRestarts()) &&
-          JodaBeanUtils.equal(getCalculationConfigurations(), other.getCalculationConfigurations()) &&
-          JodaBeanUtils.equal(getProperties(), other.getProperties()) &&
-          JodaBeanUtils.equal(isComplete(), other.isComplete()) &&
-          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
-          JodaBeanUtils.equal(getViewDefinitionUidScheme(), other.getViewDefinitionUidScheme()) &&
-          JodaBeanUtils.equal(getViewDefinitionUidValue(), other.getViewDefinitionUidValue()) &&
-          JodaBeanUtils.equal(getViewDefinitionUidVersion(), other.getViewDefinitionUidVersion()) &&
-          JodaBeanUtils.equal(getSnapshotMode(), other.getSnapshotMode()) &&
-          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCreateInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumRestarts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationConfigurations());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProperties());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isComplete());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -738,6 +600,121 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the name.
+   * @return the value of the property
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name.
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RiskRun clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RiskRun other = (RiskRun) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getMarketData(), other.getMarketData()) &&
+          JodaBeanUtils.equal(getCreateInstant(), other.getCreateInstant()) &&
+          JodaBeanUtils.equal(getStartInstant(), other.getStartInstant()) &&
+          JodaBeanUtils.equal(getEndInstant(), other.getEndInstant()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
+          (getNumRestarts() == other.getNumRestarts()) &&
+          JodaBeanUtils.equal(getCalculationConfigurations(), other.getCalculationConfigurations()) &&
+          JodaBeanUtils.equal(getProperties(), other.getProperties()) &&
+          (isComplete() == other.isComplete()) &&
+          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
+          JodaBeanUtils.equal(getViewDefinitionUidScheme(), other.getViewDefinitionUidScheme()) &&
+          JodaBeanUtils.equal(getViewDefinitionUidValue(), other.getViewDefinitionUidValue()) &&
+          JodaBeanUtils.equal(getViewDefinitionUidVersion(), other.getViewDefinitionUidVersion()) &&
+          JodaBeanUtils.equal(getSnapshotMode(), other.getSnapshotMode()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCreateInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNumRestarts());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationConfigurations());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProperties());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isComplete());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidVersion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(576);
+    buf.append("RiskRun{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("marketData").append('=').append(JodaBeanUtils.toString(getMarketData())).append(',').append(' ');
+    buf.append("createInstant").append('=').append(JodaBeanUtils.toString(getCreateInstant())).append(',').append(' ');
+    buf.append("startInstant").append('=').append(JodaBeanUtils.toString(getStartInstant())).append(',').append(' ');
+    buf.append("endInstant").append('=').append(JodaBeanUtils.toString(getEndInstant())).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
+    buf.append("numRestarts").append('=').append(JodaBeanUtils.toString(getNumRestarts())).append(',').append(' ');
+    buf.append("calculationConfigurations").append('=').append(JodaBeanUtils.toString(getCalculationConfigurations())).append(',').append(' ');
+    buf.append("properties").append('=').append(JodaBeanUtils.toString(getProperties())).append(',').append(' ');
+    buf.append("complete").append('=').append(JodaBeanUtils.toString(isComplete())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
+    buf.append("viewDefinitionUidScheme").append('=').append(JodaBeanUtils.toString(getViewDefinitionUidScheme())).append(',').append(' ');
+    buf.append("viewDefinitionUidValue").append('=').append(JodaBeanUtils.toString(getViewDefinitionUidValue())).append(',').append(' ');
+    buf.append("viewDefinitionUidVersion").append('=').append(JodaBeanUtils.toString(getViewDefinitionUidVersion())).append(',').append(' ');
+    buf.append("snapshotMode").append('=').append(JodaBeanUtils.toString(getSnapshotMode())).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code RiskRun}.
    */
   public static class Meta extends DirectMetaBean {
@@ -829,6 +806,11 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
         this, "computationTargetResolver", RiskRun.class, ComputationTargetResolver.class);
     /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", RiskRun.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -848,7 +830,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
         "viewDefinitionUidValue",
         "viewDefinitionUidVersion",
         "snapshotMode",
-        "computationTargetResolver");
+        "computationTargetResolver",
+        "name");
 
     /**
      * Restricted constructor.
@@ -891,6 +874,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
           return _snapshotMode;
         case 1562222174:  // computationTargetResolver
           return _computationTargetResolver;
+        case 3373707:  // name
+          return _name;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1037,6 +1022,115 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
      */
     public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
       return _computationTargetResolver;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((RiskRun) bean).getId();
+        case 1116764678:  // marketData
+          return ((RiskRun) bean).getMarketData();
+        case -90879675:  // createInstant
+          return ((RiskRun) bean).getCreateInstant();
+        case 1823123231:  // startInstant
+          return ((RiskRun) bean).getStartInstant();
+        case -2109892474:  // endInstant
+          return ((RiskRun) bean).getEndInstant();
+        case 113591406:  // valuationTime
+          return ((RiskRun) bean).getValuationTime();
+        case -1329836566:  // numRestarts
+          return ((RiskRun) bean).getNumRestarts();
+        case -1619672730:  // calculationConfigurations
+          return ((RiskRun) bean).getCalculationConfigurations();
+        case -926053069:  // properties
+          return ((RiskRun) bean).getProperties();
+        case -599445191:  // complete
+          return ((RiskRun) bean).isComplete();
+        case -2031293866:  // versionCorrection
+          return ((RiskRun) bean).getVersionCorrection();
+        case -250012899:  // viewDefinitionUidScheme
+          return ((RiskRun) bean).getViewDefinitionUidScheme();
+        case -559538951:  // viewDefinitionUidValue
+          return ((RiskRun) bean).getViewDefinitionUidValue();
+        case -726014368:  // viewDefinitionUidVersion
+          return ((RiskRun) bean).getViewDefinitionUidVersion();
+        case -931724921:  // snapshotMode
+          return ((RiskRun) bean).getSnapshotMode();
+        case 1562222174:  // computationTargetResolver
+          return ((RiskRun) bean).getComputationTargetResolver();
+        case 3373707:  // name
+          return ((RiskRun) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((RiskRun) bean).setId((Long) newValue);
+          return;
+        case 1116764678:  // marketData
+          ((RiskRun) bean).setMarketData((MarketData) newValue);
+          return;
+        case -90879675:  // createInstant
+          ((RiskRun) bean).setCreateInstant((Instant) newValue);
+          return;
+        case 1823123231:  // startInstant
+          ((RiskRun) bean).setStartInstant((Instant) newValue);
+          return;
+        case -2109892474:  // endInstant
+          ((RiskRun) bean).setEndInstant((Instant) newValue);
+          return;
+        case 113591406:  // valuationTime
+          ((RiskRun) bean).setValuationTime((Instant) newValue);
+          return;
+        case -1329836566:  // numRestarts
+          ((RiskRun) bean).setNumRestarts((Integer) newValue);
+          return;
+        case -1619672730:  // calculationConfigurations
+          ((RiskRun) bean).setCalculationConfigurations((Set<CalculationConfiguration>) newValue);
+          return;
+        case -926053069:  // properties
+          ((RiskRun) bean).setProperties((Set<RiskRunProperty>) newValue);
+          return;
+        case -599445191:  // complete
+          ((RiskRun) bean).setComplete((Boolean) newValue);
+          return;
+        case -2031293866:  // versionCorrection
+          ((RiskRun) bean).setVersionCorrection((VersionCorrection) newValue);
+          return;
+        case -250012899:  // viewDefinitionUidScheme
+          ((RiskRun) bean).setViewDefinitionUidScheme((String) newValue);
+          return;
+        case -559538951:  // viewDefinitionUidValue
+          ((RiskRun) bean).setViewDefinitionUidValue((String) newValue);
+          return;
+        case -726014368:  // viewDefinitionUidVersion
+          ((RiskRun) bean).setViewDefinitionUidVersion((String) newValue);
+          return;
+        case -931724921:  // snapshotMode
+          ((RiskRun) bean).setSnapshotMode((SnapshotMode) newValue);
+          return;
+        case 1562222174:  // computationTargetResolver
+          ((RiskRun) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
+        case 3373707:  // name
+          ((RiskRun) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

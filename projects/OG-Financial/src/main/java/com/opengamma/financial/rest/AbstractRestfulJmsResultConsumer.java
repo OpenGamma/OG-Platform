@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
@@ -35,8 +34,10 @@ import com.opengamma.util.rest.FudgeRestClient;
  * Base class for a remote consumer which uses a REST+JMS pattern to access streaming results.
  * <p>
  * Provides heartbeating and control of the JMS stream.
+ *
+ * @param <L> the type of the listener which will receive the results from the consumer.
  */
-public abstract class AbstractRestfulJmsResultConsumer {
+public abstract class AbstractRestfulJmsResultConsumer<L> {
 
   private static final long START_JMS_RESULT_STREAM_TIMEOUT_MILLIS = 10000;
   private static final int HEARTBEAT_RETRIES = 3;
@@ -97,7 +98,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
   protected void onEndResultStream() {
   }
 
-  protected abstract void dispatchListenerCall(Function<?, ?> listenerCall);
+  protected abstract void dispatchListenerCall(Function<L, ?> listenerCall);
 
   //-------------------------------------------------------------------------
   protected URI getBaseUri() {
@@ -175,10 +176,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
     _listenerDemand++;
     try {
       configureResultListener();
-    } catch (JMSException e) {
-      _listenerDemand--;
-      throw e;
-    } catch (InterruptedException e) {
+    } catch (JMSException | InterruptedException e) {
       _listenerDemand--;
       throw e;
     }
@@ -196,10 +194,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
     _listenerDemand--;
     try {
       configureResultListener();
-    } catch (JMSException e) {
-      _listenerDemand--;
-      throw e;
-    } catch (InterruptedException e) {
+    } catch (JMSException | InterruptedException e) {
       _listenerDemand--;
       throw e;
     }
@@ -248,7 +243,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
         @Override
         public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
           s_logger.debug("Result listener call received");
-          Function<ViewResultListener, ?> listenerCall;
+          Function<L, ?> listenerCall;
           try {
             if (msgEnvelope.getMessage().getNumFields() == 0) {
               // Empty message = started signal, should never occur at other times

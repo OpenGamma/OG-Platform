@@ -1,11 +1,10 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cdx;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
@@ -17,14 +16,10 @@ import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapRR01Calculator;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -39,9 +34,10 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaRR01CDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class ISDACDXAsSingleNameRR01Function extends ISDACDXAsSingleNameFunction {
 
@@ -58,8 +54,8 @@ public class ISDACDXAsSingleNameRR01Function extends ISDACDXAsSingleNameFunction
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                final ISDACompliantCreditCurve hazardCurve,
+                                                final CDSAnalytic analytic, final Tenor[] tenors) {
     final double rr01 = StandardVanillaRR01CDSFunction.getRR01(definition, yieldCurve, properties, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, rr01));
@@ -80,11 +76,6 @@ public class ISDACDXAsSingleNameRR01Function extends ISDACDXAsSingleNameFunction
     if (recoveryRateBumpTypes == null || recoveryRateBumpTypes.size() != 1) {
       return null;
     }
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
-
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = "CDS_INDEX_" + security.accept(new CreditSecurityToIdentifierVisitor(
         OpenGammaCompilationContext.getSecuritySource(context))).getUniqueId().getValue();
@@ -112,8 +103,7 @@ public class ISDACDXAsSingleNameRR01Function extends ISDACDXAsSingleNameFunction
   protected ValueProperties.Builder getCommonResultProperties() {
     return createValueProperties()
         .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE);
   }
 
   @Override

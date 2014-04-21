@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DifferenceSignIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis DIFFERENCE_SIGN = new DifferenceSignIIDHypothesis(0.05);
 

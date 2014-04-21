@@ -45,7 +45,7 @@ public class LogNormalBinomialTreeBuilder<T extends GeneralLogNormalOptionDataBu
 
     double upper = s_root.getRoot(func, limits[0], limits[1]);
     double lower = centreLevel * centreLevel / upper;
-    return new DoublesPair(lower, upper);
+    return DoublesPair.of(lower, upper);
   }
 
   @Override

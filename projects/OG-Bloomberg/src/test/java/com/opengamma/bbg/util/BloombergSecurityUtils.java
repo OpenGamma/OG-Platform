@@ -379,7 +379,7 @@ public final class BloombergSecurityUtils {
     equitySecurity.setUniqueId(BloombergSecurityProvider.createUniqueId(AAPL_BUID));
     equitySecurity.setShortName("AAPL");
     equitySecurity.setName("APPLE INC");
-    equitySecurity.setGicsCode(GICSCode.of("45202010"));
+    equitySecurity.setGicsCode(GICSCode.of("45202030"));
     equitySecurity.setPreferred(false);
     return equitySecurity;
   }

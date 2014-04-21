@@ -8,13 +8,17 @@ package com.opengamma.engine.exec;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.CalculationJobResultItem;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.impl.DependencyNodeFunctionImpl;
+import com.opengamma.engine.depgraph.impl.DependencyNodeImpl;
+import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -45,13 +49,18 @@ public class DependencyNodeJobExecutionResultCacheTest {
     assertSame(cache.get(createValueSpec(1)), result);
   }
 
-  public void testFind() {
+  private DependencyNode node(final ValueSpecification... outputs) {
+    return new DependencyNodeImpl(DependencyNodeFunctionImpl.of("Mock", EmptyFunctionParameters.INSTANCE), ComputationTargetSpecification.NULL, Arrays.asList(outputs),
+        Collections.<ValueSpecification, DependencyNode>emptyMap());
+  }
+
+  public void testGet() {
     final DependencyNodeJobExecutionResultCache cache = new DependencyNodeJobExecutionResultCache();
-    assertNull(cache.find(Collections.<ValueSpecification>emptySet()));
+    assertNull(cache.get(node()));
     final DependencyNodeJobExecutionResult result = createExecutionResult();
     cache.put(createValueSpec(1), result);
-    assertNull(cache.find(Collections.singleton(createValueSpec(2))));
-    assertSame(cache.find(ImmutableSet.of(createValueSpec(1), createValueSpec(2))), result);
+    assertNull(cache.get(node(createValueSpec(2))));
+    assertSame(cache.get(node(createValueSpec(1), createValueSpec(2))), result);
   }
 
 }

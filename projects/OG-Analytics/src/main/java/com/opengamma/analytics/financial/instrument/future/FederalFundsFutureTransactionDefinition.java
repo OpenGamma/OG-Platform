@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -19,24 +18,9 @@ import com.opengamma.util.ArgumentChecker;
  * Description of an transaction on a Federal Funds Futures.
  */
 //CSOFF Check style seems to have a problem with >[]>
-public class FederalFundsFutureTransactionDefinition implements InstrumentDefinitionWithData<FederalFundsFutureTransaction, DoubleTimeSeries<ZonedDateTime>[]> {
+public class FederalFundsFutureTransactionDefinition extends FuturesTransactionDefinition<FederalFundsFutureSecurityDefinition>
+    implements InstrumentDefinitionWithData<FederalFundsFutureTransaction, DoubleTimeSeries<ZonedDateTime>[]> {
   //CSON
-  /**
-   * The underlying future security.
-   */
-  private final FederalFundsFutureSecurityDefinition _underlyingFuture;
-  /**
-   * The quantity of the transaction. Can be positive or negative.
-   */
-  private final int _quantity;
-  /**
-   * The transaction date.
-   */
-  private final ZonedDateTime _tradeDate;
-  /**
-   * The transaction price. The price is in relative number and not in percent. This is the quoted price of the future.
-   */
-  private final double _tradePrice;
 
   /**
    * Constructor.
@@ -45,45 +29,8 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price. The price is in relative number and not in percent. This is the quoted price of the future.
    */
-  public FederalFundsFutureTransactionDefinition(final FederalFundsFutureSecurityDefinition underlyingFuture, final int quantity, final ZonedDateTime tradeDate, final double tradePrice) {
-    ArgumentChecker.notNull(underlyingFuture, "Future");
-    ArgumentChecker.notNull(tradeDate, "Trade date");
-    _underlyingFuture = underlyingFuture;
-    _quantity = quantity;
-    _tradeDate = tradeDate;
-    _tradePrice = tradePrice;
-  }
-
-  /**
-   * Gets the underlying future security.
-   * @return The future.
-   */
-  public FederalFundsFutureSecurityDefinition getUnderlyingFuture() {
-    return _underlyingFuture;
-  }
-
-  /**
-   * Gets the quantity of the transaction. Can be positive or negative.
-   * @return The quantity.
-   */
-  public int getQuantity() {
-    return _quantity;
-  }
-
-  /**
-   * Gets the transaction date.
-   * @return The date.
-   */
-  public ZonedDateTime getTradeDate() {
-    return _tradeDate;
-  }
-
-  /**
-   * Gets the transaction price. The price is in relative number and not in percent. This is the quoted price of the future.
-   * @return The trade price.
-   */
-  public double getTradePrice() {
-    return _tradePrice;
+  public FederalFundsFutureTransactionDefinition(final FederalFundsFutureSecurityDefinition underlyingFuture, final long quantity, final ZonedDateTime tradeDate, final double tradePrice) {
+    super(underlyingFuture, quantity, tradeDate, tradePrice);
   }
 
   /**
@@ -95,7 +42,6 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of FederalFundsFutureTransactionDefinition does not support the two argument method (without ON fixing and margin price data).");
   }
-
 
   @Override
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date) {
@@ -116,14 +62,14 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Date");
     ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    final FederalFundsFutureSecurity underlying = _underlyingFuture.toDerivative(date, data[0], yieldCurveNames);
-    if (_tradeDate.equals(date)) {
-      return new FederalFundsFutureTransaction(underlying, _quantity, _tradePrice);
+    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(date, data[0], yieldCurveNames);
+    if (getTradeDate().equals(date)) {
+      return new FederalFundsFutureTransaction(underlying, getQuantity(), getTradePrice());
     }
     final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
     ArgumentChecker.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
     final double lastMargin = pastClosing.getLatestValue();
-    return new FederalFundsFutureTransaction(underlying, _quantity, lastMargin);
+    return new FederalFundsFutureTransaction(underlying, getQuantity(), lastMargin);
   }
 
   /**
@@ -137,14 +83,14 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data) {
     ArgumentChecker.notNull(date, "Date");
     ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    final FederalFundsFutureSecurity underlying = _underlyingFuture.toDerivative(date, data[0]);
-    if (_tradeDate.equals(date)) {
-      return new FederalFundsFutureTransaction(underlying, _quantity, _tradePrice);
+    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(date, data[0]);
+    if (getTradeDate().equals(date)) {
+      return new FederalFundsFutureTransaction(underlying, getQuantity(), getTradePrice());
     }
     final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
     ArgumentChecker.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
     final double lastMargin = pastClosing.getLatestValue();
-    return new FederalFundsFutureTransaction(underlying, _quantity, lastMargin);
+    return new FederalFundsFutureTransaction(underlying, getQuantity(), lastMargin);
   }
 
   @Override
@@ -157,52 +103,6 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureTransactionDefinition(this);
-  }
-
-  @Override
-  public String toString() {
-    final String result = "Quantity: " + _quantity + " of " + _underlyingFuture.toString();
-    return result;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _quantity;
-    result = prime * result + _tradeDate.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_tradePrice);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _underlyingFuture.hashCode();
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final FederalFundsFutureTransactionDefinition other = (FederalFundsFutureTransactionDefinition) obj;
-    if (_quantity != other._quantity) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_tradeDate, other._tradeDate)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_tradePrice) != Double.doubleToLongBits(other._tradePrice)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_underlyingFuture, other._underlyingFuture)) {
-      return false;
-    }
-    return true;
   }
 
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
+  <class name="IndexWeightingTypeBean" table="sec_indexweightingtype">
+    <id name="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
+    </id>
+    <property name="name" unique="true" type="string" not-null="true"/>
+  </class>
+  <query name="IndexWeightingTypeBean.all">
+    from IndexWeightingTypeBean
+  </query>
+  <query name="IndexWeightingTypeBean.one">
+    from IndexWeightingTypeBean as c where c.name=:name
+  </query>
+</hibernate-mapping>

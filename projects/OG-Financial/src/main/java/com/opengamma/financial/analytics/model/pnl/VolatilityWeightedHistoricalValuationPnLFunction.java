@@ -57,7 +57,7 @@ public class VolatilityWeightedHistoricalValuationPnLFunction extends Historical
   @Override
   protected DateDoubleTimeSeries<?> calculatePnlSeries(LocalDateDoubleTimeSeries priceSeries, FunctionExecutionContext executionContext, ValueRequirement desiredValue) {
     double lambda = Double.parseDouble(desiredValue.getConstraint(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_LAMBDA_PROPERTY));
-    TimeSeriesWeightedVolatilityOperator weightedVolatilityOperator = new TimeSeriesWeightedVolatilityOperator(lambda);
+    TimeSeriesWeightedVolatilityOperator weightedVolatilityOperator = TimeSeriesWeightedVolatilityOperator.relative(lambda);
     DateDoubleTimeSeries<?> weightedVolatilitySeries = weightedVolatilityOperator.evaluate(priceSeries);
     LocalDateDoubleTimeSeries weightedPnlSeries = (LocalDateDoubleTimeSeries) RELATIVE_WEIGHTED_DIFFERENCE.evaluate(priceSeries, weightedVolatilitySeries);
     LocalDate pnlSeriesStart = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));

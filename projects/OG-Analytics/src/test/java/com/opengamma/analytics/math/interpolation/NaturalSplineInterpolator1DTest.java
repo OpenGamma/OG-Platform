@@ -10,10 +10,12 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
+@Test(groups = TestGroup.UNIT)
 public class NaturalSplineInterpolator1DTest {
   private static final NaturalSplineInterpolator INTERP = new NaturalSplineInterpolator();
   private static final NaturalSplineInterpolator1D INTERP1D = new NaturalSplineInterpolator1D();

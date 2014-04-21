@@ -101,4 +101,12 @@ public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
     }
     return new Interpolator1DPiecewisePoynomialDataBundle(new ArrayInterpolator1DDataBundle(x, y, true), this._baseMethod, leftCond, rightCond);
   }
+
+  /**
+   * Access interpolator
+   * @return _baseMethod
+   */
+  public PiecewisePolynomialInterpolator getInterpolator() {
+    return _baseMethod;
+  }
 }

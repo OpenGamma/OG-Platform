@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PartialMomentCalculatorTest {
   private static final Function1D<double[], Double> UPSIDE1 = new PartialMomentCalculator(0, false);
   private static final Function1D<double[], Double> DOWNSIDE1 = new PartialMomentCalculator();

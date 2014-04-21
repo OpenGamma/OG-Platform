@@ -9,6 +9,7 @@ import org.threeten.bp.Duration;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
@@ -35,6 +36,13 @@ public interface ViewCycle extends UniqueIdentifiable {
   UniqueId getViewProcessId();
 
   /**
+   * The name of this view cycle
+   * 
+   * @return the name of this view cycle
+   */
+  String getName();
+  
+  /**
    * Gets the state of the view cycle.
    * 
    * @return the state of the view cycle, not null
@@ -47,6 +55,13 @@ public interface ViewCycle extends UniqueIdentifiable {
    * @return the cycle's execution duration, or null if the cycle has not started executing or failed to execute successfully
    */
   Duration getDuration();
+  
+  /**
+   * Gets the cycle's execution options.
+   * 
+   * @return the cycle's execution options, not null
+   */
+  ViewCycleExecutionOptions getExecutionOptions();
 
   /**
    * Gets the compiled view definition used during the cycle's execution

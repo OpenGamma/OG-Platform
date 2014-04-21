@@ -28,6 +28,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -35,6 +36,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureTransactionDiscountingMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
@@ -88,7 +90,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     final InterestRateCurveSensitivity pvcsComputed = METHOD_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
     assertEquals("Federal Funds Future transaction: present value curve sensitivity", 1, pvcsComputed.getSensitivities().size());
-    assertEquals("Federal Funds Future transaction: present value curve sensitivity", FUTURE_TRANSACTION.getUnderlyingFuture().getFixingPeriodTime().length,
+    assertEquals("Federal Funds Future transaction: present value curve sensitivity", FUTURE_TRANSACTION.getUnderlyingSecurity().getFixingPeriodTime().length,
         pvcsComputed.getSensitivities().get(CURVE_NAMES[0]).size());
     final double deltaTolerancePrice = 1.0E+0;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -96,7 +98,7 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
     // Discounting curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final FederalFundsFutureTransaction futureTransactionBumped = FUTURE_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, DATA, bumpedCurveName);
-    final double[] nodeTimesDisc = futureTransactionBumped.getUnderlyingFuture().getFixingPeriodTime();
+    final double[] nodeTimesDisc = futureTransactionBumped.getUnderlyingSecurity().getFixingPeriodTime();
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(futureTransactionBumped, CURVES, CURVE_NAMES[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_TRANSACTION);
     final List<DoublesPair> sensiPvDisc = pvcsComputed.getSensitivities().get(CURVE_NAMES[0]);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {

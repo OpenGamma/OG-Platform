@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import com.opengamma.util.tuple.Pair;
+import org.joda.beans.ImmutableBean;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
@@ -22,64 +22,57 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class TripleTest {
 
-  public void testOf_Object_Object() {
-    Triple<String, String, String> test = Triple.of("A", "B", "C");
-    assertEquals(test.getFirst(), "A");
-    assertEquals(test.getSecond(), "B");
-  }
-
-  //-------------------------------------------------------------------------
   public void testTriple_Object_Object_Object() {
-    Triple<String, String, String> test = new Triple<String, String, String>("A", "B", "C");
+    Triple<String, String, String> test = Triple.of("A", "B", "C");
     assertEquals(test.getFirst(), "A");
     assertEquals(test.getSecond(), "B");
     assertEquals(test.getThird(), "C");
   }
 
   public void testTriple_Object_Object_null() {
-    Triple<String, String, String> test = new Triple<String, String, String>("A", "B", null);
+    Triple<String, String, String> test = Triple.of("A", "B", null);
     assertEquals(test.getFirst(), "A");
     assertEquals(test.getSecond(), "B");
     assertEquals(test.getThird(), null);
   }
 
   public void testTriple_Object_null_Object() {
-    Triple<String, String, String> test = new Triple<String, String, String>("A", null, "C");
+    Triple<String, String, String> test = Triple.of("A", null, "C");
     assertEquals(test.getFirst(), "A");
     assertEquals(test.getSecond(), null);
     assertEquals(test.getThird(), "C");
   }
 
   public void testTriple_Object_null_null() {
-    Triple<String, String, String> test = new Triple<String, String, String>("A", null, null);
+    Triple<String, String, String> test = Triple.of("A", null, null);
     assertEquals(test.getFirst(), "A");
     assertEquals(test.getSecond(), null);
     assertEquals(test.getThird(), null);
   }
 
   public void testTriple_null_Object_Object() {
-    Triple<String, String, String> test = new Triple<String, String, String>(null, "B", "C");
+    Triple<String, String, String> test = Triple.of(null, "B", "C");
     assertEquals(test.getFirst(), null);
     assertEquals(test.getSecond(), "B");
     assertEquals(test.getThird(), "C");
   }
 
   public void testTriple_null_Object_null() {
-    Triple<String, String, String> test = new Triple<String, String, String>(null, "B", null);
+    Triple<String, String, String> test = Triple.of(null, "B", null);
     assertEquals(test.getFirst(), null);
     assertEquals(test.getSecond(), "B");
     assertEquals(test.getThird(), null);
   }
 
   public void testTriple_null_null_Object() {
-    Triple<String, String, String> test = new Triple<String, String, String>(null, null, "C");
+    Triple<String, String, String> test = Triple.of(null, null, "C");
     assertEquals(test.getFirst(), null);
     assertEquals(test.getSecond(), null);
     assertEquals(test.getThird(), "C");
   }
 
   public void testTriple_null_null_null() {
-    Triple<String, String, String> test = new Triple<String, String, String>(null, null, null);
+    Triple<String, String, String> test = Triple.of(null, null, null);
     assertEquals(test.getFirst(), null);
     assertEquals(test.getSecond(), null);
     assertEquals(test.getThird(), null);
@@ -165,11 +158,11 @@ public class TripleTest {
   }
 
   public void testEquals() {
-    Triple<Integer, String, String> a = new Triple<Integer, String, String>(1, "Hello", "C");
-    Triple<Integer, String, String> b = new Triple<Integer, String, String>(1, "Goodbye", "C");
-    Triple<Integer, String, String> c = new Triple<Integer, String, String>(2, "Hello", "C");
-    Triple<Integer, String, String> d = new Triple<Integer, String, String>(2, "Goodbye", "C");
-    Triple<Integer, String, String> e = new Triple<Integer, String, String>(2, "Goodbye", "D");
+    Triple<Integer, String, String> a = Triple.of(1, "Hello", "C");
+    Triple<Integer, String, String> b = Triple.of(1, "Goodbye", "C");
+    Triple<Integer, String, String> c = Triple.of(2, "Hello", "C");
+    Triple<Integer, String, String> d = Triple.of(2, "Goodbye", "C");
+    Triple<Integer, String, String> e = Triple.of(2, "Goodbye", "D");
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(c), false);
@@ -204,11 +197,11 @@ public class TripleTest {
   }
 
   public void testEquals_null() {
-    Triple<Integer, String, String> a = new Triple<Integer, String, String>(1, "Hello", "C");
-    Triple<Integer, String, String> b = new Triple<Integer, String, String>(null, "Hello", "C");
-    Triple<Integer, String, String> c = new Triple<Integer, String, String>(1, null, "C");
-    Triple<Integer, String, String> d = new Triple<Integer, String, String>(null, null, "C");
-    Triple<Integer, String, String> e = new Triple<Integer, String, String>(null, null, null);
+    Triple<Integer, String, String> a = Triple.of(1, "Hello", "C");
+    Triple<Integer, String, String> b = Triple.of(null, "Hello", "C");
+    Triple<Integer, String, String> c = Triple.of(1, null, "C");
+    Triple<Integer, String, String> d = Triple.of(null, null, "C");
+    Triple<Integer, String, String> e = Triple.of(null, null, null);
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(c), false);
@@ -241,11 +234,11 @@ public class TripleTest {
   }
 
   public void testHashCode() {
-    Triple<Integer, String, String> a = new Triple<Integer, String, String>(1, "Hello", "C");
-    Triple<Integer, String, String> b = new Triple<Integer, String, String>(null, "Hello", "C");
-    Triple<Integer, String, String> c = new Triple<Integer, String, String>(1, null, "C");
-    Triple<Integer, String, String> d = new Triple<Integer, String, String>(null, null, "C");
-    Triple<Integer, String, String> e = new Triple<Integer, String, String>(null, null, null);
+    Triple<Integer, String, String> a = Triple.of(1, "Hello", "C");
+    Triple<Integer, String, String> b = Triple.of(null, "Hello", "C");
+    Triple<Integer, String, String> c = Triple.of(1, null, "C");
+    Triple<Integer, String, String> d = Triple.of(null, null, "C");
+    Triple<Integer, String, String> e = Triple.of(null, null, null);
     assertEquals(a.hashCode(), a.hashCode());
     assertEquals(b.hashCode(), b.hashCode());
     assertEquals(c.hashCode(), c.hashCode());
@@ -253,9 +246,9 @@ public class TripleTest {
     assertEquals(e.hashCode(), e.hashCode());
     // can't test for different hash codes as they might not be different
   }
-  
+
   public void toList() {
-    Triple<String, String, String> a = new Triple<String, String, String>("Jay-Z", "Black Album", "99 Problems");
+    Triple<String, String, String> a = Triple.of("Jay-Z", "Black Album", "99 Problems");
     List<String> asList = a.toList();
     assertNotNull(asList);
     assertEquals(3, asList.size());
@@ -265,7 +258,7 @@ public class TripleTest {
   }
 
   public void toFirstPair() {
-    Triple<String, String, String> a = new Triple<String, String, String>("Jay-Z", "Black Album", "99 Problems");
+    Triple<String, String, String> a = Triple.of("Jay-Z", "Black Album", "99 Problems");
     Pair<String, String> pair = a.toFirstPair();
     assertNotNull(pair);
     assertEquals("Jay-Z", pair.getFirst());
@@ -273,7 +266,7 @@ public class TripleTest {
   }
 
   public void toSecondPair() {
-    Triple<String, String, String> a = new Triple<String, String, String>("Jay-Z", "Black Album", "99 Problems");
+    Triple<String, String, String> a = Triple.of("Jay-Z", "Black Album", "99 Problems");
     Pair<String, String> pair = a.toSecondPair();
     assertNotNull(pair);
     assertEquals("Black Album", pair.getFirst());
@@ -281,8 +274,23 @@ public class TripleTest {
   }
 
   public void test_toString() {
-    Triple<String, String, String> test = new Triple<String, String, String>("A", "B", "C");
+    Triple<String, String, String> test = Triple.of("A", "B", "C");
     assertEquals("[A, B, C]", test.toString());
+  }
+
+  public void bean() {
+    Triple<String, String, String> triple = Triple.of("Jay-Z", "Black Album", "99 Problems");
+    assertTrue(triple instanceof ImmutableBean);
+    assertNotNull(triple.metaBean());
+    assertNotNull(triple.metaBean().first());
+    assertNotNull(triple.metaBean().second());
+    assertNotNull(triple.metaBean().third());
+    assertEquals("Jay-Z", triple.metaBean().first().get(triple));
+    assertEquals("Black Album", triple.metaBean().second().get(triple));
+    assertEquals("99 Problems", triple.metaBean().third().get(triple));
+    assertEquals("Jay-Z", triple.property("first").get());
+    assertEquals("Black Album", triple.property("second").get());
+    assertEquals("99 Problems", triple.property("third").get());
   }
 
 }

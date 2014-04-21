@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.statistics.ConfidenceInterval;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LogNormalVolatilityEstimateConfidenceIntervalCalculatorTest {
   private static final LogNormalVolatilityEstimateConfidenceIntervalCalculator CALCULATOR = new LogNormalVolatilityEstimateConfidenceIntervalCalculator();
   private static final double EPS = 1e-4;

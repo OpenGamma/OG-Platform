@@ -17,9 +17,9 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueCurveSensitivitySABRSTIRFuturesCalculator;
-import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueSABRSTIRFuturesCalculator;
-import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueSABRSensitivitySABRSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.sabrstirfutures.PresentValueCurveSensitivitySABRSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.sabrstirfutures.PresentValueSABRSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.sabrstirfutures.PresentValueSABRSensitivitySABRSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -35,12 +35,14 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the method for interest rate future option with SABR volatility parameter surfaces.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -161,8 +163,8 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     // SABR sensitivity vs finite difference
     final double pv = METHOD_SABR_TRA.presentValue(TRANSACTION, SABR_MULTICURVES).getAmount(EUR);
     final double shift = 0.000001;
-    final double delay = EDU2.getLastTradingTime() - OPTION_EDU2.getExpirationTime();
-    final DoublesPair expectedExpiryDelay = new DoublesPair(OPTION_EDU2.getExpirationTime(), delay);
+    final double delay = EDU2.getTradingLastTime() - OPTION_EDU2.getExpirationTime();
+    final DoublesPair expectedExpiryDelay = DoublesPair.of(OPTION_EDU2.getExpirationTime(), delay);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shift);
     final SABRSTIRFuturesProviderDiscount sabrBundleAlphaBumped = new SABRSTIRFuturesProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EURIBOR3M);

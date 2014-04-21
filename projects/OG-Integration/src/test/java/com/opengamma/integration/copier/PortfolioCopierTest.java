@@ -23,12 +23,12 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.portfolio.PortfolioCopier;
 import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
-import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.MasterPositionReader;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePositionReader;
+import com.opengamma.integration.copier.portfolio.writer.MasterPositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePositionWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -49,8 +49,8 @@ import au.com.bytecode.opencsv.CSVReader;
 public class PortfolioCopierTest {
 
 // TODO Improve portfolio copier test coverage:
-// MasterPortfolioReader, SingleSheetSimplePortfolioReader, ZippedPortfolioReader
-// MasterPortfolioWriter, SingleSheetSimplePortfolioWriter, SingleSheetMultiParserPortfolioWriter, ZippedPortfolioWriter
+// MasterPositionReader, SingleSheetSimplePositionReader, ZippedPositionReader
+// MasterPositionWriter, SingleSheetSimplePositionWriter, SingleSheetMultiParserPositionWriter, ZippedPositionWriter
 // SimplePortfolioCopier, ResolvingPortfolioCopier
   
   private static final String PORTFOLIO_NAME = "test";
@@ -80,23 +80,23 @@ public class PortfolioCopierTest {
     when(portfolioMaster.add(any(PortfolioDocument.class))).thenReturn(portfolioDocument);
     
     // file to masters
-    PortfolioReader portfolioReader = 
-        new SingleSheetSimplePortfolioReader(PORTFOLIO_FILE, SECURITY_TYPE);
-    PortfolioWriter portfolioWriter =
-        new MasterPortfolioWriter(PORTFOLIO_NAME, portfolioMaster, positionMaster, securityMaster, false, false, false);
-    portfolioCopier.copy(portfolioReader, portfolioWriter);
-    portfolioReader.close();
-    portfolioWriter.close();
+    PositionReader positionReader =
+        new SingleSheetSimplePositionReader(PORTFOLIO_FILE, SECURITY_TYPE);
+    PositionWriter positionWriter =
+        new MasterPositionWriter(PORTFOLIO_NAME, portfolioMaster, positionMaster, securityMaster, false, false, false);
+    portfolioCopier.copy(positionReader, positionWriter);
+    positionReader.close();
+    positionWriter.close();
 
     portSearchResult.setDocuments(Collections.singletonList(portfolioDocument));
     
     // Masters to file
-    portfolioReader = new MasterPortfolioReader(PORTFOLIO_NAME, portfolioMaster, positionMaster, securitySource);
+    positionReader = new MasterPositionReader(PORTFOLIO_NAME, portfolioMaster, positionMaster, securitySource);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    portfolioWriter = new SingleSheetSimplePortfolioWriter(SheetFormat.CSV, outputStream, SECURITY_TYPE);
-    portfolioCopier.copy(portfolioReader, portfolioWriter);
-    portfolioReader.close();
-    portfolioWriter.close();
+    positionWriter = new SingleSheetSimplePositionWriter(SheetFormat.CSV, outputStream, SECURITY_TYPE);
+    portfolioCopier.copy(positionReader, positionWriter);
+    positionReader.close();
+    positionWriter.close();
 
     // Compare source and destination
     try (CSVReader sourceReader = new CSVReader(new InputStreamReader(new FileInputStream(PORTFOLIO_FILE)))) {

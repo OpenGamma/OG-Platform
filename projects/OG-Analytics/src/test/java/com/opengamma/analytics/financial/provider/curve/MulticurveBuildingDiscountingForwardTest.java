@@ -57,12 +57,14 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingForwardTest {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -244,7 +246,7 @@ public class MulticurveBuildingDiscountingForwardTest {
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, USDLIBOR3M, NYC);
         final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
         final double accrualFactor = USDLIBOR3M.getDayCount().getDayCountFraction(startDate, endDate);
-        rateFwd[loopdate] = marketFwd.getForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
+        rateFwd[loopdate] = marketFwd.getSimplyCompoundForwardRate(USDLIBOR3M, startTime[loopdate], endTime, accrualFactor);
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateFwd[loopdate] + "\n");
       }

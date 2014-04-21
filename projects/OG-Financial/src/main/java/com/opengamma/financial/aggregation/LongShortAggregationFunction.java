@@ -16,12 +16,15 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -33,15 +36,22 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -55,7 +65,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -64,6 +76,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -72,6 +85,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
@@ -176,6 +191,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     }
 
     @Override
+    public String visitBillSecurity(final BillSecurity security) {
+      return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
     public String visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
       return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
     }
@@ -188,6 +208,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     @Override
     public String visitInflationBondSecurity(final InflationBondSecurity security) {
       return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
+    public String visitCashBalanceSecurity(final CashBalanceSecurity security) {
+      return security.getAmount() < 0 ? SHORT : LONG;
     }
 
     @Override
@@ -207,6 +232,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
     @Override
     public String visitFRASecurity(final FRASecurity security) {
+      return security.getAmount() * _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
+    public String visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
       return security.getAmount() * _position.getQuantity().longValue() < 0 ? SHORT : LONG;
     }
 
@@ -470,6 +500,66 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     @Override
     public String visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
       return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+      return security.getNotional() * _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
+    public String visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+      return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
+    public String visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitStandardCDSSecurity(StandardCDSSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitIndexCDSSecurity(IndexCDSSecurity security) {
+      return null;
+    }
+
+    @Override
+    public String visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
+      return null;
     }
   }
 

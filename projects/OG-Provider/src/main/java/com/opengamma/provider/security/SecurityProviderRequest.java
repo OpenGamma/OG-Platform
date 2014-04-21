@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -142,56 +143,10 @@ public class SecurityProviderRequest extends DirectBean {
     return SecurityProviderRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1369745653:  // externalIdBundles
-        return getExternalIdBundles();
-      case 1272470629:  // dataSource
-        return getDataSource();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1369745653:  // externalIdBundles
-        setExternalIdBundles((Set<ExternalIdBundle>) newValue);
-        return;
-      case 1272470629:  // dataSource
-        setDataSource((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityProviderRequest other = (SecurityProviderRequest) obj;
-      return JodaBeanUtils.equal(getExternalIdBundles(), other.getExternalIdBundles()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of security external identifiers to get.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalIdBundle> getExternalIdBundles() {
     return _externalIdBundles;
@@ -199,9 +154,10 @@ public class SecurityProviderRequest extends DirectBean {
 
   /**
    * Sets the set of security external identifiers to get.
-   * @param externalIdBundles  the new value of the property
+   * @param externalIdBundles  the new value of the property, not null
    */
   public void setExternalIdBundles(Set<ExternalIdBundle> externalIdBundles) {
+    JodaBeanUtils.notNull(externalIdBundles, "externalIdBundles");
     this._externalIdBundles.clear();
     this._externalIdBundles.addAll(externalIdBundles);
   }
@@ -237,6 +193,51 @@ public class SecurityProviderRequest extends DirectBean {
    */
   public final Property<String> dataSource() {
     return metaBean().dataSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SecurityProviderRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityProviderRequest other = (SecurityProviderRequest) obj;
+      return JodaBeanUtils.equal(getExternalIdBundles(), other.getExternalIdBundles()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SecurityProviderRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("externalIdBundles").append('=').append(JodaBeanUtils.toString(getExternalIdBundles())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -315,6 +316,37 @@ public class SecurityProviderRequest extends DirectBean {
      */
     public final MetaProperty<String> dataSource() {
       return _dataSource;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1369745653:  // externalIdBundles
+          return ((SecurityProviderRequest) bean).getExternalIdBundles();
+        case 1272470629:  // dataSource
+          return ((SecurityProviderRequest) bean).getDataSource();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1369745653:  // externalIdBundles
+          ((SecurityProviderRequest) bean).setExternalIdBundles((Set<ExternalIdBundle>) newValue);
+          return;
+        case 1272470629:  // dataSource
+          ((SecurityProviderRequest) bean).setDataSource((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityProviderRequest) bean)._externalIdBundles, "externalIdBundles");
     }
 
   }

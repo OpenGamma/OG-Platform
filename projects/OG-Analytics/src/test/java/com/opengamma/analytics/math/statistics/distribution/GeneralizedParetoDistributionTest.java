@@ -15,7 +15,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.PopulationVarianceCalculator;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.4;
   private static final double SIGMA = 1.4;

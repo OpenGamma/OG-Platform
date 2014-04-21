@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.provider;
@@ -107,8 +107,8 @@ public final class ForexDiscountingMethod {
    * @return The sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final Forex fx, final MulticurveProviderInterface multicurves) {
-    MultipleCurrencyMulticurveSensitivity pvcs1 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency1(), multicurves);
-    MultipleCurrencyMulticurveSensitivity pvcs2 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency2(), multicurves);
+    final MultipleCurrencyMulticurveSensitivity pvcs1 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency1(), multicurves);
+    final MultipleCurrencyMulticurveSensitivity pvcs2 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency2(), multicurves);
     return pvcs1.plus(pvcs2);
   }
 
@@ -122,12 +122,10 @@ public final class ForexDiscountingMethod {
     ArgumentChecker.notNull(fx, "Forex");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
     final Currency ccy2 = fx.getCurrency2();
-    //    final String name2 = fx.getFarLeg().getPaymentCurrency2().getFundingCurveName();
     final double payTime = fx.getPaymentTime();
     final double pv2 = multicurves.getFxRates().convert(presentValue(fx, multicurves), ccy2).getAmount();
     final double dfEnd = multicurves.getDiscountFactor(fx.getCurrency2(), fx.getPaymentTime());
     final double notional1 = fx.getPaymentCurrency1().getAmount();
-    //    double spread = pv2 / (notional1 * dfEnd);
     // Backward sweep
     final double spreadBar = 1.0;
     final double dfEndBar = -pv2 / (notional1 * dfEnd * dfEnd) * spreadBar;
@@ -135,7 +133,7 @@ public final class ForexDiscountingMethod {
     final MultipleCurrencyMulticurveSensitivity pv2DrMC = presentValueCurveSensitivity(fx, multicurves);
     final MulticurveSensitivity pv2Dr = pv2DrMC.converted(ccy2, multicurves.getFxRates()).getSensitivity(ccy2);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(payTime, -payTime * dfEnd * dfEndBar));
+    list.add(DoublesPair.of(payTime, -payTime * dfEnd * dfEndBar));
     final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(multicurves.getName(ccy2), list);
     final MulticurveSensitivity dfEndDr = MulticurveSensitivity.ofYieldDiscounting(result);

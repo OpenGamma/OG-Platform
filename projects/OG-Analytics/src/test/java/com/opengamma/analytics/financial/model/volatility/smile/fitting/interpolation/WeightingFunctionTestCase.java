@@ -7,10 +7,14 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class WeightingFunctionTestCase {
+
   static final double[] STRIKES = new double[]{1, 1.1, 1.2, 1.3, 1.4, 1.5};
   static final double STRIKE = 1.345;
   static final int INDEX = 3;

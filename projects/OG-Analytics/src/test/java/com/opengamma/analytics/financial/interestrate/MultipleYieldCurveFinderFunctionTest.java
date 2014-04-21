@@ -20,11 +20,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class MultipleYieldCurveFinderFunctionTest {
   private static final Currency CUR = Currency.AUD;
   private static final String CURVE_NAME = "Test";

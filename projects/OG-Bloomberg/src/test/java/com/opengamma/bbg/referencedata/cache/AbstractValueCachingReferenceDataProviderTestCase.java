@@ -24,6 +24,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.bbg.referencedata.impl.AbstractReferenceDataProvider;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -248,13 +249,13 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     }
     
     public void addAcceptableRequest(Set<String> securities, Set<String> fields) {
-      Pair<Set<String>, Set<String>> request = Pair.of(securities, fields);
+      Pair<Set<String>, Set<String>> request = Pairs.of(securities, fields);
       _acceptableRequests.add(request);
     }
 
     @Override
     protected ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
-      Pair<Set<String>, Set<String>> pair = Pair.of(request.getIdentifiers(), request.getFields());
+      Pair<Set<String>, Set<String>> pair = Pairs.of(request.getIdentifiers(), request.getFields());
       assertTrue(_acceptableRequests.contains(pair));
       return _underlying.getReferenceData(request);
     }

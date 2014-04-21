@@ -8,6 +8,7 @@ package com.opengamma.financial.security.future;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -81,57 +82,6 @@ public class BondFutureDeliverable extends DirectBean implements Serializable {
     return BondFutureDeliverable.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1368189162:  // identifiers
-        return getIdentifiers();
-      case 1438876165:  // conversionFactor
-        return getConversionFactor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1368189162:  // identifiers
-        setIdentifiers((ExternalIdBundle) newValue);
-        return;
-      case 1438876165:  // conversionFactor
-        setConversionFactor((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_identifiers, "identifiers");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BondFutureDeliverable other = (BondFutureDeliverable) obj;
-      return JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
-          JodaBeanUtils.equal(getConversionFactor(), other.getConversionFactor());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConversionFactor());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the identifiers.
@@ -181,6 +131,51 @@ public class BondFutureDeliverable extends DirectBean implements Serializable {
    */
   public final Property<Double> conversionFactor() {
     return metaBean().conversionFactor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BondFutureDeliverable clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BondFutureDeliverable other = (BondFutureDeliverable) obj;
+      return JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getConversionFactor(), other.getConversionFactor());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConversionFactor());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("BondFutureDeliverable{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("identifiers").append('=').append(JodaBeanUtils.toString(getIdentifiers())).append(',').append(' ');
+    buf.append("conversionFactor").append('=').append(JodaBeanUtils.toString(getConversionFactor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -258,6 +253,36 @@ public class BondFutureDeliverable extends DirectBean implements Serializable {
      */
     public final MetaProperty<Double> conversionFactor() {
       return _conversionFactor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1368189162:  // identifiers
+          return ((BondFutureDeliverable) bean).getIdentifiers();
+        case 1438876165:  // conversionFactor
+          return ((BondFutureDeliverable) bean).getConversionFactor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1368189162:  // identifiers
+          ((BondFutureDeliverable) bean).setIdentifiers((ExternalIdBundle) newValue);
+          return;
+        case 1438876165:  // conversionFactor
+          ((BondFutureDeliverable) bean).setConversionFactor((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BondFutureDeliverable) bean)._identifiers, "identifiers");
     }
 
   }

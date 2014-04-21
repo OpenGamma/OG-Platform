@@ -30,11 +30,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimplePa
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test related to the method for Forex Swap transaction by discounting on each payment.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexSwapDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();

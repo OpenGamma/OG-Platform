@@ -38,6 +38,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This test computes the value of options that pays the log of the underlying at expiry using a backwards PDE with a flat local volatility,
@@ -46,6 +47,7 @@ import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
  * TODO Move some of this code to a log-payoff local volatility calculator
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class LogPayoffTest {
 
   private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;

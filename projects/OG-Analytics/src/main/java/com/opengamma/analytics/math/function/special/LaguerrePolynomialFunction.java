@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -50,15 +51,15 @@ public class LaguerrePolynomialFunction extends OrthogonalPolynomialFunctionGene
     DoubleFunction1D p, dp, p1, p2;
     for (int i = 0; i <= n; i++) {
       if (i == 0) {
-        polynomials[i] = Pair.of(getOne(), getZero());
+        polynomials[i] = Pairs.of(getOne(), getZero());
       } else if (i == 1) {
-        polynomials[i] = Pair.of(F1, DF1);
+        polynomials[i] = Pairs.of(F1, DF1);
       } else {
         p1 = polynomials[i - 1].getFirst();
         p2 = polynomials[i - 2].getFirst();
         p = (p1.multiply(2. * i + alpha - 1).subtract(p1.multiply(getX())).subtract(p2.multiply((i - 1. + alpha))).divide(i));
         dp = (p.multiply(i).subtract(p1.multiply(i + alpha))).divide(getX());
-        polynomials[i] = Pair.of(p, dp);
+        polynomials[i] = Pairs.of(p, dp);
       }
     }
     return polynomials;

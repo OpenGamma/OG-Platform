@@ -37,19 +37,22 @@ import com.opengamma.util.time.ExpiryAccuracy;
  */
 @Deprecated
 public class InterestRateFutureOptionBlackPositionWeightedVegaFunction extends InterestRateFutureOptionBlackFunction {
-
-  private static String s_vega = ValueRequirementNames.POSITION_VEGA;
-  private static String s_weightedVega = ValueRequirementNames.POSITION_WEIGHTED_VEGA;
+  /** The base number of days to use */
   private static int s_baseDays = 90; // TODO - Should be property available to the user
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackPositionWeightedVegaFunction.class);
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#POSITION_WEIGHTED_VEGA}
+   */
   public InterestRateFutureOptionBlackPositionWeightedVegaFunction() {
-    super(s_weightedVega);
+    super(ValueRequirementNames.POSITION_WEIGHTED_VEGA, true);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
-    return null;
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -66,12 +69,12 @@ public class InterestRateFutureOptionBlackPositionWeightedVegaFunction extends I
     // 1. Get Vega
     Double vega = null;
     for (final ComputedValue input : inputs.getAllValues()) {
-      if (input.getSpecification().getValueName().equals(s_vega)) {
+      if (input.getSpecification().getValueName().equals(ValueRequirementNames.POSITION_VEGA)) {
         final Object inputVal = input.getValue();
         if (inputVal != null) {
           vega = (Double) inputVal;
         } else {
-          s_logger.error("Did not satisfy requirement," + s_vega + ", for security" + target.getTrade().getSecurity().toString());
+          s_logger.error("Did not satisfy requirement," + ValueRequirementNames.POSITION_VEGA + ", for security" + target.getTrade().getSecurity().toString());
         }
       }
     }
@@ -92,7 +95,7 @@ public class InterestRateFutureOptionBlackPositionWeightedVegaFunction extends I
 
     // 3. Create specification and return
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final ValueSpecification valueSpecification = new ValueSpecification(s_weightedVega, target.toSpecification(), desiredValue.getConstraints());
+    final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.POSITION_WEIGHTED_VEGA, target.toSpecification(), desiredValue.getConstraints());
     final ComputedValue result = new ComputedValue(valueSpecification, weightedVega);
     return Sets.newHashSet(result);
   }

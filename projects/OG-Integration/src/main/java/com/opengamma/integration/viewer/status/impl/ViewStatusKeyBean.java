@@ -7,6 +7,7 @@ package com.opengamma.integration.viewer.status.impl;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -83,74 +84,6 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
   @Override
   public ViewStatusKeyBean.Meta metaBean() {
     return ViewStatusKeyBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 808245914:  // securityType
-        return getSecurityType();
-      case 1646585789:  // valueRequirementName
-        return getValueRequirementName();
-      case 575402001:  // currency
-        return getCurrency();
-      case 486622315:  // targetType
-        return getTargetType();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 808245914:  // securityType
-        setSecurityType((String) newValue);
-        return;
-      case 1646585789:  // valueRequirementName
-        setValueRequirementName((String) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((String) newValue);
-        return;
-      case 486622315:  // targetType
-        setTargetType((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_securityType, "securityType");
-    JodaBeanUtils.notNull(_valueRequirementName, "valueRequirementName");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_targetType, "targetType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ViewStatusKeyBean other = (ViewStatusKeyBean) obj;
-      return JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
-          JodaBeanUtils.equal(getValueRequirementName(), other.getValueRequirementName()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getTargetType(), other.getTargetType());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirementName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetType());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -255,6 +188,57 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
    */
   public final Property<String> targetType() {
     return metaBean().targetType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ViewStatusKeyBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ViewStatusKeyBean other = (ViewStatusKeyBean) obj;
+      return JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(getValueRequirementName(), other.getValueRequirementName()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getTargetType(), other.getTargetType());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirementName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetType());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ViewStatusKeyBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
+    buf.append("valueRequirementName").append('=').append(JodaBeanUtils.toString(getValueRequirementName())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("targetType").append('=').append(JodaBeanUtils.toString(getTargetType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -364,6 +348,49 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
      */
     public final MetaProperty<String> targetType() {
       return _targetType;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 808245914:  // securityType
+          return ((ViewStatusKeyBean) bean).getSecurityType();
+        case 1646585789:  // valueRequirementName
+          return ((ViewStatusKeyBean) bean).getValueRequirementName();
+        case 575402001:  // currency
+          return ((ViewStatusKeyBean) bean).getCurrency();
+        case 486622315:  // targetType
+          return ((ViewStatusKeyBean) bean).getTargetType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 808245914:  // securityType
+          ((ViewStatusKeyBean) bean).setSecurityType((String) newValue);
+          return;
+        case 1646585789:  // valueRequirementName
+          ((ViewStatusKeyBean) bean).setValueRequirementName((String) newValue);
+          return;
+        case 575402001:  // currency
+          ((ViewStatusKeyBean) bean).setCurrency((String) newValue);
+          return;
+        case 486622315:  // targetType
+          ((ViewStatusKeyBean) bean).setTargetType((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ViewStatusKeyBean) bean)._securityType, "securityType");
+      JodaBeanUtils.notNull(((ViewStatusKeyBean) bean)._valueRequirementName, "valueRequirementName");
+      JodaBeanUtils.notNull(((ViewStatusKeyBean) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((ViewStatusKeyBean) bean)._targetType, "targetType");
     }
 
   }

@@ -67,6 +67,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
    */
   @BeforeClass(alwaysRun = true)
   public final void setUpClass() throws Exception {
+    TestUtils.initSecurity();
     doSetUpClass();
   }
 
@@ -91,10 +92,35 @@ public abstract class AbstractDbTest implements TableCreationCallback {
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
       s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
+
+      String user = dbTool.getUser();
+      String password = dbTool.getPassword();
+      String systemUser = System.getProperty("system.user");
+      String systemPassword = System.getProperty("system.password");
+      if ("oracle11g".equals(getDatabaseType())) {
+        if (systemUser == null) {
+          systemUser = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.username");
+        }
+        if (systemPassword == null) {
+          systemPassword = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.password");
+        }
+      }
+      if (systemUser != null && systemPassword != null) {
+        dbTool.setUser(systemUser);
+        dbTool.setPassword(systemPassword);
+      } else {
+        dbTool.setUser(user);
+        dbTool.setPassword(password);
+      }
+
       dbTool.setTargetVersion(getDatabaseVersion());
       dbTool.setCreateVersion(getDatabaseVersion());
       dbTool.dropTestSchema();
       dbTool.createTestSchema();
+      //
+      dbTool.setUser(user);
+      dbTool.setPassword(password);
+      //
       dbTool.createTestTables(this);
     }
     dbTool.clearTestTables();

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -112,75 +113,6 @@ public class CapFloorSecurityBean extends SecurityBean {
   @Override
   public CapFloorSecurityBean.Meta metaBean() {
     return CapFloorSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -70023844:  // frequency
-        return getFrequency();
-      case 98258:  // cap
-        return isCap();
-      case 3225788:  // ibor
-        return isIbor();
-      case 106443605:  // payer
-        return isPayer();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 1585636160:  // notional
-        return getNotional();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -891985998:  // strike
-        return getStrike();
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCountBean) newValue);
-        return;
-      case -70023844:  // frequency
-        setFrequency((FrequencyBean) newValue);
-        return;
-      case 98258:  // cap
-        setCap((Boolean) newValue);
-        return;
-      case 3225788:  // ibor
-        setIbor((Boolean) newValue);
-        return;
-      case 106443605:  // payer
-        setPayer((Boolean) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTimeBean) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTimeBean) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalIdBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -459,6 +391,41 @@ public class CapFloorSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CapFloorSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("CapFloorSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(getFrequency())).append(',').append(' ');
+    buf.append("cap").append('=').append(JodaBeanUtils.toString(isCap())).append(',').append(' ');
+    buf.append("ibor").append('=').append(JodaBeanUtils.toString(isIbor())).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(isPayer())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("underlyingIdentifier").append('=').append(JodaBeanUtils.toString(getUnderlyingIdentifier())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CapFloorSecurityBean}.
    */
@@ -677,6 +644,76 @@ public class CapFloorSecurityBean extends SecurityBean {
      */
     public final MetaProperty<ExternalIdBean> underlyingIdentifier() {
       return _underlyingIdentifier;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((CapFloorSecurityBean) bean).getCurrency();
+        case 1905311443:  // dayCount
+          return ((CapFloorSecurityBean) bean).getDayCount();
+        case -70023844:  // frequency
+          return ((CapFloorSecurityBean) bean).getFrequency();
+        case 98258:  // cap
+          return ((CapFloorSecurityBean) bean).isCap();
+        case 3225788:  // ibor
+          return ((CapFloorSecurityBean) bean).isIbor();
+        case 106443605:  // payer
+          return ((CapFloorSecurityBean) bean).isPayer();
+        case -414641441:  // maturityDate
+          return ((CapFloorSecurityBean) bean).getMaturityDate();
+        case 1585636160:  // notional
+          return ((CapFloorSecurityBean) bean).getNotional();
+        case -2129778896:  // startDate
+          return ((CapFloorSecurityBean) bean).getStartDate();
+        case -891985998:  // strike
+          return ((CapFloorSecurityBean) bean).getStrike();
+        case 368639974:  // underlyingIdentifier
+          return ((CapFloorSecurityBean) bean).getUnderlyingIdentifier();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((CapFloorSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((CapFloorSecurityBean) bean).setDayCount((DayCountBean) newValue);
+          return;
+        case -70023844:  // frequency
+          ((CapFloorSecurityBean) bean).setFrequency((FrequencyBean) newValue);
+          return;
+        case 98258:  // cap
+          ((CapFloorSecurityBean) bean).setCap((Boolean) newValue);
+          return;
+        case 3225788:  // ibor
+          ((CapFloorSecurityBean) bean).setIbor((Boolean) newValue);
+          return;
+        case 106443605:  // payer
+          ((CapFloorSecurityBean) bean).setPayer((Boolean) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((CapFloorSecurityBean) bean).setMaturityDate((ZonedDateTimeBean) newValue);
+          return;
+        case 1585636160:  // notional
+          ((CapFloorSecurityBean) bean).setNotional((Double) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((CapFloorSecurityBean) bean).setStartDate((ZonedDateTimeBean) newValue);
+          return;
+        case -891985998:  // strike
+          ((CapFloorSecurityBean) bean).setStrike((Double) newValue);
+          return;
+        case 368639974:  // underlyingIdentifier
+          ((CapFloorSecurityBean) bean).setUnderlyingIdentifier((ExternalIdBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

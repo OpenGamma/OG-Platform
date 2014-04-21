@@ -5,8 +5,14 @@
  */
 package com.opengamma.analytics.math.integration;
 
+import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SimpsonIntegrator1DTest extends Integrator1DTestCase {
   private static final Integrator1D<Double, Double> INTEGRATOR = new SimpsonIntegrator1D();
 

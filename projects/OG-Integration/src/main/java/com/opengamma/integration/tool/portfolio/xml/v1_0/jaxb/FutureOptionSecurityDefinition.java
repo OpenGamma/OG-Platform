@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -92,87 +93,6 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
   @Override
   public FutureOptionSecurityDefinition.Meta metaBean() {
     return FutureOptionSecurityDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1200280399:  // listedFutureOptionType
-        return getListedFutureOptionType();
-      case 1373587791:  // optionType
-        return getOptionType();
-      case -891985998:  // strike
-        return getStrike();
-      case 797235414:  // futureExpiry
-        return getFutureExpiry();
-      case 1032553992:  // optionExpiry
-        return getOptionExpiry();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-      case -549878249:  // isMargined
-        return isIsMargined();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1200280399:  // listedFutureOptionType
-        setListedFutureOptionType((ListedFutureOptionType) newValue);
-        return;
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((BigDecimal) newValue);
-        return;
-      case 797235414:  // futureExpiry
-        setFutureExpiry((YearMonth) newValue);
-        return;
-      case 1032553992:  // optionExpiry
-        setOptionExpiry((YearMonth) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((ExerciseType) newValue);
-        return;
-      case -549878249:  // isMargined
-        setIsMargined((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FutureOptionSecurityDefinition other = (FutureOptionSecurityDefinition) obj;
-      return JodaBeanUtils.equal(getListedFutureOptionType(), other.getListedFutureOptionType()) &&
-          JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getFutureExpiry(), other.getFutureExpiry()) &&
-          JodaBeanUtils.equal(getOptionExpiry(), other.getOptionExpiry()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(isIsMargined(), other.isIsMargined()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListedFutureOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsMargined());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -277,7 +197,8 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optionExpiry.
+   * Gets at some point we may want to allow mid curve future options where
+   * option expiry is significantly earlier than the underlying future
    * @return the value of the property
    */
   public YearMonth getOptionExpiry() {
@@ -285,7 +206,8 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
   }
 
   /**
-   * Sets the optionExpiry.
+   * Sets at some point we may want to allow mid curve future options where
+   * option expiry is significantly earlier than the underlying future
    * @param optionExpiry  the new value of the property
    */
   public void setOptionExpiry(YearMonth optionExpiry) {
@@ -294,6 +216,7 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
 
   /**
    * Gets the the {@code optionExpiry} property.
+   * option expiry is significantly earlier than the underlying future
    * @return the property, not null
    */
   public final Property<YearMonth> optionExpiry() {
@@ -348,6 +271,69 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
    */
   public final Property<Boolean> isMargined() {
     return metaBean().isMargined().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FutureOptionSecurityDefinition clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FutureOptionSecurityDefinition other = (FutureOptionSecurityDefinition) obj;
+      return JodaBeanUtils.equal(getListedFutureOptionType(), other.getListedFutureOptionType()) &&
+          JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getFutureExpiry(), other.getFutureExpiry()) &&
+          JodaBeanUtils.equal(getOptionExpiry(), other.getOptionExpiry()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          (isIsMargined() == other.isIsMargined()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getListedFutureOptionType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsMargined());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("FutureOptionSecurityDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("listedFutureOptionType").append('=').append(JodaBeanUtils.toString(getListedFutureOptionType())).append(',').append(' ');
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("futureExpiry").append('=').append(JodaBeanUtils.toString(getFutureExpiry())).append(',').append(' ');
+    buf.append("optionExpiry").append('=').append(JodaBeanUtils.toString(getOptionExpiry())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("isMargined").append('=').append(JodaBeanUtils.toString(isIsMargined())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -505,6 +491,56 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
      */
     public final MetaProperty<Boolean> isMargined() {
       return _isMargined;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1200280399:  // listedFutureOptionType
+          return ((FutureOptionSecurityDefinition) bean).getListedFutureOptionType();
+        case 1373587791:  // optionType
+          return ((FutureOptionSecurityDefinition) bean).getOptionType();
+        case -891985998:  // strike
+          return ((FutureOptionSecurityDefinition) bean).getStrike();
+        case 797235414:  // futureExpiry
+          return ((FutureOptionSecurityDefinition) bean).getFutureExpiry();
+        case 1032553992:  // optionExpiry
+          return ((FutureOptionSecurityDefinition) bean).getOptionExpiry();
+        case -466331342:  // exerciseType
+          return ((FutureOptionSecurityDefinition) bean).getExerciseType();
+        case -549878249:  // isMargined
+          return ((FutureOptionSecurityDefinition) bean).isIsMargined();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1200280399:  // listedFutureOptionType
+          ((FutureOptionSecurityDefinition) bean).setListedFutureOptionType((ListedFutureOptionType) newValue);
+          return;
+        case 1373587791:  // optionType
+          ((FutureOptionSecurityDefinition) bean).setOptionType((OptionType) newValue);
+          return;
+        case -891985998:  // strike
+          ((FutureOptionSecurityDefinition) bean).setStrike((BigDecimal) newValue);
+          return;
+        case 797235414:  // futureExpiry
+          ((FutureOptionSecurityDefinition) bean).setFutureExpiry((YearMonth) newValue);
+          return;
+        case 1032553992:  // optionExpiry
+          ((FutureOptionSecurityDefinition) bean).setOptionExpiry((YearMonth) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((FutureOptionSecurityDefinition) bean).setExerciseType((ExerciseType) newValue);
+          return;
+        case -549878249:  // isMargined
+          ((FutureOptionSecurityDefinition) bean).setIsMargined((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

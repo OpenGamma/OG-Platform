@@ -20,6 +20,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Populates the {@link ConfigMaster} with FX option volatility surface definitions and specifications. The
@@ -34,9 +35,9 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
     Tenor.ofYears(5), Tenor.ofYears(10)};
   /** The y-axis */
   @SuppressWarnings("unchecked")
-  private static final Pair<Number, FXVolQuoteType>[] YS = new Pair[] {Pair.of(25, FXVolQuoteType.BUTTERFLY), Pair.of(25, FXVolQuoteType.RISK_REVERSAL),
-    Pair.of(15, FXVolQuoteType.BUTTERFLY), Pair.of(15, FXVolQuoteType.RISK_REVERSAL),
-    Pair.of(0, FXVolQuoteType.ATM)};
+  private static final Pair<Number, FXVolQuoteType>[] YS = new Pair[] {Pairs.of(25, FXVolQuoteType.BUTTERFLY), Pairs.of(25, FXVolQuoteType.RISK_REVERSAL),
+    Pairs.of(15, FXVolQuoteType.BUTTERFLY), Pairs.of(15, FXVolQuoteType.RISK_REVERSAL),
+    Pairs.of(0, FXVolQuoteType.ATM)};
 
   /**
    * @param configMaster The configuration master, not null

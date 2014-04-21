@@ -1,11 +1,20 @@
 <#escape x as x?html>
-<@page title="Positions">
-
+<@page title="Positions" jquery=true aceXmlEditor=true>
 
 <#-- SECTION Position search -->
 <@section title="Position search" if=searchRequest??>
   <@form method="GET" action="${uris.positions()}">
   <p>
+    <#if uniqueIdSchemes?exists>
+      <@rowin label="UniqueId Scheme">
+        <select name="uniqueIdScheme">
+          <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
+          <#list uniqueIdSchemes as uniqueIdScheme>
+            <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+          </#list>
+        </select>
+      </@rowin>
+    </#if>  
     <@rowin label="Min quantity"><input type="text" size="10" maxlength="12" name="minquantity" value="${searchRequest.minQuantity}" /></@rowin>
     <@rowin label="Max quantity"><input type="text" size="10" maxlength="12" name="maxquantity" value="${searchRequest.maxQuantity}" /></@rowin>
     <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.securityIdValue}" /></@rowin>
@@ -33,15 +42,22 @@
 <@section title="Add position">
   <@form method="POST" action="${uris.positions()}">
   <p>
+    <#if uniqueIdSchemes?exists>
+    <@rowin label="UniqueId Scheme">
+      <select name="uniqueIdScheme">
+        <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
+        <#list uniqueIdSchemes as uniqueIdScheme>
+        <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+        </#list>
+      </select>
+    </@rowin>
+    </#if>  
     <@rowin label="Quantity"><input type="text" size="10" maxlength="12" name="quantity" value="" /></@rowin>
     <@rowin label="Scheme type">
       <select name="idscheme">
-        <option value="BLOOMBERG_TICKER">Bloomberg Ticker</option>
-        <option value="BLOOMBERG_BUID">Bloomberg BUID</option>
-        <option value="CUSIP">CUSIP</option>
-        <option value="ISIN">ISIN</option>
-        <option value="RIC">RIC</option>
-        <option value="SEDOL1">SEDOL</option>
+       <#list externalSchemes?keys as key> 
+          <option value="${key}">${externalSchemes[key]}</option>
+       </#list>
       </select>
     </@rowin>
     <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="idvalue" value="" /></@rowin>
@@ -50,6 +66,30 @@
   </@form>
 </@section>
 
+<#-- SECTION Add position by XML-->
+<@section title="Add position by XML">
+  <@form method="POST" action="${uris.positions()}" id="addPositionForm">
+  <p>
+    <#if uniqueIdSchemes?exists>
+    <@rowin label="UniqueId Scheme">
+      <select name="uniqueIdScheme">
+        <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
+        <#list uniqueIdSchemes as uniqueIdScheme>
+        <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
+        </#list>
+      </select>
+    </@rowin>
+    </#if> 
+    <@rowin label="Value">
+      <div id="ace-xml-editor"></div>
+    </@rowin>
+    <input type="hidden" name="positionXml" id="position-xml"/>
+    <input type="hidden" name="type" value="xml"/>
+    <@rowin><input type="submit" value="Add" /></@rowin>
+  </p>
+  <#noescape><@xmlEditorScript formId="addPositionForm" inputId="position-xml" xmlValue="${positionXml!''}"></@xmlEditorScript></#noescape> 
+  </@form>
+</@section>
 
 <#-- SECTION Links -->
 <@section title="Links">

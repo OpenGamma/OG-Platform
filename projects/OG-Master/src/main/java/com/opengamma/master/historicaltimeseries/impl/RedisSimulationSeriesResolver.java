@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.NonVersionedRedisHistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -19,20 +19,24 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolverWithBasicChangeManager;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Implements {@link HistoricalTimeSeriesResolver} on top of any Redis HTS source.
  */
-public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolver {
+public class RedisSimulationSeriesResolver extends HistoricalTimeSeriesResolverWithBasicChangeManager {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesResolver.class);
-  private final HistoricalTimeSeriesSource _source;
+  private final NonVersionedRedisHistoricalTimeSeriesSource[] _redisSources;
 
-  public RedisSimulationSeriesResolver(HistoricalTimeSeriesSource source) {
-    _source = source;
+  public RedisSimulationSeriesResolver(NonVersionedRedisHistoricalTimeSeriesSource... redisSources) {
+    ArgumentChecker.notNull(redisSources, "sources");
+    ArgumentChecker.notNegativeOrZero(redisSources.length, "redisSources must not be empty");
+    _redisSources = redisSources;
   }
-
+  
   @Override
   public HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
                                                       String resolutionKey) {
@@ -42,15 +46,24 @@ public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolv
       s_logger.warn("Attempted to call RedisSimulationSeriesSource with bundle {}. Calls with more than 1 entry in ID bundle are probably misuse of this class.", identifierBundle);
     }
     ExternalId externalId = identifierBundle.getExternalIds().iterator().next();
-    final UniqueId uniqueId = UniqueId.of(externalId.getScheme().getName(), externalId.getValue());
-    //TODO: This should just be an existence check
-    if (_source.getHistoricalTimeSeries(uniqueId, null, true, null, true) == null) {
-      return null; // check timeseries actually exists
-    }
-    if (MarketDataRequirementNames.MARKET_VALUE != dataField) {
-      s_logger.warn("Redis simulation asked for {} for {}, can only handle market value.", dataField, externalId);
+    if (!MarketDataRequirementNames.MARKET_VALUE.equals(dataField)) {
+      //s_logger.warn("Redis simulation asked for {} for {}, can only handle market value.", dataField, externalId);
       return null;
     }
+    final UniqueId uniqueId = UniqueId.of(externalId.getScheme().getName(), externalId.getValue());
+    
+    boolean oneMatches = false;
+    for (NonVersionedRedisHistoricalTimeSeriesSource source : _redisSources) {
+      if (source.exists(uniqueId)) {
+        oneMatches = true;
+        break;
+      }
+    }
+    
+    if (!oneMatches) {
+      return null;
+    }
+    
     ManageableHistoricalTimeSeriesInfo htsInfo = new ManageableHistoricalTimeSeriesInfo() {
       private static final long serialVersionUID = 1L;
 

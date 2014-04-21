@@ -6,13 +6,24 @@
 package com.opengamma.financial.analytics.parameters;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.SortedMap;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -20,20 +31,11 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Config object that contains parameters for the G2++ model.
  */
-@Config(description = "G2++ model parameters")
+@Config(description = "G2++ model parameters", group = ConfigGroups.MISC)
 @BeanDefinition
 public class G2ppParameters extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
@@ -134,106 +136,6 @@ public class G2ppParameters extends DirectBean implements Serializable, UniqueId
   @Override
   public G2ppParameters.Meta metaBean() {
     return G2ppParameters.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 575402001:  // currency
-        return getCurrency();
-      case 814854507:  // firstMeanReversionId
-        return getFirstMeanReversionId();
-      case 629341991:  // secondMeanReversionId
-        return getSecondMeanReversionId();
-      case -1201097548:  // firstInitialVolatilityId
-        return getFirstInitialVolatilityId();
-      case 340051056:  // secondInitialVolatilityId
-        return getSecondInitialVolatilityId();
-      case -1883573694:  // volatilityTermStructure
-        return getVolatilityTermStructure();
-      case -764983747:  // correlationId
-        return getCorrelationId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 814854507:  // firstMeanReversionId
-        setFirstMeanReversionId((ExternalId) newValue);
-        return;
-      case 629341991:  // secondMeanReversionId
-        setSecondMeanReversionId((ExternalId) newValue);
-        return;
-      case -1201097548:  // firstInitialVolatilityId
-        setFirstInitialVolatilityId((ExternalId) newValue);
-        return;
-      case 340051056:  // secondInitialVolatilityId
-        setSecondInitialVolatilityId((ExternalId) newValue);
-        return;
-      case -1883573694:  // volatilityTermStructure
-        setVolatilityTermStructure((SortedMap<Tenor, Pair<ExternalId, ExternalId>>) newValue);
-        return;
-      case -764983747:  // correlationId
-        setCorrelationId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_firstMeanReversionId, "firstMeanReversionId");
-    JodaBeanUtils.notNull(_secondMeanReversionId, "secondMeanReversionId");
-    JodaBeanUtils.notNull(_firstInitialVolatilityId, "firstInitialVolatilityId");
-    JodaBeanUtils.notNull(_secondInitialVolatilityId, "secondInitialVolatilityId");
-    JodaBeanUtils.notNull(_volatilityTermStructure, "volatilityTermStructure");
-    JodaBeanUtils.notNull(_correlationId, "correlationId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      G2ppParameters other = (G2ppParameters) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getFirstMeanReversionId(), other.getFirstMeanReversionId()) &&
-          JodaBeanUtils.equal(getSecondMeanReversionId(), other.getSecondMeanReversionId()) &&
-          JodaBeanUtils.equal(getFirstInitialVolatilityId(), other.getFirstInitialVolatilityId()) &&
-          JodaBeanUtils.equal(getSecondInitialVolatilityId(), other.getSecondInitialVolatilityId()) &&
-          JodaBeanUtils.equal(getVolatilityTermStructure(), other.getVolatilityTermStructure()) &&
-          JodaBeanUtils.equal(getCorrelationId(), other.getCorrelationId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstMeanReversionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondMeanReversionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstInitialVolatilityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondInitialVolatilityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -447,6 +349,69 @@ public class G2ppParameters extends DirectBean implements Serializable, UniqueId
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public G2ppParameters clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      G2ppParameters other = (G2ppParameters) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getFirstMeanReversionId(), other.getFirstMeanReversionId()) &&
+          JodaBeanUtils.equal(getSecondMeanReversionId(), other.getSecondMeanReversionId()) &&
+          JodaBeanUtils.equal(getFirstInitialVolatilityId(), other.getFirstInitialVolatilityId()) &&
+          JodaBeanUtils.equal(getSecondInitialVolatilityId(), other.getSecondInitialVolatilityId()) &&
+          JodaBeanUtils.equal(getVolatilityTermStructure(), other.getVolatilityTermStructure()) &&
+          JodaBeanUtils.equal(getCorrelationId(), other.getCorrelationId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstMeanReversionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondMeanReversionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstInitialVolatilityId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondInitialVolatilityId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("G2ppParameters{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("firstMeanReversionId").append('=').append(JodaBeanUtils.toString(getFirstMeanReversionId())).append(',').append(' ');
+    buf.append("secondMeanReversionId").append('=').append(JodaBeanUtils.toString(getSecondMeanReversionId())).append(',').append(' ');
+    buf.append("firstInitialVolatilityId").append('=').append(JodaBeanUtils.toString(getFirstInitialVolatilityId())).append(',').append(' ');
+    buf.append("secondInitialVolatilityId").append('=').append(JodaBeanUtils.toString(getSecondInitialVolatilityId())).append(',').append(' ');
+    buf.append("volatilityTermStructure").append('=').append(JodaBeanUtils.toString(getVolatilityTermStructure())).append(',').append(' ');
+    buf.append("correlationId").append('=').append(JodaBeanUtils.toString(getCorrelationId())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code G2ppParameters}.
    */
@@ -618,6 +583,73 @@ public class G2ppParameters extends DirectBean implements Serializable, UniqueId
      */
     public final MetaProperty<ExternalId> correlationId() {
       return _correlationId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((G2ppParameters) bean).getUniqueId();
+        case 575402001:  // currency
+          return ((G2ppParameters) bean).getCurrency();
+        case 814854507:  // firstMeanReversionId
+          return ((G2ppParameters) bean).getFirstMeanReversionId();
+        case 629341991:  // secondMeanReversionId
+          return ((G2ppParameters) bean).getSecondMeanReversionId();
+        case -1201097548:  // firstInitialVolatilityId
+          return ((G2ppParameters) bean).getFirstInitialVolatilityId();
+        case 340051056:  // secondInitialVolatilityId
+          return ((G2ppParameters) bean).getSecondInitialVolatilityId();
+        case -1883573694:  // volatilityTermStructure
+          return ((G2ppParameters) bean).getVolatilityTermStructure();
+        case -764983747:  // correlationId
+          return ((G2ppParameters) bean).getCorrelationId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((G2ppParameters) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 575402001:  // currency
+          ((G2ppParameters) bean).setCurrency((Currency) newValue);
+          return;
+        case 814854507:  // firstMeanReversionId
+          ((G2ppParameters) bean).setFirstMeanReversionId((ExternalId) newValue);
+          return;
+        case 629341991:  // secondMeanReversionId
+          ((G2ppParameters) bean).setSecondMeanReversionId((ExternalId) newValue);
+          return;
+        case -1201097548:  // firstInitialVolatilityId
+          ((G2ppParameters) bean).setFirstInitialVolatilityId((ExternalId) newValue);
+          return;
+        case 340051056:  // secondInitialVolatilityId
+          ((G2ppParameters) bean).setSecondInitialVolatilityId((ExternalId) newValue);
+          return;
+        case -1883573694:  // volatilityTermStructure
+          ((G2ppParameters) bean).setVolatilityTermStructure((SortedMap<Tenor, Pair<ExternalId, ExternalId>>) newValue);
+          return;
+        case -764983747:  // correlationId
+          ((G2ppParameters) bean).setCorrelationId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((G2ppParameters) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((G2ppParameters) bean)._firstMeanReversionId, "firstMeanReversionId");
+      JodaBeanUtils.notNull(((G2ppParameters) bean)._secondMeanReversionId, "secondMeanReversionId");
+      JodaBeanUtils.notNull(((G2ppParameters) bean)._firstInitialVolatilityId, "firstInitialVolatilityId");
+      JodaBeanUtils.notNull(((G2ppParameters) bean)._secondInitialVolatilityId, "secondInitialVolatilityId");
+      JodaBeanUtils.notNull(((G2ppParameters) bean)._volatilityTermStructure, "volatilityTermStructure");
+      JodaBeanUtils.notNull(((G2ppParameters) bean)._correlationId, "correlationId");
     }
 
   }

@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,18 +23,13 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.MapMaker;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
-import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
@@ -62,25 +56,50 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
 
   private final CacheManager _cacheManager;
 
-  private final ConfigSource _configSource;
-
-  private final CompiledFunctionService _functions;
+  private final ComputationTargetResolver _targetResolver;
 
   private final ConcurrentMap<ViewExecutionCacheKey, CompiledViewDefinitionWithGraphs> _compiledViewDefinitionsFrontCache = new MapMaker().weakValues().makeMap();
 
   private final Cache _compiledViewDefinitions;
 
-  public EHCacheViewExecutionCache(final CacheManager cacheManager, final ConfigSource configSource, final CompiledFunctionService functions) {
+  /**
+   * Creates a new instance.
+   * 
+   * @param cacheManager the cache manager, not null
+   * @param targetResolver the target resolver for portfolio and view definition objects, not null
+   */
+  public EHCacheViewExecutionCache(final CacheManager cacheManager, final ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
-    ArgumentChecker.notNull(configSource, "configSource");
-    ArgumentChecker.notNull(functions, "functions");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
     _identifier = s_nextIdentifier.getAndIncrement();
     _cacheManager = cacheManager;
-    _configSource = configSource;
-    _functions = functions;
+    _targetResolver = targetResolver;
     EHCacheUtils.addCache(_cacheManager, COMPILED_VIEW_DEFINITIONS);
     _compiledViewDefinitions = EHCacheUtils.getCacheFromManager(_cacheManager, COMPILED_VIEW_DEFINITIONS);
     s_instance2identifier.put(_identifier, this);
+  }
+
+  /**
+   * Creates a new instance.
+   * 
+   * @param cacheManager the cache manager, not null
+   * @param cfs the compiled function service, holding a computation target resolver, not null
+   */
+  public EHCacheViewExecutionCache(final CacheManager cacheManager, final CompiledFunctionService cfs) {
+    this(cacheManager, cfs.getFunctionCompilationContext().getRawComputationTargetResolver());
+  }
+
+  /**
+   * Creates a new instance
+   * 
+   * @param cacheManager the cache manager, not null
+   * @param configSource not used
+   * @param cfs the compiled function service, holding a computation target resolver, not null
+   * @deprecated Kept for compatibility with existing Spring config files only
+   */
+  @Deprecated
+  public EHCacheViewExecutionCache(final CacheManager cacheManager, final ConfigSource configSource, final CompiledFunctionService cfs) {
+    this(cacheManager, cfs.getFunctionCompilationContext().getRawComputationTargetResolver());
   }
 
   /**
@@ -98,70 +117,8 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     return s_instance2identifier.get(identifier);
   }
 
-  public ConfigSource getConfigSource() {
-    return _configSource;
-  }
-
-  public CompiledFunctionService getFunctions() {
-    return _functions;
-  }
-
-  /* package */static final class DependencyGraphHolder implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private final String _calcConfig;
-    private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs;
-    private final ComputationTargetSpecification[] _nodeTargets;
-    private final FunctionParameters[] _nodeParameters;
-    private final String[] _nodeFunctions;
-    private final Collection<ValueSpecification>[] _nodeInputs;
-    private final Collection<ValueSpecification>[] _nodeOutputs;
-
-    @SuppressWarnings("unchecked")
-    public DependencyGraphHolder(final DependencyGraph graph) {
-      _calcConfig = graph.getCalculationConfigurationName();
-      final int size = graph.getDependencyNodes().size();
-      _nodeTargets = new ComputationTargetSpecification[size];
-      _nodeParameters = new FunctionParameters[size];
-      _nodeFunctions = new String[size];
-      _nodeInputs = new Collection[size];
-      _nodeOutputs = new Collection[size];
-      int i = 0;
-      for (DependencyNode node : graph.getDependencyNodes()) {
-        _nodeTargets[i] = node.getComputationTarget();
-        _nodeParameters[i] = node.getFunction().getParameters();
-        _nodeFunctions[i] = node.getFunction().getFunction().getFunctionDefinition().getUniqueId();
-        _nodeInputs[i] = node.getInputValues();
-        _nodeOutputs[i] = new ArrayList<ValueSpecification>(node.getOutputValues());
-        i++;
-      }
-      _terminalOutputs = graph.getTerminalOutputs();
-    }
-
-    public DependencyGraph get(final CompiledFunctionRepository functions) {
-      final DependencyGraph graph = new DependencyGraph(_calcConfig);
-      for (int i = 0; i < _nodeTargets.length; i++) {
-        final DependencyNode node = new DependencyNode(_nodeTargets[i]);
-        for (ValueSpecification input : _nodeInputs[i]) {
-          node.addInputValue(input);
-        }
-        node.addOutputValues(_nodeOutputs[i]);
-        node.setFunction(new ParameterizedFunction(functions.getDefinition(_nodeFunctions[i]), _nodeParameters[i]));
-        graph.addDependencyNode(node);
-      }
-      for (DependencyNode node : graph.getDependencyNodes()) {
-        for (ValueSpecification inputValue : node.getInputValues()) {
-          final DependencyNode inputNode = graph.getNodeProducing(inputValue);
-          if (inputNode != null) {
-            node.addInputNode(inputNode);
-          }
-        }
-      }
-      graph.addTerminalOutputs(_terminalOutputs);
-      return graph;
-    }
-
+  public ComputationTargetResolver getTargetResolver() {
+    return _targetResolver;
   }
 
   /* package */static final class CompiledViewDefinitionWithGraphsReader implements Serializable {
@@ -171,58 +128,43 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     private final Serializable _parent;
     private final VersionCorrection _versionCorrection;
     private final String _compilationId;
-    private final Instant _compilationTime;
     private final UniqueId _viewDefinition;
-    private final Collection<DependencyGraphHolder> _graphs;
+    private final Collection<DependencyGraph> _graphs;
     private final Map<ComputationTargetReference, UniqueId> _resolutions;
     private final UniqueId _portfolio;
     private final long _functionInitId;
     private final Collection<CompiledViewCalculationConfiguration> _calcConfigs;
+    private final Instant _validFrom;
+    private final Instant _validTo;
 
     public CompiledViewDefinitionWithGraphsReader(EHCacheViewExecutionCache parent, CompiledViewDefinitionWithGraphs viewDef) {
       _parent = parent.instance();
       _versionCorrection = viewDef.getResolverVersionCorrection();
       _compilationId = viewDef.getCompilationIdentifier();
-      if (viewDef.getValidFrom() == null) {
-        if (viewDef.getValidTo() == null) {
-          _compilationTime = Instant.now();
-        } else {
-          _compilationTime = viewDef.getValidTo();
-        }
-      } else {
-        if (viewDef.getValidTo() == null) {
-          _compilationTime = viewDef.getValidFrom();
-        } else {
-          _compilationTime = Instant.ofEpochSecond((viewDef.getValidFrom().getEpochSecond() + viewDef.getValidTo().getEpochSecond()) >> 1);
-        }
-      }
       _viewDefinition = viewDef.getViewDefinition().getUniqueId();
       final Collection<DependencyGraphExplorer> graphs = viewDef.getDependencyGraphExplorers();
       _graphs = new ArrayList<>(graphs.size());
       for (DependencyGraphExplorer explorer : graphs) {
-        _graphs.add(new DependencyGraphHolder(explorer.getWholeGraph()));
+        _graphs.add(explorer.getWholeGraph());
       }
       _resolutions = viewDef.getResolvedIdentifiers();
       _portfolio = viewDef.getPortfolio().getUniqueId();
       _functionInitId = ((CompiledViewDefinitionWithGraphsImpl) viewDef).getFunctionInitId();
-      _calcConfigs = viewDef.getCompiledCalculationConfigurations();
+      _calcConfigs = new ArrayList<CompiledViewCalculationConfiguration>(viewDef.getCompiledCalculationConfigurations());
+      _validFrom = viewDef.getValidFrom();
+      _validTo = viewDef.getValidTo();
     }
 
     private Object readResolve() {
       final EHCacheViewExecutionCache parent = instance(_parent);
-      final ViewDefinition viewDefinition = parent.getConfigSource().getConfig(ViewDefinition.class, _viewDefinition);
-      final Collection<DependencyGraph> graphs = new ArrayList<DependencyGraph>(_graphs.size());
-      final CompiledFunctionRepository functions = parent.getFunctions().compileFunctionRepository(_compilationTime);
-      for (DependencyGraphHolder graph : _graphs) {
-        graphs.add(graph.get(functions));
-      }
-      final Portfolio portfolio = (Portfolio) parent.getFunctions().getFunctionCompilationContext().getRawComputationTargetResolver()
-          .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, _portfolio), _versionCorrection).getValue();
-      CompiledViewDefinitionWithGraphsImpl compiledViewDef =
-          new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition, graphs,
-              _resolutions, portfolio, _functionInitId, _calcConfigs);
+      final ViewDefinition viewDefinition = (ViewDefinition) parent.getTargetResolver()
+          .resolve(new ComputationTargetSpecification(ComputationTargetType.of(ViewDefinition.class), _viewDefinition), VersionCorrection.LATEST).getValue();
+      final Portfolio portfolio = (Portfolio) parent.getTargetResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, _portfolio), _versionCorrection).getValue();
+      CompiledViewDefinitionWithGraphsImpl compiledViewDef = new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition, _graphs, _resolutions, portfolio,
+          _functionInitId, _calcConfigs, _validFrom, _validTo);
       return parent.new CompiledViewDefinitionWithGraphsHolder(compiledViewDef);
     }
+
   }
 
   /* package */final class CompiledViewDefinitionWithGraphsHolder implements Serializable {
@@ -276,6 +218,13 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     }
     s_logger.info("Storing CompiledViewDefinitionWithGraphs for {}", key);
     _compiledViewDefinitions.put(new Element(key, new CompiledViewDefinitionWithGraphsHolder(viewDefinition)));
+  }
+
+  @Override
+  public void clear() {
+    _compiledViewDefinitionsFrontCache.clear();
+    s_logger.info("Clearing all CompiledViewDefinitionWithGraphs");
+    _compiledViewDefinitions.removeAll();
   }
 
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -110,60 +111,6 @@ public class EquityOptionSecurityBean extends SecurityBean {
   @Override
   public EquityOptionSecurityBean.Meta metaBean() {
     return EquityOptionSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -266326457:  // optionExerciseType
-        return getOptionExerciseType();
-      case 1373587791:  // optionType
-        return getOptionType();
-      case -891985998:  // strike
-        return getStrike();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1989774883:  // exchange
-        return getExchange();
-      case 1257391553:  // pointValue
-        return getPointValue();
-      case -1770633379:  // underlying
-        return getUnderlying();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -266326457:  // optionExerciseType
-        setOptionExerciseType((OptionExerciseType) newValue);
-        return;
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((ExpiryBean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 1989774883:  // exchange
-        setExchange((ExchangeBean) newValue);
-        return;
-      case 1257391553:  // pointValue
-        setPointValue((Double) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -367,6 +314,12 @@ public class EquityOptionSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EquityOptionSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EquityOptionSecurityBean}.
    */
@@ -537,6 +490,61 @@ public class EquityOptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<ExternalIdBean> underlying() {
       return _underlying;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -266326457:  // optionExerciseType
+          return ((EquityOptionSecurityBean) bean).getOptionExerciseType();
+        case 1373587791:  // optionType
+          return ((EquityOptionSecurityBean) bean).getOptionType();
+        case -891985998:  // strike
+          return ((EquityOptionSecurityBean) bean).getStrike();
+        case -1289159373:  // expiry
+          return ((EquityOptionSecurityBean) bean).getExpiry();
+        case 575402001:  // currency
+          return ((EquityOptionSecurityBean) bean).getCurrency();
+        case 1989774883:  // exchange
+          return ((EquityOptionSecurityBean) bean).getExchange();
+        case 1257391553:  // pointValue
+          return ((EquityOptionSecurityBean) bean).getPointValue();
+        case -1770633379:  // underlying
+          return ((EquityOptionSecurityBean) bean).getUnderlying();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -266326457:  // optionExerciseType
+          ((EquityOptionSecurityBean) bean).setOptionExerciseType((OptionExerciseType) newValue);
+          return;
+        case 1373587791:  // optionType
+          ((EquityOptionSecurityBean) bean).setOptionType((OptionType) newValue);
+          return;
+        case -891985998:  // strike
+          ((EquityOptionSecurityBean) bean).setStrike((Double) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((EquityOptionSecurityBean) bean).setExpiry((ExpiryBean) newValue);
+          return;
+        case 575402001:  // currency
+          ((EquityOptionSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 1989774883:  // exchange
+          ((EquityOptionSecurityBean) bean).setExchange((ExchangeBean) newValue);
+          return;
+        case 1257391553:  // pointValue
+          ((EquityOptionSecurityBean) bean).setPointValue((Double) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((EquityOptionSecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -11,14 +11,19 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.joda.beans.integrate.freemarker.FreemarkerObjectWrapper;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
+import com.opengamma.core.user.UserProfile;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.web.user.WebUser;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -87,6 +92,67 @@ public class FreemarkerOutputter {
     servletContext.setAttribute(FreemarkerOutputter.FREEMARKER_CONFIGURATION, configuration);
   }
 
+  /**
+   * Creates a new Freemarker root data.
+   * <p>
+   * This creates a new data object to be passed to Freemarker with some standard keys:
+   * <ul>
+   * <li>now - the current date-time using {@link OpenGammaClock}
+   * <li>timeFormatter - a formatter that outputs the time as HH:mm:ss
+   * <li>offsetFormatter - a formatter that outputs the time-zone offset
+   * </ul>
+   * 
+   * @return the root data, not null
+   */
+  public static FlexiBean createRootData() {
+    FlexiBean data = new FlexiBean();
+    data.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
+    data.put("locale", Locale.ENGLISH);
+    data.put("timeZone", OpenGammaClock.getInstance().getZone());
+    data.put("dateFormatter", DateTimeFormatter.ofPattern("d MMM yyyy"));
+    data.put("timeFormatter", DateTimeFormatter.ofPattern("HH:mm:ss"));
+    data.put("offsetFormatter", new DateTimeFormatterBuilder().appendOffsetId().toFormatter());
+    return data;
+  }
+
+  /**
+   * Creates a new Freemarker root data.
+   * <p>
+   * This creates a new data object to be passed to Freemarker with some standard keys:
+   * <ul>
+   * <li>now - the current date-time using {@link OpenGammaClock}
+   * <li>timeFormatter - a formatter that outputs the time as HH:mm:ss
+   * <li>offsetFormatter - a formatter that outputs the time-zone offset
+   * <li>homeUris - the home URIs
+   * <li>baseUri - the base URI
+   * <li>security - an instance of WebSecurity
+   * </ul>
+   * 
+   * @param uriInfo  the URI information, not null
+   * @return the root data, not null
+   */
+  public static FlexiBean createRootData(UriInfo uriInfo) {
+    FlexiBean out = FreemarkerOutputter.createRootData();
+    out.put("homeUris", new WebHomeUris(uriInfo));
+    out.put("baseUri", uriInfo.getBaseUri().toString());
+    WebUser user = new WebUser(uriInfo);
+    UserProfile profile = user.getProfile();
+    if (profile != null) {
+      Locale locale = profile.getLocale();
+      ZoneId zone = profile.getZone();
+      DateTimeFormatter dateFormatter = profile.getDateStyle().formatter(locale);
+      DateTimeFormatter timeFormatter = profile.getTimeStyle().formatter(locale);
+      ZonedDateTime now = ZonedDateTime.now(OpenGammaClock.getInstance().withZone(zone));
+      out.put("now", now);
+      out.put("locale", locale);
+      out.put("timeZone", zone);
+      out.put("dateFormatter", dateFormatter);
+      out.put("timeFormatter", timeFormatter);
+    }
+    out.put("userSecurity", user);
+    return out;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates the resource.
@@ -123,26 +189,6 @@ public class FreemarkerOutputter {
    */
   public Configuration getConfiguration() {
     return _configuration;
-  }
-
-  /**
-   * Creates a new Freemarker root data map.
-   * <p>
-   * This creates a new data object to be passed to Freemarker with some standard keys:
-   * <ul>
-   * <li>now - the current date-time using {@link OpenGammaClock}
-   * <li>timeFormatter - a formatter that outputs the time as HH:mm:ss
-   * <li>offsetFormatter - a formatter that outputs the time-zone offset
-   * </ul>
-   * 
-   * @return the root data map, not null
-   */
-  public FlexiBean createRootData() {
-    FlexiBean data = new FlexiBean();
-    data.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
-    data.put("timeFormatter", DateTimeFormatter.ofPattern("HH:mm:ss"));
-    data.put("offsetFormatter", DateTimeFormatter.ofPattern("Z"));
-    return data;
   }
 
   /**
@@ -233,7 +279,7 @@ public class FreemarkerOutputter {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "FreemarkerOutputter[" + Configuration.getVersionNumber() + "]";
+    return String.format("FreemarkerOutputter[%s]", Configuration.getVersionNumber());
   }
 
 }

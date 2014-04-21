@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
@@ -48,8 +47,7 @@ public class YieldCurveNodeSensitivitiesHelper {
   private static final DecimalFormat s_formatter = new DecimalFormat("##.######");
 
   /**
-   * @deprecated Use {@link #getInstrumentLabelledSensitivitiesForCurve(String, YieldCurveBundle, DoubleMatrix1D, InterpolatedYieldCurveSpecificationWithSecurities, ValueSpecification)}
-   * instead
+   * @deprecated Use {@link #getInstrumentLabelledSensitivitiesForCurve(String, YieldCurveBundle, DoubleMatrix1D, InterpolatedYieldCurveSpecificationWithSecurities, ValueSpecification)} instead
    * @param curve The curve
    * @param sensitivitiesForCurve The sensitivities for the curve
    * @param curveSpec The curve specification
@@ -57,9 +55,8 @@ public class YieldCurveNodeSensitivitiesHelper {
    * @return The computed value
    */
   @Deprecated
-  public static Set<ComputedValue> getSensitivitiesForCurve(final YieldAndDiscountCurve curve,
-      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
-      final ValueSpecification resultSpec) {
+  public static Set<ComputedValue> getSensitivitiesForCurve(final YieldAndDiscountCurve curve, final DoubleMatrix1D sensitivitiesForCurve,
+      final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, final ValueSpecification resultSpec) {
     final int n = sensitivitiesForCurve.getNumberOfElements();
     if (!(curve instanceof YieldCurve)) {
       throw new IllegalArgumentException("Can only handle YieldCurve");
@@ -74,21 +71,18 @@ public class YieldCurveNodeSensitivitiesHelper {
     return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
   }
 
-  public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
-      final ValueSpecification resultSpec) {
+  public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle, final DoubleMatrix1D sensitivitiesForCurve,
+      final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, final ValueSpecification resultSpec) {
     return getHybridLabelledSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurve, curveSpec, resultSpec);
   }
 
-  public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurve, final CurveSpecification curveSpec,
-      final ValueSpecification resultSpec) {
+  public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle, final DoubleMatrix1D sensitivitiesForCurve,
+      final CurveSpecification curveSpec, final ValueSpecification resultSpec) {
     return getHybridLabelledSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurve, curveSpec, resultSpec);
   }
 
-  public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
-      final ValueSpecification resultSpec) {
+  public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle, final DoubleMatrix1D sensitivitiesForCurve,
+      final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, final ValueSpecification resultSpec) {
     final int nSensitivities = curveSpec.getStrips().size();
     int startIndex = 0;
     for (final String name : bundle.getAllNames()) {
@@ -111,8 +105,8 @@ public class YieldCurveNodeSensitivitiesHelper {
     return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
   }
 
-  public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurve, final CurveSpecification curveSpec, final ValueSpecification resultSpec) {
+  public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle, final DoubleMatrix1D sensitivitiesForCurve,
+      final CurveSpecification curveSpec, final ValueSpecification resultSpec) {
     final int nSensitivities = curveSpec.getNodes().size();
     int startIndex = 0;
     for (final String name : bundle.getAllNames()) {
@@ -159,12 +153,13 @@ public class YieldCurveNodeSensitivitiesHelper {
   }
 
   public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final DoubleMatrix1D sensitivities, final Currency domesticCurrency, final Currency foreignCurrency,
-      final String[] curveNames, final YieldCurveBundle curves, final ConfigSource configSource, final LocalDate localNow, final ValueSpecification resultSpec) {
+      final String[] curveNames, final YieldCurveBundle curves, final ConfigDBFXForwardCurveSpecificationSource fxForwardCurveSpecificationSource,
+      final ConfigDBFXForwardCurveDefinitionSource fxForwardCurveDefinitionSource, final LocalDate localNow, final ValueSpecification resultSpec) {
     final String currencyPair = UnorderedCurrencyPair.of(domesticCurrency, foreignCurrency).toString();
-    final FXForwardCurveSpecification fxForwardCurveSpecification = new ConfigDBFXForwardCurveSpecificationSource(configSource).getSpecification(curveNames[0], currencyPair);
-    final FXForwardCurveDefinition fxForwardCurveDefinition = new ConfigDBFXForwardCurveDefinitionSource(configSource).getDefinition(curveNames[0], currencyPair);
+    final FXForwardCurveSpecification fxForwardCurveSpecification = fxForwardCurveSpecificationSource.getSpecification(curveNames[0], currencyPair);
+    final FXForwardCurveDefinition fxForwardCurveDefinition = fxForwardCurveDefinitionSource.getDefinition(curveNames[0], currencyPair);
     final FXForwardCurveInstrumentProvider curveInstrumentProvider = fxForwardCurveSpecification.getCurveInstrumentProvider();
-    final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
+    final Tenor[] tenors = fxForwardCurveDefinition.getTenorsArray();
     final int length = tenors.length;
     final Double[] keys = new Double[length];
     final Object[] labels = new Object[length];
@@ -183,8 +178,7 @@ public class YieldCurveNodeSensitivitiesHelper {
   }
 
   /**
-   * @deprecated Use {@link #getInstrumentLabelledSensitivitiesForCurve(String, YieldCurveBundle, DoubleMatrix1D, InterpolatedYieldCurveSpecificationWithSecurities, ValueSpecification)}
-   * instead
+   * @deprecated Use {@link #getInstrumentLabelledSensitivitiesForCurve(String, YieldCurveBundle, DoubleMatrix1D, InterpolatedYieldCurveSpecificationWithSecurities, ValueSpecification)} instead
    * @param forwardCurveName The forward curve name
    * @param fundingCurveName The funding curve name
    * @param forwardResultSpecification The forward result specification
@@ -195,9 +189,9 @@ public class YieldCurveNodeSensitivitiesHelper {
    * @return The computed value
    */
   @Deprecated
-  public static Set<ComputedValue> getSensitivitiesForMultipleCurves(final String forwardCurveName, final String fundingCurveName,
-      final ValueSpecification forwardResultSpecification, final ValueSpecification fundingResultSpecification, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurves, final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs) {
+  public static Set<ComputedValue> getSensitivitiesForMultipleCurves(final String forwardCurveName, final String fundingCurveName, final ValueSpecification forwardResultSpecification,
+      final ValueSpecification fundingResultSpecification, final YieldCurveBundle bundle, final DoubleMatrix1D sensitivitiesForCurves,
+      final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs) {
     if (!(bundle.getCurve(forwardCurveName) instanceof YieldCurve)) { //TODO: make it more generic
       throw new IllegalArgumentException("Can only handle YieldCurve");
     }
@@ -207,10 +201,8 @@ public class YieldCurveNodeSensitivitiesHelper {
     sensitivities.put(fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
     sensitivities.put(forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));
     final Set<ComputedValue> results = new HashSet<>();
-    results.addAll(getSensitivitiesForCurve(bundle.getCurve(fundingCurveName), sensitivities.get(fundingCurveName),
-        curveSpecs.get(fundingCurveName), fundingResultSpecification));
-    results.addAll(getSensitivitiesForCurve(bundle.getCurve(forwardCurveName), sensitivities.get(forwardCurveName),
-        curveSpecs.get(forwardCurveName), forwardResultSpecification));
+    results.addAll(getSensitivitiesForCurve(bundle.getCurve(fundingCurveName), sensitivities.get(fundingCurveName), curveSpecs.get(fundingCurveName), fundingResultSpecification));
+    results.addAll(getSensitivitiesForCurve(bundle.getCurve(forwardCurveName), sensitivities.get(forwardCurveName), curveSpecs.get(forwardCurveName), forwardResultSpecification));
     return results;
   }
 }

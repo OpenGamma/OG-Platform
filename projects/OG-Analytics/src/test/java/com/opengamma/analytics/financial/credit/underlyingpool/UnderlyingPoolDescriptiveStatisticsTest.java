@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.analytics.financial.credit.underlyingpool.pricing.UnderlyingPoolDescriptiveStatistics;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests to verify the calculation of descriptive statistics for an UnderlyingPool object
  */
+@Test(groups = TestGroup.UNIT)
 public class UnderlyingPoolDescriptiveStatisticsTest {
 
   //--------------------------------------------------------------------------------------------------------------------------------------------------

@@ -10,11 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -52,12 +54,31 @@ public final class CouponIborCompoundingSpreadDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponIborCompoundingSpread coupon, final MulticurveProviderInterface multicurve) {
-    ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.notNull(multicurve, "Multi-curve provider");
+    return presentValue(coupon, multicurve, IborForwardRateProvider.getInstance());
+  }
+
+  /**
+   * Compute the present value of a Ibor compounded coupon by discounting.
+   * @param coupon The coupon.
+   * @param multicurve The multi-curve provider.
+   * @param forwardRateProvider The forward rate provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(
+      final CouponIborCompoundingSpread coupon,
+      final MulticurveProviderInterface multicurve,
+      final ForwardRateProvider<IborIndex> forwardRateProvider) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(multicurve, "multicurve");
+    ArgumentChecker.notNull(forwardRateProvider, "forwardRateProvider");
     final int nbSubPeriod = coupon.getFixingTimes().length;
     double notionalAccrued = coupon.getNotionalAccrued();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      final double forward = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub],
+      final double forward = forwardRateProvider.getRate(
+          multicurve,
+          coupon,
+          coupon.getFixingPeriodStartTimes()[loopsub],
+          coupon.getFixingPeriodEndTimes()[loopsub],
           coupon.getFixingPeriodAccrualFactors()[loopsub]);
       final double investFactor = 1.0 + coupon.getPaymentAccrualFactors()[loopsub] * (forward + coupon.getSpread());
       notionalAccrued *= investFactor;
@@ -81,7 +102,7 @@ public final class CouponIborCompoundingSpreadDiscountingMethod {
     final double[] forward = new double[nbSubPeriod];
     final double[] investFactor = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      forward[loopsub] = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub],
+      forward[loopsub] = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub],
           coupon.getFixingPeriodAccrualFactors()[loopsub]);
       investFactor[loopsub] = 1.0 + coupon.getPaymentAccrualFactors()[loopsub] * (forward[loopsub] + coupon.getSpread());
       notionalAccrued *= investFactor[loopsub];
@@ -99,12 +120,12 @@ public final class CouponIborCompoundingSpreadDiscountingMethod {
     }
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * dfPayment * dfPaymentBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * dfPayment * dfPaymentBar));
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub], coupon.getFixingPeriodAccrualFactors()[loopsub],
+      listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub], coupon.getFixingPeriodAccrualFactors()[loopsub],
           forwardBar[loopsub]));
     }
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);

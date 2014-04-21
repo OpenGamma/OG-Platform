@@ -18,10 +18,12 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class HestonCharacteristicExponentTest {
   private static final double KAPPA = 0.5;
   private static final double THETA = 0.4;

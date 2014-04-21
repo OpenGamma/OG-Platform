@@ -11,38 +11,33 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based regions.
  */
 @BeanDefinition
-public class WebRegionData extends DirectBean {
+public class WebRegionData extends WebPerRequestData {
 
   /**
    * The region master.
    */
   @PropertyDefinition
   private RegionMaster _regionMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The region id from the input URI.
    */
@@ -120,94 +115,6 @@ public class WebRegionData extends DirectBean {
     return WebRegionData.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1820969354:  // regionMaster
-        return getRegionMaster();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case -2147467077:  // uriRegionId
-        return getUriRegionId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
-      case -934795532:  // region
-        return getRegion();
-      case 2045674357:  // regionParents
-        return getRegionParents();
-      case -524241645:  // regionChildren
-        return getRegionChildren();
-      case -1407102089:  // versioned
-        return getVersioned();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1820969354:  // regionMaster
-        setRegionMaster((RegionMaster) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case -2147467077:  // uriRegionId
-        setUriRegionId((String) newValue);
-        return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((RegionDocument) newValue);
-        return;
-      case 2045674357:  // regionParents
-        setRegionParents((List<RegionDocument>) newValue);
-        return;
-      case -524241645:  // regionChildren
-        setRegionChildren((List<RegionDocument>) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((RegionDocument) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebRegionData other = (WebRegionData) obj;
-      return JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriRegionId(), other.getUriRegionId()) &&
-          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
-          JodaBeanUtils.equal(getRegionParents(), other.getRegionParents()) &&
-          JodaBeanUtils.equal(getRegionChildren(), other.getRegionChildren()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionParents());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionChildren());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the region master.
@@ -231,31 +138,6 @@ public class WebRegionData extends DirectBean {
    */
   public final Property<RegionMaster> regionMaster() {
     return metaBean().regionMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -409,10 +291,73 @@ public class WebRegionData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebRegionData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebRegionData other = (WebRegionData) obj;
+      return JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
+          JodaBeanUtils.equal(getUriRegionId(), other.getUriRegionId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getRegionParents(), other.getRegionParents()) &&
+          JodaBeanUtils.equal(getRegionChildren(), other.getRegionChildren()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionParents());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionChildren());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("WebRegionData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("regionMaster").append('=').append(JodaBeanUtils.toString(getRegionMaster())).append(',').append(' ');
+    buf.append("uriRegionId").append('=').append(JodaBeanUtils.toString(getUriRegionId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("regionParents").append('=').append(JodaBeanUtils.toString(getRegionParents())).append(',').append(' ');
+    buf.append("regionChildren").append('=').append(JodaBeanUtils.toString(getRegionChildren())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebRegionData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -423,11 +368,6 @@ public class WebRegionData extends DirectBean {
      */
     private final MetaProperty<RegionMaster> _regionMaster = DirectMetaProperty.ofReadWrite(
         this, "regionMaster", WebRegionData.class, RegionMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebRegionData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriRegionId} property.
      */
@@ -464,9 +404,8 @@ public class WebRegionData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "regionMaster",
-        "uriInfo",
         "uriRegionId",
         "uriVersionId",
         "region",
@@ -485,8 +424,6 @@ public class WebRegionData extends DirectBean {
       switch (propertyName.hashCode()) {
         case -1820969354:  // regionMaster
           return _regionMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case -2147467077:  // uriRegionId
           return _uriRegionId;
         case 666567687:  // uriVersionId
@@ -525,14 +462,6 @@ public class WebRegionData extends DirectBean {
      */
     public final MetaProperty<RegionMaster> regionMaster() {
       return _regionMaster;
-    }
-
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
     }
 
     /**
@@ -581,6 +510,57 @@ public class WebRegionData extends DirectBean {
      */
     public final MetaProperty<RegionDocument> versioned() {
       return _versioned;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1820969354:  // regionMaster
+          return ((WebRegionData) bean).getRegionMaster();
+        case -2147467077:  // uriRegionId
+          return ((WebRegionData) bean).getUriRegionId();
+        case 666567687:  // uriVersionId
+          return ((WebRegionData) bean).getUriVersionId();
+        case -934795532:  // region
+          return ((WebRegionData) bean).getRegion();
+        case 2045674357:  // regionParents
+          return ((WebRegionData) bean).getRegionParents();
+        case -524241645:  // regionChildren
+          return ((WebRegionData) bean).getRegionChildren();
+        case -1407102089:  // versioned
+          return ((WebRegionData) bean).getVersioned();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1820969354:  // regionMaster
+          ((WebRegionData) bean).setRegionMaster((RegionMaster) newValue);
+          return;
+        case -2147467077:  // uriRegionId
+          ((WebRegionData) bean).setUriRegionId((String) newValue);
+          return;
+        case 666567687:  // uriVersionId
+          ((WebRegionData) bean).setUriVersionId((String) newValue);
+          return;
+        case -934795532:  // region
+          ((WebRegionData) bean).setRegion((RegionDocument) newValue);
+          return;
+        case 2045674357:  // regionParents
+          ((WebRegionData) bean).setRegionParents((List<RegionDocument>) newValue);
+          return;
+        case -524241645:  // regionChildren
+          ((WebRegionData) bean).setRegionChildren((List<RegionDocument>) newValue);
+          return;
+        case -1407102089:  // versioned
+          ((WebRegionData) bean).setVersioned((RegionDocument) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

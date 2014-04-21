@@ -40,6 +40,7 @@ import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -61,12 +62,14 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     newHashSet(new RiskRunProperty()),
     false,
     VersionCorrection.LATEST, 
-    UniqueId.of("Scheme", "view-def")
+    UniqueId.of("Scheme", "view-def"),
+    "cyclename"
   );
 
   @BeforeMethod
   public void setUp() throws Exception {
-    Pair<List<RiskRun>, Paging> batchSearchResult = Pair.<List<RiskRun>, Paging>of(newArrayList(riskRun), Paging.ofAll(Collections.emptyList()));
+    List<RiskRun> list = newArrayList(riskRun);
+    Pair<List<RiskRun>, Paging> batchSearchResult = Pairs.of(list, Paging.ofAll(Collections.emptyList()));
     
     initMocks(this);
     batchMasterResource = new DataBatchMasterResource(batchMaster);
@@ -79,8 +82,9 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
   public void testSearch() throws Exception {
     BatchRunSearchRequest batchRunSearchRequest = new BatchRunSearchRequest();
     
-    FudgeResponse entity = (FudgeResponse) batchMasterResource.searchBatchRuns(batchRunSearchRequest).getEntity();
-    Pair<List<RiskRun>, Paging> result = (Pair<List<RiskRun>, Paging>) entity.getValue();
+    Object entity = batchMasterResource.searchBatchRuns(batchRunSearchRequest).getEntity();
+    entity = FudgeResponse.unwrap(entity);
+    Pair<List<RiskRun>, Paging> result = (Pair<List<RiskRun>, Paging>) entity;
     
     assertTrue(result.getFirst().size() > 0);
     RiskRun run = result.getFirst().get(0);
@@ -132,10 +136,11 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     List<MarketData> marketDataList = newArrayList(riskRun.getMarketData());
     Paging paging = Paging.of(pagingRequest, marketDataList);
       
-    when(batchMaster.getMarketData((PagingRequest) any())).thenReturn(Pair.of(marketDataList, paging));
+    when(batchMaster.getMarketData((PagingRequest) any())).thenReturn(Pairs.of(marketDataList, paging));
     
-    FudgeResponse entity = (FudgeResponse) batchMasterResource.searchMarketData(pagingRequest).getEntity();
-    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) entity.getValue();
+    Object entity = batchMasterResource.searchMarketData(pagingRequest).getEntity();
+    entity = FudgeResponse.unwrap(entity);
+    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) entity;
 
     assertEquals(response.getFirst().size(), 1);
     assertEquals(response.getSecond(), paging);

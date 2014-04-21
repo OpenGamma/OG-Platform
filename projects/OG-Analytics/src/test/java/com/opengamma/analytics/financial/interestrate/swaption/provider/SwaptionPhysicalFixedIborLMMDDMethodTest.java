@@ -72,12 +72,14 @@ import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing of physical delivery swaption in LMM displaced diffusion.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -99,9 +101,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, !FIXED_IS_PAYER);
   private static final boolean IS_LONG = true;
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, false, IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, !IS_LONG);
   //to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
 
@@ -274,7 +276,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     for (int looptest = 0; looptest < nbTest; looptest++) {
       rate[looptest] = startRate + 0.00001 * looptest;
       swapDefinition[looptest] = SwapFixedIborDefinition.from(settleDate, swapTenor, EUR1YEURIBOR3M, NOTIONAL, rate[looptest], FIXED_IS_PAYER);
-      swaptionDefinition[looptest] = SwaptionPhysicalFixedIborDefinition.from(expiryDate, swapDefinition[looptest], IS_LONG);
+      swaptionDefinition[looptest] = SwaptionPhysicalFixedIborDefinition.from(expiryDate, swapDefinition[looptest], FIXED_IS_PAYER, IS_LONG);
       swaption[looptest] = swaptionDefinition[looptest].toDerivative(REFERENCE_DATE);
     }
 
@@ -324,7 +326,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final SwaptionPhysicalFixedIbor[] swaptionCalibration = new SwaptionPhysicalFixedIbor[swapTenorYear.length];
     for (int loopexp = 0; loopexp < swapTenorYear.length; loopexp++) {
       swapCalibrationDefinition[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.ofYears(loopexp + 1), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
-      swaptionCalibrationDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapCalibrationDefinition[loopexp], IS_LONG);
+      swaptionCalibrationDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapCalibrationDefinition[loopexp], FIXED_IS_PAYER, IS_LONG);
       swaptionCalibration[loopexp] = swaptionCalibrationDefinition[loopexp].toDerivative(REFERENCE_DATE);
     }
     final CouponFixed[] cpnFixed = new CouponFixed[swapTenorYear.length];
@@ -374,7 +376,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
     // SABR parameters sensitivity (all-in-one)
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       assertEquals("Sensitivity swaption pv to alpha", pvss1.getAlpha().getMap().get(expiryMaturity), pvss.getAlpha().getMap().get(expiryMaturity), 1E-2);
       assertEquals("Sensitivity swaption pv to rho", pvss1.getRho().getMap().get(expiryMaturity), pvss.getRho().getMap().get(expiryMaturity), 1E-2);
       assertEquals("Sensitivity swaption pv to nu", pvss1.getNu().getMap().get(expiryMaturity), pvss.getNu().getMap().get(expiryMaturity), 1E-2);
@@ -392,7 +394,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double alphaVegaTotalComputed = 0.0;
     assertEquals("Number of alpha sensitivity", pvss.getAlpha().getMap().keySet().size(), swaptionCalibration.length);
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       alphaVegaTotalComputed += pvss.getAlpha().getMap().get(expiryMaturity);
     }
     final double shiftAlpha = 0.00001;
@@ -406,7 +408,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double rhoVegaTotalComputed = 0.0;
     assertEquals("Number of alpha sensitivity", pvss.getRho().getMap().keySet().size(), swaptionCalibration.length);
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       rhoVegaTotalComputed += pvss.getRho().getMap().get(expiryMaturity);
     }
     final double shiftRho = 0.00001;
@@ -420,7 +422,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double nuVegaTotalComputed = 0.0;
     assertEquals("Number of alpha sensitivity", pvss.getNu().getMap().keySet().size(), swaptionCalibration.length);
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       nuVegaTotalComputed += pvss.getNu().getMap().get(expiryMaturity);
     }
     final double shiftNu = 0.00001;
@@ -489,7 +491,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
           * amortization[loopexp]);
     }
     final SwapFixedIborDefinition swapAmortizedDefinition = new SwapFixedIborDefinition(new AnnuityCouponFixedDefinition(cpnFixed, TARGET), new AnnuityCouponIborDefinition(cpnIbor, EURIBOR6M, TARGET));
-    final SwaptionPhysicalFixedIborDefinition swaptionAmortizedDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapAmortizedDefinition, IS_LONG);
+    final SwaptionPhysicalFixedIborDefinition swaptionAmortizedDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapAmortizedDefinition, FIXED_IS_PAYER, IS_LONG);
     final SwaptionPhysicalFixedIbor swaptionAmortized = swaptionAmortizedDefinition.toDerivative(REFERENCE_DATE);
 
     // SABR parameters sensitivity (parallel shift check). The sensitivities are not exact; in the approximation a small "second order" term is ignored

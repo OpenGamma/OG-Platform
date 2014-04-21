@@ -13,22 +13,31 @@ $.register_module({
                 .Cells({source: config.source, single: {row: config.row, col: config.col}, format: 'EXPANDED'}, 'curve')
                 .on('data', function (data) {
                     data = data.v || data;
-                    if (!$.isArray(data))
+                    if (!$.isArray(data)) {
                         return og.dev.warn(module.name + ': data should be an Array', data);
+                    }
                     gadget.data = [{curve: data}];
-                    if (!curve && gadget.data)
-                        curve = new og.common.gadgets.CurvePlot({selector:config.selector, data: gadget.data});
-                    else curve.update(gadget.data);
-            });
+                    if (!curve && gadget.data) {
+                        curve = new og.common.gadgets.CurvePlot({selector: config.selector, data: gadget.data});
+                    } else {
+                        curve.update(gadget.data);
+                    }
+                });
             gadget.alive = function () {
                 var live = curve && curve.alive;
-                if (!live) gadget.dataman.kill();
+                if (!live) {
+                    gadget.dataman.kill();
+                }
                 return live;
             };
             gadget.resize = function () {
-                try {curve.resize();} catch (error) {}
+                try {
+                    curve.resize();
+                } catch (error) {/* do nothing */}
             };
-            if (!config.child) og.common.gadgets.manager.register(gadget);
+            if (!config.child) {
+                og.common.gadgets.manager.register(gadget);
+            }
         };
     }
 });

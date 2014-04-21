@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -11,11 +11,14 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests to verify the correct construction of an underlying pool object 
  */
+@Test(groups = TestGroup.UNIT)
 public class UnderlyingPoolTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -31,7 +34,7 @@ public class UnderlyingPoolTest {
   private static final int numberOfObligors = 3;
   private static final int numberOfTenors = 4;
 
-  private static final Obligor[] obligors = new Obligor[numberOfObligors];
+  private static final LegalEntity[] obligors = new LegalEntity[numberOfObligors];
 
   private static final double[] notionals = new double[numberOfObligors];
   private static final double[] coupons = new double[numberOfObligors];

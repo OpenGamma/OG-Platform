@@ -29,12 +29,10 @@ import com.opengamma.util.paging.PagingRequest;
  * The {@link ExchangeSource} interface provides exchanges to the application via a narrow API. This class provides the source on top of a standard {@link ExchangeMaster}.
  */
 @PublicSPI
-public class MasterExchangeSource
-    extends AbstractMasterSource<Exchange, ExchangeDocument, ExchangeMaster>
-    implements ExchangeSource {
+public class MasterExchangeSource extends AbstractMasterSource<Exchange, ExchangeDocument, ExchangeMaster> implements ExchangeSource {
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
+   * Creates an instance with an underlying master.
    * 
    * @param master the master, not null
    */
@@ -42,22 +40,12 @@ public class MasterExchangeSource
     super(master);
   }
 
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   * 
-   * @param master the master, not null
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  public MasterExchangeSource(final ExchangeMaster master, VersionCorrection versionCorrection) {
-    super(master, versionCorrection);
-  }
-
   //-------------------------------------------------------------------------
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Collection<Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);
-    searchRequest.setVersionCorrection(getVersionCorrection());
+    searchRequest.setVersionCorrection(versionCorrection);
     return (List) getMaster().search(searchRequest).getExchanges();
   }
 
@@ -68,7 +56,7 @@ public class MasterExchangeSource
 
   @Override
   public ManageableExchange getSingle(ExternalIdBundle identifiers) {
-    return getSingle(identifiers, getVersionCorrection());
+    return getSingle(identifiers, VersionCorrection.LATEST);
   }
 
   @Override
@@ -78,7 +66,7 @@ public class MasterExchangeSource
 
   @Override
   public Collection<Exchange> get(ExternalIdBundle bundle) {
-    return get(bundle, getVersionCorrection());
+    return get(bundle, VersionCorrection.LATEST);
   }
 
   @Override

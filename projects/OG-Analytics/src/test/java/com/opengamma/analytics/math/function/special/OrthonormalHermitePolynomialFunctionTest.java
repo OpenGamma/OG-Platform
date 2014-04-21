@@ -11,10 +11,12 @@ import org.apache.commons.math.util.MathUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class OrthonormalHermitePolynomialFunctionTest {
   private static final HermitePolynomialFunction HERMITE = new HermitePolynomialFunction();
   private static final OrthonormalHermitePolynomialFunction ORTHONORMAL = new OrthonormalHermitePolynomialFunction();

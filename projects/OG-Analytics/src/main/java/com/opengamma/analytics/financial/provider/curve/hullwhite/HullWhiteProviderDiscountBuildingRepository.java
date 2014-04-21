@@ -34,8 +34,8 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Functions to build curves.
@@ -102,7 +102,7 @@ public class HullWhiteProviderDiscountBuildingRepository {
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new HullWhiteProviderDiscountFinderJacobian(new ParameterSensitivityHullWhiteMatrixCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final HullWhiteOneFactorProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
+    return Pairs.of(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -202,7 +202,7 @@ public class HullWhiteProviderDiscountBuildingRepository {
         final String curveName = singleCurve.getCurveName();
         gen.put(curveName, tmp);
         generatorsSoFar.put(curveName, tmp);
-        unitMap.put(curveName, new ObjectsPair<>(startUnit + startCurve[iCurve], nbIns[iCurve]));
+        unitMap.put(curveName, Pairs.of(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
       final Pair<HullWhiteOneFactorProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData,
           discountingMap, forwardIborMap, forwardONMap, gen, calculator, sensitivityCalculator);
@@ -212,12 +212,12 @@ public class HullWhiteProviderDiscountBuildingRepository {
       // TODO: should curve matrix be computed only once at the end? To save time
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
         final SingleCurveBundle<GeneratorYDCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
-        unitBundleSoFar.put(singleCurve.getCurveName(), new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[iCurve]));
+        unitBundleSoFar.put(singleCurve.getCurveName(), Pairs.of(new CurveBuildingBlock(unitMap), mat[iCurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
-    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 
 }

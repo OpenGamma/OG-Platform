@@ -279,4 +279,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     defaults.setPayCurveName("Discounting");
     defaults.setReceiveCurveName("Discounting");
   }
+  
+  @Override
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions(), multicurvePricingFunctions());
+  }
+  
 }

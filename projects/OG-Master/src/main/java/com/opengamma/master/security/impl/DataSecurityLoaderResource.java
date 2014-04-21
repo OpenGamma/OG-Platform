@@ -72,7 +72,7 @@ public class DataSecurityLoaderResource extends AbstractDataResource {
   @Path("securityLoad")
   public Response loadSecurities(SecurityLoaderRequest request) {
     SecurityLoaderResult result = getSecurityLoader().loadSecurities(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

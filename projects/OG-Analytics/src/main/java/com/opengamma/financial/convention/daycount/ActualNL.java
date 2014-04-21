@@ -49,7 +49,7 @@ public class ActualNL extends ActualTypeDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Actual/NL";
   }
 

@@ -102,7 +102,7 @@ public class DataPositionResource extends AbstractDocumentDataResource<PositionD
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     PositionHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

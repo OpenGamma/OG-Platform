@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -51,58 +52,6 @@ public class ComputeNode extends DirectBean {
   @Override
   public ComputeNode.Meta metaBean() {
     return ComputeNode.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 214761087:  // computeHost
-        return getComputeHost();
-      case 1122880429:  // nodeName
-        return getNodeName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case 214761087:  // computeHost
-        setComputeHost((ComputeHost) newValue);
-        return;
-      case 1122880429:  // nodeName
-        setNodeName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ComputeNode other = (ComputeNode) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getComputeHost(), other.getComputeHost()) &&
-          JodaBeanUtils.equal(getNodeName(), other.getNodeName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputeHost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNodeName());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -178,6 +127,54 @@ public class ComputeNode extends DirectBean {
    */
   public final Property<String> nodeName() {
     return metaBean().nodeName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ComputeNode clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ComputeNode other = (ComputeNode) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getComputeHost(), other.getComputeHost()) &&
+          JodaBeanUtils.equal(getNodeName(), other.getNodeName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputeHost());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNodeName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ComputeNode{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("computeHost").append('=').append(JodaBeanUtils.toString(getComputeHost())).append(',').append(' ');
+    buf.append("nodeName").append('=').append(JodaBeanUtils.toString(getNodeName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -271,6 +268,36 @@ public class ComputeNode extends DirectBean {
      */
     public final MetaProperty<String> nodeName() {
       return _nodeName;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((ComputeNode) bean).getId();
+        case 214761087:  // computeHost
+          return ((ComputeNode) bean).getComputeHost();
+        case 1122880429:  // nodeName
+          return ((ComputeNode) bean).getNodeName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((ComputeNode) bean).setId((Long) newValue);
+          return;
+        case 214761087:  // computeHost
+          ((ComputeNode) bean).setComputeHost((ComputeHost) newValue);
+          return;
+        case 1122880429:  // nodeName
+          ((ComputeNode) bean).setNodeName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

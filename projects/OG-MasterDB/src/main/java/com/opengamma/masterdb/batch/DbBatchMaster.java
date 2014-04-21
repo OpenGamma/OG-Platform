@@ -58,6 +58,7 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A batch master implementation using a database for persistence.
@@ -85,6 +86,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
    * Creates an instance.
    *
    * @param dbConnector  the database connector, not null
+   * @param computationTargetResolver  the resolver
    */
   public DbBatchMaster(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, BATCH_IDENTIFIER_SCHEME);
@@ -138,7 +140,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
           paging = Paging.of(pagingRequest, totalCount.intValue());
         }
         //     
-        return Pair.of(results, paging);
+        return Pairs.of(results, paging);
       }
     });
   }
@@ -188,7 +190,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
           paging = Paging.of(pagingRequest, totalCount.intValue());
         }
         //
-        return Pair.of(results, paging);
+        return Pairs.of(results, paging);
       }
     });
   }
@@ -269,7 +271,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
         } else {
           paging = Paging.of(PagingRequest.NONE, 0);
         }
-        return Pair.of(results, paging);
+        return Pairs.of(results, paging);
       }
     });
   }
@@ -343,7 +345,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
             result.addAll(namedJdbc.query(sql[0], args, extractor));
           }
         }
-        return Pair.of(result, paging);
+        return Pairs.of(result, paging);
       }
     });
   }
@@ -353,7 +355,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     s_logger.info("Getting Batch values: ", pagingRequest);
     
     final Long runId = extractOid(batchId);
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    final DbMapSqlParameterSource args = createParameterSource();
     args.addValue("run_id", runId);
     if (pagingRequest != null) {
       args.addValue("paging_offset", pagingRequest.getFirstItem());

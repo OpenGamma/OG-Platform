@@ -17,6 +17,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +31,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.cache.DefaultFudgeMessageStoreFactory;
-import com.opengamma.engine.cache.InMemoryBinaryDataStoreFactory;
-import com.opengamma.engine.cache.InMemoryViewComputationCacheSource;
-import com.opengamma.engine.cache.RemoteCacheClient;
-import com.opengamma.engine.cache.RemoteViewComputationCacheSource;
-import com.opengamma.engine.cache.ViewComputationCache;
-import com.opengamma.engine.cache.ViewComputationCacheServer;
-import com.opengamma.engine.cache.ViewComputationCacheSource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -47,10 +43,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
-
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A test of the remote View Computation Cache Source infrastucture operating
@@ -204,7 +197,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
     final double put = (double) putTime.get() / (1e6 * NUM_THREADS * NUM_LOOKUPS);
     s_logger.info("{} get operations @ {}ms", NUM_THREADS * NUM_LOOKUPS, get);
     s_logger.info("{} put operations @ {}ms", NUM_THREADS * NUM_LOOKUPS, put);
-    return Pair.of(get, put);
+    return Pairs.of(get, put);
   }
 
   @Test

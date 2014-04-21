@@ -25,7 +25,12 @@ import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class TaylorExpansionMultiplierCalculatorTest {
   private static final Underlying NEW_TYPE = new Underlying() {
 

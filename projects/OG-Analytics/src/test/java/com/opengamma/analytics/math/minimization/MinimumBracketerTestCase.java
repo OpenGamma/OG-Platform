@@ -8,10 +8,12 @@ package com.opengamma.analytics.math.minimization;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class MinimumBracketerTestCase {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 

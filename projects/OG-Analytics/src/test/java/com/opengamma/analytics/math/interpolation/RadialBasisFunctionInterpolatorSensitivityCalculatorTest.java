@@ -16,10 +16,12 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RadialBasisFunctionInterpolatorSensitivityCalculatorTest extends InterpolatorNDTestCase {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 

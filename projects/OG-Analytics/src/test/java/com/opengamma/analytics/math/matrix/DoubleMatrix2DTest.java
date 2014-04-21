@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleMatrix2DTest {
   private static final DoubleMatrix2D PRIMITIVES = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3, 4}, new double[] {5, 6, 7, 8}, new double[] {9, 10, 11, 12}});
   private static final DoubleMatrix2D OBJECTS = new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3., 4.}, new Double[] {5., 6., 7., 8.},

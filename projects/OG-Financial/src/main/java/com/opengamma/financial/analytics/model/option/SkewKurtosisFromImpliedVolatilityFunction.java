@@ -30,14 +30,13 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *
- *
+ * @deprecated ...
  */
 @Deprecated
 public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.NonCompiledInvoker {
@@ -48,12 +47,11 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-    final UniqueId uid = option.getUniqueId();
     final ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
     final Expiry expiry = option.getExpiry();
     final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry());
     final VolatilitySurface surface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceRequirement(option));
-    final double volatility = surface.getVolatility(Pair.of(t, option.getStrike()));
+    final double volatility = surface.getVolatility(DoublesPair.of(t, option.getStrike()));
     final double skew = SKEW_CALCULATOR.evaluate(volatility, t);
     final double pearson = KURTOSIS_CALCULATOR.evaluate(volatility, t);
     final double fisher = pearson - 3;

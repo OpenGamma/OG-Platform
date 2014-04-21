@@ -9,13 +9,16 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.lambdava.streams.Functional;
 import com.opengamma.lambdava.streams.Stream;
 
+/**
+ * A simple function signature.
+ */
 class SimpleFunctionSignature implements FunctionSignature {
 
   private String _name;
   private Functional<FunctionOutput> _outputs = Stream.empty();
   private Functional<FunctionInput> _inputs = Stream.empty();
   private ComputationTargetType _computationTargetType;
-  private Class _computationTargetClass;
+  private Class<?> _computationTargetClass;
 
   SimpleFunctionSignature(String name, ComputationTargetType computationTargetType) {
     _name = name;
@@ -31,7 +34,7 @@ class SimpleFunctionSignature implements FunctionSignature {
   }
 
   @Override
-  public Class getComputationTargetClass() {
+  public Class<?> getComputationTargetClass() {
     return _computationTargetClass;
   }
 

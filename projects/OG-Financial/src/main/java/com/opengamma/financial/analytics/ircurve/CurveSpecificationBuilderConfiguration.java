@@ -21,6 +21,7 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
@@ -28,7 +29,7 @@ import com.opengamma.util.time.Tenor;
 /**
  *
  */
-@Config(description = "Curve specification builder configuration")
+@Config(description = "Curve specification builder configuration", group = ConfigGroups.CURVES_LEGACY)
 public class CurveSpecificationBuilderConfiguration {
 
   /**

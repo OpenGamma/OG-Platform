@@ -7,6 +7,7 @@ package com.opengamma.masterdb.security.hibernate.bond;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -98,206 +99,6 @@ public class BondSecurityBean extends SecurityBean {
   @Override
   public BondSecurityBean.Meta metaBean() {
     return BondSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1969562781:  // bondType
-        return getBondType();
-      case 1459772644:  // issuerName
-        return getIssuerName();
-      case 1459974547:  // issuerType
-        return getIssuerType();
-      case -114049505:  // issuerDomicile
-        return getIssuerDomicile();
-      case -1081306052:  // market
-        return getMarket();
-      case 575402001:  // currency
-        return getCurrency();
-      case -1895216418:  // yieldConvention
-        return getYieldConvention();
-      case 693583330:  // guaranteeType
-        return getGuaranteeType();
-      case -1041950404:  // lastTradeDate
-        return getLastTradeDate();
-      case 609638528:  // couponType
-        return getCouponType();
-      case 609556006:  // couponRate
-        return getCouponRate();
-      case 144480214:  // couponFrequency
-        return getCouponFrequency();
-      case 589154980:  // dayCountConvention
-        return getDayCountConvention();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case -562907755:  // announcementDate
-        return getAnnouncementDate();
-      case -693265293:  // interestAccrualDate
-        return getInterestAccrualDate();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case 793496516:  // firstCouponDate
-        return getFirstCouponDate();
-      case -947491410:  // issuancePrice
-        return getIssuancePrice();
-      case 1841198727:  // totalAmountIssued
-        return getTotalAmountIssued();
-      case 2017331718:  // minimumAmount
-        return getMinimumAmount();
-      case 1160465153:  // minimumIncrement
-        return getMinimumIncrement();
-      case 1038626905:  // parAmount
-        return getParAmount();
-      case 348936710:  // redemptionValue
-        return getRedemptionValue();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1969562781:  // bondType
-        setBondType((BondType) newValue);
-        return;
-      case 1459772644:  // issuerName
-        setIssuerName((String) newValue);
-        return;
-      case 1459974547:  // issuerType
-        setIssuerType((IssuerTypeBean) newValue);
-        return;
-      case -114049505:  // issuerDomicile
-        setIssuerDomicile((String) newValue);
-        return;
-      case -1081306052:  // market
-        setMarket((MarketBean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case -1895216418:  // yieldConvention
-        setYieldConvention((YieldConventionBean) newValue);
-        return;
-      case 693583330:  // guaranteeType
-        setGuaranteeType((GuaranteeTypeBean) newValue);
-        return;
-      case -1041950404:  // lastTradeDate
-        setLastTradeDate((ExpiryBean) newValue);
-        return;
-      case 609638528:  // couponType
-        setCouponType((CouponTypeBean) newValue);
-        return;
-      case 609556006:  // couponRate
-        setCouponRate((Double) newValue);
-        return;
-      case 144480214:  // couponFrequency
-        setCouponFrequency((FrequencyBean) newValue);
-        return;
-      case 589154980:  // dayCountConvention
-        setDayCountConvention((DayCountBean) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConventionBean) newValue);
-        return;
-      case -562907755:  // announcementDate
-        setAnnouncementDate((ZonedDateTimeBean) newValue);
-        return;
-      case -693265293:  // interestAccrualDate
-        setInterestAccrualDate((ZonedDateTimeBean) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTimeBean) newValue);
-        return;
-      case 793496516:  // firstCouponDate
-        setFirstCouponDate((ZonedDateTimeBean) newValue);
-        return;
-      case -947491410:  // issuancePrice
-        setIssuancePrice((Double) newValue);
-        return;
-      case 1841198727:  // totalAmountIssued
-        setTotalAmountIssued((Double) newValue);
-        return;
-      case 2017331718:  // minimumAmount
-        setMinimumAmount((Double) newValue);
-        return;
-      case 1160465153:  // minimumIncrement
-        setMinimumIncrement((Double) newValue);
-        return;
-      case 1038626905:  // parAmount
-        setParAmount((Double) newValue);
-        return;
-      case 348936710:  // redemptionValue
-        setRedemptionValue((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BondSecurityBean other = (BondSecurityBean) obj;
-      return JodaBeanUtils.equal(getBondType(), other.getBondType()) &&
-          JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
-          JodaBeanUtils.equal(getIssuerType(), other.getIssuerType()) &&
-          JodaBeanUtils.equal(getIssuerDomicile(), other.getIssuerDomicile()) &&
-          JodaBeanUtils.equal(getMarket(), other.getMarket()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getYieldConvention(), other.getYieldConvention()) &&
-          JodaBeanUtils.equal(getGuaranteeType(), other.getGuaranteeType()) &&
-          JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate()) &&
-          JodaBeanUtils.equal(getCouponType(), other.getCouponType()) &&
-          JodaBeanUtils.equal(getCouponRate(), other.getCouponRate()) &&
-          JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
-          JodaBeanUtils.equal(getDayCountConvention(), other.getDayCountConvention()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getAnnouncementDate(), other.getAnnouncementDate()) &&
-          JodaBeanUtils.equal(getInterestAccrualDate(), other.getInterestAccrualDate()) &&
-          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(getFirstCouponDate(), other.getFirstCouponDate()) &&
-          JodaBeanUtils.equal(getIssuancePrice(), other.getIssuancePrice()) &&
-          JodaBeanUtils.equal(getTotalAmountIssued(), other.getTotalAmountIssued()) &&
-          JodaBeanUtils.equal(getMinimumAmount(), other.getMinimumAmount()) &&
-          JodaBeanUtils.equal(getMinimumIncrement(), other.getMinimumIncrement()) &&
-          JodaBeanUtils.equal(getParAmount(), other.getParAmount()) &&
-          JodaBeanUtils.equal(getRedemptionValue(), other.getRedemptionValue()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerDomicile());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGuaranteeType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnouncementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterestAccrualDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstCouponDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuancePrice());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTotalAmountIssued());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedemptionValue());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -901,6 +702,120 @@ public class BondSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public BondSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BondSecurityBean other = (BondSecurityBean) obj;
+      return JodaBeanUtils.equal(getBondType(), other.getBondType()) &&
+          JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
+          JodaBeanUtils.equal(getIssuerType(), other.getIssuerType()) &&
+          JodaBeanUtils.equal(getIssuerDomicile(), other.getIssuerDomicile()) &&
+          JodaBeanUtils.equal(getMarket(), other.getMarket()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getYieldConvention(), other.getYieldConvention()) &&
+          JodaBeanUtils.equal(getGuaranteeType(), other.getGuaranteeType()) &&
+          JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate()) &&
+          JodaBeanUtils.equal(getCouponType(), other.getCouponType()) &&
+          JodaBeanUtils.equal(getCouponRate(), other.getCouponRate()) &&
+          JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
+          JodaBeanUtils.equal(getDayCountConvention(), other.getDayCountConvention()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getAnnouncementDate(), other.getAnnouncementDate()) &&
+          JodaBeanUtils.equal(getInterestAccrualDate(), other.getInterestAccrualDate()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getFirstCouponDate(), other.getFirstCouponDate()) &&
+          JodaBeanUtils.equal(getIssuancePrice(), other.getIssuancePrice()) &&
+          JodaBeanUtils.equal(getTotalAmountIssued(), other.getTotalAmountIssued()) &&
+          JodaBeanUtils.equal(getMinimumAmount(), other.getMinimumAmount()) &&
+          JodaBeanUtils.equal(getMinimumIncrement(), other.getMinimumIncrement()) &&
+          JodaBeanUtils.equal(getParAmount(), other.getParAmount()) &&
+          JodaBeanUtils.equal(getRedemptionValue(), other.getRedemptionValue()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBondType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerDomicile());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarket());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGuaranteeType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnouncementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInterestAccrualDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstCouponDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuancePrice());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTotalAmountIssued());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedemptionValue());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(800);
+    buf.append("BondSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("bondType").append('=').append(JodaBeanUtils.toString(getBondType())).append(',').append(' ');
+    buf.append("issuerName").append('=').append(JodaBeanUtils.toString(getIssuerName())).append(',').append(' ');
+    buf.append("issuerType").append('=').append(JodaBeanUtils.toString(getIssuerType())).append(',').append(' ');
+    buf.append("issuerDomicile").append('=').append(JodaBeanUtils.toString(getIssuerDomicile())).append(',').append(' ');
+    buf.append("market").append('=').append(JodaBeanUtils.toString(getMarket())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(getYieldConvention())).append(',').append(' ');
+    buf.append("guaranteeType").append('=').append(JodaBeanUtils.toString(getGuaranteeType())).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(getLastTradeDate())).append(',').append(' ');
+    buf.append("couponType").append('=').append(JodaBeanUtils.toString(getCouponType())).append(',').append(' ');
+    buf.append("couponRate").append('=').append(JodaBeanUtils.toString(getCouponRate())).append(',').append(' ');
+    buf.append("couponFrequency").append('=').append(JodaBeanUtils.toString(getCouponFrequency())).append(',').append(' ');
+    buf.append("dayCountConvention").append('=').append(JodaBeanUtils.toString(getDayCountConvention())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("announcementDate").append('=').append(JodaBeanUtils.toString(getAnnouncementDate())).append(',').append(' ');
+    buf.append("interestAccrualDate").append('=').append(JodaBeanUtils.toString(getInterestAccrualDate())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("firstCouponDate").append('=').append(JodaBeanUtils.toString(getFirstCouponDate())).append(',').append(' ');
+    buf.append("issuancePrice").append('=').append(JodaBeanUtils.toString(getIssuancePrice())).append(',').append(' ');
+    buf.append("totalAmountIssued").append('=').append(JodaBeanUtils.toString(getTotalAmountIssued())).append(',').append(' ');
+    buf.append("minimumAmount").append('=').append(JodaBeanUtils.toString(getMinimumAmount())).append(',').append(' ');
+    buf.append("minimumIncrement").append('=').append(JodaBeanUtils.toString(getMinimumIncrement())).append(',').append(' ');
+    buf.append("parAmount").append('=').append(JodaBeanUtils.toString(getParAmount())).append(',').append(' ');
+    buf.append("redemptionValue").append('=').append(JodaBeanUtils.toString(getRedemptionValue())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code BondSecurityBean}.
    */
@@ -1327,6 +1242,141 @@ public class BondSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Double> redemptionValue() {
       return _redemptionValue;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1969562781:  // bondType
+          return ((BondSecurityBean) bean).getBondType();
+        case 1459772644:  // issuerName
+          return ((BondSecurityBean) bean).getIssuerName();
+        case 1459974547:  // issuerType
+          return ((BondSecurityBean) bean).getIssuerType();
+        case -114049505:  // issuerDomicile
+          return ((BondSecurityBean) bean).getIssuerDomicile();
+        case -1081306052:  // market
+          return ((BondSecurityBean) bean).getMarket();
+        case 575402001:  // currency
+          return ((BondSecurityBean) bean).getCurrency();
+        case -1895216418:  // yieldConvention
+          return ((BondSecurityBean) bean).getYieldConvention();
+        case 693583330:  // guaranteeType
+          return ((BondSecurityBean) bean).getGuaranteeType();
+        case -1041950404:  // lastTradeDate
+          return ((BondSecurityBean) bean).getLastTradeDate();
+        case 609638528:  // couponType
+          return ((BondSecurityBean) bean).getCouponType();
+        case 609556006:  // couponRate
+          return ((BondSecurityBean) bean).getCouponRate();
+        case 144480214:  // couponFrequency
+          return ((BondSecurityBean) bean).getCouponFrequency();
+        case 589154980:  // dayCountConvention
+          return ((BondSecurityBean) bean).getDayCountConvention();
+        case -1002835891:  // businessDayConvention
+          return ((BondSecurityBean) bean).getBusinessDayConvention();
+        case -562907755:  // announcementDate
+          return ((BondSecurityBean) bean).getAnnouncementDate();
+        case -693265293:  // interestAccrualDate
+          return ((BondSecurityBean) bean).getInterestAccrualDate();
+        case -295948169:  // settlementDate
+          return ((BondSecurityBean) bean).getSettlementDate();
+        case 793496516:  // firstCouponDate
+          return ((BondSecurityBean) bean).getFirstCouponDate();
+        case -947491410:  // issuancePrice
+          return ((BondSecurityBean) bean).getIssuancePrice();
+        case 1841198727:  // totalAmountIssued
+          return ((BondSecurityBean) bean).getTotalAmountIssued();
+        case 2017331718:  // minimumAmount
+          return ((BondSecurityBean) bean).getMinimumAmount();
+        case 1160465153:  // minimumIncrement
+          return ((BondSecurityBean) bean).getMinimumIncrement();
+        case 1038626905:  // parAmount
+          return ((BondSecurityBean) bean).getParAmount();
+        case 348936710:  // redemptionValue
+          return ((BondSecurityBean) bean).getRedemptionValue();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1969562781:  // bondType
+          ((BondSecurityBean) bean).setBondType((BondType) newValue);
+          return;
+        case 1459772644:  // issuerName
+          ((BondSecurityBean) bean).setIssuerName((String) newValue);
+          return;
+        case 1459974547:  // issuerType
+          ((BondSecurityBean) bean).setIssuerType((IssuerTypeBean) newValue);
+          return;
+        case -114049505:  // issuerDomicile
+          ((BondSecurityBean) bean).setIssuerDomicile((String) newValue);
+          return;
+        case -1081306052:  // market
+          ((BondSecurityBean) bean).setMarket((MarketBean) newValue);
+          return;
+        case 575402001:  // currency
+          ((BondSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case -1895216418:  // yieldConvention
+          ((BondSecurityBean) bean).setYieldConvention((YieldConventionBean) newValue);
+          return;
+        case 693583330:  // guaranteeType
+          ((BondSecurityBean) bean).setGuaranteeType((GuaranteeTypeBean) newValue);
+          return;
+        case -1041950404:  // lastTradeDate
+          ((BondSecurityBean) bean).setLastTradeDate((ExpiryBean) newValue);
+          return;
+        case 609638528:  // couponType
+          ((BondSecurityBean) bean).setCouponType((CouponTypeBean) newValue);
+          return;
+        case 609556006:  // couponRate
+          ((BondSecurityBean) bean).setCouponRate((Double) newValue);
+          return;
+        case 144480214:  // couponFrequency
+          ((BondSecurityBean) bean).setCouponFrequency((FrequencyBean) newValue);
+          return;
+        case 589154980:  // dayCountConvention
+          ((BondSecurityBean) bean).setDayCountConvention((DayCountBean) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((BondSecurityBean) bean).setBusinessDayConvention((BusinessDayConventionBean) newValue);
+          return;
+        case -562907755:  // announcementDate
+          ((BondSecurityBean) bean).setAnnouncementDate((ZonedDateTimeBean) newValue);
+          return;
+        case -693265293:  // interestAccrualDate
+          ((BondSecurityBean) bean).setInterestAccrualDate((ZonedDateTimeBean) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((BondSecurityBean) bean).setSettlementDate((ZonedDateTimeBean) newValue);
+          return;
+        case 793496516:  // firstCouponDate
+          ((BondSecurityBean) bean).setFirstCouponDate((ZonedDateTimeBean) newValue);
+          return;
+        case -947491410:  // issuancePrice
+          ((BondSecurityBean) bean).setIssuancePrice((Double) newValue);
+          return;
+        case 1841198727:  // totalAmountIssued
+          ((BondSecurityBean) bean).setTotalAmountIssued((Double) newValue);
+          return;
+        case 2017331718:  // minimumAmount
+          ((BondSecurityBean) bean).setMinimumAmount((Double) newValue);
+          return;
+        case 1160465153:  // minimumIncrement
+          ((BondSecurityBean) bean).setMinimumIncrement((Double) newValue);
+          return;
+        case 1038626905:  // parAmount
+          ((BondSecurityBean) bean).setParAmount((Double) newValue);
+          return;
+        case 348936710:  // redemptionValue
+          ((BondSecurityBean) bean).setRedemptionValue((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

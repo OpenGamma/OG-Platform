@@ -48,7 +48,6 @@ public class ValueMappings {
     public ValueSpecification getValueSpecification(final ValueRequirement valueRequirement) {
       return _reqsToSpecs.get(createRequirement(valueRequirement));
     }
-
   }
 
   /**

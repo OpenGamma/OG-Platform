@@ -56,7 +56,7 @@ public abstract class FDCurveSensitivityCalculator {
       }
       final double sense = impFDCalculator(ird, calculator, curves, curveName, t);
       if (Math.abs(sense) > absTol) {
-        res.add(new DoublesPair(t, sense));
+        res.add(DoublesPair.of(t, sense));
       }
       oldT = t;
     }
@@ -101,7 +101,7 @@ public abstract class FDCurveSensitivityCalculator {
       }
       final double sense = impFDCalculator(ird, method, curves, curveName, t);
       if (Math.abs(sense) > absTol) {
-        res.add(new DoublesPair(t, sense));
+        res.add(DoublesPair.of(t, sense));
       }
       oldT = t;
     }

@@ -38,10 +38,4 @@ public class InstrumentTypeProperties {
   public static final String COMMODITY_FUTURE_PRICE = "COMMODITY_FUTURE_PRICE";
   /** Property representing a surface for commodity options */
   public static final String COMMODITY_FUTURE_OPTION = "COMMODITY_FUTURE_OPTION";
-  /**
-   * Name of the cube type property. This allows cubes to be distinguished by instrument type.
-   */
-  public static final String PROPERTY_CUBE_INSTRUMENT_TYPE = "CubeInstrumentType";
-  /** Property representing a swaption volatility cube */
-  public static final String SWAPTION_CUBE = "SWAPTION_CUBE";
 }

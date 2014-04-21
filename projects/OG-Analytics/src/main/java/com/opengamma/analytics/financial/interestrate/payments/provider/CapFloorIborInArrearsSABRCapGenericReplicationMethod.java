@@ -58,7 +58,7 @@ public class CapFloorIborInArrearsSABRCapGenericReplicationMethod {
     final MulticurveProviderInterface multicurves = sabr.getMulticurveProvider();
     final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(), cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(),
         cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getStrike(), cap.isCap());
-    final double forward = multicurves.getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double forward = multicurves.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double beta = (1.0 + cap.getFixingAccrualFactor() * forward) * multicurves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime())
         / multicurves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
     final double strikePart = (1.0 + cap.getFixingAccrualFactor() * cap.getStrike()) * _baseMethod.presentValue(capStandard, sabr).getAmount(ccy);

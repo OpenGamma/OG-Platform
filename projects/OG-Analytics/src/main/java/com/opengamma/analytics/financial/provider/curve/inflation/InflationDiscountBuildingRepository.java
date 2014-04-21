@@ -35,8 +35,8 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Functions to build inflation curves.
@@ -105,7 +105,7 @@ public class InflationDiscountBuildingRepository {
         data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
+    return Pairs.of(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -133,7 +133,7 @@ public class InflationDiscountBuildingRepository {
         data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
+    return Pairs.of(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -270,7 +270,7 @@ public class InflationDiscountBuildingRepository {
         final String curveName = singleCurve.getCurveName();
         generators.put(curveName, tmp);
         generatorsSoFar.put(curveName, tmp);
-        unitMap.put(curveName, new ObjectsPair<>(startUnit + startCurve[iCurve], nbIns[iCurve]));
+        unitMap.put(curveName, Pairs.of(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
       final Pair<InflationProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData, inflationMap, generators, calculator,
           sensitivityCalculator);
@@ -281,13 +281,13 @@ public class InflationDiscountBuildingRepository {
 
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
         final SingleCurveBundle<GeneratorPriceIndexCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
-        unitBundleSoFar.put(singleCurve.getCurveName(), new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[iCurve]));
+        unitBundleSoFar.put(singleCurve.getCurveName(), Pairs.of(new CurveBuildingBlock(unitMap), mat[iCurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
 
-    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 
   /**
@@ -346,7 +346,7 @@ public class InflationDiscountBuildingRepository {
         final String curveName = singleCurve.getCurveName();
         generators.put(curveName, tmp);
         generatorsSoFar.put(curveName, tmp);
-        unitMap.put(curveName, new ObjectsPair<>(startUnit + startCurve[iCurve], nbIns[iCurve]));
+        unitMap.put(curveName, Pairs.of(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
       final Pair<InflationProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData, discountingMap, forwardONMap, inflationMap, generators,
           calculator, sensitivityCalculator);
@@ -356,12 +356,12 @@ public class InflationDiscountBuildingRepository {
 
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
         final SingleCurveBundle<GeneratorCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
-        unitBundleSoFar.put(singleCurve.getCurveName(), new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[iCurve]));
+        unitBundleSoFar.put(singleCurve.getCurveName(), Pairs.of(new CurveBuildingBlock(unitMap), mat[iCurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
 
-    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 }

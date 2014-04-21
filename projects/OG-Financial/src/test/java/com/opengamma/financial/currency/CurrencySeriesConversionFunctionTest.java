@@ -13,10 +13,15 @@ import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesM
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CurrencySeriesConversionFunctionTest {
 
   @Test

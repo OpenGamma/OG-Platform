@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
@@ -28,6 +26,7 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -64,6 +63,9 @@ public final class BondSecurityDiscountingMethod {
    * The present value curve sensitivity calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
+  /**
+   * The present value parallel curve sensitivity calculator
+   */
   private static final PresentValueParallelCurveSensitivityCalculator PVPCSC = PresentValueParallelCurveSensitivityCalculator.getInstance();
   /**
    * The root bracket used for yield finding.
@@ -73,6 +75,9 @@ public final class BondSecurityDiscountingMethod {
    * The root finder used for yield finding.
    */
   private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
+  /**
+   * Brackets a root
+   */
   private static final BracketRoot ROOT_BRACKETER = new BracketRoot();
 
   /**
@@ -95,7 +100,7 @@ public final class BondSecurityDiscountingMethod {
    * @return The present value.
    */
   public double presentValueFromCleanPrice(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
-    Validate.isTrue(bond instanceof BondFixedSecurity, "Present value from clean price available only for fixed coupon bond");
+    ArgumentChecker.isTrue(bond instanceof BondFixedSecurity, "Present value from clean price available only for fixed coupon bond");
     final BondFixedSecurity bondFixed = (BondFixedSecurity) bond;
     final double dfSettle = curves.getCurve(bondFixed.getRepoCurveName()).getDiscountFactor(bondFixed.getSettlementTime());
     final double pvPrice = (cleanPrice * bondFixed.getCoupon().getNthPayment(0).getNotional() + bondFixed.getAccruedInterest()) * dfSettle;
@@ -120,6 +125,13 @@ public final class BondSecurityDiscountingMethod {
     return result;
   }
 
+  /**
+   * Calculates the sensitivity of the bond to the z spread
+   * @param bond The bond
+   * @param curves The curves
+   * @param zSpread The z spread
+   * @return The sensitivity
+   */
   public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double zSpread) {
     final String discountingCurveName = bond.getDiscountingCurveName();
     final YieldCurveBundle curvesWithZ = new YieldCurveBundle();
@@ -157,29 +169,37 @@ public final class BondSecurityDiscountingMethod {
 
   /**
    * Computes the dirty price from the conventional yield.
-   * @param bond  The bond security.
+   * @param bond  The bond security, not null
    * @param yield The bond yield.
    * @return The dirty price.
    */
   public double dirtyPriceFromYield(final BondFixedSecurity bond, final double yield) {
-    Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
-    if (((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND))) && (nbCoupon == 1)) {
-      return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
+    if (((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND)))
+        && (nbCoupon == 1)) {
+      return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD)) && (nbCoupon == 1)) {
-      return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / nominal * Math.pow(1.0 + yield / bond.getCouponPerYear(), -bond.getAccrualFactorToNextCoupon());
+      return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / nominal * Math.pow(1.0 + yield / bond.getCouponPerYear(), -bond.getFactorToNextCoupon());
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
         (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND)) || (bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
       return dirtyPriceFromYieldStandard(bond, yield);
     }
-    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
   }
 
+  /**
+   * Calculates the dirty price from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The dirty price
+   */
   private double dirtyPriceFromYieldStandard(final BondFixedSecurity bond, final double yield) {
-    Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(0).getAmount();
     final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
@@ -188,7 +208,7 @@ public final class BondSecurityDiscountingMethod {
       pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
     }
     pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
-    return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / nominal;
+    return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon()) / nominal;
   }
 
   /**
@@ -204,7 +224,7 @@ public final class BondSecurityDiscountingMethod {
     final double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listDf = new ArrayList<>();
-    listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
+    listDf.add(DoublesPair.of(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(bond.getRepoCurveName(), listDf);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     result = result.multipliedBy(pv / notional);
@@ -303,10 +323,10 @@ public final class BondSecurityDiscountingMethod {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) && (nbCoupon == 1)) {
-      return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+      return bond.getFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD)) && (nbCoupon == 1)) {
-      return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + yield / bond.getCouponPerYear());
+      return bond.getFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + yield / bond.getCouponPerYear());
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
         (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND)) || (bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
@@ -314,16 +334,16 @@ public final class BondSecurityDiscountingMethod {
       double mdAtFirstCoupon = 0;
       double pvAtFirstCoupon = 0;
       for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-        mdAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 1) * (loopcpn + bond.getAccrualFactorToNextCoupon()) / bond.getCouponPerYear();
+        mdAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 1) * (loopcpn + bond.getFactorToNextCoupon()) / bond.getCouponPerYear();
         pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
       }
-      mdAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon) * (nbCoupon - 1 + bond.getAccrualFactorToNextCoupon()) / bond.getCouponPerYear();
+      mdAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon) * (nbCoupon - 1 + bond.getFactorToNextCoupon()) / bond.getCouponPerYear();
       pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
-      final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
-      final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
+      final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon());
+      final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon()) / pv;
       return md;
     }
-    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
   }
 
   /**
@@ -368,13 +388,13 @@ public final class BondSecurityDiscountingMethod {
   public double macaulayDurationFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     if (((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) && (nbCoupon == 1)) {
-      return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
+      return bond.getFactorToNextCoupon() / bond.getCouponPerYear();
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
         (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND)) || (bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
       return modifiedDurationFromYield(bond, yield) * (1 + yield / bond.getCouponPerYear());
     }
-    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported for Macaulay duration.");
+    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported for Macaulay duration.");
   }
 
   /**
@@ -408,32 +428,35 @@ public final class BondSecurityDiscountingMethod {
   public double convexityFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
-    if (((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND))) && (nbCoupon == 1)) {
-      final double timeToPay = bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
-      final double disc = (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
-      return 2 * timeToPay * timeToPay / (disc * disc);
+    final YieldConvention yieldConvention = bond.getYieldConvention();
+    if (nbCoupon == 1) {
+      if (((yieldConvention.equals(SimpleYieldConvention.US_STREET)) || (yieldConvention.equals(SimpleYieldConvention.GERMAN_BOND)))) {
+        final double timeToPay = bond.getFactorToNextCoupon() / bond.getCouponPerYear();
+        final double disc = (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear());
+        return 2 * timeToPay * timeToPay / (disc * disc);
+      }
+      if (yieldConvention.equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD)) {
+        throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + "with only one coupon is not supported.");
+      }
     }
-    if ((bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD)) && (nbCoupon == 1)) {
-      throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + "with only one coupon is not supported.");
-    }
-    if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
-        (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND)) || (bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
+    if ((yieldConvention.equals(SimpleYieldConvention.US_STREET)) || (yieldConvention.equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
+        (yieldConvention.equals(SimpleYieldConvention.GERMAN_BOND)) || (yieldConvention.equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
       final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
       double cvAtFirstCoupon = 0;
       double pvAtFirstCoupon = 0;
       for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-        cvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 2) * (loopcpn + bond.getAccrualFactorToNextCoupon())
-            * (loopcpn + bond.getAccrualFactorToNextCoupon() + 1) / (bond.getCouponPerYear() * bond.getCouponPerYear());
+        cvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 2) * (loopcpn + bond.getFactorToNextCoupon())
+            * (loopcpn + bond.getFactorToNextCoupon() + 1) / (bond.getCouponPerYear() * bond.getCouponPerYear());
         pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
       }
-      cvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon + 1) * (nbCoupon - 1 + bond.getAccrualFactorToNextCoupon()) * (nbCoupon + bond.getAccrualFactorToNextCoupon())
+      cvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon + 1) * (nbCoupon - 1 + bond.getFactorToNextCoupon()) * (nbCoupon + bond.getFactorToNextCoupon())
           / (bond.getCouponPerYear() * bond.getCouponPerYear());
       pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
-      final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
-      final double cv = cvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
+      final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon());
+      final double cv = cvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon()) / pv;
       return cv;
     }
-    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported.");
   }
 
   /**
@@ -459,6 +482,17 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
+   * Computes the convexity of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The convexity.
+   */
+  public double convexityFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    final double yield = yieldFromCleanPrice(bond, cleanPrice);
+    return convexityFromYield(bond, yield);
+  }
+
+  /**
    * Computes a bond z-spread from the curves and a present value.
    * @param bond The bond.
    * @param curves The curve bundle.
@@ -466,8 +500,8 @@ public final class BondSecurityDiscountingMethod {
    * @return The z-spread.
    */
   public double zSpreadFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double pv) {
-    Validate.notNull(bond, "bond");
-    Validate.notNull(curves, "curves");
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(curves, "curves");
 
     final Function1D<Double, Double> residual = new Function1D<Double, Double>() {
       @Override
@@ -538,4 +572,16 @@ public final class BondSecurityDiscountingMethod {
     return StringAmount.plus(pvpcsNominal, pvpcsCoupon);
   }
 
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the curves. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param curves The curves, not null
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(curves, "curves");
+    return dirtyPriceFromCurves(bond, curves) - cleanPriceFromCurves(bond, curves);
+  }
 }

@@ -12,6 +12,7 @@ import javax.servlet.ServletContext;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -162,108 +163,6 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   @Override
   public WebsiteBundleComponentFactory.Meta metaBean() {
     return WebsiteBundleComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1830882106:  // configXmlPath
-        return getConfigXmlPath();
-      case -332642308:  // baseDir
-        return getBaseDir();
-      case 1938576170:  // deployMode
-        return getDeployMode();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-      case -1678733969:  // compressorLineBreakPosition
-        return getCompressorLineBreakPosition();
-      case 1158477151:  // compressorMunge
-        return isCompressorMunge();
-      case 1247186898:  // compressorPreserveAllSemiColons
-        return isCompressorPreserveAllSemiColons();
-      case 1352649410:  // compressorOptimize
-        return isCompressorOptimize();
-      case -1486371605:  // compressorWarn
-        return isCompressorWarn();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1830882106:  // configXmlPath
-        setConfigXmlPath((String) newValue);
-        return;
-      case -332642308:  // baseDir
-        setBaseDir((String) newValue);
-        return;
-      case 1938576170:  // deployMode
-        setDeployMode((DeployMode) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-      case -1678733969:  // compressorLineBreakPosition
-        setCompressorLineBreakPosition((Integer) newValue);
-        return;
-      case 1158477151:  // compressorMunge
-        setCompressorMunge((Boolean) newValue);
-        return;
-      case 1247186898:  // compressorPreserveAllSemiColons
-        setCompressorPreserveAllSemiColons((Boolean) newValue);
-        return;
-      case 1352649410:  // compressorOptimize
-        setCompressorOptimize((Boolean) newValue);
-        return;
-      case -1486371605:  // compressorWarn
-        setCompressorWarn((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_baseDir, "baseDir");
-    JodaBeanUtils.notNull(_deployMode, "deployMode");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebsiteBundleComponentFactory other = (WebsiteBundleComponentFactory) obj;
-      return JodaBeanUtils.equal(getConfigXmlPath(), other.getConfigXmlPath()) &&
-          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
-          JodaBeanUtils.equal(getDeployMode(), other.getDeployMode()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getCompressorLineBreakPosition(), other.getCompressorLineBreakPosition()) &&
-          JodaBeanUtils.equal(isCompressorMunge(), other.isCompressorMunge()) &&
-          JodaBeanUtils.equal(isCompressorPreserveAllSemiColons(), other.isCompressorPreserveAllSemiColons()) &&
-          JodaBeanUtils.equal(isCompressorOptimize(), other.isCompressorOptimize()) &&
-          JodaBeanUtils.equal(isCompressorWarn(), other.isCompressorWarn()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigXmlPath());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDeployMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompressorLineBreakPosition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorMunge());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorPreserveAllSemiColons());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorOptimize());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorWarn());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -494,6 +393,75 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebsiteBundleComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebsiteBundleComponentFactory other = (WebsiteBundleComponentFactory) obj;
+      return JodaBeanUtils.equal(getConfigXmlPath(), other.getConfigXmlPath()) &&
+          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
+          JodaBeanUtils.equal(getDeployMode(), other.getDeployMode()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          (getCompressorLineBreakPosition() == other.getCompressorLineBreakPosition()) &&
+          (isCompressorMunge() == other.isCompressorMunge()) &&
+          (isCompressorPreserveAllSemiColons() == other.isCompressorPreserveAllSemiColons()) &&
+          (isCompressorOptimize() == other.isCompressorOptimize()) &&
+          (isCompressorWarn() == other.isCompressorWarn()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigXmlPath());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDeployMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompressorLineBreakPosition());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorMunge());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorPreserveAllSemiColons());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorOptimize());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorWarn());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("WebsiteBundleComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("configXmlPath").append('=').append(JodaBeanUtils.toString(getConfigXmlPath())).append(',').append(' ');
+    buf.append("baseDir").append('=').append(JodaBeanUtils.toString(getBaseDir())).append(',').append(' ');
+    buf.append("deployMode").append('=').append(JodaBeanUtils.toString(getDeployMode())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("compressorLineBreakPosition").append('=').append(JodaBeanUtils.toString(getCompressorLineBreakPosition())).append(',').append(' ');
+    buf.append("compressorMunge").append('=').append(JodaBeanUtils.toString(isCompressorMunge())).append(',').append(' ');
+    buf.append("compressorPreserveAllSemiColons").append('=').append(JodaBeanUtils.toString(isCompressorPreserveAllSemiColons())).append(',').append(' ');
+    buf.append("compressorOptimize").append('=').append(JodaBeanUtils.toString(isCompressorOptimize())).append(',').append(' ');
+    buf.append("compressorWarn").append('=').append(JodaBeanUtils.toString(isCompressorWarn())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebsiteBundleComponentFactory}.
    */
@@ -680,6 +648,73 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Boolean> compressorWarn() {
       return _compressorWarn;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1830882106:  // configXmlPath
+          return ((WebsiteBundleComponentFactory) bean).getConfigXmlPath();
+        case -332642308:  // baseDir
+          return ((WebsiteBundleComponentFactory) bean).getBaseDir();
+        case 1938576170:  // deployMode
+          return ((WebsiteBundleComponentFactory) bean).getDeployMode();
+        case -1452875317:  // cacheManager
+          return ((WebsiteBundleComponentFactory) bean).getCacheManager();
+        case -1678733969:  // compressorLineBreakPosition
+          return ((WebsiteBundleComponentFactory) bean).getCompressorLineBreakPosition();
+        case 1158477151:  // compressorMunge
+          return ((WebsiteBundleComponentFactory) bean).isCompressorMunge();
+        case 1247186898:  // compressorPreserveAllSemiColons
+          return ((WebsiteBundleComponentFactory) bean).isCompressorPreserveAllSemiColons();
+        case 1352649410:  // compressorOptimize
+          return ((WebsiteBundleComponentFactory) bean).isCompressorOptimize();
+        case -1486371605:  // compressorWarn
+          return ((WebsiteBundleComponentFactory) bean).isCompressorWarn();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1830882106:  // configXmlPath
+          ((WebsiteBundleComponentFactory) bean).setConfigXmlPath((String) newValue);
+          return;
+        case -332642308:  // baseDir
+          ((WebsiteBundleComponentFactory) bean).setBaseDir((String) newValue);
+          return;
+        case 1938576170:  // deployMode
+          ((WebsiteBundleComponentFactory) bean).setDeployMode((DeployMode) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((WebsiteBundleComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case -1678733969:  // compressorLineBreakPosition
+          ((WebsiteBundleComponentFactory) bean).setCompressorLineBreakPosition((Integer) newValue);
+          return;
+        case 1158477151:  // compressorMunge
+          ((WebsiteBundleComponentFactory) bean).setCompressorMunge((Boolean) newValue);
+          return;
+        case 1247186898:  // compressorPreserveAllSemiColons
+          ((WebsiteBundleComponentFactory) bean).setCompressorPreserveAllSemiColons((Boolean) newValue);
+          return;
+        case 1352649410:  // compressorOptimize
+          ((WebsiteBundleComponentFactory) bean).setCompressorOptimize((Boolean) newValue);
+          return;
+        case -1486371605:  // compressorWarn
+          ((WebsiteBundleComponentFactory) bean).setCompressorWarn((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebsiteBundleComponentFactory) bean)._baseDir, "baseDir");
+      JodaBeanUtils.notNull(((WebsiteBundleComponentFactory) bean)._deployMode, "deployMode");
+      super.validate(bean);
     }
 
   }

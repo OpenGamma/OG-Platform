@@ -76,7 +76,7 @@ public class DataRegionMasterResource extends AbstractDataResource {
   @Path("regionSearches")
   public Response search(RegionSearchRequest request) {
     RegionSearchResult result = getRegionMaster().search(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -84,7 +84,7 @@ public class DataRegionMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, RegionDocument request) {
     RegionDocument result = getRegionMaster().add(request);
     URI createdUri = (new DataRegionResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(createdUri, result);
+    return responseCreatedObject(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

@@ -31,7 +31,7 @@ public abstract class SheetReader {
       case CSV:
         return new CsvSheetReader(inputStream);
       case XLS:
-        return new SimpleXlsSheetReader(inputStream, 0);
+        return new XlsSheetReader(inputStream, 0);
       default:
         throw new OpenGammaRuntimeException("Could not create a reader for the sheet input format " + sheetFormat.toString());
     }

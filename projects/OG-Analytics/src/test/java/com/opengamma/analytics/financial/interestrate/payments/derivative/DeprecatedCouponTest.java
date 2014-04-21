@@ -13,11 +13,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedCouponTest {
   private static final Currency CCY = Currency.AUD;
   private static final double PAYMENT_TIME = 0.5;

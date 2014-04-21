@@ -108,14 +108,10 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
     return PortfolioHistoryResult.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public PortfolioHistoryResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -133,6 +129,24 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
   public int hashCode() {
     int hash = 7;
     return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("PortfolioHistoryResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------

@@ -22,39 +22,45 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Converts interest rate future option securities into the form used by the analytics library
- * @deprecated Use {@link InterestRateFutureOptionSecurityConverter}. {@link ConventionBundleSource} should not be used,
- * as the conventions are not typed.
+ * 
+ * @deprecated Use {@link InterestRateFutureOptionSecurityConverter}. {@link ConventionBundleSource} should not be used, as the conventions are not typed.
  */
 @Deprecated
 public class InterestRateFutureOptionSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+
   /** The security source */
   private final SecuritySource _securitySource;
   /** Converter for the underlying future */
   private final InterestRateFutureSecurityConverterDeprecated _underlyingConverter;
+  /** Lookup version/correction */
+  private final VersionCorrection _versionCorrection;
 
   /**
    * @param holidaySource The holiday source, not null
    * @param conventionSource The convention source, not null
    * @param regionSource The region source, not null
    * @param securitySource The security source, not null
+   * @param versionCorrection The resolution timestamp, not null
    */
   public InterestRateFutureOptionSecurityConverterDeprecated(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
-      final SecuritySource securitySource) {
+      final SecuritySource securitySource, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(securitySource, "security source");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     _underlyingConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     _securitySource = securitySource;
+    _versionCorrection = versionCorrection;
   }
 
   @Override
   public InstrumentDefinition<?> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
-    // REVIEW Andrew 2012-01-17 -- This call to getSingle is not correct as the resolution time of the view cycle will not be considered
-    final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier)));
+    final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier), _versionCorrection));
     if (underlyingSecurity == null) {
       throw new OpenGammaRuntimeException("Underlying security " + underlyingIdentifier + " was not found in database");
     }

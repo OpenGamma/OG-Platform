@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 
 /**
@@ -32,6 +33,17 @@ public abstract class GeneratorPriceIndexCurve extends GeneratorCurve {
   public abstract PriceIndexCurve generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters);
 
   /**
+   * Generate a curve using the parameters of a vector and an existing bundle. The existing bundle will be required if the generated curve depends on previous curves.
+   * @param name The curve name.
+   * @param inflation The multi-curves provider.
+   * @param parameters The parameters.
+   * @return The curve.
+   */
+  public PriceIndexCurve generateCurve(final String name, final InflationIssuerProviderInterface inflation, final double[] parameters) {
+    return generateCurve(name, inflation.getInflationProvider(), parameters);
+  }
+
+  /**
    * Some generators require a two stage process. The generator with the general description (like interpolated) and 
    * a specific one with all the details (like the node times for the interpolated). 
    * The method create the specific generator from the generic one.
@@ -39,7 +51,7 @@ public abstract class GeneratorPriceIndexCurve extends GeneratorCurve {
    * @return The final generator.
    */
   @Override
-  public GeneratorPriceIndexCurve finalGenerator(Object data) {
+  public GeneratorPriceIndexCurve finalGenerator(final Object data) {
     return this;
   }
 

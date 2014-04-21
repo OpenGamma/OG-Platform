@@ -19,8 +19,8 @@ import com.opengamma.bbg.loader.hts.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
@@ -62,15 +62,15 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
   }
   
   @Override
-  public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter) {
-    copy(portfolioReader, portfolioWriter, null);
+  public void copy(PositionReader positionReader, PositionWriter positionWriter) {
+    copy(positionReader, positionWriter, null);
   }
 
   @Override
-  public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter, PortfolioCopierVisitor visitor) {
+  public void copy(PositionReader positionReader, PositionWriter positionWriter, PortfolioCopierVisitor visitor) {
 
-    ArgumentChecker.notNull(portfolioWriter, "portfolioWriter");
-    ArgumentChecker.notNull(portfolioReader, "portfolioReader");
+    ArgumentChecker.notNull(positionWriter, "positionWriter");
+    ArgumentChecker.notNull(positionReader, "positionReader");
     
     // Get bbg hts loader
     BloombergIdentifierProvider bbgIdentifierProvider = new BloombergIdentifierProvider(_bbgRefDataProvider);
@@ -79,14 +79,14 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 
     // Read in next row, checking for EOF
-    while ((next = portfolioReader.readNext()) != null) {
+    while ((next = positionReader.readNext()) != null) {
       
       // Is position and security data is available for the current row?
       if (next.getFirst() != null && next.getSecond() != null) {
         
         // Set current path
-        String[] path = portfolioReader.getCurrentPath();
-        portfolioWriter.setPath(path);
+        String[] path = positionReader.getCurrentPath();
+        positionWriter.setPath(path);
         
         // Load all relevant HTSes
         for (ManageableSecurity security : next.getSecond()) {
@@ -95,7 +95,7 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
         
         // Write position and security data
         ObjectsPair<ManageablePosition, ManageableSecurity[]> written = 
-            portfolioWriter.writePosition(next.getFirst(), next.getSecond());
+            positionWriter.writePosition(next.getFirst(), next.getSecond());
         
         if (visitor != null) {
           visitor.info(StringUtils.arrayToDelimitedString(path, "/"), written.getFirst(), written.getSecond());
@@ -114,7 +114,7 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
     }
 
     // Flush changes to portfolio master
-    portfolioWriter.flush();
+    positionWriter.flush();
   }
 
   void resolveTimeSeries(BloombergHistoricalTimeSeriesLoader bbgLoader, ManageableSecurity security, String[] dataFields, String dataProvider, PortfolioCopierVisitor visitor) {

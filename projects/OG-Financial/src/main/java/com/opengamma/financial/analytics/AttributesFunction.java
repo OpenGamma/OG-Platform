@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.financial.OpenGammaCompilationContext;
 
 /**
  *
@@ -37,18 +40,25 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(AttributesFunction.class);
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final String attributeName = desiredValue.getConstraint(PROPERTY_ATTRIBUTE_NAME);
+    final ValueProperties properties = desiredValue.getConstraints();
+    final String attributeName = properties.getSingleValue(PROPERTY_ATTRIBUTE_NAME);
     final Security security = target.getSecurity();
     final Map<String, String> attributes = security.getAttributes();
-    final String result = attributes.get(attributeName);
+    String result = attributes.get(attributeName);
+    if (result == null) {
+      if (security instanceof Bean) {
+        Bean ms = (Bean) security;
+        MetaBean metaBean = ms.metaBean();
+        if (metaBean.metaPropertyExists(attributeName)) {
+          result = metaBean.metaProperty(attributeName).getString(ms);
+        }
+      }
+    }
     if (result == null) {
       throw new OpenGammaRuntimeException("Could not get value for attribute " + attributeName);
     }
-    final ValueProperties properties = createValueProperties()
-        .with(PROPERTY_ATTRIBUTE_NAME, attributeName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, result));
   }
@@ -60,18 +70,37 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties()
-        .withAny(PROPERTY_ATTRIBUTE_NAME).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties));
+    final Security security = target.getSecurity();
+    final Map<String, String> attributes = security.getAttributes();
+    if (attributes.isEmpty() && !(security instanceof Bean)) {
+      // No explicit attributes, and can't query a non-Bean security
+      return null;
+    }
+    final ValueProperties.Builder properties = createValueProperties();
+    if (!attributes.isEmpty()) {
+      for (String attribute : attributes.keySet()) {
+        properties.with(PROPERTY_ATTRIBUTE_NAME, attribute);
+      }
+    }
+    if (security instanceof Bean) {
+      Bean bean = (Bean) security;
+      MetaBean metaBean = bean.metaBean();
+      for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
+        properties.with(PROPERTY_ATTRIBUTE_NAME, property.name());
+      }
+    }
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties.get()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> attributeNames = constraints.getValues(PROPERTY_ATTRIBUTE_NAME);
-    if (attributeNames == null || attributeNames.size() != 1) {
-      s_logger.error("Did not specify a single attribute name");
-      return null;
+    if (!OpenGammaCompilationContext.isPermissive(context)) {
+      if (attributeNames == null || attributeNames.size() != 1) {
+        s_logger.error("Did not specify a single attribute name");
+        return null;
+      }
     }
     return Collections.emptySet();
   }

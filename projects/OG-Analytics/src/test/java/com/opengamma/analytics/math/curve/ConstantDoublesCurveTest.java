@@ -12,10 +12,12 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConstantDoublesCurveTest {
   private static final double Y1 = 20;
   private static final double Y2 = 21;

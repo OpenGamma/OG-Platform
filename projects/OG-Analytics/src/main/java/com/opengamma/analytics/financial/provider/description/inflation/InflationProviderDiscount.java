@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -40,7 +41,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    */
   private final Map<IndexPrice, PriceIndexCurve> _priceIndexCurves;
   /**
-   * Map of all curves used in the provider. The order is ???
+   * Map of all inflation curves used in the provider.
    */
   private Map<String, PriceIndexCurve> _allCurves;
 
@@ -102,7 +103,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   //TODO there is no guarantee that the map is a LinkedHashMap, which could lead to unexpected behaviour
   public InflationProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves) {
     ArgumentChecker.notNull(multicurve, "multicurve");
-    ArgumentChecker.notNull(priceIndexCurves, "price index curves");
+    ArgumentChecker.notNull(priceIndexCurves, "priceIndexCurves");
     _multicurveProvider = multicurve;
     _priceIndexCurves = priceIndexCurves;
     setInflationCurves();
@@ -242,7 +243,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
-    return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
+    return _multicurveProvider.getSimplyCompoundForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
@@ -257,7 +258,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
-    return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
+    return _multicurveProvider.getSimplyCompoundForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
@@ -298,17 +299,15 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   */
+  public Set<String> getAllCurveNames() {
+    final TreeSet<String> allNames = new TreeSet<>(_multicurveProvider.getAllCurveNames());
+    allNames.addAll(_allCurves.keySet());
+    return Collections.unmodifiableSortedSet(allNames);
+  }
+
+  @Override
   public Set<String> getAllNames() {
-    final Set<String> names = new TreeSet<>();
-    names.addAll(_multicurveProvider.getAllNames());
-    final Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
-    for (final IndexPrice price : priceSet) {
-      names.add(_priceIndexCurves.get(price).getName());
-    }
-    return names;
+    return getAllCurveNames();
   }
 
   /**
@@ -456,6 +455,16 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -481,6 +490,5 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     }
     return true;
   }
-
 
 }

@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
@@ -173,8 +172,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_noKeys_Exact_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -183,8 +181,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_noKeys_All_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -193,8 +190,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_noKeys_Any_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ANY);
+    request.setExternalIdSearchType(ExternalIdSearchType.ANY);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -203,8 +199,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_noKeys_None_allMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(_totalExchanges, test.getDocuments().size());
@@ -303,7 +298,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_oneKey_All_AB() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalId(ExternalId.of("A", "B"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -315,7 +310,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_oneKey_All_CD() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalId(ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -328,7 +323,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_oneKey_All_EF() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalId(ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -340,7 +335,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_oneKey_All_GH() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalId(ExternalId.of("G", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -351,7 +346,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_oneKey_All_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalId(ExternalId.of("A", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -362,7 +357,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_twoKeys_All_AB_CD() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -374,7 +369,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_twoKeys_All_CD_EF() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -386,7 +381,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_twoKeys_All_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "H")));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -397,7 +392,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_threeKeys_All_AB_CD_EF() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -408,7 +403,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_threeKeys_All_AB_CD_GH() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -419,7 +414,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_threeKeys_All_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F"), ExternalId.of("A", "H")));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -430,7 +425,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_oneKey_None_AB() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalId(ExternalId.of("A", "B"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -441,7 +436,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_oneKey_None_CD_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalId(ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -452,7 +447,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_threeKeys_Exact_AB_CD_EF() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -463,7 +458,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_threeKeys_Exact_AB_CD_GH() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -474,7 +469,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   public void test_search_threeKeys_Exact_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());

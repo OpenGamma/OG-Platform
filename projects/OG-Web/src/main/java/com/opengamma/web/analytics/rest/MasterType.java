@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -28,7 +28,9 @@ public enum MasterType {
   TIME_SERIES,
   /** {@link ConfigMaster} */
   CONFIG,
-  /** @link OrganizationMaster} */
-  ORGANIZATION
+  /** @link LegalEntityMaster} */
+  ORGANIZATION,
+  /** @link MarketDataSnapshotMaster} */
+  MARKET_DATA_SNAPSHOT
   // TODO all the other masters
 }

@@ -7,11 +7,14 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * These tests are only valid for rho = 0
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class PeacemanRachfordTest {
 
   private static final HestonPDETestCase HESTON_TESTER = new HestonPDETestCase();

@@ -7,6 +7,7 @@ package com.opengamma.financial.security.future;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -80,66 +81,6 @@ public class FXFutureSecurity extends FutureSecurity {
   @Override
   public FXFutureSecurity.Meta metaBean() {
     return FXFutureSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1747334793:  // numerator
-        return getNumerator();
-      case -1983274394:  // denominator
-        return getDenominator();
-      case 866676853:  // multiplicationFactor
-        return getMultiplicationFactor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1747334793:  // numerator
-        setNumerator((Currency) newValue);
-        return;
-      case -1983274394:  // denominator
-        setDenominator((Currency) newValue);
-        return;
-      case 866676853:  // multiplicationFactor
-        setMultiplicationFactor((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_numerator, "numerator");
-    JodaBeanUtils.notNull(_denominator, "denominator");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FXFutureSecurity other = (FXFutureSecurity) obj;
-      return JodaBeanUtils.equal(getNumerator(), other.getNumerator()) &&
-          JodaBeanUtils.equal(getDenominator(), other.getDenominator()) &&
-          JodaBeanUtils.equal(getMultiplicationFactor(), other.getMultiplicationFactor()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumerator());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDenominator());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMultiplicationFactor());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -217,6 +158,57 @@ public class FXFutureSecurity extends FutureSecurity {
    */
   public final Property<Double> multiplicationFactor() {
     return metaBean().multiplicationFactor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FXFutureSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXFutureSecurity other = (FXFutureSecurity) obj;
+      return JodaBeanUtils.equal(getNumerator(), other.getNumerator()) &&
+          JodaBeanUtils.equal(getDenominator(), other.getDenominator()) &&
+          JodaBeanUtils.equal(getMultiplicationFactor(), other.getMultiplicationFactor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNumerator());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDenominator());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMultiplicationFactor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("FXFutureSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("numerator").append('=').append(JodaBeanUtils.toString(getNumerator())).append(',').append(' ');
+    buf.append("denominator").append('=').append(JodaBeanUtils.toString(getDenominator())).append(',').append(' ');
+    buf.append("multiplicationFactor").append('=').append(JodaBeanUtils.toString(getMultiplicationFactor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -310,6 +302,43 @@ public class FXFutureSecurity extends FutureSecurity {
      */
     public final MetaProperty<Double> multiplicationFactor() {
       return _multiplicationFactor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1747334793:  // numerator
+          return ((FXFutureSecurity) bean).getNumerator();
+        case -1983274394:  // denominator
+          return ((FXFutureSecurity) bean).getDenominator();
+        case 866676853:  // multiplicationFactor
+          return ((FXFutureSecurity) bean).getMultiplicationFactor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1747334793:  // numerator
+          ((FXFutureSecurity) bean).setNumerator((Currency) newValue);
+          return;
+        case -1983274394:  // denominator
+          ((FXFutureSecurity) bean).setDenominator((Currency) newValue);
+          return;
+        case 866676853:  // multiplicationFactor
+          ((FXFutureSecurity) bean).setMultiplicationFactor((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FXFutureSecurity) bean)._numerator, "numerator");
+      JodaBeanUtils.notNull(((FXFutureSecurity) bean)._denominator, "denominator");
+      super.validate(bean);
     }
 
   }

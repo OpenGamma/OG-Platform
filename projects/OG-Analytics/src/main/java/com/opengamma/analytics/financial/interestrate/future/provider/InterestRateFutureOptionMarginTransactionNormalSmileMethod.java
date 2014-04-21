@@ -58,7 +58,7 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
       final double priceFuture) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(normalData, "Normal / multi-curves provider");
-    double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingOption(), normalData, priceFuture);
+    double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingSecurity(), normalData, priceFuture);
     MultipleCurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
@@ -72,9 +72,9 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
   public SurfaceValue presentValueNormalSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final NormalSTIRFuturesSmileProviderInterface normalData) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(normalData, "Normal / multi-curves provider");
-    SurfaceValue securitySensitivity = getSecurityMethod().priceNormalSensitivity(transaction.getUnderlyingOption(), normalData);
-    securitySensitivity = SurfaceValue.multiplyBy(securitySensitivity, transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
+    SurfaceValue securitySensitivity = getSecurityMethod().priceNormalSensitivity(transaction.getUnderlyingSecurity(), normalData);
+    securitySensitivity = SurfaceValue.multiplyBy(securitySensitivity, transaction.getQuantity() * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor());
     return securitySensitivity;
   }
 

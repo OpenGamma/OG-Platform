@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.curve.interestrate;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
@@ -34,10 +35,11 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -66,6 +68,7 @@ import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -86,8 +89,11 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.analytics.conversion.YieldCurveFixingSeriesProvider;
+import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripIdentifierAndMaturityBuilder;
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
@@ -97,6 +103,8 @@ import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CompareUtils;
@@ -128,21 +136,22 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
   @Override
   public void init(final FunctionCompilationContext context) {
     super.init(context);
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
+    HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, executionContext.getComputationTargetResolver()
+        .getVersionCorrection());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties.Builder commonProperties = desiredValue.getConstraints().copy().withoutAny(CURVE);
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String absoluteToleranceName = desiredValue.getConstraint(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     final String relativeToleranceName = desiredValue.getConstraint(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
@@ -156,6 +165,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ConventionBundleSource conventionBundleSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final YieldCurveFixingSeriesProvider provider = new YieldCurveFixingSeriesProvider(conventionBundleSource);
+    
     final Set<ComputedValue> results = new HashSet<>();
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     final double relativeTolerance = Double.parseDouble(relativeToleranceName);
@@ -164,17 +174,24 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
     final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
     final LinkedHashSet<String> curveNames = new LinkedHashSet<>();
+    Map<String, YieldCurveDefinition> ycDefs = Maps.newHashMap();
     int totalStrips = 0;
     final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
         OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       curveNames.add(curveName);
       totalStrips += getYieldCurveSpecification(inputs, targetSpec, curveName).getStrips().size();
+      YieldCurveDefinition ycDef = configSource.getLatestByName(YieldCurveDefinition.class, curveName + "_" + currency.getCode());
+      ycDefs.put(curveName, ycDef);
     }
+    
     final Map<String, Map<LocalDate, YieldAndDiscountCurve>> curveSeries = new HashMap<>();
     LocalDate valuationDate = startDate;
+    ConfigDBInterpolatedYieldCurveSpecificationBuilder ycSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
+    
+    VAL: //CSIGNORE
     while (!valuationDate.isAfter(endDate)) {
-      final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
+      
       final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
       final List<InstrumentDerivative> derivatives = new ArrayList<>();
       final DoubleArrayList marketValues = new DoubleArrayList();
@@ -183,8 +200,24 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
       final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
       final Map<String, Integer> nodesPerCurve = new HashMap<>();
       for (final String curveName : curveNames) {
+        
+        
+        YieldCurveDefinition curveDefinition = ycDefs.get(curveName);
+        InterpolatedYieldCurveSpecification ycSpec = ycSpecBuilder.buildCurve(valuationDate, curveDefinition, VersionCorrection.LATEST);
+        
+        HistoricalTimeSeriesBundle hts = getHts(curveName, inputs);
         final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveName);
-        final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
+        SnapshotDataBundle marketDataSnapshot = getMarketDataSnapshot(hts, ycSpec);
+        if (marketDataSnapshot.getDataPointSet().isEmpty()) {
+          valuationDate = valuationDate.plusDays(1);
+          continue VAL;
+        }
+        if (ycSpec.getStrips().size() != marketDataSnapshot.getDataPointSet().size()) {
+          valuationDate = valuationDate.plusDays(1);
+          s_logger.info("Unable to resolve all curve points for " + curveName + " on " + valuationDate + ". Not producing curve for this date.");
+          continue VAL;
+        }
+        final InterpolatedYieldCurveSpecificationWithSecurities spec = builder.resolveToSecurity(ycSpec, marketDataSnapshot);
         int nInstruments = 0;
         final Interpolator1D interpolator = spec.getInterpolator();
         final HistoricalTimeSeriesBundle marketData = getHistoricalMarketData(inputs, targetSpec, curveName);
@@ -204,13 +237,14 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
           final Security security = strip.getSecurity();
           final String[] curveNamesForSecurity = curveCalculationConfig.getCurveExposureForInstrument(curveName, strip.getInstrumentType());
           final InstrumentDefinition<?> definition = _securityConverter.visit(security);
-          InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesForSecurity, timeSeries);
+          final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, LocalTime.MIDNIGHT, executionContext.getValuationClock().getZone());
+          InstrumentDerivative derivative = _definitionConverter.convert(security, definition, valuationDateTime, curveNamesForSecurity, timeSeries);
           if (derivative != null) {
             if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
               final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
-              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, 1, valuationDateTime, marketValue);
               unitNotional = unitNotional.withNewNotionalAndTransactionPrice(1, marketValue);
-              InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
+              InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, valuationDateTime, curveNamesForSecurity, timeSeries);
               unitNotionalDerivative = unitNotionalDerivative.accept(RateReplacingInterestRateDerivativeVisitor.getInstance(), marketValue);
               derivatives.add(unitNotionalDerivative);
               initialRatesGuess.add(1 - marketValue);
@@ -280,6 +314,32 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     return results;
   }
 
+  private SnapshotDataBundle getMarketDataSnapshot(HistoricalTimeSeriesBundle hts, InterpolatedYieldCurveSpecification ycSpec) {
+    SnapshotDataBundle dataBundle = new SnapshotDataBundle();
+    
+    for (FixedIncomeStripWithIdentifier strip : ycSpec.getStrips()) {
+      ExternalId id = strip.getSecurity();
+      HistoricalTimeSeries timeSeries = hts.get("Market_Value", id);
+      Double value = timeSeries.getTimeSeries().getValue(ycSpec.getCurveDate());
+      if (value == null) {
+        continue;
+      }
+      dataBundle.setDataPoint(id, value);
+    }
+    
+    return dataBundle;
+  }
+
+  private HistoricalTimeSeriesBundle getHts(String curveName, FunctionInputs inputs) {
+    for (ComputedValue value : inputs.getAllValues()) {
+      ValueSpecification spec = value.getSpecification();
+      if (spec.getValueName().equals(YIELD_CURVE_HISTORICAL_TIME_SERIES) && curveName.equals(spec.getProperty("Curve")) && spec.getProperty("Start") != null) {
+        return (HistoricalTimeSeriesBundle) value.getValue();
+      }
+    }
+    throw new IllegalStateException("Couldn't find required YCHTS for " + curveName);
+  }
+
   @Override
   protected ValueProperties getCurveSeriesProperties() {
     return createValueProperties()
@@ -324,5 +384,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
   protected String getCalculationMethod() {
     return PAR_RATE_STRING;
   }
+  
+  
 
 }

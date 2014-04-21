@@ -10,15 +10,18 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.snapshot.copier.SimpleSnapshotCopier;
 import com.opengamma.integration.copier.snapshot.copier.SnapshotCopier;
 import com.opengamma.integration.copier.snapshot.reader.MasterSnapshotReader;
 import com.opengamma.integration.copier.snapshot.reader.SnapshotReader;
-import com.opengamma.integration.copier.snapshot.writer.FileSnapshotWriter;
+import com.opengamma.integration.copier.snapshot.writer.CsvSnapshotWriter;
 import com.opengamma.integration.copier.snapshot.writer.SnapshotWriter;
+import com.opengamma.integration.copier.snapshot.writer.XlsSnapshotWriter;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.scripts.Scriptable;
 
@@ -41,17 +44,16 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
   private static ToolContext s_context;
 
   //-------------------------------------------------------------------------
-
   /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args the arguments, no null
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new MarketDataSnapshotExportTool().initAndRun(args, ToolContext.class);
-    System.exit(success ? 0 : 1);
+    new MarketDataSnapshotExportTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     s_context = getToolContext();
@@ -84,9 +86,16 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
     MarketDataSnapshotMaster marketDataSnapshotMaster = s_context.getMarketDataSnapshotMaster();
     if (marketDataSnapshotMaster == null) {
       s_logger.warn("No market data snapshot masters found at {}", s_context);
-
     }
-    return new FileSnapshotWriter(filename);
+
+    if (SheetFormat.of(filename) == SheetFormat.CSV) {
+      return new CsvSnapshotWriter(filename);
+    } else if (SheetFormat.of(filename) == SheetFormat.XLS) {
+      return new XlsSnapshotWriter(filename);
+    } else {
+      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
+    }
+
   }
 
   //-------------------------------------------------------------------------

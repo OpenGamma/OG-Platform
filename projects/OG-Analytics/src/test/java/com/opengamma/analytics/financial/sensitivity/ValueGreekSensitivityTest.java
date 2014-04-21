@@ -14,10 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ValueGreekSensitivityTest {
   private static final ValueGreek VALUE_GREEK = new ValueGreek(Greek.DELTA);
   private static final String NAME = "NAME";

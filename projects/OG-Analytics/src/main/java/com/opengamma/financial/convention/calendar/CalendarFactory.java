@@ -9,20 +9,22 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.joda.convert.FromString;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.AbstractNamedInstanceFactory;
 
 /**
  * Factory to obtain instances of {@code Calendar}.
  * <p>
  * The holidays and country details are read from a properties file.
  */
-public final class CalendarFactory {
+public final class CalendarFactory
+    extends AbstractNamedInstanceFactory<Calendar> {
+
   // REVIEW: This is really quite a bad implementation. Bank Holiday dates need to be pulled
   // from a database or a more easily updated source. It should probably be possible
   // to update the data with the system running instead of at initialization.
@@ -35,34 +37,29 @@ public final class CalendarFactory {
   public static final CalendarFactory INSTANCE = new CalendarFactory();
 
   /**
-   * Map of convention name to convention.
+   * Map of calendar by country.
    */
-  private final Map<String, Calendar> _calendarMap = new HashMap<>();
   private final Map<String, Calendar> _countryMap = new HashMap<>();
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a convention by name.
-   * Matching is case insensitive.
-   *
-   * @param name  the name, not null
+   * Finds a convention by name, ignoring case.
+   * 
+   * @param name  the name of the instance to find, not null
    * @return the convention, not null
-   * @throws IllegalArgumentException if not found
+   * @throws IllegalArgumentException if the name is not found
    */
   @FromString
   public static Calendar of(final String name) {
-    final Calendar result = CalendarFactory.INSTANCE.getCalendar(name);
-    if (result == null) {
-      throw new IllegalArgumentException("Unknown Calendar: " + name);
-    }
-    return result;
+    return INSTANCE.instance(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Creates the factory.
+   * Restricted constructor, loading the properties file.
    */
   private CalendarFactory() {
+    super(Calendar.class);
     loadCalendarInstances();
     loadCountryDefinitions();
   }
@@ -110,7 +107,7 @@ public final class CalendarFactory {
         } else {
           throw new OpenGammaRuntimeException("No suitable constructor for '" + calendarName + "'");
         }
-        _calendarMap.put(calendarName.toLowerCase(), instance);
+        addInstance(instance);
       } catch (final InstantiationException ex) {
         throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
       } catch (final IllegalAccessException ex) {
@@ -129,11 +126,12 @@ public final class CalendarFactory {
     final ResourceBundle countries = ResourceBundle.getBundle("com.opengamma.financial.convention.calendar.Country");
     for (final String countryCode : countries.keySet()) {
       final String calendarName = countries.getString(countryCode);
-      final Calendar calendar = getCalendar(calendarName);
-      if (calendar == null) {
+      try {
+        final Calendar calendar = instance(calendarName);
+        _countryMap.put(countryCode, calendar);
+      } catch (RuntimeException ex) {
         throw new OpenGammaRuntimeException("Cannot find calendar '" + calendarName + "' for country '" + countryCode + "'");
       }
-      _countryMap.put(countryCode, calendar);
     }
   }
 
@@ -144,10 +142,15 @@ public final class CalendarFactory {
    *
    * @param name  the name, not null
    * @return the convention, null if not found
+   * @deprecated Use {@link #of(String)} or {@link #instance(String)}.
    */
-  @FromString
+  @Deprecated
   public Calendar getCalendar(final String name) {
-    return _calendarMap.get(name.toLowerCase(Locale.ENGLISH));
+    try {
+      return instance(name);
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
   }
 
   /**

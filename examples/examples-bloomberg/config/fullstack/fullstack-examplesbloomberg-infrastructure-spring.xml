@@ -24,7 +24,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="username" value="${db.standard.username}" />
     <property name="password" value="${db.standard.password}" />
     <property name="poolName" value="Standard"/>
-    <property name="partitionCount" value="1" />
+    <property name="partitionCount" value="2" />
     <property name="acquireIncrement" value="1" />
     <property name="minConnectionsPerPartition" value="1" />
     <property name="maxConnectionsPerPartition" value="10" />
@@ -41,6 +41,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="finDbConnector" alias="exgDbConnector"/>
   <alias name="finDbConnector" alias="holDbConnector"/>
   <alias name="finDbConnector" alias="snpDbConnector"/>
+  <alias name="finDbConnector" alias="cnvDbConnector"/>
+  <alias name="finDbConnector" alias="lenDbConnector"/>
   <alias name="finDbConnector" alias="posDbConnector"/>
   <alias name="finDbConnector" alias="prtDbConnector"/>
   <alias name="finDbConnector" alias="engDbConnector"/>
@@ -140,6 +142,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   </bean>
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
     <constructor-arg ref="activeMQConnectionFactory"/>
+    <property name="idleTimeout" value="0" /> <!-- AMQ-4366 -->
   </bean>
   <bean id="standardJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
     <property name="name" value="StandardJms"/>
@@ -151,6 +154,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardJmsConnector" alias="holJmsConnector"/>
   <alias name="standardJmsConnector" alias="snpJmsConnector"/>
   <alias name="standardJmsConnector" alias="secJmsConnector"/>
+  <alias name="standardJmsConnector" alias="cnvJmsConnector"/>
+  <alias name="standardJmsConnector" alias="lenJmsConnector"/>
   <alias name="standardJmsConnector" alias="posJmsConnector"/>
   <alias name="standardJmsConnector" alias="prtJmsConnector"/>
   <alias name="standardJmsConnector" alias="orgJmsConnector"/>
@@ -165,6 +170,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardCacheManager" alias="holCacheManager"/>
   <alias name="standardCacheManager" alias="snpCacheManager"/>
   <alias name="standardCacheManager" alias="secCacheManager"/>
+  <alias name="standardCacheManager" alias="cnvCacheManager"/>
+  <alias name="standardCacheManager" alias="lenCacheManager"/>
   <alias name="standardCacheManager" alias="posCacheManager"/>
   <alias name="standardCacheManager" alias="prtCacheManager"/>
   <alias name="standardCacheManager" alias="engCacheManager"/>

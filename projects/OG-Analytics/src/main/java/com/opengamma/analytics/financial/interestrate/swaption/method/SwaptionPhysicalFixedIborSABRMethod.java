@@ -135,7 +135,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     final double maturity = swaption.getMaturityTime();
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final BlackPriceFunction blackFunction = new BlackPriceFunction();

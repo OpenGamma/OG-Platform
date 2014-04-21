@@ -13,10 +13,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -49,12 +49,12 @@ public class EquityFutureOptionBlackLognormalDefaults extends DefaultPropertyFun
     ValueRequirementNames.THETA
   };
   private final PriorityClass _priority;
-  private final Map<String, String> _currencyToCurveName;
-  private final Map<String, String> _currencyToCurveCalculationConfigName;
-  private final Map<String, String> _currencyToSurfaceName;
-  private final Map<String, String> _currencyToInterpolationMethod;
-  private final Map<String, String> _currencyToForwardCurveName;
-  private final Map<String, String> _currencyToForwardCurveCalculationMethod;
+  private final Map<String, Set<String>> _currencyToCurveName;
+  private final Map<String, Set<String>> _currencyToCurveCalculationConfigName;
+  private final Map<String, Set<String>> _currencyToSurfaceName;
+  private final Map<String, Set<String>> _currencyToInterpolationMethod;
+  private final Map<String, Set<String>> _currencyToForwardCurveName;
+  private final Map<String, Set<String>> _currencyToForwardCurveCalculationMethod;
 
   public EquityFutureOptionBlackLognormalDefaults(final String priority, final String... defaultsPerCurrency) {
     super(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY, true);
@@ -72,12 +72,12 @@ public class EquityFutureOptionBlackLognormalDefaults extends DefaultPropertyFun
     _currencyToForwardCurveCalculationMethod = new LinkedHashMap<>();
     for (int i = 0; i < n; i += 7) {
       final String currency = defaultsPerCurrency[i];
-      _currencyToCurveName.put(currency, defaultsPerCurrency[i + 1]);
-      _currencyToCurveCalculationConfigName.put(currency, defaultsPerCurrency[i + 2]);
-      _currencyToSurfaceName.put(currency, defaultsPerCurrency[i + 3]);
-      _currencyToInterpolationMethod.put(currency, defaultsPerCurrency[i + 4]);
-      _currencyToForwardCurveName.put(currency, defaultsPerCurrency[i + 5]);
-      _currencyToForwardCurveCalculationMethod.put(currency, defaultsPerCurrency[i + 6]);
+      _currencyToCurveName.put(currency, Collections.singleton(defaultsPerCurrency[i + 1]));
+      _currencyToCurveCalculationConfigName.put(currency, Collections.singleton(defaultsPerCurrency[i + 2]));
+      _currencyToSurfaceName.put(currency, Collections.singleton(defaultsPerCurrency[i + 3]));
+      _currencyToInterpolationMethod.put(currency, Collections.singleton(defaultsPerCurrency[i + 4]));
+      _currencyToForwardCurveName.put(currency, Collections.singleton(defaultsPerCurrency[i + 5]));
+      _currencyToForwardCurveCalculationMethod.put(currency, Collections.singleton(defaultsPerCurrency[i + 6]));
     }
   }
 
@@ -101,39 +101,38 @@ public class EquityFutureOptionBlackLognormalDefaults extends DefaultPropertyFun
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final Set<String> surfaceCalculationMethod = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
-    if (surfaceCalculationMethod != null && surfaceCalculationMethod.size() == 1) {
-      if (!Iterables.getOnlyElement(surfaceCalculationMethod).equals(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
-        return null;
-      }
-    }
-    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    final String curveName = _currencyToCurveName.get(currency);
-    if (curveName == null) {
-      s_logger.error("Could not get curve name for {}; should never happen", target.getValue());
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    if (!constraints.isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
       return null;
     }
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(curveName);
+    final Set<String> values = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+    if ((values == null) || (!values.isEmpty() && !values.contains(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL))) {
+      return null;
     }
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_currencyToCurveCalculationConfigName.get(currency));
+    return super.getRequirements(context, target, desiredValue);
+  }
+
+  @Override
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    switch (propertyName) {
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME:
+        return _currencyToCurveName.get(currency);
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG:
+        return _currencyToCurveCalculationConfigName.get(currency);
+      case ValuePropertyNames.SURFACE:
+        return _currencyToSurfaceName.get(currency);
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME:
+        return _currencyToForwardCurveName.get(currency);
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return _currencyToForwardCurveCalculationMethod.get(currency);
+      case BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR:
+        return _currencyToInterpolationMethod.get(currency);
+      default:
+        s_logger.error("Could not find default value for {} in this function", propertyName);
+        return null;
     }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_currencyToSurfaceName.get(currency));
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_currencyToForwardCurveName.get(currency));
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_currencyToForwardCurveCalculationMethod.get(currency));
-    }
-    if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_currencyToInterpolationMethod.get(currency));
-    }
-    s_logger.error("Could not find default value for {} in this function", propertyName);
-    return null;
   }
 
   @Override
@@ -143,7 +142,7 @@ public class EquityFutureOptionBlackLognormalDefaults extends DefaultPropertyFun
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_FUTURE_OPTION_INTERPOLATED_BLACK_LOGNORMAL_DEFAULTS;
+    return OpenGammaFunctionExclusions.INTERPOLATED_BLACK_LOGNORMAL_DEFAULTS;
   }
 
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.historicaltimeseries.BloombergHistoricalTimeSeriesProvider;
@@ -45,10 +47,26 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
   @PropertyDefinition
   private CacheManager _cacheManager;
 
+  /**
+   * The authentication option, null means NO_AUTH
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   */
+  @PropertyDefinition
+  private String _authenticationOption;
+
+  /**
+   * The identity re authorization schedule time in hours
+   * <p>
+   * Defaults to 24hrs if not set
+   */
+  @PropertyDefinition
+  private Integer _reAuthorizationScheduleTime = AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME;
+
   //-------------------------------------------------------------------------
   @Override
   protected HistoricalTimeSeriesProvider initHistoricalTimeSeriesProvider(ComponentRepository repo) {
-    BloombergHistoricalTimeSeriesProvider provider = new BloombergHistoricalTimeSeriesProvider(getBloombergConnector());
+    BloombergHistoricalTimeSeriesProvider provider = new BloombergHistoricalTimeSeriesProvider(getBloombergConnector(), getAuthenticationOption(), getReAuthorizationScheduleTime());
     if (getCacheManager() == null) {
       return provider;
     }
@@ -78,58 +96,6 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
   @Override
   public BloombergHistoricalTimeSeriesProviderComponentFactory.Meta metaBean() {
     return BloombergHistoricalTimeSeriesProviderComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2061648978:  // bloombergConnector
-        return getBloombergConnector();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2061648978:  // bloombergConnector
-        setBloombergConnector((BloombergConnector) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_bloombergConnector, "bloombergConnector");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergHistoricalTimeSeriesProviderComponentFactory other = (BloombergHistoricalTimeSeriesProviderComponentFactory) obj;
-      return JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -188,6 +154,122 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the authentication option, null means NO_AUTH
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   * @return the value of the property
+   */
+  public String getAuthenticationOption() {
+    return _authenticationOption;
+  }
+
+  /**
+   * Sets the authentication option, null means NO_AUTH
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   * @param authenticationOption  the new value of the property
+   */
+  public void setAuthenticationOption(String authenticationOption) {
+    this._authenticationOption = authenticationOption;
+  }
+
+  /**
+   * Gets the the {@code authenticationOption} property.
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   * @return the property, not null
+   */
+  public final Property<String> authenticationOption() {
+    return metaBean().authenticationOption().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identity re authorization schedule time in hours
+   * <p>
+   * Defaults to 24hrs if not set
+   * @return the value of the property
+   */
+  public Integer getReAuthorizationScheduleTime() {
+    return _reAuthorizationScheduleTime;
+  }
+
+  /**
+   * Sets the identity re authorization schedule time in hours
+   * <p>
+   * Defaults to 24hrs if not set
+   * @param reAuthorizationScheduleTime  the new value of the property
+   */
+  public void setReAuthorizationScheduleTime(Integer reAuthorizationScheduleTime) {
+    this._reAuthorizationScheduleTime = reAuthorizationScheduleTime;
+  }
+
+  /**
+   * Gets the the {@code reAuthorizationScheduleTime} property.
+   * <p>
+   * Defaults to 24hrs if not set
+   * @return the property, not null
+   */
+  public final Property<Integer> reAuthorizationScheduleTime() {
+    return metaBean().reAuthorizationScheduleTime().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BloombergHistoricalTimeSeriesProviderComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BloombergHistoricalTimeSeriesProviderComponentFactory other = (BloombergHistoricalTimeSeriesProviderComponentFactory) obj;
+      return JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getAuthenticationOption(), other.getAuthenticationOption()) &&
+          JodaBeanUtils.equal(getReAuthorizationScheduleTime(), other.getReAuthorizationScheduleTime()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAuthenticationOption());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReAuthorizationScheduleTime());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("BloombergHistoricalTimeSeriesProviderComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("bloombergConnector").append('=').append(JodaBeanUtils.toString(getBloombergConnector())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("authenticationOption").append('=').append(JodaBeanUtils.toString(getAuthenticationOption())).append(',').append(' ');
+    buf.append("reAuthorizationScheduleTime").append('=').append(JodaBeanUtils.toString(getReAuthorizationScheduleTime())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code BloombergHistoricalTimeSeriesProviderComponentFactory}.
    */
   public static class Meta extends HistoricalTimeSeriesProviderComponentFactory.Meta {
@@ -207,12 +289,24 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", BloombergHistoricalTimeSeriesProviderComponentFactory.class, CacheManager.class);
     /**
+     * The meta-property for the {@code authenticationOption} property.
+     */
+    private final MetaProperty<String> _authenticationOption = DirectMetaProperty.ofReadWrite(
+        this, "authenticationOption", BloombergHistoricalTimeSeriesProviderComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code reAuthorizationScheduleTime} property.
+     */
+    private final MetaProperty<Integer> _reAuthorizationScheduleTime = DirectMetaProperty.ofReadWrite(
+        this, "reAuthorizationScheduleTime", BloombergHistoricalTimeSeriesProviderComponentFactory.class, Integer.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "bloombergConnector",
-        "cacheManager");
+        "cacheManager",
+        "authenticationOption",
+        "reAuthorizationScheduleTime");
 
     /**
      * Restricted constructor.
@@ -227,6 +321,10 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
           return _bloombergConnector;
         case -1452875317:  // cacheManager
           return _cacheManager;
+        case -1714316019:  // authenticationOption
+          return _authenticationOption;
+        case 1130765866:  // reAuthorizationScheduleTime
+          return _reAuthorizationScheduleTime;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -261,6 +359,63 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
+    }
+
+    /**
+     * The meta-property for the {@code authenticationOption} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> authenticationOption() {
+      return _authenticationOption;
+    }
+
+    /**
+     * The meta-property for the {@code reAuthorizationScheduleTime} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> reAuthorizationScheduleTime() {
+      return _reAuthorizationScheduleTime;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2061648978:  // bloombergConnector
+          return ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).getBloombergConnector();
+        case -1452875317:  // cacheManager
+          return ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).getCacheManager();
+        case -1714316019:  // authenticationOption
+          return ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).getAuthenticationOption();
+        case 1130765866:  // reAuthorizationScheduleTime
+          return ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).getReAuthorizationScheduleTime();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2061648978:  // bloombergConnector
+          ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).setBloombergConnector((BloombergConnector) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case -1714316019:  // authenticationOption
+          ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).setAuthenticationOption((String) newValue);
+          return;
+        case 1130765866:  // reAuthorizationScheduleTime
+          ((BloombergHistoricalTimeSeriesProviderComponentFactory) bean).setReAuthorizationScheduleTime((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesProviderComponentFactory) bean)._bloombergConnector, "bloombergConnector");
+      super.validate(bean);
     }
 
   }

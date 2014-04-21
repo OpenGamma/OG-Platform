@@ -43,13 +43,13 @@ public final class CapFloorCMSSpreadSecurityBeanOperation extends AbstractSecuri
 
   @Override
   public CapFloorCMSSpreadSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CapFloorCMSSpreadSecurity security) {
-    validateFrequency(security.getFrequency().getConventionName());
-    validateDayCount(security.getDayCount().getConventionName());
+    validateFrequency(security.getFrequency().getName());
+    validateDayCount(security.getDayCount().getName());
     
     final CapFloorCMSSpreadSecurityBean bean = new CapFloorCMSSpreadSecurityBean();
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
-    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
-    bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(security.getFrequency().getConventionName()));
+    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getName()));
+    bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(security.getFrequency().getName()));
     bean.setCap(security.isCap());
     bean.setPayer(security.isPayer());
     bean.setLongIdentifier(externalIdToExternalIdBean(security.getLongId()));

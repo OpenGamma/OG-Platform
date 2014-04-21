@@ -7,9 +7,12 @@ package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class JuZhongModelTest extends AmericanAnalyticOptionModelTest {
 
   @Test

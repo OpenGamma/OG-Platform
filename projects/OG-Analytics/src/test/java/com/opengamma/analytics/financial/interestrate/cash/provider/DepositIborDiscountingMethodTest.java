@@ -32,11 +32,13 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of cash deposits by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class DepositIborDiscountingMethodTest {
 
   private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
@@ -77,7 +79,7 @@ public class DepositIborDiscountingMethodTest {
     final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_MULTICURVES);
     final double dfEnd = PROVIDER_MULTICURVES.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    final double forward = PROVIDER_MULTICURVES.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+    final double forward = PROVIDER_MULTICURVES.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
     final double pvExpected = deposit.getAccrualFactor() * (deposit.getRate() - forward) * dfEnd;
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
