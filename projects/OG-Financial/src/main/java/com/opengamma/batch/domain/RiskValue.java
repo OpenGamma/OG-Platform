@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -73,107 +74,6 @@ public class RiskValue extends DirectBean {
   @Override
   public RiskValue.Meta metaBean() {
     return RiskValue.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 1329751720:  // calculationConfigurationId
-        return getCalculationConfigurationId();
-      case 3373707:  // name
-        return getName();
-      case -1127019571:  // valueSpecificationId
-        return getValueSpecificationId();
-      case 1563911364:  // functionUniqueId
-        return getFunctionUniqueId();
-      case -1362849421:  // computationTargetId
-        return getComputationTargetId();
-      case 108875014:  // runId
-        return getRunId();
-      case 111972721:  // value
-        return getValue();
-      case 820536741:  // evalInstant
-        return getEvalInstant();
-      case 398290388:  // computeNodeId
-        return getComputeNodeId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case 1329751720:  // calculationConfigurationId
-        setCalculationConfigurationId((Long) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -1127019571:  // valueSpecificationId
-        setValueSpecificationId((Long) newValue);
-        return;
-      case 1563911364:  // functionUniqueId
-        setFunctionUniqueId((Long) newValue);
-        return;
-      case -1362849421:  // computationTargetId
-        setComputationTargetId((Long) newValue);
-        return;
-      case 108875014:  // runId
-        setRunId((Long) newValue);
-        return;
-      case 111972721:  // value
-        setValue((Double) newValue);
-        return;
-      case 820536741:  // evalInstant
-        setEvalInstant((Instant) newValue);
-        return;
-      case 398290388:  // computeNodeId
-        setComputeNodeId((Long) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RiskValue other = (RiskValue) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getCalculationConfigurationId(), other.getCalculationConfigurationId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getValueSpecificationId(), other.getValueSpecificationId()) &&
-          JodaBeanUtils.equal(getFunctionUniqueId(), other.getFunctionUniqueId()) &&
-          JodaBeanUtils.equal(getComputationTargetId(), other.getComputationTargetId()) &&
-          JodaBeanUtils.equal(getRunId(), other.getRunId()) &&
-          JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getEvalInstant(), other.getEvalInstant()) &&
-          JodaBeanUtils.equal(getComputeNodeId(), other.getComputeNodeId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationConfigurationId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueSpecificationId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRunId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEvalInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputeNodeId());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -427,6 +327,75 @@ public class RiskValue extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public RiskValue clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RiskValue other = (RiskValue) obj;
+      return (getId() == other.getId()) &&
+          (getCalculationConfigurationId() == other.getCalculationConfigurationId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          (getValueSpecificationId() == other.getValueSpecificationId()) &&
+          (getFunctionUniqueId() == other.getFunctionUniqueId()) &&
+          (getComputationTargetId() == other.getComputationTargetId()) &&
+          (getRunId() == other.getRunId()) &&
+          JodaBeanUtils.equal(getValue(), other.getValue()) &&
+          JodaBeanUtils.equal(getEvalInstant(), other.getEvalInstant()) &&
+          (getComputeNodeId() == other.getComputeNodeId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationConfigurationId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValueSpecificationId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRunId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEvalInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputeNodeId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("RiskValue{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("calculationConfigurationId").append('=').append(JodaBeanUtils.toString(getCalculationConfigurationId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("valueSpecificationId").append('=').append(JodaBeanUtils.toString(getValueSpecificationId())).append(',').append(' ');
+    buf.append("functionUniqueId").append('=').append(JodaBeanUtils.toString(getFunctionUniqueId())).append(',').append(' ');
+    buf.append("computationTargetId").append('=').append(JodaBeanUtils.toString(getComputationTargetId())).append(',').append(' ');
+    buf.append("runId").append('=').append(JodaBeanUtils.toString(getRunId())).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue())).append(',').append(' ');
+    buf.append("evalInstant").append('=').append(JodaBeanUtils.toString(getEvalInstant())).append(',').append(' ');
+    buf.append("computeNodeId").append('=').append(JodaBeanUtils.toString(getComputeNodeId())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code RiskValue}.
    */
@@ -629,6 +598,71 @@ public class RiskValue extends DirectBean {
      */
     public final MetaProperty<Long> computeNodeId() {
       return _computeNodeId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((RiskValue) bean).getId();
+        case 1329751720:  // calculationConfigurationId
+          return ((RiskValue) bean).getCalculationConfigurationId();
+        case 3373707:  // name
+          return ((RiskValue) bean).getName();
+        case -1127019571:  // valueSpecificationId
+          return ((RiskValue) bean).getValueSpecificationId();
+        case 1563911364:  // functionUniqueId
+          return ((RiskValue) bean).getFunctionUniqueId();
+        case -1362849421:  // computationTargetId
+          return ((RiskValue) bean).getComputationTargetId();
+        case 108875014:  // runId
+          return ((RiskValue) bean).getRunId();
+        case 111972721:  // value
+          return ((RiskValue) bean).getValue();
+        case 820536741:  // evalInstant
+          return ((RiskValue) bean).getEvalInstant();
+        case 398290388:  // computeNodeId
+          return ((RiskValue) bean).getComputeNodeId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((RiskValue) bean).setId((Long) newValue);
+          return;
+        case 1329751720:  // calculationConfigurationId
+          ((RiskValue) bean).setCalculationConfigurationId((Long) newValue);
+          return;
+        case 3373707:  // name
+          ((RiskValue) bean).setName((String) newValue);
+          return;
+        case -1127019571:  // valueSpecificationId
+          ((RiskValue) bean).setValueSpecificationId((Long) newValue);
+          return;
+        case 1563911364:  // functionUniqueId
+          ((RiskValue) bean).setFunctionUniqueId((Long) newValue);
+          return;
+        case -1362849421:  // computationTargetId
+          ((RiskValue) bean).setComputationTargetId((Long) newValue);
+          return;
+        case 108875014:  // runId
+          ((RiskValue) bean).setRunId((Long) newValue);
+          return;
+        case 111972721:  // value
+          ((RiskValue) bean).setValue((Double) newValue);
+          return;
+        case 820536741:  // evalInstant
+          ((RiskValue) bean).setEvalInstant((Instant) newValue);
+          return;
+        case 398290388:  // computeNodeId
+          ((RiskValue) bean).setComputeNodeId((Long) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

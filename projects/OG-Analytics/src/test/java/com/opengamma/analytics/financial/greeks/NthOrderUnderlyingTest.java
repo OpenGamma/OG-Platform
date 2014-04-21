@@ -13,7 +13,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class NthOrderUnderlyingTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

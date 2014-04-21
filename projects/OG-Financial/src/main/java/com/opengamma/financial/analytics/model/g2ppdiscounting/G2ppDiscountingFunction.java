@@ -17,6 +17,7 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.G2ppP
 import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -42,26 +44,32 @@ import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.CashFlowSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -69,8 +77,20 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * Base function for all pricing and risk functions that use curves constructed using the G2++
- * method.
+ * Base function for all pricing and risk functions that use curves constructed using the G2++ method. Produces results for trades with following underlying securities:
+ * <p>
+ * <ul>
+ * <li> {@link CashSecurity}
+ * <li> {@link CashFlowSecurity}
+ * <li> {@link FRASecurity}
+ * <li> {@link SwapSecurity}
+ * <li> {@link SwaptionSecurity}
+ * <li> {@link FXForwardSecurity}
+ * <li> {@link InterestRateFutureSecurity}
+ * <li> {@link NonDeliverableFXForwardSecurity}
+ * <li> {@link DeliverableSwapFutureSecurity}
+ * <li> {@link FederalFundsFutureSecurity}
+ * </ul>
  */
 public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction {
 
@@ -82,36 +102,30 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
   }
 
   @Override
-  protected TradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
+  protected DefaultTradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
-    final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(securitySource, swapConverter);
+    final CashFlowSecurityConverter cashFlowConverter = new CashFlowSecurityConverter();
+    final FRASecurityConverter fraConverter = new FRASecurityConverter(securitySource, holidaySource, regionSource, conventionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
+    final InterestRateSwapSecurityConverter irsConverter = new InterestRateSwapSecurityConverter(holidaySource, conventionSource, securitySource);
+    final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(swapConverter, irsConverter);
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
-    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashSecurityVisitor(cashConverter)
-        .deliverableSwapFutureSecurityVisitor(dsfConverter)
-        .fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter)
-        .fxForwardVisitor(fxForwardSecurityConverter)
-        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter)
-        .swaptionVisitor(swaptionConverter)
-        .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
-    return new TradeConverter(futureTradeConverter, securityConverter);
+    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter)
+        .cashFlowSecurityVisitor(cashFlowConverter).deliverableSwapFutureSecurityVisitor(dsfConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .fxForwardVisitor(fxForwardSecurityConverter).nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).swaptionVisitor(swaptionConverter).create();
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter();
+    return new DefaultTradeConverter(futureTradeConverter, securityConverter);
   }
 
   /**
-   * Base compiled function for all pricing and risk functions that use the Hull-White one-factor
-   * curve construction method.
+   * Base compiled function for all pricing and risk functions that use the Hull-White one-factor curve construction method.
    */
   protected abstract class G2ppCompiledFunction extends MultiCurveCompiledFunction {
     /** True if the result properties set the {@link ValuePropertyNames#CURRENCY} property */
@@ -122,8 +136,7 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property
      */
-    protected G2ppCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected G2ppCompiledFunction(final DefaultTradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter);
       _withCurrency = withCurrency;
     }
@@ -132,38 +145,35 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       boolean canApplyTo = super.canApplyTo(context, target);
       final Security security = target.getTrade().getSecurity();
-      if (security instanceof SwapSecurity
-          && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+      if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
         canApplyTo &= InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
       }
       return canApplyTo || security instanceof SwaptionSecurity || security instanceof DeliverableSwapFutureSecurity;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-      final ValueProperties.Builder properties =  createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
-          .withAny(CURVE_EXPOSURES)
-          .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING).withAny(CURVE_EXPOSURES).withAny(PROPERTY_HULL_WHITE_PARAMETERS)
           .withAny(PROPERTY_G2PP_PARAMETERS);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity
-            && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)
-            && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+        if (security instanceof SwapSecurity && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security) &&
+            (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           final SwapSecurity swapSecurity = (SwapSecurity) security;
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
             properties.with(CURRENCY, currency);
-            return properties;
+            return Collections.singleton(properties);
           }
         } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
         }
+        // TODO: Handle the multiple currency case (SWAP_CROSS_CURRENCY) by returning a collection with more than one element
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
@@ -174,9 +184,7 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
       }
       final ValueProperties constraints = desiredValue.getConstraints();
       final Set<String> g2ppParameters = constraints.getValues(PROPERTY_G2PP_PARAMETERS);
-      final ValueProperties g2ppProperties = ValueProperties.builder()
-          .with(PROPERTY_G2PP_PARAMETERS, g2ppParameters)
-          .get();
+      final ValueProperties g2ppProperties = ValueProperties.builder().with(PROPERTY_G2PP_PARAMETERS, g2ppParameters).get();
       requirements.add(new ValueRequirement(G2PP_PARAMETERS, ComputationTargetSpecification.NULL, g2ppProperties));
       return requirements;
     }
@@ -199,14 +207,19 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
     }
 
     @Override
-    protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
+    protected Builder getCurveConstraints(final ComputationTarget target, final ValueProperties constraints) {
       final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
       final Set<String> hullWhiteParameters = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
-      return ValueProperties.builder()
-          .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)
-          .with(PROPERTY_HULL_WHITE_CURRENCY, currency);
+      return ValueProperties.builder().with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters).with(PROPERTY_HULL_WHITE_CURRENCY, currency);
     }
 
+    /**
+     * Merges any {@link HullWhiteOneFactorProviderDiscount} curve bundles and FX matrices that are present in the inputs and creates a curve bundle with information for pricing using the G2++ model.
+     * 
+     * @param inputs The function inputs
+     * @param matrix The FX matrix
+     * @return A curve bundle that can be used in G2++ pricing functions
+     */
     protected G2ppProviderInterface getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
       final Collection<HullWhiteOneFactorProviderDiscount> providers = new HashSet<>();
       for (final ComputedValue input : inputs.getAllValues()) {
@@ -221,6 +234,12 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
       return new G2ppProviderDiscount(provider.getMulticurveProvider(), parameters, provider.getHullWhiteCurrency());
     }
 
+    /**
+     * Merges any {@link CurveBuildingBlockBundle}s in the function inputs.
+     * 
+     * @param inputs The function inputs
+     * @return A curve building block bundle that contains all of the information used to construct the curves used in pricing
+     */
     protected CurveBuildingBlockBundle getMergedCurveBuildingBlocks(final FunctionInputs inputs) {
       final CurveBuildingBlockBundle result = new CurveBuildingBlockBundle();
       for (final ComputedValue input : inputs.getAllValues()) {

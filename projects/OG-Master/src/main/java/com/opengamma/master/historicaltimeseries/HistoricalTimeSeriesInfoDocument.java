@@ -7,6 +7,7 @@ package com.opengamma.master.historicaltimeseries;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.DerivedProperty;
@@ -103,54 +104,6 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
     return HistoricalTimeSeriesInfoDocument.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3237038:  // info
-        return getInfo();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3237038:  // info
-        setInfo((ManageableHistoricalTimeSeriesInfo) newValue);
-        return;
-      case -294460212:  // uniqueId
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: uniqueId");
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesInfoDocument other = (HistoricalTimeSeriesInfoDocument) obj;
-      return JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the info object held by the document.
@@ -188,6 +141,54 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesInfoDocument clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesInfoDocument other = (HistoricalTimeSeriesInfoDocument) obj;
+      return JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("HistoricalTimeSeriesInfoDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("info").append('=').append(JodaBeanUtils.toString(getInfo())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HistoricalTimeSeriesInfoDocument}.
    */
@@ -205,7 +206,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofDerived(
         this, "uniqueId", HistoricalTimeSeriesInfoDocument.class, UniqueId.class);
     /**
      * The meta-properties.
@@ -262,6 +263,33 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          return ((HistoricalTimeSeriesInfoDocument) bean).getInfo();
+        case -294460212:  // uniqueId
+          return ((HistoricalTimeSeriesInfoDocument) bean).getUniqueId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          ((HistoricalTimeSeriesInfoDocument) bean).setInfo((ManageableHistoricalTimeSeriesInfo) newValue);
+          return;
+        case -294460212:  // uniqueId
+          if (quiet) {
+            return;
+          }
+          throw new UnsupportedOperationException("Property cannot be written: uniqueId");
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -70,7 +70,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     final UniqueId uid = addPosition();
     final WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
 
-    final Response response = positionResource.putJSON(QUANTITY.toString(), getTradesJson());
+    final Response response = positionResource.putJSON(QUANTITY.toString(), getTradesJson(), null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
@@ -95,7 +95,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     final UniqueId uid = addPosition();
     final WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
 
-    final Response response = positionResource.putJSON(QUANTITY.toString(), null);
+    final Response response = positionResource.putJSON(QUANTITY.toString(), null, null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
@@ -113,7 +113,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     final UniqueId uid = addPosition();
     final WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
 
-    final Response response = positionResource.putJSON(QUANTITY.toString(), EMPTY_TRADES);
+    final Response response = positionResource.putJSON(QUANTITY.toString(), EMPTY_TRADES, null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 

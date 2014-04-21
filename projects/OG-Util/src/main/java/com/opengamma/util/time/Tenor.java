@@ -5,12 +5,15 @@
  */
 package com.opengamma.util.time;
 
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+
 import java.io.Serializable;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Period;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -19,9 +22,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Tenor implements Comparable<Tenor>, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -6312355131513714559L;
+
   /**
    * An overnight tenor.
+   * @deprecated use Tenor.ON
    */
+  @Deprecated
   public static final Tenor OVERNIGHT = new Tenor(Period.ofDays(1));
   /**
    * A tenor of one day.
@@ -60,23 +68,23 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    */
   public static final Tenor ONE_MONTH = new Tenor(Period.ofMonths(1));
   /**
-   * A tenor of 2 month.
+   * A tenor of 2 months.
    */
   public static final Tenor TWO_MONTHS = new Tenor(Period.ofMonths(2));
   /**
-   * A tenor of 3 month.
+   * A tenor of 3 months.
    */
   public static final Tenor THREE_MONTHS = new Tenor(Period.ofMonths(3));
   /**
-   * A tenor of 4 month.
+   * A tenor of 4 months.
    */
   public static final Tenor FOUR_MONTHS = new Tenor(Period.ofMonths(4));
   /**
-   * A tenor of 5 month.
+   * A tenor of 5 months.
    */
   public static final Tenor FIVE_MONTHS = new Tenor(Period.ofMonths(5));
   /**
-   * A tenor of 6 month.
+   * A tenor of 6 months.
    */
   public static final Tenor SIX_MONTHS = new Tenor(Period.ofMonths(6));
   /**
@@ -88,15 +96,15 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    */
   public static final Tenor EIGHT_MONTHS = new Tenor(Period.ofMonths(8));
   /**
-   * A tenor of 9 month.
+   * A tenor of 9 months.
    */
   public static final Tenor NINE_MONTHS = new Tenor(Period.ofMonths(9));
   /**
-   * A tenor of 10 month.
+   * A tenor of 10 months.
    */
   public static final Tenor TEN_MONTHS = new Tenor(Period.ofMonths(10));
   /**
-   * A tenor of 11 month.
+   * A tenor of 11 months.
    */
   public static final Tenor ELEVEN_MONTHS = new Tenor(Period.ofMonths(11));
   /**
@@ -116,11 +124,11 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    */
   public static final Tenor TWO_YEARS = new Tenor(Period.ofYears(2));
   /**
-   * A tenor of 3 year.
+   * A tenor of 3 years.
    */
   public static final Tenor THREE_YEARS = new Tenor(Period.ofYears(3));
   /**
-   * A tenor of 4 year.
+   * A tenor of 4 years.
    */
   public static final Tenor FOUR_YEARS = new Tenor(Period.ofYears(4));
   /**
@@ -151,18 +159,6 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    * A tenor of one working week (5 days).
    */
   public static final Tenor WORKING_WEEK = new Tenor(Period.ofDays(5));
-//  /**
-//   * A tenor of the working days in a year measured in hours (250 * 24 hours).
-//   */
-//  public static final Tenor WORKING_DAYS_IN_YEAR = new Tenor(Period.of(252 * 24, HOURS)); // TODO: should be days???
-//  /**
-//   * A tenor of the working days in a month measured in hours (250 * 24 / 12 hours).
-//   */
-//  public static final Tenor WORKING_DAYS_IN_MONTH = new Tenor(Period.of(WORKING_DAYS_IN_YEAR.getPeriod().toDuration().dividedBy(12)));
-//  /**
-//   * A tenor of one financial year measured in hours (365.25 * 24 hours).
-//   */
-//  public static final Tenor FINANCIAL_YEAR = new Tenor(Period.of((int) (365.25 * 24), HOURS));
   /**
    * A tenor of the days in a standard year (365 days).
    */
@@ -171,28 +167,88 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    * A tenor of the days in a leap year (366 days).
    */
   public static final Tenor LEAP_YEAR = new Tenor(Period.ofDays(366));
-//  /**
-//   * A tenor of two financial years measured in hours (365.25 * 24 * 2 hours).
-//   */
-//  public static final Tenor TWO_FINANCIAL_YEARS = new Tenor(FINANCIAL_YEAR.getPeriod().multipliedBy(2));
+  /**
+   * An overnight / next (O/N) tenor.
+   */
+  public static final Tenor ON = new Tenor(BusinessDayTenor.OVERNIGHT);
+  /**
+   * A spot / next (S/N) tenor.
+   */
+  public static final Tenor SN = new Tenor(BusinessDayTenor.SPOT_NEXT);
+  /**
+   * A tomorrow / next (a.k.a. tom next, T/N) tenor.
+   */
+  public static final Tenor TN = new Tenor(BusinessDayTenor.TOM_NEXT);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Business day tenor.
+   */
+  public enum BusinessDayTenor {
+    /**
+     * Overnight.
+     */
+    OVERNIGHT(Period.ofDays(1)),
+    /**
+     * Tomorrow / next.
+     */
+    TOM_NEXT(Period.ofDays(2)),
+    /**
+     * Spot / next.
+     */
+    SPOT_NEXT(Period.ofDays(3));
+
+    /** The approximate duration of a business day tenor */
+    private final Duration _approximateDuration;
+
+    /**
+     * @param approximateDuration The approximate duration of a business day tenor. It is not
+     * exact because there could be holidays in the period.
+     */
+    private BusinessDayTenor(final Period approximateDuration) {
+      _approximateDuration = DAYS.getDuration().multipliedBy(approximateDuration.getDays());
+    }
+
+    /**
+     * Gets the approximate duration.
+     * @return The approximate duration
+     */
+    public Duration getApproximateDuration() {
+      return _approximateDuration;
+    }
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * The period of the tenor.
    */
   private final Period _period;
+  /**
+   * The business day tenor.
+   */
+  private final BusinessDayTenor _businessDayTenor;
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a formatted string representing the tenor.
-   * <p>
-   * The format is based on ISO-8601, such as 'P3M'.
+   * Obtains a {@code Tenor} from a {@code Period}.
    * 
    * @param period  the period to convert to a tenor, not null
-   * @return the formatted tenor, not null
+   * @return the tenor, not null
    */
-  public static Tenor of(Period period) {
+  public static Tenor of(final Period period) {
     ArgumentChecker.notNull(period, "period");
     return new Tenor(period);
+  }
+
+  /**
+   * Obtains a {@code Tenor} from a {@code BusinessDayTenor}.
+   * 
+   * @param businessDayTenor  the tenor to convert, not null
+   * @return the tenor, not null
+   */
+  public static Tenor of(final BusinessDayTenor businessDayTenor) {
+    ArgumentChecker.notNull(businessDayTenor, "businessDayTenor");
+    return new Tenor(businessDayTenor);
   }
 
   /**
@@ -204,9 +260,14 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    * @return the tenor, not null
    */
   @FromString
-  public static Tenor parse(String tenorStr) {
+  @SuppressWarnings("deprecation")
+  public static Tenor parse(final String tenorStr) {
     ArgumentChecker.notNull(tenorStr, "tenorStr");
-    return new Tenor(Period.parse(tenorStr));
+    try {
+      return new Tenor(DateUtils.toPeriod(tenorStr));
+    } catch (DateTimeParseException e) {
+      return new Tenor(BusinessDayTenor.valueOf(tenorStr));
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -217,31 +278,105 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    */
   @Deprecated
   public Tenor(final Period period) {
+    ArgumentChecker.notNull(period, "period"); //change of behaviour
     _period = period;
+    _businessDayTenor = null;
   }
 
   /**
+   * Creates a tenor without a period. This is used for overnight,
+   * spot next and tomorrow next tenors.
+   */
+  private Tenor(final BusinessDayTenor businessDayTenor) {
+    ArgumentChecker.notNull(businessDayTenor, "business day tenor");
+    _period = null;
+    _businessDayTenor = businessDayTenor;
+  }
+  
+  /**
    * Gets the tenor period.
    * @return the period
+   * @throws IllegalStateException If the tenor is not backed by a {@link Period}
    */
   public Period getPeriod() {
+    if (_period == null) {
+      throw new IllegalStateException("Could not get period for " + toString());
+    }
     return _period;
   }
 
-  public static final Tenor ofDays(int days) {
+  /**
+   * Gets the business day tenor if the tenor is of appropriate type.
+   * @return The business day tenor
+   * @throws IllegalStateException If the tenor is backed by a period
+   */
+  public BusinessDayTenor getBusinessDayTenor() {
+    if (_businessDayTenor == null) {
+      throw new IllegalStateException("Could not get business day tenor for " + toString());
+    }
+    return _businessDayTenor;
+  }
+  
+  /**
+   * Returns true if the tenor is a business day tenor.
+   * @return True if the tenor is a business day tenor
+   */
+  public boolean isBusinessDayTenor() {
+    return _period == null;
+  }
+  
+  /**
+   * Returns a tenor backed by a period of days.
+   * @param days The number of days
+   * @return The tenor
+   */
+  public static final Tenor ofDays(final int days) {
     return new Tenor(Period.ofDays(days));
   }
 
-  public static final Tenor ofWeeks(int weeks) {
+  /**
+   * Returns a tenor backed by a period of weeks.
+   * @param weeks The number of weeks
+   * @return The tenor
+   */
+  public static final Tenor ofWeeks(final int weeks) {
     return new Tenor(Period.ofDays(weeks * 7));
   }
 
-  public static final Tenor ofMonths(int months) {
+  /**
+   * Returns a tenor backed by a period of months.
+   * @param months The number of months
+   * @return The tenor
+   */
+  public static final Tenor ofMonths(final int months) {
     return new Tenor(Period.ofMonths(months)); // TODO: what do we do here
   }
 
-  public static final Tenor ofYears(int years) {
+  /**
+   * Returns a tenor backed by a period of years.
+   * @param years The number of years
+   * @return The tenor
+   */
+  public static final Tenor ofYears(final int years) {
     return new Tenor(Period.ofYears(years)); // TODO: what do we do here
+  }
+
+  /**
+   * Returns a tenor of business days.
+   * @param businessDayTenor The business day
+   * @return The tenor
+   */
+  public static final Tenor ofBusinessDay(final BusinessDayTenor businessDayTenor) {
+    return new Tenor(businessDayTenor);
+  }
+  
+  /**
+   * Returns a tenor of business days.
+   * @param businessDayTenor The business days name
+   * @return The tenor
+   */
+  public static final Tenor ofBusinessDay(final String businessDayTenor) {
+    return new Tenor(BusinessDayTenor.valueOf(businessDayTenor));
   }
 
   //-------------------------------------------------------------------------
@@ -254,32 +389,55 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    */
   @ToString
   public String toFormattedString() {
-    return getPeriod().toString();
+    if (_period != null) {
+      return getPeriod().toString();
+    } 
+    return getBusinessDayTenor().toString();
   }
 
   //-------------------------------------------------------------------------
-  //TODO [PLAT-1013] not the best way to do this
   @Override
-  public int compareTo(Tenor other) {
-    Duration thisDur = DateUtils.estimatedDuration(this._period);
-    Duration otherDur = DateUtils.estimatedDuration(other._period);
+  public int compareTo(final Tenor other) {
+    final Duration thisDur, otherDur;    
+    if (_period == null) {
+      thisDur = _businessDayTenor.getApproximateDuration();
+    } else {
+      thisDur = DateUtils.estimatedDuration(_period);
+    }
+    if (other._period == null) {
+      otherDur = other._businessDayTenor.getApproximateDuration();
+    } else {
+      otherDur = DateUtils.estimatedDuration(other._period);
+    }
     return thisDur.compareTo(otherDur);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
     if (!(o instanceof Tenor)) {
       return false;
     }
-    Tenor other = (Tenor) o;
-    return getPeriod().equals(other.getPeriod());
+    final Tenor other = (Tenor) o;
+    if (_period == null) {
+      if (other._period == null) {
+        return _businessDayTenor == other._businessDayTenor;
+      } 
+      return false;
+    }
+    if (other._period == null) {
+      return false;
+    }
+    return _period.equals(other._period);
   }
 
   @Override
   public int hashCode() {
+    if (_period == null) {
+      return getBusinessDayTenor().hashCode();
+    }
     return getPeriod().hashCode();
   }
 
@@ -287,7 +445,11 @@ public class Tenor implements Comparable<Tenor>, Serializable {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Tenor[");
-    sb.append(getPeriod().toString());
+    if (_period == null) {
+      sb.append(getBusinessDayTenor().toString());
+    } else {
+      sb.append(getPeriod().toString());
+    }
     sb.append("]");
     return sb.toString();
   }

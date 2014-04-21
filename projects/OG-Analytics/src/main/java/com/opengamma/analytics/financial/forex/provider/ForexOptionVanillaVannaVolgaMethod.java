@@ -263,10 +263,10 @@ public final class ForexOptionVanillaVannaVolgaMethod {
     // Sensitivity object
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForeign = new ArrayList<>();
-    listForeign.add(new DoublesPair(payTime, rForeignBar));
+    listForeign.add(DoublesPair.of(payTime, rForeignBar));
     resultMap.put(multicurves.getName(optionForex.getCurrency1()), listForeign);
     final List<DoublesPair> listDomestic = new ArrayList<>();
-    listDomestic.add(new DoublesPair(payTime, rDomesticBar));
+    listDomestic.add(DoublesPair.of(payTime, rDomesticBar));
     resultMap.put(multicurves.getName(optionForex.getCurrency2()), listDomestic);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(optionForex.getUnderlyingForex().getCurrency2(), result);

@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Security - ${security.name}">
+<@page title="Security - ${security.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This security has been deleted</p>
@@ -19,7 +19,9 @@
 <#list security.externalIdBundle.externalIds as item>
     <@rowout label="Key">${item.scheme.name} - ${item.value}</@rowout>
 </#list>
+    <@rowout label="XML"><div id="ace-xml-editor"></div></@rowout>
 </@subsection>
+<#noescape><@xmlEditorScript  xmlValue="${securityXml}" readOnly=true></@xmlEditorScript></#noescape>
 </@section>
 
 

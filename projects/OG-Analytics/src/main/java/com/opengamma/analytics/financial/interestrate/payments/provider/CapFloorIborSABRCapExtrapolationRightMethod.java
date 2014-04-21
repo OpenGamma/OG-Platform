@@ -20,9 +20,9 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFor
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.method.CapFloorIborSABRCapMethodInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -68,7 +68,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(sabr, "SABR cap provider");
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = sabr.getMulticurveProvider().getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double forward = sabr.getMulticurveProvider().getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = sabr.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     double price;
@@ -79,7 +79,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
     } else { // With extrapolation
       SABRExtrapolationRightFunction sabrExtrapolation;
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabr.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabr.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabr.getSABRParameter().getRho(expiryMaturity);
@@ -102,14 +102,14 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
     ArgumentChecker.notNull(sabr, "SABR cap provider");
     final MulticurveProviderInterface multicurve = sabr.getMulticurveProvider();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = multicurve.getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double forward = multicurve.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = multicurve.getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final MulticurveSensitivity forwardDr = MulticurveSensitivity.ofForward(sabr.getMulticurveProvider().getName(cap.getIndex()),
-        new ForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), 1.0));
+        new SimplyCompoundedForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), 1.0));
     final double dfDr = -cap.getPaymentTime() * df;
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
+    list.add(DoublesPair.of(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurve.getName(cap.getCurrency()), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
@@ -122,7 +122,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       bsPrice = bsAdjoint[0];
       bsDforward = df * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1]);
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabr.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabr.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabr.getSABRParameter().getRho(expiryMaturity);
@@ -148,7 +148,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(sabr, "SABR cap provider");
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = sabr.getMulticurveProvider().getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double forward = sabr.getMulticurveProvider().getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = sabr.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     final double[] bsDsabr = new double[4];
@@ -161,7 +161,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       bsDsabr[2] = bsAdjoint[2] * volatilityAdjoint[5];
       bsDsabr[3] = bsAdjoint[2] * volatilityAdjoint[6];
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabr.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabr.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabr.getSABRParameter().getRho(expiryMaturity);
@@ -171,7 +171,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       sabrExtrapolation.priceAdjointSABR(option, bsDsabr);
     }
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[0]);
     sensi.addBeta(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[1]);
     sensi.addRho(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[2]);

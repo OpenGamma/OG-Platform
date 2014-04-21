@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -57,6 +58,9 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   @PropertyDefinition
   private Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _terminalOutputsByCalcConfig;
+  
+  @PropertyDefinition
+  private String _name;
 
   public DefaultViewCycleMetadata() {
   }
@@ -64,7 +68,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   public DefaultViewCycleMetadata(UniqueId viewCycleId, UniqueId marketDataSnapshotUniqueId, UniqueId viewDefinitionId,
       VersionCorrection versionCorrection, Instant valuationTime, Collection<String> allCalculationConfigurationNames,
       Map<String, Collection<ComputationTargetSpecification>> computationTargetsByConfigName,
-      Map<String, Map<ValueSpecification, Set<ValueRequirement>>> terminalOutputsByConfigName) {
+      Map<String, Map<ValueSpecification, Set<ValueRequirement>>> terminalOutputsByConfigName, String name) {
     _viewCycleId = viewCycleId;
     _marketDataSnapshotId = marketDataSnapshotUniqueId;
     _viewDefinitionId = viewDefinitionId;
@@ -73,6 +77,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     _allCalculationConfigurationNames = allCalculationConfigurationNames;
     _computationTargetsByCalcConfig = computationTargetsByConfigName;
     _terminalOutputsByCalcConfig = terminalOutputsByConfigName;
+    _name = name;
   }
 
   @Override
@@ -102,94 +107,6 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   @Override
   public DefaultViewCycleMetadata.Meta metaBean() {
     return DefaultViewCycleMetadata.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1217858108:  // viewCycleId
-        return getViewCycleId();
-      case -41253723:  // marketDataSnapshotId
-        return getMarketDataSnapshotId();
-      case -545262317:  // viewDefinitionId
-        return getViewDefinitionId();
-      case -2031293866:  // versionCorrection
-        return getVersionCorrection();
-      case 113591406:  // valuationTime
-        return getValuationTime();
-      case 197622906:  // allCalculationConfigurationNames
-        return getAllCalculationConfigurationNames();
-      case -1677286775:  // computationTargetsByCalcConfig
-        return getComputationTargetsByCalcConfig();
-      case -351004092:  // terminalOutputsByCalcConfig
-        return getTerminalOutputsByCalcConfig();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1217858108:  // viewCycleId
-        setViewCycleId((UniqueId) newValue);
-        return;
-      case -41253723:  // marketDataSnapshotId
-        setMarketDataSnapshotId((UniqueId) newValue);
-        return;
-      case -545262317:  // viewDefinitionId
-        setViewDefinitionId((UniqueId) newValue);
-        return;
-      case -2031293866:  // versionCorrection
-        setVersionCorrection((VersionCorrection) newValue);
-        return;
-      case 113591406:  // valuationTime
-        setValuationTime((Instant) newValue);
-        return;
-      case 197622906:  // allCalculationConfigurationNames
-        setAllCalculationConfigurationNames((Collection<String>) newValue);
-        return;
-      case -1677286775:  // computationTargetsByCalcConfig
-        setComputationTargetsByCalcConfig((Map<String, Collection<ComputationTargetSpecification>>) newValue);
-        return;
-      case -351004092:  // terminalOutputsByCalcConfig
-        setTerminalOutputsByCalcConfig((Map<String, Map<ValueSpecification, Set<ValueRequirement>>>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DefaultViewCycleMetadata other = (DefaultViewCycleMetadata) obj;
-      return JodaBeanUtils.equal(getViewCycleId(), other.getViewCycleId()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotId(), other.getMarketDataSnapshotId()) &&
-          JodaBeanUtils.equal(getViewDefinitionId(), other.getViewDefinitionId()) &&
-          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
-          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
-          JodaBeanUtils.equal(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames()) &&
-          JodaBeanUtils.equal(getComputationTargetsByCalcConfig(), other.getComputationTargetsByCalcConfig()) &&
-          JodaBeanUtils.equal(getTerminalOutputsByCalcConfig(), other.getTerminalOutputsByCalcConfig());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewCycleId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAllCalculationConfigurationNames());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetsByCalcConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTerminalOutputsByCalcConfig());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -394,6 +311,97 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the name.
+   * @return the value of the property
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name.
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DefaultViewCycleMetadata clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DefaultViewCycleMetadata other = (DefaultViewCycleMetadata) obj;
+      return JodaBeanUtils.equal(getViewCycleId(), other.getViewCycleId()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotId(), other.getMarketDataSnapshotId()) &&
+          JodaBeanUtils.equal(getViewDefinitionId(), other.getViewDefinitionId()) &&
+          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
+          JodaBeanUtils.equal(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames()) &&
+          JodaBeanUtils.equal(getComputationTargetsByCalcConfig(), other.getComputationTargetsByCalcConfig()) &&
+          JodaBeanUtils.equal(getTerminalOutputsByCalcConfig(), other.getTerminalOutputsByCalcConfig()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewCycleId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAllCalculationConfigurationNames());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetsByCalcConfig());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTerminalOutputsByCalcConfig());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("DefaultViewCycleMetadata{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("viewCycleId").append('=').append(JodaBeanUtils.toString(getViewCycleId())).append(',').append(' ');
+    buf.append("marketDataSnapshotId").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotId())).append(',').append(' ');
+    buf.append("viewDefinitionId").append('=').append(JodaBeanUtils.toString(getViewDefinitionId())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
+    buf.append("allCalculationConfigurationNames").append('=').append(JodaBeanUtils.toString(getAllCalculationConfigurationNames())).append(',').append(' ');
+    buf.append("computationTargetsByCalcConfig").append('=').append(JodaBeanUtils.toString(getComputationTargetsByCalcConfig())).append(',').append(' ');
+    buf.append("terminalOutputsByCalcConfig").append('=').append(JodaBeanUtils.toString(getTerminalOutputsByCalcConfig())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code DefaultViewCycleMetadata}.
    */
   public static class Meta extends DirectMetaBean {
@@ -446,6 +454,11 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     private final MetaProperty<Map<String, Map<ValueSpecification, Set<ValueRequirement>>>> _terminalOutputsByCalcConfig = DirectMetaProperty.ofReadWrite(
         this, "terminalOutputsByCalcConfig", DefaultViewCycleMetadata.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", DefaultViewCycleMetadata.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -457,7 +470,8 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
         "valuationTime",
         "allCalculationConfigurationNames",
         "computationTargetsByCalcConfig",
-        "terminalOutputsByCalcConfig");
+        "terminalOutputsByCalcConfig",
+        "name");
 
     /**
      * Restricted constructor.
@@ -484,6 +498,8 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
           return _computationTargetsByCalcConfig;
         case -351004092:  // terminalOutputsByCalcConfig
           return _terminalOutputsByCalcConfig;
+        case 3373707:  // name
+          return _name;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -566,6 +582,75 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
      */
     public final MetaProperty<Map<String, Map<ValueSpecification, Set<ValueRequirement>>>> terminalOutputsByCalcConfig() {
       return _terminalOutputsByCalcConfig;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1217858108:  // viewCycleId
+          return ((DefaultViewCycleMetadata) bean).getViewCycleId();
+        case -41253723:  // marketDataSnapshotId
+          return ((DefaultViewCycleMetadata) bean).getMarketDataSnapshotId();
+        case -545262317:  // viewDefinitionId
+          return ((DefaultViewCycleMetadata) bean).getViewDefinitionId();
+        case -2031293866:  // versionCorrection
+          return ((DefaultViewCycleMetadata) bean).getVersionCorrection();
+        case 113591406:  // valuationTime
+          return ((DefaultViewCycleMetadata) bean).getValuationTime();
+        case 197622906:  // allCalculationConfigurationNames
+          return ((DefaultViewCycleMetadata) bean).getAllCalculationConfigurationNames();
+        case -1677286775:  // computationTargetsByCalcConfig
+          return ((DefaultViewCycleMetadata) bean).getComputationTargetsByCalcConfig();
+        case -351004092:  // terminalOutputsByCalcConfig
+          return ((DefaultViewCycleMetadata) bean).getTerminalOutputsByCalcConfig();
+        case 3373707:  // name
+          return ((DefaultViewCycleMetadata) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1217858108:  // viewCycleId
+          ((DefaultViewCycleMetadata) bean).setViewCycleId((UniqueId) newValue);
+          return;
+        case -41253723:  // marketDataSnapshotId
+          ((DefaultViewCycleMetadata) bean).setMarketDataSnapshotId((UniqueId) newValue);
+          return;
+        case -545262317:  // viewDefinitionId
+          ((DefaultViewCycleMetadata) bean).setViewDefinitionId((UniqueId) newValue);
+          return;
+        case -2031293866:  // versionCorrection
+          ((DefaultViewCycleMetadata) bean).setVersionCorrection((VersionCorrection) newValue);
+          return;
+        case 113591406:  // valuationTime
+          ((DefaultViewCycleMetadata) bean).setValuationTime((Instant) newValue);
+          return;
+        case 197622906:  // allCalculationConfigurationNames
+          ((DefaultViewCycleMetadata) bean).setAllCalculationConfigurationNames((Collection<String>) newValue);
+          return;
+        case -1677286775:  // computationTargetsByCalcConfig
+          ((DefaultViewCycleMetadata) bean).setComputationTargetsByCalcConfig((Map<String, Collection<ComputationTargetSpecification>>) newValue);
+          return;
+        case -351004092:  // terminalOutputsByCalcConfig
+          ((DefaultViewCycleMetadata) bean).setTerminalOutputsByCalcConfig((Map<String, Map<ValueSpecification, Set<ValueRequirement>>>) newValue);
+          return;
+        case 3373707:  // name
+          ((DefaultViewCycleMetadata) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

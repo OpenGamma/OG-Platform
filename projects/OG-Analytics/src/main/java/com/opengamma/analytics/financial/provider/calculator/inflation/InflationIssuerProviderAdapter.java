@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -19,6 +20,7 @@ public class InflationIssuerProviderAdapter<RESULT_TYPE> extends InstrumentDeriv
   private final InstrumentDerivativeVisitor<InflationProviderInterface, RESULT_TYPE> _visitor;
 
   public InflationIssuerProviderAdapter(final InstrumentDerivativeVisitor<InflationProviderInterface, RESULT_TYPE> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     _visitor = visitor;
   }
 

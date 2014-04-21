@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.index">
+  <class name="BondIndexBean" table="sec_bondindex">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
+    </id>
+    <property name="securityId" type="long" column="security_id"/>
+    <property name="description" type="string" column="description"/>
+    <component name="indexFamilyId" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="indexfamily_scheme" type="string" />
+      <property name="identifier" column="indexfamily_identifier" type="string" />
+    </component>        
+    <many-to-one name="weightingType" column="indexweightingtype_id"
+                 class="com.opengamma.masterdb.security.hibernate.IndexWeightingTypeBean" not-null="true"/>
+  </class>
+
+  <query name="BondIndexBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      BondIndexBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="BondIndexBean.all">
+    from BondIndexBean
+  </query>
+</hibernate-mapping>

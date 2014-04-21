@@ -10,12 +10,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -28,15 +31,22 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -50,7 +60,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -59,6 +71,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -67,6 +80,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -158,6 +173,11 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
   }
 
   @Override
+  public List<ExternalId> visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return null;
+  }
+
+  @Override
   public List<ExternalId> visitCashSecurity(final CashSecurity security) {
     final ExternalId regionId = security.getRegionId();
     final String securityType = security.getSecurityType();
@@ -243,6 +263,11 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
   }
 
   @Override
+  public List<ExternalId> visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    return null; // ForwardRateAgreementSecurity does not hold a region
+  }
+
+  @Override
   public List<ExternalId> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
     return null;
   }
@@ -274,6 +299,13 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
     result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + receiveLeg.getRegionId().getValue()));
     return result;
+  }
+
+  @Override
+  public List<ExternalId> visitBillSecurity(final BillSecurity security) {
+    final String region = security.getRegionId().getValue();
+    final String securityType = security.getSecurityType();
+    return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + region));
   }
 
   @Override
@@ -467,4 +499,65 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     return result;
   }
 
+  @Override
+  public List<ExternalId> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return null;  // SwapLegs currently do not hold region
+  }
+
+  @Override
+  public List<ExternalId> visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    final String region = security.getRegionId().getValue();
+    final String securityType = security.getSecurityType();
+    return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + region));
+  }
+
+  @Override
+  public List<ExternalId> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitStandardCDSSecurity(StandardCDSSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitIndexCDSSecurity(IndexCDSSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
+    return null;
+  }
 }

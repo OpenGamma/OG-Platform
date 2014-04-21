@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.yield;
@@ -15,13 +15,12 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * A simple yield convention.
  */
 public class SimpleYieldConvention implements YieldConvention, Serializable {
-  // TODO: should be an enum?
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * 
+   *
    */
   public static final YieldConvention UK_STRIP_METHOD = new SimpleYieldConvention("UK STRIP METHOD");
   /**
@@ -33,11 +32,20 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention US_IL_REAL = new SimpleYieldConvention("US I/L real");
   /**
+   * The UK real yield convention. Used for inflation linked GILTS.
+   */
+  public static final YieldConvention INDEX_LINKED_FLOAT = new SimpleYieldConvention("index-linked float");
+  /**
+   * The UK real yield convention. Used for UK inflation linked corporate bond.
+   */
+  public static final YieldConvention UK_IL_BOND = new SimpleYieldConvention("uk i/l bond");
+
+  /**
    * The US street yield convention.
    */
   public static final YieldConvention US_STREET = new SimpleYieldConvention("US street");
   /**
-   * The US treasury equivalent yield convention. 
+   * The US treasury equivalent yield convention.
    */
   public static final YieldConvention US_TREASURY_EQUIVALANT = new SimpleYieldConvention("US Treasury equivalent");
   /**
@@ -52,7 +60,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * The true yield convention.
    */
   public static final YieldConvention TRUE = new SimpleYieldConvention("True");
-  /** 
+  /**
    * US bond (T-bill and treasuries) yield convention - US treasury for all periods but the last, in which case use money-market
    */
   public static final YieldConvention US_BOND = new SimpleYieldConvention("US Treasury"); //TODO better name
@@ -77,13 +85,13 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention JAPAN_SIMPLE = new SimpleYieldConvention("JAPAN:SIMPLE YIELD");
   /**
-   * Bank of Canada 
+   * Bank of Canada
    */
   public static final YieldConvention BANK_OF_CANADA = new SimpleYieldConvention("BANK OF CANADA YLD");
   /**
    * Canada Compound Method
    */
-  public static final YieldConvention CANADA_COMPND_METHOD = new SimpleYieldConvention("CANADA:COMPND METH");  
+  public static final YieldConvention CANADA_COMPND_METHOD = new SimpleYieldConvention("CANADA:COMPND METH");
   /**
    * Pay-in-kind
    */
@@ -124,7 +132,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Italy Treasury Bonds
    */
   public static final YieldConvention ITALY_TREASURY_BONDS = new SimpleYieldConvention("ITALY:TRSY BONDS");
-  /** 
+  /**
    * Spainish T-bills
    */
   public static final YieldConvention SPANISH_T_BILLS = new SimpleYieldConvention("SPANISH T-BILLS");
@@ -136,7 +144,15 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Italy Treasury Bill
    */
   public static final YieldConvention ITALY_TREASURY_BILL = new SimpleYieldConvention("ITALY:TRSY BILL");
-  
+  /**
+   * Australian Government bonds.
+   */
+  public static final YieldConvention AUSTRALIA_EX_DIVIDEND = new SimpleYieldConvention("AUSTRALIA:EX-DIV");
+  /**
+   * Mexican Government bonds.
+   */
+  public static final YieldConvention MEXICAN_BONOS = new SimpleYieldConvention("fix bonos");
+
   /**
    * The convention name.
    */
@@ -151,8 +167,18 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
     _name = name;
   }
 
+  /**
+   * @return name of the convention
+   * @deprecated use getName()
+   */
   @Override
+  @Deprecated
   public String getConventionName() {
+    return getName();
+  }
+
+  @Override
+  public String getName() {
     return _name;
   }
 
@@ -160,6 +186,37 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-  
-  //REVIEW emcleod 28-1-2011 Is the lack of hashCode() and equals() deliberate?
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_name == null) ? 0 : _name.toUpperCase().hashCode());
+    return result;
+  }
+
+  @Override
+  /**
+   * Note this is not case sensitive
+   */
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof SimpleYieldConvention)) {
+      return false;
+    }
+    SimpleYieldConvention other = (SimpleYieldConvention) obj;
+    if (_name == null) {
+      if (other._name != null) {
+        return false;
+      }
+    } else if (!_name.toUpperCase().equals(other._name.toUpperCase())) {
+      return false;
+    }
+    return true;
+  }
 }

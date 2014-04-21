@@ -8,9 +8,9 @@ package com.opengamma.util.log;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
 
-import com.opengamma.util.ArgumentChecker;
-
 import ch.qos.logback.classic.spi.ILoggingEvent;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Implementation of {@link LogEvent} which handles logs sent through the Logback logging framework.

@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.hullwhitediscounting;
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -39,13 +40,12 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of instruments using curves constructed using
- * the Hull-White one-factor discounting method.
+ * Calculates the present value of instruments using curves constructed using the Hull-White one-factor discounting method.
  */
 public class HullWhiteMonteCarloDiscountingPVFunction extends HullWhiteDiscountingFunction {
   /** The present value calculator */
-  private static final HullWhiteMonteCarloMethod CALCULATOR = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0,
-      new MersenneTwister(MersenneTwister64.DEFAULT_SEED)), 125000);
+  private static final HullWhiteMonteCarloMethod CALCULATOR = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister(MersenneTwister64.DEFAULT_SEED)),
+      125000);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PRESENT_VALUE}
@@ -69,15 +69,17 @@ public class HullWhiteMonteCarloDiscountingPVFunction extends HullWhiteDiscounti
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        return super.getResultProperties(compilationContext, target)
-            .with(CALCULATION_METHOD, "Monte Carlo");
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.with(CALCULATION_METHOD, "Monte Carlo");
+        }
+        return properties;
       }
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final HullWhiteOneFactorProviderInterface data = getMergedProviders(inputs, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();

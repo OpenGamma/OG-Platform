@@ -29,12 +29,16 @@ public class InterestRateFutureOptionBlackPositionVegaFunction extends InterestR
   /** The calculator to compute the vega value */
   private static final PresentValueBlackVegaCalculator CALCULATOR = PresentValueBlackVegaCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#POSITION_VEGA}
+   */
   public InterestRateFutureOptionBlackPositionVegaFunction() {
-    super(ValueRequirementNames.POSITION_VEGA);
+    super(ValueRequirementNames.POSITION_VEGA, true);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     final double vega = irFutureOption.accept(CALCULATOR, curveBundle);
     return Collections.singleton(new ComputedValue(spec, vega));
   }

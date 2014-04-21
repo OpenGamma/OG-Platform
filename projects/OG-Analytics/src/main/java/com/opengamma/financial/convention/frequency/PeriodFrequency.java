@@ -99,6 +99,10 @@ public final class PeriodFrequency implements Frequency, Serializable {
    * A frequency with a period of eighteen months
    */
   public static final PeriodFrequency EIGHTEEN_MONTHS = new PeriodFrequency(EIGHTEEN_MONTH_NAME, Period.ofMonths(18));
+  /**
+   * A frequency with a period of never
+   */
+  public static final PeriodFrequency NEVER = new PeriodFrequency(NEVER_NAME, Period.ZERO);
 
   /** A map containing all of the frequency */
   public static final Map<PeriodFrequency, PeriodFrequency> s_cache =
@@ -145,7 +149,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
   public static PeriodFrequency of(final String name) {
     String nameLower = name.toLowerCase(Locale.ENGLISH);
     for (PeriodFrequency freq : s_cache.keySet()) {
-      if (freq.getConventionName().toLowerCase(Locale.ENGLISH).equals(nameLower)) {
+      if (freq.getName().toLowerCase(Locale.ENGLISH).equals(nameLower)) {
         return freq;
       }
     }
@@ -215,11 +219,20 @@ public final class PeriodFrequency implements Frequency, Serializable {
   }
 
   // -------------------------------------------------------------------------
+  /**
+   * @deprecated use getName()
+   * @return the name of the convention
+   */
   @Override
+  @Deprecated
   public String getConventionName() {
-    return _name;
+    return getName();
   }
 
+  @Override
+  public String getName() {
+    return _name;
+  }
   /**
    * Gets the length of the period defining the convention.
    * 

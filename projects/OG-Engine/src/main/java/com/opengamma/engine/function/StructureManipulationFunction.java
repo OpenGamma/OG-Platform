@@ -5,26 +5,30 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * A function that takes in a structure (e.g. yield curve, volatility surface) and produces a
- * modified version of the original as output.
+ * A function that takes in a structure (e.g. yield curve, volatility surface) and produces a modified version of the original as output.
  * <p>
- * The manipulation to be performed is specified by an implementation of the
- * {@link StructureManipulator} interface. The particular instance to be used will be obtained
- * as a FunctionParameter via the executionContext passed in through the execute method.
+ * The manipulation to be performed is specified by an implementation of the {@link StructureManipulator} interface. The particular instance to be used will be obtained as a FunctionParameter via the
+ * executionContext passed in through the execute method.
  */
 public final class StructureManipulationFunction extends IntrinsicFunction {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(StructureManipulationFunction.class);
 
   /**
    * Shared instance.
@@ -42,20 +46,17 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
   public static final String EXPECTED_PARAMETER_NAME = "STRUCTURE_MANIPULATOR";
 
   /**
-   * Private constructor to prevent external instantiation. The {@link #INSTANCE} should be
-   * used instead.
+   * Private constructor to prevent external instantiation. The {@link #INSTANCE} should be used instead.
    */
   private StructureManipulationFunction() {
     super(UNIQUE_ID);
   }
 
   /**
-   * Execute the function, performing a manipulation of the structured data which will come in via
-   * the inputs parameter. The manipulation to actually undertake will be defined by a
-   * {@link StructureManipulator} instance passed in through the executionContext. If no
-   * manipulator is available the inputs are passed through unaffected (apart from a change to the
-   * value specification to ensure they are still valid).
-   *
+   * Execute the function, performing a manipulation of the structured data which will come in via the inputs parameter. The manipulation to actually undertake will be defined by a
+   * {@link StructureManipulator} instance passed in through the executionContext. If no manipulator is available the inputs are passed through unaffected (apart from a change to the value
+   * specification to ensure they are still valid).
+   * 
    * @param executionContext execution context for the function, via which the parameters can be obtained
    * @param inputs the inputs to the function
    * @param target the target
@@ -64,68 +65,34 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
    */
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-
-    FunctionParameters parameters = executionContext.getFunctionParameters();
+    final StructureManipulator<Object> structureManipulator;
+    final FunctionParameters parameters = executionContext.getFunctionParameters();
     if (parameters instanceof SimpleFunctionParameters) {
-
-      SimpleFunctionParameters functionParameters = (SimpleFunctionParameters) parameters;
-      StructureManipulator<Object> structureManipulator = functionParameters.getValue(EXPECTED_PARAMETER_NAME);
-
-      ImmutableSet.Builder<ComputedValue> builder = ImmutableSet.builder();
-
-      // Only one requirement is actually expected
-      for (ValueRequirement requirement : desiredValues) {
-
-        ValueProperties constraints = requirement.getConstraints().withoutAny("MANIPULATION_NODE");
-        ValueRequirement stripped = new ValueRequirement(requirement.getValueName(), requirement.getTargetReference(), constraints);
-
-        // As the inputs and outputs should have matching requirements and specs, we can get the
-        // appropriate input using the required output
-        Object structure = inputs.getValue(stripped);
-
-        Object result;
-        if (canHandle(structureManipulator, structure)) {
-          result = structureManipulator.execute(structure);
-        } else {
-          result = structure;
-        }
-        builder.add(createComputedValue(target, requirement, result));
-      }
-
-      return builder.build();
+      final SimpleFunctionParameters functionParameters = (SimpleFunctionParameters) parameters;
+      structureManipulator = functionParameters.getValue(EXPECTED_PARAMETER_NAME);
+    } else {
+      structureManipulator = null;
     }
-
-    // We didn't get the parameters we require so can't do any manipulation. However, we can just pass through
-    // the original Yield Curve, modifying only the value specification in line with the value requirements
-    return convertOriginalInputs(inputs, target, desiredValues);
-  }
-
-  private boolean canHandle(StructureManipulator<?> structureManipulator, Object structure) {
-    return structure != null && structureManipulator.getExpectedType().isAssignableFrom(structure.getClass());
-  }
-
-  private Set<ComputedValue> convertOriginalInputs(FunctionInputs inputs,
-                                                   ComputationTarget target,
-                                                   Set<ValueRequirement> desiredValues) {
-
-    Set<ComputedValue> results = new HashSet<>();
-    for (ValueRequirement desiredValue : desiredValues) {
-
-      ComputedValue computedValue = inputs.getComputedValue(desiredValue.getValueName());
-      if (computedValue != null) {
-        results.add(createComputedValue(target, desiredValue, computedValue.getValue()));
+    final Collection<ComputedValue> inputValues = inputs.getAllValues();
+    // Only one requirement is expected, but cope with multiple ones just in case
+    final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(inputValues.size());
+    for (ComputedValue inputValue : inputValues) {
+      final Object inputValueObject = inputValue.getValue();
+      final Object outputValueObject;
+      if ((inputValueObject != null) && (structureManipulator != null) && structureManipulator.getExpectedType().isAssignableFrom(inputValueObject.getClass())) {
+        outputValueObject = structureManipulator.execute(inputValueObject, inputValue.getSpecification(), executionContext);
+        s_logger.debug("changed value for target {} from {} to {}", target, inputValueObject, outputValueObject);
+      } else {
+        outputValueObject = inputValueObject;
       }
+      final ValueSpecification inputValueSpec = inputValue.getSpecification();
+      final ValueProperties inputProperties = inputValueSpec.getProperties();
+      final String inputFunction = inputProperties.getStrictValue(ValuePropertyNames.FUNCTION);
+      final ValueProperties outputProperties = inputProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, inputFunction + UNIQUE_ID).get();
+      final ValueSpecification outputValueSpec = new ValueSpecification(inputValueSpec.getValueName(), inputValueSpec.getTargetSpecification(), outputProperties);
+      result.add(new ComputedValue(outputValueSpec, outputValueObject));
     }
-
-    return results;
-  }
-
-  private ComputedValue createComputedValue(ComputationTarget target, ValueRequirement requirement, Object value) {
-    return new ComputedValue(createValueSpecification(target, requirement), value);
-  }
-
-  private ValueSpecification createValueSpecification(ComputationTarget target, ValueRequirement requirement) {
-    return new ValueSpecification(requirement.getValueName(), target.toSpecification(), requirement.getConstraints());
+    return result;
   }
 
   @Override

@@ -11,8 +11,8 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
@@ -34,6 +34,7 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
 
   /** The adjuster moves forward to the next IMM month, to the specified day in month*/
   private final NextExpiryAdjuster _nextExpiryAdjuster;
+
   /** _nextExpiryAdjuster.getDayOfMonthAdjuster() moves date to day within month. eg 3rd Wednesday */
 
   /**
@@ -41,7 +42,7 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
    * @param nextExpiryAdjuster Examples: NextExpiryAdjuster, NextExpiryAdjuster
    */
   private FutureOptionExpiries(final NextExpiryAdjuster nextExpiryAdjuster) {
-    ArgumentChecker.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
+    ArgumentChecker.notNull(nextExpiryAdjuster, "nextExpiryAdjuster");
     _nextExpiryAdjuster = nextExpiryAdjuster;
   }
 
@@ -52,7 +53,7 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
    * @return the FutureOptionExpiries class, never null
    */
   public static FutureOptionExpiries of(final NextExpiryAdjuster nextExpiryAdjuster) {
-    ArgumentChecker.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
+    ArgumentChecker.notNull(nextExpiryAdjuster, "nextExpiryAdjuster");
     return new FutureOptionExpiries(nextExpiryAdjuster);
   }
 
@@ -232,7 +233,7 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
   }
 
   @Override
-  public LocalDate getExpiryDate(int n, LocalDate today, Calendar holidayCalendar) {
+  public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
@@ -245,7 +246,7 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
   }
 
   @Override
-  public LocalDate getExpiryMonth(int n, LocalDate today) {
+  public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     return getMonthlyExpiry(n, today);
   }
 
@@ -253,7 +254,7 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
   public String getName() {
     return "FutureOptionExpiries with " + _nextExpiryAdjuster.toString();
   }
-  
+
   /**
    * Produced n'th expiry date after today of monthly or quarterly tenor.<p>
    * Assumes a previous business day convention
@@ -263,7 +264,7 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
    * @param holidayCalendar Calendar
    * @return n'th expiry date
    */
-  public LocalDate getExpiryDate(int n, LocalDate today, Tenor tenor, Calendar holidayCalendar) {
+  public LocalDate getExpiryDate(final int n, final LocalDate today, final Tenor tenor, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(tenor, "tenor");
@@ -282,5 +283,3 @@ public final class FutureOptionExpiries implements ExchangeTradedInstrumentExpir
     return expiry;
   }
 }
-
-

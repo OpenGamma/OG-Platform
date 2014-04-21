@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing an Ibor-like coupon.
  */
-public class CouponIborSpread extends CouponFloating {
+public class CouponIborSpread extends CouponFloating implements DepositIndexCoupon<IborIndex> {
 
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.
@@ -117,11 +117,11 @@ public class CouponIborSpread extends CouponFloating {
   public CouponIborSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
       final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread) {
     super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
-    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start {} < fixing time {}", fixingPeriodStartTime, fixingTime);
     _fixingPeriodStartTime = fixingPeriodStartTime;
-    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end {} < fixing period start {}", fixingPeriodEndTime, fixingPeriodStartTime);
     _fixingPeriodEndTime = fixingPeriodEndTime;
-    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "fixing year fraction {} < 0", fixingYearFraction);
     _fixingAccrualFactor = fixingYearFraction;
     _spread = spread;
     _spreadAmount = _spread * getPaymentYearFraction() * getNotional();
@@ -203,6 +203,7 @@ public class CouponIborSpread extends CouponFloating {
    * Gets the Ibor-like index.
    * @return The index.
    */
+  @Override
   public IborIndex getIndex() {
     return _index;
   }
@@ -228,8 +229,20 @@ public class CouponIborSpread extends CouponFloating {
 
   @Override
   public String toString() {
-    return super.toString() + ", fixing : [" + _fixingPeriodStartTime + " - " + _fixingPeriodEndTime + " - " + _fixingAccrualFactor + "], spread = " + _spread + ", forward curve = "
-        + _forwardCurveName;
+    final StringBuilder sb = new StringBuilder(super.toString());
+    sb.append(", fixing : [");
+    sb.append(_fixingPeriodStartTime);
+    sb.append(" - ");
+    sb.append(_fixingPeriodEndTime);
+    sb.append(" - ");
+    sb.append(_fixingAccrualFactor);
+    sb.append("], spread = ");
+    sb.append(_spread);
+    if (_forwardCurveName != null) {
+      sb.append(", forward curve = ");
+      sb.append(_forwardCurveName);
+    }
+    return sb.toString();
   }
 
   @Override

@@ -119,7 +119,7 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
   }
 
   /**
-   * Gets the price.
+   * Returns the (dirty) price of the bond.
    * @return The price.
    */
   public double getPrice() {

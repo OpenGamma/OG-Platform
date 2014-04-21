@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -114,75 +115,6 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
   @Override
   public CapFloorCMSSpreadSecurityBean.Meta metaBean() {
     return CapFloorCMSSpreadSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -70023844:  // frequency
-        return getFrequency();
-      case 98258:  // cap
-        return isCap();
-      case 106443605:  // payer
-        return isPayer();
-      case 18113605:  // longIdentifier
-        return getLongIdentifier();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 1585636160:  // notional
-        return getNotional();
-      case -2054053307:  // shortIdentifier
-        return getShortIdentifier();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -891985998:  // strike
-        return getStrike();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCountBean) newValue);
-        return;
-      case -70023844:  // frequency
-        setFrequency((FrequencyBean) newValue);
-        return;
-      case 98258:  // cap
-        setCap((Boolean) newValue);
-        return;
-      case 106443605:  // payer
-        setPayer((Boolean) newValue);
-        return;
-      case 18113605:  // longIdentifier
-        setLongIdentifier((ExternalIdBean) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTimeBean) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -2054053307:  // shortIdentifier
-        setShortIdentifier((ExternalIdBean) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTimeBean) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -461,6 +393,41 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CapFloorCMSSpreadSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("CapFloorCMSSpreadSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(getFrequency())).append(',').append(' ');
+    buf.append("cap").append('=').append(JodaBeanUtils.toString(isCap())).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(isPayer())).append(',').append(' ');
+    buf.append("longIdentifier").append('=').append(JodaBeanUtils.toString(getLongIdentifier())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("shortIdentifier").append('=').append(JodaBeanUtils.toString(getShortIdentifier())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CapFloorCMSSpreadSecurityBean}.
    */
@@ -679,6 +646,76 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Double> strike() {
       return _strike;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((CapFloorCMSSpreadSecurityBean) bean).getCurrency();
+        case 1905311443:  // dayCount
+          return ((CapFloorCMSSpreadSecurityBean) bean).getDayCount();
+        case -70023844:  // frequency
+          return ((CapFloorCMSSpreadSecurityBean) bean).getFrequency();
+        case 98258:  // cap
+          return ((CapFloorCMSSpreadSecurityBean) bean).isCap();
+        case 106443605:  // payer
+          return ((CapFloorCMSSpreadSecurityBean) bean).isPayer();
+        case 18113605:  // longIdentifier
+          return ((CapFloorCMSSpreadSecurityBean) bean).getLongIdentifier();
+        case -414641441:  // maturityDate
+          return ((CapFloorCMSSpreadSecurityBean) bean).getMaturityDate();
+        case 1585636160:  // notional
+          return ((CapFloorCMSSpreadSecurityBean) bean).getNotional();
+        case -2054053307:  // shortIdentifier
+          return ((CapFloorCMSSpreadSecurityBean) bean).getShortIdentifier();
+        case -2129778896:  // startDate
+          return ((CapFloorCMSSpreadSecurityBean) bean).getStartDate();
+        case -891985998:  // strike
+          return ((CapFloorCMSSpreadSecurityBean) bean).getStrike();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((CapFloorCMSSpreadSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((CapFloorCMSSpreadSecurityBean) bean).setDayCount((DayCountBean) newValue);
+          return;
+        case -70023844:  // frequency
+          ((CapFloorCMSSpreadSecurityBean) bean).setFrequency((FrequencyBean) newValue);
+          return;
+        case 98258:  // cap
+          ((CapFloorCMSSpreadSecurityBean) bean).setCap((Boolean) newValue);
+          return;
+        case 106443605:  // payer
+          ((CapFloorCMSSpreadSecurityBean) bean).setPayer((Boolean) newValue);
+          return;
+        case 18113605:  // longIdentifier
+          ((CapFloorCMSSpreadSecurityBean) bean).setLongIdentifier((ExternalIdBean) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((CapFloorCMSSpreadSecurityBean) bean).setMaturityDate((ZonedDateTimeBean) newValue);
+          return;
+        case 1585636160:  // notional
+          ((CapFloorCMSSpreadSecurityBean) bean).setNotional((Double) newValue);
+          return;
+        case -2054053307:  // shortIdentifier
+          ((CapFloorCMSSpreadSecurityBean) bean).setShortIdentifier((ExternalIdBean) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((CapFloorCMSSpreadSecurityBean) bean).setStartDate((ZonedDateTimeBean) newValue);
+          return;
+        case -891985998:  // strike
+          ((CapFloorCMSSpreadSecurityBean) bean).setStrike((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

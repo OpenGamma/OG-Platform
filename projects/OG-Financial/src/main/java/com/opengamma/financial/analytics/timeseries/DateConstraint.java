@@ -14,6 +14,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utility class for building date constraints for the time series fetching functions.
@@ -443,7 +444,7 @@ public abstract class DateConstraint {
 
   private static Pair<String, String> parseBrackets(final String str) {
     if (str.length() == 0) {
-      return Pair.of(null, null);
+      return Pairs.ofNulls();
     } else if (str.charAt(0) == '(') {
       int index = 1;
       int count = 1;
@@ -459,12 +460,12 @@ public abstract class DateConstraint {
       } while (count > 0);
       final String bracketExpr = str.substring(1, index - 1);
       if (index == str.length()) {
-        return Pair.of(bracketExpr, null);
+        return Pairs.of(bracketExpr, (String) null);
       } else {
-        return Pair.of(bracketExpr, str.substring(index));
+        return Pairs.of(bracketExpr, str.substring(index));
       }
     } else {
-      return Pair.of(null, str);
+      return Pairs.of((String) null, str);
     }
   }
 

@@ -111,11 +111,11 @@ import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockTy
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
@@ -132,19 +132,19 @@ import com.opengamma.util.time.DateUtils;
 @SuppressWarnings("unchecked")
 public class TestInstrumentDefinitionsAndDerivatives {
   public static final Currency CUR = Currency.USD;
-  public static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  public static final BusinessDayConvention BD = BusinessDayConventions.FOLLOWING;
   public static final Calendar C = new MondayToFridayCalendar("F");
   public static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   public static final Period TENOR = Period.ofYears(2);
   public static final Period FIXED_PERIOD = Period.ofMonths(6);
-  public static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  public static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   public static final boolean IS_EOM = true;
   public static final double NOTIONAL = 100000000; //100m
   public static final double FIXED_RATE = 0.05;
   public static final boolean IS_PAYER = true;
   public static final Period IBOR_PERIOD_1 = Period.ofMonths(3);
   public static final int SPOT_LAG = 2;
-  public static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  public static final DayCount IBOR_DAY_COUNT = DayCounts.ACT_360;
   public static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, IBOR_DAY_COUNT, BD, IS_EOM, "Ibor1");
   public static final IndexON INDEX_ON = new IndexON("A", CUR, FIXED_DAY_COUNT, 0);
   public static final IndexSwap CMS_INDEX = new IndexSwap(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1, C);
@@ -185,7 +185,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
 
   public static final DepositCounterpartDefinition DEPOSIT_COUNTERPART = new DepositCounterpartDefinition(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), NOTIONAL, FIXED_RATE, FIXED_RATE, "a");
   public static final DepositIborDefinition DEPOSIT_IBOR = DepositIborDefinition.fromStart(SETTLE_DATE, NOTIONAL, FIXED_RATE, IBOR_INDEX_1, C);
-  public static final DepositZeroDefinition DEPOSIT_ZERO = DepositZeroDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), FIXED_DAY_COUNT, new ContinuousInterestRate(0.03), C);
+  public static final DepositZeroDefinition DEPOSIT_ZERO = DepositZeroDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), FIXED_DAY_COUNT, new ContinuousInterestRate(0.03), C, FIXED_DAY_COUNT);
 
   public static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS }, C);
   public static final AnnuityCouponFixedDefinition ANNUITY_FIXED = AnnuityCouponFixedDefinition.from(CUR, SETTLE_DATE, TENOR, FIXED_PERIOD, C, FIXED_DAY_COUNT, BD, IS_EOM, NOTIONAL, FIXED_RATE,
@@ -254,11 +254,11 @@ public class TestInstrumentDefinitionsAndDerivatives {
 
   public static final SwaptionCashFixedIborDefinition SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIborDefinition();
   public static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIborDefinition();
-  public static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_PHYS_SPREAD = SwaptionPhysicalFixedIborSpreadDefinition.from(SETTLE_DATE, SWAP_FIXED_IBOR_SPREAD, IS_EOM);
+  public static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_PHYS_SPREAD = SwaptionPhysicalFixedIborSpreadDefinition.from(SETTLE_DATE, SWAP_FIXED_IBOR_SPREAD, true, IS_EOM);
   public static final SwaptionBermudaFixedIborDefinition SWAPTION_BERMUDA = SwaptionBermudaFixedIborDefinition.from(SWAP_FIXED_IBOR, false, new ZonedDateTime[] {SETTLE_DATE.minusMonths(6),
     SETTLE_DATE.minusMonths(5), SETTLE_DATE.minusMonths(4), SETTLE_DATE.minusMonths(3) });
 
-  public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true, C);
+  public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true);
   public static final CapFloorCMSDefinition CAP_FLOOR_CMS = CapFloorCMSDefinition.from(COUPON_CMS, FIXED_RATE, true);
   public static final CapFloorCMSSpreadDefinition CAP_FLOOR_CMS_SPREAD = CapFloorCMSSpreadDefinition.from(SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.1, NOTIONAL, CMS_INDEX,
       CMS_INDEX, FIXED_RATE, false, C, C);

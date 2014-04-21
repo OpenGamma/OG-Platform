@@ -11,6 +11,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -154,94 +155,6 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
   @Override
   public UserFinancialConfigSourceComponentFactory.Meta metaBean() {
     return UserFinancialConfigSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-      case 1705602398:  // underlyingClassifier
-        return getUnderlyingClassifier();
-      case -1673062335:  // underlyingConfigMaster
-        return getUnderlyingConfigMaster();
-      case 473030732:  // userClassifier
-        return getUserClassifier();
-      case -763459665:  // userConfigMaster
-        return getUserConfigMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-      case 1705602398:  // underlyingClassifier
-        setUnderlyingClassifier((String) newValue);
-        return;
-      case -1673062335:  // underlyingConfigMaster
-        setUnderlyingConfigMaster((ConfigMaster) newValue);
-        return;
-      case 473030732:  // userClassifier
-        setUserClassifier((String) newValue);
-        return;
-      case -763459665:  // userConfigMaster
-        setUserConfigMaster((ConfigMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_underlyingConfigMaster, "underlyingConfigMaster");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      UserFinancialConfigSourceComponentFactory other = (UserFinancialConfigSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getUnderlyingClassifier(), other.getUnderlyingClassifier()) &&
-          JodaBeanUtils.equal(getUnderlyingConfigMaster(), other.getUnderlyingConfigMaster()) &&
-          JodaBeanUtils.equal(getUserClassifier(), other.getUserClassifier()) &&
-          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -422,6 +335,69 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public UserFinancialConfigSourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      UserFinancialConfigSourceComponentFactory other = (UserFinancialConfigSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getUnderlyingClassifier(), other.getUnderlyingClassifier()) &&
+          JodaBeanUtils.equal(getUnderlyingConfigMaster(), other.getUnderlyingConfigMaster()) &&
+          JodaBeanUtils.equal(getUserClassifier(), other.getUserClassifier()) &&
+          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("UserFinancialConfigSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("underlyingClassifier").append('=').append(JodaBeanUtils.toString(getUnderlyingClassifier())).append(',').append(' ');
+    buf.append("underlyingConfigMaster").append('=').append(JodaBeanUtils.toString(getUnderlyingConfigMaster())).append(',').append(' ');
+    buf.append("userClassifier").append('=').append(JodaBeanUtils.toString(getUserClassifier())).append(',').append(' ');
+    buf.append("userConfigMaster").append('=').append(JodaBeanUtils.toString(getUserConfigMaster())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code UserFinancialConfigSourceComponentFactory}.
    */
@@ -576,6 +552,63 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
      */
     public final MetaProperty<ConfigMaster> userConfigMaster() {
       return _userConfigMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((UserFinancialConfigSourceComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((UserFinancialConfigSourceComponentFactory) bean).isPublishRest();
+        case -1452875317:  // cacheManager
+          return ((UserFinancialConfigSourceComponentFactory) bean).getCacheManager();
+        case 1705602398:  // underlyingClassifier
+          return ((UserFinancialConfigSourceComponentFactory) bean).getUnderlyingClassifier();
+        case -1673062335:  // underlyingConfigMaster
+          return ((UserFinancialConfigSourceComponentFactory) bean).getUnderlyingConfigMaster();
+        case 473030732:  // userClassifier
+          return ((UserFinancialConfigSourceComponentFactory) bean).getUserClassifier();
+        case -763459665:  // userConfigMaster
+          return ((UserFinancialConfigSourceComponentFactory) bean).getUserConfigMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((UserFinancialConfigSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((UserFinancialConfigSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((UserFinancialConfigSourceComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case 1705602398:  // underlyingClassifier
+          ((UserFinancialConfigSourceComponentFactory) bean).setUnderlyingClassifier((String) newValue);
+          return;
+        case -1673062335:  // underlyingConfigMaster
+          ((UserFinancialConfigSourceComponentFactory) bean).setUnderlyingConfigMaster((ConfigMaster) newValue);
+          return;
+        case 473030732:  // userClassifier
+          ((UserFinancialConfigSourceComponentFactory) bean).setUserClassifier((String) newValue);
+          return;
+        case -763459665:  // userConfigMaster
+          ((UserFinancialConfigSourceComponentFactory) bean).setUserConfigMaster((ConfigMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((UserFinancialConfigSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((UserFinancialConfigSourceComponentFactory) bean)._underlyingConfigMaster, "underlyingConfigMaster");
+      super.validate(bean);
     }
 
   }

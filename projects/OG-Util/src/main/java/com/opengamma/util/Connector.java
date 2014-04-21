@@ -31,7 +31,7 @@ public interface Connector extends Closeable {
    * When this method is called on either type, it should return {@code BarConnector}, as that
    * is the type under which the connector should be managed.
    * 
-   * @return a name usable for display, not null
+   * @return the connector type, not null
    */
   Class<? extends Connector> getType();
 

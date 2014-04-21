@@ -101,7 +101,7 @@ public final class ZSpreadCalculator {
       final List<DoublesPair> unadjusted = entry.getValue();
       final ArrayList<DoublesPair> adjusted = new ArrayList<>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {
-        final DoublesPair newPair = new DoublesPair(pair.first, pair.second * Math.exp(-zSpread * pair.first));
+        final DoublesPair newPair = DoublesPair.of(pair.first, pair.second * Math.exp(-zSpread * pair.first));
         adjusted.add(newPair);
       }
       result.put(entry.getKey(), adjusted);
@@ -122,7 +122,7 @@ public final class ZSpreadCalculator {
       final List<DoublesPair> unadjusted = entry.getValue();
       final ArrayList<DoublesPair> adjusted = new ArrayList<>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {
-        final DoublesPair newPair = new DoublesPair(pair.first, -pair.second * Math.exp(-zSpread * pair.first) / dPricedZ);
+        final DoublesPair newPair = DoublesPair.of(pair.first, -pair.second * Math.exp(-zSpread * pair.first) / dPricedZ);
         adjusted.add(newPair);
       }
       result.put(entry.getKey(), adjusted);

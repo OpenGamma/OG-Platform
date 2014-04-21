@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Central point for function statistics.
@@ -168,7 +169,7 @@ public final class FunctionCosts implements FunctionInvocationStatisticsGatherer
     if (newStats != null) {
       return newStats; // another thread created the statistics
     }
-    _persistedItems.add(Pair.of(configurationName, stats));
+    _persistedItems.add(Pairs.of(configurationName, stats));
     return stats;
   }
 

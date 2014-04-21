@@ -8,10 +8,12 @@ package com.opengamma.analytics.math.integration;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class Integrator1DTest {
   private static final Integrator1D<Double, Double> INTEGRATOR = new Integrator1D<Double, Double>() {
 

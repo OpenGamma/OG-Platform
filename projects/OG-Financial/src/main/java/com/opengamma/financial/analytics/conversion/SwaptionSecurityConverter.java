@@ -16,12 +16,13 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCo
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedCompoundedONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -29,44 +30,73 @@ import com.opengamma.util.money.Currency;
  * Converts swaptions from {@link SwaptionSecurity} to the {@link InstrumentDefinition}s.
  */
 public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
-  private final SecuritySource _securitySource;
+
   private final SwapSecurityConverter _swapConverter;
+  private final InterestRateSwapSecurityConverter _irsSwapConverter;
 
   /**
-   * @param securitySource The security source, not null
-   * @param swapConverter The underlying swap converter, not null
+   * @param swapConverter the underlying swap converter (for old-style swaps), not null
+   * @param irsConverter the underlying swap converter (for new-style IRSs), not null
    */
-  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverter swapConverter) {
-    ArgumentChecker.notNull(securitySource, "security source");
-    ArgumentChecker.notNull(swapConverter, "swap converter");
-    _securitySource = securitySource;
-    _swapConverter = swapConverter;
+  public SwaptionSecurityConverter(final SwapSecurityConverter swapConverter,
+                                   final InterestRateSwapSecurityConverter irsConverter) {
+
+    _swapConverter = ArgumentChecker.notNull(swapConverter, "swapConverter");
+    _irsSwapConverter = ArgumentChecker.notNull(irsConverter, "irsConverter");
   }
 
   @Override
   public InstrumentDefinition<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
+
     ArgumentChecker.notNull(swaptionSecurity, "swaption security");
-    final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingId();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
-    final InstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
-    final SwapDefinition swapDefinition = (SwapDefinition) underlyingSwap;
+
+    final FinancialSecurity underlyingSecurity = swaptionSecurity.getUnderlying();
+
+    final FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> converter;
+    final boolean isCall;
+
+    if (underlyingSecurity instanceof InterestRateSwapSecurity) {
+
+      final InterestRateSwapSecurity swapSecurity = (InterestRateSwapSecurity) underlyingSecurity;
+      isCall = swapSecurity.getPayLeg() instanceof FixedInterestRateSwapLeg;
+      converter = _irsSwapConverter;
+    } else {
+
+      final SwapSecurity swapSecurity = (SwapSecurity) underlyingSecurity;
+      isCall = swapSecurity.getPayLeg() instanceof FixedInterestRateLeg;
+      converter = _swapConverter;
+    }
+
+    final SwapDefinition swapDefinition = (SwapDefinition) underlyingSecurity.accept(converter);
     final boolean isCashSettled = swaptionSecurity.isCashSettled();
     final boolean isLong = swaptionSecurity.isLong();
+
     if (swaptionSecurity.getCurrency().equals(Currency.BRL)) {
-      if (!(swapDefinition instanceof SwapFixedCompoundedONCompoundedDefinition)) {
-        throw new OpenGammaRuntimeException("Underlying BRL swap must be fixed compounded / overnight compounded");
+
+      if (swapDefinition instanceof SwapFixedCompoundedONCompoundedDefinition) {
+
+        final SwapFixedCompoundedONCompoundedDefinition onSwapDefinition =
+            (SwapFixedCompoundedONCompoundedDefinition) swapDefinition;
+        return isCashSettled ?
+            SwaptionCashFixedCompoundedONCompoundingDefinition.from(expiry, onSwapDefinition, isCall, isLong) :
+            SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(expiry, onSwapDefinition, isCall, isLong);
+
+      } else {
+        throw new OpenGammaRuntimeException("Underlying BRL swap must be fixed compounded / overnight compounded - received: " +
+                                                swapDefinition.getClass());
       }
-      return isCashSettled ? SwaptionCashFixedCompoundedONCompoundingDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong) :
-        SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong);
     }
-    if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
-      throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap");
+
+    if (swapDefinition instanceof SwapFixedIborDefinition) {
+
+      final SwapFixedIborDefinition fixedIbor = (SwapFixedIborDefinition) swapDefinition;
+      return isCashSettled ?
+          SwaptionCashFixedIborDefinition.from(expiry, fixedIbor, isCall, isLong) :
+          SwaptionPhysicalFixedIborDefinition.from(expiry, fixedIbor, isCall, isLong);
+    } else {
+      throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap - received: " +
+                                              swapDefinition.getClass());
     }
-    if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
-      throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap");
-    }
-    final SwapFixedIborDefinition fixedIbor = (SwapFixedIborDefinition) swapDefinition;
-    return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedIbor, isLong)
-        : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedIbor, isLong);
   }
 }

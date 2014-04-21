@@ -7,6 +7,7 @@ package com.opengamma.bbg;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -120,80 +121,6 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   @Override
   public BloombergConnectorFactoryBean.Meta metaBean() {
     return BloombergConnectorFactoryBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        return getName();
-      case 3208616:  // host
-        return getHost();
-      case 3446913:  // port
-        return getPort();
-      case 522757928:  // sessionOptions
-        return getSessionOptions();
-      case -1225958248:  // referenceDataStatistics
-        return getReferenceDataStatistics();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 3208616:  // host
-        setHost((String) newValue);
-        return;
-      case 3446913:  // port
-        setPort((Integer) newValue);
-        return;
-      case 522757928:  // sessionOptions
-        setSessionOptions((SessionOptions) newValue);
-        return;
-      case -1225958248:  // referenceDataStatistics
-        setReferenceDataStatistics((BloombergReferenceDataStatistics) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_referenceDataStatistics, "referenceDataStatistics");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergConnectorFactoryBean other = (BloombergConnectorFactoryBean) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getHost(), other.getHost()) &&
-          JodaBeanUtils.equal(getPort(), other.getPort()) &&
-          JodaBeanUtils.equal(getSessionOptions(), other.getSessionOptions()) &&
-          JodaBeanUtils.equal(getReferenceDataStatistics(), other.getReferenceDataStatistics()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSessionOptions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataStatistics());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -333,6 +260,63 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public BloombergConnectorFactoryBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BloombergConnectorFactoryBean other = (BloombergConnectorFactoryBean) obj;
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getHost(), other.getHost()) &&
+          JodaBeanUtils.equal(getPort(), other.getPort()) &&
+          JodaBeanUtils.equal(getSessionOptions(), other.getSessionOptions()) &&
+          JodaBeanUtils.equal(getReferenceDataStatistics(), other.getReferenceDataStatistics()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHost());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSessionOptions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataStatistics());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("BloombergConnectorFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("host").append('=').append(JodaBeanUtils.toString(getHost())).append(',').append(' ');
+    buf.append("port").append('=').append(JodaBeanUtils.toString(getPort())).append(',').append(' ');
+    buf.append("sessionOptions").append('=').append(JodaBeanUtils.toString(getSessionOptions())).append(',').append(' ');
+    buf.append("referenceDataStatistics").append('=').append(JodaBeanUtils.toString(getReferenceDataStatistics())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code BloombergConnectorFactoryBean}.
    */
@@ -455,6 +439,53 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
      */
     public final MetaProperty<BloombergReferenceDataStatistics> referenceDataStatistics() {
       return _referenceDataStatistics;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return ((BloombergConnectorFactoryBean) bean).getName();
+        case 3208616:  // host
+          return ((BloombergConnectorFactoryBean) bean).getHost();
+        case 3446913:  // port
+          return ((BloombergConnectorFactoryBean) bean).getPort();
+        case 522757928:  // sessionOptions
+          return ((BloombergConnectorFactoryBean) bean).getSessionOptions();
+        case -1225958248:  // referenceDataStatistics
+          return ((BloombergConnectorFactoryBean) bean).getReferenceDataStatistics();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          ((BloombergConnectorFactoryBean) bean).setName((String) newValue);
+          return;
+        case 3208616:  // host
+          ((BloombergConnectorFactoryBean) bean).setHost((String) newValue);
+          return;
+        case 3446913:  // port
+          ((BloombergConnectorFactoryBean) bean).setPort((Integer) newValue);
+          return;
+        case 522757928:  // sessionOptions
+          ((BloombergConnectorFactoryBean) bean).setSessionOptions((SessionOptions) newValue);
+          return;
+        case -1225958248:  // referenceDataStatistics
+          ((BloombergConnectorFactoryBean) bean).setReferenceDataStatistics((BloombergReferenceDataStatistics) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergConnectorFactoryBean) bean)._name, "name");
+      JodaBeanUtils.notNull(((BloombergConnectorFactoryBean) bean)._referenceDataStatistics, "referenceDataStatistics");
+      super.validate(bean);
     }
 
   }

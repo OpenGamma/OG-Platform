@@ -25,6 +25,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Wrapper around an existing {@link SecuritySource} that coalesces concurrent calls into a single call to one of the bulk operation methods on the underlying. This can improve efficiency where the
@@ -177,7 +178,7 @@ public class CoalescingSecuritySource implements SecuritySource {
   public Security get(final UniqueId uniqueId) {
     if (!_fetching.compareAndSet(false, true)) {
       final SingleCallback callback = new SingleCallback();
-      _pending.add(Pair.of(uniqueId, callback));
+      _pending.add(Pairs.of(uniqueId, callback));
       if (callback.waitForResult(_fetching)) {
         return callback.getSecurity();
       }
@@ -240,7 +241,7 @@ public class CoalescingSecuritySource implements SecuritySource {
     if (!_fetching.compareAndSet(false, true)) {
       final MultipleCallback callback = new MultipleCallback(uniqueIds.size());
       for (UniqueId uniqueId : uniqueIds) {
-        _pending.add(Pair.of(uniqueId, callback));
+        _pending.add(Pairs.of(uniqueId, callback));
       }
       if (callback.waitForResult(_fetching)) {
         return callback.getSecurities();

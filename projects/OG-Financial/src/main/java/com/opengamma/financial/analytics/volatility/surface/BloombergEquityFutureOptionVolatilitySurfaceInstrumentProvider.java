@@ -13,9 +13,12 @@ import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.expirycalc.DaysFromEndOfMonthExpiryAdjuster;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,6 +32,8 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
   private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("MM/dd/yy");
   /** The expiry rules */
   private static final HashMap<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
+  /** An empty holiday calendar */
+  private static final Calendar NO_HOLIDAYS = new NoHolidayCalendar();
   static {
     EXPIRY_RULES = new HashMap<>();
     EXPIRY_RULES.put("NKY", FutureOptionExpiries.of(new NextExpiryAdjuster(2, DayOfWeek.FRIDAY)));
@@ -40,6 +45,9 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
     EXPIRY_RULES.put("AAPL US", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
     EXPIRY_RULES.put("UKX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY)));
     EXPIRY_RULES.put("FB US", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
+    EXPIRY_RULES.put("TWSE", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY)));
+    EXPIRY_RULES.put("HSCEI", new DaysFromEndOfMonthExpiryAdjuster(1));
+    EXPIRY_RULES.put("RDXUSD", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.THURSDAY, 1)));
     EXPIRY_RULES.put("DEFAULT", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
     //TODO DAX, EUROSTOXX 50 (SX5E)
   }
@@ -90,8 +98,8 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
     final StringBuffer ticker = new StringBuffer();
     ticker.append(prefix);
     ticker.append(" ");
-    ExchangeTradedInstrumentExpiryCalculator expiryRule = getExpiryRuleCalculator();
-    final LocalDate expiry = expiryRule.getExpiryMonth(futureOptionNumber.intValue(), surfaceDate);
+    final ExchangeTradedInstrumentExpiryCalculator expiryRule = getExpiryRuleCalculator();
+    final LocalDate expiry = expiryRule.getExpiryDate(futureOptionNumber.intValue(), surfaceDate, NO_HOLIDAYS);
     ticker.append(FORMAT.format(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");

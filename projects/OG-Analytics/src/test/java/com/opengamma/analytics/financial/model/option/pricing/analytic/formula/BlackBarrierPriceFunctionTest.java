@@ -24,9 +24,14 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BlackBarrierPriceFunctionTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 1);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2015, 1, 2);

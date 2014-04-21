@@ -12,15 +12,17 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveSpreadFunctionTest {
-  private static final CurveSpreadFunction ADD = new AddCurveSpreadFunction();
-  private static final CurveSpreadFunction DIVIDE = new DivideCurveSpreadFunction();
-  private static final CurveSpreadFunction MULTIPLY = new MultiplyCurveSpreadFunction();
-  private static final CurveSpreadFunction SUBTRACT = new SubtractCurveSpreadFunction();
+  private static final CurveSpreadFunction ADD = CurveSpreadFunctionFactory.of("+");
+  private static final CurveSpreadFunction DIVIDE = CurveSpreadFunctionFactory.of("/");
+  private static final CurveSpreadFunction MULTIPLY = CurveSpreadFunctionFactory.of("*");
+  private static final CurveSpreadFunction SUBTRACT = CurveSpreadFunctionFactory.of("-");
   private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};

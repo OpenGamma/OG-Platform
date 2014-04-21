@@ -18,6 +18,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class ExternalSchemesTest {
 
+  @SuppressWarnings("deprecation")
   public void test_constants() {
     assertEquals("ISIN", ExternalSchemes.ISIN.getName());
     assertEquals("CUSIP", ExternalSchemes.CUSIP.getName());

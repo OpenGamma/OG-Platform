@@ -9,10 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test(enabled = false)
+@Test(groups = TestGroup.UNIT, enabled = false)
 public class SimpleTimerTest {
 
   private static SimpleTimer timer = new SimpleTimer();

@@ -49,6 +49,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -424,6 +425,14 @@ public class SecurityAndCurrencyExposureFunctionTest {
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(2, ids.size());
     assertTrue(ids.containsAll(Arrays.asList(ExternalId.of(SCHEME, "FX_OPTION_USD"), ExternalId.of(SCHEME, "FX_OPTION_EUR"))));
+  }
+
+  @Test
+  public void testFXVolatilitySecurity() {
+    final FXVolatilitySwapSecurity security = ExposureFunctionTestHelper.getFXVolatilitySwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "FX_VOLATILITY_SWAP_USD"), ids.get(0));
   }
 
   @Test

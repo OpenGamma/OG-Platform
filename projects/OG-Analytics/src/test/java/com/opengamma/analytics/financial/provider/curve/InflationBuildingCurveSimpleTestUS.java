@@ -53,12 +53,14 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Build of inflation curve in several blocks with relevant Jacobian matrice.
  */
+@Test(groups = TestGroup.UNIT)
 public class InflationBuildingCurveSimpleTestUS {
 
   private static final Interpolator1D INTERPOLATOR_LOG_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,

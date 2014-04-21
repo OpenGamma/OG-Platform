@@ -7,8 +7,8 @@
 package com.opengamma.masterdb.security.hibernate.swap;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 import static com.opengamma.masterdb.security.hibernate.Converters.tenorBeanToTenor;
+import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -84,15 +84,31 @@ public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperati
 
       @Override
       public SwapSecurity visitForwardSwapSecurity(ForwardSwapSecurity ignore) {
-        return new ForwardSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()),
-          zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
-          SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
+        ForwardSwapSecurity sec = new ForwardSwapSecurity(
+            zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()),
+            bean.getCounterparty(),
+            SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
+            SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
+        sec.setExchangeInitialNotional(bean.isExchangeInitialNotional());
+        sec.setExchangeFinalNotional(bean.isExchangeFinalNotional());
+        return sec;
       }
 
       @Override
       public SwapSecurity visitSwapSecurity(SwapSecurity ignore) {
-        return new SwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()), zonedDateTimeBeanToDateTimeWithZone(bean
-          .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()));
+        SwapSecurity sec = new SwapSecurity(
+            zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()),
+            bean.getCounterparty(),
+            SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
+            SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()));
+        sec.setExchangeInitialNotional(bean.isExchangeInitialNotional());
+        sec.setExchangeFinalNotional(bean.isExchangeFinalNotional());
+        return sec;
       }
 
       @Override

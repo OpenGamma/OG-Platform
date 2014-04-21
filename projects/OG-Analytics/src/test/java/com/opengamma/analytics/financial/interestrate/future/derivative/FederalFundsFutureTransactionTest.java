@@ -17,11 +17,13 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Federal Funds Futures transactions.
  */
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureTransactionTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
@@ -51,7 +53,7 @@ public class FederalFundsFutureTransactionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("Fed fund future transaction: getter", FUTURE_SECURITY_BEFOREFIXING, FUTURE_TRANSACTION.getUnderlyingFuture());
+    assertEquals("Fed fund future transaction: getter", FUTURE_SECURITY_BEFOREFIXING, FUTURE_TRANSACTION.getUnderlyingSecurity());
     assertEquals("Fed fund future transaction: getter", QUANTITY, FUTURE_TRANSACTION.getQuantity());
     assertEquals("Fed fund future transaction: getter", TRADE_PRICE, FUTURE_TRANSACTION.getReferencePrice());
   }

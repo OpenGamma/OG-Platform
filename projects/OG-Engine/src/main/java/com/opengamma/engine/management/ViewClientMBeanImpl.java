@@ -8,12 +8,11 @@ package com.opengamma.engine.management;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import net.sf.ehcache.CacheException;
-
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,26 +29,30 @@ public class ViewClientMBeanImpl implements ViewClientMBean {
   
   /**
    * Creates a management view client
-   * 
-   * @param viewClient  the underlying view client
+   *
+   * @param viewClient the underlying view client
+   * @param splitByViewProcessor should the MBean name differentiate beans by view processor
    */
-  public ViewClientMBeanImpl(com.opengamma.engine.view.client.ViewClient viewClient) {
+  public ViewClientMBeanImpl(ViewClient viewClient, boolean splitByViewProcessor) {
     ArgumentChecker.notNull(viewClient, "viewClient");
     _viewClient = viewClient;
-    _objectName = createObjectName(viewClient.getViewProcessor().getName(), viewClient.getUniqueId());
+    _objectName = createObjectName(viewClient.getViewProcessor().getName(), viewClient.getUniqueId(), splitByViewProcessor);
   }
   
   /**
    * Creates an object name using the scheme "com.opengamma:type=ViewClient,ViewProcessor=<viewProcessorName>,name=<viewClientId>"
    */
-  /*package*/ static ObjectName createObjectName(String viewProcessorName, UniqueId viewClientId) {
-    ObjectName objectName;
+  /*package*/ static ObjectName createObjectName(String viewProcessorName,
+                                                 UniqueId viewClientId,
+                                                 boolean splitByViewProcessor) {
     try {
-      objectName = new ObjectName("com.opengamma:type=ViewClient,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewClient " + viewClientId.getValue());
+      String beanNamePrefix = splitByViewProcessor ?
+          "com.opengamma:type=ViewProcessors,ViewProcessor=ViewProcessor " + viewProcessorName :
+          "com.opengamma:type=ViewProcessor";
+      return new ObjectName(beanNamePrefix + ",ViewClients=ViewClients,name=ViewClient " + viewClientId.getValue());
     } catch (MalformedObjectNameException e) {
-      throw new CacheException(e);
+      throw new OpenGammaRuntimeException("Error whilst attempting to register JMX Bean", e);
     }
-    return objectName;
   }
   
   /**

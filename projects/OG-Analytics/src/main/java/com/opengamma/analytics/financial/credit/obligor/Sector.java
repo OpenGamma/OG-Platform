@@ -1,56 +1,58 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.obligor;
 
 /**
- * Enumerate the industrial sector classification of a reference entity
+ * Enumerate the industrial sector classification of a reference entity.
+ * @deprecated Sector has been promoted to an object. See {@link com.opengamma.analytics.financial.legalentity.Sector}
  */
+@Deprecated
 public enum Sector {
   /**
-   * 
+   * Basic materials
    */
   BASICMATERIALS,
   /**
-   * 
+   * Consumer goods
    */
   CONSUMERGOODS,
   /**
-   * 
+   * Consumer services
    */
   CONSUMERSERVICES,
   /**
-   * 
+   * Energy
    */
   ENERGY,
   /**
-   * 
+   * Financials
    */
   FINANCIALS,
   /**
-   * 
+   * Government
    */
   GOVERNMENT,
   /**
-   * 
+   * Healthcare
    */
   HEALTHCARE,
   /**
-   * 
+   * Industrials
    */
   INDUSTRIALS,
   /**
-   * 
+   * Technology
    */
   TECHNOLOGY,
   /**
-   * 
+   * Telecommunication services
    */
   TELECOMMUNICATIONSERVICES,
   /**
-   * 
+   * Utilities
    */
   UTILITIES,
   /**
@@ -62,9 +64,16 @@ public enum Sector {
    */
   SOVEREIGN,
   /**
-   * 
+   * No sector
    */
   NONE;
 
-  // TODO: Extend this list to include a comprehensive list of sector classifications (ICB classification)
+  /**
+   * Delegates to {@link com.opengamma.analytics.financial.legalentity.Sector}, with
+   * the name set to the name of the enum value and no classifications set.
+   * @return A sector object
+   */
+  public com.opengamma.analytics.financial.legalentity.Sector toSector() {
+    return com.opengamma.analytics.financial.legalentity.Sector.of(name());
+  }
 }

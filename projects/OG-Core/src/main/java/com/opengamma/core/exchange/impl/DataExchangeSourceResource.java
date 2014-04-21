@@ -76,7 +76,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Collection<? extends Exchange> result = getExchangeSource().get(bundle, vc);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    return responseOkObject(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -89,11 +89,11 @@ public class DataExchangeSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       final Exchange result = getExchangeSource().get(objectId.atVersion(version));
-      return responseOkFudge(result);
+      return responseOkObject(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       Exchange result = getExchangeSource().get(objectId, vc);
-      return responseOkFudge(result);
+      return responseOkObject(result);
     }
   }
 
@@ -155,7 +155,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
   public Response searchSingle(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Exchange result = getExchangeSource().getSingle(bundle);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   /**

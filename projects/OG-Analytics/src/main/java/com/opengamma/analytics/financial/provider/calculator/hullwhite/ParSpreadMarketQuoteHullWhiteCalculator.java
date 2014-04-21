@@ -54,12 +54,12 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDer
    */
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_STIR_FUT.price(future.getUnderlying(), multicurves) - future.getReferencePrice();
+    return METHOD_STIR_FUT.price(future.getUnderlyingSecurity(), multicurves) - future.getReferencePrice();
   }
 
   @Override
-  public Double visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_SWAP_FUT.price(futures.getUnderlying(), multicurves) - futures.getReferencePrice();
+  public Double visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
+    return METHOD_SWAP_FUT.price(futures.getUnderlyingSecurity(), multicurves) - futures.getReferencePrice();
   }
 
 }

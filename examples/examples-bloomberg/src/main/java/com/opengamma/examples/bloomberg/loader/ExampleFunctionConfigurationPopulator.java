@@ -31,7 +31,6 @@ import com.opengamma.financial.value.ValueFunctions;
 import com.opengamma.financial.view.ViewFunctions;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.scripts.Scriptable;
-import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
 /**
@@ -55,13 +54,12 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
+   * Main method to run the tool.
    * 
-   * @param args the arguments, unused
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleFunctionConfigurationPopulator().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleFunctionConfigurationPopulator().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -100,7 +98,6 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
 
     storeFunctionDefinition(STANDARD, DemoStandardFunctionConfiguration.instance());
     storeFunctionDefinition(CURVE, IRCurveFunctions.providers(getToolContext().getConfigMaster()));
-    storeFunctionDefinition(CUBE, BloombergVolatilityCubeFunctions.instance());
 
     FunctionConfigurationDefinition exampleFunc = new FunctionConfigurationDefinition(EXAMPLE,
         ImmutableList.of(FINANCIAL, STANDARD, CURVE, CUBE),

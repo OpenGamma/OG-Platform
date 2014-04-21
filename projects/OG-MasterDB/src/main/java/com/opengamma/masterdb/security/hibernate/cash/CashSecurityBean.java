@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -93,55 +94,6 @@ public class CashSecurityBean extends SecurityBean {
   @Override
   public CashSecurityBean.Meta metaBean() {
     return CashSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case -934795532:  // region
-        return getRegion();
-      case 109757538:  // start
-        return getStart();
-      case 313843601:  // maturity
-        return getMaturity();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case 3493088:  // rate
-        return getRate();
-      case -1413853096:  // amount
-        return getAmount();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((ExternalIdBean) newValue);
-        return;
-      case 109757538:  // start
-        setStart((ZonedDateTimeBean) newValue);
-        return;
-      case 313843601:  // maturity
-        setMaturity((ZonedDateTimeBean) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCountBean) newValue);
-        return;
-      case 3493088:  // rate
-        setRate((Double) newValue);
-        return;
-      case -1413853096:  // amount
-        setAmount((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -320,6 +272,37 @@ public class CashSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CashSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("CashSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("start").append('=').append(JodaBeanUtils.toString(getStart())).append(',').append(' ');
+    buf.append("maturity").append('=').append(JodaBeanUtils.toString(getMaturity())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CashSecurityBean}.
    */
@@ -474,6 +457,56 @@ public class CashSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Double> amount() {
       return _amount;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((CashSecurityBean) bean).getCurrency();
+        case -934795532:  // region
+          return ((CashSecurityBean) bean).getRegion();
+        case 109757538:  // start
+          return ((CashSecurityBean) bean).getStart();
+        case 313843601:  // maturity
+          return ((CashSecurityBean) bean).getMaturity();
+        case 1905311443:  // dayCount
+          return ((CashSecurityBean) bean).getDayCount();
+        case 3493088:  // rate
+          return ((CashSecurityBean) bean).getRate();
+        case -1413853096:  // amount
+          return ((CashSecurityBean) bean).getAmount();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((CashSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case -934795532:  // region
+          ((CashSecurityBean) bean).setRegion((ExternalIdBean) newValue);
+          return;
+        case 109757538:  // start
+          ((CashSecurityBean) bean).setStart((ZonedDateTimeBean) newValue);
+          return;
+        case 313843601:  // maturity
+          ((CashSecurityBean) bean).setMaturity((ZonedDateTimeBean) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((CashSecurityBean) bean).setDayCount((DayCountBean) newValue);
+          return;
+        case 3493088:  // rate
+          ((CashSecurityBean) bean).setRate((Double) newValue);
+          return;
+        case -1413853096:  // amount
+          ((CashSecurityBean) bean).setAmount((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

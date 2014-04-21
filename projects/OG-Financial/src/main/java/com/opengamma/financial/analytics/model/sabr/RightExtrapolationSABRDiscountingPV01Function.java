@@ -10,6 +10,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 import static com.opengamma.financial.analytics.model.sabr.SABRPropertyValues.PROPERTY_MU;
 import static com.opengamma.financial.analytics.model.sabr.SABRPropertyValues.PROPERTY_STRIKE_CUTOFF;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,13 +40,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the PV01 of instruments using curves constructed using
- * the discounting method.
+ * Calculates the PV01 of instruments using curves constructed using the discounting method.
  */
 public class RightExtrapolationSABRDiscountingPV01Function extends RightExtrapolationSABRDiscountingFunction {
   /** The logger */
@@ -63,18 +63,17 @@ public class RightExtrapolationSABRDiscountingPV01Function extends RightExtrapol
     return new RightExtrapolationSABRDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
-        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
+        final DayCount dayCount = DayCounts.ACT_360; //TODO
         final SABRSwaptionProvider sabrData = getSABRSurfaces(executionContext, inputs, target, fxMatrix, dayCount);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints();
         final double cutoffStrike = Double.parseDouble(desiredValue.getConstraint(PROPERTY_STRIKE_CUTOFF));
         final double mu = Double.parseDouble(desiredValue.getConstraint(PROPERTY_MU));
-        final InstrumentDerivativeVisitor<SABRSwaptionProviderInterface, ReferenceAmount<Pair<String, Currency>>> calculator =
-            new PV01CurveParametersCalculator<>(new PresentValueCurveSensitivitySABRSwaptionRightExtrapolationCalculator(cutoffStrike, mu));
+        final InstrumentDerivativeVisitor<SABRSwaptionProviderInterface, ReferenceAmount<Pair<String, Currency>>> calculator = new PV01CurveParametersCalculator<>(
+            new PresentValueCurveSensitivitySABRSwaptionRightExtrapolationCalculator(cutoffStrike, mu));
         final ReferenceAmount<Pair<String, Currency>> pv01 = derivative.accept(calculator, sabrData);
         final Set<ComputedValue> results = new HashSet<>();
         boolean curveNameFound = false;
@@ -83,10 +82,7 @@ public class RightExtrapolationSABRDiscountingPV01Function extends RightExtrapol
           if (desiredCurveName.equals(curveName)) {
             curveNameFound = true;
           }
-          final ValueProperties curveSpecificProperties = properties.copy()
-              .withoutAny(CURVE)
-              .with(CURVE, curveName)
-              .get();
+          final ValueProperties curveSpecificProperties = properties.copy().withoutAny(CURVE).with(CURVE, curveName).get();
           final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
           results.add(new ComputedValue(spec, entry.getValue()));
         }
@@ -98,9 +94,12 @@ public class RightExtrapolationSABRDiscountingPV01Function extends RightExtrapol
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.withAny(CURVE);
+        }
+        return properties;
       }
 
       @Override

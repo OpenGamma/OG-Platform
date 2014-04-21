@@ -35,18 +35,19 @@ public interface CompiledViewDefinitionWithGraphs extends CompiledViewDefinition
 
   /**
    * Returns a copy of this object with updated market data manipulation selections.
-   *
-   *
-   * @param selectionsByGraph the market data selections that have been identified for each graph, not null
-   * @param paramsByGraph the function parameters that have been defined for each graph, not null
+   * 
+   * @param newGraphsByConfig the updated dependency graphs, not null
+   * @param selectionsByConfig the market data selections that have been identified for each graph, not null
+   * @param paramsByConfig the function parameters that have been defined for each graph, not null
    * @return the copy
    */
   CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
-      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
-      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph);
+      Map<String, DependencyGraph> newGraphsByConfig,
+      Map<String, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByConfig,
+      Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByConfig);
 
   /**
-   * Gets all of the dependefncy graph explorers.
+   * Gets all of the dependency graph explorers.
    * 
    * @return the dependency graph explorers, not null
    */

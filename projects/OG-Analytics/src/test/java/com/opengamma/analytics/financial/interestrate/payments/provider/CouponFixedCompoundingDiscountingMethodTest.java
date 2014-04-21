@@ -13,7 +13,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -26,11 +25,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the methods related to fixed compounded coupons.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedCompoundingDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -64,7 +65,7 @@ public class CouponFixedCompoundingDiscountingMethodTest {
     double notionalAccrued = COUPON.getNotional();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
 
-      notionalAccrued *= 1 + COUPON.getPaymentAccrualFactors()[loopsub] * COUPON.getRate();
+      notionalAccrued *= 1 + COUPON.getPaymentAccrualFactors()[loopsub] * COUPON.getFixedRate();
     }
 
     final double df = MULTICURVES.getDiscountFactor(COUPON.getCurrency(), COUPON.getPaymentTime());

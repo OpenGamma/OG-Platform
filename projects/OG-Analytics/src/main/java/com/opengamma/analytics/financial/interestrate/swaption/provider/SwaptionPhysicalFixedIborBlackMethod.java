@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -35,7 +35,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price and sensitivity of a physical delivery swaption with Black model.
- *  The implied Black volatilities are expiry and underlying maturity dependent.
+ *  The implied Black volatilities are expiry and underlying maturity dependent (no smile).
  *  The swap underlying the swaption should be a Fixed for Ibor (without spread) swap.
  */
 public final class SwaptionPhysicalFixedIborBlackMethod {
@@ -264,7 +264,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = blackMulticurves.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);

@@ -21,11 +21,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableSecurityTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -54,7 +56,7 @@ public class SwapFuturesPriceDeliverableSecurityTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("DeliverableSwapFuturesSecurity: getter", LAST_TRADING_TIME, SWAP_FUTURES_SECURITY.getLastTradingTime());
+    assertEquals("DeliverableSwapFuturesSecurity: getter", LAST_TRADING_TIME, SWAP_FUTURES_SECURITY.getTradingLastTime());
     assertEquals("DeliverableSwapFuturesSecurity: getter", EFFECTIVE_TIME, SWAP_FUTURES_SECURITY.getDeliveryTime());
     assertEquals("DeliverableSwapFuturesSecurity: getter", SWAP, SWAP_FUTURES_SECURITY.getUnderlyingSwap());
     assertEquals("DeliverableSwapFuturesSecurity: getter", NOTIONAL, SWAP_FUTURES_SECURITY.getNotional());

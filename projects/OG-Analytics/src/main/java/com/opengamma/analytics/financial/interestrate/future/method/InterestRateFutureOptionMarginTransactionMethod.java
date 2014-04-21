@@ -48,9 +48,9 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * @return The present value.
    */
   public CurrencyAmount presentValueFromPrice(final InterestRateFutureOptionMarginTransaction option, final double price) {
-    final double pv = (price - option.getReferencePrice()) * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor() *
-        option.getUnderlyingOption().getUnderlyingFuture().getNotional() * option.getQuantity();
-    return CurrencyAmount.of(option.getUnderlyingOption().getCurrency(), pv);
+    final double pv = (price - option.getReferencePrice()) * option.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor() *
+        option.getUnderlyingSecurity().getUnderlyingFuture().getNotional() * option.getQuantity();
+    return CurrencyAmount.of(option.getUnderlyingSecurity().getCurrency(), pv);
   }
 
   /**
@@ -61,7 +61,7 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * @return The present value.
    */
   public CurrencyAmount presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves, final double priceFuture) {
-    final double priceSecurity = _securityMethod.optionPriceFromFuturePrice(transaction.getUnderlyingOption(), curves, priceFuture);
+    final double priceSecurity = _securityMethod.optionPriceFromFuturePrice(transaction.getUnderlyingSecurity(), curves, priceFuture);
     final CurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
@@ -70,7 +70,7 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(instrument instanceof InterestRateFutureOptionMarginTransaction, "The instrument should be a InterestRateFutureOptionMarginTransaction");
     final InterestRateFutureOptionMarginTransaction transaction = (InterestRateFutureOptionMarginTransaction) instrument;
-    final double priceSecurity = _securityMethod.optionPrice(transaction.getUnderlyingOption(), curves);
+    final double priceSecurity = _securityMethod.optionPrice(transaction.getUnderlyingSecurity(), curves);
     final CurrencyAmount pvTransaction = presentValueFromPrice(transaction, priceSecurity);
     return pvTransaction;
   }
@@ -82,9 +82,9 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
-    final InterestRateCurveSensitivity securitySensitivity = _securityMethod.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
-    return securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
+    final InterestRateCurveSensitivity securitySensitivity = _securityMethod.priceCurveSensitivity(transaction.getUnderlyingSecurity(), curves);
+    return securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor());
   }
 
 }

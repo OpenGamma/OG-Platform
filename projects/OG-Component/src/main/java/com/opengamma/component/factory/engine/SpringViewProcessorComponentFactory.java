@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,8 +20,10 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.GenericApplicationContext;
 
+import com.google.common.base.Supplier;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
@@ -44,6 +47,7 @@ import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
+import com.opengamma.financial.view.ViewProcessorManager;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
 import com.opengamma.financial.view.rest.DataViewProcessorResource;
 import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
@@ -154,11 +158,12 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
       repo.getRestComponents().publish(info, vpResource);
     }
     if (getJmsConnector() != null && viewProcessor instanceof ViewProcessorInternal) {
-      ViewProcessAvailabilityNotificationListener listener =
-          new ViewProcessAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(),
-                                                          getJmsConnector(),
-                                                          (ViewProcessorInternal) viewProcessor);
+      ViewProcessAvailabilityNotificationListener listener = new ViewProcessAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), getJmsConnector(),
+          (ViewProcessorInternal) viewProcessor);
       repo.registerLifecycle(listener);
+
+      final ViewProcessorManager viewProcessorManager = appContext.getBean(ViewProcessorManager.class);
+      repo.registerLifecycle(viewProcessorManager);
     }
   }
 
@@ -187,9 +192,13 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * @param appContext the Spring application context, not null
    */
   protected void initCalcNodeSocketConfiguration(final ComponentRepository repo, final GenericApplicationContext appContext) {
-    final CalcNodeSocketConfiguration calcNodeSocketConfig = appContext.getBean(CalcNodeSocketConfiguration.class);
-    final ComponentInfo info = new ComponentInfo(CalcNodeSocketConfiguration.class, getClassifier());
-    repo.registerComponent(info, calcNodeSocketConfig);
+    try {
+      final CalcNodeSocketConfiguration calcNodeSocketConfig = appContext.getBean(CalcNodeSocketConfiguration.class);
+      final ComponentInfo info = new ComponentInfo(CalcNodeSocketConfiguration.class, getClassifier());
+      repo.registerComponent(info, calcNodeSocketConfig);
+    } catch (NoSuchBeanDefinitionException e) {
+      repo.getLogger().logInfo("No CalcNodeSocketConfiguration found; external calc nodes not supported.");
+    }
   }
 
   /**
@@ -212,6 +221,20 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     registerInfrastructureByType(repo, UserPrincipal.class, appContext);
   }
 
+  private static class FunctionRepositorySupplier implements Supplier<FunctionRepository> {
+
+    private final CompiledFunctionService _cfs;
+
+    public FunctionRepositorySupplier(final CompiledFunctionService cfs) {
+      _cfs = cfs;
+    }
+
+    @Override
+    public FunctionRepository get() {
+      return _cfs.getFunctionRepository();
+    }
+  }
+
   /**
    * Registers the compiled function service and function .
    * 
@@ -222,14 +245,15 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     final CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
     final ComponentInfo infoCFS = new ComponentInfo(CompiledFunctionService.class, getClassifier());
     repo.registerComponent(infoCFS, compiledFunctionService);
-    final ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
-    repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
+    // TODO: This is wrong; what is using the function repository we've registered here? It needs to use a supplier, factory, or source
+    //final ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
+    //repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
     final FunctionExclusionGroups functionExclusionGroups = appContext.getBean(FunctionExclusionGroups.class);
     repo.registerComponent(new ComponentInfo(FunctionExclusionGroups.class, getClassifier()), functionExclusionGroups);
     final FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     repo.registerComponent(new ComponentInfo(FunctionResolver.class, getClassifier()), functionResolver);
     if (isPublishRest()) {
-      repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
+      repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(new FunctionRepositorySupplier(compiledFunctionService)));
     }
   }
 
@@ -263,123 +287,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   @Override
   public SpringViewProcessorComponentFactory.Meta metaBean() {
     return SpringViewProcessorComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -917704420:  // fudgeContext
-        return getFudgeContext();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case 2047189283:  // jmsBrokerUri
-        return getJmsBrokerUri();
-      case -160710469:  // scheduler
-        return getScheduler();
-      case 1540542824:  // volatilityCubeDefinitionSource
-        return getVolatilityCubeDefinitionSource();
-      case 56203069:  // marketDataProviderResolver
-        return getMarketDataProviderResolver();
-      case -620124660:  // compileViewsWithRequirementStriping
-        return isCompileViewsWithRequirementStriping();
-      case 358729161:  // historicalTimeSeriesSource
-        return getHistoricalTimeSeriesSource();
-      case 108776830:  // jmsMarketDataAvailabilityTopic
-        return getJmsMarketDataAvailabilityTopic();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -917704420:  // fudgeContext
-        setFudgeContext((FudgeContext) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case 2047189283:  // jmsBrokerUri
-        setJmsBrokerUri((String) newValue);
-        return;
-      case -160710469:  // scheduler
-        setScheduler((ScheduledExecutorService) newValue);
-        return;
-      case 1540542824:  // volatilityCubeDefinitionSource
-        setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
-        return;
-      case 56203069:  // marketDataProviderResolver
-        setMarketDataProviderResolver((MarketDataProviderResolver) newValue);
-        return;
-      case -620124660:  // compileViewsWithRequirementStriping
-        setCompileViewsWithRequirementStriping((Boolean) newValue);
-        return;
-      case 358729161:  // historicalTimeSeriesSource
-        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-        return;
-      case 108776830:  // jmsMarketDataAvailabilityTopic
-        setJmsMarketDataAvailabilityTopic((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    JodaBeanUtils.notNull(_scheduler, "scheduler");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SpringViewProcessorComponentFactory other = (SpringViewProcessorComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getJmsBrokerUri(), other.getJmsBrokerUri()) &&
-          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
-          JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
-          JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
-          JodaBeanUtils.equal(isCompileViewsWithRequirementStriping(), other.isCompileViewsWithRequirementStriping()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompileViewsWithRequirementStriping());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -587,25 +494,34 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the compileViewsWithRequirementStriping.
+   * Gets whether to stripe portfolio requirements during a graph build.
+   * 
+   * @deprecated this is a temporary measure until enabling/disabling the striping logic can be implemented using suitable heuristics
    * @return the value of the property
    */
+  @Deprecated
   public boolean isCompileViewsWithRequirementStriping() {
     return _compileViewsWithRequirementStriping;
   }
 
   /**
-   * Sets the compileViewsWithRequirementStriping.
+   * Sets whether to stripe portfolio requirements during a graph build.
+   * 
+   * @deprecated this is a temporary measure until enabling/disabling the striping logic can be implemented using suitable heuristics
    * @param compileViewsWithRequirementStriping  the new value of the property
    */
+  @Deprecated
   public void setCompileViewsWithRequirementStriping(boolean compileViewsWithRequirementStriping) {
     this._compileViewsWithRequirementStriping = compileViewsWithRequirementStriping;
   }
 
   /**
    * Gets the the {@code compileViewsWithRequirementStriping} property.
+   * 
+   * @deprecated this is a temporary measure until enabling/disabling the striping logic can be implemented using suitable heuristics
    * @return the property, not null
    */
+  @Deprecated
   public final Property<Boolean> compileViewsWithRequirementStriping() {
     return metaBean().compileViewsWithRequirementStriping().createProperty(this);
   }
@@ -658,6 +574,81 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   public final Property<String> jmsMarketDataAvailabilityTopic() {
     return metaBean().jmsMarketDataAvailabilityTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SpringViewProcessorComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SpringViewProcessorComponentFactory other = (SpringViewProcessorComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsBrokerUri(), other.getJmsBrokerUri()) &&
+          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
+          JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
+          JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
+          (isCompileViewsWithRequirementStriping() == other.isCompileViewsWithRequirementStriping()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCompileViewsWithRequirementStriping());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("SpringViewProcessorComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsBrokerUri").append('=').append(JodaBeanUtils.toString(getJmsBrokerUri())).append(',').append(' ');
+    buf.append("scheduler").append('=').append(JodaBeanUtils.toString(getScheduler())).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(JodaBeanUtils.toString(getVolatilityCubeDefinitionSource())).append(',').append(' ');
+    buf.append("marketDataProviderResolver").append('=').append(JodaBeanUtils.toString(getMarketDataProviderResolver())).append(',').append(' ');
+    buf.append("compileViewsWithRequirementStriping").append('=').append(JodaBeanUtils.toString(isCompileViewsWithRequirementStriping())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(JodaBeanUtils.toString(getJmsMarketDataAvailabilityTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -859,8 +850,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
     /**
      * The meta-property for the {@code compileViewsWithRequirementStriping} property.
+     * @deprecated this is a temporary measure until enabling/disabling the striping logic can be implemented using suitable heuristics
      * @return the meta-property, not null
      */
+    @Deprecated
     public final MetaProperty<Boolean> compileViewsWithRequirementStriping() {
       return _compileViewsWithRequirementStriping;
     }
@@ -879,6 +872,84 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
      */
     public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
       return _jmsMarketDataAvailabilityTopic;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((SpringViewProcessorComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((SpringViewProcessorComponentFactory) bean).isPublishRest();
+        case -917704420:  // fudgeContext
+          return ((SpringViewProcessorComponentFactory) bean).getFudgeContext();
+        case -1495762275:  // jmsConnector
+          return ((SpringViewProcessorComponentFactory) bean).getJmsConnector();
+        case 2047189283:  // jmsBrokerUri
+          return ((SpringViewProcessorComponentFactory) bean).getJmsBrokerUri();
+        case -160710469:  // scheduler
+          return ((SpringViewProcessorComponentFactory) bean).getScheduler();
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return ((SpringViewProcessorComponentFactory) bean).getVolatilityCubeDefinitionSource();
+        case 56203069:  // marketDataProviderResolver
+          return ((SpringViewProcessorComponentFactory) bean).getMarketDataProviderResolver();
+        case -620124660:  // compileViewsWithRequirementStriping
+          return ((SpringViewProcessorComponentFactory) bean).isCompileViewsWithRequirementStriping();
+        case 358729161:  // historicalTimeSeriesSource
+          return ((SpringViewProcessorComponentFactory) bean).getHistoricalTimeSeriesSource();
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return ((SpringViewProcessorComponentFactory) bean).getJmsMarketDataAvailabilityTopic();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((SpringViewProcessorComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((SpringViewProcessorComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -917704420:  // fudgeContext
+          ((SpringViewProcessorComponentFactory) bean).setFudgeContext((FudgeContext) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((SpringViewProcessorComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case 2047189283:  // jmsBrokerUri
+          ((SpringViewProcessorComponentFactory) bean).setJmsBrokerUri((String) newValue);
+          return;
+        case -160710469:  // scheduler
+          ((SpringViewProcessorComponentFactory) bean).setScheduler((ScheduledExecutorService) newValue);
+          return;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          ((SpringViewProcessorComponentFactory) bean).setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
+          return;
+        case 56203069:  // marketDataProviderResolver
+          ((SpringViewProcessorComponentFactory) bean).setMarketDataProviderResolver((MarketDataProviderResolver) newValue);
+          return;
+        case -620124660:  // compileViewsWithRequirementStriping
+          ((SpringViewProcessorComponentFactory) bean).setCompileViewsWithRequirementStriping((Boolean) newValue);
+          return;
+        case 358729161:  // historicalTimeSeriesSource
+          ((SpringViewProcessorComponentFactory) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+          return;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          ((SpringViewProcessorComponentFactory) bean).setJmsMarketDataAvailabilityTopic((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SpringViewProcessorComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((SpringViewProcessorComponentFactory) bean)._fudgeContext, "fudgeContext");
+      JodaBeanUtils.notNull(((SpringViewProcessorComponentFactory) bean)._scheduler, "scheduler");
+      super.validate(bean);
     }
 
   }

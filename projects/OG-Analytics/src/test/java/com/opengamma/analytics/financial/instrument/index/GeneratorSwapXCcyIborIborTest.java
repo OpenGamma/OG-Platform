@@ -15,11 +15,16 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorSwapXCcyIborIborTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -47,11 +52,11 @@ public class GeneratorSwapXCcyIborIborTest {
    * Tests the constructor with business day convention and end-of-month.
    */
   public void constructor() {
-    final GeneratorSwapXCcyIborIbor generator2 = new GeneratorSwapXCcyIborIbor("Generator 2", EURIBOR3M, USDLIBOR3M, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, 1, NYC, NYC);
+    final GeneratorSwapXCcyIborIbor generator2 = new GeneratorSwapXCcyIborIbor("Generator 2", EURIBOR3M, USDLIBOR3M, BusinessDayConventions.FOLLOWING, false, 1, NYC, NYC);
     assertEquals("GeneratorSwapIborIbor: getter", EURIBOR3M, EURIBOR3MUSDLIBOR3M.getIborIndex1());
     assertEquals("GeneratorSwapIborIbor: getter", USDLIBOR3M, EURIBOR3MUSDLIBOR3M.getIborIndex2());
     assertTrue("GeneratorSwapIborIbor: getter", generator2.getName().equals("Generator 2"));
-    assertEquals("GeneratorSwapIborIbor: getter", BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), generator2.getBusinessDayConvention());
+    assertEquals("GeneratorSwapIborIbor: getter", BusinessDayConventions.FOLLOWING, generator2.getBusinessDayConvention());
     assertTrue("GeneratorSwapIborIbor: getter", generator2.isEndOfMonth() == false);
     assertEquals("GeneratorSwapIborIbor: getter", generator2.getSpotLag(), 1);
   }

@@ -13,11 +13,15 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.integration.marketdata.manipulator.dsl.VolatilitySurfaceShiftManipulator;
 
 /**
-*
-*/
+ * @deprecated Replaced by {@link VolatilitySurfaceShiftManipulator}.
+ */
+@Deprecated
 public class VolatilitySurfaceSingleMultiplicativeShift implements StructureManipulator<VolatilitySurface> {
 
   private static final String SHIFT = "shift";
@@ -35,7 +39,9 @@ public class VolatilitySurfaceSingleMultiplicativeShift implements StructureMani
   }
 
   @Override
-  public VolatilitySurface execute(VolatilitySurface surface) {
+  public VolatilitySurface execute(VolatilitySurface surface,
+                                   ValueSpecification valueSpecification,
+                                   FunctionExecutionContext executionContext) {
     return surface.withSingleMultiplicativeShift(_x, _y, _shift);
   }
 

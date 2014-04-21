@@ -13,6 +13,8 @@
             "zone": "${security.maturityDate.zone}"
         },
         "counterparty":"${security.counterparty}",
+        "exchangeInitialNotional":"${security.exchangeInitialNotional?string("TRUE", "FALSE")}",
+        "exchangeFinalNotional":"${security.exchangeFinalNotional?string("TRUE", "FALSE")}",
         "payLeg":{
           "dayCount":"${security.payLeg.dayCount.conventionName}",
           "frequency":"${security.payLeg.frequency.conventionName}",

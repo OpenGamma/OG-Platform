@@ -9,6 +9,8 @@ import org.joda.convert.FromStringFactory;
 import org.joda.convert.ToString;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.financial.convention.NamedInstance;
+
 /**
  * Convention for working day calendars.
  * <p>
@@ -16,7 +18,7 @@ import org.threeten.bp.LocalDate;
  * This is used in conjunction with DayCount and BusinessDayConvention to calculate settlement dates.
  */
 @FromStringFactory(factory = CalendarFactory.class)
-public interface Calendar {
+public interface Calendar extends NamedInstance {
 
   /**
    * Checks if the specified date is a working date.
@@ -30,8 +32,17 @@ public interface Calendar {
    * Gets the name of the convention.
    * 
    * @return the name, not null
+   * @deprecated use getName()
+   */
+  @Deprecated
+  String getConventionName();
+
+  /**
+   * Gets the name of the convention.
+   * 
+   * @return the name, not null
    */
   @ToString
-  String getConventionName();
+  String getName();
 
 }

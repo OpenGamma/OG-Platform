@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Interface specific to inflation curves.
@@ -25,7 +24,7 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   /**
    * Create a new copy of the provider.
-   * @return The bundle.
+   * @return The provider.
    */
   @Override
   InflationProviderInterface copy();
@@ -54,18 +53,12 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
   Set<IndexPrice> getPriceIndexes();
 
   /**
-   * Gets the names of all curves (discounting, forward, price index and issuers).
+   * Returns an unmodifiable sorted set containing the names of all curves (discounting, forward, price index and issuers).
    * @return The names.
+   * @deprecated Use {@link #getAllCurveNames()}
    */
+  @Deprecated
   Set<String> getAllNames();
-
-  /**
-   * Gets the sensitivity to the inflation parameters.
-   * @param name The name of the curve
-   * @param pointSensitivity The nodal point sensitivities
-   * @return The sensitivity to the inflation parameters
-   */
-  double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity);
 
   /**
    * Gets the number of parameters for a curve described by its name.
@@ -94,7 +87,6 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   /**
    * Gets the discount factor for one currency at a given time to maturity.
-   * TODO: extend it to a more general unique reference to include issuer/currency curves? UniqueIdentifiable?
    * @param ccy The currency.
    * @param time The time.
    * @return The discount factor.
@@ -113,7 +105,6 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   /**
    * Gets the forward for one Ibor index between start and end times.
-   * TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.

@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecuri
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -79,7 +80,8 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   private final IndexPrice _priceIndex;
 
   /**
-   * Constructor of the Capital inflation indexed bond. The repo type is set to "".
+   * Constructor of the Capital inflation indexed bond. The repo type is set to an empty string and the legal entity
+   * only contains the issuer name.
    * @param nominal The nominal annuity.
    * @param coupon The coupon annuity.
    * @param indexStartDate The index value at the start of the bond.
@@ -94,6 +96,25 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    */
   public BondCapitalIndexedSecurityDefinition(final AnnuityDefinition<C> nominal, final AnnuityDefinition<C> coupon, final double indexStartDate, final int exCouponDays, final int settlementDays,
       final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final int monthLag, final String issuer) {
+    this(nominal, coupon, indexStartDate, exCouponDays, settlementDays, calendar, dayCount, yieldConvention, isEOM, monthLag, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Constructor of the Capital inflation indexed bond. The repo type is set to empty string.
+   * @param nominal The nominal annuity.
+   * @param coupon The coupon annuity.
+   * @param indexStartDate The index value at the start of the bond.
+   * @param exCouponDays The ex-coupon period.
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The payment calendar.
+   * @param dayCount The coupon day count convention.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param isEOM The end-of-month flag.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param issuer The bond issuer.
+   */
+  public BondCapitalIndexedSecurityDefinition(final AnnuityDefinition<C> nominal, final AnnuityDefinition<C> coupon, final double indexStartDate, final int exCouponDays, final int settlementDays,
+      final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final int monthLag, final LegalEntity issuer) {
     super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, "");
     for (int loopcpn = 0; loopcpn < coupon.getNumberOfPayments(); loopcpn++) {
       ArgumentChecker.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
@@ -105,6 +126,27 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     _isEOM = isEOM;
     _dayCount = dayCount;
     _priceIndex = nominal.getNthPayment(0).getPriceIndex();
+  }
+
+  /**
+   * Constructor of the Capital inflation indexed bond. The legal entity only contains the issuer name.
+   * @param nominal The nominal annuity.
+   * @param coupon The coupon annuity.
+   * @param indexStartDate The index value at the start of the bond.
+   * @param exCouponDays The ex-coupon period.
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The payment calendar.
+   * @param dayCount The coupon day count convention.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param isEOM The end-of-month flag.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param issuer Issuer name.
+   * @param repoType The repo type name.
+   */
+  public BondCapitalIndexedSecurityDefinition(final AnnuityDefinition<C> nominal, final AnnuityDefinition<C> coupon, final double indexStartDate, final int exCouponDays, final int settlementDays,
+      final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final int monthLag, final String issuer, final String repoType) {
+    this(nominal, coupon, indexStartDate, exCouponDays, settlementDays, calendar, dayCount, yieldConvention, isEOM, monthLag,
+        new LegalEntity(null, issuer, null, null, null), repoType);
   }
 
   /**
@@ -123,7 +165,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param repoType The repo type name.
    */
   public BondCapitalIndexedSecurityDefinition(final AnnuityDefinition<C> nominal, final AnnuityDefinition<C> coupon, final double indexStartDate, final int exCouponDays, final int settlementDays,
-      final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final int monthLag, final String issuer, final String repoType) {
+      final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final int monthLag, final LegalEntity issuer, final String repoType) {
     super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, repoType);
     for (int loopcpn = 0; loopcpn < coupon.getNumberOfPayments(); loopcpn++) {
       ArgumentChecker.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
@@ -139,6 +181,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
 
   /**
    * Builder of Inflation capital index bond from financial details. The notional and the coupon reference index are monthly index (no interpolation).
+   * The legal entity contains only the issuer name.
    * @param priceIndex The price index associated to the bond.
    * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param startDate The bond start date.
@@ -159,6 +202,32 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final IndexPrice priceIndex, final int monthLag, final ZonedDateTime startDate,
       final double indexStartValue, final ZonedDateTime maturityDate, final Period couponPeriod, final double notional, final double realRate, final BusinessDayConvention businessDay,
       final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final String issuer) {
+    return fromMonthly(priceIndex, monthLag, startDate, indexStartValue, maturityDate, couponPeriod, notional, realRate, businessDay, settlementDays,
+        calendar, dayCount, yieldConvention, isEOM, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Builder of Inflation capital index bond from financial details. The notional and the coupon reference index are monthly index (no interpolation).
+   * @param priceIndex The price index associated to the bond.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param startDate The bond start date.
+   * @param indexStartValue The index value at the start of the bond.
+   * @param maturityDate The bond maturity date.
+   * @param couponPeriod The period between coupon payments.
+   * @param notional The bond notional.
+   * @param realRate The bond nominal rate.
+   * @param businessDay The business day convention to compute the payment days.
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The payment calendar.
+   * @param dayCount The coupon day count convention.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param isEOM The end-of-month flag.
+   * @param issuer The bond issuer.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final IndexPrice priceIndex, final int monthLag, final ZonedDateTime startDate,
+      final double indexStartValue, final ZonedDateTime maturityDate, final Period couponPeriod, final double notional, final double realRate, final BusinessDayConvention businessDay,
+      final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final LegalEntity issuer) {
     // Nominal construction
     final CouponInflationZeroCouponMonthlyGearingDefinition nominalPayment = CouponInflationZeroCouponMonthlyGearingDefinition.from(startDate, maturityDate, notional, priceIndex, indexStartValue,
         monthLag,
@@ -205,10 +274,38 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final double indexStartValue, final ZonedDateTime firstCouponDate, final ZonedDateTime maturityDate, final Period couponPeriod, final double notional, final double realRate,
       final BusinessDayConvention businessDay, final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM,
       final String issuer) {
+    return fromMonthly(priceIndex, monthLag, startDate, indexStartValue, firstCouponDate, maturityDate, couponPeriod, notional, realRate, businessDay, settlementDays, calendar, dayCount,
+        yieldConvention, isEOM, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Builder of Inflation capital index bond from financial details. The first coupon date is provided to cope with short or long first coupons.
+   * The notional and the coupon reference index are monthly index (no interpolation).
+   * @param priceIndex The price index associated to the bond.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param startDate The bond start date.
+   * @param indexStartValue The index value at the start of the bond.
+   * @param firstCouponDate The bond first coupon date. Used for short/long first coupon.
+   * @param maturityDate The bond maturity date.
+   * @param couponPeriod The period between coupon payments.
+   * @param notional The bond notional.
+   * @param realRate The bond nominal rate.
+   * @param businessDay The business day convention to compute the payment days.
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The payment calendar.
+   * @param dayCount The coupon day count convention.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param isEOM The end-of-month flag.
+   * @param issuer The bond issuer.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final IndexPrice priceIndex, final int monthLag, final ZonedDateTime startDate,
+      final double indexStartValue, final ZonedDateTime firstCouponDate, final ZonedDateTime maturityDate, final Period couponPeriod, final double notional, final double realRate,
+      final BusinessDayConvention businessDay, final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM,
+      final LegalEntity issuer) {
     // Nominal construction
     final CouponInflationZeroCouponMonthlyGearingDefinition nominalPayment = CouponInflationZeroCouponMonthlyGearingDefinition.from(startDate, maturityDate, notional, priceIndex, indexStartValue,
-        monthLag,
-        monthLag, true, 1.0);
+        monthLag, monthLag, true, 1.0);
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
         new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment }, calendar);
     // Coupon construction
@@ -226,6 +323,34 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, calendar);
     return new BondCapitalIndexedSecurityDefinition<>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
         calendar, dayCount, yieldConvention, isEOM, monthLag, issuer);
+  }
+
+  /**
+   * Builder of Inflation capital index bond from financial details. The first coupon date is provided to cope with short or long first coupons.
+   * The notional and the coupon reference index are monthly index (no interpolation).
+   * @param priceIndex The price index associated to the bond.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param startDate The bond start date.
+   * @param indexStartValue The index value at the start of the bond.
+   * @param firstCouponDate The bond first coupon date. Used for short/long first coupon.
+   * @param maturityDate The bond maturity date.
+   * @param couponPeriod The period between coupon payments.
+   * @param realRate The bond nominal rate.
+   * @param businessDay The business day convention to compute the payment days.
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The payment calendar.
+   * @param dayCount The coupon day count convention.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param isEOM The end-of-month flag.
+   * @param issuer The bond issuer.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final IndexPrice priceIndex, final int monthLag, final ZonedDateTime startDate,
+      final double indexStartValue, final ZonedDateTime firstCouponDate, final ZonedDateTime maturityDate, final Period couponPeriod, final double realRate,
+      final BusinessDayConvention businessDay, final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM,
+      final LegalEntity issuer) {
+    return fromMonthly(priceIndex, monthLag, startDate, indexStartValue, firstCouponDate, maturityDate, couponPeriod, 1.0, realRate,
+        businessDay, settlementDays, calendar, dayCount, yieldConvention, isEOM, issuer);
   }
 
   /**
@@ -252,6 +377,34 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final ZonedDateTime startDate, final double indexStartValue, final ZonedDateTime maturityDate, final Period couponPeriod, final double notional, final double realRate,
       final BusinessDayConvention businessDay, final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM,
       final String issuer) {
+    return fromInterpolation(priceIndex, monthLag, startDate, indexStartValue, maturityDate, couponPeriod, notional, realRate,
+        businessDay, settlementDays, calendar, dayCount, yieldConvention, isEOM, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Builder of Inflation capital index bond from financial details. The notional and the coupon reference index are interpolated index.
+   * The coupon dates are computed from the maturity and have a short first coupon if required.
+   * @param priceIndex The price index associated to the bond.
+   * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param startDate The bond start date.
+   * @param indexStartValue The index value at the start of the bond.
+   * @param maturityDate The bond maturity date.
+   * @param couponPeriod The period between coupon payments.
+   * @param notional The bond notional.
+   * @param realRate The bond nominal rate.
+   * @param businessDay The business day convention to compute the payment days.
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The payment calendar.
+   * @param dayCount The coupon day count convention.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param isEOM The end-of-month flag.
+   * @param issuer The bond issuer name.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> fromInterpolation(final IndexPrice priceIndex, final int monthLag,
+      final ZonedDateTime startDate, final double indexStartValue, final ZonedDateTime maturityDate, final Period couponPeriod, final double notional, final double realRate,
+      final BusinessDayConvention businessDay, final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM,
+      final LegalEntity issuer) {
     // Nominal construction
     final CouponInflationZeroCouponInterpolationGearingDefinition nominalPayment = CouponInflationZeroCouponInterpolationGearingDefinition.from(startDate, maturityDate, notional, priceIndex,
         indexStartValue, monthLag, monthLag, true, 1.0);
@@ -378,6 +531,13 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     } else {
       settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     }
+    double lasKnownFixingTime = 0;
+    double lasKnownIndexFixing = 100;
+    if (!data.isEmpty()) {
+      lasKnownFixingTime = TimeCalculator.getTimeBetween(date, data.getLatestTime());
+      lasKnownIndexFixing = data.getLatestValue();
+    }
+
     final Annuity<Coupon> nominal = (Annuity<Coupon>) getNominal().toDerivative(date, data);
     final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) getCoupons().trimBefore(settlementDate);
     final CouponDefinition[] couponExPeriodArray = new CouponDefinition[couponDefinition.getNumberOfPayments()];
@@ -398,13 +558,16 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
+    final double nbDayToSpot = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - settlementDate.getDayOfYear();
+    final double nbDaysPeriod = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - couponDefinition.getNthPayment(0).getAccrualStartDate().getDayOfYear();
+    final double ratioPeriodToNextCoupon = nbDayToSpot / nbDaysPeriod;
     final CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
     final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
     final double notional = nominalLast.getNotional() * (settlementDate.isBefore(date) ? 0.0 : 1.0);
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
     final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date);
-    return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
-        getIssuer());
+    return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, ratioPeriodToNextCoupon, _yieldConvention, _couponPerYear,
+        settlement, _indexStartValue, lasKnownIndexFixing, lasKnownFixingTime, getIssuerEntity());
   }
 
   /**

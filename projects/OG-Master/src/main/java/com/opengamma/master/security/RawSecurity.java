@@ -8,6 +8,7 @@ package com.opengamma.master.security;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -107,51 +108,6 @@ public class RawSecurity extends ManageableSecurity {
     return RawSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 985253874:  // rawData
-        return getRawData();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 985253874:  // rawData
-        setRawData((byte[]) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_rawData, "rawData");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RawSecurity other = (RawSecurity) obj;
-      return JodaBeanUtils.equal(getRawData(), other.getRawData()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRawData());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the raw data of the security, simply expressed as a byte array.
@@ -179,6 +135,51 @@ public class RawSecurity extends ManageableSecurity {
    */
   public final Property<byte[]> rawData() {
     return metaBean().rawData().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RawSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RawSecurity other = (RawSecurity) obj;
+      return JodaBeanUtils.equal(getRawData(), other.getRawData()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRawData());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("RawSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("rawData").append('=').append(JodaBeanUtils.toString(getRawData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -240,6 +241,32 @@ public class RawSecurity extends ManageableSecurity {
      */
     public final MetaProperty<byte[]> rawData() {
       return _rawData;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 985253874:  // rawData
+          return ((RawSecurity) bean).getRawData();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 985253874:  // rawData
+          ((RawSecurity) bean).setRawData((byte[]) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RawSecurity) bean)._rawData, "rawData");
+      super.validate(bean);
     }
 
   }

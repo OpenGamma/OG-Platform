@@ -26,6 +26,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Defaults function for forward values for equity variance swap securities
@@ -55,7 +56,7 @@ public class EquityForwardPerExchangeDefaults extends DefaultPropertyFunction {
     _priority = PriorityClass.valueOf(priority);
     _equityCurveConfigAndDiscountingCurveNames = new HashMap<>();
     for (int i = 0; i < equityCurveConfigAndDiscountingCurveNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(equityCurveConfigAndDiscountingCurveNames[i + 1], equityCurveConfigAndDiscountingCurveNames[i + 2]);
+      final Pair<String, String> pair = Pairs.of(equityCurveConfigAndDiscountingCurveNames[i + 1], equityCurveConfigAndDiscountingCurveNames[i + 2]);
       _equityCurveConfigAndDiscountingCurveNames.put(equityCurveConfigAndDiscountingCurveNames[i], pair);
     }
   }

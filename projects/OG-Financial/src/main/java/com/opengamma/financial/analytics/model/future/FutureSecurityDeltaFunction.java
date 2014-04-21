@@ -25,23 +25,21 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackValueDeltaFunction;
-import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Provides sensitivity of FutureSecurity price with respect to itself, i.e. always unity.
- * This is essential in order to show aggregate position in this underlying in a derivatives portfolio.
+ * Provides sensitivity of FutureSecurity price with respect to itself, i.e. always unity. This is essential in order to show aggregate position in this underlying in a derivatives portfolio.
+ * 
  * @author casey
- *
  */
 public class FutureSecurityDeltaFunction extends AbstractFunction.NonCompiledInvoker {
 
   private String getValueRequirementName() {
     return ValueRequirementNames.DELTA;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -61,26 +59,18 @@ public class FutureSecurityDeltaFunction extends AbstractFunction.NonCompiledInv
     final ComputedValue result = new ComputedValue(valueSpecification, scaleFactor);
     return Sets.newHashSet(result);
   }
-  
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getSecurity() instanceof FutureSecurity) {
-      return true;
-    }
-    return false;
-  }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.FUTURE_SECURITY;
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    
-    ValueProperties properties = (target.getSecurity() instanceof InterestRateFutureSecurity) ? 
+
+    ValueProperties properties = (target.getSecurity() instanceof InterestRateFutureSecurity) ?
         createValueProperties().withAny(ValuePropertyNames.SCALE).get() : createValueProperties().get();
-    
+
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
   }
 

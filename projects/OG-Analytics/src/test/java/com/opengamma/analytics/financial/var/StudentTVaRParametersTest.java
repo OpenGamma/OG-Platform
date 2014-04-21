@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class StudentTVaRParametersTest {
   private static final double HORIZON = 10;
   private static final double PERIODS = 250;

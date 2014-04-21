@@ -5,18 +5,14 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Describes an interest inflation indexed bond issue. Only the coupon are indexed on a price index.
@@ -53,7 +49,7 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
   private final IndexPrice _priceIndex;
 
   /**
-   * Constructor of the Capital inflation indexed bond.
+   * Constructor of the Capital inflation indexed bond. The legal entity contains only the issuer name.
    * @param nominal The nominal annuity.
    * @param coupon The coupon annuity.
    * @param settlementTime The time (in years) to settlement date.
@@ -67,10 +63,28 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
    */
   public BondInterestIndexedSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final YieldConvention yieldConvention, final int couponPerYear, final PaymentFixed settlement, final String issuer, final IndexPrice priceIndex) {
+    this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, yieldConvention, couponPerYear, settlement, new LegalEntity(null, issuer, null, null, null), priceIndex);
+  }
+
+  /**
+   * Constructor of the Capital inflation indexed bond.
+   * @param nominal The nominal annuity.
+   * @param coupon The coupon annuity.
+   * @param settlementTime The time (in years) to settlement date.
+   * @param accruedInterest The real accrued interest at the settlement date.
+   * @param factorToNextCoupon The real accrual factor to the first coupon.
+   * @param yieldConvention The bond yield convention.
+   * @param couponPerYear Number of coupon per year.
+   * @param settlement The description of the bond settlement.
+   * @param priceIndex The price index
+   * @param issuer The bond issuer name.
+   */
+  public BondInterestIndexedSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
+      final YieldConvention yieldConvention, final int couponPerYear, final PaymentFixed settlement, final LegalEntity issuer, final IndexPrice priceIndex) {
     super(nominal, coupon, settlementTime, issuer);
-    Validate.notNull(yieldConvention, "Yield convention");
-    Validate.notNull(settlement, "Settlement");
-    Validate.notNull(priceIndex, "Price Index");
+    ArgumentChecker.notNull(yieldConvention, "Yield convention");
+    ArgumentChecker.notNull(settlement, "Settlement");
+    ArgumentChecker.notNull(priceIndex, "Price Index");
     _yieldConvention = yieldConvention;
     _accruedInterest = accruedInterest;
     _couponPerYear = couponPerYear;
@@ -128,13 +142,13 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
     return _settlement;
   }
 
-  /**
-   * Returns the issuer/currency pair for the bond.
-   * @return The pair.
-   */
-  public Pair<String, Currency> getIssuerCurrency() {
-    return ObjectsPair.of(getIssuer(), getCurrency());
-  }
+//  /**
+//   * Returns the issuer/currency pair for the bond.
+//   * @return The pair.
+//   */
+//  public Pair<String, Currency> getIssuerCurrency() {
+//    return ObjectsPair.of(getIssuer(), getCurrency());
+//  }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {

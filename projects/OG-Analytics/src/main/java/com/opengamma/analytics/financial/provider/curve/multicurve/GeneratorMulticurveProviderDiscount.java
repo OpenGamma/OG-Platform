@@ -93,18 +93,18 @@ public class GeneratorMulticurveProviderDiscount extends Function1D<DoubleMatrix
       indexParam += gen.getNumberOfParameter();
       YieldAndDiscountCurve curve = gen.generateCurve(name, provider, paramCurve);
       if (_discountingMap.containsKey(name)) {
-        provider.setCurve(_discountingMap.get(name), curve);
+        provider.setOrReplaceCurve(_discountingMap.get(name), curve);
       }
       if (_forwardIborMap.containsKey(name)) {
         IborIndex[] indexes = _forwardIborMap.get(name);
         for (int loopindex = 0; loopindex < indexes.length; loopindex++) {
-          provider.setCurve(indexes[loopindex], curve);
+          provider.setOrReplaceCurve(indexes[loopindex], curve);
         }
       }
       if (_forwardONMap.containsKey(name)) {
         IndexON[] indexes = _forwardONMap.get(name);
         for (int loopindex = 0; loopindex < indexes.length; loopindex++) {
-          provider.setCurve(indexes[loopindex], curve);
+          provider.setOrReplaceCurve(indexes[loopindex], curve);
         }
       }
       // TODO: Do we need to check that the curve is used at least once?

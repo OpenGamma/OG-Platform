@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -24,7 +24,7 @@ public class LiborMarketModelDisplacedDiffusionProviderDiscount extends LiborMar
    * @param parameters The LMM one factor parameters.
    * @param ccy The currency for which the LMM parameters are valid (LMM on the discounting curve).
    */
-  public LiborMarketModelDisplacedDiffusionProviderDiscount(final MulticurveProviderDiscount multicurves, LiborMarketModelDisplacedDiffusionParameters parameters, Currency ccy) {
+  public LiborMarketModelDisplacedDiffusionProviderDiscount(final MulticurveProviderDiscount multicurves, final LiborMarketModelDisplacedDiffusionParameters parameters, final Currency ccy) {
     super(multicurves, parameters, ccy);
   }
 
@@ -43,7 +43,7 @@ public class LiborMarketModelDisplacedDiffusionProviderDiscount extends LiborMar
    */
   @Override
   public LiborMarketModelDisplacedDiffusionProviderDiscount copy() {
-    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    final MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
     return new LiborMarketModelDisplacedDiffusionProviderDiscount(multicurveProvider, getLMMParameters(), getLMMCurrency());
   }
 
@@ -115,7 +115,7 @@ public class LiborMarketModelDisplacedDiffusionProviderDiscount extends LiborMar
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     getMulticurveProvider().replaceCurve(ccy, curve);
@@ -125,24 +125,42 @@ public class LiborMarketModelDisplacedDiffusionProviderDiscount extends LiborMar
    * Replaces the forward curve for a given index.
    * @param index The index.
    * @param curve The yield curve used for forward.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     getMulticurveProvider().replaceCurve(index, curve);
   }
 
-  public LiborMarketModelDisplacedDiffusionProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
+  /**
+   * Replaces a discounting curve for a currency.
+   * @param ccy The currency
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied discounting curve
+   */
+  public LiborMarketModelDisplacedDiffusionProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
     return new LiborMarketModelDisplacedDiffusionProviderDiscount(decoratedMulticurve, getLMMParameters(), getLMMCurrency());
   }
 
+  /**
+   * Replaces an ibor curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied ibor curve
+   */
   public LiborMarketModelDisplacedDiffusionProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new LiborMarketModelDisplacedDiffusionProviderDiscount(decoratedMulticurve, getLMMParameters(), getLMMCurrency());
   }
 
+  /**
+   * Replaces an overnight curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied overnight curve
+   */
   public LiborMarketModelDisplacedDiffusionProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new LiborMarketModelDisplacedDiffusionProviderDiscount(decoratedMulticurve, getLMMParameters(), getLMMCurrency());
   }
 

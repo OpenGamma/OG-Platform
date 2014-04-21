@@ -794,7 +794,7 @@ public class LocalVolatilityPDEGreekCalculator {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tk) {
-        return GRID_INTERPOLATOR2D.interpolate(idb, new DoublesPair(tk[0], tk[1]));
+        return GRID_INTERPOLATOR2D.interpolate(idb, DoublesPair.of(tk[0].doubleValue(), tk[1].doubleValue()));
       }
     };
 

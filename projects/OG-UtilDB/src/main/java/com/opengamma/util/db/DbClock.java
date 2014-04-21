@@ -6,9 +6,12 @@
 package com.opengamma.util.db;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
@@ -19,10 +22,11 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * A database-backed clock.
  * <p>
- * This only queries the database once per second, using simple
- * interpolation from nanoTime() between calls.
+ * This only queries the database once per second, using simple interpolation from nanoTime() between calls.
  */
 class DbClock extends Clock {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(DbClock.class);
 
   /**
    * The connector.
@@ -45,6 +49,10 @@ class DbClock extends Clock {
    */
   private volatile Instant _nowInstant;
   /**
+   * The last "now" instant returned. Any "now"s subsequently returned must not be before this.
+   */
+  private final AtomicReference<Instant> _previousNow = new AtomicReference<Instant>();
+  /**
    * The {@link System#nanoTime} of the now instant.
    */
   private volatile long _nowNanoTime;
@@ -52,7 +60,7 @@ class DbClock extends Clock {
   /**
    * Creates the clock.
    * 
-   * @param connector  the connector, not null
+   * @param connector the connector, not null
    */
   DbClock(DbConnector connector) {
     this(connector, OpenGammaClock.getZone());
@@ -61,7 +69,7 @@ class DbClock extends Clock {
   /**
    * Creates the clock.
    * 
-   * @param connector  the connector, not null
+   * @param connector the connector, not null
    */
   DbClock(DbConnector connector, ZoneId zone) {
     _connector = Objects.requireNonNull(connector, "connector");
@@ -69,19 +77,18 @@ class DbClock extends Clock {
     _zone = zone;
     long now = System.nanoTime();
     long base = now - 2_000_000_000L;
-    if (base > now) {  // overflow
+    if (base > now) { // overflow
       base = Long.MIN_VALUE;
     }
     _nowNanoTime = base;
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public Instant instant() {
+  private Instant instantImpl() {
     long nowNanos = System.nanoTime();
     _lock.readLock().lock();
     if (nowNanos - (_nowNanoTime + 1_000_000_000L) > 0 || _nowInstant == null) {
-      _lock.readLock().unlock();  // safely upgrade to write lock
+      _lock.readLock().unlock(); // safely upgrade to write lock
       _lock.writeLock().lock();
       try {
         // recheck, as per double checked locking
@@ -90,7 +97,7 @@ class DbClock extends Clock {
           _nowNanoTime = System.nanoTime();
           return _nowInstant;
         } else {
-          _lock.readLock().lock();  // safely downgrade to read lock
+          _lock.readLock().lock(); // safely downgrade to read lock
         }
       } finally {
         _lock.writeLock().unlock();
@@ -108,6 +115,36 @@ class DbClock extends Clock {
       _lock.readLock().unlock();
     }
     return result;
+  }
+
+  @Override
+  public Instant instant() {
+    final Instant instant = instantImpl();
+    Instant previous = _previousNow.get();
+    if (previous == null) {
+      if (_previousNow.compareAndSet(null, instant)) {
+        // This is the first result
+        return instant;
+      } else {
+        // Another thread did the first result; check against that
+        previous = _previousNow.get();
+        // [PLAT-3965] This might not be necessary. I think the problem is more to do with two successive calls from the same thread getting invalid times
+      }
+    }
+    do {
+      if (previous.isAfter(instant)) {
+        // Can't have time going backwards; have it stand still instead
+        s_logger.debug("Returning previous time instant {} instead of {}", previous, instant);
+        return previous;
+      }
+      // Time has progressed; update the reference
+      if (_previousNow.compareAndSet(previous, instant)) {
+        return instant;
+      }
+      // Another thread has returned a time; check against that
+      previous = _previousNow.get();
+      // [PLAT-3965] This might not be necessary. I think the problem is more to do with two successive calls from the same thread getting invalid times
+    } while (true);
   }
 
   //-------------------------------------------------------------------------

@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -125,104 +126,10 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
     return MetricRepositoryFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1329285016:  // registryName
-        return getRegistryName();
-      case 1313494970:  // jmxPublish
-        return isJmxPublish();
-      case 283122412:  // slf4jPublish
-        return isSlf4jPublish();
-      case 113968702:  // gangliaPublish
-        return isGangliaPublish();
-      case -798358237:  // gangliaAddress
-        return getGangliaAddress();
-      case 44258738:  // gangliaPort
-        return getGangliaPort();
-      case -772603358:  // gangliaAddressingMode
-        return getGangliaAddressingMode();
-      case 555621019:  // gangliaTtl
-        return getGangliaTtl();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1329285016:  // registryName
-        setRegistryName((String) newValue);
-        return;
-      case 1313494970:  // jmxPublish
-        setJmxPublish((Boolean) newValue);
-        return;
-      case 283122412:  // slf4jPublish
-        setSlf4jPublish((Boolean) newValue);
-        return;
-      case 113968702:  // gangliaPublish
-        setGangliaPublish((Boolean) newValue);
-        return;
-      case -798358237:  // gangliaAddress
-        setGangliaAddress((String) newValue);
-        return;
-      case 44258738:  // gangliaPort
-        setGangliaPort((Integer) newValue);
-        return;
-      case -772603358:  // gangliaAddressingMode
-        setGangliaAddressingMode((String) newValue);
-        return;
-      case 555621019:  // gangliaTtl
-        setGangliaTtl((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notEmpty(_registryName, "registryName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      MetricRepositoryFactory other = (MetricRepositoryFactory) obj;
-      return JodaBeanUtils.equal(getRegistryName(), other.getRegistryName()) &&
-          JodaBeanUtils.equal(isJmxPublish(), other.isJmxPublish()) &&
-          JodaBeanUtils.equal(isSlf4jPublish(), other.isSlf4jPublish()) &&
-          JodaBeanUtils.equal(isGangliaPublish(), other.isGangliaPublish()) &&
-          JodaBeanUtils.equal(getGangliaAddress(), other.getGangliaAddress()) &&
-          JodaBeanUtils.equal(getGangliaPort(), other.getGangliaPort()) &&
-          JodaBeanUtils.equal(getGangliaAddressingMode(), other.getGangliaAddressingMode()) &&
-          JodaBeanUtils.equal(getGangliaTtl(), other.getGangliaTtl()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegistryName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isJmxPublish());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSlf4jPublish());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isGangliaPublish());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddressingMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaTtl());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the registryName.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getRegistryName() {
     return _registryName;
@@ -230,7 +137,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   /**
    * Sets the registryName.
-   * @param registryName  the new value of the property, not null
+   * @param registryName  the new value of the property, not empty
    */
   public void setRegistryName(String registryName) {
     JodaBeanUtils.notEmpty(registryName, "registryName");
@@ -421,6 +328,72 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public MetricRepositoryFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MetricRepositoryFactory other = (MetricRepositoryFactory) obj;
+      return JodaBeanUtils.equal(getRegistryName(), other.getRegistryName()) &&
+          (isJmxPublish() == other.isJmxPublish()) &&
+          (isSlf4jPublish() == other.isSlf4jPublish()) &&
+          (isGangliaPublish() == other.isGangliaPublish()) &&
+          JodaBeanUtils.equal(getGangliaAddress(), other.getGangliaAddress()) &&
+          JodaBeanUtils.equal(getGangliaPort(), other.getGangliaPort()) &&
+          JodaBeanUtils.equal(getGangliaAddressingMode(), other.getGangliaAddressingMode()) &&
+          JodaBeanUtils.equal(getGangliaTtl(), other.getGangliaTtl()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegistryName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isJmxPublish());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSlf4jPublish());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isGangliaPublish());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddress());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaPort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddressingMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaTtl());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("MetricRepositoryFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("registryName").append('=').append(JodaBeanUtils.toString(getRegistryName())).append(',').append(' ');
+    buf.append("jmxPublish").append('=').append(JodaBeanUtils.toString(isJmxPublish())).append(',').append(' ');
+    buf.append("slf4jPublish").append('=').append(JodaBeanUtils.toString(isSlf4jPublish())).append(',').append(' ');
+    buf.append("gangliaPublish").append('=').append(JodaBeanUtils.toString(isGangliaPublish())).append(',').append(' ');
+    buf.append("gangliaAddress").append('=').append(JodaBeanUtils.toString(getGangliaAddress())).append(',').append(' ');
+    buf.append("gangliaPort").append('=').append(JodaBeanUtils.toString(getGangliaPort())).append(',').append(' ');
+    buf.append("gangliaAddressingMode").append('=').append(JodaBeanUtils.toString(getGangliaAddressingMode())).append(',').append(' ');
+    buf.append("gangliaTtl").append('=').append(JodaBeanUtils.toString(getGangliaTtl())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MetricRepositoryFactory}.
    */
@@ -591,6 +564,67 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Integer> gangliaTtl() {
       return _gangliaTtl;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1329285016:  // registryName
+          return ((MetricRepositoryFactory) bean).getRegistryName();
+        case 1313494970:  // jmxPublish
+          return ((MetricRepositoryFactory) bean).isJmxPublish();
+        case 283122412:  // slf4jPublish
+          return ((MetricRepositoryFactory) bean).isSlf4jPublish();
+        case 113968702:  // gangliaPublish
+          return ((MetricRepositoryFactory) bean).isGangliaPublish();
+        case -798358237:  // gangliaAddress
+          return ((MetricRepositoryFactory) bean).getGangliaAddress();
+        case 44258738:  // gangliaPort
+          return ((MetricRepositoryFactory) bean).getGangliaPort();
+        case -772603358:  // gangliaAddressingMode
+          return ((MetricRepositoryFactory) bean).getGangliaAddressingMode();
+        case 555621019:  // gangliaTtl
+          return ((MetricRepositoryFactory) bean).getGangliaTtl();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1329285016:  // registryName
+          ((MetricRepositoryFactory) bean).setRegistryName((String) newValue);
+          return;
+        case 1313494970:  // jmxPublish
+          ((MetricRepositoryFactory) bean).setJmxPublish((Boolean) newValue);
+          return;
+        case 283122412:  // slf4jPublish
+          ((MetricRepositoryFactory) bean).setSlf4jPublish((Boolean) newValue);
+          return;
+        case 113968702:  // gangliaPublish
+          ((MetricRepositoryFactory) bean).setGangliaPublish((Boolean) newValue);
+          return;
+        case -798358237:  // gangliaAddress
+          ((MetricRepositoryFactory) bean).setGangliaAddress((String) newValue);
+          return;
+        case 44258738:  // gangliaPort
+          ((MetricRepositoryFactory) bean).setGangliaPort((Integer) newValue);
+          return;
+        case -772603358:  // gangliaAddressingMode
+          ((MetricRepositoryFactory) bean).setGangliaAddressingMode((String) newValue);
+          return;
+        case 555621019:  // gangliaTtl
+          ((MetricRepositoryFactory) bean).setGangliaTtl((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notEmpty(((MetricRepositoryFactory) bean)._registryName, "registryName");
+      super.validate(bean);
     }
 
   }

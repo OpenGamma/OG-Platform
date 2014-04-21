@@ -28,7 +28,7 @@ public class SABRCubeUtils {
     final double[][] v = new double[y.length][x.length];
     for (int loopx = 0; loopx < x.length; loopx++) {
       for (int loopy = 0; loopy < y.length; loopy++) {
-        final DoublesPair point = new DoublesPair(x[loopx], y[loopy]);
+        final DoublesPair point = DoublesPair.of(x[loopx].doubleValue(), y[loopy].doubleValue());
         final Double value = surf.getMap().get(point);
         if (value != null) {
           v[loopy][loopx] = value;

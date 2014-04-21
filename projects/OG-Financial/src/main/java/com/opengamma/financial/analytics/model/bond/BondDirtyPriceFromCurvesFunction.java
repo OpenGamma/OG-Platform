@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.bond;
@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.interestrate.bond.calculator.DirtyPrice
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- * 
+ *
  */
 public class BondDirtyPriceFromCurvesFunction extends BondFromCurvesFunction {
 
@@ -23,5 +23,10 @@ public class BondDirtyPriceFromCurvesFunction extends BondFromCurvesFunction {
   @Override
   protected String getValueRequirementName() {
     return ValueRequirementNames.DIRTY_PRICE;
+  }
+
+  @Override
+  protected double getScaleFactor() {
+    return 100;
   }
 }

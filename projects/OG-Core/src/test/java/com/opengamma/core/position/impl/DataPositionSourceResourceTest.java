@@ -83,7 +83,7 @@ public class DataPositionSourceResourceTest {
 
     final Response test = _resource.getNode(OID.toString(), UID.getVersion(), null, null);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(target, ((FudgeResponse) test.getEntity()).getValue());
+    assertSame(target, FudgeResponse.unwrap(test.getEntity()));
   }
 
   @Test

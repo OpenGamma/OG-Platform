@@ -128,31 +128,18 @@ public class BloombergSecurityProviderTest {
   @Test
   public void aaplEquityByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_TICKER);
-    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertNotNull(bloombergIdentifier);
+    Security sec = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(sec);
     assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
   }
 
   @Test
   public void aaplEquityByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID);
-    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertNotNull(bloombergIdentifier);
+    Security sec = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
     assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void aaplEquitiesByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_TICKER);
-    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
-    assertNotNull(security);
-    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, security);
-  }
-
-  @Test
-  public void aaplEquitiesByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID);
-    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
-    assertNotNull(security);
-    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, security);
   }
 
   @Test
@@ -417,7 +404,8 @@ public class BloombergSecurityProviderTest {
     BeanAssert.assertBeanEquals((Bean) expected, (Bean) actual);
   }
 
-  static void assertEquitySecurity(EquitySecurity expectedEquity, Security sec) {
+  static void assertEquitySecurity(EquitySecurity expectedEquity, final Security sec) {
+    expectedEquity = expectedEquity.clone();
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
     assertTrue(sec instanceof EquitySecurity);

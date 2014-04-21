@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.ircurve.strips;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -42,6 +43,9 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @PropertyDefinition
   private String _name;
 
+  /**
+   * For the builder.
+   */
   protected CurveNode() {
     super();
   }
@@ -104,57 +108,6 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
     return CurveNode.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 305053208:  // curveNodeIdMapperName
-        return getCurveNodeIdMapperName();
-      case 3373707:  // name
-        return getName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 305053208:  // curveNodeIdMapperName
-        setCurveNodeIdMapperName((String) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_curveNodeIdMapperName, "curveNodeIdMapperName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CurveNode other = (CurveNode) obj;
-      return JodaBeanUtils.equal(getCurveNodeIdMapperName(), other.getCurveNodeIdMapperName()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIdMapperName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the curve node id mapper name.
@@ -204,6 +157,51 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
    */
   public final Property<String> name() {
     return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CurveNode clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CurveNode other = (CurveNode) obj;
+      return JodaBeanUtils.equal(getCurveNodeIdMapperName(), other.getCurveNodeIdMapperName()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIdMapperName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("CurveNode{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("curveNodeIdMapperName").append('=').append(JodaBeanUtils.toString(getCurveNodeIdMapperName())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -281,6 +279,36 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 305053208:  // curveNodeIdMapperName
+          return ((CurveNode) bean).getCurveNodeIdMapperName();
+        case 3373707:  // name
+          return ((CurveNode) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 305053208:  // curveNodeIdMapperName
+          ((CurveNode) bean).setCurveNodeIdMapperName((String) newValue);
+          return;
+        case 3373707:  // name
+          ((CurveNode) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CurveNode) bean)._curveNodeIdMapperName, "curveNodeIdMapperName");
     }
 
   }

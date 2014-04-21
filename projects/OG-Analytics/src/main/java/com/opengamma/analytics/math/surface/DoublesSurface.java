@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
 
@@ -33,11 +34,11 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
    */
   public DoublesSurface(final double[] xData, final double[] yData, final double[] zData) {
     super();
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
-    Validate.notNull(zData, "z data");
-    Validate.isTrue(xData.length == yData.length);
-    Validate.isTrue(xData.length == zData.length);
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
+    ArgumentChecker.notNull(zData, "z data");
+    ArgumentChecker.isTrue(xData.length == yData.length, "X data size different from Y data size");
+    ArgumentChecker.isTrue(xData.length == zData.length, "X data size different from Z data size");
     _n = xData.length;
     _xData = Arrays.copyOf(xData, _n);
     _yData = Arrays.copyOf(yData, _n);

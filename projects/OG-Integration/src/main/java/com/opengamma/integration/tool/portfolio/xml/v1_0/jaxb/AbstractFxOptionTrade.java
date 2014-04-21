@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -82,98 +83,6 @@ public abstract class AbstractFxOptionTrade extends Trade {
   @Override
   public AbstractFxOptionTrade.Meta metaBean() {
     return AbstractFxOptionTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1373587791:  // optionType
-        return getOptionType();
-      case 244977400:  // buySell
-        return getBuySell();
-      case 1005147787:  // currencyPair
-        return getCurrencyPair();
-      case -1641048154:  // optionCurrency
-        return getOptionCurrency();
-      case -891985998:  // strike
-        return getStrike();
-      case -1406037851:  // fxExpiry
-        return getFxExpiry();
-      case -299417201:  // paymentCalendars
-        return getPaymentCalendars();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-      case 244977400:  // buySell
-        setBuySell((BuySell) newValue);
-        return;
-      case 1005147787:  // currencyPair
-        setCurrencyPair((String) newValue);
-        return;
-      case -1641048154:  // optionCurrency
-        setOptionCurrency((Currency) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((BigDecimal) newValue);
-        return;
-      case -1406037851:  // fxExpiry
-        setFxExpiry((FxExpiry) newValue);
-        return;
-      case -299417201:  // paymentCalendars
-        setPaymentCalendars((Set<Calendar>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_optionType, "optionType");
-    JodaBeanUtils.notNull(_buySell, "buySell");
-    JodaBeanUtils.notNull(_currencyPair, "currencyPair");
-    JodaBeanUtils.notNull(_optionCurrency, "optionCurrency");
-    JodaBeanUtils.notNull(_strike, "strike");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractFxOptionTrade other = (AbstractFxOptionTrade) obj;
-      return JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
-          JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
-          JodaBeanUtils.equal(getOptionCurrency(), other.getOptionCurrency()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getFxExpiry(), other.getFxExpiry()) &&
-          JodaBeanUtils.equal(getPaymentCalendars(), other.getPaymentCalendars()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFxExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -357,6 +266,64 @@ public abstract class AbstractFxOptionTrade extends Trade {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractFxOptionTrade other = (AbstractFxOptionTrade) obj;
+      return JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
+          JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
+          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
+          JodaBeanUtils.equal(getOptionCurrency(), other.getOptionCurrency()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getFxExpiry(), other.getFxExpiry()) &&
+          JodaBeanUtils.equal(getPaymentCalendars(), other.getPaymentCalendars()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFxExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("AbstractFxOptionTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(getCurrencyPair())).append(',').append(' ');
+    buf.append("optionCurrency").append('=').append(JodaBeanUtils.toString(getOptionCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("fxExpiry").append('=').append(JodaBeanUtils.toString(getFxExpiry())).append(',').append(' ');
+    buf.append("paymentCalendars").append('=').append(JodaBeanUtils.toString(getPaymentCalendars())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractFxOptionTrade}.
    */
@@ -512,6 +479,67 @@ public abstract class AbstractFxOptionTrade extends Trade {
      */
     public final MetaProperty<Set<Calendar>> paymentCalendars() {
       return _paymentCalendars;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1373587791:  // optionType
+          return ((AbstractFxOptionTrade) bean).getOptionType();
+        case 244977400:  // buySell
+          return ((AbstractFxOptionTrade) bean).getBuySell();
+        case 1005147787:  // currencyPair
+          return ((AbstractFxOptionTrade) bean).getCurrencyPair();
+        case -1641048154:  // optionCurrency
+          return ((AbstractFxOptionTrade) bean).getOptionCurrency();
+        case -891985998:  // strike
+          return ((AbstractFxOptionTrade) bean).getStrike();
+        case -1406037851:  // fxExpiry
+          return ((AbstractFxOptionTrade) bean).getFxExpiry();
+        case -299417201:  // paymentCalendars
+          return ((AbstractFxOptionTrade) bean).getPaymentCalendars();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1373587791:  // optionType
+          ((AbstractFxOptionTrade) bean).setOptionType((OptionType) newValue);
+          return;
+        case 244977400:  // buySell
+          ((AbstractFxOptionTrade) bean).setBuySell((BuySell) newValue);
+          return;
+        case 1005147787:  // currencyPair
+          ((AbstractFxOptionTrade) bean).setCurrencyPair((String) newValue);
+          return;
+        case -1641048154:  // optionCurrency
+          ((AbstractFxOptionTrade) bean).setOptionCurrency((Currency) newValue);
+          return;
+        case -891985998:  // strike
+          ((AbstractFxOptionTrade) bean).setStrike((BigDecimal) newValue);
+          return;
+        case -1406037851:  // fxExpiry
+          ((AbstractFxOptionTrade) bean).setFxExpiry((FxExpiry) newValue);
+          return;
+        case -299417201:  // paymentCalendars
+          ((AbstractFxOptionTrade) bean).setPaymentCalendars((Set<Calendar>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AbstractFxOptionTrade) bean)._optionType, "optionType");
+      JodaBeanUtils.notNull(((AbstractFxOptionTrade) bean)._buySell, "buySell");
+      JodaBeanUtils.notNull(((AbstractFxOptionTrade) bean)._currencyPair, "currencyPair");
+      JodaBeanUtils.notNull(((AbstractFxOptionTrade) bean)._optionCurrency, "optionCurrency");
+      JodaBeanUtils.notNull(((AbstractFxOptionTrade) bean)._strike, "strike");
+      super.validate(bean);
     }
 
   }

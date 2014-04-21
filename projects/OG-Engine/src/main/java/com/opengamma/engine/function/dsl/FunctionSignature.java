@@ -8,6 +8,9 @@ package com.opengamma.engine.function.dsl;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.lambdava.streams.Functional;
 
+/**
+ * DSL function signature.
+ */
 public interface FunctionSignature {
 
   FunctionSignature outputs(FunctionOutput... outputs);
@@ -26,7 +29,8 @@ public interface FunctionSignature {
 
   FunctionSignature addOutput(FunctionOutput output);
 
-  Class getComputationTargetClass();
+  Class<?> getComputationTargetClass();
 
   FunctionSignature targetClass(Class<?> clazz);
+
 }

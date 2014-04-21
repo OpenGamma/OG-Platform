@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.timeseries.analysis;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -14,10 +15,12 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class IIDHypothesisTestCase {
   protected static final ImmutableInstantDoubleTimeSeries RANDOM;
   protected static final ImmutableInstantDoubleTimeSeries SIGNAL;

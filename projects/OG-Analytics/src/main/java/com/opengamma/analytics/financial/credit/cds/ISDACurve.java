@@ -25,7 +25,9 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
  * are assumed.
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
+* @deprecated Use classes from isdastandardmodel
  */
+@Deprecated
 public class ISDACurve {
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(ISDA_INTERPOLATOR, FLAT_EXTRAPOLATOR, ISDA_EXTRAPOLATOR);
 

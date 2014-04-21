@@ -1,31 +1,38 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
-@Config(description = "Future price curve specification")
+@Config(description = "Future price curve specification", group = ConfigGroups.MISC)
 public class FuturePriceCurveSpecification {
-  private String _name;
-  private UniqueIdentifiable _target;
-  private FuturePriceCurveInstrumentProvider<?> _curveInstrumentProvider;
+  private final String _name;
+  private final UniqueIdentifiable _target;
+  private final FuturePriceCurveInstrumentProvider<?> _curveInstrumentProvider;
+  private final boolean _useUnderlyingForExpiry;
 
   public FuturePriceCurveSpecification(final String name, final UniqueIdentifiable target, final FuturePriceCurveInstrumentProvider<?> curveInstrumentProvider) {
-    Validate.notNull(name, "name");
-    Validate.notNull(target, "target");
-    Validate.notNull(curveInstrumentProvider, "curve instrument provider");
+    this(name, target, curveInstrumentProvider, false);
+  }
+
+  public FuturePriceCurveSpecification(final String name, final UniqueIdentifiable target, final FuturePriceCurveInstrumentProvider<?> curveInstrumentProvider,
+      final boolean useUnderlyingForExpiry) {
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(target, "target");
+    ArgumentChecker.notNull(curveInstrumentProvider, "curve instrument provider");
     _name = name;
     _target = target;
     _curveInstrumentProvider = curveInstrumentProvider;
+    _useUnderlyingForExpiry = useUnderlyingForExpiry;
   }
 
   public String getName() {
@@ -40,6 +47,10 @@ public class FuturePriceCurveSpecification {
     return _target;
   }
 
+  public boolean isUseUnderlyingSecurityForExpiry() {
+    return _useUnderlyingForExpiry;
+  }
+
   @Override
   public int hashCode() {
     return getName().hashCode() * getTarget().hashCode();
@@ -48,6 +59,9 @@ public class FuturePriceCurveSpecification {
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
+      return true;
+    }
+    if (o == null) {
       return false;
     }
     if (!(o instanceof FuturePriceCurveSpecification)) {
@@ -56,6 +70,7 @@ public class FuturePriceCurveSpecification {
     final FuturePriceCurveSpecification other = (FuturePriceCurveSpecification) o;
     return other.getName().equals(getName()) &&
            other.getCurveInstrumentProvider().equals(getCurveInstrumentProvider()) &&
-           other.getTarget().equals(getTarget());
+           other.getTarget().equals(getTarget()) &&
+           other.isUseUnderlyingSecurityForExpiry() == isUseUnderlyingSecurityForExpiry();
   }
 }

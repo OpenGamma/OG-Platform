@@ -14,7 +14,6 @@ import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 /**
@@ -31,28 +30,55 @@ public class FudgeRestClient {
 
   /**
    * Creates an instance.
-   * @param underlyingClient  the 
+   * 
+   * @param underlyingClient the
    */
-  protected FudgeRestClient(final Client underlyingClient) {
+  public FudgeRestClient(final Client underlyingClient) {
     _client = underlyingClient;
   }
 
   /**
-   * Creates an instance, initializing the providers
+   * Creates the default configuration used to initialize the providers.
+   * <p>
+   * This is the implementation used by {@link #create}.
+   * 
+   * @return a default configuration, not null
+   */
+  protected static DefaultClientConfig getDefaultClientConfig() {
+    final DefaultClientConfig config = new DefaultClientConfig();
+    config.getClasses().add(FudgeObjectBinaryConsumer.class);
+    config.getClasses().add(FudgeObjectBinaryProducer.class);
+    return config;
+  }
+
+  /**
+   * Applies any default provider configuration to a client.
+   * <p>
+   * This is the implementation used by {@link #create}.
+   * 
+   * @param client the client to configure.
+   */
+  protected static void configureDefaultClient(final Client client) {
+    client.addFilter(new ExceptionThrowingClientFilter());
+  }
+
+  /**
+   * Creates an instance, initializing the providers.
+   * <p>
+   * The initialization steps are performed by {@link #getDefaultClientConfig} and {@link #configureDefaultClient}.
+   * 
    * @return the RESTful client, not null
    */
   public static FudgeRestClient create() {
-    ClientConfig config = new DefaultClientConfig();
-    config.getClasses().add(FudgeObjectBinaryConsumer.class);
-    config.getClasses().add(FudgeObjectBinaryProducer.class);
-    Client client = Client.create(config);
-    client.addFilter(new ExceptionThrowingClientFilter());
+    Client client = Client.create(getDefaultClientConfig());
+    configureDefaultClient(client);
     return new FudgeRestClient(client);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying Jersey RESTful client.
+   * 
    * @return the client, not null
    */
   public Client getClient() {
@@ -62,8 +88,8 @@ public class FudgeRestClient {
   //-------------------------------------------------------------------------
   /**
    * Obtains a class that can be used to call a remote resource synchronously.
-   *
-   * @param uri  the URI of the resource, not null
+   * 
+   * @param uri the URI of the resource, not null
    * @return a class that can be used to call a remote resource, not null
    */
   public WebResource access(final URI uri) {
@@ -72,8 +98,8 @@ public class FudgeRestClient {
 
   /**
    * Obtains a class that can be used to call a remote resource asynchronously.
-   *
-   * @param uri  the URI of the resource, not null
+   * 
+   * @param uri the URI of the resource, not null
    * @return a class that can be used to call a remote resource, not null
    */
   public AsyncWebResource accessAsync(final URI uri) {
@@ -84,8 +110,8 @@ public class FudgeRestClient {
    * Obtains a class that can be used to call a remote resource synchronously.
    * <p>
    * This sets the entity type and accepted type to be Fudge.
-   *
-   * @param uri  the URI of the resource, not null
+   * 
+   * @param uri the URI of the resource, not null
    * @return a class that can be used to call a remote resource, not null
    */
   public Builder accessFudge(final URI uri) {

@@ -25,12 +25,14 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the construction of the Hull-White one factor model with piecewise constant volatility. The computation of several model related factors are also tested.
  */
+@Test(groups = TestGroup.UNIT)
 public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
 
   private static final double MEAN_REVERSION = 0.01;
@@ -107,14 +109,14 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
     final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final InterestRateFutureSecurityDefinition eru2Definition = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, noitonal, futuresAccrualFactor, name, calendar);
-    final InterestRateFutureSecurity eru2 = eru2Definition.toDerivative(REFERENCE_DATE_ZONED, referencePrice);
-    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
+    final InterestRateFutureSecurity eru2 = eru2Definition.toDerivative(REFERENCE_DATE_ZONED);
+    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, eru2.getTradingLastTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
     final double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, TOLERANCE_RATE);
     // Derivative with respect to volatility parameters
     final int nbSigma = MODEL_PARAMETERS.getVolatility().length;
     final double[] sigmaBar = new double[nbSigma];
-    final double factor2 = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime(), sigmaBar);
+    final double factor2 = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, eru2.getTradingLastTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime(), sigmaBar);
     assertEquals("Hull-White one factor: future convexity adjusment factor", factor, factor2, TOLERANCE_RATE);
     final double[] sigmaBarExpected = new double[nbSigma];
     final double shift = 1E-6;
@@ -122,10 +124,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       double[] volBumped = VOLATILITY.clone();
       volBumped[loops] += shift;
       HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volBumped, VOLATILITY_TIME);
-      double factorPlus = MODEL.futuresConvexityFactor(parametersBumped, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
+      double factorPlus = MODEL.futuresConvexityFactor(parametersBumped, eru2.getTradingLastTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
       volBumped[loops] -= 2 * shift;
       parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volBumped, VOLATILITY_TIME);
-      double factorMinus = MODEL.futuresConvexityFactor(parametersBumped, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
+      double factorMinus = MODEL.futuresConvexityFactor(parametersBumped, eru2.getTradingLastTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
       sigmaBarExpected[loops] = (factorPlus - factorMinus) / (2 * shift);
       assertEquals("Hull-White one factor: future convexity adjusment factor", sigmaBarExpected[loops], sigmaBar[loops], TOLERANCE_RATE);
     }

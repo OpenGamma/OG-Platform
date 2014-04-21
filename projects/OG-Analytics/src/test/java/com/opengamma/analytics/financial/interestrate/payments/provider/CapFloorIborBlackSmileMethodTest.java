@@ -39,11 +39,13 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test related to the pricing and sensitivity of the Ibor cap/floor with the Black model.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborBlackSmileMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -95,7 +97,7 @@ public class CapFloorIborBlackSmileMethodTest {
   public void presentValue() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_BLACK.presentValue(CAP_LONG, BLACK_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double volatility = BLACK_SURF.getZValue(CAP_LONG.getFixingTime(), STRIKE);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, CAP_LONG.getFixingTime(), IS_CAP);

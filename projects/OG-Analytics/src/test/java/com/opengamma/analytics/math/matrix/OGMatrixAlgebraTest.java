@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class OGMatrixAlgebraTest {
   private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1);
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");

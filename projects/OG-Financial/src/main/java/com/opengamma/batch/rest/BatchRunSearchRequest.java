@@ -7,6 +7,7 @@ package com.opengamma.batch.rest;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -88,72 +89,6 @@ public class BatchRunSearchRequest extends DirectBean {
   @Override
   public BatchRunSearchRequest.Meta metaBean() {
     return BatchRunSearchRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        return getPagingRequest();
-      case 719932522:  // marketDataUid
-        return getMarketDataUid();
-      case 276749144:  // viewDefinitionUid
-        return getViewDefinitionUid();
-      case -2031293866:  // versionCorrection
-        return getVersionCorrection();
-      case 113591406:  // valuationTime
-        return getValuationTime();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        setPagingRequest((PagingRequest) newValue);
-        return;
-      case 719932522:  // marketDataUid
-        setMarketDataUid((UniqueId) newValue);
-        return;
-      case 276749144:  // viewDefinitionUid
-        setViewDefinitionUid((UniqueId) newValue);
-        return;
-      case -2031293866:  // versionCorrection
-        setVersionCorrection((com.opengamma.id.VersionCorrection) newValue);
-        return;
-      case 113591406:  // valuationTime
-        setValuationTime((Instant) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BatchRunSearchRequest other = (BatchRunSearchRequest) obj;
-      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
-          JodaBeanUtils.equal(getMarketDataUid(), other.getMarketDataUid()) &&
-          JodaBeanUtils.equal(getViewDefinitionUid(), other.getViewDefinitionUid()) &&
-          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
-          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataUid());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUid());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -285,6 +220,60 @@ public class BatchRunSearchRequest extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public BatchRunSearchRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BatchRunSearchRequest other = (BatchRunSearchRequest) obj;
+      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+          JodaBeanUtils.equal(getMarketDataUid(), other.getMarketDataUid()) &&
+          JodaBeanUtils.equal(getViewDefinitionUid(), other.getViewDefinitionUid()) &&
+          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataUid());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUid());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("BatchRunSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
+    buf.append("marketDataUid").append('=').append(JodaBeanUtils.toString(getMarketDataUid())).append(',').append(' ');
+    buf.append("viewDefinitionUid").append('=').append(JodaBeanUtils.toString(getViewDefinitionUid())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code BatchRunSearchRequest}.
    */
@@ -407,6 +396,46 @@ public class BatchRunSearchRequest extends DirectBean {
      */
     public final MetaProperty<Instant> valuationTime() {
       return _valuationTime;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return ((BatchRunSearchRequest) bean).getPagingRequest();
+        case 719932522:  // marketDataUid
+          return ((BatchRunSearchRequest) bean).getMarketDataUid();
+        case 276749144:  // viewDefinitionUid
+          return ((BatchRunSearchRequest) bean).getViewDefinitionUid();
+        case -2031293866:  // versionCorrection
+          return ((BatchRunSearchRequest) bean).getVersionCorrection();
+        case 113591406:  // valuationTime
+          return ((BatchRunSearchRequest) bean).getValuationTime();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          ((BatchRunSearchRequest) bean).setPagingRequest((PagingRequest) newValue);
+          return;
+        case 719932522:  // marketDataUid
+          ((BatchRunSearchRequest) bean).setMarketDataUid((UniqueId) newValue);
+          return;
+        case 276749144:  // viewDefinitionUid
+          ((BatchRunSearchRequest) bean).setViewDefinitionUid((UniqueId) newValue);
+          return;
+        case -2031293866:  // versionCorrection
+          ((BatchRunSearchRequest) bean).setVersionCorrection((com.opengamma.id.VersionCorrection) newValue);
+          return;
+        case 113591406:  // valuationTime
+          ((BatchRunSearchRequest) bean).setValuationTime((Instant) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

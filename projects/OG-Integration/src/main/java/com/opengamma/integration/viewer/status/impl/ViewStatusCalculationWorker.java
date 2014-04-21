@@ -12,7 +12,6 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,7 +42,7 @@ public class ViewStatusCalculationWorker {
   
   private static final Logger s_logger = LoggerFactory.getLogger(ViewStatusCalculationWorker.class);
   
-  private static final ExecutorService DEFAULT_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadPoolFactory("ViewStatus"));
+  private static final ExecutorService DEFAULT_EXECUTOR = NamedThreadPoolFactory.newCachedThreadPool("ViewStatus");
   
   private final ExecutorService _executor;
     

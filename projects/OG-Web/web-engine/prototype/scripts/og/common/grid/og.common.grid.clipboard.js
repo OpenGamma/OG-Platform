@@ -103,7 +103,7 @@ $.register_module({
         var data_handler = function (data) {
             var clipboard = this, grid = clipboard.grid, lcv, index,
                 selection = clipboard.selection, rows, cols, row, cell, single;
-            if (!clipboard.selection) return; // user has deselected before handler came back, so bail
+            if (!clipboard.selection || !data) return; // user has deselected before handler came back, so bail
             index = 0; rows = selection.rows.length; cols = selection.cols.length; single = rows === 1 && cols === 1;
             if (single && data[0].error && !data[0]['logOutput']) // if there's no error output yet, bail
                 return clipboard.data = null;
@@ -125,7 +125,8 @@ $.register_module({
         var select = function (text) {textarea.val(text).focus().select();};
         Clipboard.prototype.clear = function () {
             var clipboard = this;
-            if (clipboard.selection) clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
+            clipboard.selection = clipboard.data = null;
+            if (clipboard.selection) clipboard.dataman.viewport({clipboard: 'clear'});
         };
         Clipboard.prototype.has = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data,
@@ -152,15 +153,24 @@ $.register_module({
             var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport,
                 expanded = selection && selection.rows.length === 1 && selection.cols.length === 1,
                 format = expanded ? 'EXPANDED' : 'CELL', log = false;
-            if (selection === null) return clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
+            if (selection === null) {
+                clipboard.selection = clipboard.data = null;
+                return clipboard.dataman.viewport({clipboard: 'clear'});
+            }
             grid_data = grid.range(selection, expanded);
-            if (format === 'EXPANDED' && grid_data.raw && grid_data.raw[0][0].value.error)
+            if (format === 'EXPANDED' && grid_data.raw && grid_data.raw[0][0].value.error){
                 (log = true), grid_data.data = null;
-            if (clipboard.selection && selection && Object.equals(clipboard.selection, selection))
-                if (selection && data_viewport && Object.equals(selection, data_viewport))
-                    return grid_data.data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data.data) : null;
+            }
+            if (clipboard.selection && selection && Object.equals(clipboard.selection, selection)) {
+                if (selection && data_viewport && Object.equals(selection, data_viewport)) {
+                    return grid_data.data ? (clipboard.dataman.viewport({clipboard: 'clear'}),
+                        clipboard.data = grid_data.data) : null;
+                }
+            }
             clipboard.selection = selection;
-            if (grid_data.data) return clipboard.dataman.viewport(null), clipboard.data = grid_data.data;
+            if (grid_data.data) {
+                return clipboard.dataman.viewport({clipboard: 'clear'}), clipboard.data = grid_data.data;
+            }
             clipboard.dataman.viewport({rows: selection.rows, cols: selection.cols, format: format, log: log});
             clipboard.data = null;
         };

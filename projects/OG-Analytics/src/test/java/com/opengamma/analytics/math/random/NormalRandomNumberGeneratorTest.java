@@ -13,9 +13,12 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NormalRandomNumberGeneratorTest {
   private static final NormalRandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
 

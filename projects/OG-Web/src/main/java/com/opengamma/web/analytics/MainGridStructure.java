@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Column structure of the grid used to display analytics data.
@@ -96,15 +96,22 @@ import com.opengamma.util.tuple.Pair;
      * TODO need to specify row using a stable target ID for the row to cope with dynamic aggregation
      */
   @Override
-  public Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
+  public Pair<String, ValueSpecification> getValueSpecificationForCell(int rowIndex, int colIndex) {
     if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
       throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
     }
     return _targetLookup.getTargetForCell(rowIndex, _columnGroups.getColumn(colIndex).getSpecification());
   }
-
-  /* package */ Pair<String, ValueRequirement> getRequirementForCell(int rowIndex, int colIndex) {
+  /**
+   * Returns the calculation configuration name and value requirement for a cell in the grid.
+   * @param rowIndex The row index
+   * @param colIndex The column index
+   * @return Pair of value requirement and calculation config name.
+   * TODO need to specify row using a stable target ID for the row to cope with dynamic aggregation
+   */
+  @Override
+  public Pair<String, ValueRequirement> getValueRequirementForCell(int rowIndex, int colIndex) {
     if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
       throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
@@ -179,7 +186,7 @@ import com.opengamma.util.tuple.Pair;
                                                           viewportDefinition,
                                                           _columnGroups,
                                                           cache.getLastCalculationDuration(), cache.getValuationTime());
-    return Pair.of(viewportResults, state);
+    return Pairs.of(viewportResults, state);
   }
 
   /**

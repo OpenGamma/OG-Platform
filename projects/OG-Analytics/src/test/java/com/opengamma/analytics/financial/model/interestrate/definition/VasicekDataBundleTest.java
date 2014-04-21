@@ -14,11 +14,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VasicekDataBundleTest {
   private static final YieldCurve SHORT_RATE = YieldCurve.from(ConstantDoublesCurve.from(0.02));
   private static final double LONG_RATE = 0.05;

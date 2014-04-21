@@ -21,11 +21,13 @@ import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class MultiCapFloorPricerTest extends CapletStrippingSetup {
   private static final Logger LOGGER = LoggerFactory.getLogger(MultiCapFloorPricerTest.class);
 

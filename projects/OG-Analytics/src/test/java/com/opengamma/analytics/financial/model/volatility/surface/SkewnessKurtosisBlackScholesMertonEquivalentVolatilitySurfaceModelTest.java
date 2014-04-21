@@ -16,13 +16,15 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SkewnessKurtosisBlackScholesMertonEquivalentVolatilitySurfaceModelTest {
   private static final VolatilitySurfaceModel<OptionDefinition, SkewKurtosisOptionDataBundle> MODEL = new SkewnessKurtosisBlackScholesMertonEquivalentVolatilitySurfaceModel();
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);

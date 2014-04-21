@@ -83,7 +83,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
       return func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     }
     // With extrapolation
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -112,7 +112,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final InterestRateCurveSensitivity forwardModifiedDr = new InterestRateCurveSensitivity(PRSC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData));
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -143,7 +143,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     final double maturity = swaption.getMaturityTime();
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);

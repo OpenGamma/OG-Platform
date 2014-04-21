@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.opengamma.util.auth.AuthUtils;
+
 /**
  * Manages long-polling http requests using Jetty continuations.  Requests to this servlet block until there
  * is new data available for the client or until the connection times out.  The URL is assumed to be
@@ -91,10 +93,10 @@ public class LongPollingServlet extends HttpServlet {
   private void setUpConnection(Continuation continuation, HttpServletRequest request, HttpServletResponse response) throws IOException {
     // suspend the request
     continuation.suspend(); // always suspend before registration
-    String userId = request.getRemoteUser(); // TODO is this right?
+    String userName = (AuthUtils.isPermissive() ? null : AuthUtils.getUserName());
     // get the client ID from the URL and pass the continuation to the connection manager for the next updates
     String clientId = getClientId(request);
-    boolean connected = (clientId != null) && _connectionManager.longPollHttpConnect(userId, clientId, continuation);
+    boolean connected = (clientId != null) && _connectionManager.longPollHttpConnect(userName, clientId, continuation);
     if (!connected) {
       // couldn't get the client ID from the URL or the client ID didn't correspond to a known client
       // TODO how do I send something other than jetty's standard HTML error page?

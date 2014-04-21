@@ -40,17 +40,19 @@ import com.opengamma.analytics.financial.provider.sensitivity.sabrswaption.Param
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Test class for the replication method for CMS caplet/floorlet using a SABR smile with extrapolation.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -63,13 +65,13 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
   //Swap 5Y
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Period ANNUITY_TENOR = Period.ofYears(5);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2020, 4, 28);
   //Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY = AnnuityCouponFixedDefinition.from(EUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,
@@ -83,7 +85,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final ZonedDateTime ACCRUAL_START_DATE = SETTLEMENT_DATE; // pre-fixed
   private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, FIXED_PAYMENT_PERIOD, BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
-  private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount PAYMENT_DAY_COUNT = DayCounts.ACT_360;
   private static final double ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 10000000; //10m
   private static final CouponCMSDefinition CMS_COUPON_RECEIVER_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
@@ -216,7 +218,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final double shiftAlpha = 0.00001;
     final double maturity = CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_CAP_LONG.getSettlementTime();
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_CAP_LONG.getFixingTime(), maturity);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CMS_CAP_LONG.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
@@ -255,7 +257,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final double shiftAlpha = 0.00001;
     final double maturity = CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_COUPON.getSettlementTime();
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_COUPON.getFixingTime(), maturity);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CMS_COUPON.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);

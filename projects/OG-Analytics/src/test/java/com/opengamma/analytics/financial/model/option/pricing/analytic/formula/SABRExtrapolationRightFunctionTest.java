@@ -14,10 +14,12 @@ import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatility
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests of the SABR valuation of options with extrapolation on the right (for high strikes). The SABR pricing is through Black formula with implied volatility.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRExtrapolationRightFunctionTest {
   // Data
   private static final double NU = 0.50;

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -74,35 +75,6 @@ public class CashFlowSecurityBean extends SecurityBean {
   @Override
   public CashFlowSecurityBean.Meta metaBean() {
     return CashFlowSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case 73828649:  // settlement
-        return getSettlement();
-      case -1413853096:  // amount
-        return getAmount();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 73828649:  // settlement
-        setSettlement((ZonedDateTimeBean) newValue);
-        return;
-      case -1413853096:  // amount
-        setAmount((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -178,6 +150,33 @@ public class CashFlowSecurityBean extends SecurityBean {
    */
   public final Property<Double> amount() {
     return metaBean().amount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CashFlowSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("CashFlowSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("settlement").append('=').append(JodaBeanUtils.toString(getSettlement())).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -271,6 +270,36 @@ public class CashFlowSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Double> amount() {
       return _amount;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((CashFlowSecurityBean) bean).getCurrency();
+        case 73828649:  // settlement
+          return ((CashFlowSecurityBean) bean).getSettlement();
+        case -1413853096:  // amount
+          return ((CashFlowSecurityBean) bean).getAmount();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((CashFlowSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 73828649:  // settlement
+          ((CashFlowSecurityBean) bean).setSettlement((ZonedDateTimeBean) newValue);
+          return;
+        case -1413853096:  // amount
+          ((CashFlowSecurityBean) bean).setAmount((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

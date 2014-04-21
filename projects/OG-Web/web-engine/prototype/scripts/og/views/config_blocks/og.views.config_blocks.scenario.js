@@ -25,12 +25,12 @@ $.register_module({
                         })
                 ],
                 processor: function (data) {
-                    $.each(data.calculationConfiguration, function (index, value) {
-                        if (!value.scenarioId) {
-                            delete value.scenarioId;
+                    data.calculationConfiguration.forEach(function (entry) {
+                        if (!entry.scenarioId) {
+                            delete entry.scenarioId;
                         }
-                        if (!value.scenarioParametersId) {
-                            delete value.scenarioParametersId;
+                        if (!entry.scenarioParametersId) {
+                            delete entry.scenarioParametersId;
                         }
                     });
                 }

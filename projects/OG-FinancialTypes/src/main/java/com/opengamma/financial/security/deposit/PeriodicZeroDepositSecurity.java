@@ -7,6 +7,7 @@ package com.opengamma.financial.security.deposit;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,12 +22,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 @BeanDefinition
+@SecurityDescription(type = PeriodicZeroDepositSecurity.SECURITY_TYPE, description = "Periodic zero deposit")
 public class PeriodicZeroDepositSecurity extends FinancialSecurity {
   /** Serialization version */
   private static final long serialVersionUID = 1L;
@@ -95,90 +98,6 @@ public class PeriodicZeroDepositSecurity extends FinancialSecurity {
   @Override
   public PeriodicZeroDepositSecurity.Meta metaBean() {
     return PeriodicZeroDepositSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 3493088:  // rate
-        return getRate();
-      case 1668812287:  // compoundingPeriodsPerYear
-        return getCompoundingPeriodsPerYear();
-      case -934795532:  // region
-        return getRegion();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTime) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTime) newValue);
-        return;
-      case 3493088:  // rate
-        setRate((Double) newValue);
-        return;
-      case 1668812287:  // compoundingPeriodsPerYear
-        setCompoundingPeriodsPerYear((Double) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_startDate, "startDate");
-    JodaBeanUtils.notNull(_maturityDate, "maturityDate");
-    com.opengamma.util.ArgumentChecker.notNegativeOrZero(_compoundingPeriodsPerYear, "compoundingPeriodsPerYear");
-    JodaBeanUtils.notNull(_region, "region");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      PeriodicZeroDepositSecurity other = (PeriodicZeroDepositSecurity) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate()) &&
-          JodaBeanUtils.equal(getCompoundingPeriodsPerYear(), other.getCompoundingPeriodsPerYear()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingPeriodsPerYear());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -337,6 +256,66 @@ public class PeriodicZeroDepositSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public PeriodicZeroDepositSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PeriodicZeroDepositSecurity other = (PeriodicZeroDepositSecurity) obj;
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getRate(), other.getRate()) &&
+          JodaBeanUtils.equal(getCompoundingPeriodsPerYear(), other.getCompoundingPeriodsPerYear()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingPeriodsPerYear());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("PeriodicZeroDepositSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
+    buf.append("compoundingPeriodsPerYear").append('=').append(JodaBeanUtils.toString(getCompoundingPeriodsPerYear())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code PeriodicZeroDepositSecurity}.
    */
@@ -475,6 +454,61 @@ public class PeriodicZeroDepositSecurity extends FinancialSecurity {
      */
     public final MetaProperty<ExternalId> region() {
       return _region;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((PeriodicZeroDepositSecurity) bean).getCurrency();
+        case -2129778896:  // startDate
+          return ((PeriodicZeroDepositSecurity) bean).getStartDate();
+        case -414641441:  // maturityDate
+          return ((PeriodicZeroDepositSecurity) bean).getMaturityDate();
+        case 3493088:  // rate
+          return ((PeriodicZeroDepositSecurity) bean).getRate();
+        case 1668812287:  // compoundingPeriodsPerYear
+          return ((PeriodicZeroDepositSecurity) bean).getCompoundingPeriodsPerYear();
+        case -934795532:  // region
+          return ((PeriodicZeroDepositSecurity) bean).getRegion();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((PeriodicZeroDepositSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((PeriodicZeroDepositSecurity) bean).setStartDate((ZonedDateTime) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((PeriodicZeroDepositSecurity) bean).setMaturityDate((ZonedDateTime) newValue);
+          return;
+        case 3493088:  // rate
+          ((PeriodicZeroDepositSecurity) bean).setRate((Double) newValue);
+          return;
+        case 1668812287:  // compoundingPeriodsPerYear
+          ((PeriodicZeroDepositSecurity) bean).setCompoundingPeriodsPerYear((Double) newValue);
+          return;
+        case -934795532:  // region
+          ((PeriodicZeroDepositSecurity) bean).setRegion((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((PeriodicZeroDepositSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((PeriodicZeroDepositSecurity) bean)._startDate, "startDate");
+      JodaBeanUtils.notNull(((PeriodicZeroDepositSecurity) bean)._maturityDate, "maturityDate");
+      com.opengamma.util.ArgumentChecker.notNegativeOrZero(((PeriodicZeroDepositSecurity) bean)._compoundingPeriodsPerYear, "compoundingPeriodsPerYear");
+      JodaBeanUtils.notNull(((PeriodicZeroDepositSecurity) bean)._region, "region");
+      super.validate(bean);
     }
 
   }

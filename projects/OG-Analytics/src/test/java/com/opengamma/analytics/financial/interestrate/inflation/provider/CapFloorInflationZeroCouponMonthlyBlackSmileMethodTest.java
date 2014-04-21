@@ -35,22 +35,24 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  *  Tests the present value and its sensitivities for zero-coupon cap/floor with reference index on the first of the month.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorInflationZeroCouponMonthlyBlackSmileMethodTest {
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final Calendar CALENDAR_EUR = MulticurveProviderDiscountDataSets.getEURCalendar();
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final int MATURITY = 10;
   private static final Period COUPON_TENOR = Period.ofYears(MATURITY);
@@ -94,10 +96,10 @@ public class CapFloorInflationZeroCouponMonthlyBlackSmileMethodTest {
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
-  @Test
   /**
    * Tests the present value.
    */
+  @Test
   public void presentValueNoNotional() {
     final MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_CAP, BLACK_INFLATION);
     final double timeToMaturity = ZERO_COUPON_CAP.getReferenceEndTime() - ZERO_COUPON_CAP.getLastKnownFixingTime();
@@ -112,24 +114,24 @@ public class CapFloorInflationZeroCouponMonthlyBlackSmileMethodTest {
     assertEquals("Zero-coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(ZERO_COUPON_CAP.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the present value: Method vs Calculator.
    */
+  @Test
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_CAP, BLACK_INFLATION);
     final MultipleCurrencyAmount pvCalculator = ZERO_COUPON_CAP.accept(PVIC, BLACK_INFLATION);
     assertEquals("Zero-coupon inflation DiscountingMethod: Present value", pvMethod, pvCalculator);
   }
 
-  @Test
   /**
    * Test the present value curves sensitivity.
    */
+  @Test
   public void presentValueCurveSensitivity() {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION);
-    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION, MARKET.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION);
 
     AssertSensivityObjects.assertEquals("Zero-coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
 

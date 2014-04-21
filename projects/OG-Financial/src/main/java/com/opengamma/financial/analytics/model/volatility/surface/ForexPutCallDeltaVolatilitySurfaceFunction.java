@@ -53,10 +53,15 @@ public abstract class ForexPutCallDeltaVolatilitySurfaceFunction extends ForexVo
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + surfaceRequirement);
     }
+    // In some circumstances, we will get Object arrays for xs and ys, so need to cope with that.
     @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Tenor, Double> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Double>) volatilitySurfaceObject;
-    final Tenor[] tenors = fxVolatilitySurface.getXs();
-    final Double[] deltaValues = fxVolatilitySurface.getYs();
+    final VolatilitySurfaceData<Object, Object> fxVolatilitySurface = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
+    final Object[] tenorsObjs = fxVolatilitySurface.getXs();
+    final Tenor[] tenors = new Tenor[tenorsObjs.length];
+    System.arraycopy(tenorsObjs, 0, tenors, 0, tenors.length);
+    final Object[] deltaValueObjs = fxVolatilitySurface.getYs();
+    final Double[] deltaValues = new Double[deltaValueObjs.length];
+    System.arraycopy(deltaValueObjs, 0, deltaValues, 0, deltaValueObjs.length);
     Arrays.sort(tenors);
     Arrays.sort(deltaValues);
     final int nPoints = tenors.length;
@@ -78,7 +83,7 @@ public abstract class ForexPutCallDeltaVolatilitySurfaceFunction extends ForexVo
       for (int j = 0; j < nSmileValues; j++) {
         final Double delta = deltaValues[j];
         if (delta != null) {
-          Double volatility = fxVolatilitySurface.getVolatility(tenor, delta);
+          Double volatility = fxVolatilitySurface.getVolatility((Object) tenor, (Object) delta);
           if (volatility != null) {
             volatility *= shiftMultiplier;
             if (delta < 50) {

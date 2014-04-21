@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -162,129 +163,6 @@ public class BatchDocument extends DirectBean {
   @Override
   public BatchDocument.Meta metaBean() {
     return BatchDocument.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -331744779:  // batchId
-        return getBatchId();
-      case 950748666:  // observationDate
-        return getObservationDate();
-      case 951232793:  // observationTime
-        return getObservationTime();
-      case -599445191:  // complete
-        return isComplete();
-      case 2095858933:  // masterProcessHost
-        return getMasterProcessHost();
-      case -961305086:  // creationInstant
-        return getCreationInstant();
-      case 1823123231:  // startInstant
-        return getStartInstant();
-      case -2109892474:  // endInstant
-        return getEndInstant();
-      case -1329836566:  // numRestarts
-        return getNumRestarts();
-      case 1173228502:  // dataPaging
-        return getDataPaging();
-      case 3076010:  // data
-        return getData();
-      case -49547561:  // errorsPaging
-        return getErrorsPaging();
-      case -1294635157:  // errors
-        return getErrors();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -331744779:  // batchId
-        setBatchId((ObjectId) newValue);
-        return;
-      case 950748666:  // observationDate
-        setObservationDate((LocalDate) newValue);
-        return;
-      case 951232793:  // observationTime
-        setObservationTime((String) newValue);
-        return;
-      case -599445191:  // complete
-        setComplete((Boolean) newValue);
-        return;
-      case 2095858933:  // masterProcessHost
-        setMasterProcessHost((String) newValue);
-        return;
-      case -961305086:  // creationInstant
-        setCreationInstant((Instant) newValue);
-        return;
-      case 1823123231:  // startInstant
-        setStartInstant((Instant) newValue);
-        return;
-      case -2109892474:  // endInstant
-        setEndInstant((Instant) newValue);
-        return;
-      case -1329836566:  // numRestarts
-        setNumRestarts((Integer) newValue);
-        return;
-      case 1173228502:  // dataPaging
-        setDataPaging((Paging) newValue);
-        return;
-      case 3076010:  // data
-        setData((List<ViewResultEntry>) newValue);
-        return;
-      case -49547561:  // errorsPaging
-        setErrorsPaging((Paging) newValue);
-        return;
-      case -1294635157:  // errors
-        setErrors((List<BatchError>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BatchDocument other = (BatchDocument) obj;
-      return JodaBeanUtils.equal(getBatchId(), other.getBatchId()) &&
-          JodaBeanUtils.equal(getObservationDate(), other.getObservationDate()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(isComplete(), other.isComplete()) &&
-          JodaBeanUtils.equal(getMasterProcessHost(), other.getMasterProcessHost()) &&
-          JodaBeanUtils.equal(getCreationInstant(), other.getCreationInstant()) &&
-          JodaBeanUtils.equal(getStartInstant(), other.getStartInstant()) &&
-          JodaBeanUtils.equal(getEndInstant(), other.getEndInstant()) &&
-          JodaBeanUtils.equal(getNumRestarts(), other.getNumRestarts()) &&
-          JodaBeanUtils.equal(getDataPaging(), other.getDataPaging()) &&
-          JodaBeanUtils.equal(getData(), other.getData()) &&
-          JodaBeanUtils.equal(getErrorsPaging(), other.getErrorsPaging()) &&
-          JodaBeanUtils.equal(getErrors(), other.getErrors());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isComplete());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMasterProcessHost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCreationInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumRestarts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataPaging());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorsPaging());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -543,7 +421,7 @@ public class BatchDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the paged list of main batch data, may be empty, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ViewResultEntry> getData() {
     return _data;
@@ -551,9 +429,10 @@ public class BatchDocument extends DirectBean {
 
   /**
    * Sets the paged list of main batch data, may be empty, not null.
-   * @param data  the new value of the property
+   * @param data  the new value of the property, not null
    */
   public void setData(List<ViewResultEntry> data) {
+    JodaBeanUtils.notNull(data, "data");
     this._data.clear();
     this._data.addAll(data);
   }
@@ -594,7 +473,7 @@ public class BatchDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the paged list of errors, may be empty, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<BatchError> getErrors() {
     return _errors;
@@ -602,9 +481,10 @@ public class BatchDocument extends DirectBean {
 
   /**
    * Sets the paged list of errors, may be empty, not null.
-   * @param errors  the new value of the property
+   * @param errors  the new value of the property, not null
    */
   public void setErrors(List<BatchError> errors) {
+    JodaBeanUtils.notNull(errors, "errors");
     this._errors.clear();
     this._errors.addAll(errors);
   }
@@ -615,6 +495,84 @@ public class BatchDocument extends DirectBean {
    */
   public final Property<List<BatchError>> errors() {
     return metaBean().errors().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BatchDocument clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BatchDocument other = (BatchDocument) obj;
+      return JodaBeanUtils.equal(getBatchId(), other.getBatchId()) &&
+          JodaBeanUtils.equal(getObservationDate(), other.getObservationDate()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          (isComplete() == other.isComplete()) &&
+          JodaBeanUtils.equal(getMasterProcessHost(), other.getMasterProcessHost()) &&
+          JodaBeanUtils.equal(getCreationInstant(), other.getCreationInstant()) &&
+          JodaBeanUtils.equal(getStartInstant(), other.getStartInstant()) &&
+          JodaBeanUtils.equal(getEndInstant(), other.getEndInstant()) &&
+          (getNumRestarts() == other.getNumRestarts()) &&
+          JodaBeanUtils.equal(getDataPaging(), other.getDataPaging()) &&
+          JodaBeanUtils.equal(getData(), other.getData()) &&
+          JodaBeanUtils.equal(getErrorsPaging(), other.getErrorsPaging()) &&
+          JodaBeanUtils.equal(getErrors(), other.getErrors());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isComplete());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMasterProcessHost());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCreationInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNumRestarts());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataPaging());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorsPaging());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(448);
+    buf.append("BatchDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("batchId").append('=').append(JodaBeanUtils.toString(getBatchId())).append(',').append(' ');
+    buf.append("observationDate").append('=').append(JodaBeanUtils.toString(getObservationDate())).append(',').append(' ');
+    buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
+    buf.append("complete").append('=').append(JodaBeanUtils.toString(isComplete())).append(',').append(' ');
+    buf.append("masterProcessHost").append('=').append(JodaBeanUtils.toString(getMasterProcessHost())).append(',').append(' ');
+    buf.append("creationInstant").append('=').append(JodaBeanUtils.toString(getCreationInstant())).append(',').append(' ');
+    buf.append("startInstant").append('=').append(JodaBeanUtils.toString(getStartInstant())).append(',').append(' ');
+    buf.append("endInstant").append('=').append(JodaBeanUtils.toString(getEndInstant())).append(',').append(' ');
+    buf.append("numRestarts").append('=').append(JodaBeanUtils.toString(getNumRestarts())).append(',').append(' ');
+    buf.append("dataPaging").append('=').append(JodaBeanUtils.toString(getDataPaging())).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(getData())).append(',').append(' ');
+    buf.append("errorsPaging").append('=').append(JodaBeanUtils.toString(getErrorsPaging())).append(',').append(' ');
+    buf.append("errors").append('=').append(JodaBeanUtils.toString(getErrors())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -870,6 +828,93 @@ public class BatchDocument extends DirectBean {
      */
     public final MetaProperty<List<BatchError>> errors() {
       return _errors;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -331744779:  // batchId
+          return ((BatchDocument) bean).getBatchId();
+        case 950748666:  // observationDate
+          return ((BatchDocument) bean).getObservationDate();
+        case 951232793:  // observationTime
+          return ((BatchDocument) bean).getObservationTime();
+        case -599445191:  // complete
+          return ((BatchDocument) bean).isComplete();
+        case 2095858933:  // masterProcessHost
+          return ((BatchDocument) bean).getMasterProcessHost();
+        case -961305086:  // creationInstant
+          return ((BatchDocument) bean).getCreationInstant();
+        case 1823123231:  // startInstant
+          return ((BatchDocument) bean).getStartInstant();
+        case -2109892474:  // endInstant
+          return ((BatchDocument) bean).getEndInstant();
+        case -1329836566:  // numRestarts
+          return ((BatchDocument) bean).getNumRestarts();
+        case 1173228502:  // dataPaging
+          return ((BatchDocument) bean).getDataPaging();
+        case 3076010:  // data
+          return ((BatchDocument) bean).getData();
+        case -49547561:  // errorsPaging
+          return ((BatchDocument) bean).getErrorsPaging();
+        case -1294635157:  // errors
+          return ((BatchDocument) bean).getErrors();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -331744779:  // batchId
+          ((BatchDocument) bean).setBatchId((ObjectId) newValue);
+          return;
+        case 950748666:  // observationDate
+          ((BatchDocument) bean).setObservationDate((LocalDate) newValue);
+          return;
+        case 951232793:  // observationTime
+          ((BatchDocument) bean).setObservationTime((String) newValue);
+          return;
+        case -599445191:  // complete
+          ((BatchDocument) bean).setComplete((Boolean) newValue);
+          return;
+        case 2095858933:  // masterProcessHost
+          ((BatchDocument) bean).setMasterProcessHost((String) newValue);
+          return;
+        case -961305086:  // creationInstant
+          ((BatchDocument) bean).setCreationInstant((Instant) newValue);
+          return;
+        case 1823123231:  // startInstant
+          ((BatchDocument) bean).setStartInstant((Instant) newValue);
+          return;
+        case -2109892474:  // endInstant
+          ((BatchDocument) bean).setEndInstant((Instant) newValue);
+          return;
+        case -1329836566:  // numRestarts
+          ((BatchDocument) bean).setNumRestarts((Integer) newValue);
+          return;
+        case 1173228502:  // dataPaging
+          ((BatchDocument) bean).setDataPaging((Paging) newValue);
+          return;
+        case 3076010:  // data
+          ((BatchDocument) bean).setData((List<ViewResultEntry>) newValue);
+          return;
+        case -49547561:  // errorsPaging
+          ((BatchDocument) bean).setErrorsPaging((Paging) newValue);
+          return;
+        case -1294635157:  // errors
+          ((BatchDocument) bean).setErrors((List<BatchError>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BatchDocument) bean)._data, "data");
+      JodaBeanUtils.notNull(((BatchDocument) bean)._errors, "errors");
     }
 
   }

@@ -6,5 +6,6 @@
       "deleted": "${securityDoc.versionToInstant}",
     </#if>
     "securityType":"${security.securityType}" },
+    "securityXml":"${securityXml}",
     "identifiers": {<#list security.externalIdBundle.externalIds as item> "${item.scheme.name}":"${item.scheme.name}-${item.value}"<#if item_has_next>,</#if> </#list>}
 }

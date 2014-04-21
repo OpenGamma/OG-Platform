@@ -5,34 +5,55 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.VersionCorrection;
 
 /**
  *
  */
 public class ConfigDBFuturePriceCurveDefinitionSource implements FuturePriceCurveDefinitionSource {
-  private final ConfigSource _configSource;
 
+  @SuppressWarnings("rawtypes")
+  private final ConfigSourceQuery<FuturePriceCurveDefinition> _query;
+
+  /**
+   * @param configSource the config source, not null
+   * @deprecated Use {@link #ConfigDBFuturePriceCurveDefinitionSource(ConfigSource,VersionCorrection)} or {@link #init} instead
+   */
+  @Deprecated
   public ConfigDBFuturePriceCurveDefinitionSource(final ConfigSource configSource) {
-    Validate.notNull(configSource, "config source");
-    _configSource = configSource;
+    this(configSource, VersionCorrection.LATEST);
+  }
+
+  @SuppressWarnings("rawtypes")
+  public ConfigDBFuturePriceCurveDefinitionSource(final ConfigSource configSource, final VersionCorrection versionCorrection) {
+    this(new ConfigSourceQuery<FuturePriceCurveDefinition>(configSource, FuturePriceCurveDefinition.class, versionCorrection));
+  }
+
+  @SuppressWarnings("rawtypes")
+  private ConfigDBFuturePriceCurveDefinitionSource(final ConfigSourceQuery<FuturePriceCurveDefinition> query) {
+    _query = query;
+  }
+
+  public static ConfigDBFuturePriceCurveDefinitionSource init(final FunctionCompilationContext context, final FunctionDefinition function) {
+    return new ConfigDBFuturePriceCurveDefinitionSource(ConfigSourceQuery.init(context, function, FuturePriceCurveDefinition.class));
   }
 
   protected ConfigSource getConfigSource() {
-    return _configSource;
+    return _query.getConfigSource();
   }
 
   @Override
   public FuturePriceCurveDefinition<?> getDefinition(final String name, final String instrumentType) {
-    return _configSource.getLatestByName(FuturePriceCurveDefinition.class, name + "_" + instrumentType);
+    return _query.get(name + "_" + instrumentType);
   }
 
   @Override
   public FuturePriceCurveDefinition<?> getDefinition(final String name, final String instrumentType, final VersionCorrection versionCorrection) {
-    return _configSource.getSingle(FuturePriceCurveDefinition.class, name + "_" + instrumentType, versionCorrection);
+    return _query.get(name + "_" + instrumentType, versionCorrection);
   }
 
 }

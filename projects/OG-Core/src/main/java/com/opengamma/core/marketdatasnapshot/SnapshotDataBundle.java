@@ -147,6 +147,15 @@ public final class SnapshotDataBundle {
     return Collections.unmodifiableSet(_dataPoints.entrySet());
   }
 
+  /**
+   * Returns the data points.
+   *
+   * @return the data points
+   */
+  public Map<ExternalIdBundle, Double> getDataPoints() {
+    return Collections.unmodifiableMap(_dataPoints);
+  }
+
   @Override
   public boolean equals(Object o) {
     // only check one id collection, assume both in sync

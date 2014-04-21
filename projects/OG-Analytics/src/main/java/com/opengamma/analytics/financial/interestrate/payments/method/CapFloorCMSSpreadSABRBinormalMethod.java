@@ -243,7 +243,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     final InterestRateCurveSensitivity cmsCap1CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap1, sabrData);
     final InterestRateCurveSensitivity cmsCap2CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap2, sabrData);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cmsSpread.getPaymentTime(), -cmsSpread.getPaymentTime() * discountFactorPayment));
+    list.add(DoublesPair.of(cmsSpread.getPaymentTime(), -cmsSpread.getPaymentTime() * discountFactorPayment));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(cmsSpread.getFundingCurveName(), list);
     final InterestRateCurveSensitivity dfCurveSensitivity = new InterestRateCurveSensitivity(resultMap);

@@ -12,6 +12,7 @@ import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNames
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.OPTION_THETA;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -38,14 +39,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Calculates the value (forward driftless) theta of FX options using a Black surface and
- * curves constructed using the discounting method. The result is scaled by the number of
- * days in a year, with the default being 365.25.
+ * Calculates the value (forward driftless) theta of FX options using a Black surface and curves constructed using the discounting method. The result is scaled by the number of days in a year, with
+ * the default being 365.25.
  */
 public class BlackDiscountingValueThetaFXOptionFunction extends BlackDiscountingFXOptionFunction {
   /** The value theta calculator */
-  private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, CurrencyAmount> CALCULATOR =
-      ValueThetaForexBlackSmileCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, CurrencyAmount> CALCULATOR = ValueThetaForexBlackSmileCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#VALUE_THETA}
@@ -59,16 +58,14 @@ public class BlackDiscountingValueThetaFXOptionFunction extends BlackDiscounting
     return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final BlackForexSmileProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final CurrencyAmount valueTheta = derivative.accept(CALCULATOR, blackData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
         double daysPerYear;
-        final ValueProperties.Builder propertiesWithDaysPerYear = properties.copy()
-            .withoutAny(PROPERTY_DAYS_PER_YEAR);
+        final ValueProperties.Builder propertiesWithDaysPerYear = properties.copy().withoutAny(PROPERTY_DAYS_PER_YEAR);
         final Set<String> daysPerYearProperty = properties.getValues(PROPERTY_DAYS_PER_YEAR);
         if (daysPerYearProperty.isEmpty() || daysPerYearProperty.size() != 1) {
           daysPerYear = DEFAULT_DAYS_PER_YEAR;
@@ -79,18 +76,19 @@ public class BlackDiscountingValueThetaFXOptionFunction extends BlackDiscounting
         }
         final String currency = Iterables.getOnlyElement(properties.getValues(CURRENCY));
         if (!currency.equals(valueTheta.getCurrency().getCode())) {
-          throw new OpenGammaRuntimeException("Currency of result " + valueTheta.getCurrency() + " did not match" +
-              " the expected currency " + currency);
+          throw new OpenGammaRuntimeException("Currency of result " + valueTheta.getCurrency() + " did not match" + " the expected currency " + currency);
         }
         final ValueSpecification spec = new ValueSpecification(VALUE_THETA, target.toSpecification(), propertiesWithDaysPerYear.get());
         return Collections.singleton(new ComputedValue(spec, valueTheta.getAmount() / daysPerYear));
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        return super.getResultProperties(compilationContext, target)
-            .with(PROPERTY_THETA_CALCULATION_METHOD, OPTION_THETA)
-            .withAny(PROPERTY_DAYS_PER_YEAR);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.with(PROPERTY_THETA_CALCULATION_METHOD, OPTION_THETA).withAny(PROPERTY_DAYS_PER_YEAR);
+        }
+        return properties;
       }
 
     };

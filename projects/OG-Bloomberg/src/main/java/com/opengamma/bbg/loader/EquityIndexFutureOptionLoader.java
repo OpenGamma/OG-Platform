@@ -81,7 +81,7 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
 
   private static final FutureOptionMarginResolver MARGIN_RESOLVER = new FutureOptionMarginResolver();
 
-  private static final ExchangeDataProvider exchangeData = DefaultExchangeDataProvider.getInstance();
+  private static final ExchangeDataProvider s_exchangeData = DefaultExchangeDataProvider.getInstance();
 
   /**
    * Creates an instance.
@@ -182,7 +182,7 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
 
     // currently we will pick up the unified bbg exchange code - we try to map to MIC via the description
     if (exchangeDescription != null) {
-      final String exchangeMIC = exchangeData.getExchangeFromDescription(exchangeDescription).getMic();
+      final String exchangeMIC = s_exchangeData.getExchangeFromDescription(exchangeDescription).getMic();
       if (exchangeMIC != null) {
         exchange = exchangeMIC;
       }

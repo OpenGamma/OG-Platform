@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFuture;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EquityIndexFutureOptionTest {
   private static final boolean IS_CALL = false;
   private static final double STRIKE = 100;

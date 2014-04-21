@@ -51,7 +51,7 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_IR_FUT.price(futures.getUnderlying(), multicurves);
+    return METHOD_IR_FUT.price(futures.getUnderlyingSecurity(), multicurves);
   }
 
 }

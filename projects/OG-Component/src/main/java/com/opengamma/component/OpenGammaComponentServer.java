@@ -17,10 +17,12 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.UnavailableSecurityManagerException;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.StartupUtils;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Main entry point for OpenGamma component-based servers.
@@ -68,6 +70,18 @@ public class OpenGammaComponentServer {
    * Command line options.
    */
   private static final Options OPTIONS = getOptions();
+  /**
+   * Message logged when startup begins.
+   */
+  public static final String STARTING_MESSAGE = "======== STARTING OPENGAMMA ========";
+  /**
+   * Message logged if startup fails.
+   */
+  public static final String STARTUP_FAILED_MESSAGE = "======== OPENGAMMA STARTUP FAILED ========";
+  /**
+   * Prefix of the message logged when startup completes.
+   */
+  public static final String STARTUP_COMPLETE_MESSAGE = "======== OPENGAMMA STARTED in ";
 
   /**
    * The logger in use.
@@ -85,7 +99,7 @@ public class OpenGammaComponentServer {
    */
   public static void main(String[] args) { // CSIGNORE
     if (!new OpenGammaComponentServer().run(args)) {
-      System.exit(0);
+      ShutdownUtils.exit(-1);
     }
   }
 
@@ -97,6 +111,7 @@ public class OpenGammaComponentServer {
    * 
    * @param args  the arguments, not null
    * @return true if the server is started, false if there was a problem
+   * @throws RuntimeException if an error occurs
    */
   public boolean run(String[] args) {
     // parse command line
@@ -130,21 +145,21 @@ public class OpenGammaComponentServer {
     }
     String configFile = args[0];
     // properties
-    Map<String, String> properties = new HashMap<String, String>();
+    Map<String, String> properties = new HashMap<>();
     if (args.length > 1) {
       for (int i = 1; i < args.length; i++) {
         String arg = args[i];
         int equalsPosition = arg.indexOf('=');
         if (equalsPosition < 0) {
-          throw new OpenGammaRuntimeException("Invalid property format, must be key=value (no spaces)");
+          throw new ComponentConfigException("Invalid property format, must be key=value (no spaces)");
         }
         String key = arg.substring(0, equalsPosition).trim();
         String value = arg.substring(equalsPosition + 1).trim();
         if (key.length() == 0) {
-          throw new IllegalArgumentException("Invalid empty property key");
+          throw new ComponentConfigException("Invalid empty property key");
         }
         if (properties.containsKey(key)) {
-          throw new IllegalArgumentException("Invalid property, key '" + key + "' specified twice");
+          throw new ComponentConfigException("Invalid property, key '" + key + "' specified twice");
         }
         properties.put(key, value);
       }
@@ -174,6 +189,7 @@ public class OpenGammaComponentServer {
    * @param properties  the set of override properties to use, not null
    * @param logger  the logger to use, null uses verbose
    * @return the component repository, null if there was an error
+   * @throws RuntimeException if an error occurs
    */
   public ComponentRepository run(String configFile, Map<String, String> properties, ComponentLogger logger) {
     ArgumentChecker.notNull(configFile, "configFile");
@@ -281,23 +297,24 @@ public class OpenGammaComponentServer {
    */
   protected ComponentRepository run(String configFile, Map<String, String> properties) {
     long start = System.nanoTime();
-    _logger.logInfo("======== STARTING OPENGAMMA ========");
+    _logger.logInfo(STARTING_MESSAGE);
     _logger.logDebug(" Config locator: " + configFile);
     
-    ComponentRepository repo = null;
+    ComponentRepository repo;
     try {
       ComponentManager manager = buildManager(configFile, properties);
       serverStarting(manager);
       repo = manager.start(configFile);
+      checkSecurityManager();
       
     } catch (Exception ex) {
       _logger.logError(ex);
-      _logger.logError("======== OPENGAMMA STARTUP FAILED ========");
+      _logger.logError(STARTUP_FAILED_MESSAGE);
       return null;
     }
     
     long end = System.nanoTime();
-    _logger.logInfo("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
+    _logger.logInfo(STARTUP_COMPLETE_MESSAGE + ((end - start) / 1000000) + "ms ========");
     return repo;
   }
 
@@ -348,7 +365,24 @@ public class OpenGammaComponentServer {
   protected void serverStarting(final ComponentManager manager) {
     OpenGammaComponentServerMonitor.create(manager.getRepository());
   }
-  
+
+  /**
+   * Called once the server has started to check the security manager.
+   */
+  protected void checkSecurityManager() {
+    try {
+      if (AuthUtils.isPermissive()) {
+        _logger.logWarn("*********************************************************");
+        _logger.logWarn(" Warning: Server running with permissive SecurityManager ");
+        _logger.logWarn("*********************************************************");
+      }
+    } catch (UnavailableSecurityManagerException ex) {
+      _logger.logError("***************************************************");
+      _logger.logError(" Error: Server running without any SecurityManager ");
+      _logger.logError("***************************************************");
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates the logger.

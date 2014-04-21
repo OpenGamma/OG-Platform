@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -124,80 +125,6 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
   @Override
   public FXBarrierOptionSecurityBean.Meta metaBean() {
     return FXBarrierOptionSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -984864697:  // putAmount
-        return getPutAmount();
-      case 1066661974:  // callAmount
-        return getCallAmount();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case 516393024:  // putCurrency
-        return getPutCurrency();
-      case 643534991:  // callCurrency
-        return getCallCurrency();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case 1029043089:  // barrierType
-        return getBarrierType();
-      case 502579592:  // barrierDirection
-        return getBarrierDirection();
-      case -1483652190:  // monitoringType
-        return getMonitoringType();
-      case 1178782005:  // samplingFrequency
-        return getSamplingFrequency();
-      case 1827586573:  // barrierLevel
-        return getBarrierLevel();
-      case 116685664:  // longShort
-        return isLongShort();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -984864697:  // putAmount
-        setPutAmount((Double) newValue);
-        return;
-      case 1066661974:  // callAmount
-        setCallAmount((Double) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((ExpiryBean) newValue);
-        return;
-      case 516393024:  // putCurrency
-        setPutCurrency((CurrencyBean) newValue);
-        return;
-      case 643534991:  // callCurrency
-        setCallCurrency((CurrencyBean) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTimeBean) newValue);
-        return;
-      case 1029043089:  // barrierType
-        setBarrierType((BarrierType) newValue);
-        return;
-      case 502579592:  // barrierDirection
-        setBarrierDirection((BarrierDirection) newValue);
-        return;
-      case -1483652190:  // monitoringType
-        setMonitoringType((MonitoringType) newValue);
-        return;
-      case 1178782005:  // samplingFrequency
-        setSamplingFrequency((SamplingFrequency) newValue);
-        return;
-      case 1827586573:  // barrierLevel
-        setBarrierLevel((Double) newValue);
-        return;
-      case 116685664:  // longShort
-        setLongShort((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -501,6 +428,12 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FXBarrierOptionSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FXBarrierOptionSecurityBean}.
    */
@@ -735,6 +668,81 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Boolean> longShort() {
       return _longShort;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -984864697:  // putAmount
+          return ((FXBarrierOptionSecurityBean) bean).getPutAmount();
+        case 1066661974:  // callAmount
+          return ((FXBarrierOptionSecurityBean) bean).getCallAmount();
+        case -1289159373:  // expiry
+          return ((FXBarrierOptionSecurityBean) bean).getExpiry();
+        case 516393024:  // putCurrency
+          return ((FXBarrierOptionSecurityBean) bean).getPutCurrency();
+        case 643534991:  // callCurrency
+          return ((FXBarrierOptionSecurityBean) bean).getCallCurrency();
+        case -295948169:  // settlementDate
+          return ((FXBarrierOptionSecurityBean) bean).getSettlementDate();
+        case 1029043089:  // barrierType
+          return ((FXBarrierOptionSecurityBean) bean).getBarrierType();
+        case 502579592:  // barrierDirection
+          return ((FXBarrierOptionSecurityBean) bean).getBarrierDirection();
+        case -1483652190:  // monitoringType
+          return ((FXBarrierOptionSecurityBean) bean).getMonitoringType();
+        case 1178782005:  // samplingFrequency
+          return ((FXBarrierOptionSecurityBean) bean).getSamplingFrequency();
+        case 1827586573:  // barrierLevel
+          return ((FXBarrierOptionSecurityBean) bean).getBarrierLevel();
+        case 116685664:  // longShort
+          return ((FXBarrierOptionSecurityBean) bean).isLongShort();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -984864697:  // putAmount
+          ((FXBarrierOptionSecurityBean) bean).setPutAmount((Double) newValue);
+          return;
+        case 1066661974:  // callAmount
+          ((FXBarrierOptionSecurityBean) bean).setCallAmount((Double) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((FXBarrierOptionSecurityBean) bean).setExpiry((ExpiryBean) newValue);
+          return;
+        case 516393024:  // putCurrency
+          ((FXBarrierOptionSecurityBean) bean).setPutCurrency((CurrencyBean) newValue);
+          return;
+        case 643534991:  // callCurrency
+          ((FXBarrierOptionSecurityBean) bean).setCallCurrency((CurrencyBean) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((FXBarrierOptionSecurityBean) bean).setSettlementDate((ZonedDateTimeBean) newValue);
+          return;
+        case 1029043089:  // barrierType
+          ((FXBarrierOptionSecurityBean) bean).setBarrierType((BarrierType) newValue);
+          return;
+        case 502579592:  // barrierDirection
+          ((FXBarrierOptionSecurityBean) bean).setBarrierDirection((BarrierDirection) newValue);
+          return;
+        case -1483652190:  // monitoringType
+          ((FXBarrierOptionSecurityBean) bean).setMonitoringType((MonitoringType) newValue);
+          return;
+        case 1178782005:  // samplingFrequency
+          ((FXBarrierOptionSecurityBean) bean).setSamplingFrequency((SamplingFrequency) newValue);
+          return;
+        case 1827586573:  // barrierLevel
+          ((FXBarrierOptionSecurityBean) bean).setBarrierLevel((Double) newValue);
+          return;
+        case 116685664:  // longShort
+          ((FXBarrierOptionSecurityBean) bean).setLongShort((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

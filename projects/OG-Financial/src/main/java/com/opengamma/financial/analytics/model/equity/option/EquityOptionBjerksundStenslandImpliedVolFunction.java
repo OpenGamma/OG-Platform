@@ -17,8 +17,15 @@ import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -97,14 +104,51 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
     } else {
       throw new OpenGammaRuntimeException("Unexpected InstrumentDerivative type");
     }
-    final double spot = market.getForwardCurve().getSpot();
-    final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
-    final double costOfCarry = discountRate - Math.log(market.getForwardCurve().getForward(timeToExpiry) / spot) / timeToExpiry;
-    final double impliedVol = (new BjerksundStenslandModel()).impliedVolatility(optionPrice, spot, strike, discountRate, costOfCarry, timeToExpiry, isCall);
 
+    final double volatility = market.getVolatilitySurface().getVolatility(timeToExpiry, strike);
+    Double impliedVol = null;
+    
+    if (derivative instanceof EquityOption) {
+      final double spot = market.getForwardCurve().getSpot();
+      final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
+      final BjerksundStenslandModel model = new BjerksundStenslandModel();
+      double costOfCarry = discountRate;
+      double modSpot = spot;
+
+      final ForwardCurve fCurve = market.getForwardCurve();
+      if (fCurve instanceof ForwardCurveAffineDividends) {
+        final AffineDividends div = ((ForwardCurveAffineDividends) fCurve).getDividends();
+        final int number = div.getNumberOfDividends();
+        int i = 0;
+        while (i < number && div.getTau(i) < timeToExpiry) {
+          modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * market.getDiscountCurve().getDiscountFactor(div.getTau(i));
+          ++i;
+        }
+      } else {
+        costOfCarry = Math.log(fCurve.getForward(timeToExpiry) / spot) / timeToExpiry;
+      }
+      
+      try {
+        if (timeToExpiry < 7. / 365.) {
+          impliedVol = BlackFormulaRepository.impliedVolatility(optionPrice / market.getDiscountCurve().getDiscountFactor(timeToExpiry), fCurve.getForward(timeToExpiry), strike, timeToExpiry, isCall);
+        } else {
+          impliedVol = model.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.15));
+        }
+      } catch (final IllegalArgumentException e) {
+        if (inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE) == null) {
+          impliedVol =  null;
+        } else {
+          s_logger.warn(MarketDataRequirementNames.IMPLIED_VOLATILITY + " undefined " + targetSpec);
+          impliedVol = 0.;
+        }
+      }
+    } else {
+      impliedVol = volatility;      
+    }
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
   }
+  
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {

@@ -81,15 +81,6 @@ public class ActualActualICMA extends ActualTypeDayCount {
         }
         daysBetween = dateJulian - previousCouponDateJulian;
         return coupon * (daysBetween / daysBetweenTwoNotionalCoupons1) / paymentsPerYear;
-
-        //        final long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
-        //        final double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
-        //        if (dateJulian > secondNotionalJulian) {
-        //          daysBetween = dateJulian - secondNotionalJulian;
-        //          return coupon * (daysBetweenStub / daysBetweenTwoNotionalCoupons + 1) / paymentsPerYear;
-        //        }
-        //        daysBetween = dateJulian - firstNotionalJulian;
-        //        return coupon * (daysBetween / daysBetweenTwoNotionalCoupons) / paymentsPerYear;
       }
       case SHORT_END: {
         final LocalDate notionalEnd = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(months));
@@ -115,7 +106,7 @@ public class ActualActualICMA extends ActualTypeDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Actual/Actual ICMA";
   }
 

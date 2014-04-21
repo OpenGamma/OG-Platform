@@ -12,8 +12,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * REST endpoint returning a JSON array containing the names of available live data provider factories.
@@ -24,7 +24,6 @@ public class LiveMarketDataProviderNamesResource {
   private final LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
   
   public LiveMarketDataProviderNamesResource(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
-    ArgumentChecker.notNull(liveMarketDataProviderFactory, "liveMarketDataProviderFactory");
     _liveMarketDataProviderFactory = liveMarketDataProviderFactory;
   }
   
@@ -34,7 +33,7 @@ public class LiveMarketDataProviderNamesResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getLiveDataSourceNames() {
-    return new JSONArray(_liveMarketDataProviderFactory.getProviderNames()).toString();
+    return new JSONArray(_liveMarketDataProviderFactory != null ? _liveMarketDataProviderFactory.getProviderNames() : ImmutableList.of()).toString();
   }
   
 }

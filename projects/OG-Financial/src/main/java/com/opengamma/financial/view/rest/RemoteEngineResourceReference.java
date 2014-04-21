@@ -36,17 +36,24 @@ public abstract class RemoteEngineResourceReference<T extends UniqueIdentifiable
   private final AtomicBoolean _isReleased = new AtomicBoolean(false);
 
   public RemoteEngineResourceReference(URI baseUri, ScheduledExecutorService scheduler) {
+    this(baseUri, scheduler, FudgeRestClient.create());
+  }
+
+  public RemoteEngineResourceReference(URI baseUri, ScheduledExecutorService scheduler, FudgeRestClient client) {
     _baseUri = baseUri;
-    _client = FudgeRestClient.create();
-    _scheduledHeartbeat = scheduler.scheduleAtFixedRate(new HeartbeaterTask(_client, _baseUri),
-        DataEngineResourceManagerResource.REFERENCE_LEASE_MILLIS / 2,
+    _client = client;
+    _scheduledHeartbeat = scheduler.scheduleAtFixedRate(new HeartbeaterTask(client, _baseUri), DataEngineResourceManagerResource.REFERENCE_LEASE_MILLIS / 2,
         DataEngineResourceManagerResource.REFERENCE_LEASE_MILLIS / 2, TimeUnit.MILLISECONDS);
+  }
+
+  protected FudgeRestClient getClient() {
+    return _client;
   }
 
   private void releaseImpl() {
     s_logger.debug("Releasing {}", this);
     try {
-      _client.accessFudge(_baseUri).delete();
+      getClient().accessFudge(_baseUri).delete();
       s_logger.debug("Remote for {}", this);
     } finally {
       stopHeartbeating();

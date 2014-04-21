@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDe
 import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -154,11 +153,6 @@ public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorA
   @Override
   public InstrumentDefinitionWithData<?, Double> visitIndexFutureSecurity(final IndexFutureSecurity security) {
     return visit(security, 0.);
-  }
-
-  @Override
-  public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    return (InterestRateFutureSecurityDefinition) security.accept(_irFutureConverter);
   }
 
   @Override

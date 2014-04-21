@@ -10,9 +10,12 @@ import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NavigableMapInterpolator1DDataBundleTest extends Interpolator1DDataBundleTestCase {
 
   @Override

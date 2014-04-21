@@ -23,10 +23,10 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   private final int _minSteps;
 
   public RungeKuttaIntegrator1D(final double absTol, final double relTol, final int minSteps) {
-    if (absTol < 0.0) {
+    if (absTol < 0.0 || Double.isNaN(absTol) || Double.isInfinite(absTol)) {
       throw new IllegalArgumentException("Absolute Tolerance must be greater than zero");
     }
-    if (relTol < 0.0) {
+    if (relTol < 0.0 || Double.isNaN(relTol) || Double.isInfinite(relTol)) {
       throw new IllegalArgumentException("Relative Tolerance must be greater than zero");
     }
     if (minSteps < 1) {
@@ -70,11 +70,20 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
     double f1, f2, f3, x;
     x = lower;
     f1 = f.evaluate(x);
+    if (Double.isNaN(f1) || Double.isInfinite(f1)) {
+      throw new OpenGammaRuntimeException("function evaluation returned NaN or Inf");
+    }
 
     double result = 0.0;
     for (int i = 0; i < _minSteps; i++) {
       f2 = f.evaluate(x + h / 2.0);
+      if (Double.isNaN(f2) || Double.isInfinite(f2)) {
+        throw new OpenGammaRuntimeException("function evaluation returned NaN or Inf");
+      }
       f3 = f.evaluate(x + h);
+      if (Double.isNaN(f3) || Double.isInfinite(f3)) {
+        throw new OpenGammaRuntimeException("function evaluation returned NaN or Inf");
+      }
 
       result += calculateRungeKuttaFourthOrder(f, x, h, f1, f2, f3);
       f1 = f3;

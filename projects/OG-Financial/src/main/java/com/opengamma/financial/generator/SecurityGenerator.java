@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -30,9 +30,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -58,15 +59,14 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
-import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixResolver;
@@ -131,7 +131,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private HistoricalTimeSeriesSource _historicalSource;
   private HistoricalTimeSeriesMaster _htsMaster;
   private RegionSource _regionSource;
-  private OrganizationSource _organizationSource;
+  private LegalEntitySource _legalEntitySource;
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
   private String _currencyCurveName;
@@ -246,12 +246,12 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     _regionSource = regionSource;
   }
 
-  public OrganizationSource getOrganizationSource() {
-    return _organizationSource;
+  public LegalEntitySource getLegalEntitySource() {
+    return _legalEntitySource;
   }
 
-  public void setOrganizationSource(final OrganizationSource organizationSource) {
-    _organizationSource = organizationSource;
+  public void setLegalEntitySource(final LegalEntitySource legalEntitySource) {
+    _legalEntitySource = legalEntitySource;
   }
 
   public SecurityMaster getSecurityMaster() {
@@ -309,7 +309,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
-    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
+    OpenGammaExecutionContext.setLegalEntitySource(context, getLegalEntitySource());
     return context;
   }
 
@@ -320,7 +320,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     context.setFunctionReinitializer(new DummyFunctionReinitializer());
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
-    OpenGammaCompilationContext.setOrganizationSource(context, getOrganizationSource());
+    OpenGammaCompilationContext.setLegalEntitySource(context, getLegalEntitySource());
     OpenGammaCompilationContext.setConventionBundleSource(context, getConventionBundleSource());
     OpenGammaCompilationContext.setConventionSource(context, getConventionSource());
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
@@ -405,9 +405,9 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     s_logger.debug("Got spot rate {} for {}", spotRate, spotRateIdentifier);
     final FunctionExecutionContext execContext = createFunctionExecutionContext(spotRate.getFirst());
     final FunctionCompilationContext compContext = createFunctionCompilationContext();
-    final CompiledFunctionDefinition payYieldCurveSpecificationFunction = createFunction(compContext, execContext, new YieldCurveSpecificationFunction(payCurrency, getCurrencyCurveName()));
+    final CompiledFunctionDefinition payYieldCurveSpecificationFunction = createFunction(compContext, execContext, new YieldCurveDataFunction(payCurrency, getCurrencyCurveName()));
     final CompiledFunctionDefinition payYieldCurveMarketDataFunction = createFunction(compContext, execContext, new YieldCurveMarketDataFunction(payCurrency, getCurrencyCurveName()));
-    final CompiledFunctionDefinition receiveYieldCurveSpecificationFunction = createFunction(compContext, execContext, new YieldCurveSpecificationFunction(receiveCurrency, getCurrencyCurveName()));
+    final CompiledFunctionDefinition receiveYieldCurveSpecificationFunction = createFunction(compContext, execContext, new YieldCurveDataFunction(receiveCurrency, getCurrencyCurveName()));
     final CompiledFunctionDefinition receiveYieldCurveMarketDataFunction = createFunction(compContext, execContext, new YieldCurveMarketDataFunction(receiveCurrency, getCurrencyCurveName()));
     final CompiledFunctionDefinition yieldCurveFunction = createFunction(compContext, execContext, new MultiYieldCurvePresentValueMethodFunction());
     final CompiledFunctionDefinition fxForwardCurveFromYieldCurveFunction = createFunction(compContext, execContext, new FXForwardCurveFromYieldCurvesFunction());

@@ -7,15 +7,15 @@ package com.opengamma.analytics.financial.provider.calculator.blackstirfutures;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionBlackSmileMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.interestrate.future.provider.FuturesTransactionBlackSTIRFuturesMethod;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
  * Calculator of the present value as a multiple currency amount.
  */
 public final class PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator extends
-  InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesSmileProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+    InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -39,13 +39,13 @@ public final class PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator e
   /**
    * Pricing methods.
    */
-  private static final InterestRateFutureOptionMarginTransactionBlackSmileMethod METHOD_STRIRFUT_MARGIN = InterestRateFutureOptionMarginTransactionBlackSmileMethod.getInstance();
+  private static final FuturesTransactionBlackSTIRFuturesMethod METHOD_STRIRFUT_MARGIN = new FuturesTransactionBlackSTIRFuturesMethod();
 
   // -----     Futures     ------
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures,
-      final BlackSTIRFuturesSmileProviderInterface black) {
+      final BlackSTIRFuturesProviderInterface black) {
     return METHOD_STRIRFUT_MARGIN.presentValueCurveSensitivity(futures, black);
   }
 

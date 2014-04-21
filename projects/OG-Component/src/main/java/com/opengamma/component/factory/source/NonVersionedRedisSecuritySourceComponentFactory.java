@@ -8,6 +8,11 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,6 +29,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.DataSecuritySourceResource;
+import com.opengamma.core.security.impl.NonVersionedEHCachingSecuritySource;
 import com.opengamma.core.security.impl.NonVersionedRedisSecuritySource;
 import com.opengamma.core.security.impl.RemoteSecuritySource;
 import com.opengamma.util.redis.RedisConnector;
@@ -35,7 +41,7 @@ import com.opengamma.util.redis.RedisConnector;
 public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractComponentFactory {
 
   /**
-   * The classifier that the factory should publish under.
+   * The classifier that the factory should publish the raw Redis source under.
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
@@ -54,22 +60,46 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
    */
   @PropertyDefinition
   private boolean _publishRest = true;
+  /**
+   * The classifier that the factory should publish a caching source under.
+   */
+  @PropertyDefinition
+  private String _cachingClassifier;
+  /**
+   * The cache manager to use if an LRU cache is enabled.
+   */
+  @PropertyDefinition
+  private CacheManager _cacheManager;
+  /**
+   * The number of elements for an LRU cache.
+   */
+  @PropertyDefinition
+  private int _lruCacheElements;
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     NonVersionedRedisSecuritySource source = new NonVersionedRedisSecuritySource(getRedisConnector().getJedisPool(), getRedisPrefix());
+    SecuritySource rawSource = source;
     
-    ComponentInfo sourceInfo = new ComponentInfo(SecuritySource.class, getClassifier());
+    if ((getCacheManager() != null) && (getLruCacheElements() > 0)) {
+      Cache cache = new Cache("NonVersionedRedisSecuritySource", getLruCacheElements(), MemoryStoreEvictionPolicy.LRU, false, null, true, -1L, -1L, false, -1L, null);
+      getCacheManager().addCache(cache);
+      rawSource = new NonVersionedEHCachingSecuritySource(source, cache);
+    }
+    
+    String rawClassifier = getCachingClassifier() != null ? getCachingClassifier() : getClassifier();
+    
+    ComponentInfo sourceInfo = new ComponentInfo(SecuritySource.class, rawClassifier);
     sourceInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     sourceInfo.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteSecuritySource.class);
-    repo.registerComponent(sourceInfo, source);
+    repo.registerComponent(sourceInfo, rawSource);
 
     ComponentInfo redisInfo = new ComponentInfo(NonVersionedRedisSecuritySource.class, getClassifier());
     redisInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     repo.registerComponent(redisInfo, source);
     
     if (isPublishRest()) {
-      repo.getRestComponents().publish(sourceInfo, new DataSecuritySourceResource(source));
+      repo.getRestComponents().publish(sourceInfo, new DataSecuritySourceResource(rawSource));
     }
   }
 
@@ -92,77 +122,9 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
     return NonVersionedRedisSecuritySourceComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -745461486:  // redisConnector
-        return getRedisConnector();
-      case -2024915987:  // redisPrefix
-        return getRedisPrefix();
-      case -614707837:  // publishRest
-        return isPublishRest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -745461486:  // redisConnector
-        setRedisConnector((RedisConnector) newValue);
-        return;
-      case -2024915987:  // redisPrefix
-        setRedisPrefix((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_redisConnector, "redisConnector");
-    JodaBeanUtils.notNull(_redisPrefix, "redisPrefix");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      NonVersionedRedisSecuritySourceComponentFactory other = (NonVersionedRedisSecuritySourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
-          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * Gets the classifier that the factory should publish under.
+   * Gets the classifier that the factory should publish the raw Redis source under.
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -170,7 +132,7 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   }
 
   /**
-   * Sets the classifier that the factory should publish under.
+   * Sets the classifier that the factory should publish the raw Redis source under.
    * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {
@@ -265,6 +227,144 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the classifier that the factory should publish a caching source under.
+   * @return the value of the property
+   */
+  public String getCachingClassifier() {
+    return _cachingClassifier;
+  }
+
+  /**
+   * Sets the classifier that the factory should publish a caching source under.
+   * @param cachingClassifier  the new value of the property
+   */
+  public void setCachingClassifier(String cachingClassifier) {
+    this._cachingClassifier = cachingClassifier;
+  }
+
+  /**
+   * Gets the the {@code cachingClassifier} property.
+   * @return the property, not null
+   */
+  public final Property<String> cachingClassifier() {
+    return metaBean().cachingClassifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cache manager to use if an LRU cache is enabled.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager to use if an LRU cache is enabled.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the number of elements for an LRU cache.
+   * @return the value of the property
+   */
+  public int getLruCacheElements() {
+    return _lruCacheElements;
+  }
+
+  /**
+   * Sets the number of elements for an LRU cache.
+   * @param lruCacheElements  the new value of the property
+   */
+  public void setLruCacheElements(int lruCacheElements) {
+    this._lruCacheElements = lruCacheElements;
+  }
+
+  /**
+   * Gets the the {@code lruCacheElements} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> lruCacheElements() {
+    return metaBean().lruCacheElements().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public NonVersionedRedisSecuritySourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      NonVersionedRedisSecuritySourceComponentFactory other = (NonVersionedRedisSecuritySourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
+          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getCachingClassifier(), other.getCachingClassifier()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          (getLruCacheElements() == other.getLruCacheElements()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCachingClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLruCacheElements());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("NonVersionedRedisSecuritySourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(JodaBeanUtils.toString(getRedisConnector())).append(',').append(' ');
+    buf.append("redisPrefix").append('=').append(JodaBeanUtils.toString(getRedisPrefix())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cachingClassifier").append('=').append(JodaBeanUtils.toString(getCachingClassifier())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("lruCacheElements").append('=').append(JodaBeanUtils.toString(getLruCacheElements())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code NonVersionedRedisSecuritySourceComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -294,6 +394,21 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", NonVersionedRedisSecuritySourceComponentFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code cachingClassifier} property.
+     */
+    private final MetaProperty<String> _cachingClassifier = DirectMetaProperty.ofReadWrite(
+        this, "cachingClassifier", NonVersionedRedisSecuritySourceComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", NonVersionedRedisSecuritySourceComponentFactory.class, CacheManager.class);
+    /**
+     * The meta-property for the {@code lruCacheElements} property.
+     */
+    private final MetaProperty<Integer> _lruCacheElements = DirectMetaProperty.ofReadWrite(
+        this, "lruCacheElements", NonVersionedRedisSecuritySourceComponentFactory.class, Integer.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -301,7 +416,10 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
         "classifier",
         "redisConnector",
         "redisPrefix",
-        "publishRest");
+        "publishRest",
+        "cachingClassifier",
+        "cacheManager",
+        "lruCacheElements");
 
     /**
      * Restricted constructor.
@@ -320,6 +438,12 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
           return _redisPrefix;
         case -614707837:  // publishRest
           return _publishRest;
+        case -1676966080:  // cachingClassifier
+          return _cachingClassifier;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
+        case 316175146:  // lruCacheElements
+          return _lruCacheElements;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -370,6 +494,88 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    /**
+     * The meta-property for the {@code cachingClassifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> cachingClassifier() {
+      return _cachingClassifier;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
+    }
+
+    /**
+     * The meta-property for the {@code lruCacheElements} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> lruCacheElements() {
+      return _lruCacheElements;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getClassifier();
+        case -745461486:  // redisConnector
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getRedisConnector();
+        case -2024915987:  // redisPrefix
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getRedisPrefix();
+        case -614707837:  // publishRest
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).isPublishRest();
+        case -1676966080:  // cachingClassifier
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getCachingClassifier();
+        case -1452875317:  // cacheManager
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getCacheManager();
+        case 316175146:  // lruCacheElements
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getLruCacheElements();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -745461486:  // redisConnector
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setRedisConnector((RedisConnector) newValue);
+          return;
+        case -2024915987:  // redisPrefix
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setRedisPrefix((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1676966080:  // cachingClassifier
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setCachingClassifier((String) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case 316175146:  // lruCacheElements
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setLruCacheElements((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((NonVersionedRedisSecuritySourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((NonVersionedRedisSecuritySourceComponentFactory) bean)._redisConnector, "redisConnector");
+      JodaBeanUtils.notNull(((NonVersionedRedisSecuritySourceComponentFactory) bean)._redisPrefix, "redisPrefix");
+      super.validate(bean);
     }
 
   }

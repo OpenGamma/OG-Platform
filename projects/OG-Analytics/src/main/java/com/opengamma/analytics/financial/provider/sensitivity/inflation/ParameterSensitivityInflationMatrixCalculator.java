@@ -42,6 +42,7 @@ public class ParameterSensitivityInflationMatrixCalculator extends ParameterSens
   public DoubleMatrix1D pointToParameterSensitivity(final InflationSensitivity sensitivity, final InflationProviderInterface inflation, final Set<String> curvesSet) {
     SimpleParameterSensitivity ps = new SimpleParameterSensitivity();
 
+    // inflation curve
     final Map<String, List<DoublesPair>> sensitivityPriceCurve = sensitivity.getPriceCurveSensitivities();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityPriceCurve.entrySet()) {
       if (curvesSet.contains(entry.getKey())) {

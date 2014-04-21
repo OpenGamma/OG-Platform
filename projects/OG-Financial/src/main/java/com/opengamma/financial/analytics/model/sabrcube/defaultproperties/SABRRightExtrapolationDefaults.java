@@ -30,6 +30,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Defaults for SABR functions with right extrapolation
@@ -70,7 +71,7 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
     _currencyCurveConfigAndCubeNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndCubeNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndCubeNames[i + 1], currencyCurveConfigAndCubeNames[i + 2]);
+      final Pair<String, String> pair = Pairs.of(currencyCurveConfigAndCubeNames[i + 1], currencyCurveConfigAndCubeNames[i + 2]);
       _currencyCurveConfigAndCubeNames.put(currencyCurveConfigAndCubeNames[i], pair);
     }
   }

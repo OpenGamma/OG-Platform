@@ -25,11 +25,6 @@ public interface BlackBondFuturesSmileProviderInterface extends ParameterIssuerP
    */
   double getVolatility(final double expiry, final double strike);
 
-  //TODO: Add a reference to the underlying.
-  //  /**
-  //   * Returns the Ibor Index of the futures on for which the Black data is valid, i.e. the data is calibrated to futures on the given index.
-  //   * @return The generator.
-  //   */
-  //  IborIndex getFuturesIndex();
+  // TODO: Add reference to issuer
 
 }

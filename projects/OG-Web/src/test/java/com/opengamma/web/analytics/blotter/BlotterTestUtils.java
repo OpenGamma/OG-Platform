@@ -14,11 +14,13 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -46,7 +48,8 @@ import com.opengamma.util.time.Expiry;
   /* package */ static final MapBeanDataSource EQUITY_VARIANCE_SWAP_DATA_SOURCE;
 
   static {
-    ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
+    Map<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
+    List<String> permissions = Lists.newArrayList("perm1", "perm2");
     String forwardDateStr = "2012-12-21";
     FX_FORWARD_DATA_SOURCE = beanData(
         "name", "TODO",
@@ -57,13 +60,15 @@ import com.opengamma.util.time.Expiry;
         "receiveCurrency", "GBP",
         "receiveAmount", "100",
         "forwardDate", forwardDateStr,
-        "attributes", attributes);
+        "attributes", attributes,
+        "permissions", permissions);
 
     ZonedDateTime forwardDate = parseDate(forwardDateStr);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "GB");
     FX_FORWARD = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     FX_FORWARD.setName("TODO");
     FX_FORWARD.setAttributes(attributes);
+    FX_FORWARD.setPermissions(Sets.newHashSet(permissions));
 
     //-------------------------------------
 
@@ -115,18 +120,18 @@ import com.opengamma.util.time.Expiry;
     ZonedDateTime maturityDate = parseDate(maturityDateStr);
 
     SwapLeg payLeg = new FixedInterestRateLeg(
-        DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        DayCounts.ACT_360,
         SimpleFrequencyFactory.INSTANCE.getFrequency("3m"),
         ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+        BusinessDayConventions.MODIFIED_FOLLOWING,
         new InterestRateNotional(Currency.USD, 222.33),
         true,
         1.234);
     FloatingInterestRateLeg receiveLeg = new FloatingInterestRateLeg(
-        DayCountFactory.INSTANCE.getDayCount("Act/Act"),
+        DayCounts.ACT_ACT_ISDA,
         SimpleFrequencyFactory.INSTANCE.getFrequency("6m"),
         ExternalId.of(ExternalSchemes.FINANCIAL, "234"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.GBP, 123.45),
         true,
         ExternalId.of("Rate", "123"),

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.index">
+  <class name="BondIndexComponentBean" table="sec_bondindexcomponent">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
+    </id>
+    <many-to-one name="bondIndex" column="bondindex_id" class="BondIndexBean" not-null="true" /> 
+    <set name="identifiers" table="sec_bondindexcomponentidentifier">
+      <key column="bundle_id" />
+      <composite-element class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+        <property name="scheme" type="string" not-null="true" />
+        <property name="identifier" type="string" not-null="true" />
+      </composite-element>
+    </set>
+    <property name="weight" type="big_decimal" not-null="true" />
+    <property name="position" type="long" not-null="true" />
+  </class>
+  
+  <query name="BondIndexComponentBean.many.byBondIndex">
+    <![CDATA[
+    from 
+      BondIndexComponentBean as s
+    where
+      s.bondIndex = :bondIndex
+    order by
+      s.position
+    ]]>
+  </query>
+
+  <query name="BondIndexComponentBean.all">
+    from BondIndexComponentBean
+  </query>
+</hibernate-mapping>

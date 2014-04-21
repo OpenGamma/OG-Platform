@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.GenericImpliedVolatiltySolver;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
@@ -122,7 +123,7 @@ public class BjerksundStenslandModel {
           }
           return price(s, k, r, b, t, sigma, false);
         }
-        return getCallPrice(s, k, r, b, t, sigma);
+        return price(s, k, r, b, t, sigma, true);
       }
     };
     return pricingFunction;
@@ -147,10 +148,8 @@ public class BjerksundStenslandModel {
     final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
 
     if (isCall) {
-      if (b >= r) { //no early exercise in this case
-        return bsPrice;
-      }
-      return Math.max(bsPrice, getCallPrice(s0, k, r, b, t, sigma));
+      final double minPrice = Math.max(s0 - k, bsPrice);
+      return Math.max(minPrice, getCallPrice(s0, k, r, b, t, sigma, bsPrice));
     }
     //min price is  maximum of immediate exercise and Black-Scholes price 
     final double minPrice = Math.max(k - s0, bsPrice);
@@ -162,7 +161,7 @@ public class BjerksundStenslandModel {
       return minPrice;
     }
     //put using put-call transformation 
-    return Math.max(minPrice, getCallPrice(k, s0, r - b, -b, t, sigma));
+    return Math.max(minPrice, getCallPrice(k, s0, r - b, -b, t, sigma, bsPrice));
   }
 
   /**
@@ -173,9 +172,14 @@ public class BjerksundStenslandModel {
    * @param b The cost-of-carry
    * @param t The time-to-expiry
    * @param sigma The volatility
+   * @param bsPrice Black-Scholes price
    * @return The American option price
    */
-  protected double getCallPrice(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
+  protected double getCallPrice(final double s0, final double k, final double r, final double b, final double t, final double sigma, final double bsPrice) {
+
+    if (b >= r) { //no early exercise in this case
+      return bsPrice;
+    }
 
     final double sigmaSq = sigma * sigma;
 
@@ -206,11 +210,6 @@ public class BjerksundStenslandModel {
       x2 = getX(b0, bInfinity, h2);
     }
 
-    //s0 above the excise boundary - immediate excise 
-    if (s0 >= x2) {
-      return s0 - k;
-    }
-
     final double alpha1 = getAlpha(x1, beta, k);
     final double alpha2 = getAlpha(x2, beta, k);
     return alpha2 * Math.pow(s0, beta) - alpha2 * getPhi(s0, t1, beta, x2, x2, r, b, sigma) + getPhi(s0, t1, 1, x2, x2, r, b, sigma)
@@ -239,6 +238,7 @@ public class BjerksundStenslandModel {
     final double y = getY(t, b, sigmaSq, gamma, denom);
     final double d1 = getD(s / h, denom, y);
     final double d2 = getD(x * x / (s * h), denom, y);
+
     return Math.exp(lambda * t) * Math.pow(s, gamma) * (NORMAL.getCDF(d1) - Math.pow(x / s, kappa) * NORMAL.getCDF(d2));
   }
 
@@ -260,10 +260,11 @@ public class BjerksundStenslandModel {
     final double lambda = getLambda(gamma, r, b, sigmaSq);
     final double kappa = getKappa(gamma, b, sigmaSq);
     final double rho = Math.sqrt(t1 / t2);
+
     return Math.exp(lambda * t2)
         * Math.pow(s, gamma)
-        * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho}) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho}) - Math.pow(x1 / s, kappa)
-            * BIVARIATE_NORMAL.getCDF(new double[] {d3, e3, -rho}) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d4, e4, -rho}));
+        * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho }) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho }) - Math.pow(x1 / s, kappa)
+            * BIVARIATE_NORMAL.getCDF(new double[] {d3, e3, -rho }) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d4, e4, -rho }));
   }
 
   private double getLambda(final double gamma, final double r, final double b, final double sigmaSq) {
@@ -304,15 +305,39 @@ public class BjerksundStenslandModel {
    */
   public double[] getPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
-      //European option case
-      if (b >= r) {
-        final BaroneAdesiWhaleyModel mod = new BaroneAdesiWhaleyModel();
-        return mod.getPriceAdjoint(s0, k, r, b, t, sigma, true);
-      }
-      return getCallPriceAdjoint(s0, k, r, b, t, sigma);
+      final double[] priceAdj = getCallPriceAdjoint(s0, k, r, b, t, sigma);
+      return priceAdjModifier(s0, k, r, b, t, sigma, true, priceAdj);
     }
+    final double[] priceAdj = getPutPriceAdjoint(s0, k, r, b, t, sigma);
+    return priceAdjModifier(s0, k, r, b, t, sigma, false, priceAdj);
+  }
 
-    return getPutPriceAdjoint(s0, k, r, b, t, sigma);
+  private double[] priceAdjModifier(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final double[] priceAdj) {
+    final double sign = isCall ? 1. : -1.;
+    final double fwd = s0 * Math.exp(b * t);
+    final double df = Math.exp(-r * t);
+    final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
+    final double intrinsic = sign * (s0 - k);
+    final boolean bsIsMin = intrinsic <= bsPrice;
+    final double minPrice = bsIsMin ? bsPrice : intrinsic;
+    if (priceAdj[0] < minPrice) {
+      final double[] res = new double[7];
+      res[0] = minPrice;
+      if (bsIsMin) {
+        final double expbt = Math.exp(b * t);
+        res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, isCall);
+        res[2] = df * BlackFormulaRepository.dualDelta(fwd, k, t, sigma, isCall);
+        res[3] = -t * minPrice;
+        res[4] = BlackScholesFormulaRepository.carryRho(s0, k, t, sigma, r, b, isCall);
+        res[5] = -BlackScholesFormulaRepository.theta(s0, k, t, sigma, r, b, isCall);
+        res[6] = df * BlackFormulaRepository.vega(fwd, k, t, sigma);
+        return res;
+      }
+      res[1] = sign;
+      res[2] = -sign;
+      return res;
+    }
+    return priceAdj;
   }
 
   /**
@@ -329,9 +354,35 @@ public class BjerksundStenslandModel {
    */
   public double[] getPriceDeltaGamma(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
-      return getCallDeltaGamma(s0, k, r, b, t, sigma);
+      final double[] deltaGamma = getCallDeltaGamma(s0, k, r, b, t, sigma);
+      return deltaGammaModifier(s0, k, r, b, t, sigma, true, deltaGamma);
     }
-    return getPutDeltaGamma(s0, k, r, b, t, sigma);
+    final double[] deltaGamma = getPutDeltaGamma(s0, k, r, b, t, sigma);
+    return deltaGammaModifier(s0, k, r, b, t, sigma, false, deltaGamma);
+  }
+
+  private double[] deltaGammaModifier(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final double[] deltaGamma) {
+    final double sign = isCall ? 1. : -1.;
+    final double fwd = s0 * Math.exp(b * t);
+    final double df = Math.exp(-r * t);
+    final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
+    final double intrinsic = sign * (s0 - k);
+    final boolean bsIsMin = intrinsic <= bsPrice;
+    final double minPrice = bsIsMin ? bsPrice : intrinsic;
+    if (deltaGamma[0] < minPrice) {
+      final double[] res = new double[3];
+      res[0] = minPrice;
+      if (bsIsMin) {
+        final double expbt = Math.exp(b * t);
+        res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, isCall);
+        res[2] = expbt * expbt * df * BlackFormulaRepository.gamma(fwd, k, t, sigma);
+        return res;
+      }
+      res[1] = sign;
+      res[2] = 0.0;
+      return res;
+    }
+    return deltaGamma;
   }
 
   /**
@@ -347,7 +398,7 @@ public class BjerksundStenslandModel {
    */
   public double[] getPriceAndVega(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     final double[] temp = getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-    return new double[] {temp[0], temp[6]}; //fairly wasteful to compute all the other Greeks
+    return new double[] {temp[0], temp[6] }; //fairly wasteful to compute all the other Greeks
   }
 
   /**
@@ -389,18 +440,23 @@ public class BjerksundStenslandModel {
     return GenericImpliedVolatiltySolver.impliedVolatility(price, func);
   }
 
+  public double impliedVolatility(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall, final double guess) {
+    final Function1D<Double, double[]> func = getPriceAndVegaFunction(s0, k, r, b, t, isCall);
+    return GenericImpliedVolatiltySolver.impliedVolatility(price, func, guess);
+  }
+
   protected double[] getCallPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
+
+    //European option case
+    if (b >= r) {
+      final BaroneAdesiWhaleyModel mod = new BaroneAdesiWhaleyModel();
+      final double[] priceAdj = mod.getPriceAdjoint(s0, k, r, b, t, sigma, true);
+      return priceAdj;
+    }
 
     final double[] res = new double[7];
 
     final double[] x2Adj = getI2Adjoint(k, r, b, sigma, t);
-    //early exercise
-    if (s0 >= x2Adj[0]) {
-      res[0] = s0 - k;
-      res[1] = 1.0;
-      res[2] = -1.0;
-      return res;
-    }
 
     final double[] x1Adj = getI1Adjoint(k, r, b, sigma, t);
     final double sigmaSq = sigma * sigma;
@@ -499,6 +555,21 @@ public class BjerksundStenslandModel {
     final double df = Math.exp(-r * t);
     final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, false);
 
+    //European option case
+    if (0. >= r) {
+      final double[] res = new double[7];
+      final double expbt = Math.exp(b * t);
+      //TODO these calls have a lot of repeat calculations - could move in-house
+      res[0] = bsPrice;
+      res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, false);
+      res[2] = df * BlackFormulaRepository.dualDelta(fwd, k, t, sigma, false);
+      res[3] = -t * bsPrice;
+      res[4] = BlackScholesFormulaRepository.carryRho(s0, k, t, sigma, r, b, false);
+      res[5] = -BlackScholesFormulaRepository.theta(s0, k, t, sigma, r, b, false);
+      res[6] = df * BlackFormulaRepository.vega(fwd, k, t, sigma);
+      return res;
+    }
+
     final double temp = (2 * b + sigma * sigma) / 2 / sigma;
     final double minR = b - 0.5 * temp * temp;
     if (r <= minR) { // this will correspond to a complex beta - i.e. the model breaks down. The best we can do is return min price
@@ -556,12 +627,12 @@ public class BjerksundStenslandModel {
     final double x2 = getX(b0, bInfinity, h2);
 
     //early exercise
-    if (s0 >= x2) {
-      res[0] = s0 - k;
-      res[1] = 1.0;
-      res[2] = 0.0;
-      return res;
-    }
+    //    if (s0 >= x2) {
+    //      res[0] = s0 - k;
+    //      res[1] = 1.0;
+    //      res[2] = 0.0;
+    //      return res;
+    //    }
 
     final double t1 = RHO2 * t;
     final double h1 = getH(b, t1, sigma, k, b0, bInfinity);
@@ -888,10 +959,10 @@ public class BjerksundStenslandModel {
     final double f3 = (w5 + w9) / sigmarootT;
     final double f4 = (w7 + w9) / sigmarootT;
 
-    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {-e1, -f1, RHO});
-    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {-e2, -f2, RHO});
-    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {-e3, -f3, -RHO});
-    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {-e4, -f4, -RHO});
+    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {-e1, -f1, RHO });
+    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {-e2, -f2, RHO });
+    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {-e3, -f3, -RHO });
+    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {-e4, -f4, -RHO });
     final double w19 = w15 - w12 * w16 - w13 * w17 + w14 * w18;
     final double w20 = w10 * w11 * w19;
 
@@ -1024,19 +1095,19 @@ public class BjerksundStenslandModel {
     final double f4Dot = -blah3;
     final double f4DDot = blah4;
 
-    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {e1, f1, RHO});
+    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {e1, f1, RHO });
     double[] temp = bivariateNormDiv(e1, f1, true);
     final double w15Dot = temp[0] * e1Dot + temp[1] * f1Dot;
     final double w15DDot = temp[0] * e1DDot + temp[1] * f1DDot + temp[2] * e1Dot * e1Dot + temp[3] * f1Dot * f1Dot + 2 * temp[4] * e1Dot * f1Dot;
-    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {e2, f2, RHO});
+    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {e2, f2, RHO });
     temp = bivariateNormDiv(e2, f2, true);
     final double w16Dot = temp[0] * e2Dot + temp[1] * f2Dot;
     final double w16DDot = temp[0] * e2DDot + temp[1] * f2DDot + temp[2] * e2Dot * e2Dot + temp[3] * f2Dot * f2Dot + 2 * temp[4] * e2Dot * f2Dot;
-    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {e3, f3, -RHO});
+    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {e3, f3, -RHO });
     temp = bivariateNormDiv(e3, f3, false);
     final double w17Dot = temp[0] * e3Dot + temp[1] * f3Dot;
     final double w17DDot = temp[0] * e3DDot + temp[1] * f3DDot + temp[2] * e3Dot * e3Dot + temp[3] * f3Dot * f3Dot + 2 * temp[4] * e3Dot * f3Dot;
-    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {e4, f4, -RHO});
+    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {e4, f4, -RHO });
     temp = bivariateNormDiv(e4, f4, false);
     final double w18Dot = temp[0] * e4Dot + temp[1] * f4Dot;
     final double w18DDot = temp[0] * e4DDot + temp[1] * f4DDot + temp[2] * e4Dot * e4Dot + temp[3] * f4Dot * f4Dot + 2 * temp[4] * e4Dot * f4Dot;
@@ -1049,7 +1120,7 @@ public class BjerksundStenslandModel {
     final double w20Dot = w10 * (w19 * w11Dot + w11 * w19Dot);
     final double w20DDot = w10 * (w19 * w11DDot + w11 * w19DDot + 2 * w11Dot * w19Dot);
 
-    return new double[] {w20, w20Dot, w20DDot};
+    return new double[] {w20, w20Dot, w20DDot };
   }
 
   /**

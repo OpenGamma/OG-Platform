@@ -47,12 +47,14 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  *  this example provide an example of curve construction using Brazilian swap.
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingBrazilianONTest {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -205,7 +207,7 @@ public class MulticurveBuildingDiscountingBrazilianONTest {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
         final double[] initialGuess = new double[nInstruments];
-        for(int k = 0; k < nInstruments; k++) {
+        for (int k = 0; k < nInstruments; k++) {
           derivatives[k] = convert(definitions[i][j][k], i, withToday);
           initialGuess[k] = initialGuess();
         }
@@ -216,7 +218,6 @@ public class MulticurveBuildingDiscountingBrazilianONTest {
     }
     return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator, sensitivityCalculator);
   }
-
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];

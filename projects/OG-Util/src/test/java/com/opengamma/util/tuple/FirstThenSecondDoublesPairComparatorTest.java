@@ -7,8 +7,6 @@ package com.opengamma.util.tuple;
 
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
@@ -20,8 +18,8 @@ import com.opengamma.util.test.TestGroup;
 public class FirstThenSecondDoublesPairComparatorTest {
 
   public void testSingleton() {
-    DoublesPair a = Pair.of(1.0, 1.0);
-    DoublesPair b = Pair.of(1.0, 2.0);
+    DoublesPair a = DoublesPair.of(1.0, 1.0);
+    DoublesPair b = DoublesPair.of(1.0, 2.0);
     assertTrue(FirstThenSecondDoublesPairComparator.INSTANCE.compare(a, a) == 0);
     assertTrue(FirstThenSecondDoublesPairComparator.INSTANCE.compare(a, b) < 0);
     
@@ -30,10 +28,10 @@ public class FirstThenSecondDoublesPairComparatorTest {
   }
 
   public void testCompare() {
-    final DoublesPair first = Pair.of(1.0, 3.0);
-    final DoublesPair second = Pair.of(1.0, 5.0);
-    final DoublesPair third = Pair.of(1.0, 6.0);
-    final DoublesPair fourth = Pair.of(2.0, 1.0);
+    final DoublesPair first = DoublesPair.of(1.0, 3.0);
+    final DoublesPair second = DoublesPair.of(1.0, 5.0);
+    final DoublesPair third = DoublesPair.of(1.0, 6.0);
+    final DoublesPair fourth = DoublesPair.of(2.0, 1.0);
     
     final FirstThenSecondDoublesPairComparator test = new FirstThenSecondDoublesPairComparator();
     

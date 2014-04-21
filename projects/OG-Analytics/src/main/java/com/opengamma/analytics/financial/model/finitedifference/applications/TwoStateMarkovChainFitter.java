@@ -40,8 +40,8 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -187,7 +187,7 @@ public class TwoStateMarkovChainFitter {
         final double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
           final double[] temp = marketVols.get(i).getFirst();
-          final DoublesPair tk = new DoublesPair(temp[0], temp[1]);
+          final DoublesPair tk = DoublesPair.of(temp[0], temp[1]);
           try {
             modVols[i] = GRID_INTERPOLATOR2D.interpolate(dataBundle, tk);
           } catch (final Exception e) {
@@ -240,7 +240,7 @@ public class TwoStateMarkovChainFitter {
             final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
             try {
               final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-              final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(new double[] {prices.getTimeValue(i), prices.getSpaceValue(j)}, impVol);
+              final Pair<double[], Double> pair = Pairs.of(new double[] {prices.getTimeValue(i), prices.getSpaceValue(j)}, impVol);
               out.add(pair);
             } catch (final Exception e) {
               s_logger.error("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");

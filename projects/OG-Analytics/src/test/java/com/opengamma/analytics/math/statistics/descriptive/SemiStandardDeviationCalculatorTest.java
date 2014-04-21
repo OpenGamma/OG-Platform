@@ -13,10 +13,12 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SemiStandardDeviationCalculatorTest {
   private static final Function1D<double[], Double> UPSIDE = new SemiStandardDeviationCalculator(false);
   private static final Function1D<double[], Double> DOWNSIDE = new SemiStandardDeviationCalculator();

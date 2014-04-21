@@ -15,4 +15,5 @@ public interface CurveCalculationConfigSource {
   MultiCurveCalculationConfig getConfig(final String name);
 
   MultiCurveCalculationConfig getConfig(final String name, final VersionCorrection versionCorrection);
+
 }

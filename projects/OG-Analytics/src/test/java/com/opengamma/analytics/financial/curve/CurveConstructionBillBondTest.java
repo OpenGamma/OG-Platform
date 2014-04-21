@@ -5,11 +5,16 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 
 /**
  * Build curves using bills and bonds. 
  * TODO: This is old code that has been commented. It should be removed at some point.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveConstructionBillBondTest {
 
   //  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -22,9 +27,9 @@ public class CurveConstructionBillBondTest {
   //  private static final FXMatrix FX_MATRIX = new FXMatrix(CCY_USD);
   //  private static final Calendar CALENDAR = new MondayToFridayCalendar("CAL");
   //  private static final int SPOT_LAG_OIS = 2;
-  //  private static final DayCount DAY_COUNT_CASH = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  //  private static final DayCount DAY_COUNT_CASH = DayCounts.ACT_360;
   //  private static final double NOTIONAL = 1.0;
-  //  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  //  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   //  private static final IndexON INDEX_FED_FUND = new IndexON("Fed Fund", CCY_USD, DAY_COUNT_CASH, 1, CALENDAR);
   //  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH);
   //  private static final GeneratorSwapFixedON GENERATOR_OIS_USD = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_FED_FUND, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG_OIS, SPOT_LAG_OIS);
@@ -33,7 +38,7 @@ public class CurveConstructionBillBondTest {
   //  private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USGOVT = new GeneratorDepositONCounterpart("US GOVT Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH, NAME_COUNTERPART);
   //
   //  private static final YieldConvention YIELD_BILL_USGOVT = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
-  //  private static final DayCount DAY_COUNT_BILL_USGOVT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  //  private static final DayCount DAY_COUNT_BILL_USGOVT = DayCounts.ACT_360;
   //  private static final int SPOT_LAG_BILL = 1;
   //  private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2013, 2, 28) };
   //  private static final int NB_BILL = BILL_MATURITY.length;

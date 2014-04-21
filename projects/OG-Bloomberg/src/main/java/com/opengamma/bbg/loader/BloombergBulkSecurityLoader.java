@@ -32,19 +32,19 @@ public class BloombergBulkSecurityLoader {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergBulkSecurityLoader.class);
-  
+
   private final Set<SecurityType> _ignoredSecurityTypes;
   private final Map<SecurityType, SecurityLoader> _securityLoaderMap;
-    
+
   private final ReferenceDataProvider _referenceDataProvider;
   private final ExchangeDataProvider _exchangeDataProvider;
   private final SecurityTypeResolver _bbgSecurityTypeResolver;
-  
+
   /**
    * @param referenceDataProvider the reference data provider, not-null
    * @param exchangeDataProvider the exchange data provider, not-null
    */
-  public BloombergBulkSecurityLoader(ReferenceDataProvider referenceDataProvider, ExchangeDataProvider exchangeDataProvider) {
+  public BloombergBulkSecurityLoader(final ReferenceDataProvider referenceDataProvider, final ExchangeDataProvider exchangeDataProvider) {
     ArgumentChecker.notNull(referenceDataProvider, "ReferenceDataProvider");
     ArgumentChecker.notNull(exchangeDataProvider, "Exchange Data Provider");
     _exchangeDataProvider = exchangeDataProvider;
@@ -55,9 +55,10 @@ public class BloombergBulkSecurityLoader {
   }
 
   private Map<SecurityType, SecurityLoader> createSecurityLoaders() {
-    ImmutableMap.Builder<SecurityType, SecurityLoader> mapBuilder = ImmutableMap.builder();
-    
+    final ImmutableMap.Builder<SecurityType, SecurityLoader> mapBuilder = ImmutableMap.builder();
+
     addLoader(mapBuilder, new AgricultureFutureLoader(_referenceDataProvider));
+    addLoader(mapBuilder, new BillLoader(_referenceDataProvider));
     addLoader(mapBuilder, new BondFutureLoader(_referenceDataProvider));
     addLoader(mapBuilder, new BondLoader(_referenceDataProvider));
     addLoader(mapBuilder, new EnergyFutureLoader(_referenceDataProvider));
@@ -68,6 +69,7 @@ public class BloombergBulkSecurityLoader {
     addLoader(mapBuilder, new EquityOptionLoader(_referenceDataProvider));
     addLoader(mapBuilder, new FXFutureLoader(_referenceDataProvider));
     addLoader(mapBuilder, new IndexFutureLoader(_referenceDataProvider));
+    addLoader(mapBuilder, new IndexLoader(_referenceDataProvider));
     addLoader(mapBuilder, new InterestRateFutureLoader(_referenceDataProvider));
     addLoader(mapBuilder, new IRFutureOptionLoader(_referenceDataProvider));
     addLoader(mapBuilder, new BondFutureOptionLoader(_referenceDataProvider));
@@ -79,53 +81,53 @@ public class BloombergBulkSecurityLoader {
     return mapBuilder.build();
   }
 
-  private void addLoader(ImmutableMap.Builder<SecurityType, SecurityLoader> builder, SecurityLoader securityLoader) {
+  private void addLoader(final ImmutableMap.Builder<SecurityType, SecurityLoader> builder, final SecurityLoader securityLoader) {
     builder.put(securityLoader.getSecurityType(), securityLoader);
   }
-  
+
   private Set<SecurityType> getIgnoredSecurityTypes() {
     return ImmutableSet.of(
         SecurityType.EQUITY_INDEX,
         SecurityType.RATE);
   }
 
-  public Map<ExternalIdBundle, ManageableSecurity> loadSecurity(Collection<ExternalIdBundle> identifiers) {
+  public Map<ExternalIdBundle, ManageableSecurity> loadSecurity(final Collection<ExternalIdBundle> identifiers) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    Map<ExternalIdBundle, ManageableSecurity> result = Maps.newHashMap();
-    
+    final Map<ExternalIdBundle, ManageableSecurity> result = Maps.newHashMap();
+
     if (identifiers.isEmpty()) {
       return result;
     }
-    
+
     // [BBG-87] - Convert to BUIDs
     final BiMap<String, ExternalIdBundle> bundle2Bbgkey = BloombergDataUtils.convertToBloombergBuidKeys(identifiers, _referenceDataProvider);
-    
-    Map<SecurityType, Set<String>> securitiesByType = groupBySecurityType(_bbgSecurityTypeResolver.getSecurityType(identifiers), bundle2Bbgkey.inverse());
-    for (Entry<SecurityType, Set<String>> entry : securitiesByType.entrySet()) {
-      SecurityType secType = entry.getKey();
-      Set<String> bbgkeys = entry.getValue();
+
+    final Map<SecurityType, Set<String>> securitiesByType = groupBySecurityType(_bbgSecurityTypeResolver.getSecurityType(identifiers), bundle2Bbgkey.inverse());
+    for (final Entry<SecurityType, Set<String>> entry : securitiesByType.entrySet()) {
+      final SecurityType secType = entry.getKey();
+      final Set<String> bbgkeys = entry.getValue();
       if (_ignoredSecurityTypes.contains(secType)) {
         s_logger.info("Skipping securities {} of type {} which does not require loading", bbgkeys, secType);
         continue;
       }
-      SecurityLoader loader = _securityLoaderMap.get(secType);
+      final SecurityLoader loader = _securityLoaderMap.get(secType);
       if (loader == null) {
         s_logger.warn("Unable to load security type {} mapped from {} as no loader is registered", secType, bbgkeys);
         continue;
       }
-      Map<String, ManageableSecurity> securities = loader.loadSecurities(bbgkeys);
-      for (Entry<String, ManageableSecurity> secEntry : securities.entrySet()) {
-        ExternalIdBundle identifierBundle = bundle2Bbgkey.get(secEntry.getKey());
+      final Map<String, ManageableSecurity> securities = loader.loadSecurities(bbgkeys);
+      for (final Entry<String, ManageableSecurity> secEntry : securities.entrySet()) {
+        final ExternalIdBundle identifierBundle = bundle2Bbgkey.get(secEntry.getKey());
         result.put(identifierBundle, secEntry.getValue());
       }
     }
     return result;
   }
 
-  private Map<SecurityType, Set<String>> groupBySecurityType(Map<ExternalIdBundle, SecurityType> securityTypeResult, BiMap<ExternalIdBundle, String> bundle2bbgKey) {
-    Map<SecurityType, Set<String>> result = Maps.newHashMap();
-    for (Entry<ExternalIdBundle, SecurityType> entry : securityTypeResult.entrySet()) {
-      SecurityType securityType = entry.getValue();
+  private Map<SecurityType, Set<String>> groupBySecurityType(final Map<ExternalIdBundle, SecurityType> securityTypeResult, final BiMap<ExternalIdBundle, String> bundle2bbgKey) {
+    final Map<SecurityType, Set<String>> result = Maps.newHashMap();
+    for (final Entry<ExternalIdBundle, SecurityType> entry : securityTypeResult.entrySet()) {
+      final SecurityType securityType = entry.getValue();
       Set<String> bbgKeys = result.get(securityType);
       if (bbgKeys == null) {
         bbgKeys = Sets.newHashSet();
@@ -135,5 +137,5 @@ public class BloombergBulkSecurityLoader {
     }
     return result;
   }
-     
+
 }

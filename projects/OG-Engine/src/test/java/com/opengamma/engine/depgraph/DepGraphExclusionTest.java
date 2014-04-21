@@ -21,6 +21,7 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the function exclusion group mechansim.
@@ -40,24 +41,29 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
   }
 
   private DependencyGraph test(final FunctionExclusionGroups exclusions) {
-    final DepGraphTestHelper helper = helper();
-    final Map<CompiledFunctionDefinition, Integer> priority = new HashMap<CompiledFunctionDefinition, Integer>();
-    priority.put(helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue1Foo()), 5); // 0
-    priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Bar(), helper.getValue1Bar()), 5); // 1
-    priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Foo(), helper.getValue2Bar()), 5); // 2
-    priority.put(helper.addFunctionProducing(helper.getValue1Foo()), 1); // 3
-    priority.put(helper.addFunctionProducing(helper.getValue1Bar()), 1); // 4
-    priority.put(helper.addFunctionProducing(helper.getValue2Bar()), 1); // 5
-    priority.put(helper.addFunctionProducing(helper.getValue2Foo()), 1); // 6
-    final DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
-      @Override
-      public int getPriority(final CompiledFunctionDefinition function) {
-        return priority.get(function);
-      }
-    });
-    builder.setFunctionExclusionGroups(exclusions);
-    builder.addTarget(helper.getRequirement1Foo());
-    return builder.getDependencyGraph();
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = helper();
+      final Map<CompiledFunctionDefinition, Integer> priority = new HashMap<CompiledFunctionDefinition, Integer>();
+      priority.put(helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue1Foo()), 5); // 0
+      priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Bar(), helper.getValue1Bar()), 5); // 1
+      priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Foo(), helper.getValue2Bar()), 5); // 2
+      priority.put(helper.addFunctionProducing(helper.getValue1Foo()), 1); // 3
+      priority.put(helper.addFunctionProducing(helper.getValue1Bar()), 1); // 4
+      priority.put(helper.addFunctionProducing(helper.getValue2Bar()), 1); // 5
+      priority.put(helper.addFunctionProducing(helper.getValue2Foo()), 1); // 6
+      final DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
+        @Override
+        public int getPriority(final CompiledFunctionDefinition function) {
+          return priority.get(function);
+        }
+      });
+      builder.setFunctionExclusionGroups(exclusions);
+      builder.addTarget(helper.getRequirement1Foo());
+      return builder.getDependencyGraph();
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void noGroups() {
@@ -81,7 +87,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
       }
 
     });
-    assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
+    assertEquals(4, graph.getSize()); // 6 -> 2 -> 1 -> 0
   }
 
   public void singleGroups() {
@@ -91,7 +97,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         return Integer.toString(function);
       }
     });
-    assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
+    assertEquals(4, graph.getSize()); // 6 -> 2 -> 1 -> 0
   }
 
   public void group01group2() {
@@ -109,7 +115,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(2, graph.getDependencyNodes().size()); // 4 -> 0
+    assertEquals(2, graph.getSize()); // 4 -> 0
   }
 
   public void group0group26() {
@@ -127,7 +133,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(3, graph.getDependencyNodes().size()); // 5 -> 1 -> 0
+    assertEquals(3, graph.getSize()); // 5 -> 1 -> 0
   }
 
   public void group02() {
@@ -143,7 +149,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
+    assertEquals(4, graph.getSize()); // 6 -> 2 -> 1 -> 0
   }
 
   public void group014() {
@@ -160,7 +166,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(1, graph.getDependencyNodes().size()); // 3
+    assertEquals(1, graph.getSize()); // 3
   }
 
 }

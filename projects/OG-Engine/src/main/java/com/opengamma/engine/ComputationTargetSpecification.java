@@ -193,12 +193,21 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
   }
 
   @Override
+  protected String getIdStringImpl() {
+    if (getUniqueId() != null) {
+      return getUniqueId().toString();
+    } else {
+      return "NULL";
+    }
+  }
+
+  @Override
   public String toString() {
     return new StrBuilder()
         .append("CTSpec[")
         .append(getType())
         .append(", ")
-        .append(getUniqueId())
+        .append(getIdString())
         .append(']')
         .toString();
   }

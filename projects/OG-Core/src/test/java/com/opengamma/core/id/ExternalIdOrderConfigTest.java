@@ -20,6 +20,7 @@ import com.opengamma.util.test.TestGroup;
  * Tests the {@link ExternalIdOrderConfig} class.
  */
 @Test(groups = TestGroup.UNIT)
+@SuppressWarnings("deprecation")
 public class ExternalIdOrderConfigTest {
 
   public void testGetPreferred_empty() {

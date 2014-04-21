@@ -21,6 +21,7 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -40,7 +41,7 @@ public class DataInterpolatedYieldCurveSpecificationBuilderResource extends Abst
   /**
    * Creates the resource, exposing the underlying source over REST.
    * 
-   * @param builder  the underlying source, not null
+   * @param builder the underlying source, not null
    */
   public DataInterpolatedYieldCurveSpecificationBuilderResource(final InterpolatedYieldCurveSpecificationBuilder builder) {
     ArgumentChecker.notNull(builder, "builder");
@@ -64,25 +65,25 @@ public class DataInterpolatedYieldCurveSpecificationBuilderResource extends Abst
   }
 
   @POST
-  @Path("builder/{date}")
-  public Response buildCurve(
-      @PathParam("date") String curveDateStr,
-      YieldCurveDefinition definition) {
+  @Path("builder/{date}/{version}")
+  public Response buildCurve(@PathParam("date") String curveDateStr, @PathParam("version") String versionStr, YieldCurveDefinition definition) {
     final LocalDate curveDate = LocalDate.parse(curveDateStr);
-    InterpolatedYieldCurveSpecification result = getInterpolatedYieldCurveSpecificationBuilder().buildCurve(curveDate, definition);
-    return responseOkFudge(result);
+    final VersionCorrection version = VersionCorrection.parse(versionStr);
+    InterpolatedYieldCurveSpecification result = getInterpolatedYieldCurveSpecificationBuilder().buildCurve(curveDate, definition, version);
+    return responseOkObject(result);
   }
 
   /**
    * Builds a URI.
    * 
-   * @param baseUri  the base URI, not null
-   * @param curveDate  the curve date, not null
+   * @param baseUri the base URI, not null
+   * @param curveDate the curve date, not null
+   * @param version the configuration version, not null
    * @return the URI, not null
    */
-  public static URI uriBuildCurve(URI baseUri, LocalDate curveDate) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/builder/{date}");
-    return bld.build(curveDate);
+  public static URI uriBuildCurve(URI baseUri, LocalDate curveDate, VersionCorrection version) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/builder/{date}/{version}");
+    return bld.build(curveDate, version);
   }
 
 }

@@ -80,7 +80,7 @@ public class BaroneAdesiWhaleyModel {
     ArgumentChecker.isTrue(s0 > 0.0, "spot must be greater than zero");
     ArgumentChecker.isTrue(k > 0.0, "strike must be greater than zero");
     ArgumentChecker.isTrue(t > 0.0, "t must be greater than zero");
-    ArgumentChecker.isTrue(sigma > 0.0, "sigma must be greater than zero");
+    //    ArgumentChecker.isTrue(sigma > 0.0, "sigma must be greater than zero"); //sigma<0 is passed when implied volatility computed by using {@link BjerksundStenslandModel}
 
     if (isCall) {
       final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);

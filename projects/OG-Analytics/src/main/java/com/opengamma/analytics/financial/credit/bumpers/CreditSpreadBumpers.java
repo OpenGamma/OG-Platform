@@ -11,7 +11,9 @@ import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Class containing utilities for bumping credit spread term structures by user defined methods and amounts
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CreditSpreadBumpers {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ public class CreditSpreadBumpers {
 
   public double[][] getBumpedCreditSpreads(final int numberOfObligors, final int numberOfTenors, final double[][] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
-    double[][] bumpedMarketSpreads = new double[numberOfObligors][numberOfTenors];
+    final double[][] bumpedMarketSpreads = new double[numberOfObligors][numberOfTenors];
 
     switch (spreadBumpType) {
       case ADDITIVE_PARALLEL:
@@ -104,7 +106,7 @@ public class CreditSpreadBumpers {
       final SpreadBumpType spreadBumpType) {
 
     // Assign the bumped spread matrix to be the original input spread matrix
-    double[][] bumpedMarketSpreads = marketSpreads;
+    final double[][] bumpedMarketSpreads = marketSpreads;
 
     switch (spreadBumpType) {
       case ADDITIVE_PARALLEL:

@@ -29,9 +29,9 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -56,12 +56,14 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Example code to load a simple swaption portfolio.
@@ -72,7 +74,8 @@ import com.opengamma.util.tuple.Pair;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationToolContext> {
-  /** The logger */
+
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleSwaptionPortfolioLoader.class);
   /** The currencies */
   public static final Currency[] CCYS = new Currency[] {Currency.USD};
@@ -85,9 +88,9 @@ public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationTool
   /** The size of the portfolio */
   private static final int SIZE = 300;
   /** The day-count */
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   /** The business day convention */
-  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** Map of currency to underlying libor index */
   private static final Map<Currency, ExternalId> IBOR = new HashMap<>();
   /** Map of currency to region */
@@ -104,12 +107,25 @@ public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationTool
     REGIONS.put(Currency.USD, ExternalSchemes.countryRegionId(Country.US));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) { //CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
-    new ExampleSwaptionPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    try {
+      boolean success = 
+          new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class) &&
+          new ExampleSwaptionPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
+      ShutdownUtils.exit(success ? 0 : -1);
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     final Map<SwaptionSecurity, SwapSecurity> securities = createRandomSwaptions();
@@ -200,7 +216,7 @@ public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationTool
     final SwaptionSecurity swaption = new SwaptionSecurity(payer, underlyingId, isLong, new Expiry(swaptionExpiry), isCashSettled, ccy);
     swaption.setName(swaptionName);
     swaption.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    return Pair.of(swaption, swap);
+    return Pairs.of(swaption, swap);
   }
 
   private LocalDate getTradeDate(final Random random, final Currency ccy) {

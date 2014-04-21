@@ -6,6 +6,7 @@
 package com.opengamma.master.security;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -34,6 +35,8 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
   public static final String IDENTIFIERS_FIELD_NAME = "identifiers";
   /** Field name. */
   public static final String ATTRIBUTES_FIELD_NAME = "attributes";
+  /** Field name */
+  public static final String PERMISSIONS_FIELD_NAME = "permissions";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ManageableSecurity object) {
@@ -42,12 +45,15 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     return msg;
   }
 
-  public static void toFudgeMsg(FudgeSerializer serializer, ManageableSecurity object, final MutableFudgeMsg msg) {
-    addToMessage(msg, UNIQUE_ID_FIELD_NAME, UniqueIdFudgeBuilder.toFudgeMsg(serializer, object.getUniqueId()));
-    addToMessage(msg, NAME_FIELD_NAME, object.getName());
-    addToMessage(msg, SECURITY_TYPE_FIELD_NAME, object.getSecurityType());
-    addToMessage(msg, IDENTIFIERS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, object.getExternalIdBundle()));
-    addToMessage(msg, ATTRIBUTES_FIELD_NAME, serializer.objectToFudgeMsg(object.getAttributes()));
+  public static void toFudgeMsg(FudgeSerializer serializer, ManageableSecurity security, final MutableFudgeMsg msg) {
+    addToMessage(msg, UNIQUE_ID_FIELD_NAME, UniqueIdFudgeBuilder.toFudgeMsg(serializer, security.getUniqueId()));
+    addToMessage(msg, NAME_FIELD_NAME, security.getName());
+    addToMessage(msg, SECURITY_TYPE_FIELD_NAME, security.getSecurityType());
+    addToMessage(msg, IDENTIFIERS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, security.getExternalIdBundle()));
+    addToMessage(msg, ATTRIBUTES_FIELD_NAME, serializer.objectToFudgeMsg(security.getAttributes()));
+    if (!security.getPermissions().isEmpty()) {
+      addToMessage(msg, PERMISSIONS_FIELD_NAME, serializer.objectToFudgeMsg(security.getPermissions()));
+    }
   }
 
   @Override
@@ -58,11 +64,14 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
   }
 
   @SuppressWarnings("unchecked")
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ManageableSecurity object) {
-    object.setUniqueId(UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_FIELD_NAME)));
-    object.setName(msg.getString(NAME_FIELD_NAME));
-    object.setExternalIdBundle(ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_FIELD_NAME)));
-    object.setAttributes((Map<String, String>) deserializer.fieldValueToObject(msg.getByName(ATTRIBUTES_FIELD_NAME)));
+  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ManageableSecurity security) {
+    security.setUniqueId(UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_FIELD_NAME)));
+    security.setName(msg.getString(NAME_FIELD_NAME));
+    security.setExternalIdBundle(ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_FIELD_NAME)));
+    security.setAttributes((Map<String, String>) deserializer.fieldValueToObject(msg.getByName(ATTRIBUTES_FIELD_NAME)));
+    if (msg.hasField(PERMISSIONS_FIELD_NAME)) {
+      security.setPermissions((Set<String>) deserializer.fieldValueToObject(msg.getByName(PERMISSIONS_FIELD_NAME)));
+    }
   }
 
 }

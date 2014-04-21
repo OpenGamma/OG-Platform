@@ -29,10 +29,12 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VarianceSwapRatesSensitivityTest {
 
   private static final EquityDerivativeSensitivityCalculator DELTA_CAL = new EquityDerivativeSensitivityCalculator(VarianceSwapPresentValueCalculator.getInstance());

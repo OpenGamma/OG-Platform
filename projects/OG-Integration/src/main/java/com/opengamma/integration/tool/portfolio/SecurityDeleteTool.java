@@ -28,6 +28,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class SecurityDeleteTool extends AbstractTool<ToolContext> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityDeleteTool.class);
 
   /** Delete securities option flag */
@@ -47,11 +48,10 @@ public class SecurityDeleteTool extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new SecurityDeleteTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new SecurityDeleteTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

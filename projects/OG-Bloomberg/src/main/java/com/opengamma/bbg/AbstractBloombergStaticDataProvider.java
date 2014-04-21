@@ -5,26 +5,37 @@
  */
 package com.opengamma.bbg;
 
-import java.util.Collection;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.EventQueue;
+import com.bloomberglp.blpapi.Identity;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.MessageIterator;
+import com.bloomberglp.blpapi.Name;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
-import com.bloomberglp.blpapi.UserHandle;
+import com.google.common.util.concurrent.SettableFuture;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.ConnectionUnavailableException;
 import com.opengamma.util.ArgumentChecker;
@@ -35,7 +46,24 @@ import com.opengamma.util.TerminatableJob;
  */
 public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractBloombergStaticDataProvider.class);
+  private static final int WAIT_TIME_MS = 10 * 1000; // 10 seconds
+  private static final Name TOKEN_SUCCESS = Name.getName("TokenGenerationSuccess");
+  private static final Name TOKEN_ELEMENT = Name.getName("token");
+  private static final String AUTH_SERVICE = "//blp/apiauth";
+  private static final Name AUTHORIZATION_SUCCESSS = Name.getName("AuthorizationSuccess");
+
+  private static final String AUTH_USER = "AuthenticationType=OS_LOGON";
+  private static final String AUTH_APP_PREFIX = "AuthenticationMode=APPLICATION_ONLY;ApplicationAuthenticationType=APPNAME_AND_KEY;ApplicationName=";
+  private static final String AUTH_DIR_PREFIX = "AuthenticationType=DIRECTORY_SERVICE;DirSvcPropertyName=";
+  private static final String AUTH_OPTION_NONE = "none";
+  private static final String AUTH_OPTION_USER = "user";
+  private static final String AUTH_OPTION_APP = "app=";
+  private static final String AUTH_OPTION_DIR = "dir=";
+
+  /**
+   * Default shedule time in hours to re authorize bpipe user with Bloomberg
+   */
+  public static final int RE_AUTHORIZATION_SCHEDULE_TIME = 24;
 
   /**
    * The Bloomberg session options.
@@ -46,14 +74,15 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * The provider of correlation identifiers.
    */
   private final AtomicLong _nextCorrelationId = new AtomicLong(1L);
+
   /**
-   * The lookup table of correlation identifiers.
+   * Result futures
    */
-  private final Map<CorrelationID, CorrelationID> _correlationIDMap = new ConcurrentHashMap<>();
+  private final Map<CorrelationID, SettableFuture<List<Element>>> _responseFutures = new ConcurrentHashMap<>();
   /**
-   * The lookup table of results.
+   * Actual results
    */
-  private final Map<CorrelationID, BlockingQueue<Element>> _correlationIDElementMap = new ConcurrentHashMap<>();
+  private final Map<CorrelationID, List<Element>> _responseMessages = new ConcurrentHashMap<>();
   /**
    * The event processor listening to Bloomberg.
    */
@@ -69,16 +98,70 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   private final SessionProvider _sessionProvider;
 
   /**
+   * The authentication option, null represents NO_AUTH
+   */
+  private final String _authenticationOption;
+
+  /**
+   * The bpipe system identity user
+   */
+  private volatile Identity _systemUserIdentity;
+
+  /**
+   * The identity re authorization schedule time in hours
+   * <p>
+   * Defaults to 24hrs if not set
+   */
+
+  private final int _reAuthorizationScheduleTime;
+
+  /**
+   * Scheduler to check against system identity every 24hrs
+   */
+  private ScheduledExecutorService _identityScheduler;
+  private ScheduledFuture<?> _identityCheckTask;
+
+  /**
    * Creates an instance.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param bloombergConnector the Bloomberg connector, not null
    * @param serviceName The Bloomberg service to start
+   * @param authenticationOption the authentication option, null is NO_AUTH
+   * <p>
+   * user|none|app=<app>|dir=<property> (default: none)");
+   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
    */
-  public AbstractBloombergStaticDataProvider(BloombergConnector bloombergConnector, String serviceName) {
+  public AbstractBloombergStaticDataProvider(BloombergConnector bloombergConnector, String serviceName, String authenticationOption, double reAuthorizationScheduleTime) {
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notEmpty(serviceName, "serviceName");
+    ArgumentChecker.isTrue(reAuthorizationScheduleTime > 0, "validation schedule time must be positive number");
+
+    _authenticationOption = getAuthenticationOptionStr(authenticationOption);
+    bloombergConnector.getSessionOptions().setAuthenticationOptions(_authenticationOption);
     _bloombergConnector = bloombergConnector;
     _sessionProvider = new SessionProvider(_bloombergConnector, serviceName);
+    _reAuthorizationScheduleTime = (int) Math.round(3600 * reAuthorizationScheduleTime);
+  }
+
+  private String getAuthenticationOptionStr(String authenticationOption) {
+    authenticationOption = StringUtils.trimToNull(authenticationOption);
+    if (authenticationOption == null) {
+      return null;
+    }
+    switch (authenticationOption) {
+      case AUTH_OPTION_NONE:
+        return null;
+      case AUTH_OPTION_USER:
+        return AUTH_USER;
+      default:
+        if (authenticationOption.regionMatches(true, 0, AUTH_OPTION_APP, 0, AUTH_OPTION_APP.length())) {
+          return AUTH_APP_PREFIX + authenticationOption.substring(AUTH_OPTION_APP.length());
+        } else if (authenticationOption.regionMatches(true, 0, AUTH_OPTION_DIR, 0, AUTH_OPTION_DIR.length())) {
+          return AUTH_DIR_PREFIX + authenticationOption.substring(AUTH_OPTION_DIR.length());
+        } else {
+          throw new OpenGammaRuntimeException("Invalid authenticationOption format: " + authenticationOption);
+        }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -117,61 +200,79 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     return _sessionProvider.getService();
   }
 
+  private synchronized void releaseBlockedRequests() {
+    for (Entry<CorrelationID, SettableFuture<List<Element>>> entry : _responseFutures.entrySet()) {
+      List<Element> messages = _responseMessages.remove(entry.getKey());
+      if (messages == null) {
+        messages = new ArrayList<>();
+      }
+      entry.getValue().set(messages);
+    }
+    _responseFutures.clear();
+    _responseMessages.clear();
+  }
+
+  /**
+   * Shuts down the Bloomberg session and service, releasing any resources.
+   */
+  private void invalidateSession() {
+    _sessionProvider.invalidateSession();
+    releaseBlockedRequests();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sends a request to Bloomberg, waiting for the response.
    * 
-   * @param request  the request to send, not null
+   * @param request the request to send, not null
    * @return the correlation identifier, not null
    */
-  protected CorrelationID submitBloombergRequest(Request request) {
-    getLogger().debug("Sending Request={}", request);
+  protected Future<List<Element>> submitRequest(Request request) {
+    Session session = getSession();
     CorrelationID cid = new CorrelationID(generateCorrelationID());
-    synchronized (cid) {
-      _correlationIDMap.put(cid, cid);
-      try {
-        getSession().sendRequest(request, cid);
-      } catch (Exception ex) {
-        _correlationIDMap.remove(cid);
-        throw new OpenGammaRuntimeException("Unable to send request " + request, ex);
+    
+    SettableFuture<List<Element>> resultFuture = SettableFuture.<List<Element>>create();
+    ArrayList<Element> result = new ArrayList<>();
+    try {
+      if (_systemUserIdentity != null) {
+        getLogger().debug("submitting authorized request {} with cid {}", request, cid);
+        session.sendRequest(request, _systemUserIdentity, cid);
+      } else {
+        getLogger().debug("submitting normal request {} with cid {}", request, cid);
+        session.sendRequest(request, cid);
       }
-      try {
-        cid.wait();
-      } catch (InterruptedException ex) {
-        Thread.interrupted();
-        throw new OpenGammaRuntimeException("Unable to process request " + request, ex);
-      }
+      _responseMessages.put(cid, result);
+      _responseFutures.put(cid, resultFuture);
+    } catch (IOException ex) {
+      getLogger().warn("Error executing bloomberg reference data request", ex);
+      resultFuture.set(result);
     }
-    return cid;
+    return resultFuture;
   }
 
   /**
    * Sends an authorization request to Bloomberg, waiting for the response.
    * 
-   * @param request  the request to send, not null
-   * @param userHandle  the user handle, not null
-   * @return the correlation identifier, not null
+   * @param request the request to send, not null
+   * @param userIdentity the user identity, not null
+   * @return the collection of results, not null
    */
-  @SuppressWarnings("deprecation")
-  protected CorrelationID submitBloombergAuthorizationRequest(Request request, UserHandle userHandle) {
+  protected Future<List<Element>> submitAuthorizationRequest(Request request, Identity userIdentity) {
     getLogger().debug("Sending Request={}", request);
+    Session session = getSession();
     CorrelationID cid = new CorrelationID(generateCorrelationID());
-    synchronized (cid) {
-      _correlationIDMap.put(cid, cid);
-      try {
-        getSession().sendAuthorizationRequest(request, userHandle, cid);
-      } catch (Exception ex) {
-        _correlationIDMap.remove(cid);
-        throw new OpenGammaRuntimeException("Unable to send request " + request, ex);
-      }
-      try {
-        cid.wait();
-      } catch (InterruptedException ex) {
-        Thread.interrupted();
-        throw new OpenGammaRuntimeException("Unable to process request " + request, ex);
-      }
+
+    SettableFuture<List<Element>> resultFuture = SettableFuture.<List<Element>>create();
+    ArrayList<Element> result = new ArrayList<>();
+    try {
+      session.sendAuthorizationRequest(request, userIdentity, cid);
+      _responseMessages.put(cid, result);
+      _responseFutures.put(cid, resultFuture);
+    } catch (IOException ex) {
+      getLogger().warn("Error executing bloomberg reference data request", ex);
+      resultFuture.set(result);
     }
-    return cid;
+    return resultFuture;
   }
 
   /**
@@ -181,19 +282,6 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    */
   protected long generateCorrelationID() {
     return _nextCorrelationId.getAndIncrement();
-  }
-
-  /**
-   * Gets the result given a correlation identifier.
-   * 
-   * @param cid  the correlation identifier, not null
-   * @return the collection of results, not null
-   */
-  protected BlockingQueue<Element> getResultElement(CorrelationID cid) {
-    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-    // clear correlation maps
-    _correlationIDMap.remove(cid);
-    return resultElements;
   }
 
   //-------------------------------------------------------------------------
@@ -207,12 +295,32 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       return;
     }
     getLogger().info("Bloomberg event processor being started...");
+    _sessionProvider.start();
     _eventProcessor = new BloombergSessionEventProcessor();
     _thread = new Thread(_eventProcessor, "BSM Event Processor");
     _thread.setDaemon(true);
     _thread.start();
     getLogger().info("Bloomberg event processor started");
     getLogger().info("Bloomberg started");
+
+
+    if (_authenticationOption != null) {
+      _systemUserIdentity = authorizeUser();
+      _identityScheduler = Executors.newScheduledThreadPool(1);
+      _identityCheckTask = _identityScheduler.scheduleAtFixedRate(new Runnable() {
+
+        @Override
+        public void run() {
+          getLogger().debug("Re authorizing the user");
+          try {
+            _systemUserIdentity = authorizeUser();
+          } catch (Exception ex) {
+            releaseBlockedRequests();
+            throw ex;
+          }
+        }
+      }, _reAuthorizationScheduleTime, _reAuthorizationScheduleTime, SECONDS);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -233,9 +341,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * Ensures that the Bloomberg session has been started.
    */
   protected void ensureStarted() {
-    if (getSession() == null) {
-      throw new IllegalStateException("Session not set; has start() been called?");
-    }
+    getSession();
     if (_thread == null || _thread.isAlive() == false) {
       throw new IllegalStateException("Event polling thread not alive; has start() been called?");
     }
@@ -251,7 +357,6 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       getLogger().info("Bloomberg already stopped");
       return;
     }
-    
     getLogger().info("Bloomberg event processor being stopped...");
     _eventProcessor.terminate();
     try {
@@ -259,9 +364,66 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     } catch (InterruptedException e) {
       Thread.interrupted();
     }
+    _eventProcessor = null;
     _thread = null;
+    releaseBlockedRequests();
+
+    getLogger().debug("shutting down identity scheduler task");
+    if (isAuthorized()) {
+      _identityCheckTask.cancel(true);
+      _identityScheduler.shutdownNow();
+    }
+    _sessionProvider.stop();
     getLogger().info("Bloomberg event processor stopped");
-    _sessionProvider.invalidateSession();
+  }
+
+  protected boolean isAuthorized() {
+    return _identityCheckTask != null && _identityScheduler != null;
+  }
+
+  private Identity authorizeUser() {
+    Session session = getSession();
+    final Identity identity = session.createIdentity();
+    getLogger().debug("Attempting to authorize user using authentication option: {}", _authenticationOption);
+    EventQueue tokenEventQueue = new EventQueue();
+    try {
+      getSession().generateToken(new CorrelationID(generateCorrelationID()), tokenEventQueue);
+      String token = null;
+      //Generate token responses will come on this dedicated queue. There would be no other messages on that queue.
+      Event event = tokenEventQueue.nextEvent(WAIT_TIME_MS);
+      if (event.eventType() == Event.EventType.TOKEN_STATUS || event.eventType() == Event.EventType.REQUEST_STATUS) {
+        for (Message msg : event) {
+          if (msg.messageType() == TOKEN_SUCCESS) {
+            token = msg.getElementAsString(TOKEN_ELEMENT);
+          }
+        }
+      }
+      if (token == null) {
+        throw new OpenGammaRuntimeException("Failed to get token for bpipe app using  authentication option: " + _authenticationOption);
+      }
+  
+      getLogger().debug("Token {} generated for application: {}", token, _authenticationOption);
+      if (!getSession().openService(AUTH_SERVICE)) {
+        throw new OpenGammaRuntimeException("Failure to open service: " + AUTH_SERVICE);
+      }
+      Service authService = getSession().getService(AUTH_SERVICE);
+      Request authRequest = authService.createAuthorizationRequest();
+      authRequest.set(TOKEN_ELEMENT, token);
+  
+      List<Element> authorizationResponse = submitAuthorizationRequest(authRequest, identity).get();
+      if (authorizationResponse == null || authorizationResponse.isEmpty()) {
+        throw new OpenGammaRuntimeException("Bloomberg authorization failed using  authentication option: " + _authenticationOption);
+      }
+      for (Element resultElem : authorizationResponse) {
+        if (resultElem != null && AUTHORIZATION_SUCCESSS == resultElem.name()) {
+          getLogger().debug("Authorization success for application: {}", _authenticationOption);
+          return identity;
+        }
+      }
+      throw new OpenGammaRuntimeException("Bloomberg authorization failed using  authentication option: " + _authenticationOption);
+    } catch (IOException | InterruptedException | ExecutionException ex) {
+      throw new OpenGammaRuntimeException("Failure to authenticate the bloomberg user using  authentication option:" + _authenticationOption);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -280,73 +442,66 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
         event = getSession().nextEvent(1000L);
       } catch (InterruptedException e) {
         Thread.interrupted();
-        s_logger.warn("Unable to retrieve the next event available for processing on this session", e);
+        getLogger().warn("Unable to retrieve the next event available for processing on this session", e);
         return;
       } catch (ConnectionUnavailableException e) {
-        s_logger.warn("No connection to Bloomberg available, failed to get next event", e);
+        getLogger().warn("No connection to Bloomberg available, failed to get next event", e);
         try {
           Thread.sleep(RETRY_PERIOD);
         } catch (InterruptedException e1) {
-          s_logger.warn("Interrupted waiting to retry", e1);
+          getLogger().warn("Interrupted waiting to retry", e1);
         }
         return;
       } catch (RuntimeException e) {
-        s_logger.warn("Unable to retrieve the next event available for processing on this session", e);
+        getLogger().warn("Unable to retrieve the next event available for processing on this session", e);
         return;
       }
       if (event == null) {
         //getLogger().debug("Got NULL event");
         return;
       }
-      //getLogger().debug("Got event of type {}", event.eventType());
+      getLogger().debug("Got event of type {}", event.eventType());
+      if (getLogger().isDebugEnabled()) {
+        for (Message msg : event) {
+          getLogger().debug("{}", msg);
+        }
+      }
+
       MessageIterator msgIter = event.messageIterator();
-      CorrelationID realCID = null;
       while (msgIter.hasNext()) {
         Message msg = msgIter.next();
         if (event.eventType() == Event.EventType.SESSION_STATUS) {
           if (msg.messageType().toString().equals("SessionTerminated")) {
             getLogger().error("Session terminated");
-            terminate();
+            // Invalidate the session (which will release any blocked threads)
+            invalidateSession();
             return;
           }
         }
-        
-        CorrelationID bbgCID = msg.correlationID();
+
+        final CorrelationID responseCid = msg.correlationID();
         Element element = msg.asElement();
-        getLogger().debug("got msg with cid={} msg.asElement={}", bbgCID, msg.asElement());
-        if (bbgCID != null) {
-          realCID = _correlationIDMap.get(bbgCID);
-          if (realCID != null) {
-            BlockingQueue<Element> messages = _correlationIDElementMap.get(realCID);
-            if (messages == null) {
-              messages = new LinkedBlockingQueue<>();
-              _correlationIDElementMap.put(realCID, messages);
-            }
+        getLogger().debug("got msg with cid={} msg.asElement={}", responseCid, msg.asElement());
+        if (responseCid != null) {
+          List<Element> messages = _responseMessages.get(responseCid);
+          if (messages != null) {
             messages.add(element);
           }
         }
       }
-      // wake up waiting client thread if response is completed and there is a thread waiting on the cid
-      if (event.eventType() == Event.EventType.RESPONSE && realCID != null) {
-        //cid is removed from the map by the request thread after it has  been notified
-        synchronized (realCID) {
-          realCID.notify();
-        }
-      }
-    }
 
-    @Override
-    public void terminate() {
-      super.terminate();
-      
-      // notify all threads waiting on cid
-      Collection<CorrelationID> cids = _correlationIDMap.values();
-      for (CorrelationID correlationID : cids) {
-        synchronized (correlationID) {
-          correlationID.notifyAll();
+      if (event.eventType() == Event.EventType.RESPONSE) {
+        for (Message message : event) {
+          CorrelationID correlationID = message.correlationID();
+          List<Element> result = _responseMessages.remove(correlationID);
+          if (result != null) {
+            SettableFuture<List<Element>> responseFuture = _responseFutures.remove(correlationID);
+            if (responseFuture != null) {
+              responseFuture.set(result);
+            }
+          }
         }
       }
     }
   }
-
 }

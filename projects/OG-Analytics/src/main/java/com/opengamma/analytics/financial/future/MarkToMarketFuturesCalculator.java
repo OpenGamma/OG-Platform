@@ -67,8 +67,8 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final SimpleFutureDataBundle dataBundle) {
     ArgumentChecker.notNull(future, "future");
     ArgumentChecker.notNull(dataBundle, "data bundle");
-    return Double.valueOf(getResult(dataBundle, future.getReferencePrice(), future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity(),
-        future.getLastTradingTime())); // TODO Confirm we want to multiply by accrualFactor
+    return Double.valueOf(getResult(dataBundle, future.getReferencePrice(), future.getUnderlyingSecurity().getNotional() * future.getUnderlyingSecurity().getPaymentAccrualFactor() * future.getQuantity(),
+        future.getUnderlyingSecurity().getTradingLastTime()));
   }
 
   @Override

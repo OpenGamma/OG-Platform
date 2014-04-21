@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests related to the seasonal curve. Usually used in a multiplicative way for PriceIndexCurve construction.
  */
+@Test(groups = TestGroup.UNIT)
 public class SeasonalCurveTest {
 
   //TODO: seasonal curve have been modified, so this test have to be modified.

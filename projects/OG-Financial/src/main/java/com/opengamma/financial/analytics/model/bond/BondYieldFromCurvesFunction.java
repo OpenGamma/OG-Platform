@@ -11,8 +11,10 @@ import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromC
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- * 
+ * Calculates the bond yield from yield curves.
+ * @deprecated The parent class of this function is deprecated.
  */
+@Deprecated
 public class BondYieldFromCurvesFunction extends BondFromCurvesFunction {
 
   @Override

@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
@@ -28,11 +29,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Populates {@link CommodityFutureOptionFunction} with defaults appropriate for pricing using an interpolated Black lognormal volatility surface.
  */
-public class EquityFutureOptionSurfaceCalculationMethodDefaults extends DefaultPropertyFunction {
+public class EquityFutureOptionSurfaceCalculationMethodDefaults extends StaticDefaultPropertyFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityFutureOptionSurfaceCalculationMethodDefaults.class);
   /** Map of currency name to surface calculation method */
-  private final Map<String, String> _currencyToSurfaceCalculationMethod;
+  private final Map<String, Set<String>> _currencyToSurfaceCalculationMethod;
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
 
@@ -69,7 +70,7 @@ public class EquityFutureOptionSurfaceCalculationMethodDefaults extends DefaultP
    * @param perCurrencyConfig Default values of surface calculation method per currency, not null
    */
   public EquityFutureOptionSurfaceCalculationMethodDefaults(final String priority, final String... perCurrencyConfig) {
-    super(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY, true);
+    super(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY, ValuePropertyNames.SURFACE_CALCULATION_METHOD, true, s_valueNames);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyConfig, "per currency configuration");
     _priority = PriorityClass.valueOf(priority);
@@ -78,7 +79,7 @@ public class EquityFutureOptionSurfaceCalculationMethodDefaults extends DefaultP
     _currencyToSurfaceCalculationMethod = Maps.newHashMap();
     for (int i = 0; i < perCurrencyConfig.length; i += 2) {
       final String currency = perCurrencyConfig[i].toUpperCase();
-      _currencyToSurfaceCalculationMethod.put(currency, perCurrencyConfig[i + 1]);
+      _currencyToSurfaceCalculationMethod.put(currency, Collections.singleton(perCurrencyConfig[i + 1]));
     }
   }
 
@@ -90,24 +91,18 @@ public class EquityFutureOptionSurfaceCalculationMethodDefaults extends DefaultP
   }
 
   @Override
-  protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    if (desiredValue.getConstraints().isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
+      return super.getRequirements(context, target, desiredValue);
+    } else {
+      return null;
     }
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    if (!_currencyToSurfaceCalculationMethod.containsKey(currency)) {
-      s_logger.error("Could not find defaults for {}", currency);
-      return null;
-    }
-    if (ValuePropertyNames.SURFACE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_currencyToSurfaceCalculationMethod.get(currency));
-    }
-    s_logger.error("Cannot get a default value for {}", propertyName);
-    return null;
+    return _currencyToSurfaceCalculationMethod.get(currency);
   }
 
   @Override

@@ -32,14 +32,18 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingPositionGam
  */
 @Deprecated
 public class InterestRateFutureOptionBlackPositionGammaFunction extends InterestRateFutureOptionBlackFunction {
-
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackPositionGammaFunction.class);
   /** The calculator to compute the gamma value. */
   private static final PresentValueBlackGammaCalculator CALCULATOR = PresentValueBlackGammaCalculator.getInstance();
 
+  /**
+   * Sets the value requirement names to {@link ValueRequirementNames#POSITION_GAMMA}
+   */
   public InterestRateFutureOptionBlackPositionGammaFunction() {
-    super(ValueRequirementNames.POSITION_GAMMA);
+    super(ValueRequirementNames.POSITION_GAMMA, true);
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     // First, confirm Scale is set, by user or by default
@@ -54,7 +58,8 @@ public class InterestRateFutureOptionBlackPositionGammaFunction extends Interest
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     // Compute gamma with unit scaling. Remember that future price will be quoted like 0.9965, not 99.65
     final Double gamma = irFutureOption.accept(CALCULATOR, data);
     // Add scaling and adjust properties to reflect
@@ -69,17 +74,16 @@ public class InterestRateFutureOptionBlackPositionGammaFunction extends Interest
       scaleProperty = Iterables.getOnlyElement(scaleValue);
       scaleFactor = Double.parseDouble(scaleProperty);
     }
-    ValueProperties properties = spec.getProperties().copy().withoutAny(ValuePropertyNames.SCALE).with(ValuePropertyNames.SCALE, scaleProperty).get();
-    ValueSpecification specWithScale = new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties);    
-    
+    final ValueProperties properties = spec.getProperties().copy().withoutAny(ValuePropertyNames.SCALE).with(ValuePropertyNames.SCALE, scaleProperty).get();
+    final ValueSpecification specWithScale = new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties);
+
     return Collections.singleton(new ComputedValue(specWithScale, gamma * scaleFactor * scaleFactor));
   }
-  
+
   @Override
   protected ValueProperties.Builder getResultProperties(final String currency) {
     return super.getResultProperties(currency)
         .withAny(ValuePropertyNames.SCALE);
   }
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackPositionGammaFunction.class);
+
 }

@@ -12,9 +12,9 @@ import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -60,6 +60,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     AUConventions.addFixedIncomeInstrumentConventions(this);
     BRConventions.addFixedIncomeInstrumentConventions(this);
     CAConventions.addFixedIncomeInstrumentConventions(this);
+    CAConventions.addCorporateBondConvention(this);
     CHConventions.addFixedIncomeInstrumentConventions(this);
     CHConventions.addTreasuryBondConvention(this);
     CHConventions.addCorporateBondConvention(this);
@@ -70,6 +71,11 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     GBConventions.addFixedIncomeInstrumentConventions(this);
     GBConventions.addTreasuryBondConvention(this);
     GBConventions.addCorporateBondConvention(this);
+    GBConventions.addInflationBondConvention(this);
+    GBConventions.addNLInflationBondConvention(this);
+    GBConventions.addJEInflationBondConvention(this);
+    GBConventions.addKYInflationBondConvention(this);
+    GBConventions.addUSInflationBondConvention(this);
     GBConventions.addBondFutureConvention(this);
     HKConventions.addFixedIncomeInstrumentConventions(this);
     HUConventions.addFixedIncomeInstrumentConventions(this);
@@ -92,6 +98,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addDEFixedIncomeInstruments();
     addFRFixedIncomeInstruments();
     addSEFixedIncomeInstruments();
+    addATTreasuryBondConvention();
+    addBETreasuryBondConvention();
+    addIETreasuryBondConvention();
     addLUTreasuryBondConvention();
     addLUCorporateBondConvention();
     addBHTreasuryBondConvention();
@@ -113,12 +122,28 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addHUTreasuryBondConvention();
     addHUCorporateBondConvention();
 
+    addDummyTreasuryBondConvention("MX");
+    addDummyTreasuryBondConvention("UG");
+    addDummyCorporateBondConvention("JE"); // Jersey!!
+    addDummyCorporateBondConvention("DK");
+    addDummyCorporateBondConvention("KY");
+    addDummyCorporateBondConvention("AU");
+    addDummyCorporateBondConvention("BM");
+    addDummyCorporateBondConvention("NO");
+    addDummyCorporateBondConvention("SNAT");
+    addDummyCorporateBondConvention("MX");
+    addDummyCorporateBondConvention("IE");
+    addDummyCorporateBondConvention("SG");
+    addDummyCorporateBondConvention("BE");
+    addDummyCorporateBondConvention("NZ");
+
     ExchangeConventions.addExchangeFutureOptionConventions(this);
   }
 
   @Override
   public UniqueId add(final ExternalIdBundle bundle, final ConventionBundleImpl convention) {
     final UniqueId uid = _mapper.add(bundle, convention);
+    // REVIEW Andrew 2013-11-27 -- should we be setting the identifier bundle into the convention here - convention.setIdentifiers(bundle); - ?
     convention.setUniqueId(uid);
     return uid;
   }
@@ -153,10 +178,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addHUFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount act365 = DayCounts.ACT_365;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "HUFCASHP1D")), "HUFCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "HUFCASHP1M")), "HUFCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -183,10 +208,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addITFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "ITLCASHP1D")), "ITLCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "ITLCASHP1M")), "ITLCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -221,10 +246,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addDEFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DEMCASHP1D")), "DEMCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DEMCASHP1M")), "DEMCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -259,10 +284,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addFRFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "FRFCASHP1D")), "FRFCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "FRFCASHP1M")), "FRFCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -297,10 +322,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addSEFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount act365 = DayCounts.ACT_365;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKCASHP1D")), "SEKCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKCASHP1M")), "SEKCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -330,6 +355,21 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKSWAPP25Y")), "SEKSWAPP25Y", act360, modified, Period.ofYears(25), 2, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKSWAPP30Y")), "SEKSWAPP30Y", act360, modified, Period.ofYears(30), 2, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKSWAPP40Y")), "SEKSWAPP40Y", act360, modified, Period.ofYears(40), 2, false, null);
+  }
+
+  //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
+  private void addATTreasuryBondConvention() { // Government Austria
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "AT_TREASURY_BOND_CONVENTION")), "AT_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
+  private void addBETreasuryBondConvention() { // Government Belgium
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "BE_TREASURY_BOND_CONVENTION")), "BE_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
+  private void addIETreasuryBondConvention() { // Government Ireland
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "IE_TREASURY_BOND_CONVENTION")), "IE_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
@@ -432,10 +472,21 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SE_CORPORATE_BOND_CONVENTION")), "SE_CORPORATE_BOND_CONVENTION", true, true, 4, 3, true);
   }
 
+  private void addDummyTreasuryBondConvention(final String domicile) {
+    final String name = domicile + "_TREASURY_BOND_CONVENTION";
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, name)), name, true, true, 0, 3, true);
+  }
+
+  private void addDummyCorporateBondConvention(final String domicile) {
+    final String name = domicile + "_CORPORATE_BOND_CONVENTION";
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, name)), name, true, true, 0, 3, true);
+  }
+
   /**
    * Creates a simple name security Id.
    * <p>
-   * @param securityId  the simple name security id, not null
+   *
+   * @param securityId the simple name security id, not null
    * @return the security identifier, not null
    */
   public static ExternalId simpleNameSecurityId(final String securityId) {
@@ -449,7 +500,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   /**
    * Creates a simple exchange name id.
    * <p>
-   * @param exchangeName  the simple exchange name, not null
+   *
+   * @param exchangeName the simple exchange name, not null
    * @return the exchange identifier, not null
    */
   public static ExternalId simpleExchangeNameSecurityId(final String exchangeName) {

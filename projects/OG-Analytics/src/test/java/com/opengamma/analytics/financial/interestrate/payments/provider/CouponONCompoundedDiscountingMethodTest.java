@@ -33,11 +33,13 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing methods for ON Compounded coupon in the discounting method.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponONCompoundedDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -57,7 +59,7 @@ public class CouponONCompoundedDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final CouponONCompounded CPN_ON_COMPOUNDED = CPN_ON_COMPOUNDED_DEFINITION.toDerivative(REFERENCE_DATE);
 
-  private static final CouponONCompoundedDiscountingMethod METHOD_CPN_OIS = CouponONCompoundedDiscountingMethod.getInstance();
+  private static final CouponONCompoundedDiscountingMethod METHOD_CPN_ON = CouponONCompoundedDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
@@ -71,12 +73,12 @@ public class CouponONCompoundedDiscountingMethodTest {
 
   @Test
   public void presentValue() {
-    final MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(CPN_ON_COMPOUNDED, MULTICURVES);
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(CPN_ON_COMPOUNDED, MULTICURVES);
     double ratio = 1.0;
     for (int i = 0; i < CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors().length; i++) {
       ratio *= Math.pow(
-          1 + MULTICURVES.getForwardRate(CPN_ON_COMPOUNDED.getIndex(), CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i], CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i],
-              CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactorsActAct()[i]),
+          1 + MULTICURVES.getAnnuallyCompoundForwardRate(CPN_ON_COMPOUNDED.getIndex(), CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i], CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i],
+              CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]),
           CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = MULTICURVES.getDiscountFactor(CPN_ON_COMPOUNDED.getCurrency(), CPN_ON_COMPOUNDED.getPaymentTime());
@@ -93,12 +95,12 @@ public class CouponONCompoundedDiscountingMethodTest {
     final CouponONCompounded cpnONCompoundedStarted = (CouponONCompounded) CPN_ON_COMPOUNDED_DEFINITION.toDerivative(referenceDate, TS_ON);
     final double notionalAccrued = NOTIONAL * Math.pow(1 + fixing, CPN_ON_COMPOUNDED_DEFINITION.getFixingPeriodAccrualFactors()[0]);
     assertEquals("CouponONCompoundedDiscountingMethod: present value", notionalAccrued, cpnONCompoundedStarted.getNotionalAccrued(), TOLERANCE_PV);
-    final MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(cpnONCompoundedStarted, MULTICURVES);
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(cpnONCompoundedStarted, MULTICURVES);
     double ratio = 1.0;
     for (int i = 0; i < cpnONCompoundedStarted.getFixingPeriodAccrualFactors().length; i++) {
       ratio *= Math.pow(
-          1 + MULTICURVES.getForwardRate(cpnONCompoundedStarted.getIndex(), cpnONCompoundedStarted.getFixingPeriodStartTimes()[i], cpnONCompoundedStarted.getFixingPeriodEndTimes()[i],
-              cpnONCompoundedStarted.getFixingPeriodAccrualFactorsActAct()[i]), cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]);
+          1 + MULTICURVES.getAnnuallyCompoundForwardRate(cpnONCompoundedStarted.getIndex(), cpnONCompoundedStarted.getFixingPeriodStartTimes()[i], cpnONCompoundedStarted.getFixingPeriodEndTimes()[i],
+              cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]), cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = MULTICURVES.getDiscountFactor(cpnONCompoundedStarted.getCurrency(), cpnONCompoundedStarted.getPaymentTime());
     final double pvExpected = cpnONCompoundedStarted.getNotionalAccrued() * ratio * df;
@@ -107,7 +109,7 @@ public class CouponONCompoundedDiscountingMethodTest {
 
   @Test
   public void presentValueMethodVsCalculator() {
-    final MultipleCurrencyAmount pvMethod = METHOD_CPN_OIS.presentValue(CPN_ON_COMPOUNDED, MULTICURVES);
+    final MultipleCurrencyAmount pvMethod = METHOD_CPN_ON.presentValue(CPN_ON_COMPOUNDED, MULTICURVES);
     final MultipleCurrencyAmount pvCalculator = CPN_ON_COMPOUNDED.accept(PVDC, MULTICURVES);
     assertEquals("CouponONCompoundedDiscountingMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
@@ -123,8 +125,11 @@ public class CouponONCompoundedDiscountingMethodTest {
   }
 
   @Test
+  /**
+   * Tests present value curve sensitivity when the valuation date is on trade date.
+   */
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_OIS.presentValueCurveSensitivity(CPN_ON_COMPOUNDED, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_ON.presentValueCurveSensitivity(CPN_ON_COMPOUNDED, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_ON_COMPOUNDED.accept(PVCSDC, MULTICURVES);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }

@@ -14,11 +14,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculatorTestCase {
   private static final int DAY_OF_MONTH = 15;
   private static final Month MONTH_OF_YEAR = Month.APRIL;

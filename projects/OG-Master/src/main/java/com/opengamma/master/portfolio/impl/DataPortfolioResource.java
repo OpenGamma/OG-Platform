@@ -100,7 +100,7 @@ public class DataPortfolioResource
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     PortfolioHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

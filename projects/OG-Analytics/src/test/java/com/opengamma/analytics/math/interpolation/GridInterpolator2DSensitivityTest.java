@@ -14,11 +14,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GridInterpolator2DSensitivityTest {
   private static final Interpolator1D LINEAR_1D = new LinearInterpolator1D();
   private static final GridInterpolator2D INTERPOLATOR;
@@ -38,7 +40,7 @@ public class GridInterpolator2DSensitivityTest {
       for (int j = 0; j < 11; j++) {
         final double x = i;
         final double y = j;
-        DATA.put(new DoublesPair(x, y), COS_EXP_FUNCTION.evaluate(x, y));
+        DATA.put(DoublesPair.of(x, y), COS_EXP_FUNCTION.evaluate(x, y));
       }
     }
 
@@ -48,11 +50,11 @@ public class GridInterpolator2DSensitivityTest {
 
   @Test
   public void test() {
-    final Map<DoublesPair, Double> res = INTERPOLATOR.getNodeSensitivitiesForValue(DATA_BUNDLE, new DoublesPair(4.5, 7.25));
-    assertEquals(0.375, res.get(new DoublesPair(4.0, 7.0)),0.0);
-    assertEquals(0.375, res.get(new DoublesPair(5.0, 7.0)),0.0);
-    assertEquals(0.125, res.get(new DoublesPair(4.0, 8.0)),0.0);
-    assertEquals(0.125, res.get(new DoublesPair(5.0, 8.0)),0.0);
+    final Map<DoublesPair, Double> res = INTERPOLATOR.getNodeSensitivitiesForValue(DATA_BUNDLE, DoublesPair.of(4.5, 7.25));
+    assertEquals(0.375, res.get(DoublesPair.of(4.0, 7.0)),0.0);
+    assertEquals(0.375, res.get(DoublesPair.of(5.0, 7.0)),0.0);
+    assertEquals(0.125, res.get(DoublesPair.of(4.0, 8.0)),0.0);
+    assertEquals(0.125, res.get(DoublesPair.of(5.0, 8.0)),0.0);
     double sum = 0.0;
     for(final Map.Entry<DoublesPair, Double> entry :res.entrySet()) {
       sum += entry.getValue();

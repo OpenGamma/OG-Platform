@@ -10,7 +10,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CONT_SIZE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DELIVERABLE_BONDS;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLV_DT_FIRST;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLV_DT_LAST;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
@@ -64,7 +63,7 @@ public class BondFutureLoader extends SecurityLoader {
       FIELD_FUT_LAST_TRADE_DT,
       FIELD_FUT_TRADING_HRS,
       FIELD_FUT_DELIVERABLE_BONDS,
-      FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE,
+      FIELD_FUT_DELIVERABLE_BONDS,
       FIELD_FUTURES_CATEGORY,
       FIELD_FUT_DLV_DT_FIRST,
       FIELD_FUT_DLV_DT_LAST,
@@ -162,13 +161,13 @@ public class BondFutureLoader extends SecurityLoader {
    */
   private Set<BondFutureDeliverable> createBondDeliverables(FudgeMsg fieldData) {
     Set<BondFutureDeliverable> result = new HashSet<BondFutureDeliverable>();
-    for (FudgeField field : fieldData.getAllByName(FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE)) {
+    for (FudgeField field : fieldData.getAllByName(FIELD_FUT_DELIVERABLE_BONDS)) {
       if (field.getValue() instanceof FudgeMsg) {
         FudgeMsg deliverableContainer = (FudgeMsg) field.getValue();
         Double conversionFactor = deliverableContainer.getDouble("Conversion Factor");
-        String buid = deliverableContainer.getString("Unique Bloomberg Identifier of Deliverable Bonds");
-        if (conversionFactor != null && isValidField(buid)) {
-          ExternalIdBundle ids = ExternalIdBundle.of(ExternalSchemes.bloombergBuidSecurityId(buid));
+        String tcm = deliverableContainer.getString("Ticker, Coupon, Maturity of Deliverable Bonds");
+        if (conversionFactor != null && isValidField(tcm)) {
+          ExternalIdBundle ids = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId(tcm));
           BondFutureDeliverable deliverable = new BondFutureDeliverable(ids, conversionFactor);
           result.add(deliverable);
         }

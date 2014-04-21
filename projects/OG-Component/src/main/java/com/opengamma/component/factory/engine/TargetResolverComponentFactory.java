@@ -8,6 +8,9 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -29,6 +32,8 @@ import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixResolver;
@@ -37,13 +42,10 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsResolver;
 import com.opengamma.financial.currency.VersionedCurrencyPairsSource;
-import com.opengamma.financial.temptarget.ConfigItemTarget;
-import com.opengamma.financial.temptarget.ConfigItemTargetResolver;
+import com.opengamma.financial.target.ConfigTargetResolver;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetResolver;
 import com.opengamma.financial.temptarget.TempTargetSource;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the target resolver.
@@ -130,7 +132,9 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   protected void initDefaultResolvers(final DefaultComputationTargetResolver resolver) {
     if (getConfigSource() != null) {
-      resolver.addResolver(ConfigItemTarget.TYPE, new ConfigItemTargetResolver(getConfigSource()));
+      // Resolvers for types which don't have wrappers to abstract their provision away from the config source
+      ConfigTargetResolver.initResolver(resolver, ViewDefinition.class, getConfigSource());
+      ConfigTargetResolver.initResolver(resolver, YieldCurveDefinition.class, getConfigSource());
     }
     if (getOrCreateCurrencyMatrixSource() != null) {
       resolver.addResolver(CurrencyMatrixResolver.TYPE, new CurrencyMatrixResolver(getOrCreateCurrencyMatrixSource()));
@@ -178,102 +182,6 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   @Override
   public TargetResolverComponentFactory.Meta metaBean() {
     return TargetResolverComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case -1655657820:  // positionSource
-        return getPositionSource();
-      case 1942609550:  // tempTargets
-        return getTempTargets();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-      case 195157501:  // configSource
-        return getConfigSource();
-      case 615188973:  // currencyMatrixSource
-        return getCurrencyMatrixSource();
-      case -1615906429:  // currencyPairsSource
-        return getCurrencyPairsSource();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
-        return;
-      case 1942609550:  // tempTargets
-        setTempTargets((TempTargetSource) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-      case 615188973:  // currencyMatrixSource
-        setCurrencyMatrixSource((CurrencyMatrixSource) newValue);
-        return;
-      case -1615906429:  // currencyPairsSource
-        setCurrencyPairsSource((VersionedCurrencyPairsSource) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_securitySource, "securitySource");
-    JodaBeanUtils.notNull(_positionSource, "positionSource");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      TargetResolverComponentFactory other = (TargetResolverComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          JodaBeanUtils.equal(getTempTargets(), other.getTempTargets()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getCurrencyMatrixSource(), other.getCurrencyMatrixSource()) &&
-          JodaBeanUtils.equal(getCurrencyPairsSource(), other.getCurrencyPairsSource()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargets());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPairsSource());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -480,6 +388,72 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public TargetResolverComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      TargetResolverComponentFactory other = (TargetResolverComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getTempTargets(), other.getTempTargets()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getCurrencyMatrixSource(), other.getCurrencyMatrixSource()) &&
+          JodaBeanUtils.equal(getCurrencyPairsSource(), other.getCurrencyPairsSource()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargets());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPairsSource());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("TargetResolverComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+    buf.append("tempTargets").append('=').append(JodaBeanUtils.toString(getTempTargets())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("currencyMatrixSource").append('=').append(JodaBeanUtils.toString(getCurrencyMatrixSource())).append(',').append(' ');
+    buf.append("currencyPairsSource").append('=').append(JodaBeanUtils.toString(getCurrencyPairsSource())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code TargetResolverComponentFactory}.
    */
@@ -650,6 +624,69 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
      */
     public final MetaProperty<VersionedCurrencyPairsSource> currencyPairsSource() {
       return _currencyPairsSource;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((TargetResolverComponentFactory) bean).getClassifier();
+        case -702456965:  // securitySource
+          return ((TargetResolverComponentFactory) bean).getSecuritySource();
+        case -1655657820:  // positionSource
+          return ((TargetResolverComponentFactory) bean).getPositionSource();
+        case 1942609550:  // tempTargets
+          return ((TargetResolverComponentFactory) bean).getTempTargets();
+        case -1452875317:  // cacheManager
+          return ((TargetResolverComponentFactory) bean).getCacheManager();
+        case 195157501:  // configSource
+          return ((TargetResolverComponentFactory) bean).getConfigSource();
+        case 615188973:  // currencyMatrixSource
+          return ((TargetResolverComponentFactory) bean).getCurrencyMatrixSource();
+        case -1615906429:  // currencyPairsSource
+          return ((TargetResolverComponentFactory) bean).getCurrencyPairsSource();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((TargetResolverComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -702456965:  // securitySource
+          ((TargetResolverComponentFactory) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case -1655657820:  // positionSource
+          ((TargetResolverComponentFactory) bean).setPositionSource((PositionSource) newValue);
+          return;
+        case 1942609550:  // tempTargets
+          ((TargetResolverComponentFactory) bean).setTempTargets((TempTargetSource) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((TargetResolverComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case 195157501:  // configSource
+          ((TargetResolverComponentFactory) bean).setConfigSource((ConfigSource) newValue);
+          return;
+        case 615188973:  // currencyMatrixSource
+          ((TargetResolverComponentFactory) bean).setCurrencyMatrixSource((CurrencyMatrixSource) newValue);
+          return;
+        case -1615906429:  // currencyPairsSource
+          ((TargetResolverComponentFactory) bean).setCurrencyPairsSource((VersionedCurrencyPairsSource) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((TargetResolverComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((TargetResolverComponentFactory) bean)._securitySource, "securitySource");
+      JodaBeanUtils.notNull(((TargetResolverComponentFactory) bean)._positionSource, "positionSource");
+      super.validate(bean);
     }
 
   }

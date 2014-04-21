@@ -29,7 +29,7 @@ public class CouponFixedCompounding extends Coupon {
    * The fixed rate.
    * All the coupon sub-periods use the same fixed rate.
    */
-  private final double _rate;
+  private final double _fixedRate;
 
   /**
    * The accrual factors (or year fraction) associated to the sub-periods not yet fixed.
@@ -59,7 +59,7 @@ public class CouponFixedCompounding extends Coupon {
       final double[] paymentAccrualFactors, final double rate) {
     super(currency, paymentTime, paymentYearFraction, notional);
     _paymentAccrualFactors = paymentAccrualFactors;
-    _rate = rate;
+    _fixedRate = rate;
     final int nbSubPeriod = paymentAccrualFactors.length;
     double notionalAccrued = notional;
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
@@ -69,8 +69,8 @@ public class CouponFixedCompounding extends Coupon {
     _notionalAccrued = notionalAccrued;
   }
 
-  public double getRate() {
-    return _rate;
+  public double getFixedRate() {
+    return _fixedRate;
   }
 
   public double[] getPaymentAccrualFactors() {
@@ -83,7 +83,7 @@ public class CouponFixedCompounding extends Coupon {
 
   @Override
   public Coupon withNotional(final double notional) {
-    return new CouponFixedCompounding(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _paymentAccrualFactors, _rate);
+    return new CouponFixedCompounding(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _paymentAccrualFactors, _fixedRate);
   }
 
   @Override
@@ -104,7 +104,7 @@ public class CouponFixedCompounding extends Coupon {
     int result = super.hashCode();
     result = prime * result + Arrays.hashCode(_paymentAccrualFactors);
     long temp;
-    temp = Double.doubleToLongBits(_rate);
+    temp = Double.doubleToLongBits(_fixedRate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -124,7 +124,7 @@ public class CouponFixedCompounding extends Coupon {
     if (!Arrays.equals(_paymentAccrualFactors, other._paymentAccrualFactors)) {
       return false;
     }
-    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
+    if (Double.doubleToLongBits(_fixedRate) != Double.doubleToLongBits(other._fixedRate)) {
       return false;
     }
     return true;

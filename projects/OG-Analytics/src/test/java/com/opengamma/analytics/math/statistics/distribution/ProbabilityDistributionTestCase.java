@@ -8,14 +8,18 @@ package com.opengamma.analytics.math.statistics.distribution;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class ProbabilityDistributionTestCase {
 
   protected static final double EPS = 1e-5;

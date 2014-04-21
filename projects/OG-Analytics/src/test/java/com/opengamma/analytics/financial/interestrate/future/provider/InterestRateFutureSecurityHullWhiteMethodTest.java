@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ConvexityAdjustmentHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParRateHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
@@ -29,11 +30,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests for the methods related to interest rate securities pricing with Hull-White model convexity adjustment.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureSecurityHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -66,6 +69,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
   private static final MarketQuoteCurveSensitivityHullWhiteCalculator MQCSHWC = MarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
   private static final ConvexityAdjustmentHullWhiteCalculator CAHWC = ConvexityAdjustmentHullWhiteCalculator.getInstance();
+  private static final ParRateHullWhiteCalculator PRHWC = ParRateHullWhiteCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
   private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> SPSHWC = new SimpleParameterSensitivityParameterCalculator<>(
@@ -81,10 +85,31 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
    */
   public void price() {
     final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
-    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
+    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getTradingLastTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedPrice = 1.0 - factor * forward + (1 - factor) / ERU2.getFixingPeriodAccrualFactor();
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", expectedPrice, price, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Test the par rate computed from the curves and HW parameters. Par rate = 1-price.
+   */
+  public void parRate() {
+    final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
+    final double parRateExpected = 1.0d - price;
+    final double parRateComputed = METHOD_IRFUT_HW.parRate(ERU2, HW_MULTICURVES);
+    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: parRate", parRateExpected, parRateComputed, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Test the par rate computed from the method and the calculator.
+   */
+  public void parRateMethodVsCalculator() {
+    final double parRateMethod = METHOD_IRFUT_HW.parRate(ERU2, HW_MULTICURVES);
+    final double parRateCalculator = ERU2.accept(PRHWC, HW_MULTICURVES);
+    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: parRate", parRateMethod, parRateCalculator, TOLERANCE_PRICE);
   }
 
   @Test
@@ -103,7 +128,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
    */
   public void convexityAdjustment() {
     final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
     final double convexityAdjustment = METHOD_IRFUT_HW.convexityAdjustment(ERU2, HW_MULTICURVES);
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: convexity adjustment", price - (1.0d - forward), convexityAdjustment, TOLERANCE_PRICE);
     final double caCalculator = ERU2.accept(CAHWC, HW_MULTICURVES);

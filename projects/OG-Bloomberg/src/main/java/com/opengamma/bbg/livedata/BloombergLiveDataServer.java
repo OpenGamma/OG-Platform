@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
@@ -40,10 +42,8 @@ import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
-import net.sf.ehcache.CacheManager;
-
 /**
- * A Bloomberg Live Data Server. 
+ * A Bloomberg Live Data Server.
  */
 public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
@@ -74,16 +74,14 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
   /**
    * Creates an instance.
-   *
-   * @param bloombergConnector  the connector, not null
-   * @param referenceDataProvider  the reference data provider, not null
-   * @param cacheManager  the cache manager, not null
+   * 
+   * @param bloombergConnector the connector, not null
+   * @param referenceDataProvider the reference data provider, not null
+   * @param cacheManager the cache manager, not null
    * @param availabilityNotificationSender For sending notifications when Bloomberg data becomes available
    */
-  public BloombergLiveDataServer(BloombergConnector bloombergConnector,
-                                 ReferenceDataProvider referenceDataProvider,
-                                 CacheManager cacheManager,
-                                 FudgeMessageSender availabilityNotificationSender) {
+  public BloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager,
+      FudgeMessageSender availabilityNotificationSender) {
     super(cacheManager);
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
@@ -120,6 +118,8 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
   @Override
   protected void doConnect() {
+    // Always start the provider - just in case the lifecycle isn't being followed
+    _sessionProvider.start();
     // getting the session throws an exception if BBG isn't available which is the behaviour we want
     _sessionProvider.getSession();
     BloombergEventDispatcher eventDispatcher = new BloombergEventDispatcher(this);
@@ -152,7 +152,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     }
 
     Map<String, Object> returnValue = Maps.newHashMap();
-    
+
     SubscriptionList sl = new SubscriptionList();
     for (String bbgUniqueId : bbgUniqueIds) {
       String securityDes = getBloombergSubscriptionPathPrefix() + bbgUniqueId;
@@ -160,13 +160,13 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
       sl.add(subscription);
       returnValue.put(bbgUniqueId, subscription);
     }
-    
+
     try {
       _sessionProvider.getSession().subscribe(sl);
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Could not subscribe to " + bbgUniqueIds, e);
     }
-    
+
     return returnValue;
   }
 
@@ -177,7 +177,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   public void setSubscriptionLimit(long subscriptionLimit) {
     _subscriptionLimit = subscriptionLimit;
   }
-  
+
   private void checkLimitRemaining(int requested) {
     int afterSubscriptionCount = requested + getActiveSubscriptionIds().size();
     if (afterSubscriptionCount > getSubscriptionLimit()) {
@@ -187,21 +187,21 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
       throw new OpenGammaRuntimeException(message);
     }
   }
-  
+
   @Override
   protected void doUnsubscribe(Collection<Object> subscriptionHandles) {
     ArgumentChecker.notNull(subscriptionHandles, "Subscription handles");
     if (subscriptionHandles.isEmpty()) {
       return;
     }
-    
+
     SubscriptionList sl = new SubscriptionList();
-    
+
     for (Object subscriptionHandle : subscriptionHandles) {
       Subscription subscription = (Subscription) subscriptionHandle;
       sl.add(subscription);
     }
-    
+
     try {
       _sessionProvider.getSession().unsubscribe(sl);
     } catch (Exception e) {
@@ -216,6 +216,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
   /**
    * Gets the last limit rejection event.
+   * 
    * @return the lastLimitRejection
    */
   public RejectedDueToSubscriptionLimitEvent getLastLimitRejection() {
@@ -224,6 +225,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
   @Override
   public synchronized void start() {
+    _sessionProvider.start();
     if (getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
       _connectTask = new ConnectTask();
       _timer.schedule(_connectTask, 0, RECONNECT_PERIOD);
@@ -239,6 +241,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
       }
       disconnect();
     }
+    _sessionProvider.stop();
   }
 
   /**
@@ -255,13 +258,8 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
             connect();
             startExpirationManager();
             reestablishSubscriptions();
-            MarketDataAvailabilityNotification notification = new MarketDataAvailabilityNotification(
-                ImmutableSet.of(
-                    ExternalSchemes.BLOOMBERG_BUID,
-                    ExternalSchemes.BLOOMBERG_BUID_WEAK,
-                    ExternalSchemes.BLOOMBERG_TCM,
-                    ExternalSchemes.BLOOMBERG_TICKER,
-                    ExternalSchemes.BLOOMBERG_TICKER_WEAK));
+            MarketDataAvailabilityNotification notification = new MarketDataAvailabilityNotification(ImmutableSet.of(ExternalSchemes.BLOOMBERG_BUID, ExternalSchemes.BLOOMBERG_BUID_WEAK,
+                ExternalSchemes.BLOOMBERG_TCM, ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK));
             FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
             s_logger.info("Sending notification that Bloomberg is available: {}", notification);
             _availabilityNotificationSender.send(notification.toFudgeMsg(serializer));
@@ -282,10 +280,10 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/livedata/bbg-livedata-context.xml");
     context.start();
   }
+
   /**
-   * This is the job which actually will dispatch messages from Bloomberg to the various
-   * internal consumers.
-   *
+   * This is the job which actually will dispatch messages from Bloomberg to the various internal consumers.
+   * 
    * @author kirk
    */
   private final class BloombergEventDispatcher extends AbstractEventDispatcher {

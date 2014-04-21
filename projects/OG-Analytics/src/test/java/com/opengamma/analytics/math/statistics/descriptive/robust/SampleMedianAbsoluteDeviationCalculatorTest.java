@@ -13,9 +13,11 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
  */
+@Test(groups = TestGroup.UNIT)
 public class SampleMedianAbsoluteDeviationCalculatorTest {
   private static final double MEAN = 3.5;
   private static final double STD = 0.2;

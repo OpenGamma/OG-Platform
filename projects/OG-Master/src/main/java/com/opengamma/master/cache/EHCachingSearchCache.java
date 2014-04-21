@@ -31,7 +31,7 @@ import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ExecutorServiceFactoryBean;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.IntObjectPair;
 
 /**
  * A cache for search results, providing common search caching logic across caching masters and across search types.
@@ -46,6 +46,7 @@ import com.opengamma.util.tuple.ObjectsPair;
  * TODO OPTIMIZE underlying search request coalescing
  */
 public class EHCachingSearchCache {
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingSearchCache.class);
   /** The number of units to prefetch on either side of the current paging request */
@@ -61,16 +62,13 @@ public class EHCachingSearchCache {
 
   /** The cache manager */
   private final CacheManager _cacheManager;
-
   /**
    * The UniqueId cache indexed by search requests.
    * A cache entry contains unpaged (total) result size and a map from start indices to ranges of cached result UniqueIds
    */
   private final Cache _searchRequestCache;
-
   /** The prefetch thread executor service */
   private final ExecutorService _executorService;
-
   /** The searcher provides access to a master-specific search operation */
   private final Searcher _searcher;
 
@@ -79,20 +77,22 @@ public class EHCachingSearchCache {
    * knowing its type and retrieve the result unique Ids without knowing the document type.
    */
   public interface Searcher {
-    /** Searches an underlying master, casting search requests/results as required for a specific master
-     * @param request   The search request, without paging (will be cast to a search request for a specific master)
-     * @param pagingRequest the paging request
-     * @return          The search result
+    /** 
+     * Searches an underlying master, casting search requests/results as required for a specific master.
+     * 
+     * @param request  the search request, without paging (will be cast to a search request for a specific master)
+     * @param pagingRequest  the paging request
+     * @return the search result
      */
-    ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest);
+    IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest);
   }
 
   /**
    * Create a new search cache.
    *
-   * @param name          A unique name for this cache, not empty
-   * @param cacheManager  The cache manager to use, not null
-   * @param searcher      The CacheSearcher to use for passing search requests to an underlying master, not null
+   * @param name  a unique name for this cache, not empty
+   * @param cacheManager  the cache manager to use, not null
+   * @param searcher  the CacheSearcher to use for passing search requests to an underlying master, not null
    */
   public EHCachingSearchCache(String name, CacheManager cacheManager, Searcher searcher) {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
@@ -119,7 +119,7 @@ public class EHCachingSearchCache {
     _executorService = execBean.getObjectCreating();
   }
 
-  private CacheConfiguration tweakCacheConfiguration(CacheConfiguration cacheConfiguration) {
+  private static CacheConfiguration tweakCacheConfiguration(CacheConfiguration cacheConfiguration) {
     // Make copies of cached objects (use default Serializable copy)
     cacheConfiguration.setCopyOnRead(true);
     cacheConfiguration.setCopyOnWrite(true);
@@ -127,6 +127,7 @@ public class EHCachingSearchCache {
     return cacheConfiguration;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * If result is entirely cached return it immediately; otherwise, fetch any missing ranges from the underlying
    * master in the foreground, cache and return it.
@@ -136,16 +137,16 @@ public class EHCachingSearchCache {
    * @param blockUntilCached  if true, block the request until all caching, including related prefetching, is done
    * @return                  the total number of results (ignoring paging), and the unique IDs of the requested result page
    */
-  public ObjectsPair<Integer, List<UniqueId>> search(final Bean requestBean, PagingRequest pagingRequest,
+  public IntObjectPair<List<UniqueId>> search(final Bean requestBean, PagingRequest pagingRequest,
                                                      boolean blockUntilCached) {
 
     ArgumentChecker.notNull(requestBean, "requestBean");
     ArgumentChecker.notNull(pagingRequest, "pagingRequest");
 
     // Fetch the total #results and cached ranges for the search request (without paging)
-    final ObjectsPair<Integer, ConcurrentNavigableMap<Integer, List<UniqueId>>> info =
+    final IntObjectPair<ConcurrentNavigableMap<Integer, List<UniqueId>>> info =
         getCachedRequestInfo(requestBean, pagingRequest);
-    final int totalResults = info.getFirst();
+    final int totalResults = info.getFirstInt();
     final ConcurrentNavigableMap<Integer, List<UniqueId>> rangeMap = info.getSecond();
 
     // Fix indexes larger than the total doc count
@@ -156,10 +157,10 @@ public class EHCachingSearchCache {
     }
 
     // Ensure that the required range is cached in its entirety
-    ObjectsPair<Integer, List<UniqueId>> pair =
+    IntObjectPair<List<UniqueId>> pair =
         cacheSuperRange(requestBean, pagingRequest, rangeMap, totalResults, blockUntilCached);
 
-    final int superIndex = pair.getFirst();
+    final int superIndex = pair.getFirstInt();
     final List<UniqueId> superRange = pair.getSecond();
 
     // Create and return the search result
@@ -167,7 +168,7 @@ public class EHCachingSearchCache {
         pagingRequest.getFirstItem() - superIndex,
         Math.min(pagingRequest.getLastItem()  - superIndex, superRange.size()));
 
-    return new ObjectsPair<>(totalResults, resultUniqueIds);
+    return IntObjectPair.of(totalResults, resultUniqueIds);
   }
 
   /**
@@ -215,24 +216,24 @@ public class EHCachingSearchCache {
    *                paging
    */
   @SuppressWarnings("unchecked")
-  private ObjectsPair<Integer, ConcurrentNavigableMap<Integer, List<UniqueId>>> getCachedRequestInfo(
+  private IntObjectPair<ConcurrentNavigableMap<Integer, List<UniqueId>>> getCachedRequestInfo(
       final Bean requestBean, PagingRequest pagingRequest) {
 
     // Get cache entry for current request (or create and get a primed cache entry if not found)
     // TODO investigate atomicity
     final Element element = getCache().get(withPagingRequest(requestBean, null));
     if (element != null) {
-      return (ObjectsPair<Integer, ConcurrentNavigableMap<Integer, List<UniqueId>>>) element.getObjectValue();
+      return (IntObjectPair<ConcurrentNavigableMap<Integer, List<UniqueId>>>) element.getObjectValue();
     } else {
       // Build a new cached map entry and pre-fill it with the results of the supplied search request
-      final ObjectsPair<Integer, List<UniqueId>> resultToCache = getSearcher().search(requestBean, pagingRequest);
+      final IntObjectPair<List<UniqueId>> resultToCache = getSearcher().search(requestBean, pagingRequest);
       final ConcurrentNavigableMap<Integer, List<UniqueId>> rangeMapToCache = new ConcurrentSkipListMap<>();
 
       // Cache UniqueIds in search cache
       rangeMapToCache.put(pagingRequest.getFirstItem(), resultToCache.getSecond());
 
-      final ObjectsPair<Integer, ConcurrentNavigableMap<Integer, List<UniqueId>>> newResult =
-          new ObjectsPair<>(resultToCache.getFirst(), rangeMapToCache);
+      final IntObjectPair<ConcurrentNavigableMap<Integer, List<UniqueId>>> newResult =
+          IntObjectPair.of(resultToCache.getFirstInt(), rangeMapToCache);
       getCache().put(new Element(withPagingRequest(requestBean, null), newResult));
       return newResult;
     }
@@ -249,7 +250,7 @@ public class EHCachingSearchCache {
    * @param totalResults    the total number of results without paging
    * @return                a super-range of cached UniqueIds that contains at least the requested UniqueIds
    */
-  private ObjectsPair<Integer, List<UniqueId>> cacheSuperRange(final Bean requestBean, PagingRequest pagingRequest,
+  private IntObjectPair<List<UniqueId>> cacheSuperRange(final Bean requestBean, PagingRequest pagingRequest,
                             final ConcurrentNavigableMap<Integer, List<UniqueId>> rangeMap, int totalResults,
                             boolean blockUntilCached) {
 
@@ -331,8 +332,8 @@ public class EHCachingSearchCache {
         // put expanded super range into range map
         rangeMap.put(superIndex, superRange);
 
-        final ObjectsPair<Integer, ConcurrentNavigableMap<Integer, List<UniqueId>>> newValue =
-            new ObjectsPair<>(totalResults, rangeMap);
+        final IntObjectPair<ConcurrentNavigableMap<Integer, List<UniqueId>>> newValue =
+            IntObjectPair.of(totalResults, rangeMap);
         getCache().put(new Element(withPagingRequest(requestBean, null), newValue));
       }
 
@@ -355,7 +356,7 @@ public class EHCachingSearchCache {
       }
     }
 
-    return new ObjectsPair<>(superIndex, superRange);
+    return IntObjectPair.of(superIndex, superRange);
   }
 
   //-------------------------------------------------------------------------
@@ -421,8 +422,9 @@ public class EHCachingSearchCache {
     getCacheManager().removeCache(getCache().getName());
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets the cache searcher
+   * Gets the cache searcher.
    *
    * @return the cache searcher instance
    */
@@ -431,7 +433,7 @@ public class EHCachingSearchCache {
   }
 
   /**
-   * Gets the cache
+   * Gets the cache.
    *
    * @return the cache instance
    */
@@ -440,7 +442,7 @@ public class EHCachingSearchCache {
   }
 
   /**
-   * Gets the cache manager
+   * Gets the cache manager.
    *
    * @return the cache manager instance
    */
@@ -449,11 +451,12 @@ public class EHCachingSearchCache {
   }
 
   /**
-   * Gets the executor service used for prefetching
+   * Gets the executor service used for prefetching.
    *
    * @return the executor service instance
    */
   public ExecutorService getExecutorService() {
     return _executorService;
   }
+
 }

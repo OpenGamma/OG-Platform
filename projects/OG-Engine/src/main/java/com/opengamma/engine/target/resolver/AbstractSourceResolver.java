@@ -22,7 +22,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Partial implementation of {@link Resolver} based on a {@link Source}.
  * 
- * @param <T> the target type resolved by this class
  * @param <S> the type of the source
  */
 public abstract class AbstractSourceResolver<T extends UniqueIdentifiable, S extends Source<T> & ChangeProvider> extends AbstractIdentifierResolver implements Resolver<T> { //CSIGNORE
@@ -52,7 +51,7 @@ public abstract class AbstractSourceResolver<T extends UniqueIdentifiable, S ext
    * @param versionCorrection the version/correction to resolve at, not null
    * @return the resolved object, or null if none
    */
-  protected abstract T lookupByName(String name, VersionCorrection versionCorrection);
+  protected abstract UniqueIdentifiable lookupByName(String name, VersionCorrection versionCorrection);
 
   // Resolver
 
@@ -76,7 +75,7 @@ public abstract class AbstractSourceResolver<T extends UniqueIdentifiable, S ext
   public UniqueId resolveExternalId(ExternalIdBundle identifiers, VersionCorrection versionCorrection) {
     final Set<String> names = identifiers.getValues(getIdentifierScheme());
     for (String name : names) {
-      final T value = lookupByName(name, versionCorrection);
+      final UniqueIdentifiable value = lookupByName(name, versionCorrection);
       if (value != null) {
         return value.getUniqueId();
       }

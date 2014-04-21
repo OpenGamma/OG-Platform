@@ -44,7 +44,7 @@ public class DataViewProcessResource extends AbstractDataResource {
   @GET
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
-    return responseOkFudge(_viewProcess.getUniqueId());
+    return responseOkObject(_viewProcess.getUniqueId());
   }
   
   @GET
@@ -56,13 +56,13 @@ public class DataViewProcessResource extends AbstractDataResource {
   @GET
   @Path(PATH_DEFINITION)
   public Response getLatestViewDefinition() {
-    return responseOkFudge(_viewProcess.getLatestViewDefinition());
+    return responseOkObject(_viewProcess.getLatestViewDefinition());
   }
   
   @GET
   @Path(PATH_STATE)
   public Response getState() {
-    return responseOkFudge(_viewProcess.getState());
+    return responseOkObject(_viewProcess.getState());
   }
   
   @Path(PATH_LIVE_DATA_OVERRIDE_INJECTOR)

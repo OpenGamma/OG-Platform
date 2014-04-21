@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A source of market data that aggregates data from multiple underlying {@link MarketDataProvider}s.
@@ -142,7 +143,7 @@ public class ViewExecutionDataProvider {
         provider = provider.substring(slash + 1);
       }
       try {
-        return Pair.of(Integer.parseInt(provider), new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
+        return Pairs.of(Integer.parseInt(provider), new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
       } catch (final NumberFormatException e) {
         // Ignore
       }

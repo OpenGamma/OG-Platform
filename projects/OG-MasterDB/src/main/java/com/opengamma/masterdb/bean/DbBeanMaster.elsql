@@ -1,0 +1,467 @@
+-- SQL for security master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.packed_data AS packed_data
+  FROM
+    @VALUE(:table_prefix)_document main
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.packed_data AS packed_data
+  FROM
+    @VALUE(:table_prefix)_document main
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.packed_data AS packed_data
+  FROM
+    @VALUE(:table_prefix)_document main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+  ORDER BY
+    main.@VALUE(:sort_order),
+    main.id
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  @PAGING(:paging_offset,:paging_fetch)
+    SELECT
+      inner_doc.id AS id
+    FROM
+      @VALUE(:table_prefix)_document AS inner_doc
+    @INCLUDE(SearchWhere)
+    ORDER BY
+      @VALUE(:sort_order),
+      inner_doc.id
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(count_main.id)
+  FROM
+    @VALUE(:table_prefix)_document AS count_main
+  @INCLUDE(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:sql_search_object_ids)
+      oid IN ( @VALUE(:sql_search_object_ids) )
+    @AND(:sub_type)
+      UPPER(sub_type) = UPPER(:sub_type)
+    @AND(:name)
+      UPPER(name) @LIKE UPPER(:name)
+    @AND(:external_id_scheme)
+      id IN ( @INCLUDE(SelectKeyScheme) )
+    @AND(:external_id_value)
+      id IN ( @INCLUDE(SelectKeyValue) )
+    @AND(:sql_search_external_ids_type = EXACT)
+      id IN ( @INCLUDE(SelectKeyValuesExact) )
+    @AND(:sql_search_external_ids_type = ALL)
+      id IN ( @INCLUDE(SelectKeyValuesAll) )
+    @AND(:sql_search_external_ids_type = ANY)
+      id IN ( @INCLUDE(SelectKeyValuesAny) )
+    @AND(:sql_search_external_ids_type = NONE)
+      id NOT IN ( @INCLUDE(SelectKeyValuesAny) )
+    @AND(:attr_search_size)
+      id IN ( @INCLUDE(SelectAttrAll) )
+    @AND(:prop_search_size)
+      id IN ( @INCLUDE(SelectPropAll) )
+
+
+-- ==========================================================================
+@NAME(SelectKeyScheme)
+  SELECT
+    DISTINCT doc_id
+  FROM
+    @VALUE(:table_prefix)_doc2idkey ks_doc2idkey,
+    @VALUE(:table_prefix)_document ks_doc
+  WHERE ks_doc2idkey.doc_id = ks_doc.id
+    AND ks_doc.ver_from_instant <= :version_as_of_instant AND ks_doc.ver_to_instant > :version_as_of_instant
+    AND ks_doc.corr_from_instant <= :corrected_to_instant AND ks_doc.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( SELECT id FROM @VALUE(:table_prefix)_idkey WHERE UPPER(key_scheme) @LIKE UPPER(:external_id_scheme) @ENDLIKE )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValue)
+  SELECT
+    DISTINCT doc_id
+  FROM
+    @VALUE(:table_prefix)_doc2idkey kv_doc2idkey,
+    @VALUE(:table_prefix)_document kv_doc
+  WHERE kv_doc2idkey.doc_id = kv_doc.id
+    AND kv_doc.ver_from_instant <= :version_as_of_instant AND kv_doc.ver_to_instant > :version_as_of_instant
+    AND kv_doc.corr_from_instant <= :corrected_to_instant AND kv_doc.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( SELECT id FROM @VALUE(:table_prefix)_idkey WHERE UPPER(key_value) @LIKE UPPER(:external_id_value) @ENDLIKE )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesExact)
+  SELECT
+    matched_doc_id AS doc_id
+  FROM
+    (
+      SELECT
+        doc_id AS matched_doc_id,
+        COUNT(doc_id) AS matched_count
+      FROM
+        @VALUE(:table_prefix)_doc2idkey kve_doc2idkey,
+        @VALUE(:table_prefix)_document kve_doc
+      WHERE kve_doc2idkey.doc_id = kve_doc.id
+        AND kve_doc.ver_from_instant <= :version_as_of_instant AND kve_doc.ver_to_instant > :version_as_of_instant
+        AND kve_doc.corr_from_instant <= :corrected_to_instant AND kve_doc.corr_to_instant > :corrected_to_instant
+        AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
+      GROUP BY
+        doc_id
+      HAVING
+        COUNT(doc_id) >= :id_search_size
+    ) AS a, (
+      SELECT
+        doc_id AS total_doc_id,
+        COUNT(doc_id) AS total_count
+      FROM
+        @VALUE(:table_prefix)_doc2idkey kve_doc2idkey,
+        @VALUE(:table_prefix)_document kve_doc
+      WHERE kve_doc2idkey.doc_id = kve_doc.id
+        AND kve_doc.ver_from_instant <= :version_as_of_instant AND kve_doc.ver_to_instant > :version_as_of_instant
+        AND kve_doc.corr_from_instant <= :corrected_to_instant AND kve_doc.corr_to_instant > :corrected_to_instant
+      GROUP BY
+        doc_id
+    ) AS b
+  WHERE matched_doc_id = total_doc_id
+    AND matched_count = total_count
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAll)
+  SELECT
+    doc_id
+  FROM
+    @VALUE(:table_prefix)_doc2idkey kva_doc2idkey,
+    @VALUE(:table_prefix)_document kva_doc
+  WHERE kva_doc2idkey.doc_id = kva_doc.id
+    AND kva_doc.ver_from_instant <= :version_as_of_instant AND kva_doc.ver_to_instant > :version_as_of_instant
+    AND kva_doc.corr_from_instant <= :corrected_to_instant AND kva_doc.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
+    GROUP BY
+      doc_id
+    HAVING
+      COUNT(doc_id) >= :id_search_size
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAny)
+  SELECT
+    DISTINCT doc_id
+  FROM
+    @VALUE(:table_prefix)_doc2idkey kvany_doc2idkey,
+    @VALUE(:table_prefix)_document kvany_doc
+  WHERE kvany_doc2idkey.doc_id = kvany_doc.id
+    AND kvany_doc.ver_from_instant <= :version_as_of_instant AND kvany_doc.ver_to_instant > :version_as_of_instant
+    AND kvany_doc.corr_from_instant <= :corrected_to_instant AND kvany_doc.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesOr)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_idkey
+  WHERE
+    @VALUE(:sql_search_external_ids)
+
+
+-- ==========================================================================
+@NAME(SelectAttrAll)
+  SELECT
+    doc_id
+  FROM
+    @VALUE(:table_prefix)_doc2attr
+  WHERE attr_id IN ( @INCLUDE(SelectAttrOr) )
+  GROUP BY
+    doc_id
+  HAVING
+    COUNT(doc_id) >= :attr_search_size
+
+
+-- ==========================================================================
+@NAME(SelectAttrOr)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_attr
+  WHERE
+    @LOOP(:attr_search_size)
+      (attr_key = :attr_key@LOOPINDEX AND UPPER(attr_value) @LIKE UPPER(:attr_value@LOOPINDEX) @ENDLIKE)
+      @LOOPJOIN OR
+
+
+-- ==========================================================================
+@NAME(SelectPropAll)
+  SELECT
+    doc_id
+  FROM
+    @VALUE(:table_prefix)_doc2prop
+  WHERE prop_id IN ( @INCLUDE(SelectPropOr) )
+  GROUP BY
+    doc_id
+  HAVING
+    COUNT(doc_id) >= :prop_search_size
+
+
+-- ==========================================================================
+@NAME(SelectPropOr)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_prop
+  WHERE
+    @LOOP(:prop_search_size)
+      (prop_key = :prop_key@LOOPINDEX AND UPPER(prop_value) @LIKE UPPER(:prop_value@LOOPINDEX) @ENDLIKE)
+      @LOOPJOIN OR
+
+
+-- ==========================================================================
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.packed_data AS packed_data
+  FROM
+    @VALUE(:table_prefix)_document main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  @PAGING(:paging_offset,:paging_fetch)
+    SELECT
+      id
+    FROM
+      @VALUE(:table_prefix)_document
+    @INCLUDE(HistoryWhere)
+    ORDER BY
+      ver_from_instant DESC,
+      corr_from_instant DESC
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    @VALUE(:table_prefix)_document 
+  @INCLUDE(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO @VALUE(:table_prefix)_document
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, main_type, sub_type, actual_type, packed_data)
+  VALUES
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :main_type, :sub_type, :actual_type, :packed_data)
+
+
+-- ==========================================================================
+@NAME(InsertDoc2IdKey)
+  INSERT INTO @VALUE(:table_prefix)_doc2idkey
+    (doc_id, idkey_id)
+  VALUES
+    (:doc_id, ( @INCLUDE(SelectIdKey) ))
+
+
+-- ==========================================================================
+@NAME(SelectIdKey)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_idkey
+  WHERE key_scheme = :key
+    AND key_value = :value
+
+
+-- ==========================================================================
+@NAME(InsertIdKey)
+  INSERT INTO @VALUE(:table_prefix)_idkey
+    (id, key_scheme, key_value)
+  VALUES
+    (:id, :key, :value)
+
+
+-- ==========================================================================
+@NAME(InsertDoc2Attr)
+  INSERT INTO @VALUE(:table_prefix)_doc2attr
+    (doc_id, attr_id)
+  VALUES
+    (:doc_id, ( @INCLUDE(SelectAttr) ))
+
+
+-- ==========================================================================
+@NAME(SelectAttr)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_attr
+  WHERE attr_key = :key
+    AND attr_value = :value
+
+
+-- ==========================================================================
+@NAME(InsertAttr)
+  INSERT INTO @VALUE(:table_prefix)_attr
+    (id, attr_key, attr_value)
+  VALUES
+    (:id, :key, :value)
+
+
+-- ==========================================================================
+@NAME(InsertDoc2Prop)
+  INSERT INTO @VALUE(:table_prefix)_doc2prop
+    (doc_id, prop_id)
+  VALUES
+    (:doc_id, ( @INCLUDE(SelectProp) ))
+
+
+-- ==========================================================================
+@NAME(SelectProp)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_prop
+  WHERE prop_key = :key
+    AND prop_value = :value
+
+
+-- ==========================================================================
+@NAME(InsertProp)
+  INSERT INTO @VALUE(:table_prefix)_prop
+    (id, prop_key, prop_value)
+  VALUES
+    (:id, :key, :value)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE @VALUE(:table_prefix)_document
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE @VALUE(:table_prefix)_document
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================
+-- ==========================================================================
+@NAME(SelectSubTypes)
+  SELECT
+    DISTINCT main.sub_type AS sub_type
+  FROM
+    @VALUE(:table_prefix)_document main
+
+
+-- ==========================================================================
+@NAME(SelectActualTypes)
+  SELECT
+    DISTINCT main.actual_type AS actual_type
+  FROM
+    @VALUE(:table_prefix)_document main
+
+
+-- ==========================================================================
+@NAME(GetSchemaVersion)
+  SELECT version_value
+  FROM @VALUE(:table_prefix)_schema_version
+  WHERE version_key = :version_key
+
+
+-- ==========================================================================
+-- ==========================================================================
+@NAME(SequenceDocument)
+  @VALUE(:table_prefix)_doc_seq
+
+
+-- ==========================================================================
+@NAME(SequenceIdKey)
+  @VALUE(:table_prefix)_idkey_seq
+
+
+-- ==========================================================================
+@NAME(SequenceAttr)
+  @VALUE(:table_prefix)_attr_seq
+
+
+-- ==========================================================================
+@NAME(SequenceProp)
+  @VALUE(:table_prefix)_prop_seq
+
+
+-- ==========================================================================
