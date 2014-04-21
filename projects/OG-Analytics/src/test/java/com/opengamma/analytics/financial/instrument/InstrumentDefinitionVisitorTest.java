@@ -124,6 +124,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAv
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
@@ -1303,6 +1304,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
+      return getValue(payment, false);
+    }
+
+    @Override
+    public String visitCouponONSpreadDefinition(final CouponONSpreadDefinition payment, final T data) {
+      return getValue(payment, true);
+    }
+
+    @Override
+    public String visitCouponONSpreadDefinition(final CouponONSpreadDefinition payment) {
       return getValue(payment, false);
     }
 
