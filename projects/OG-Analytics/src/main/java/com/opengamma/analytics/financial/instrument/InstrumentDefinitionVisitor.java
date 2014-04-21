@@ -112,6 +112,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAv
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
@@ -841,6 +842,21 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponONSimplifiedDefinition payment);
+
+  /**
+   * Overnight coupon with spread method that takes data.
+   * @param payment An overnight coupon with spread
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponONSpreadDefinition(CouponONSpreadDefinition payment, DATA_TYPE data);
+
+  /**
+   * Overnight coupon with spread method.
+   * @param payment An overnight coupon with spread
+   * @return The result
+   */
+  RESULT_TYPE visitCouponONSpreadDefinition(CouponONSpreadDefinition payment);
 
   /**
    * Overnight coupon with spread method that takes data.
