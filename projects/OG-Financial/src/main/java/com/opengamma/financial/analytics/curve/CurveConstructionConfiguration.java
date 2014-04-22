@@ -127,7 +127,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
           new Function<String, ConfigLink<CurveConstructionConfiguration>>() {
             @Override
             public ConfigLink<CurveConstructionConfiguration> apply(final String config) {
-              return ConfigLink.of(config, CurveConstructionConfiguration.class);
+              return ConfigLink.resolvable(config, CurveConstructionConfiguration.class);
             }
           }
       );

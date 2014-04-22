@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.link;
 
-
 import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
@@ -26,17 +25,19 @@ public class SourceLinkResolverTest {
 
   @BeforeMethod
   public void setup() {
-    // Ensure we don't have a thread local service context which could be used
+    // Ensure we don't have a thread local service context which could be used accidentally
     ThreadLocalServiceContext.init(null);
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
   public void noThreadLocalContextGivesError() {
 
-    final SourceLinkResolver<String, Object, ConfigSource> resolver =
-        createSourceLinkResolver(null);
+    SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver();
+    resolver.resolve(createIdentifier("id"));
+  }
 
-    resolver.resolve();
+  private LinkIdentifier<String, Object> createIdentifier(String id) {
+    return LinkIdentifier.of(id, Object.class);
   }
 
   public void threadLocalContextGetsUsed() {
@@ -44,9 +45,9 @@ public class SourceLinkResolverTest {
     ServiceContext serviceContext = createContext(ConfigSource.class, VersionCorrectionProvider.class);
 
     ThreadLocalServiceContext.init(serviceContext);
-    SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver(null);
+    SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver();
 
-    resolver.resolve();
+    resolver.resolve(createIdentifier("id"));
   }
 
   private ServiceContext createContext(Class<?>... services) {
@@ -64,7 +65,7 @@ public class SourceLinkResolverTest {
     ServiceContext serviceContext = createContext(ConfigSource.class);
     SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
 
-    resolver.resolve();
+    resolver.resolve(createIdentifier("id"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -73,11 +74,11 @@ public class SourceLinkResolverTest {
     ServiceContext serviceContext = createContext(VersionCorrectionProvider.class);
     SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
 
-    resolver.resolve();
+    resolver.resolve(createIdentifier("id"));
   }
 
-  private SourceLinkResolver<String, Object, ConfigSource> createSourceLinkResolver(final ServiceContext serviceContext) {
-    return new SourceLinkResolver<String, Object, ConfigSource>("id1", serviceContext) {
+  private SourceLinkResolver<String, Object, ConfigSource> createSourceLinkResolver() {
+    return new SourceLinkResolver<String, Object, ConfigSource>() {
         @Override
         protected Class<ConfigSource> getSourceClass() {
           return ConfigSource.class;
@@ -89,10 +90,29 @@ public class SourceLinkResolverTest {
         }
 
         @Override
-        protected Object executeQuery(ConfigSource source, VersionCorrection versionCorrection) {
-          return source.getLatestByName(Object.class, getIdentifier());
+        protected Object executeQuery(ConfigSource source, Class<Object> type, String identifier, VersionCorrection versionCorrection) {
+          return source.getLatestByName(Object.class, identifier);
         }
-      };
+    };
+  }
+
+  private SourceLinkResolver<String, Object, ConfigSource> createSourceLinkResolver(final ServiceContext serviceContext) {
+    return new SourceLinkResolver<String, Object, ConfigSource>(serviceContext) {
+        @Override
+        protected Class<ConfigSource> getSourceClass() {
+          return ConfigSource.class;
+        }
+
+        @Override
+        protected VersionCorrection getVersionCorrection(VersionCorrectionProvider vcProvider) {
+          return vcProvider.getConfigVersionCorrection();
+        }
+
+        @Override
+        protected Object executeQuery(ConfigSource source, Class<Object> type, String identifier, VersionCorrection versionCorrection) {
+          return source.getLatestByName(Object.class, identifier);
+        }
+    };
   }
 
 }
