@@ -276,7 +276,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     return new IndexON(
         floatLeg.getFloatingReferenceRateId().getValue(),
         floatLeg.getNotional().getCurrency(),
-        floatLeg.getDayCountConvention(),
+        onIndexConvention.getDayCount(),
         onIndexConvention.getPublicationLag());
   }
 
