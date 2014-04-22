@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDef
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -64,6 +65,11 @@ public final class CouponTenorVisitor extends InstrumentDefinitionVisitorAdapter
 
   @Override
   public Tenor visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition definition) {
+    return Tenor.ON;
+  }
+
+  @Override
+  public Tenor visitCouponONSpreadDefinition(final CouponONSpreadDefinition definition) {
     return Tenor.ON;
   }
 

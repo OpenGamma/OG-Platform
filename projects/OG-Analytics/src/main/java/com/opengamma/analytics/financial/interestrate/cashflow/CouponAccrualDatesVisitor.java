@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDef
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -103,6 +104,11 @@ public final class CouponAccrualDatesVisitor extends InstrumentDefinitionVisitor
 
   @Override
   public Pair<LocalDate, LocalDate> visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment) {
+    return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
+  }
+
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponONSpreadDefinition(final CouponONSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
