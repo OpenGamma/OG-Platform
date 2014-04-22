@@ -114,8 +114,7 @@ public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
     assertEquals("DeliverableSwapFuturesSecurityDefinition: convexity adjustment", caCalculator, convexityAdjustment, TOLERANCE_PRICE);
   }
 
-  @Test(enabled = false)
-  // TODO
+  @Test
   public void priceCurveSensitivity() {
     final SimpleParameterSensitivity pcsExact = PS_MQ_C.calculateSensitivity(SWAP_FUTURES_SECURITY, HW_MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pcsFD = PS_MQ_FDC.calculateSensitivity(SWAP_FUTURES_SECURITY, HW_MULTICURVES);

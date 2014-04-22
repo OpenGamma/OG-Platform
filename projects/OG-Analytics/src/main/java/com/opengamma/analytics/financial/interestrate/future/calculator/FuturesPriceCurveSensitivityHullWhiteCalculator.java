@@ -105,7 +105,7 @@ public final class FuturesPriceCurveSensitivityHullWhiteCalculator extends Instr
     // Backward sweep
     final double priceBar = 1.0;
     final double[] dfBar = new double[nbCf];
-    dfBar[0] = -(price - cfe.getNthPayment(0).getAmount() * adjustments[0]) / df[0] * priceBar;
+    dfBar[0] = -(price - 1.0d - cfe.getNthPayment(0).getAmount() * adjustments[0]) / df[0] * priceBar;
     for (int loopcf = 1; loopcf < nbCf; loopcf++) {
       dfBar[loopcf] = (cfe.getNthPayment(loopcf).getAmount() * adjustments[loopcf]) / df[0] * priceBar;
     }
