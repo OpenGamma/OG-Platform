@@ -23,6 +23,12 @@ public final class AuthUtils extends SecurityUtils {
    */
   private static final ShiroPermissionResolver s_permissionResolver = new ShiroPermissionResolver();
 
+  /**
+   * Restricted constructor.
+   */
+  private AuthUtils() {
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns the {@code PermissionResolver} that creates authorization {@code Permission} instances.
