@@ -403,9 +403,11 @@
 @NAME(InsertTrade)
   INSERT INTO pos_trade
     (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value,
+    provider_scheme, provider_value,
     premium_value, premium_currency, premium_date, premium_time, premium_zone_offset)
   VALUES
     (:trade_id, :trade_oid, :position_id, :position_oid, :quantity, :trade_date, :trade_time, :zone_offset, :cparty_scheme, :cparty_value,
+    :provider_scheme, :provider_value,
     :premium_value, :premium_currency, :premium_date, :premium_time, :premium_zone_offset)
 
 

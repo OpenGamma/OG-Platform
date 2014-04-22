@@ -293,9 +293,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             .addValue("cparty_scheme", counterpartyId.getScheme().getName())
             .addValue("cparty_value", counterpartyId.getValue())
             .addValue("provider_scheme",
-                position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null, Types.VARCHAR)
+                trade.getProviderId() != null ? trade.getProviderId().getScheme().getName() : null, Types.VARCHAR)
             .addValue("provider_value",
-                position.getProviderId() != null ? position.getProviderId().getValue() : null, Types.VARCHAR)
+                trade.getProviderId() != null ? trade.getProviderId().getValue() : null, Types.VARCHAR)
             .addValue("premium_value", trade.getPremium(), Types.DOUBLE)
             .addValue("premium_currency",
                 trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null, Types.VARCHAR)
