@@ -31,6 +31,16 @@ public class ExternalSchemes {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExternalSchemes.class);
 
+  // --------------------------- SCHEMES FOR USER IDENTITY ------------------------------------
+  /**
+   * Identification scheme for UUID identifier
+   */
+  public static final ExternalScheme BLOOMBERG_UUID = ExternalScheme.of("BLOOMBERG_UUID");
+  /**
+   * Identification scheme for EMRSID identifier
+   */
+  public static final ExternalScheme BLOOMBERG_EMRSID = ExternalScheme.of("BLOOMBERG_EMRSID");
+
   // --------------------------- SCHEMES FOR SECURITIES AND RATES -----------------------------
   /**
    * Identification scheme for the ISIN code.
@@ -164,6 +174,31 @@ public class ExternalSchemes {
    * Restricted constructor.
    */
   protected ExternalSchemes() {
+  }
+
+  //------------------ METHODS FOR USER IDENTITY -----------------------------
+  /**
+   * Creates a UUID identifier.
+   * <p>
+   * This is an identifier for BPS bloomberg user.
+   * 
+   * @param uuid the bps bloomberg user identifier, not null
+   * @return the user uuid identifier, not null
+   */
+  public static ExternalId bloombergUUIDUserId(final String uuid) {
+    return ExternalId.of(BLOOMBERG_UUID, ArgumentChecker.notNull(StringUtils.trimToNull(uuid), "uuid"));
+  }
+
+  /**
+   * Creates an EMRSID identifier.
+   * <p>
+   * This is an identifier for NON-BPS bloomberg user 
+   * 
+   *  @param emrsid the non-bps bloomberg user identifier, not null
+   * @return the user emrsid identifier, not null
+   */
+  public static ExternalId bloombergEMRSUserId(final String emrsid) {
+    return ExternalId.of(BLOOMBERG_EMRSID, ArgumentChecker.notNull(StringUtils.trimToNull(emrsid), "emrsid"));
   }
 
   //------------------ METHODS FOR SECURITIES AND RATES ----------------------
