@@ -104,11 +104,13 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * <p>
    * If the requested permission matches a prefix then the associated resolver is used.
    * Otherwise, the standard permission is used.
+   * <p>
+   * This is called directly from the cache.
    * 
    * @param permissionStr  the permission string, not null
    * @return the new permission object, not null
    */
-  Permission doResolvePermission(String permissionStr) {
+  private Permission doResolvePermission(String permissionStr) {
     for (Entry<String, PermissionResolver> entry : _prefixResolvers.entrySet()) {
       if (permissionStr.startsWith(entry.getKey())) {
         return entry.getValue().resolvePermission(permissionStr);
