@@ -27,10 +27,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Represents a link to a Security object using an ExternalId or ExternalIdBundle
- * that is resolved on demand. Use of links allows provision of Securities by remote
- * servers while maintaining the ability to capture updates to the linked resources on
- * each subsequent resolution.
+ * Represents a link to a Security object using an ExternalIdBundle
+ * that can be resolved on demand.
  *
  * @param <T> type of the security
  */
@@ -38,37 +36,36 @@ import com.opengamma.util.ArgumentChecker;
 public final class ResolvableSecurityLink<T extends Security> extends SecurityLink<T> implements ImmutableBean {
 
   /**
-   * The identification data for the object being linked to.
+   * The identification data for the object being linked to, not null.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LinkIdentifier<T, ExternalIdBundle> _linkIdentifier;
+  private final LinkIdentifier<ExternalIdBundle, T> _linkIdentifier;
 
   /**
    * The resolver used to resolve the link on demand, not null.
    */
   // note that the resolver does not form part of the serialized form
   // of the bean
-  private final LinkResolver<T, ExternalIdBundle> _resolver;
+  private final LinkResolver<ExternalIdBundle, T> _resolver;
 
   /**
-   * Creates a resolvable link.
-   *
-   * @param type the type of the linked object
-   * @param identifier the identifier for the linked object
-   * @param linkResolver the resolver used to resolve the link when requested
+   * Creates a resolved link.
+   * @param identifier the identifier for the linked object, not null
+   * @param type the type of the linked object, not null
+   * @param linkResolver the resolver used to resolve the link when requested, not null
    */
-  /* package */ ResolvableSecurityLink(Class<T> type, ExternalIdBundle identifier,
-                                       LinkResolver<T, ExternalIdBundle> linkResolver) {
-    this(LinkIdentifier.of(type, identifier), linkResolver);
+  /* package */ ResolvableSecurityLink(ExternalIdBundle identifier, Class<T> type,
+                                       LinkResolver<ExternalIdBundle, T> linkResolver) {
+    this(LinkIdentifier.of(identifier, type), linkResolver);
   }
 
   @ImmutableConstructor
-  private ResolvableSecurityLink(LinkIdentifier<T, ExternalIdBundle> linkIdentifier) {
+  private ResolvableSecurityLink(LinkIdentifier<ExternalIdBundle, T> linkIdentifier) {
     this(linkIdentifier, new ServiceContextSecurityLinkResolver<T>());
   }
 
-  private ResolvableSecurityLink(LinkIdentifier<T, ExternalIdBundle> linkIdentifier,
-                                 LinkResolver<T, ExternalIdBundle> linkResolver) {
+  private ResolvableSecurityLink(LinkIdentifier<ExternalIdBundle, T> linkIdentifier,
+                                 LinkResolver<ExternalIdBundle, T> linkResolver) {
     _linkIdentifier = linkIdentifier;
     _resolver = ArgumentChecker.notNull(linkResolver, "linkResolver");
   }
@@ -141,10 +138,10 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the linkIdentifier.
+   * Gets the identification data for the object being linked to, not null.
    * @return the value of the property, not null
    */
-  public LinkIdentifier<T, ExternalIdBundle> getLinkIdentifier() {
+  public LinkIdentifier<ExternalIdBundle, T> getLinkIdentifier() {
     return _linkIdentifier;
   }
 
@@ -205,7 +202,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
      * The meta-property for the {@code linkIdentifier} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<LinkIdentifier<T, ExternalIdBundle>> _linkIdentifier = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<LinkIdentifier<ExternalIdBundle, T>> _linkIdentifier = DirectMetaProperty.ofImmutable(
         this, "linkIdentifier", ResolvableSecurityLink.class, (Class) LinkIdentifier.class);
     /**
      * The meta-properties.
@@ -250,7 +247,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
      * The meta-property for the {@code linkIdentifier} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LinkIdentifier<T, ExternalIdBundle>> linkIdentifier() {
+    public MetaProperty<LinkIdentifier<ExternalIdBundle, T>> linkIdentifier() {
       return _linkIdentifier;
     }
 
@@ -281,7 +278,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
    */
   public static final class Builder<T extends Security> extends DirectFieldsBeanBuilder<ResolvableSecurityLink<T>> {
 
-    private LinkIdentifier<T, ExternalIdBundle> _linkIdentifier;
+    private LinkIdentifier<ExternalIdBundle, T> _linkIdentifier;
 
     /**
      * Restricted constructor.
@@ -313,7 +310,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1114306493:  // linkIdentifier
-          this._linkIdentifier = (LinkIdentifier<T, ExternalIdBundle>) newValue;
+          this._linkIdentifier = (LinkIdentifier<ExternalIdBundle, T>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -357,7 +354,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
      * @param linkIdentifier  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> linkIdentifier(LinkIdentifier<T, ExternalIdBundle> linkIdentifier) {
+    public Builder<T> linkIdentifier(LinkIdentifier<ExternalIdBundle, T> linkIdentifier) {
       JodaBeanUtils.notNull(linkIdentifier, "linkIdentifier");
       this._linkIdentifier = linkIdentifier;
       return this;

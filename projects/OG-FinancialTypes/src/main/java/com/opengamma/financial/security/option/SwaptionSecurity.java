@@ -168,7 +168,7 @@ public class SwaptionSecurity extends FinancialSecurity {
    */
   public void setUnderlyingId(ExternalId underlyingId) {
     this._underlyingId = ArgumentChecker.notNull(underlyingId, "underlyingId");
-    this._underlyingLink = SecurityLink.of(FinancialSecurity.class, underlyingId);
+    this._underlyingLink = SecurityLink.resolvable(underlyingId, FinancialSecurity.class);
   }
 
   //-------------------------------------------------------------------------

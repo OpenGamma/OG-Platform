@@ -79,7 +79,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
 
     ImmutableMap.Builder<ConfigLink<AbstractCurveDefinition>, List<? extends CurveTypeConfiguration>> builder = ImmutableMap.builder();
     for (Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : _typesForCurves.entrySet()) {
-      builder.put(ConfigLink.of(entry.getKey(), AbstractCurveDefinition.class), entry.getValue());
+      builder.put(ConfigLink.resolvable(entry.getKey(), AbstractCurveDefinition.class), entry.getValue());
     }
     _typesForCurvesLinks = builder.build();
   }

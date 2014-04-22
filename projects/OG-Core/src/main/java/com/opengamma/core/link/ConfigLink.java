@@ -28,12 +28,12 @@ public abstract class ConfigLink<T> implements Link<T> {
    * necessary to resolve the provided bundle into the target object.
    *
    * @param <C> the type of the object being linked to
-   * @param name the name of the config object
-   * @param type the type of object being linked to
-   * @return a config link
+   * @param name the name of the config object, not null
+   * @param type the type of object being linked to, not null
+   * @return a config link, not null
    */
-  public static <C> ConfigLink<C> of(String name, Class<C> type) {
-    return new ResolvableConfigLink<>(type, name, new ServiceContextConfigLinkResolver<C>());
+  public static <C> ConfigLink<C> resolvable(String name, Class<C> type) {
+    return new ResolvableConfigLink<>(name, type, new ServiceContextConfigLinkResolver<C>());
   }
 
   /**
@@ -42,14 +42,14 @@ public abstract class ConfigLink<T> implements Link<T> {
    * necessary to resolve the provided bundle into the target object.
    *
    * @param <C> the type of the object being linked to
-   * @param name the name of the config object
-   * @param type the type of object being linked to
+   * @param name the name of the config object, not null
+   * @param type the type of object being linked to, not null
    * @param serviceContext a service context containing the ConfigSource and
-   * VersionCorrectionProvider necessary to resolve
-   * @return a config link
+   * VersionCorrectionProvider necessary to resolve, not null
+   * @return a config link, not null
    */
-  public static <C> ConfigLink<C> of(String name, Class<C> type, ServiceContext serviceContext) {
-    return new ResolvableConfigLink<>(type, name, new ServiceContextConfigLinkResolver<C>(serviceContext));
+  public static <C> ConfigLink<C> resolvable(String name, Class<C> type, ServiceContext serviceContext) {
+    return new ResolvableConfigLink<>(name, type, new ServiceContextConfigLinkResolver<C>(serviceContext));
   }
 
   /**
@@ -57,11 +57,11 @@ public abstract class ConfigLink<T> implements Link<T> {
    * embedded object has come from a source, there is no way of listening for
    * changes to the object.
    *
-   * @param <C> the type of the object being linked to
+   * @param <C> the type of the object being linked to, not null
    * @param config the config to embed in the link, not null
-   * @return the config link
+   * @return the config link, not null
    */
-  public static <C> ConfigLink<C> of(C config) {
-    return new FixedConfigLink<>(config);
+  public static <C> ConfigLink<C> resolved(C config) {
+    return new ResolvedConfigLink<>(config);
   }
 }

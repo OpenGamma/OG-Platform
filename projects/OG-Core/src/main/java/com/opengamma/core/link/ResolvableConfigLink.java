@@ -26,9 +26,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A link to a config object that can be resolved on demand.
+ * Represents a link to a Config object using a name
+ * that can be resolved on demand.
  *
- * @param <T> the type of the object being linked to
+ * @param <T> type of the config
  */
 @BeanDefinition
 public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableBean {
@@ -37,32 +38,34 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
    * The identification data for the object being linked to.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LinkIdentifier<T, String> _identifier;
+  private final LinkIdentifier<String, T> _identifier;
 
   /**
    * The resolver used to resolve the link on demand, not null.
    */
   // note that the resolver does not form part of the serialized form
   // of the bean
-  private final LinkResolver<T, String> _resolver;
+  private final LinkResolver<String, T> _resolver;
 
   /**
-   * Creates a resolvable link.
+   * Creates a resolved link.
    *
-   * @param type the type of the linked object
    * @param identifier the identifier for the linked object
+   * @param type the type of the linked object
    * @param linkResolver the resolver used to resolve the link when requested
    */
-  /* package */ ResolvableConfigLink(Class<T> type, String identifier, LinkResolver<T, String> linkResolver) {
-    this(LinkIdentifier.of(type, identifier), linkResolver);
+  /* package */ ResolvableConfigLink(String identifier,
+                                     Class<T> type,
+                                     LinkResolver<String, T> linkResolver) {
+    this(LinkIdentifier.of(identifier, type), linkResolver);
   }
 
   @ImmutableConstructor
-  private ResolvableConfigLink(LinkIdentifier<T, String> identifier) {
+  private ResolvableConfigLink(LinkIdentifier<String, T> identifier) {
     this(identifier, new ServiceContextConfigLinkResolver<T>());
   }
 
-  private ResolvableConfigLink(LinkIdentifier<T, String> identifier, LinkResolver<T, String> linkResolver) {
+  private ResolvableConfigLink(LinkIdentifier<String, T> identifier, LinkResolver<String, T> linkResolver) {
     _identifier = identifier;
     _resolver = ArgumentChecker.notNull(linkResolver, "linkResolver");
   }
@@ -130,10 +133,10 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier.
+   * Gets the identification data for the object being linked to.
    * @return the value of the property, not null
    */
-  public LinkIdentifier<T, String> getIdentifier() {
+  public LinkIdentifier<String, T> getIdentifier() {
     return _identifier;
   }
 
@@ -202,7 +205,7 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
      * The meta-property for the {@code identifier} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<LinkIdentifier<T, String>> _identifier = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<LinkIdentifier<String, T>> _identifier = DirectMetaProperty.ofImmutable(
         this, "identifier", ResolvableConfigLink.class, (Class) LinkIdentifier.class);
     /**
      * The meta-properties.
@@ -247,7 +250,7 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
      * The meta-property for the {@code identifier} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LinkIdentifier<T, String>> identifier() {
+    public final MetaProperty<LinkIdentifier<String, T>> identifier() {
       return _identifier;
     }
 
@@ -278,7 +281,7 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
    */
   public static class Builder<T> extends DirectFieldsBeanBuilder<ResolvableConfigLink<T>> {
 
-    private LinkIdentifier<T, String> _identifier;
+    private LinkIdentifier<String, T> _identifier;
 
     /**
      * Restricted constructor.
@@ -310,7 +313,7 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1618432855:  // identifier
-          this._identifier = (LinkIdentifier<T, String>) newValue;
+          this._identifier = (LinkIdentifier<String, T>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -354,7 +357,7 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
      * @param identifier  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> identifier(LinkIdentifier<T, String> identifier) {
+    public Builder<T> identifier(LinkIdentifier<String, T> identifier) {
       JodaBeanUtils.notNull(identifier, "identifier");
       this._identifier = identifier;
       return this;

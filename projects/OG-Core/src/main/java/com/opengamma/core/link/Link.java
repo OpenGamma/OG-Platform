@@ -9,7 +9,7 @@ import com.opengamma.DataNotFoundException;
 
 /**
  * Represents a link to an object using the object's identifier and type which
- * can be resolved on demand. Use of links allows provision of  objects by remote
+ * can be resolved on demand. Use of links allows provision of objects by remote
  * servers while maintaining the ability to capture updates to the linked resources
  * on each subsequent resolution.
  *
@@ -21,7 +21,7 @@ public interface Link<T> {
    * Resolve the link and get the underlying object.
    *
    * @return the target of the link, not null
-   * @throws DataNotFoundException if the link is not resolvable
+   * @throws DataNotFoundException if the link is not resolved
    */
   T resolve();
 
@@ -32,5 +32,5 @@ public interface Link<T> {
    */
   Class<T> getTargetType();
 
-  // todo - do we want a method to generate a resolved version of a config object e.g. new FixedConfigLink(resolver.resolve())
+  // TODO - do we want a method to generate a resolved version of a config object e.g. new ResolvedConfigLink(resolver.resolve())
 }

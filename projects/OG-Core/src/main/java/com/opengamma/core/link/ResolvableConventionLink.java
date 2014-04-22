@@ -27,10 +27,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Represents a link to a Convention object using an ExternalId or ExternalIdBundle
- * that is resolved on demand.  Use of links allows provision of Securities by remote
- * servers while maintaining the ability to capture updates to the linked resources
- * on each subsequent resolution.
+ * Represents a link to a Convention object using an ExternalIdBundle
+ * that can be resolved on demand.
  *
  * @param <T> type of the convention
  */
@@ -38,26 +36,28 @@ import com.opengamma.util.ArgumentChecker;
 public class ResolvableConventionLink<T extends Convention> extends ConventionLink<T> implements ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
-  private final LinkIdentifier<T, ExternalIdBundle> _identifier;
+  private final LinkIdentifier<ExternalIdBundle, T> _identifier;
 
   /**
    * The resolver used to resolve the link on demand, not null.
    */
   // note that the resolver does not form part of the serialized form
   // of the bean
-  private final LinkResolver<T, ExternalIdBundle> _resolver;
+  private final LinkResolver<ExternalIdBundle, T> _resolver;
 
-  /* package */ ResolvableConventionLink(Class<T> type, ExternalIdBundle identifier, LinkResolver<T, ExternalIdBundle> linkResolver) {
-    this(LinkIdentifier.of(type, identifier), linkResolver);
+  /* package */ ResolvableConventionLink(ExternalIdBundle identifier,
+                                         Class<T> type,
+                                         LinkResolver<ExternalIdBundle, T> linkResolver) {
+    this(LinkIdentifier.of(identifier, type), linkResolver);
   }
 
   @ImmutableConstructor
-  private ResolvableConventionLink(LinkIdentifier<T, ExternalIdBundle> linkIdentifier) {
+  private ResolvableConventionLink(LinkIdentifier<ExternalIdBundle, T> linkIdentifier) {
     this(linkIdentifier, new ServiceContextConventionLinkResolver<T>());
   }
 
-  private ResolvableConventionLink(LinkIdentifier<T, ExternalIdBundle> linkIdentifier,
-                                   LinkResolver<T, ExternalIdBundle> linkResolver) {
+  private ResolvableConventionLink(LinkIdentifier<ExternalIdBundle, T> linkIdentifier,
+                                   LinkResolver<ExternalIdBundle, T> linkResolver) {
     _identifier = linkIdentifier;
     _resolver = ArgumentChecker.notNull(linkResolver, "linkResolver");
   }
@@ -128,7 +128,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
    * Gets the identifier.
    * @return the value of the property, not null
    */
-  public LinkIdentifier<T, ExternalIdBundle> getIdentifier() {
+  public LinkIdentifier<ExternalIdBundle, T> getIdentifier() {
     return _identifier;
   }
 
@@ -197,7 +197,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
      * The meta-property for the {@code identifier} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<LinkIdentifier<T, ExternalIdBundle>> _identifier = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<LinkIdentifier<ExternalIdBundle, T>> _identifier = DirectMetaProperty.ofImmutable(
         this, "identifier", ResolvableConventionLink.class, (Class) LinkIdentifier.class);
     /**
      * The meta-properties.
@@ -242,7 +242,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
      * The meta-property for the {@code identifier} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LinkIdentifier<T, ExternalIdBundle>> identifier() {
+    public final MetaProperty<LinkIdentifier<ExternalIdBundle, T>> identifier() {
       return _identifier;
     }
 
@@ -273,7 +273,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
    */
   public static class Builder<T extends Convention> extends DirectFieldsBeanBuilder<ResolvableConventionLink<T>> {
 
-    private LinkIdentifier<T, ExternalIdBundle> _identifier;
+    private LinkIdentifier<ExternalIdBundle, T> _identifier;
 
     /**
      * Restricted constructor.
@@ -305,7 +305,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1618432855:  // identifier
-          this._identifier = (LinkIdentifier<T, ExternalIdBundle>) newValue;
+          this._identifier = (LinkIdentifier<ExternalIdBundle, T>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -349,7 +349,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
      * @param identifier  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> identifier(LinkIdentifier<T, ExternalIdBundle> identifier) {
+    public Builder<T> identifier(LinkIdentifier<ExternalIdBundle, T> identifier) {
       JodaBeanUtils.notNull(identifier, "identifier");
       this._identifier = identifier;
       return this;

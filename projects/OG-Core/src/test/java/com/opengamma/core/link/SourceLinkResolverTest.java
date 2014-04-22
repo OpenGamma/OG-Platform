@@ -32,12 +32,12 @@ public class SourceLinkResolverTest {
   @Test(expectedExceptions = IllegalStateException.class)
   public void noThreadLocalContextGivesError() {
 
-    SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver();
+    SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver();
     resolver.resolve(createIdentifier("id"));
   }
 
-  private LinkIdentifier<Object, String> createIdentifier(String id) {
-    return LinkIdentifier.of(Object.class, id);
+  private LinkIdentifier<String, Object> createIdentifier(String id) {
+    return LinkIdentifier.of(id, Object.class);
   }
 
   public void threadLocalContextGetsUsed() {
@@ -45,7 +45,7 @@ public class SourceLinkResolverTest {
     ServiceContext serviceContext = createContext(ConfigSource.class, VersionCorrectionProvider.class);
 
     ThreadLocalServiceContext.init(serviceContext);
-    SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver();
+    SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver();
 
     resolver.resolve(createIdentifier("id"));
   }
@@ -63,7 +63,7 @@ public class SourceLinkResolverTest {
   public void noVersionCorrectionGivesError() {
 
     ServiceContext serviceContext = createContext(ConfigSource.class);
-    SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
+    SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
 
     resolver.resolve(createIdentifier("id"));
   }
@@ -72,13 +72,13 @@ public class SourceLinkResolverTest {
   public void noSourceGivesError() {
 
     ServiceContext serviceContext = createContext(VersionCorrectionProvider.class);
-    SourceLinkResolver<Object, String, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
+    SourceLinkResolver<String, Object, ConfigSource> resolver = createSourceLinkResolver(serviceContext);
 
     resolver.resolve(createIdentifier("id"));
   }
 
-  private SourceLinkResolver<Object, String, ConfigSource> createSourceLinkResolver() {
-    return new SourceLinkResolver<Object, String, ConfigSource>() {
+  private SourceLinkResolver<String, Object, ConfigSource> createSourceLinkResolver() {
+    return new SourceLinkResolver<String, Object, ConfigSource>() {
         @Override
         protected Class<ConfigSource> getSourceClass() {
           return ConfigSource.class;
@@ -96,8 +96,8 @@ public class SourceLinkResolverTest {
     };
   }
 
-  private SourceLinkResolver<Object, String, ConfigSource> createSourceLinkResolver(final ServiceContext serviceContext) {
-    return new SourceLinkResolver<Object, String, ConfigSource>(serviceContext) {
+  private SourceLinkResolver<String, Object, ConfigSource> createSourceLinkResolver(final ServiceContext serviceContext) {
+    return new SourceLinkResolver<String, Object, ConfigSource>(serviceContext) {
         @Override
         protected Class<ConfigSource> getSourceClass() {
           return ConfigSource.class;

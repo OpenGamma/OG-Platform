@@ -19,7 +19,7 @@ import com.opengamma.service.VersionCorrectionProvider;
  * @param <S> the type of security object to be resolved
  */
 /* package */ final class ServiceContextSecurityLinkResolver<S extends Security>
-    extends SourceLinkResolver<S, ExternalIdBundle, SecuritySource> {
+    extends SourceLinkResolver<ExternalIdBundle, S, SecuritySource> {
 
   /**
    * Creates the resolver using the default service context.

@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ import com.opengamma.service.VersionCorrectionProvider;
  *
  * @param <T> the type of config object to be resolved
  */
-/* package */ final class ServiceContextConfigLinkResolver<T> extends SourceLinkResolver<T, String, ConfigSource> {
+/* package */ final class ServiceContextConfigLinkResolver<T> extends SourceLinkResolver<String, T, ConfigSource> {
 
   /**
    * Logger for the class.
@@ -77,15 +78,9 @@ import com.opengamma.service.VersionCorrectionProvider;
   private T findWithGeneralType(ConfigSource configSource, final Class<T> type,
                                 String identifier, VersionCorrection versionCorrection) {
 
-    Iterable<ConfigItem<Object>> results = Iterables.filter(
-        configSource.get(Object.class, identifier, versionCorrection),
-        new Predicate<ConfigItem<Object>>() {
-          @Override
-          public boolean apply(ConfigItem<Object> item) {
-            return type.isAssignableFrom(item.getValue().getClass());
-          }
-        }
-    );
+    // Filter the items so we only have ones with compatible types
+    Collection<ConfigItem<Object>> allMatches = configSource.get(Object.class, identifier, versionCorrection);
+    Iterable<ConfigItem<Object>> results = filterForCorrectType(allMatches, type);
 
     final T result = (T) selectResult(type, identifier, results);
     if (result != null) {
@@ -94,6 +89,27 @@ import com.opengamma.service.VersionCorrectionProvider;
       throw new DataNotFoundException("No config found with type: [" + type.getName() + "], id: [" +
                                       identifier + "] and versionCorrection: [" + versionCorrection + "]");
     }
+  }
+
+  private Iterable<ConfigItem<Object>> filterForCorrectType(Collection<ConfigItem<Object>> allMatches,
+                                                            Class<T> type) {
+    return Iterables.filter(allMatches, typeMatcher(type));
+  }
+
+  /**
+   * Predicate which can be used to check that each item passed to
+   * it is of the required type.
+   *
+   * @param type the type to check items are, subclasses of the type will also match
+   * @return the predicate to perform the type matching
+   */
+  private Predicate<ConfigItem<Object>> typeMatcher(final Class<T> type) {
+    return new Predicate<ConfigItem<Object>>() {
+      @Override
+      public boolean apply(ConfigItem<Object> item) {
+        return type.isAssignableFrom(item.getValue().getClass());
+      }
+    };
   }
 
   private <R> R selectResult(Class<T> type, String identifier, Iterable<ConfigItem<R>> results) {

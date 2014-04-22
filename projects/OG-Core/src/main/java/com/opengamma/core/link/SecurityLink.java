@@ -26,12 +26,12 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * and VersionCorrectionProvider necessary to resolve the provided bundle into
    * the target object.
    *
-   * @param <S> the type of the object being linked to
    * @param bundle the external id bundle to be resolved into the target object, not null
-   * @return a security link
+   * @param type the type of object being linked to, not null
+   * @return a security link, not null
    */
-  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalIdBundle bundle) {
-    return new ResolvableSecurityLink<>(type, bundle, new ServiceContextSecurityLinkResolver<S>());
+  public static <S extends Security> SecurityLink<S> resolvable(ExternalIdBundle bundle, Class<S> type) {
+    return new ResolvableSecurityLink<>(bundle, type, new ServiceContextSecurityLinkResolver<S>());
   }
 
   /**
@@ -41,12 +41,46 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * the target object. Try to use the bundle version of this call bundles where
    * possible rather than a single externalId.
    *
-   * @param <S> the type of the object being linked to
+   * @param <S> the type of the underlying Security the link refers to
    * @param externalId the external id to be resolved into the target object, not null
-   * @return a security link
+   * @param type the type of object being linked to, not null
+   * @return a security link, not null
    */
-  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalId externalId) {
-    return of(type, externalId.toBundle());
+  public static <S extends Security> SecurityLink<S> resolvable(ExternalId externalId, Class<S> type) {
+    return resolvable(externalId.toBundle(), type);
+  }
+
+  /**
+   * Creates a link that will use a service context accessed via a thread local
+   * to access a pre-configured service context containing the SecuritySource
+   * and VersionCorrectionProvider necessary to resolve the provided bundle into
+   * the target object. This version of the method will return a link where the
+   * type is fixed to be Security.
+   *
+   * @param <S> the type of the underlying Security the link refers to
+   * @param bundle the external id bundle to be resolved into the target object, not null
+   * @return a security link, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <S extends Security> SecurityLink<S> resolvable(ExternalIdBundle bundle) {
+    return (SecurityLink<S>) resolvable(bundle, Security.class);
+  }
+
+  /**
+   * Creates a link that will use a service context accessed via a thread local to
+   * access a pre-configured service context containing the SecuritySource and
+   * VersionCorrectionProvider necessary to resolve the provided externalId into
+   * the target object. Try to use the bundle version of this call bundles where
+   * possible rather than a single externalId. This version of the method will return
+   * a link where the type is fixed to be Security.
+   *
+   * @param <S> the type of the underlying Security the link refers to
+   * @param externalId the external id to be resolved into the target object, not null
+   * @return a security link, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <S extends Security> SecurityLink<S> resolvable(ExternalId externalId) {
+    return (SecurityLink<S>) resolvable(externalId.toBundle(), Security.class);
   }
 
   /**
@@ -57,13 +91,14 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    *
    * @param <S> the type of the underlying Security the link refers to
    * @param bundle the external id bundle to use as the link reference, not null
+   * @param type the type of object being linked to, not null
    * @param serviceContext a service context containing the SecuritySource and
    * VersionCorrectionProvider necessary to resolve, not null
-   * @return the security link
+   * @return the security link, not null
    */
-  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalIdBundle bundle,
-                                                        ServiceContext serviceContext) {
-    return new ResolvableSecurityLink<>(type, bundle, new ServiceContextSecurityLinkResolver<S>(serviceContext));
+  public static <S extends Security> SecurityLink<S> resolvable(ExternalIdBundle bundle, Class<S> type,
+                                                                ServiceContext serviceContext) {
+    return new ResolvableSecurityLink<>(bundle, type, new ServiceContextSecurityLinkResolver<S>(serviceContext));
   }
 
   /**
@@ -75,12 +110,15 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    *
    * @param <S> the type of the underlying Security the link refers to
    * @param externalId a single ExternalId to use as the link reference, not null
-   * @param serviceContext a service context containing the SecuritySource and VersionCorrectionProvider necessary to
-   * resolve, not null
-   * @return the security link
+   * @param type the type of object being linked to, not null
+   * @param serviceContext a service context containing the SecuritySource and
+   * VersionCorrectionProvider necessary to resolve, not null
+   * @return the security link, not null
    */
-  public static <S extends Security> SecurityLink<S> of(Class<S> type, ExternalId externalId, ServiceContext serviceContext) {
-    return of(type, externalId.toBundle(), serviceContext);
+  public static <S extends Security> SecurityLink<S> resolvable(ExternalId externalId,
+                                                                Class<S> type,
+                                                                ServiceContext serviceContext) {
+    return resolvable(externalId.toBundle(), type, serviceContext);
   }
 
   /**
@@ -90,10 +128,10 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    *
    * @param <S> the type of the underlying Security the link refers to
    * @param security the security to embed in the link, not null
-   * @return the security link
+   * @return the security link, not null
    */
-  public static <S extends Security> SecurityLink<S> of(S security) {
-    return new FixedSecurityLink<>(security);
+  public static <S extends Security> SecurityLink<S> resolved(S security) {
+    return new ResolvedSecurityLink<>(security);
   }
 
   /**
@@ -103,7 +141,8 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * may not have an identifier in which case this method will throw an
    * {@link UnsupportedOperationException}.
    *
-   * @return the identifier for a link if available
+   * @return the identifier for a link if available, not null
    */
   public abstract ExternalIdBundle getIdentifier();
+
 }
