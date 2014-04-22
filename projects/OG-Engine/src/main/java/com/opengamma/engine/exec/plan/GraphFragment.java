@@ -79,6 +79,8 @@ import com.opengamma.engine.view.ExecutionLogMode;
 
   /**
    * The values that are needed for edges between nodes in this subgraph (or a tail) only. These are intermediate values that can be confined to the private caches of the calculation nodes.
+   * <p>
+   * This is not allocated initially to avoid heap churn - at most, only half of the allocations will be used.
    */
   private Set<ValueSpecification> _privateValues;
 
@@ -337,51 +339,71 @@ import com.opengamma.engine.view.ExecutionLogMode;
     mergeFragmentCost(fragment);
   }
 
+  /**
+   * Updates the shared value map with details of any outputs this fragment produces that are destined for its tails only so can be considered "private". Once identified the output is removed from the
+   * costed output set and added to the "private" set.
+   * <p>
+   * This must be called for all fragments prior to job construction as the data collected is needed to construct the cache select hints.
+   * 
+   * @param sharedValues the shared value map to be updated with any outputs that should be private
+   */
+  public void exportPrivateValues(final Map<ValueSpecification, Boolean> sharedValues) {
+    if (getTail() != null) {
+      // Only applies if there is a tail. A job without a tail can only produce shared values.
+      final Iterator<ValueSpecification> outputValueItr = getOutputValues().keySet().iterator();
+      while (outputValueItr.hasNext()) {
+        final ValueSpecification outputValue = outputValueItr.next();
+        if (sharedValues.containsKey(outputValue)) {
+          // A terminal output
+          continue;
+        }
+        boolean isPrivate = true;
+        for (GraphFragment outputFragment : getOutputFragments()) {
+          if (!outputFragment.getInputValues().containsKey(outputValue)) {
+            // The fragment doesn't need this value
+            continue;
+          }
+          if (outputFragment.getExecutionId() != getExecutionId()) {
+            // Node is not part of our execution
+            isPrivate = false;
+            break;
+          }
+        }
+        if (isPrivate) {
+          // Output is only consumed by our own tail
+          addPrivateValue(outputValue);
+          sharedValues.put(outputValue, Boolean.FALSE);
+          outputValueItr.remove();
+        }
+      }
+    }
+  }
+
+  /**
+   * Creates the cache hint, indicating which of the input/output values for this job will be in the shared/private caches. Terminal outputs are explicitly added to the shared value map. Outputs
+   * private to a job are flagged internally when fragments get merged. Outputs consumed only by a tail will be flagged by the calls to {@link #exportPrivateValues} before job construction.
+   * 
+   * @param context the current context, not null
+   * @return the cache hint, not null
+   */
   private CacheSelectHint createCacheSelectHint(final GraphFragmentContext context) {
     final Map<ValueSpecification, Boolean> sharedValues = context.getSharedCacheValues();
     Set<ValueSpecification> localPrivateValues = getPrivateValues();
+    // If there are no private intermediate values, the member will still be null at this point.
     if (localPrivateValues == null) {
       localPrivateValues = new HashSet<ValueSpecification>();
     }
-    final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>();
-    // If fragment has dependencies which aren't in the execution fragment, its outputs for those are "shared" values
-    for (ValueSpecification outputValue : getOutputValues().keySet()) {
-      // Output values are unique in the graph, so this code executes ONCE for each ValueSpecification
-      if (sharedValues.containsKey(outputValue)) {
-        // A terminal output
-        localSharedValues.add(outputValue);
-        continue;
-      }
-      boolean isPrivate = true;
-      for (GraphFragment outputFragment : getOutputFragments()) {
-        if (!outputFragment.getInputValues().containsKey(outputValue)) {
-          // The fragment doesn't need this value
-          continue;
-        }
-        if (outputFragment.getExecutionId() != getExecutionId()) {
-          // Node is not part of our execution
-          isPrivate = false;
-          break;
-        }
-      }
-      if (isPrivate) {
-        localPrivateValues.add(outputValue);
-        sharedValues.put(outputValue, Boolean.FALSE);
-      } else {
-        localSharedValues.add(outputValue);
-        sharedValues.put(outputValue, Boolean.TRUE);
-      }
-    }
-    // Any input graph fragments will have been processed, so inputs coming from them will be in the shared value map.
-    // Anything not in the map is an input that will be in the shared cache before the graph starts executing.
+    // Anything in the output set is shared following a previous call to {@link #exportPrivateValues}. Inputs may be either shared or private.
+    final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>(getOutputValues().keySet());
+    // If this is a tail job and the input is private then it will have a FALSE entry in the shared value map, produced by a previous call
+    // to {@link #exportPrivateValues} on the fragment that produces it. If this is a terminal output the map will have a TRUE entry.
+    // Anything not in the map is either a shared output from another fragment or will be provided when the graph is executed (eg market data).
     for (ValueSpecification inputValue : getInputValues().keySet()) {
-      if (!localSharedValues.contains(inputValue) && !localPrivateValues.contains(inputValue)) {
-        final Boolean shared = sharedValues.get(inputValue);
-        if (shared == Boolean.FALSE) {
-          localPrivateValues.add(inputValue);
-        } else {
-          localSharedValues.add(inputValue);
-        }
+      final Boolean shared = sharedValues.get(inputValue);
+      if (shared == Boolean.FALSE) {
+        localPrivateValues.add(inputValue);
+      } else {
+        localSharedValues.add(inputValue);
       }
     }
     // Create the cheapest hint object
@@ -407,8 +429,8 @@ import com.opengamma.engine.view.ExecutionLogMode;
           functionParameters = newParameters;
         }
       }
-      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunctionId(), functionParameters, node.getTarget(),
-          DependencyNodeImpl.getInputValueArray(node), outputs, logMode);
+      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunctionId(), functionParameters, node.getTarget(), DependencyNodeImpl.getInputValueArray(node),
+          outputs, logMode);
       items.add(jobItem);
     }
     final CacheSelectHint hint = createCacheSelectHint(context);

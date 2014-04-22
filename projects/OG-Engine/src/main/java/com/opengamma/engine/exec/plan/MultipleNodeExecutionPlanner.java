@@ -440,6 +440,19 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
     }
   }
 
+  /**
+   * Updates the shared value cache with details of any "private" values that, as a result of tail jobs, do not need to leave the calculation node.
+   * 
+   * @param context the operating context, not null
+   * @param allFragments all discovered fragments, not null
+   */
+  private void exportPrivateValues(final GraphFragmentContext context, final Collection<GraphFragment> allFragments) {
+    final Map<ValueSpecification, Boolean> sharedValues = context.getSharedCacheValues();
+    for (GraphFragment fragment : allFragments) {
+      fragment.exportPrivateValues(sharedValues);
+    }
+  }
+
   private GraphExecutionPlan createMultipleNodePlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitializationId,
       final Set<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
     final GraphFragmentContext context = new GraphFragmentContext(graph.getCalculationConfigurationName(), logModeSource, functionInitializationId, sharedValues, parameters);
@@ -466,6 +479,7 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
       }
     } while (true);
     findTailFragments(allFragments);
+    exportPrivateValues(context, allFragments);
     long totalSize = 0;
     long totalInvocationCost = 0;
     long totalDataCost = 0;
@@ -480,15 +494,15 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
       }
     }
     final int totalJobs = allFragments.size();
-    return new GraphExecutionPlan(graph.getCalculationConfigurationName(), functionInitializationId, jobs, allFragments.size(), (double) totalSize / (double) totalJobs, (double) totalInvocationCost /
-        (double) totalJobs, (double) totalDataCost / (double) totalJobs);
+    return new GraphExecutionPlan(graph.getCalculationConfigurationName(), functionInitializationId, jobs, allFragments.size(), (double) totalSize / (double) totalJobs,
+        (double) totalInvocationCost / (double) totalJobs, (double) totalDataCost / (double) totalJobs);
   }
 
   // GraphExecutionPlanner
 
   @Override
-  public GraphExecutionPlan createPlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitialisationId, final Set<ValueSpecification> sharedValues,
-      final Map<ValueSpecification, FunctionParameters> parameters) {
+  public GraphExecutionPlan createPlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitialisationId,
+      final Set<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
     final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
     try {
       if (graph.getSize() <= getMinimumJobItems()) {
