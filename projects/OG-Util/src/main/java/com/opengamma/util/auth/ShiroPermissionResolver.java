@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.permission.InvalidPermissionStringException;
 import org.apache.shiro.authz.permission.PermissionResolver;
 
 import com.google.common.base.Throwables;
@@ -86,6 +87,7 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * 
    * @param permissionStr  the permission string, not null
    * @return the permission object, not null
+   * @throws InvalidPermissionStringException if the permission string is invalid
    */
   @Override
   public Permission resolvePermission(String permissionStr) {
@@ -109,6 +111,7 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * 
    * @param permissionStr  the permission string, not null
    * @return the new permission object, not null
+   * @throws InvalidPermissionStringException if the permission string is invalid
    */
   private Permission doResolvePermission(String permissionStr) {
     for (Entry<String, PermissionResolver> entry : _prefixResolvers.entrySet()) {

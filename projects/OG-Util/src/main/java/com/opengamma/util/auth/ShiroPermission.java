@@ -15,14 +15,18 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.permission.InvalidPermissionStringException;
+import org.apache.shiro.authz.permission.WildcardPermission;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * An Apache Shiro {@code Permission} that allows permission resolving to be extended.
+ * <p>
+ * This is a faster version of {@link WildcardPermission}.
+ * See {@link ShiroPermissionResolver} for public access.
  */
-public final class ShiroPermission implements Permission {
+final class ShiroPermission implements Permission {
 
   /**
    * The wildcard segment.
@@ -45,26 +49,25 @@ public final class ShiroPermission implements Permission {
   /**
    * Creates an instance.
    * 
-   * @param permissionStr  the permission string, not null
+   * @param permissionString  the permission string, not null
    * @return the permission object, not null
-   * @throws IllegalArgumentException if the permission string is invalid
+   * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  public static Permission of(String permissionStr) {
-    ArgumentChecker.notNull(permissionStr, "permissionStr");
-    return new ShiroPermission(permissionStr);
+  static Permission of(String permissionString) {
+    return new ShiroPermission(permissionString);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    * 
-   * @param permissionStr  the permission string, not null
-   * @throws IllegalArgumentException if the permission string is invalid
+   * @param permissionString  the permission string, not null
+   * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  private ShiroPermission(final String permissionStr) {
-    String permStr = StringUtils.stripToNull(permissionStr);
+  private ShiroPermission(final String permissionString) {
+    String permStr = StringUtils.stripToNull(permissionString);
     if (permStr == null) {
-      throw new IllegalArgumentException("Permission string must not be blank: " + permissionStr);
+      throw new InvalidPermissionStringException("Permission string must not be blank: " + permissionString, permissionString);
     }
     // case insensitive
     permStr = permStr.toLowerCase(Locale.ROOT);
@@ -74,16 +77,16 @@ public final class ShiroPermission implements Permission {
     for (String segmentStr : segmentStrs) {
       String[] partStrs = StringUtils.splitPreserveAllTokens(segmentStr, ',');
       if (partStrs.length == 0) {
-        throw new IllegalArgumentException("Permission string must not contain an empty segment: " + permissionStr);
+        throw new InvalidPermissionStringException("Permission string must not contain an empty segment: " + permissionString, permissionString);
       }
       Set<String> parts = new LinkedHashSet<>();
       for (String partStr : partStrs) {
         partStr = partStr.trim();
         if (partStr.isEmpty()) {
-          throw new IllegalArgumentException("Permission string must not contain an empty part: " + permissionStr);
+          throw new InvalidPermissionStringException("Permission string must not contain an empty part: " + permissionString, permissionString);
         }
         if (partStr.contains("*") && partStr.equals("*") == false) {
-          throw new IllegalArgumentException("Permission string wildcard can only be applied to whole segment: " + permissionStr);
+          throw new InvalidPermissionStringException("Permission string wildcard can only be applied to whole segment: " + permissionString, permissionString);
         }
         parts.add(partStr);
       }
