@@ -283,13 +283,13 @@ public class CouponONSpreadDefinition extends CouponDefinition implements Instru
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return null; //TODO no suitable method in visitor
+    return visitor.visitCouponONSpreadDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return null; //TODO no suitable method in visitor
+    return visitor.visitCouponONSpreadDefinition(this);
   }
 
   @Override

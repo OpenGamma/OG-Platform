@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDef
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -95,6 +96,11 @@ public final class CouponNotionalVisitor extends InstrumentDefinitionVisitorAdap
 
   @Override
   public CurrencyAmount visitCouponOISDefinition(final CouponONDefinition payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+  
+  @Override
+  public CurrencyAmount visitCouponONSpreadDefinition(final CouponONSpreadDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 

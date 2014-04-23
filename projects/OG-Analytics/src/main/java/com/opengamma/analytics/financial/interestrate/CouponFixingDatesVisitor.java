@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -45,6 +46,12 @@ public class CouponFixingDatesVisitor extends InstrumentDefinitionVisitorAdapter
 
   @Override
   public Pair<LocalDate, LocalDate> visitCouponOISDefinition(final CouponONDefinition payment) {
+    return Pairs.of(payment.getFixingPeriodDate()[0].toLocalDate(),
+                    payment.getFixingPeriodDate()[payment.getFixingPeriodDate().length - 1].toLocalDate());
+  }
+
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponONSpreadDefinition(final CouponONSpreadDefinition payment) {
     return Pairs.of(payment.getFixingPeriodDate()[0].toLocalDate(),
                     payment.getFixingPeriodDate()[payment.getFixingPeriodDate().length - 1].toLocalDate());
   }
