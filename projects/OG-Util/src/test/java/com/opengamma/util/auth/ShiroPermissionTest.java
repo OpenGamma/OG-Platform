@@ -8,6 +8,7 @@ package com.opengamma.util.auth;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.permission.InvalidPermissionStringException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -16,32 +17,32 @@ import org.testng.annotations.Test;
  */
 public class ShiroPermissionTest {
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_null() {
     ShiroPermission.of(null);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_empty() {
     ShiroPermission.of("");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_blank() {
     ShiroPermission.of("   ");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_onlyColons() {
     ShiroPermission.of("::");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_onlyCommas() {
     ShiroPermission.of("a:,:b");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_invalidWildcard() {
     ShiroPermission.of("a:beta*");
   }

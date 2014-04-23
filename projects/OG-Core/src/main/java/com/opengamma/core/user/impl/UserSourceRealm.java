@@ -145,7 +145,9 @@ public class UserSourceRealm extends AuthorizingRealm {
       UserAccount account = loadUserByName(userName);
       SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
       info.addRoles(account.getRoles());
-      info.addStringPermissions(account.getPermissions());
+      for (String permStr : account.getPermissions()) {
+        info.addObjectPermission(getPermissionResolver().resolvePermission(permStr));
+      }
       return info;
       
     } catch (AuthorizationException ex) {

@@ -7,6 +7,8 @@ package com.opengamma.util.auth;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.permission.PermissionResolver;
 import org.apache.shiro.subject.Subject;
 
 /**
@@ -16,6 +18,34 @@ import org.apache.shiro.subject.Subject;
  */
 public final class AuthUtils extends SecurityUtils {
 
+  /**
+   * The singleton permission resolver.
+   */
+  private static final ShiroPermissionResolver s_permissionResolver = new ShiroPermissionResolver();
+
+  /**
+   * Restricted constructor.
+   */
+  private AuthUtils() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the {@code PermissionResolver} that creates authorization {@code Permission} instances.
+   * <p>
+   * The authorization system is based on {@link Permission} instances.
+   * A {@link PermissionResolver} is used as a factory to create {@code Permission} instances.
+   * <p>
+   * The permission resolver returned here is a singleton that provides the ability
+   * to switch the permission implementation based on a prefix.
+   *
+   * @return the singleton {@code PermissionResolver}, not null
+   */
+  public static ShiroPermissionResolver getPermissionResolver() {
+    return s_permissionResolver;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Initializes the authentication and authorization system to permissive mode.
    * Permissive mode has a logged on user with all permissions granted.
