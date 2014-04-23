@@ -14,12 +14,18 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ConventionSearchRequest;
 import com.opengamma.master.convention.ConventionSearchResult;
 import com.opengamma.master.convention.ManageableConvention;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMasterUtils;
 
 /**
  * A tool that allows a convention master to be initialized.
  * <p>
  * Conventions are typically stored in a master database, however they may be
  * initialized from code as they rarely change.
+ *
+ * Convention lookup relies on appropriate securities being present see {@code com.opengamma.financial.security.index.IborIndex}.
+ * Old style behaviour (without security based lookup) is preserved by calling the deprecated init() and associated functions.
  */
 public abstract class ConventionMasterInitializer {
 
@@ -30,8 +36,22 @@ public abstract class ConventionMasterInitializer {
    * Initializes the specified master.
    * 
    * @param master  the master to initialize, not null
+   * @deprecated use the init() that also takes a SecurityMaster
    */
+  @Deprecated
   public abstract void init(ConventionMaster master);
+
+  /**
+   * Initializes the specified master.
+   *
+   * Default implementation, should be overridden by child if security master should be populated.
+   *
+   * @param master  the master to initialize, not null
+   * @param securityMaster the security master, not null
+   */
+  public void init(ConventionMaster master, SecurityMaster securityMaster) {
+    init(master);
+  }
 
   /**
    * Adds a convention to the specified master.
@@ -67,6 +87,14 @@ public abstract class ConventionMasterInitializer {
           break;
       }
     }
+  }
+
+  protected void addSecurity(SecurityMaster securityMaster, ManageableSecurity security) {
+    if (securityMaster == null) {
+      s_logger.warn("Tried to add a security to aid convention lookup but no security master set: " + security.getName());
+      return;
+    }
+    SecurityMasterUtils.addOrUpdateSecurity(securityMaster, security);
   }
 
   //-------------------------------------------------------------------------
