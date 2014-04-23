@@ -89,7 +89,8 @@ public class MultiFileConfigSaver extends DirectBean {
     File directory = new File(getDestinationDirectory(), clazz.getName());
     directory.mkdir();
     for (ConfigDocument document : latest) {
-      File documentFile = new File(directory, document.getName() + ".xml");
+      //TODO: Should properly encode file name from name
+      File documentFile = new File(directory, document.getName().trim().replace("/", "") + ".xml");
       System.out.println("-- Creating file " + documentFile.getAbsolutePath());
       FileOutputStream fos = new FileOutputStream(documentFile);
       FudgeXMLStreamWriter xmlStreamWriter = new FudgeXMLStreamWriter(OpenGammaFudgeContext.getInstance(), new OutputStreamWriter(fos));
