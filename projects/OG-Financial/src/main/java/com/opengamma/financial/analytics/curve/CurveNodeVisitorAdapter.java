@@ -226,6 +226,22 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
     }
 
     /**
+     * Adds a visitor for {@link CalendarSwapNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle calendar swap nodes
+     */
+    public Builder<T> calendarSwapNode(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitCalendarSwapNode(final CalendarSwapNode node) {
+          return visitor.visitCalendarSwapNode(node);
+        }
+      };
+      return this;
+    }
+
+    /**
      * Adds a visitor for {@link ContinuouslyCompoundedRateNode}s
      * @param visitor The original visitor.
      * @return A visitor that can also handle continuously compounded rate nodes
