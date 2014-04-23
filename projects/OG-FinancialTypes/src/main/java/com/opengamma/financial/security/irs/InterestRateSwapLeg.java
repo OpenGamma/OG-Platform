@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -131,7 +132,13 @@ public abstract class InterestRateSwapLeg extends DirectBean {
    */
   @PropertyDefinition(validate = "notNull")
   private Frequency _accrualPeriodFrequency;
-
+  
+  /**
+   * The compounding method used when the reset frequency is higher than the payment frequency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private CompoundingMethod _compoundingMethod = CompoundingMethod.NONE;
+  
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
@@ -545,6 +552,32 @@ public abstract class InterestRateSwapLeg extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the compounding method used when the reset frequency is higher than the payment frequency.
+   * @return the value of the property, not null
+   */
+  public CompoundingMethod getCompoundingMethod() {
+    return _compoundingMethod;
+  }
+
+  /**
+   * Sets the compounding method used when the reset frequency is higher than the payment frequency.
+   * @param compoundingMethod  the new value of the property, not null
+   */
+  public void setCompoundingMethod(CompoundingMethod compoundingMethod) {
+    JodaBeanUtils.notNull(compoundingMethod, "compoundingMethod");
+    this._compoundingMethod = compoundingMethod;
+  }
+
+  /**
+   * Gets the the {@code compoundingMethod} property.
+   * @return the property, not null
+   */
+  public final Property<CompoundingMethod> compoundingMethod() {
+    return metaBean().compoundingMethod().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public InterestRateSwapLeg clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -571,7 +604,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           (getPaymentOffset() == other.getPaymentOffset()) &&
           JodaBeanUtils.equal(getAccrualPeriodCalendars(), other.getAccrualPeriodCalendars()) &&
           JodaBeanUtils.equal(getAccrualPeriodBusinessDayConvention(), other.getAccrualPeriodBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getAccrualPeriodFrequency(), other.getAccrualPeriodFrequency());
+          JodaBeanUtils.equal(getAccrualPeriodFrequency(), other.getAccrualPeriodFrequency()) &&
+          JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod());
     }
     return false;
   }
@@ -594,12 +628,13 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodCalendars());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(512);
+    StringBuilder buf = new StringBuilder(544);
     buf.append("InterestRateSwapLeg{");
     int len = buf.length();
     toString(buf);
@@ -626,6 +661,7 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     buf.append("accrualPeriodCalendars").append('=').append(JodaBeanUtils.toString(getAccrualPeriodCalendars())).append(',').append(' ');
     buf.append("accrualPeriodBusinessDayConvention").append('=').append(JodaBeanUtils.toString(getAccrualPeriodBusinessDayConvention())).append(',').append(' ');
     buf.append("accrualPeriodFrequency").append('=').append(JodaBeanUtils.toString(getAccrualPeriodFrequency())).append(',').append(' ');
+    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(getCompoundingMethod())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -717,6 +753,11 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     private final MetaProperty<Frequency> _accrualPeriodFrequency = DirectMetaProperty.ofReadWrite(
         this, "accrualPeriodFrequency", InterestRateSwapLeg.class, Frequency.class);
     /**
+     * The meta-property for the {@code compoundingMethod} property.
+     */
+    private final MetaProperty<CompoundingMethod> _compoundingMethod = DirectMetaProperty.ofReadWrite(
+        this, "compoundingMethod", InterestRateSwapLeg.class, CompoundingMethod.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -735,7 +776,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
         "paymentOffset",
         "accrualPeriodCalendars",
         "accrualPeriodBusinessDayConvention",
-        "accrualPeriodFrequency");
+        "accrualPeriodFrequency",
+        "compoundingMethod");
 
     /**
      * Restricted constructor.
@@ -776,6 +818,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return _accrualPeriodBusinessDayConvention;
         case -1874725140:  // accrualPeriodFrequency
           return _accrualPeriodFrequency;
+        case -1376171496:  // compoundingMethod
+          return _compoundingMethod;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -916,6 +960,14 @@ public abstract class InterestRateSwapLeg extends DirectBean {
       return _accrualPeriodFrequency;
     }
 
+    /**
+     * The meta-property for the {@code compoundingMethod} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CompoundingMethod> compoundingMethod() {
+      return _compoundingMethod;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -950,6 +1002,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return ((InterestRateSwapLeg) bean).getAccrualPeriodBusinessDayConvention();
         case -1874725140:  // accrualPeriodFrequency
           return ((InterestRateSwapLeg) bean).getAccrualPeriodFrequency();
+        case -1376171496:  // compoundingMethod
+          return ((InterestRateSwapLeg) bean).getCompoundingMethod();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1003,6 +1057,9 @@ public abstract class InterestRateSwapLeg extends DirectBean {
         case -1874725140:  // accrualPeriodFrequency
           ((InterestRateSwapLeg) bean).setAccrualPeriodFrequency((Frequency) newValue);
           return;
+        case -1376171496:  // compoundingMethod
+          ((InterestRateSwapLeg) bean).setCompoundingMethod((CompoundingMethod) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -1018,6 +1075,7 @@ public abstract class InterestRateSwapLeg extends DirectBean {
       JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._paymentDateRelativeTo, "paymentDateRelativeTo");
       JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._accrualPeriodBusinessDayConvention, "accrualPeriodBusinessDayConvention");
       JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._accrualPeriodFrequency, "accrualPeriodFrequency");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._compoundingMethod, "compoundingMethod");
     }
 
   }

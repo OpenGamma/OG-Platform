@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParamete
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
@@ -375,6 +376,8 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       }
     }
 
+    CompoundingMethod compoundingMethod = leg.getCompoundingMethod();
+    
     return new FixedAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
@@ -395,6 +398,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         rate(fixedLeg.getRate().getInitialRate()).
         startStub(startStub).
         endStub(endStub).
+        compoundingMethod(compoundingMethod).
         build();
   }
 

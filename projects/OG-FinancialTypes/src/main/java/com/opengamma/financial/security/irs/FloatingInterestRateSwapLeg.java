@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -125,13 +124,7 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
    */
   @PropertyDefinition(validate = "notNull")
   private DateRelativeTo _resetDateRelativeTo = DateRelativeTo.START;
- 
-  /**
-   * The compounding method used when the reset frequency is higher than the payment frequency.
-   */
-  @PropertyDefinition
-  private CompoundingMethod _compoundingMethod = CompoundingMethod.NONE;
-  
+
   /*
    * Fixing date parameters
    */
@@ -552,31 +545,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the compounding method used when the reset frequency is higher than the payment frequency.
-   * @return the value of the property
-   */
-  public CompoundingMethod getCompoundingMethod() {
-    return _compoundingMethod;
-  }
-
-  /**
-   * Sets the compounding method used when the reset frequency is higher than the payment frequency.
-   * @param compoundingMethod  the new value of the property
-   */
-  public void setCompoundingMethod(CompoundingMethod compoundingMethod) {
-    this._compoundingMethod = compoundingMethod;
-  }
-
-  /**
-   * Gets the the {@code compoundingMethod} property.
-   * @return the property, not null
-   */
-  public final Property<CompoundingMethod> compoundingMethod() {
-    return metaBean().compoundingMethod().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the calendars used to adjust the fixing dates.
    * @return the value of the property
    */
@@ -703,7 +671,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           JodaBeanUtils.equal(getResetPeriodBusinessDayConvention(), other.getResetPeriodBusinessDayConvention()) &&
           JodaBeanUtils.equal(getResetPeriodFrequency(), other.getResetPeriodFrequency()) &&
           JodaBeanUtils.equal(getResetDateRelativeTo(), other.getResetDateRelativeTo()) &&
-          JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod()) &&
           JodaBeanUtils.equal(getFixingDateCalendars(), other.getFixingDateCalendars()) &&
           JodaBeanUtils.equal(getFixingDateBusinessDayConvention(), other.getFixingDateBusinessDayConvention()) &&
           (getFixingDateOffset() == other.getFixingDateOffset()) &&
@@ -730,7 +697,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetDateRelativeTo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateCalendars());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
@@ -820,11 +786,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     private final MetaProperty<DateRelativeTo> _resetDateRelativeTo = DirectMetaProperty.ofReadWrite(
         this, "resetDateRelativeTo", FloatingInterestRateSwapLeg.class, DateRelativeTo.class);
     /**
-     * The meta-property for the {@code compoundingMethod} property.
-     */
-    private final MetaProperty<CompoundingMethod> _compoundingMethod = DirectMetaProperty.ofReadWrite(
-        this, "compoundingMethod", FloatingInterestRateSwapLeg.class, CompoundingMethod.class);
-    /**
      * The meta-property for the {@code fixingDateCalendars} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -864,7 +825,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
         "resetPeriodBusinessDayConvention",
         "resetPeriodFrequency",
         "resetDateRelativeTo",
-        "compoundingMethod",
         "fixingDateCalendars",
         "fixingDateBusinessDayConvention",
         "fixingDateOffset",
@@ -907,8 +867,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return _resetPeriodFrequency;
         case 397410276:  // resetDateRelativeTo
           return _resetDateRelativeTo;
-        case -1376171496:  // compoundingMethod
-          return _compoundingMethod;
         case -1369761222:  // fixingDateCalendars
           return _fixingDateCalendars;
         case -1714823662:  // fixingDateBusinessDayConvention
@@ -1050,14 +1008,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     }
 
     /**
-     * The meta-property for the {@code compoundingMethod} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<CompoundingMethod> compoundingMethod() {
-      return _compoundingMethod;
-    }
-
-    /**
      * The meta-property for the {@code fixingDateCalendars} property.
      * @return the meta-property, not null
      */
@@ -1121,8 +1071,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return ((FloatingInterestRateSwapLeg) bean).getResetPeriodFrequency();
         case 397410276:  // resetDateRelativeTo
           return ((FloatingInterestRateSwapLeg) bean).getResetDateRelativeTo();
-        case -1376171496:  // compoundingMethod
-          return ((FloatingInterestRateSwapLeg) bean).getCompoundingMethod();
         case -1369761222:  // fixingDateCalendars
           return ((FloatingInterestRateSwapLeg) bean).getFixingDateCalendars();
         case -1714823662:  // fixingDateBusinessDayConvention
@@ -1180,9 +1128,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return;
         case 397410276:  // resetDateRelativeTo
           ((FloatingInterestRateSwapLeg) bean).setResetDateRelativeTo((DateRelativeTo) newValue);
-          return;
-        case -1376171496:  // compoundingMethod
-          ((FloatingInterestRateSwapLeg) bean).setCompoundingMethod((CompoundingMethod) newValue);
           return;
         case -1369761222:  // fixingDateCalendars
           ((FloatingInterestRateSwapLeg) bean).setFixingDateCalendars((Set<ExternalId>) newValue);
