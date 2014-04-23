@@ -242,7 +242,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         rollDateAdjuster(rollDateAdjuster).
         exchangeInitialNotional(notionalExchange.isExchangeInitialNotional()).
         exchangeFinalNotional(notionalExchange.isExchangeFinalNotional()).
-        accrualPeriodFrequency(getTenor(leg.getPaymentDateFrequency())).
+        accrualPeriodFrequency(getTenor(leg.getAccrualPeriodFrequency())).
         accrualPeriodParameters(accrualPeriodParameters).
         paymentDateRelativeTo(leg.getPaymentDateRelativeTo()).
         paymentDateAdjustmentParameters(paymentDateParameters).
@@ -388,7 +388,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         rollDateAdjuster(rollDateAdjuster).
         exchangeInitialNotional(notionalExchange.isExchangeInitialNotional()).
         exchangeFinalNotional(notionalExchange.isExchangeFinalNotional()).
-        accrualPeriodFrequency(getTenor(leg.getPaymentDateFrequency())).
+        accrualPeriodFrequency(getTenor(leg.getAccrualPeriodFrequency())).
         accrualPeriodParameters(accrualPeriodParameters).
         paymentDateRelativeTo(leg.getPaymentDateRelativeTo()).
         paymentDateAdjustmentParameters(paymentDateParameters).
