@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.util.money.Currency;
 
@@ -192,6 +191,11 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * Parameters used to create payment dates relative to the accrual periods of the annuity. This is an optional field.
    */
   private OffsetAdjustedDateParameters _adjustedPaymentDateParameters;
+  
+  /**
+   * The compounding.
+   */
+  private CompoundingMethod _compoundingMethod;
   
   protected boolean isPayer() {
     return _payer;
@@ -517,5 +521,15 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
         1.0); // rate
   }
   
+  public CompoundingMethod getCompoundingMethod() {
+    return _compoundingMethod;
+  }
+
+  @SuppressWarnings("unchecked")
+  public T compoundingMethod(CompoundingMethod compoundingMethod) {
+    _compoundingMethod = compoundingMethod;
+    return (T) this;
+  }
+
   public abstract AnnuityDefinition<?> build();
 }

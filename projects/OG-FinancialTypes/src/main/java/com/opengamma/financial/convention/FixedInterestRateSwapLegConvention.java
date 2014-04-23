@@ -170,6 +170,8 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
     leg.setAccrualPeriodBusinessDayConvention(getCalculationBusinessDayConvention());
     leg.setAccrualPeriodCalendars(getCalculationCalendars());
     leg.setAccrualPeriodFrequency(getCalculationFrequency());
+    // compounding method 
+    leg.setCompoundingMethod(getCompoundingMethod());
     return leg;
   }
 
