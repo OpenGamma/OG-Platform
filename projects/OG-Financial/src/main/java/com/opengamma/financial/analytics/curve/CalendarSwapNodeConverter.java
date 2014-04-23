@@ -61,7 +61,7 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
-    ArgumentChecker.notNull(calendarQuery, "config source");
+    // ArgumentChecker.notNull(calendarQuery, "config source");
     _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
