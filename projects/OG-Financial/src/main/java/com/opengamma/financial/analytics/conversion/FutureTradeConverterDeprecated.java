@@ -17,8 +17,6 @@ import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDef
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
@@ -27,6 +25,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
@@ -42,6 +41,8 @@ public class FutureTradeConverterDeprecated {
    * The security converter (to convert the trade underlying).
    */
   private final FutureSecurityConverterDeprecated _futureSecurityConverter;
+  
+  private final InterestRateFutureTradeConverterDeprecated _irFutureTradeConverter;
 
   /**
    * Constructor.
@@ -52,10 +53,12 @@ public class FutureTradeConverterDeprecated {
    */
   public FutureTradeConverterDeprecated(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
       final RegionSource regionSource) {
-    final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _futureSecurityConverter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
+    _futureSecurityConverter = new FutureSecurityConverterDeprecated(bondFutureConverter);
+    
+    final InterestRateFutureSecurityConverterDeprecated irFutureSecurityConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
+    _irFutureTradeConverter = new InterestRateFutureTradeConverterDeprecated(irFutureSecurityConverter);
   }
 
   /**
@@ -67,7 +70,12 @@ public class FutureTradeConverterDeprecated {
     ArgumentChecker.notNull(trade, "trade");
     final Security security = trade.getSecurity();
     if (security instanceof FutureSecurity) {
-      final InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
+      final InstrumentDefinitionWithData<?, Double> securityDefinition;
+      if (security instanceof InterestRateFutureSecurity) {
+        securityDefinition = _irFutureTradeConverter.convert(trade);
+      } else {
+        securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
+      }
       double tradePremium = 0.0;
       if (trade.getPremium() != null) {
         tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
@@ -76,8 +84,7 @@ public class FutureTradeConverterDeprecated {
       if ((trade.getTradeDate() != null) && trade.getTradeTime() != null && (trade.getTradeTime().toLocalTime() != null)) {
         tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
       }
-      final int quantity = trade.getQuantity().intValue();
-      final InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate, quantity);
+      final InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate);
       return tradeDefinition;
     }
     throw new IllegalArgumentException("Can only handle FutureSecurity");
@@ -91,7 +98,7 @@ public class FutureTradeConverterDeprecated {
    * @return The tradeDefinition.
    */
   private static InstrumentDefinitionWithData<?, Double> securityToTrade(final InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice,
-      final ZonedDateTime tradeDate, final int quantity) {
+      final ZonedDateTime tradeDate) {
 
     final InstrumentDefinitionVisitorAdapter<InstrumentDefinitionWithData<?, Double>, InstrumentDefinitionWithData<?, Double>> visitor =
         new InstrumentDefinitionVisitorAdapter<InstrumentDefinitionWithData<?, Double>, InstrumentDefinitionWithData<?, Double>>() {
@@ -127,11 +134,6 @@ public class FutureTradeConverterDeprecated {
           @Override
           public InstrumentDefinitionWithData<?, Double> visitBondFutureDefinition(final BondFutureDefinition futures) {
             return futures;
-          }
-
-          @Override
-          public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
-            return new InterestRateFutureTransactionDefinition(futures, quantity, tradeDate, tradePrice);
           }
 
           @Override

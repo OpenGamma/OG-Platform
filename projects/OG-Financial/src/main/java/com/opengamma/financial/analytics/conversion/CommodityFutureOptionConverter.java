@@ -55,7 +55,7 @@ public class CommodityFutureOptionConverter extends FinancialSecurityVisitorAdap
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _futureSecurityConverter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
+    _futureSecurityConverter = new FutureSecurityConverterDeprecated(bondFutureConverter);
   }
 
   @Override

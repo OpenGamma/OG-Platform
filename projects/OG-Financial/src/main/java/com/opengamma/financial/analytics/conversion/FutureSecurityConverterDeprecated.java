@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDe
 import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -28,7 +27,6 @@ import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -39,11 +37,9 @@ import com.opengamma.util.ArgumentChecker;
 @Deprecated
 public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>
     implements FinancialSecurityVisitorWithData<Double, InstrumentDefinitionWithData<?, Double>> {
-  private final InterestRateFutureSecurityConverterDeprecated _irFutureConverter;
   private final BondFutureSecurityConverter _bondFutureConverter;
 
-  public FutureSecurityConverterDeprecated(final InterestRateFutureSecurityConverterDeprecated irFutureConverter, final BondFutureSecurityConverter bondFutureConverter) {
-    _irFutureConverter = irFutureConverter;
+  public FutureSecurityConverterDeprecated(final BondFutureSecurityConverter bondFutureConverter) {
     _bondFutureConverter = bondFutureConverter;
   }
 
@@ -105,13 +101,6 @@ public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorA
       public InstrumentDefinitionWithData<?, Double> visitIndexFutureSecurity(final IndexFutureSecurity security) {
         final ZonedDateTime expiry = security.getExpiry().getExpiry();
         return new IndexFutureDefinition(expiry, expiry, referencePrice, security.getCurrency(), security.getUnitAmount(), security.getUnderlyingId());
-      }
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-        final InterestRateFutureTransactionDefinition securityDefinition = (InterestRateFutureTransactionDefinition) security.accept(_irFutureConverter);
-        return securityDefinition;
       }
 
       @SuppressWarnings("synthetic-access")

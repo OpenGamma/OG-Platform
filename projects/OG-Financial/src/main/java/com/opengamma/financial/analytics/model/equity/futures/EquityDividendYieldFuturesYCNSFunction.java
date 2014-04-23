@@ -74,7 +74,7 @@ public class EquityDividendYieldFuturesYCNSFunction extends EquityDividendYieldF
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _converter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
+    _converter = new FutureSecurityConverterDeprecated(bondFutureConverter);
   }
 
   // Need to do this to get labels for the output
