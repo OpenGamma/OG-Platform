@@ -11,6 +11,15 @@ PortfolioReader was renamed to PositionReader
 PortfolioWriter was renamed to PositionWriter
 PortfolioTool was simplified as per the JIRA above
 
+ConfigLink API has changed - of method renamed to resolved/resolvable in order to
+differentiate between the different types of links
+SecurityLink API has changed - of method renamed to resolved/resolvable in order to
+differentiate between the different types of links
+ConventionLink API has changed - of method renamed to resolved/resolvable in order to
+differentiate between the different types of links
+SnapshotLink has been added to allow access to different types of snapshots
+Snapshot database schema has been altered to support different types of snapshots
+
 Upgrading from 2.1.0
 ====================
 
