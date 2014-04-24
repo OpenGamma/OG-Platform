@@ -58,7 +58,7 @@ public final class AnnuityForwardRatesVisitor extends InstrumentDerivativeVisito
 
   @Override
   public Double[] visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MulticurveProviderInterface curves) {
-    return visitGenericAnnuity(annuity);
+    return visitGenericAnnuity(annuity, curves);
   }
 
   @Override

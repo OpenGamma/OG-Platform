@@ -60,7 +60,7 @@ public final class AnnuityProjectedPaymentsVisitor extends InstrumentDerivativeV
 
   @Override
   public CurrencyAmount[] visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MulticurveProviderInterface curves) {
-    return visitGenericAnnuity(annuity);
+    return visitGenericAnnuity(annuity, curves);
   }
 
   @Override
