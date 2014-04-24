@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.DateSet;
 import com.opengamma.core.convention.ConventionSource;
@@ -79,6 +80,9 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
     final FinancialConvention receiveLegConvention = _conventionSource.getSingle(swapConvention.getReceiveLegConvention(), FinancialConvention.class);
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(calendarSwapNode.getStartTenor().getPeriod());
     final DateSet calendar = _calendarQuery.get(calendarSwapNode.getDateSetName());
+    if (calendar == null) {
+      throw new DataNotFoundException("DateSet not found: " + calendarSwapNode.getDateSetName());
+    }
     return NodeConverterUtils.getSwapCalendarDefinition(payLegConvention, receiveLegConvention, unadjustedStartDate, calendarSwapNode.getStartDateNumber(),
         calendarSwapNode.getEndDateNumber(), calendar, _securitySource, _regionSource, _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
   }
