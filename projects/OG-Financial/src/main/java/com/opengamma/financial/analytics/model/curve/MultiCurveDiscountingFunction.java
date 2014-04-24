@@ -46,6 +46,8 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.DateSet;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -86,10 +88,12 @@ import com.opengamma.financial.analytics.curve.ThreeLegBasisSwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -326,10 +330,11 @@ public class MultiCurveDiscountingFunction extends
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+      final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(context);
+      final ConfigSourceQuery<DateSet> dateSetQuery = new ConfigSourceQuery<>(configSource, DateSet.class, VersionCorrection.of(valuationTime.toInstant(), valuationTime.toInstant()));
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
           .cashNodeVisitor(new CashNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .calendarSwapNode(new CalendarSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, null)) 
-          // TODO [PLAT-5775] Add the calendar query
+          .calendarSwapNode(new CalendarSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, dateSetQuery))
           .fraNode(new FRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .immFRANode(new RollDateFRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
