@@ -267,7 +267,7 @@ public enum FloatingIndex {
         idValue += "11M";
         break;
       case Frequency.ANNUAL_NAME:
-        idValue += "1Y";
+        idValue += "12M";
         break;
       default:
         throw new IllegalArgumentException("Only standard IBOR frequencies supported. Frequency provided is " + frequency.getName());
