@@ -514,7 +514,7 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
    * @param bondFuture The bond future security
    * @return The bond future definition
    */
-  private BondFuturesSecurityDefinition getBondFuture(final BondFutureSecurity bondFuture) {
+  public BondFuturesSecurityDefinition getBondFuture(final BondFutureSecurity bondFuture) {
     final ZonedDateTime lastTradeDate = bondFuture.getExpiry().getExpiry();
     final ZonedDateTime firstNoticeDate = bondFuture.getFirstDeliveryDate();
     final ZonedDateTime lastNoticeDate = bondFuture.getLastDeliveryDate();

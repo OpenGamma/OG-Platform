@@ -334,10 +334,20 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final ExerciseType exerciseType = exerciseType();
     final ExternalId underlyingIdentifier = createBondFutureSecurity().getExternalIdBundle().getExternalId(_security);
     final double pointValue = 1000;
+    final boolean isMargined = false;
     final Currency currency = currency();
     final double strike = 1.25;
     final OptionType optionType = optionType();
-    final BondFutureOptionSecurity security = new BondFutureOptionSecurity(tradingExchange, settlementExchange, expiry, exerciseType, underlyingIdentifier, pointValue, currency, strike, optionType);
+    final BondFutureOptionSecurity security = new BondFutureOptionSecurity(tradingExchange,
+                                                                           settlementExchange,
+                                                                           expiry,
+                                                                           exerciseType,
+                                                                           underlyingIdentifier,
+                                                                           pointValue,
+                                                                           isMargined,
+                                                                           currency,
+                                                                           strike,
+                                                                           optionType);
     store(security);
     return security;
   }

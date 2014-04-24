@@ -18,27 +18,37 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFunction;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Converter used to create a bond future option OG-Analytics representation from an OG-Financial type from a trade. The trade
+ * is needed for conversion to retrieve details such as last traded date and quantity that are only held on the trade itself.
  */
 public class BondFutureOptionTradeConverter implements TradeConverter {
+  
+  /**
+   * Converter used to convert the bond future option of the trade.
+   */
   private final BondFutureOptionSecurityConverter _securityConverter;
-
+  
+  /**
+   * Constructs a bond future option converter.
+   * @param securityConverter the bond future option converter, not null.
+   */
   public BondFutureOptionTradeConverter(final BondFutureOptionSecurityConverter securityConverter) {
-    ArgumentChecker.notNull(securityConverter, "security converter");
-    _securityConverter = securityConverter;
+    _securityConverter = ArgumentChecker.notNull(securityConverter, "security converter");
   }
 
-  //TODO see comments in InterestRateFutureOptionTradeConverter
+  @Override
   public InstrumentDefinition<?> convert(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     ArgumentChecker.isTrue(trade.getSecurity() instanceof BondFutureOptionSecurity, "Can only handle trades with security type BondFutureOptionSecurity");
-    final InstrumentDefinition<?> securityDefinition = ((BondFutureOptionSecurity) trade.getSecurity()).accept(_securityConverter);
+    BondFutureOptionSecurity security = (BondFutureOptionSecurity) trade.getSecurity();
+    final InstrumentDefinition<?> securityDefinition = security.accept(_securityConverter);
     ArgumentChecker.notNull(trade.getPremium(), "Bond future option trade must have a premium set. The interpretation of premium is the market price, without unit, i.e. not %");
     //TODO fix the next two lines - it's here to avoid double-multiplying when stuff is scaled at the position level
     final int quantity = 1;
@@ -56,6 +66,10 @@ public class BondFutureOptionTradeConverter implements TradeConverter {
       tradeDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone    
     }
 
+    if (security.isMargined()) {
+      final BondFuturesOptionMarginSecurityDefinition option = (BondFuturesOptionMarginSecurityDefinition) securityDefinition;
+      return new BondFuturesOptionMarginTransactionDefinition(option, quantity, tradeDate, premium);
+    }
     final BondFutureOptionPremiumSecurityDefinition underlyingOption = (BondFutureOptionPremiumSecurityDefinition) securityDefinition;
     return new BondFutureOptionPremiumTransactionDefinition(underlyingOption, quantity, tradeDate, premium);
   }

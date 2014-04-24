@@ -51,6 +51,8 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
   private Double _pointValue;
   @PropertyDefinition
   private ExternalIdBean _underlying;
+  @PropertyDefinition
+  private boolean _margined;
 
   public BondFutureOptionSecurityBean() {
     super();
@@ -73,6 +75,7 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
       .append(getSettlementExchange(), option.getSettlementExchange())
       .append(getPointValue(), option.getPointValue())
       .append(getOptionExerciseType(), option.getOptionExerciseType())
+      .append(isMargined(), option.isMargined())
       .isEquals();
   }
 
@@ -88,6 +91,7 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
       .append(getSettlementExchange())
       .append(getPointValue())
       .append(getOptionExerciseType())
+      .append(isMargined())
       .toHashCode();
   }
 
@@ -341,6 +345,31 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the margined.
+   * @return the value of the property
+   */
+  public boolean isMargined() {
+    return _margined;
+  }
+
+  /**
+   * Sets the margined.
+   * @param margined  the new value of the property
+   */
+  public void setMargined(boolean margined) {
+    this._margined = margined;
+  }
+
+  /**
+   * Gets the the {@code margined} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> margined() {
+    return metaBean().margined().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public BondFutureOptionSecurityBean clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -402,6 +431,11 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
     private final MetaProperty<ExternalIdBean> _underlying = DirectMetaProperty.ofReadWrite(
         this, "underlying", BondFutureOptionSecurityBean.class, ExternalIdBean.class);
     /**
+     * The meta-property for the {@code margined} property.
+     */
+    private final MetaProperty<Boolean> _margined = DirectMetaProperty.ofReadWrite(
+        this, "margined", BondFutureOptionSecurityBean.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -414,7 +448,8 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
         "tradingExchange",
         "settlementExchange",
         "pointValue",
-        "underlying");
+        "underlying",
+        "margined");
 
     /**
      * Restricted constructor.
@@ -443,6 +478,8 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
           return _pointValue;
         case -1770633379:  // underlying
           return _underlying;
+        case 243392205:  // margined
+          return _margined;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -535,6 +572,14 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
       return _underlying;
     }
 
+    /**
+     * The meta-property for the {@code margined} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> margined() {
+      return _margined;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -557,6 +602,8 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
           return ((BondFutureOptionSecurityBean) bean).getPointValue();
         case -1770633379:  // underlying
           return ((BondFutureOptionSecurityBean) bean).getUnderlying();
+        case 243392205:  // margined
+          return ((BondFutureOptionSecurityBean) bean).isMargined();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -590,6 +637,9 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
           return;
         case -1770633379:  // underlying
           ((BondFutureOptionSecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+        case 243392205:  // margined
+          ((BondFutureOptionSecurityBean) bean).setMargined((Boolean) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

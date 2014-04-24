@@ -26,7 +26,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
- *
+ * OG-Financial representation of a bond future option.
  */
 @BeanDefinition
 @SecurityDescription(type = BondFutureOptionSecurity.SECURITY_TYPE, description = "Bond future option")
@@ -70,6 +70,11 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
   @PropertyDefinition
   private double _pointValue;
   /**
+   * The margined flag.
+   */
+  @PropertyDefinition
+  private boolean _margined;
+  /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
@@ -89,12 +94,26 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
   }
 
+  /**
+   * Constructs a bond future option.
+   * @param tradingExchange the trading exchange, not null.
+   * @param settlementExchange the settlement exchange, not null.
+   * @param expiry the expiry, not null.
+   * @param exerciseType the exercise type, not null.
+   * @param underlyingIdentifier the underlying bond future id, not null.
+   * @param pointValue the point value.
+   * @param margined whether the option is margined or not.
+   * @param currency the currency, not null.
+   * @param strike the strike.
+   * @param optionType the option type, not null.
+   */
   public BondFutureOptionSecurity(String tradingExchange,
                                   String settlementExchange,
                                   Expiry expiry,
                                   ExerciseType exerciseType,
                                   ExternalId underlyingIdentifier,
                                   double pointValue,
+                                  boolean margined,
                                   Currency currency,
                                   double strike,
                                   OptionType optionType) {
@@ -105,6 +124,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
     setExerciseType(exerciseType);
     setUnderlyingId(underlyingIdentifier);
     setPointValue(pointValue);
+    setMargined(margined);
     setCurrency(currency);
     setStrike(strike);
     setOptionType(optionType);
@@ -290,6 +310,31 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the margined flag.
+   * @return the value of the property
+   */
+  public boolean isMargined() {
+    return _margined;
+  }
+
+  /**
+   * Sets the margined flag.
+   * @param margined  the new value of the property
+   */
+  public void setMargined(boolean margined) {
+    this._margined = margined;
+  }
+
+  /**
+   * Gets the the {@code margined} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> margined() {
+    return metaBean().margined().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the currency.
    * @return the value of the property, not null
    */
@@ -384,6 +429,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
           JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
+          (isMargined() == other.isMargined()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
@@ -401,6 +447,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isMargined());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
@@ -409,7 +456,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("BondFutureOptionSecurity{");
     int len = buf.length();
     toString(buf);
@@ -429,6 +476,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
     buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
     buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
     buf.append("pointValue").append('=').append(JodaBeanUtils.toString(getPointValue())).append(',').append(' ');
+    buf.append("margined").append('=').append(JodaBeanUtils.toString(isMargined())).append(',').append(' ');
     buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
     buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
     buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
@@ -475,6 +523,11 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _pointValue = DirectMetaProperty.ofReadWrite(
         this, "pointValue", BondFutureOptionSecurity.class, Double.TYPE);
     /**
+     * The meta-property for the {@code margined} property.
+     */
+    private final MetaProperty<Boolean> _margined = DirectMetaProperty.ofReadWrite(
+        this, "margined", BondFutureOptionSecurity.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
@@ -500,6 +553,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
         "exerciseType",
         "underlyingId",
         "pointValue",
+        "margined",
         "currency",
         "strike",
         "optionType");
@@ -525,6 +579,8 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
           return _underlyingId;
         case 1257391553:  // pointValue
           return _pointValue;
+        case 243392205:  // margined
+          return _margined;
         case 575402001:  // currency
           return _currency;
         case -891985998:  // strike
@@ -600,6 +656,14 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
     }
 
     /**
+     * The meta-property for the {@code margined} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> margined() {
+      return _margined;
+    }
+
+    /**
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
@@ -639,6 +703,8 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
           return ((BondFutureOptionSecurity) bean).getUnderlyingId();
         case 1257391553:  // pointValue
           return ((BondFutureOptionSecurity) bean).getPointValue();
+        case 243392205:  // margined
+          return ((BondFutureOptionSecurity) bean).isMargined();
         case 575402001:  // currency
           return ((BondFutureOptionSecurity) bean).getCurrency();
         case -891985998:  // strike
@@ -669,6 +735,9 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
           return;
         case 1257391553:  // pointValue
           ((BondFutureOptionSecurity) bean).setPointValue((Double) newValue);
+          return;
+        case 243392205:  // margined
+          ((BondFutureOptionSecurity) bean).setMargined((Boolean) newValue);
           return;
         case 575402001:  // currency
           ((BondFutureOptionSecurity) bean).setCurrency((Currency) newValue);

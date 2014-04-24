@@ -159,9 +159,9 @@ public class BondFutureOptionLoader extends SecurityLoader {
       getExerciseType(optionExerciseType),
       buildUnderlyingTicker(underlingTicker),
       pointValue,
-      ogCurrency,
-      optionStrikePrice / 100, // Strike in percent //TODO: use normalization (like in BloombergRateClassifier)?
-      optionType);
+      false,
+      ogCurrency, // Strike in percent //TODO: use normalization (like in BloombergRateClassifier)?
+      optionStrikePrice / 100, optionType);
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     security.setUniqueId(BloombergSecurityProvider.createUniqueId(bbgUniqueID));
     //build option display name
