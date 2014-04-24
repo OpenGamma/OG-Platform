@@ -44,15 +44,15 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Calculates the yield curve node sensitivities of a linked bond  for all curves to which the instruments are sensitive.
  */
-public class InflationBondYCNSFunction extends InflationBondFromCurvesFunction<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
+public class InflationBondYCNSFromCurvesFunction extends InflationBondFromCurvesFunction<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(InflationBondYCNSFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationBondYCNSFromCurvesFunction.class);
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES} and
    * sets the calculator to null.
    */
-  public InflationBondYCNSFunction() {
+  public InflationBondYCNSFromCurvesFunction() {
     super(YIELD_CURVE_NODE_SENSITIVITIES, null);
   }
 
