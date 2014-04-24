@@ -39,9 +39,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
@@ -49,8 +47,6 @@ import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.inflationissuer.InflationIssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -120,11 +116,11 @@ public class InflationIssuerProviderDiscountingFunction extends
   private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSIMQCSC =
       ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
-  private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQCWI = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator PSIMQCWI = ParSpreadInflationMarketQuoteIssuerDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
 
-  private static final ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator PSIMQCSCWI =
-      ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSIMQCSCWI =
+      ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
   /**
     * @param configurationName The configuration name, not null
@@ -140,11 +136,11 @@ public class InflationIssuerProviderDiscountingFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
-  protected InstrumentDerivativeVisitor<InflationProviderInterface, Double> getCalculatorWithoutIssuer() {
+  protected InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> getCalculatorWithoutIssuer() {
     return PSIMQCWI;
   }
 
-  protected InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> getSensitivityCalculatorWithoutIssuer() {
+  protected InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> getSensitivityCalculatorWithoutIssuer() {
     return PSIMQCSCWI;
   }
 
@@ -282,8 +278,9 @@ public class InflationIssuerProviderDiscountingFunction extends
         curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
+      final CurveBuildingBlockBundle knownbundle = getKnownBundle(inputs);
       final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
-          (InflationIssuerProviderDiscount) knownData, inflationMap, getCalculatorWithoutIssuer(), getSensitivityCalculatorWithoutIssuer());
+          (InflationIssuerProviderDiscount) knownData, knownbundle, inflationMap, getCalculatorWithoutIssuer(), getSensitivityCalculatorWithoutIssuer());
       final Pair<InflationIssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((InflationIssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
@@ -300,6 +297,17 @@ public class InflationIssuerProviderDiscountingFunction extends
         knownData.getMulticurveProvider().setForexMatrix(fxMatrix);
       }
       return knownData;
+    }
+
+    protected CurveBuildingBlockBundle getKnownBundle(final FunctionInputs inputs) {
+      //TODO requires that the discounting curves are supplied externally
+      CurveBuildingBlockBundle knownBundle;
+      if (getExogenousRequirements().isEmpty()) {
+        knownBundle = new CurveBuildingBlockBundle();
+      } else {
+        knownBundle = (CurveBuildingBlockBundle) inputs.getValue(ValueRequirementNames.JACOBIAN_BUNDLE);
+      }
+      return knownBundle;
     }
 
     @Override

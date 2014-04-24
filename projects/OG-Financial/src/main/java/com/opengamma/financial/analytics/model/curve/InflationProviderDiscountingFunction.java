@@ -250,8 +250,9 @@ public class InflationProviderDiscountingFunction extends
         curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
+      final CurveBuildingBlockBundle knownbundle = getKnownBundle(inputs);
       final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
-          (InflationProviderDiscount) knownData, inflationMap, getCalculator(), getSensitivityCalculator());
+          (InflationProviderDiscount) knownData, knownbundle, inflationMap, getCalculator(), getSensitivityCalculator());
       final Pair<InflationProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((InflationProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
@@ -268,6 +269,17 @@ public class InflationProviderDiscountingFunction extends
         knownData.getMulticurveProvider().setForexMatrix(fxMatrix);
       }
       return knownData;
+    }
+
+    protected CurveBuildingBlockBundle getKnownBundle(final FunctionInputs inputs) {
+      //TODO requires that the discounting curves are supplied externally
+      CurveBuildingBlockBundle knownBundle;
+      if (getExogenousRequirements().isEmpty()) {
+        knownBundle = new CurveBuildingBlockBundle();
+      } else {
+        knownBundle = (CurveBuildingBlockBundle) inputs.getValue(ValueRequirementNames.JACOBIAN_BUNDLE);
+      }
+      return knownBundle;
     }
 
     @Override
