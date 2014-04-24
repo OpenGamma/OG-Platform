@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
@@ -65,6 +66,8 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHistoricalTimeSeriesSource.class);
   private final JedisPool _jedisPool;
   private final String _redisPrefix;
+  // ChangeManager is only returned to satisfy the interface and allow this source to be used with the engine, no notifications will be sent
+  private final ChangeManager _changeManager = DummyChangeManager.INSTANCE;
   
   private Timer _getSeriesTimer = new Timer();
   private Timer _updateSeriesTimer = new Timer();
@@ -482,19 +485,21 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return getLatestDataPoint(uniqueId);
   }
 
-  // ------------------------------------------------------------------------
-  // UNSUPPORTED OPERATIONS:
-  // ------------------------------------------------------------------------
   public ChangeManager changeManager() {
-    throw new UnsupportedOperationException("Unsupported operation.");
-  }
-
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    return _changeManager;
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
-      LocalDate end, boolean includeEnd) {
+                                                      LocalDate end, boolean includeEnd) {
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getHistoricalTimeSeries(uniqueId);
+  }
+
+  // ------------------------------------------------------------------------
+  // UNSUPPORTED OPERATIONS:
+  // ------------------------------------------------------------------------
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     throw new UnsupportedOperationException("Unsupported operation.");
   }
 
