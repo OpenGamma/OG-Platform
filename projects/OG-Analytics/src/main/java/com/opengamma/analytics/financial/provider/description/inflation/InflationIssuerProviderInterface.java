@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
 
+import java.util.List;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -13,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.util.money.Currency;
@@ -83,6 +85,21 @@ public interface InflationIssuerProviderInterface extends ParameterIssuerProvide
    */
   @Override
   Set<String> getAllCurveNames();
+
+  /**
+   * Gets the number of parameters for a curve described by its name.
+   * @param name The curve name.
+   * @return The number of parameters.
+   */
+  Integer getNumberOfParameters(String name);
+
+  /**
+   * Gets the underlying name(s) (i.e. {@link YieldAndDiscountCurve#getName()} for a curve name;
+   * this can be multi-valued in the case of spread curves.
+   * @param name The curve name
+   * @return The name(s) of the underlying curves.
+   */
+  List<String> getUnderlyingCurvesNames(String name);
 
   /**
    * Returns the MulticurveProvider from which the InflationProvider is composed.

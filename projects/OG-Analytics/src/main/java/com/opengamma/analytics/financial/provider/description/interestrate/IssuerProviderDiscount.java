@@ -90,6 +90,22 @@ public class IssuerProviderDiscount extends IssuerProvider {
     return this;
   }
 
+  /**
+   * Gets a named issuer curve.
+   * @param name The name
+   * @return The curve.
+   */
+  public YieldAndDiscountCurve getCurve(final String name) {
+    if (this.getAllNames().contains(name)) {
+      if (getMulticurveProvider().getAllCurveNames().contains(name)) {
+        return getMulticurveProvider().getCurve(name);
+      }
+      return getIssuerProvider().getIssuerCurve(name);
+    } else {
+      throw new IllegalArgumentException("the following curve is not in the provider: " + name);
+    }
+  }
+
   @Override
   public IssuerProviderDiscount copy() {
     final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(getIssuerCurves());

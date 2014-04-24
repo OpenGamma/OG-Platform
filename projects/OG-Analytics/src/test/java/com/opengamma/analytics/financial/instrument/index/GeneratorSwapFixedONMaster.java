@@ -11,6 +11,7 @@ import java.util.Map;
 import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.datasets.CalendarGBP;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -47,6 +48,7 @@ public final class GeneratorSwapFixedONMaster {
   private GeneratorSwapFixedONMaster() {
     final IndexONMaster indexONMaster = IndexONMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
+    final Calendar londonBaseCalendar = new CalendarGBP("LONDON");
     final DayCount act360 = DayCounts.ACT_360;
     final DayCount act365 = DayCounts.ACT_365;
     final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -54,6 +56,7 @@ public final class GeneratorSwapFixedONMaster {
     final IndexON fedFund = indexONMaster.getIndex("FED FUND");
     _generatorSwap.put("USD1YFEDFUND", new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, Period.ofMonths(12), act360, modFol, true, 2, 2, baseCalendar));
     _generatorSwap.put("EUR1YEONIA", new GeneratorSwapFixedON("EUR1YEONIA", indexONMaster.getIndex("EONIA"), Period.ofMonths(12), act360, modFol, true, 2, 2, baseCalendar));
+    _generatorSwap.put("GBP1YSONIA", new GeneratorSwapFixedON("GBP1YSONIA", indexONMaster.getIndex("SONIA"), Period.ofMonths(12), act365, modFol, true, 0, 2, londonBaseCalendar));
     _generatorSwap.put("AUD1YRBAON", new GeneratorSwapFixedON("AUD1YRBAON", indexONMaster.getIndex("RBA ON"), Period.ofMonths(12), act365, modFol, true, 2, 1, baseCalendar));
     _generatorSwap.put("JPY1YTONAR", new GeneratorSwapFixedON("JPY1YTONAR", indexONMaster.getIndex("TONAR"), Period.ofMonths(12), act365, modFol, true, 2, 1, baseCalendar));
   }

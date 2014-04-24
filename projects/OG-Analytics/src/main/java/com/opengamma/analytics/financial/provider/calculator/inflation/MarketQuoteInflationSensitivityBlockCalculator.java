@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.AbstractParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.Pairs;
  * This class is a generalized (to inflation) of MarketQuoteSensitivityBlockCalculator.
  * @param <DATA_TYPE> Data type.
  */
-public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends InflationProviderInterface> {
+public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends ParameterInflationProviderInterface> {
 
   /**
    * The matrix algebra used for matrix inversion.
@@ -83,8 +83,7 @@ public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends In
    * @return The market quote sensitivity.
    */
   public MultipleCurrencyParameterSensitivity fromInstrument(final InstrumentDerivative instrument, final DATA_TYPE provider, final CurveBuildingBlockBundle units) {
-    final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterInflationSensitivityCalculator.calculateSensitivity(instrument, provider,
-        provider.getAllNames());
+    final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterInflationSensitivityCalculator.calculateSensitivity(instrument, provider);
     return fromParameterSensitivity(parameterSensitivity, units);
   }
 }

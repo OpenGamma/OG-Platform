@@ -230,7 +230,34 @@ public class IssuerProvider implements IssuerProviderInterface {
 
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
-    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+    if (_multicurvesNames.contains(name)) {
+      return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+    }
+    final YieldAndDiscountCurve curve = _issuerCurvesNames.get(name);
+    if (curve == null) {
+      throw new IllegalArgumentException("Could not get curve called " + name);
+    }
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final ForwardSensitivity timeAndS : pointSensitivity) {
+        final double startTime = timeAndS.getStartTime();
+        final double endTime = timeAndS.getEndTime();
+        final double forwardBar = timeAndS.getValue();
+        // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
+        final double dfForwardStart = curve.getDiscountFactor(startTime);
+        final double dfForwardEnd = curve.getDiscountFactor(endTime);
+        final double dFwddyStart = timeAndS.derivativeToYieldStart(dfForwardStart, dfForwardEnd);
+        final double dFwddyEnd = timeAndS.derivativeToYieldEnd(dfForwardStart, dfForwardEnd);
+        final double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
+        final double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
+          result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
+        }
+      }
+    }
+    return result;
   }
 
   @Override

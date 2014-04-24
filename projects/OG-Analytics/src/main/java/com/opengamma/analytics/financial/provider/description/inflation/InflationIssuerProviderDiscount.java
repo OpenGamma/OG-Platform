@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.provider.description.inflation;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -207,6 +208,50 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
       }
     }
     throw new IllegalArgumentException("Could not get curve for " + issuer);
+  }
+
+  /**
+   * Gets the curve(with a name) for an issuer .
+   * @param name The name
+   * @return The curve, null if not found
+   */
+  public YieldAndDiscountCurve getCurve(final String name) {
+    for (final Entry<String, YieldAndDiscountCurve> entry : _issuerCurvesNames.entrySet()) {
+      if (entry.getKey().equals(name)) {
+        return entry.getValue();
+      }
+    }
+    throw new IllegalArgumentException("Could not get curve for " + name);
+  }
+
+  @Override
+  public Integer getNumberOfParameters(final String name) {
+    final PriceIndexCurve inflationCurve = _inflationProvider.getCurve(name);
+    final YieldAndDiscountCurve curve = _inflationProvider.getMulticurveProvider().getCurve(name);
+    final YieldAndDiscountCurve issuerCurve = _issuerCurvesNames.get(name);
+    if (inflationCurve != null) {
+      return inflationCurve.getNumberOfParameters();
+    } else if (curve != null) {
+      return curve.getNumberOfParameters();
+    } else if (issuerCurve != null) {
+      return issuerCurve.getNumberOfParameters();
+    }
+    throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames(final String name) {
+    final PriceIndexCurve inflationCurve = _inflationProvider.getCurve(name);
+    final YieldAndDiscountCurve curve = _inflationProvider.getMulticurveProvider().getCurve(name);
+    final YieldAndDiscountCurve issuerCurve = _issuerCurvesNames.get(name);
+    if (inflationCurve != null) {
+      return inflationCurve.getUnderlyingCurvesNames();
+    } else if (curve != null) {
+      return curve.getUnderlyingCurvesNames();
+    } else if (issuerCurve != null) {
+      return issuerCurve.getUnderlyingCurvesNames();
+    }
+    throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
   }
 
   //     =====     Methods related to InflationProvider     =====
@@ -503,7 +548,21 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
 
   @Override
   public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
-    return _inflationProvider.parameterInflationSensitivity(name, pointSensitivity);
+    final YieldAndDiscountCurve curve = _issuerCurvesNames.get(name);
+    if (curve == null) {
+      return _inflationProvider.parameterInflationSensitivity(name, pointSensitivity);
+    }
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final DoublesPair timeAndS : pointSensitivity) {
+        final double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
+        }
+      }
+    }
+    return result;
   }
 
 }

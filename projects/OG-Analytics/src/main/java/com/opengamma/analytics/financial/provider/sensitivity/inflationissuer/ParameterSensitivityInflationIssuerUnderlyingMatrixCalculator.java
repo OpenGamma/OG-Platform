@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.sensitivity.inflation;
+package com.opengamma.analytics.financial.provider.sensitivity.inflationissuer;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
@@ -15,8 +15,8 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
@@ -26,13 +26,13 @@ import com.opengamma.util.tuple.DoublesPair;
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
  * The return format is ParameterSensitivity object.
  */
-public class ParameterSensitivityInflationUnderlyingMatrixCalculator extends ParameterSensitivityInflationMatrixProviderAbstractCalculator {
+public class ParameterSensitivityInflationIssuerUnderlyingMatrixCalculator extends ParameterSensitivityInflationIssuerMatrixProviderAbstractCalculator {
 
   /**
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityInflationUnderlyingMatrixCalculator(final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityInflationIssuerUnderlyingMatrixCalculator(final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
@@ -44,7 +44,7 @@ public class ParameterSensitivityInflationUnderlyingMatrixCalculator extends Par
    * @return The sensitivity (as a ParameterSensitivity). ??The order of the sensitivity is by curve as provided by the curvesSet??
    */
   @Override
-  public DoubleMatrix1D pointToParameterSensitivity(final InflationSensitivity sensitivity, final InflationProviderInterface inflation, final Set<String> curvesSet) {
+  public DoubleMatrix1D pointToParameterSensitivity(final InflationSensitivity sensitivity, final InflationIssuerProviderInterface inflation, final Set<String> curvesSet) {
     // TODO: The first part depends only of the inflationprovider and curvesSet, not the sensitivity. Should it be refactored and done only once?
     final Set<String> curveNamesSet = inflation.getAllCurveNames(); // curvesSet; //
     // Implementation note: Check sensicurve are in multicurve
@@ -114,14 +114,13 @@ public class ParameterSensitivityInflationUnderlyingMatrixCalculator extends Par
     // Implementation note: Compute the "dirty" sensitivity, i.e. the sensitivity to all the parameters in each curve. The underlying are taken into account in the "clean" step.
     final double[][] sensiDirty = new double[nbCurve][];
     final Map<String, List<DoublesPair>> sensitivityDiscountAndPriceIndex = sensitivity.getDiscountAndPriceIndexSensitivities();
-    final Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
+
     for (final String name : curvesSet) { // loop over all curves (by name)
       final int num = curveNum.get(name);
       sensiDirty[num] = new double[nbParameters[num]];
       final double[] sDsc1Name = inflation.parameterInflationSensitivity(name, sensitivityDiscountAndPriceIndex.get(name));
-      final double[] sFwd1Name = inflation.parameterForwardSensitivity(name, sensitivityFwd.get(name));
       for (int loopp = 0; loopp < nbParameters[num]; loopp++) {
-        sensiDirty[num][loopp] = sDsc1Name[loopp] + sFwd1Name[loopp];
+        sensiDirty[num][loopp] = sDsc1Name[loopp];
       }
     }
     // Implementation note: "clean" the sensitivity, i.e. add the underlying curve parts.
