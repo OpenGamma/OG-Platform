@@ -247,6 +247,9 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
   @Override
   public <R> Collection<ConfigItem<R>> get(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
     R latest = getLatestByName(clazz, configName);
+    if (latest == null) {
+      return Collections.emptyList();
+    }
     ConfigItem<R> configItem = ConfigItem.of(latest);
     configItem.setName(configName);
     // REVIEW kirk 2013-06-03 -- Do we need to do any more to the config item?
