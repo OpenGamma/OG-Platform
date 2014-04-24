@@ -29,12 +29,14 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.INTEGRATION)
 public class BloombergBpipePermissionCheckProviderTest {
 
+  private static final String APPLICATION_BPS = "opengamma:OpenGamma Application B-Pipe BPS";
+
   private BloombergBpipePermissionCheckProvider _provider;
 
   @BeforeMethod
   public void setUp() throws Exception {
     BloombergConnector connector = BloombergTestUtils.getBloombergBipeConnector();
-    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(connector);
+    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(connector, APPLICATION_BPS);
     
     provider.start();
     _provider = provider;
@@ -50,41 +52,41 @@ public class BloombergBpipePermissionCheckProviderTest {
 
   //-------------------------------------------------------------------------
   @Test(enabled = false)
-  public void isPermitted() {
+  public void isPermittedEidCheck() {
     PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.91",
-        "27749", "35009", "39491", "40066", "41095", "46707", "1234");
+        "EID:27749", "EID:35009", "EID:39491", "EID:40066", "EID:41095", "EID:46707", "EID:1234");
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
     assertNotNull(resultHolder.getPermissionCheckResult());
     Map<String, Boolean> checkPermissionResult = resultHolder.getPermissionCheckResult();
     assertEquals(7, checkPermissionResult.size());
-    assertTrue(checkPermissionResult.get("27749"));
-    assertTrue(checkPermissionResult.get("35009"));
-    assertTrue(checkPermissionResult.get("39491"));
-    assertTrue(checkPermissionResult.get("40066"));
-    assertTrue(checkPermissionResult.get("41095"));
-    assertTrue(checkPermissionResult.get("46707"));
-    assertFalse(checkPermissionResult.get("1234"));
+    assertTrue(checkPermissionResult.get("EID:27749"));
+    assertTrue(checkPermissionResult.get("EID:35009"));
+    assertTrue(checkPermissionResult.get("EID:39491"));
+    assertTrue(checkPermissionResult.get("EID:40066"));
+    assertTrue(checkPermissionResult.get("EID:41095"));
+    assertTrue(checkPermissionResult.get("EID:46707"));
+    assertFalse(checkPermissionResult.get("EID:1234"));
   }
 
   @Test(enabled = false)
-  public void notPermittedAfterEntitlementRevoked() {
+  public void notPermittedEidCheckAfterEntitlementRevoked() {
     PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.91",
-        "27749", "35009", "39491", "40066", "41095", "46707", "1234");
+        "EID:27749", "EID:35009", "EID:39491", "EID:40066", "EID:41095", "EID:46707", "EID:1234");
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
     assertNotNull(resultHolder.getPermissionCheckResult());
     Map<String, Boolean> checkPermissionResult = resultHolder.getPermissionCheckResult();
     assertEquals(7, checkPermissionResult.size());
-    assertTrue(checkPermissionResult.get("27749"));
-    assertTrue(checkPermissionResult.get("35009"));
-    assertTrue(checkPermissionResult.get("39491"));
-    assertTrue(checkPermissionResult.get("40066"));
-    assertTrue(checkPermissionResult.get("41095"));
-    assertTrue(checkPermissionResult.get("46707"));
-    assertFalse(checkPermissionResult.get("1234"));
+    assertTrue(checkPermissionResult.get("EID:27749"));
+    assertTrue(checkPermissionResult.get("EID:35009"));
+    assertTrue(checkPermissionResult.get("EID:39491"));
+    assertTrue(checkPermissionResult.get("EID:40066"));
+    assertTrue(checkPermissionResult.get("EID:41095"));
+    assertTrue(checkPermissionResult.get("EID:46707"));
+    assertFalse(checkPermissionResult.get("EID:1234"));
 
     //sleep for a bit to allow bloomberg logon on another PC
     try {
@@ -98,13 +100,27 @@ public class BloombergBpipePermissionCheckProviderTest {
     assertNotNull(resultHolder.getPermissionCheckResult());
     checkPermissionResult = resultHolder.getPermissionCheckResult();
     assertEquals(7, checkPermissionResult.size());
-    assertFalse(checkPermissionResult.get("27749"));
-    assertFalse(checkPermissionResult.get("35009"));
-    assertFalse(checkPermissionResult.get("39491"));
-    assertFalse(checkPermissionResult.get("40066"));
-    assertFalse(checkPermissionResult.get("41095"));
-    assertFalse(checkPermissionResult.get("46707"));
-    assertFalse(checkPermissionResult.get("1234"));
+    assertFalse(checkPermissionResult.get("EID:27749"));
+    assertFalse(checkPermissionResult.get("EID:35009"));
+    assertFalse(checkPermissionResult.get("EID:39491"));
+    assertFalse(checkPermissionResult.get("EID:40066"));
+    assertFalse(checkPermissionResult.get("EID:41095"));
+    assertFalse(checkPermissionResult.get("EID:46707"));
+    assertFalse(checkPermissionResult.get("EID:1234"));
+  }
+  
+  @Test(enabled = false)
+  public void isPermittedLiveDataCheck() {
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest
+        .createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.110", "LIVEDATA:IBM US Equity", "LIVEDATA:AAPL US Equity");
+
+    PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
+    assertNotNull(resultHolder);
+    assertNotNull(resultHolder.getPermissionCheckResult());
+    Map<String, Boolean> checkPermissionResult = resultHolder.getPermissionCheckResult();
+    assertEquals(2, checkPermissionResult.size());
+    assertTrue(checkPermissionResult.get("LIVEDATA:IBM US Equity"));
+    assertFalse(checkPermissionResult.get("LIVEDATA:AAPL US Equity"));
   }
 
 }

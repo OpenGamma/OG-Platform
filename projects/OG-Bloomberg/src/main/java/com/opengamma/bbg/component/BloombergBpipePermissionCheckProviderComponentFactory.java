@@ -81,7 +81,7 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePermissionCheckProvider.class);
 
-    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(getBloombergConnector(), getIdentityExpiryTime());
+    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(getBloombergConnector(), getIdentityExpiryTime(), getApplicationName());
     repo.registerComponent(info, provider);
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataPermissionCheckProviderResource(provider));
