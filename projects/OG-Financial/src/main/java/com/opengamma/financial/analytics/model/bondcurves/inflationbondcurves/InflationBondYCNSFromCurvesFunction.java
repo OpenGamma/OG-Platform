@@ -44,15 +44,15 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class InflationBondYCNSFunction extends InflationBondFromCurvesFunction<InflationProviderInterface, MultipleCurrencyInflationSensitivity> {
+public class InflationBondYCNSFromCurvesFunction extends InflationBondFromCurvesFunction<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(InflationBondYCNSFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationBondYCNSFromCurvesFunction.class);
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES} and
    * sets the calculator to null.
    */
-  public InflationBondYCNSFunction() {
+  public InflationBondYCNSFromCurvesFunction() {
     super(YIELD_CURVE_NODE_SENSITIVITIES, null);
   }
 
