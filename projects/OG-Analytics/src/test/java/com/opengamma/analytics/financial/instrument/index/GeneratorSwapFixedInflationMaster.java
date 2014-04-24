@@ -11,6 +11,7 @@ import java.util.Map;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.datasets.CalendarGBP;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -53,6 +54,7 @@ public final class GeneratorSwapFixedInflationMaster {
 
     final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
+    final Calendar londonBaseCalendar = new CalendarGBP("LONDON");
     final boolean endOfMonth = true;
     final int monthLag = 3;
     final int spotLag = 2;
@@ -62,7 +64,7 @@ public final class GeneratorSwapFixedInflationMaster {
     _generatorSwap.put("EURHICP",
         new GeneratorSwapFixedInflationZeroCoupon("EUR HICP", priceIndexMaster.getIndex("EURHICP"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("UKRPI",
-        new GeneratorSwapFixedInflationZeroCoupon("UK RPI", priceIndexMaster.getIndex("UKRPI"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
+        new GeneratorSwapFixedInflationZeroCoupon("UK RPI", priceIndexMaster.getIndex("UKRPI"), modFol, londonBaseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("USCPI",
         new GeneratorSwapFixedInflationZeroCoupon("US CPI", priceIndexMaster.getIndex("USCPI"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, linear));
   }

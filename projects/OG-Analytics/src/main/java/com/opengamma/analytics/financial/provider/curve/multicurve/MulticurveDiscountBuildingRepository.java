@@ -81,6 +81,34 @@ public class MulticurveDiscountBuildingRepository {
   }
 
   /**
+   * Build a unit of curves.
+   * @param instruments The instruments used for the unit calibration.
+   * @param initGuess The initial parameters guess.
+   * @param knownData The known data (fx rates, other curves, model parameters, ...)
+   * @param discountingMap The discounting curves names map.
+   * @param forwardIborMap The forward curves names map.
+   * @param forwardONMap The forward curves names map.
+   * @param generatorsMap The generators map.
+   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadMarketQuoteCalculator (recommended) or converted present value).
+   * @param sensitivityCalculator The parameter sensitivity calculator.
+   * @return The new curves and the calibrated parameters.
+   */
+
+  private MulticurveProviderDiscount makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final MulticurveProviderDiscount knownData,
+      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
+      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+    final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
+    final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveDiscountFinderFunction(calculator, data);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
+        new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator), data);
+    final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
+    final MulticurveProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
+    return newCurves;
+  }
+
+  /**
    * Construct the CurveBuildingBlock associated to all the curve built so far and updates the CurveBuildingBlockBundle.
    * @param instruments The instruments used for the block calibration.
    * @param multicurves The known curves including the current unit.
@@ -96,7 +124,6 @@ public class MulticurveDiscountBuildingRepository {
     // Sensitivity calculator
     final ParameterSensitivityMulticurveUnderlyingMatrixCalculator parameterSensitivityCalculator = new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator);
     int loopc;
-    //    CurveBuildingBlock blockOut = new CurveBuildingBlock(blockIn.getData());
     final LinkedHashMap<String, Pair<Integer, Integer>> mapBlockOut = new LinkedHashMap<>();
     // Curve names manipulation
     final Set<String> allCurveName1 = multicurves.getAllNames();
@@ -106,6 +133,13 @@ public class MulticurveDiscountBuildingRepository {
     beforeCurveName.removeAll(currentCurves);
     final LinkedHashSet<String> allCurveName = new LinkedHashSet<>(beforeCurveName);
     allCurveName.addAll(currentCurves); // Manipulation to ensure that the new curves are at the end.
+    //Implementation note : if blockBundle don't contain a block for a specific curve then we remove this curve from  beforeCurveName. 
+    //Because we can't compute the total bundle without the block for each curve. So we are computing a total bundle without this curve.
+    for (final String name : beforeCurveName) {
+      if (!(blockBundle.getData().containsKey(name))) {
+        beforeCurveName.remove(name);
+      }
+    }
     final int nbAllCurve = allCurveName.size();
     final int nbBeforeCurves = nbAllCurve - nbCurrentCurves;
     // Current curves size and nb parameters
@@ -300,31 +334,4 @@ public class MulticurveDiscountBuildingRepository {
     return ObjectsPair.of(knownSoFarData, totalBundle);
   }
 
-  /**
-          * Build a unit of curves.
-          * @param instruments The instruments used for the unit calibration.
-          * @param initGuess The initial parameters guess.
-          * @param knownData The known data (fx rates, other curves, model parameters, ...)
-          * @param discountingMap The discounting curves names map.
-          * @param forwardIborMap The forward curves names map.
-          * @param forwardONMap The forward curves names map.
-          * @param generatorsMap The generators map.
-          * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadMarketQuoteCalculator (recommended) or converted present value).
-          * @param sensitivityCalculator The parameter sensitivity calculator.
-          * @return The new curves and the calibrated parameters.
-          */
-
-  private MulticurveProviderDiscount makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final MulticurveProviderDiscount knownData,
-      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
-    final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
-    final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveDiscountFinderFunction(calculator, data);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
-        new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator), data);
-    final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
-    final MulticurveProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return newCurves;
-  }
 }

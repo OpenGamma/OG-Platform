@@ -68,7 +68,12 @@ public class CurveBuildingBlockBundle {
    * @return The building block/matrix pair.
    */
   public Pair<CurveBuildingBlock, DoubleMatrix2D> getBlock(final String name) {
-    return _bundle.get(name);
+    final Pair<CurveBuildingBlock, DoubleMatrix2D> block = _bundle.get(name);
+    if (!(block == null)) {
+      return block;
+    }
+    throw new IllegalArgumentException("There is no block for the curve: " + name);
+
   }
 
   /**

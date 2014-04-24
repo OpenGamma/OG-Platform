@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -22,7 +20,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
@@ -41,8 +38,6 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -55,7 +50,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -67,10 +61,10 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Build of curve in several blocks with relevant Jacobian matrices.
+ * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class MulticurveBuildingDiscountingDiscountSimpleTest {
+public class MulticurveBuildingDiscountingSimpleWithoutDiscountTest {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -81,7 +75,6 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final Currency USD = Currency.USD;
-  private static final FXMatrix FX_MATRIX = new FXMatrix(USD);
 
   private static final double NOTIONAL = 1.0;
 
@@ -111,8 +104,8 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITHOUT_TODAY };
 
-  private static final String CURVE_NAME_DSC_USD = "USD Dsc";
   private static final String CURVE_NAME_FWD3_USD = "USD Fwd 3M";
+  private static final String[] CURVE_NAMES = {CURVE_NAME_FWD3_USD };
 
   /** Market values for the dsc USD curve */
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
@@ -146,39 +139,35 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
     }
   }
 
-  /** Standard USD discounting curve instrument definitions */
-  private static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
   /** Standard USD Forward 3M curve instrument definitions */
   private static final InstrumentDefinition<?>[] DEFINITIONS_FWD3_USD;
 
   /** Units of curves */
-  private static final int[] NB_UNITS = new int[] {2 };
+  private static final int[] NB_UNITS = new int[] {1 };
   private static final int NB_BLOCKS = NB_UNITS.length;
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
   private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
-  private static final MulticurveProviderDiscount KNOWN_DATA = new MulticurveProviderDiscount(FX_MATRIX);
+
+  private static final MulticurveBuildingDiscountingDiscountSimpleTest BUILDER = new MulticurveBuildingDiscountingDiscountSimpleTest();
+  private static MulticurveProviderDiscount KNOWN_DATA = BUILDER.getCurvesWithOnlyDiscount();
+  private static CurveBuildingBlockBundle KNOWN_BUNDLE = BUILDER.getBundleWithOnlyDiscount();
   private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<>();
 
   static {
-    DEFINITIONS_DSC_USD = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
+    getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
     DEFINITIONS_FWD3_USD = getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR);
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       DEFINITIONS_UNITS[loopblock] = new InstrumentDefinition<?>[NB_UNITS[loopblock]][][];
       GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
-    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
-    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
+    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
-    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD };
-    DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
-    FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
+    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_FWD3_USD };
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_USD, new IborIndex[] {USDLIBOR3M });
   }
 
@@ -205,35 +194,9 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
   @BeforeSuite
   static void initClass() {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQC, PSMQCSC, false));
+      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, KNOWN_BUNDLE, PSMQC,
+          PSMQCSC, false));
     }
-  }
-
-  public List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurvesWithBlock() {
-    initClass();
-    return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK;
-  }
-
-  public MulticurveProviderDiscount getCurvesWithOnlyDiscount() {
-    initClass();
-    final MulticurveProviderDiscount curves = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst().copy();
-    final Map<IborIndex, YieldAndDiscountCurve> iborCurves = new LinkedHashMap<>();
-    final MulticurveProviderDiscount curve = new MulticurveProviderDiscount(curves.getDiscountingCurves(), iborCurves, curves.getForwardONCurves(), curves.getFxRates());
-    return curve;
-  }
-
-  public CurveBuildingBlockBundle getBundleWithOnlyDiscount() {
-    initClass();
-    final Map<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> bundle = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getSecond().getData();
-    final Map<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> bundleWithoutFwd3M = new LinkedHashMap<>();
-    final Set<String> keySet = bundle.keySet();
-    for (final String name : keySet) {
-      if (name.equals(CURVE_NAME_DSC_USD)) {
-        bundleWithoutFwd3M.put(name, bundle.get(name));
-      }
-    }
-    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> bundleToLinkedMap = new LinkedHashMap<>(bundleWithoutFwd3M);
-    return new CurveBuildingBlockBundle(bundleToLinkedMap);
   }
 
   @Test
@@ -259,102 +222,16 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
   }
 
   @Test(enabled = true)
-  public void blockBundleDscFiniteDifferenceTest() {
-    final CurveBuildingBlockBundle blockBundles = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getSecond();
-    final double[] DSC_USD_MARKET_QUOTES_BUMPED_PLUS = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
-    final double[] DSC_USD_MARKET_QUOTES_BUMPED_MINUS = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
-    final double bump = 10e-8;
-
-    for (int k = 0; k < DSC_USD_MARKET_QUOTES_BUMPED_MINUS.length; k++) {
-      DSC_USD_MARKET_QUOTES_BUMPED_PLUS[k] += bump;
-      DSC_USD_MARKET_QUOTES_BUMPED_MINUS[k] -= bump;
-      final List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> blockBundlesPlus = new ArrayList<>();
-      final List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> blockBundlesMinus = new ArrayList<>();
-      final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD_PLUS = getDefinitions(DSC_USD_MARKET_QUOTES_BUMPED_PLUS, DSC_USD_GENERATORS, DSC_USD_ATTR);
-      final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD_MINUS = getDefinitions(DSC_USD_MARKET_QUOTES_BUMPED_MINUS, DSC_USD_GENERATORS, DSC_USD_ATTR);
-      final InstrumentDefinition<?>[][][] DEFINITIONS_UNITS_PLUS = new InstrumentDefinition<?>[2][][];
-      final InstrumentDefinition<?>[][][] DEFINITIONS_UNITS_MINUS = new InstrumentDefinition<?>[2][][];
-      DEFINITIONS_UNITS_PLUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
-      DEFINITIONS_UNITS_MINUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
-      DEFINITIONS_UNITS_PLUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD_PLUS };
-      DEFINITIONS_UNITS_MINUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD_MINUS };
-      blockBundlesPlus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_PLUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false));
-      final Double[] parametersPlus = ((YieldCurve) blockBundlesPlus.get(0).getFirst().getCurve(CURVE_NAME_DSC_USD)).getCurve().getYData();
-
-      blockBundlesMinus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_MINUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false));
-      final Double[] parametersMinus = ((YieldCurve) blockBundlesMinus.get(0).getFirst().getCurve(CURVE_NAME_DSC_USD)).getCurve().getYData();
-      final Double[] parametersSensi = new Double[parametersMinus.length];
-      DSC_USD_MARKET_QUOTES_BUMPED_PLUS[k] -= bump;
-      DSC_USD_MARKET_QUOTES_BUMPED_MINUS[k] += bump;
-      for (int j = 0; j < blockBundles.getBlock(CURVE_NAME_DSC_USD).getSecond().getData().length; j++) {
-        parametersSensi[j] = (parametersPlus[j] - parametersMinus[j]) / (2 * bump);
-        assertEquals("Curve construction: block " + CURVE_NAME_DSC_USD + ", column " + j + " - line " + k, blockBundles.getBlock(CURVE_NAME_DSC_USD).getSecond().getData()[j][k],
-            parametersSensi[j], 10e-6);
-      }
-    }
-
-  }
-
-  @Test(enabled = true)
-  public void blockBundleDFwd3MFiniteDifferenceTest() {
-    final double[] DSC_USD_MARKET_QUOTES_BUMPED_PLUS = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
-    final double[] DSC_USD_MARKET_QUOTES_BUMPED_MINUS = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
-    final double[] FWD3_USD_MARKET_QUOTES_PLUS = new double[] {0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600 };
-    final double[] FWD3_USD_MARKET_QUOTES_MINUS = new double[] {0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600 };
-    final CurveBuildingBlockBundle blockBundles = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).clone().getSecond();
-    final double bump = 10e-8;
-
-    for (int k = 0; k < DSC_USD_MARKET_QUOTES_BUMPED_MINUS.length; k++) {
-      DSC_USD_MARKET_QUOTES_BUMPED_PLUS[k] += bump;
-      DSC_USD_MARKET_QUOTES_BUMPED_MINUS[k] -= bump;
-      final List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> blockBundlesPlus = new ArrayList<>();
-      final List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> blockBundlesMinus = new ArrayList<>();
-      final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD_PLUS = getDefinitions(DSC_USD_MARKET_QUOTES_BUMPED_PLUS, DSC_USD_GENERATORS, DSC_USD_ATTR);
-      final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD_MINUS = getDefinitions(DSC_USD_MARKET_QUOTES_BUMPED_MINUS, DSC_USD_GENERATORS, DSC_USD_ATTR);
-      final InstrumentDefinition<?>[][][] DEFINITIONS_UNITS_PLUS = new InstrumentDefinition<?>[2][][];
-      final InstrumentDefinition<?>[][][] DEFINITIONS_UNITS_MINUS = new InstrumentDefinition<?>[2][][];
-      DEFINITIONS_UNITS_PLUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
-      DEFINITIONS_UNITS_MINUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD };
-      DEFINITIONS_UNITS_PLUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD_PLUS };
-      DEFINITIONS_UNITS_MINUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD_MINUS };
-      blockBundlesPlus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_PLUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false));
-      final Double[] parametersPlus = ((YieldCurve) blockBundlesPlus.get(0).getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
-      blockBundlesMinus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_MINUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false));
-      final Double[] parametersMinus = ((YieldCurve) blockBundlesMinus.get(0).getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
-      final Double[] parametersSensi = new Double[parametersMinus.length];
-      DSC_USD_MARKET_QUOTES_BUMPED_PLUS[k] -= bump;
-      DSC_USD_MARKET_QUOTES_BUMPED_MINUS[k] += bump;
-      for (int j = 0; j < blockBundles.getBlock(CURVE_NAME_FWD3_USD).getSecond().getData().length; j++) {
-        parametersSensi[j] = (parametersPlus[j] - parametersMinus[j]) / (2 * bump);
-        assertEquals("Curve construction: block " + CURVE_NAME_FWD3_USD + ", column " + j + " - line " + k, blockBundles.getBlock(CURVE_NAME_FWD3_USD).getSecond().getData()[j][k],
-            parametersSensi[j], 10e-6);
-      }
-    }
-    for (int k = 0; k < FWD3_USD_MARKET_QUOTES_PLUS.length; k++) {
-      FWD3_USD_MARKET_QUOTES_PLUS[k] += bump;
-      FWD3_USD_MARKET_QUOTES_MINUS[k] -= bump;
-      final List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> blockBundlesPlus = new ArrayList<>();
-      final List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> blockBundlesMinus = new ArrayList<>();
-      final InstrumentDefinition<?>[] DEFINITIONS_FWD_USD_PLUS = getDefinitions(FWD3_USD_MARKET_QUOTES_PLUS, FWD3_USD_GENERATORS, FWD3_USD_ATTR);
-      final InstrumentDefinition<?>[] DEFINITIONS_FWD_USD_MINUS = getDefinitions(FWD3_USD_MARKET_QUOTES_MINUS, FWD3_USD_GENERATORS, FWD3_USD_ATTR);
-      final InstrumentDefinition<?>[][][] DEFINITIONS_UNITS_PLUS = new InstrumentDefinition<?>[2][][];
-      final InstrumentDefinition<?>[][][] DEFINITIONS_UNITS_MINUS = new InstrumentDefinition<?>[2][][];
-      DEFINITIONS_UNITS_PLUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
-      DEFINITIONS_UNITS_MINUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
-      DEFINITIONS_UNITS_PLUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD_USD_PLUS };
-      DEFINITIONS_UNITS_MINUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD_USD_MINUS };
-      blockBundlesPlus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_PLUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false));
-      final Double[] parametersPlus = ((YieldCurve) blockBundlesPlus.get(0).getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
-      blockBundlesMinus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_MINUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false));
-      final Double[] parametersMinus = ((YieldCurve) blockBundlesMinus.get(0).getFirst().getCurve(CURVE_NAME_FWD3_USD)).getCurve().getYData();
-      final Double[] parametersSensi = new Double[parametersMinus.length];
-      FWD3_USD_MARKET_QUOTES_PLUS[k] -= bump;
-      FWD3_USD_MARKET_QUOTES_MINUS[k] += bump;
-      for (int j = 0; j < blockBundles.getBlock(CURVE_NAME_FWD3_USD).getSecond().getData().length; j++) {
-        parametersSensi[j] = (parametersPlus[j] - parametersMinus[j]) / (2 * bump);
-        assertEquals("Curve construction: block " + CURVE_NAME_FWD3_USD + ", column " + j + " - line " + k, blockBundles.getBlock(CURVE_NAME_FWD3_USD).getSecond().getData()[j][k +
-            DSC_USD_MARKET_QUOTES_BUMPED_MINUS.length],
-            parametersSensi[j], 10e-6);
+  public void blockBundle() {
+    initClass();
+    final CurveBuildingBlockBundle blockBundleFromOneCurveTest = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getSecond();
+    final CurveBuildingBlockBundle blockBundleFromTwoCurveTest = BUILDER.getCurvesWithBlock().get(0).getSecond();
+    for (final String element : CURVE_NAMES) {
+      for (int j = 0; j < blockBundleFromOneCurveTest.getBlock(element).getSecond().getData().length; j++) {
+        for (int k = 0; k < blockBundleFromOneCurveTest.getBlock(element).getSecond().getData()[j].length; k++) {
+          assertEquals("Curve construction: block " + element + ", column " + j + " - line " + k, blockBundleFromOneCurveTest.getBlock(element).getSecond().getData()[j][k],
+              blockBundleFromTwoCurveTest.getBlock(element).getSecond().getData()[j][k], TOLERANCE_CAL);
+        }
       }
     }
   }
@@ -391,7 +268,8 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
 
   @SuppressWarnings("unchecked")
   private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+      final String[][] curveNames, final MulticurveProviderDiscount knownData, final CurveBuildingBlockBundle knownBundle,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
     final int nUnits = definitions.length;
     final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
@@ -411,7 +289,7 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
       }
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator,
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, knownBundle, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator,
         sensitivityCalculator);
   }
 
@@ -486,4 +364,5 @@ public class MulticurveBuildingDiscountingDiscountSimpleTest {
     }
     return 0.01;
   }
+
 }

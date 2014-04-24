@@ -144,7 +144,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final IndexON BRAZIL_CDI = IndexONMaster.getInstance().getIndex("CDI");
 
-  private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
+  private static final String NAME_EUR_PRICE_INDEX = "EUR HICP";
   private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR);
   private static final double[] INDEX_VALUE_EUR = new double[] {113.11, 113.10, 115.12, 123.23, 133.33, 155.55, 175.55, 195.55 }; // May11, June11, 1Y, 5Y, 10Y, 20Y
   private static final double[] TIME_VALUE_EUR = new double[] {-4.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0, 29.0 + 9.0 / 12.0, 39.0 + 9.0 / 12.0 };
@@ -448,6 +448,19 @@ public class MulticurveProviderDiscountDataSets {
    */
   public static MulticurveProviderDiscount createMulticurveCad() {
     return MULTICURVES_CAD;
+  }
+
+  /**
+   * Returns a multi-curves provider with one currency (EUR), two Ibor index (EURIBOR3M and EURIBOR6M).
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createMulticurveEUR() {
+    final MulticurveProviderDiscount provideurEUR = new MulticurveProviderDiscount();
+    provideurEUR.setCurve(Currency.EUR, EUR_DSC);
+    provideurEUR.setCurve(EONIA, EUR_DSC);
+    provideurEUR.setCurve(EURIBOR3M, EUR_FWD3);
+    provideurEUR.setCurve(EURIBOR6M, EUR_FWD6);
+    return provideurEUR;
   }
 
   /**

@@ -43,7 +43,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   /**
    * Map of all inflation curves used in the provider.
    */
-  private Map<String, PriceIndexCurve> _allCurves;
+  private Map<String, PriceIndexCurve> _allPriceIndexCurves;
 
   /**
    * Constructs an empty multi-curve provider and price index curve map.
@@ -124,11 +124,11 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Adds all inflation curves to a map with (curve name, curve) elements.
    */
   private void setInflationCurves() {
-    _allCurves = new LinkedHashMap<>();
+    _allPriceIndexCurves = new LinkedHashMap<>();
     final Set<IndexPrice> inflationIndexSet = _priceIndexCurves.keySet();
     for (final IndexPrice index : inflationIndexSet) {
       final String name = _priceIndexCurves.get(index).getName();
-      _allCurves.put(name, _priceIndexCurves.get(index));
+      _allPriceIndexCurves.put(name, _priceIndexCurves.get(index));
     }
   }
 
@@ -173,7 +173,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * @return The curve.
    */
   public PriceIndexCurve getCurve(final String name) {
-    return _allCurves.get(name);
+    return _allPriceIndexCurves.get(name);
   }
 
   @Override
@@ -182,7 +182,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   /**
-   * Gets the price index curve map.
+   * Gets the price index curve map. keys are PriceIndex
    * @return An unmodifiable copy of the price index curve map
    */
   public Map<IndexPrice, PriceIndexCurve> getPriceIndexCurves() {
@@ -301,7 +301,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   @Override
   public Set<String> getAllCurveNames() {
     final TreeSet<String> allNames = new TreeSet<>(_multicurveProvider.getAllCurveNames());
-    allNames.addAll(_allCurves.keySet());
+    allNames.addAll(_allPriceIndexCurves.keySet());
     return Collections.unmodifiableSortedSet(allNames);
   }
 
@@ -386,7 +386,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public Integer getNumberOfParameters(final String name) {
-    final PriceIndexCurve inflationCurve = _allCurves.get(name);
+    final PriceIndexCurve inflationCurve = _allPriceIndexCurves.get(name);
     final YieldAndDiscountCurve curve = _multicurveProvider.getCurve(name);
     if (inflationCurve != null) {
       return inflationCurve.getNumberOfParameters();
@@ -396,9 +396,33 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
   }
 
+  /**
+   * Return the number of intrinsic parameters for the definition of the curve. Which is the total number of parameters minus the parameters of the curves in curvesNames (If they are in curves).
+   *  @param name the name of the curve.
+   *  @param curvesNames The list of curves names.
+   *  @return The number of parameters.
+   */
+  public Integer getNumberOfIntrinsicParameters(final String name, final Set<String> curvesNames) {
+    final PriceIndexCurve inflationCurve = _allPriceIndexCurves.get(name);
+    final YieldAndDiscountCurve curve = _multicurveProvider.getCurve(name);
+    if (inflationCurve != null) {
+      return inflationCurve.getNumberOfIntrinsicParameters(curvesNames);
+    } else if (curve != null) {
+      return curve.getNumberOfIntrinsicParameters(curvesNames);
+    }
+    throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
+  }
+
   @Override
   public List<String> getUnderlyingCurvesNames(final String name) {
-    return _allCurves.get(name).getUnderlyingCurvesNames();
+    final PriceIndexCurve inflationCurve = _allPriceIndexCurves.get(name);
+    final YieldAndDiscountCurve curve = _multicurveProvider.getCurve(name);
+    if (inflationCurve != null) {
+      return inflationCurve.getUnderlyingCurvesNames();
+    } else if (curve != null) {
+      return curve.getUnderlyingCurvesNames();
+    }
+    throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
   }
 
   @Override
@@ -435,7 +459,10 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
-    final PriceIndexCurve curve = _allCurves.get(name);
+    final PriceIndexCurve curve = _allPriceIndexCurves.get(name);
+    if (curve == null) {
+      return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+    }
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
@@ -461,7 +488,13 @@ public class InflationProviderDiscount implements InflationProviderInterface {
 
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
-    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+    final PriceIndexCurve curve = _allPriceIndexCurves.get(name);
+    if (curve == null) {
+      return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+    }
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    return result;
   }
 
   @Override
