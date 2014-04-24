@@ -23,29 +23,30 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Represents a link to a snapshot object using a name
  * that can be resolved on demand.
  *
- * @param <T> type of the snapshot
+ * @param <S> type of the snapshot
  */
 @BeanDefinition
-public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements ImmutableBean {
+public class ResolvableSnapshotLink<S extends NamedSnapshot> extends SnapshotLink<S> implements ImmutableBean {
 
   /**
    * The identification data for the object being linked to.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LinkIdentifier<String, T> _identifier;
+  private final LinkIdentifier<String, S> _identifier;
 
   /**
    * The resolver used to resolve the link on demand, not null.
    */
   // note that the resolver does not form part of the serialized form
   // of the bean
-  private final LinkResolver<String, T> _resolver;
+  private final LinkResolver<String, S> _resolver;
 
   /**
    * Creates a resolved link.
@@ -55,28 +56,28 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
    * @param linkResolver the resolver used to resolve the link when requested
    */
   /* package */ ResolvableSnapshotLink(String identifier,
-                                       Class<T> type,
-                                       LinkResolver<String, T> linkResolver) {
+                                       Class<S> type,
+                                       LinkResolver<String, S> linkResolver) {
     this(LinkIdentifier.of(identifier, type), linkResolver);
   }
 
   @ImmutableConstructor
-  private ResolvableSnapshotLink(LinkIdentifier<String, T> identifier) {
-    this(identifier, new ServiceContextSnapshotLinkResolver<T>());
+  private ResolvableSnapshotLink(LinkIdentifier<String, S> identifier) {
+    this(identifier, new ServiceContextSnapshotLinkResolver<S>());
   }
 
-  private ResolvableSnapshotLink(LinkIdentifier<String, T> identifier, LinkResolver<String, T> linkResolver) {
+  private ResolvableSnapshotLink(LinkIdentifier<String, S> identifier, LinkResolver<String, S> linkResolver) {
     _identifier = identifier;
     _resolver = ArgumentChecker.notNull(linkResolver, "linkResolver");
   }
 
   @Override
-  public T resolve() {
+  public S resolve() {
     return _resolver.resolve(_identifier);
   }
 
   @Override
-  public Class<T> getTargetType() {
+  public Class<S> getTargetType() {
     return _identifier.getType();
   }
 
@@ -98,7 +99,7 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ResolvableSnapshotLink.Meta<R> metaResolvableSnapshotLink(Class<R> cls) {
+  public static <R extends NamedSnapshot> ResolvableSnapshotLink.Meta<R> metaResolvableSnapshotLink(Class<R> cls) {
     return ResolvableSnapshotLink.Meta.INSTANCE;
   }
 
@@ -108,16 +109,16 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
 
   /**
    * Returns a builder used to create an instance of the bean.
-   * @param <T>  the type
+   * @param <S>  the type
    * @return the builder, not null
    */
-  public static <T> ResolvableSnapshotLink.Builder<T> builder() {
-    return new ResolvableSnapshotLink.Builder<T>();
+  public static <S extends NamedSnapshot> ResolvableSnapshotLink.Builder<S> builder() {
+    return new ResolvableSnapshotLink.Builder<S>();
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public ResolvableSnapshotLink.Meta<T> metaBean() {
+  public ResolvableSnapshotLink.Meta<S> metaBean() {
     return ResolvableSnapshotLink.Meta.INSTANCE;
   }
 
@@ -136,7 +137,7 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
    * Gets the identification data for the object being linked to.
    * @return the value of the property, not null
    */
-  public LinkIdentifier<String, T> getIdentifier() {
+  public LinkIdentifier<String, S> getIdentifier() {
     return _identifier;
   }
 
@@ -145,12 +146,12 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder<T> toBuilder() {
-    return new Builder<T>(this);
+  public Builder<S> toBuilder() {
+    return new Builder<S>(this);
   }
 
   @Override
-  public ResolvableSnapshotLink<T> clone() {
+  public ResolvableSnapshotLink<S> clone() {
     return this;
   }
 
@@ -194,7 +195,7 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
   /**
    * The meta-bean for {@code ResolvableSnapshotLink}.
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static class Meta<S extends NamedSnapshot> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -205,7 +206,7 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
      * The meta-property for the {@code identifier} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<LinkIdentifier<String, T>> _identifier = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<LinkIdentifier<String, S>> _identifier = DirectMetaProperty.ofImmutable(
         this, "identifier", ResolvableSnapshotLink.class, (Class) LinkIdentifier.class);
     /**
      * The meta-properties.
@@ -230,13 +231,13 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
     }
 
     @Override
-    public ResolvableSnapshotLink.Builder<T> builder() {
-      return new ResolvableSnapshotLink.Builder<T>();
+    public ResolvableSnapshotLink.Builder<S> builder() {
+      return new ResolvableSnapshotLink.Builder<S>();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends ResolvableSnapshotLink<T>> beanType() {
+    public Class<? extends ResolvableSnapshotLink<S>> beanType() {
       return (Class) ResolvableSnapshotLink.class;
     }
 
@@ -250,7 +251,7 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
      * The meta-property for the {@code identifier} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LinkIdentifier<String, T>> identifier() {
+    public final MetaProperty<LinkIdentifier<String, S>> identifier() {
       return _identifier;
     }
 
@@ -279,9 +280,9 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
   /**
    * The bean-builder for {@code ResolvableSnapshotLink}.
    */
-  public static class Builder<T> extends DirectFieldsBeanBuilder<ResolvableSnapshotLink<T>> {
+  public static class Builder<S extends NamedSnapshot> extends DirectFieldsBeanBuilder<ResolvableSnapshotLink<S>> {
 
-    private LinkIdentifier<String, T> _identifier;
+    private LinkIdentifier<String, S> _identifier;
 
     /**
      * Restricted constructor.
@@ -293,7 +294,7 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ResolvableSnapshotLink<T> beanToCopy) {
+    protected Builder(ResolvableSnapshotLink<S> beanToCopy) {
       this._identifier = beanToCopy.getIdentifier();
     }
 
@@ -310,10 +311,10 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
 
     @SuppressWarnings("unchecked")
     @Override
-    public Builder<T> set(String propertyName, Object newValue) {
+    public Builder<S> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1618432855:  // identifier
-          this._identifier = (LinkIdentifier<String, T>) newValue;
+          this._identifier = (LinkIdentifier<String, S>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -322,32 +323,32 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
     }
 
     @Override
-    public Builder<T> set(MetaProperty<?> property, Object value) {
+    public Builder<S> set(MetaProperty<?> property, Object value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder<T> setString(String propertyName, String value) {
+    public Builder<S> setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
     @Override
-    public Builder<T> setString(MetaProperty<?> property, String value) {
+    public Builder<S> setString(MetaProperty<?> property, String value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
+    public Builder<S> setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
     }
 
     @Override
-    public ResolvableSnapshotLink<T> build() {
-      return new ResolvableSnapshotLink<T>(
+    public ResolvableSnapshotLink<S> build() {
+      return new ResolvableSnapshotLink<S>(
           _identifier);
     }
 
@@ -357,7 +358,7 @@ public class ResolvableSnapshotLink<T> extends SnapshotLink<T> implements Immuta
      * @param identifier  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> identifier(LinkIdentifier<String, T> identifier) {
+    public Builder<S> identifier(LinkIdentifier<String, S> identifier) {
       JodaBeanUtils.notNull(identifier, "identifier");
       this._identifier = identifier;
       return this;

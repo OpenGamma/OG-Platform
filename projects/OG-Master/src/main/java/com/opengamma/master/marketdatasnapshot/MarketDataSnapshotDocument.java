@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
@@ -26,7 +27,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A document used to pass into and out of the snapshot master.
+ * A document used to pass into and out of the snapshot master. Despite the
+ * name, this document is capable of storing any type of named snapshot.
  * <p>
  * The snapshot master provides full management of the snapshot database.
  * Each element is stored in a document.
@@ -43,14 +45,70 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   /**
    * The snapshot object held by the document.
    */
-  @PropertyDefinition
-  private ManageableMarketDataSnapshot _snapshot;
+  @PropertyDefinition(validate = "notNull", set = "manual")
+  private NamedSnapshot _namedSnapshot;
+
+  /**
+   * The type of the snapshot. Only required so that it can be stored
+   * in the master and can therefore be used for searching, it is not
+   * exposed externally.
+   */
+  @PropertyDefinition(validate = "notNull", set = "private", get = "private")
+  private Class<? extends NamedSnapshot> _snapshotType;
+
   /**
    * The snapshot document unique identifier.
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueId _uniqueId;
+
+  /**
+   * Gets the snapshot object held by the document.
+   *
+   * @return the value of the property, not null
+   * @deprecated use {@link #getNamedSnapshot()} instead
+   */
+  @Deprecated
+  public ManageableMarketDataSnapshot getSnapshot() {
+    return getNamedSnapshot(ManageableMarketDataSnapshot.class);
+  }
+
+  /**
+   * Sets the snapshot object held by the document.
+   *
+   * @param snapshot the new value of the property, not null
+   * @deprecated use {@link #setNamedSnapshot(NamedSnapshot)} instead
+   */
+  @Deprecated
+  public void setSnapshot(ManageableMarketDataSnapshot snapshot) {
+    setNamedSnapshot(snapshot);
+  }
+
+  /**
+   * Sets the snapshot object held by the document.
+   * @param namedSnapshot  the new value of the property, not null
+   */
+  public void setNamedSnapshot(NamedSnapshot namedSnapshot) {
+    _namedSnapshot = ArgumentChecker.notNull(namedSnapshot, "namedSnapshot");
+    _snapshotType = namedSnapshot.getClass();
+  }
+
+  /**
+   * Gets the snapshot object held by the document.
+   *
+   * @param  <T> the required type for the snapshot
+   * @param  type the required type for the snapshot
+   * @return the value of the property, not null
+   */
+  public <T extends NamedSnapshot> T getNamedSnapshot(Class<T> type) {
+
+    if (type.isAssignableFrom(_namedSnapshot.getClass())) {
+      return type.cast(_namedSnapshot);
+    } else {
+      throw new IllegalStateException("Snapshot is of type: " + _namedSnapshot.getClass() + " but expected type: " + type);
+    }
+  }
 
   /**
    * Creates an instance.
@@ -64,10 +122,9 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
    * @param uniqueId  the unique identifier, may be null
    * @param snapshot  the snapshot, not null
    */
-  public MarketDataSnapshotDocument(final UniqueId uniqueId, final ManageableMarketDataSnapshot snapshot) {
-    ArgumentChecker.notNull(snapshot, "snapshot");
+  public MarketDataSnapshotDocument(final UniqueId uniqueId, final NamedSnapshot snapshot) {
     setUniqueId(uniqueId);
-    setSnapshot(snapshot);
+    setNamedSnapshot(snapshot);
   }
 
   /**
@@ -75,10 +132,9 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
    *
    * @param snapshot  the snapshot, not null
    */
-  public MarketDataSnapshotDocument(final ManageableMarketDataSnapshot snapshot) {
-    ArgumentChecker.notNull(snapshot, "snapshot");
+  public MarketDataSnapshotDocument(final NamedSnapshot snapshot) {
     setUniqueId(snapshot.getUniqueId());
-    setSnapshot(snapshot);
+    setNamedSnapshot(snapshot);
   }
 
   //-------------------------------------------------------------------------
@@ -87,15 +143,15 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
    * <p>
    * This is derived from the snapshot itself.
    *
-   * @return the name, null if no name
+   * @return the name, null if no name has been set yet
    */
   public String getName() {
-    return (getSnapshot() != null ? getSnapshot().getName() : null);
+    return (getNamedSnapshot() != null ? getNamedSnapshot().getName() : null);
   }
 
   @Override
-  public ManageableMarketDataSnapshot getValue() {
-    return getSnapshot();
+  public NamedSnapshot getValue() {
+    return getNamedSnapshot();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -120,26 +176,47 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   //-----------------------------------------------------------------------
   /**
    * Gets the snapshot object held by the document.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
-  public ManageableMarketDataSnapshot getSnapshot() {
-    return _snapshot;
+  public NamedSnapshot getNamedSnapshot() {
+    return _namedSnapshot;
   }
 
   /**
-   * Sets the snapshot object held by the document.
-   * @param snapshot  the new value of the property
-   */
-  public void setSnapshot(ManageableMarketDataSnapshot snapshot) {
-    this._snapshot = snapshot;
-  }
-
-  /**
-   * Gets the the {@code snapshot} property.
+   * Gets the the {@code namedSnapshot} property.
    * @return the property, not null
    */
-  public final Property<ManageableMarketDataSnapshot> snapshot() {
-    return metaBean().snapshot().createProperty(this);
+  public final Property<NamedSnapshot> namedSnapshot() {
+    return metaBean().namedSnapshot().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the type of the snapshot. Only used so that it is stored in the master and can be
+   * used for searching, not exposed externally.
+   * @return the value of the property, not null
+   */
+  private Class<? extends NamedSnapshot> getSnapshotType() {
+    return _snapshotType;
+  }
+
+  /**
+   * Sets the type of the snapshot. Only used so that it is stored in the master and can be
+   * used for searching, not exposed externally.
+   * @param snapshotType  the new value of the property, not null
+   */
+  private void setSnapshotType(Class<? extends NamedSnapshot> snapshotType) {
+    JodaBeanUtils.notNull(snapshotType, "snapshotType");
+    this._snapshotType = snapshotType;
+  }
+
+  /**
+   * Gets the the {@code snapshotType} property.
+   * used for searching, not exposed externally.
+   * @return the property, not null
+   */
+  public final Property<Class<? extends NamedSnapshot>> snapshotType() {
+    return metaBean().snapshotType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -183,7 +260,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketDataSnapshotDocument other = (MarketDataSnapshotDocument) obj;
-      return JodaBeanUtils.equal(getSnapshot(), other.getSnapshot()) &&
+      return JodaBeanUtils.equal(getNamedSnapshot(), other.getNamedSnapshot()) &&
+          JodaBeanUtils.equal(getSnapshotType(), other.getSnapshotType()) &&
           JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
@@ -193,14 +271,15 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshot());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNamedSnapshot());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("MarketDataSnapshotDocument{");
     int len = buf.length();
     toString(buf);
@@ -214,7 +293,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("snapshot").append('=').append(JodaBeanUtils.toString(getSnapshot())).append(',').append(' ');
+    buf.append("namedSnapshot").append('=').append(JodaBeanUtils.toString(getNamedSnapshot())).append(',').append(' ');
+    buf.append("snapshotType").append('=').append(JodaBeanUtils.toString(getSnapshotType())).append(',').append(' ');
     buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
   }
 
@@ -229,10 +309,16 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code snapshot} property.
+     * The meta-property for the {@code namedSnapshot} property.
      */
-    private final MetaProperty<ManageableMarketDataSnapshot> _snapshot = DirectMetaProperty.ofReadWrite(
-        this, "snapshot", MarketDataSnapshotDocument.class, ManageableMarketDataSnapshot.class);
+    private final MetaProperty<NamedSnapshot> _namedSnapshot = DirectMetaProperty.ofReadWrite(
+        this, "namedSnapshot", MarketDataSnapshotDocument.class, NamedSnapshot.class);
+    /**
+     * The meta-property for the {@code snapshotType} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Class<? extends NamedSnapshot>> _snapshotType = DirectMetaProperty.ofReadWrite(
+        this, "snapshotType", MarketDataSnapshotDocument.class, (Class) Class.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -243,7 +329,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "snapshot",
+        "namedSnapshot",
+        "snapshotType",
         "uniqueId");
 
     /**
@@ -255,8 +342,10 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 284874180:  // snapshot
-          return _snapshot;
+        case 747030557:  // namedSnapshot
+          return _namedSnapshot;
+        case -931506402:  // snapshotType
+          return _snapshotType;
         case -294460212:  // uniqueId
           return _uniqueId;
       }
@@ -280,11 +369,19 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code snapshot} property.
+     * The meta-property for the {@code namedSnapshot} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ManageableMarketDataSnapshot> snapshot() {
-      return _snapshot;
+    public final MetaProperty<NamedSnapshot> namedSnapshot() {
+      return _namedSnapshot;
+    }
+
+    /**
+     * The meta-property for the {@code snapshotType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Class<? extends NamedSnapshot>> snapshotType() {
+      return _snapshotType;
     }
 
     /**
@@ -299,25 +396,38 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 284874180:  // snapshot
-          return ((MarketDataSnapshotDocument) bean).getSnapshot();
+        case 747030557:  // namedSnapshot
+          return ((MarketDataSnapshotDocument) bean).getNamedSnapshot();
+        case -931506402:  // snapshotType
+          return ((MarketDataSnapshotDocument) bean).getSnapshotType();
         case -294460212:  // uniqueId
           return ((MarketDataSnapshotDocument) bean).getUniqueId();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 284874180:  // snapshot
-          ((MarketDataSnapshotDocument) bean).setSnapshot((ManageableMarketDataSnapshot) newValue);
+        case 747030557:  // namedSnapshot
+          ((MarketDataSnapshotDocument) bean).setNamedSnapshot((NamedSnapshot) newValue);
+          return;
+        case -931506402:  // snapshotType
+          ((MarketDataSnapshotDocument) bean).setSnapshotType((Class<? extends NamedSnapshot>) newValue);
           return;
         case -294460212:  // uniqueId
           ((MarketDataSnapshotDocument) bean).setUniqueId((UniqueId) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((MarketDataSnapshotDocument) bean)._namedSnapshot, "namedSnapshot");
+      JodaBeanUtils.notNull(((MarketDataSnapshotDocument) bean)._snapshotType, "snapshotType");
+      super.validate(bean);
     }
 
   }

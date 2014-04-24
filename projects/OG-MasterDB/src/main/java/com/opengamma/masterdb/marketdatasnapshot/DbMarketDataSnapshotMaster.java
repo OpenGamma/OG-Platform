@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
@@ -134,6 +135,7 @@ public class DbMarketDataSnapshotMaster
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
     args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
+    args.addValueNullIgnored("snapshot_type", request.getType() == null ? null : request.getType().getCanonicalName());
     args.addValue("details", request.isIncludeData());
     if (snapshotIds != null) {
       StringBuilder buf = new StringBuilder(snapshotIds.size() * 10);
@@ -241,31 +243,33 @@ public class DbMarketDataSnapshotMaster
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       UniqueId uniqueId = createUniqueId(docOid, docId);
-      
-      ManageableMarketDataSnapshot marketDataSnapshot;
-      //PLAT-1378
-      if (_includeData) {
-        LobHandler lob = getDialect().getLobHandler();
-        byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
-        marketDataSnapshot = FUDGE_CONTEXT.readObject(ManageableMarketDataSnapshot.class,
-            new ByteArrayInputStream(bytes));
-        if (!_includeData) {
-          marketDataSnapshot.setGlobalValues(null);
-          marketDataSnapshot.setYieldCurves(null);
-        }
-      } else {
-        marketDataSnapshot = new ManageableMarketDataSnapshot();
-        marketDataSnapshot.setName(rs.getString("NAME"));
-        marketDataSnapshot.setUniqueId(uniqueId);
-      }
+
+      NamedSnapshot marketDataSnapshot = _includeData ?
+          createPopulatedSnapshot(rs) :
+          createEmptyMarketDataSnapshot(rs, uniqueId);
+
       MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
       doc.setUniqueId(uniqueId);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setSnapshot(marketDataSnapshot);
+      doc.setNamedSnapshot(marketDataSnapshot);
       _documents.add(doc);
+    }
+
+    private NamedSnapshot createPopulatedSnapshot(ResultSet rs) throws SQLException {
+      LobHandler lob = getDialect().getLobHandler();
+      byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
+      return FUDGE_CONTEXT.readObject(NamedSnapshot.class, new ByteArrayInputStream(bytes));
+    }
+
+    private ManageableMarketDataSnapshot createEmptyMarketDataSnapshot(ResultSet rs,
+                                                                       UniqueId uniqueId) throws SQLException {
+      ManageableMarketDataSnapshot snapshot = new ManageableMarketDataSnapshot();
+      snapshot.setName(rs.getString("NAME"));
+      snapshot.setUniqueId(uniqueId);
+      return snapshot;
     }
   }
 
