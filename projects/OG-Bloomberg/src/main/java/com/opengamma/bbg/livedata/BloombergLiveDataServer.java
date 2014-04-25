@@ -316,8 +316,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
         if (event.eventType() == Event.EventType.SUBSCRIPTION_DATA) {
           FudgeMsg eventAsFudgeMsg = BloombergDataUtils.parseElement(msg.asElement());
           liveDataReceived(bbgUniqueId, eventAsFudgeMsg);
-          // REVIEW 2012-09-19 Andrew -- Why return? Might the event contain multiple messages?
-          return;
+          continue;
         }
         s_logger.info("Got event {} {} {}", event.eventType(), bbgUniqueId, msg.asElement());
 
