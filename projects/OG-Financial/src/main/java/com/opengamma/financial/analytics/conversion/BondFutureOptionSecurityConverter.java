@@ -11,7 +11,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -24,18 +28,48 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Bond future option converter to create OG-Analytics representations from OG-Financial types.
  */
 public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  
+  /**
+   * SecuritySource used to look up underlying bond future.
+   */
   private final SecuritySource _securitySource;
+  /**
+   * Converter used for premium based bond future option.
+   */
   private final BondFutureSecurityConverter _underlyingConverter;
+  /**
+   * Converter used for margin based bond future option.
+   */
+  private final BondAndBondFutureTradeWithEntityConverter _bondAndBondFutureConverter;
 
-  public BondFutureOptionSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
-      final SecuritySource securitySource) {
-    ArgumentChecker.notNull(securitySource, "security source");
-    final BondSecurityConverter bondSecurityConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+  /**
+   * Constructs a bond future option converter.
+   * @param holidaySource the holiday source, not null.
+   * @param conventionBundleSource the convention bundle source, not null.
+   * @param regionSource the region source, not null.
+   * @param securitySource the security source, not null.
+   * @param conventionSource the convention source, not null.
+   * @param legalEntitySource the legal entity source, not null.
+   */
+  public BondFutureOptionSecurityConverter(final HolidaySource holidaySource,
+                                           final ConventionBundleSource conventionBundleSource,
+                                           final RegionSource regionSource,
+                                           final SecuritySource securitySource,
+                                           final ConventionSource conventionSource,
+                                           final LegalEntitySource legalEntitySource) {
+    ArgumentChecker.notNull(holidaySource, "holidaySource");
+    ArgumentChecker.notNull(conventionBundleSource, "conventionBundleSource");
+    ArgumentChecker.notNull(regionSource, "regionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(conventionSource, "conventionSource");
+    ArgumentChecker.notNull(legalEntitySource, "legalEntitySource");
+    final BondSecurityConverter bondSecurityConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     _underlyingConverter = new BondFutureSecurityConverter(securitySource, bondSecurityConverter);
     _securitySource = securitySource;
+    _bondAndBondFutureConverter = new BondAndBondFutureTradeWithEntityConverter(holidaySource, conventionBundleSource, conventionSource, regionSource, securitySource, legalEntitySource);
   }
 
   @Override
@@ -46,10 +80,14 @@ public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorA
     if (underlyingSecurity == null) {
       throw new OpenGammaRuntimeException("Underlying security " + underlyingIdentifier + " was not found in database");
     }
-    final BondFutureDefinition underlyingFuture = _underlyingConverter.visitBondFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike();
     final boolean isCall = security.getOptionType() == OptionType.CALL ? true : false;
+    if (security.isMargined()) {
+      final BondFuturesSecurityDefinition underlyingFuture = _bondAndBondFutureConverter.getBondFuture(underlyingSecurity);
+      return new BondFuturesOptionMarginSecurityDefinition(underlyingFuture, expirationDate, expirationDate, strike, isCall);
+    }
+    final BondFutureDefinition underlyingFuture = _underlyingConverter.visitBondFutureSecurity(underlyingSecurity);
     return new BondFutureOptionPremiumSecurityDefinition(underlyingFuture, expirationDate, strike, isCall);
   }
 }

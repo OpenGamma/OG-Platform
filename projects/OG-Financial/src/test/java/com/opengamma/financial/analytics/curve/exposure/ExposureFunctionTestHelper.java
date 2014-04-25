@@ -139,7 +139,7 @@ public class ExposureFunctionTestHelper {
   public static BondFutureOptionSecurity getBondFutureOptionSecurity() {
     final UniqueId underlyingId = getBondFutureSecurity().getUniqueId();
     final BondFutureOptionSecurity security = new BondFutureOptionSecurity(SETTLEMENT, TRADING, new Expiry(DateUtils.getUTCDate(2013, 1, 1)), new AmericanExerciseType(),
-        ExternalId.of(underlyingId.getScheme(), underlyingId.getValue()), 1000, EUR, 99, OptionType.CALL);
+        ExternalId.of(underlyingId.getScheme(), underlyingId.getValue()), 1000, false, EUR, 99, OptionType.CALL);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "3873"));
     return security;
   }

@@ -44,6 +44,7 @@ public final class BondFutureOptionSecurityBeanOperation extends AbstractSecurit
     bean.setTradingExchange(secMasterSession.getOrCreateExchangeBean(security.getTradingExchange(), ""));
     bean.setSettlementExchange(secMasterSession.getOrCreateExchangeBean(security.getSettlementExchange(), ""));
     bean.setPointValue(security.getPointValue());
+    bean.setMargined(security.isMargined());
     return bean;
   }
 
@@ -58,8 +59,8 @@ public final class BondFutureOptionSecurityBeanOperation extends AbstractSecurit
       exerciseType,
       externalIdBeanToExternalId(bean.getUnderlying()),
       bean.getPointValue(),
-      currencyBeanToCurrency(bean.getCurrency()),
-      bean.getStrike(), bean.getOptionType());
+      bean.isMargined(),
+      currencyBeanToCurrency(bean.getCurrency()), bean.getStrike(), bean.getOptionType());
     return sec;
   }
 
