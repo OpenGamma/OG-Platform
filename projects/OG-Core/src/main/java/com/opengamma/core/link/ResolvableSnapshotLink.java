@@ -33,7 +33,9 @@ import com.opengamma.util.ArgumentChecker;
  * @param <S> type of the snapshot
  */
 @BeanDefinition
-public class ResolvableSnapshotLink<S extends NamedSnapshot> extends SnapshotLink<S> implements ImmutableBean {
+public class ResolvableSnapshotLink<S extends NamedSnapshot>
+    extends SnapshotLink<S>
+    implements ImmutableBean {
 
   /**
    * The identification data for the object being linked to.
@@ -55,9 +57,7 @@ public class ResolvableSnapshotLink<S extends NamedSnapshot> extends SnapshotLin
    * @param type the type of the linked object
    * @param linkResolver the resolver used to resolve the link when requested
    */
-  /* package */ ResolvableSnapshotLink(String identifier,
-                                       Class<S> type,
-                                       LinkResolver<String, S> linkResolver) {
+  ResolvableSnapshotLink(String identifier, Class<S> type, LinkResolver<String, S> linkResolver) {
     this(LinkIdentifier.of(identifier, type), linkResolver);
   }
 

@@ -128,7 +128,6 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchSingle(URI baseUri, Class<?> type, String name, VersionCorrection versionCorrection) {
-
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(name, "name");

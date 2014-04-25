@@ -5,7 +5,7 @@ BEGIN TRAN;
 
   -- Add new column and default all existing values to the structured snapshot
   ALTER TABLE snp_snapshot
-    ADD COLUMN snapshot_type varchar(255) NULL;
+    ADD snapshot_type varchar(255) NULL;
 
   UPDATE snp_snapshot
   SET snapshot_type = 'com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot';

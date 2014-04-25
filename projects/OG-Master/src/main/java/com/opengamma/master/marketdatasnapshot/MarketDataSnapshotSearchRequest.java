@@ -199,7 +199,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data snapshot type, wildcards not allowed, null to not match on type.
+   * Gets the market data snapshot type, null to not match on type.
    * @return the value of the property
    */
   public Class<? extends NamedSnapshot> getType() {
@@ -207,7 +207,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
   }
 
   /**
-   * Sets the market data snapshot type, wildcards not allowed, null to not match on type.
+   * Sets the market data snapshot type, null to not match on type.
    * @param type  the new value of the property
    */
   public void setType(Class<? extends NamedSnapshot> type) {

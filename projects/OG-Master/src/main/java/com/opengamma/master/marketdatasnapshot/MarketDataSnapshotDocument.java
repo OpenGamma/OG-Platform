@@ -77,7 +77,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   /**
    * Sets the snapshot object held by the document.
    *
-   * @param snapshot the new value of the property, not null
+   * @param snapshot  the new value of the property, not null
    * @deprecated use {@link #setNamedSnapshot(NamedSnapshot)} instead
    */
   @Deprecated
@@ -97,8 +97,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   /**
    * Gets the snapshot object held by the document.
    *
-   * @param  <T> the required type for the snapshot
-   * @param  type the required type for the snapshot
+   * @param <T>  the required type for the snapshot
+   * @param type  the required type for the snapshot
    * @return the value of the property, not null
    */
   public <T extends NamedSnapshot> T getNamedSnapshot(Class<T> type) {
@@ -192,8 +192,9 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of the snapshot. Only used so that it is stored in the master and can be
-   * used for searching, not exposed externally.
+   * Gets the type of the snapshot. Only required so that it can be stored
+   * in the master and can therefore be used for searching, it is not
+   * exposed externally.
    * @return the value of the property, not null
    */
   private Class<? extends NamedSnapshot> getSnapshotType() {
@@ -201,8 +202,9 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   }
 
   /**
-   * Sets the type of the snapshot. Only used so that it is stored in the master and can be
-   * used for searching, not exposed externally.
+   * Sets the type of the snapshot. Only required so that it can be stored
+   * in the master and can therefore be used for searching, it is not
+   * exposed externally.
    * @param snapshotType  the new value of the property, not null
    */
   private void setSnapshotType(Class<? extends NamedSnapshot> snapshotType) {
@@ -212,7 +214,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
 
   /**
    * Gets the the {@code snapshotType} property.
-   * used for searching, not exposed externally.
+   * in the master and can therefore be used for searching, it is not
+   * exposed externally.
    * @return the property, not null
    */
   public final Property<Class<? extends NamedSnapshot>> snapshotType() {

@@ -33,7 +33,7 @@ public interface MarketDataSnapshotSource extends Source<StructuredMarketDataSna
    * </code>
    *
    * @param listener  the listener to add, not null
-   * @param uniqueId the identifier to register interest in
+   * @param uniqueId  the identifier to register interest in
    * */
   void addChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener);
 
@@ -43,7 +43,7 @@ public interface MarketDataSnapshotSource extends Source<StructuredMarketDataSna
    * The listener will cease receiving events for this {@link UniqueId} on the source
    *
    * @param listener  the listener to remove, not null
-   * @param uniqueId the identifier to unregister interest in
+   * @param uniqueId  the identifier to unregister interest in
    * */
   void removeChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener);
 
@@ -54,10 +54,10 @@ public interface MarketDataSnapshotSource extends Source<StructuredMarketDataSna
    * but it normally will. In the case where it does not an implementation will
    * need some mechanism to decide what the best-fit match is.
    *
-   * @param  <S> the type of snapshot element
-   * @param  type the snapshot type, not null
-   * @param  snapshotName the snapshot name, not null
-   * @param  versionCorrection the version-correction, not null
+   * @param <S>  the type of snapshot element
+   * @param type  the snapshot type, not null
+   * @param snapshotName  the snapshot name, not null
+   * @param versionCorrection  the version-correction, not null
    * @return the snapshot matching the name and type, not null
    * @throws IllegalArgumentException if the name or version-correction is invalid
    * @throws DataNotFoundException if the snapshot cannot be found

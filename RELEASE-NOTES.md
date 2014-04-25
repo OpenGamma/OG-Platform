@@ -3,13 +3,11 @@ OpenGamma Platform 2.2 milestones
 
 These release notes cover changes from v2.1 to v2.2.
 
+Upgrading from 2.1.0
+====================
 
-Any tool implementations relying on PortfolioWriter, PortfolioReader will
-need refactoring due to changes made for PLAT-6304:
-
-PortfolioReader was renamed to PositionReader
-PortfolioWriter was renamed to PositionWriter
-PortfolioTool was simplified as per the JIRA above
+To 2.2.0-M20
+------------
 
 * ConfigLink API has changed - of method renamed to resolved/resolvable in order to
 differentiate between the different types of links
@@ -23,12 +21,14 @@ differentiate between the different types of links
 types of snapshots. These changes should be backwards compatible though some methods
 have been deprecated.
 
-Upgrading from 2.1.0
-====================
-
-
 To 2.2.0-M19
 ------------
+
+* Any tool implementations relying on PortfolioWriter, PortfolioReader will
+need refactoring due to changes made for PLAT-6304:
+    * PortfolioReader was renamed to PositionReader
+    * PortfolioWriter was renamed to PositionWriter
+    * PortfolioTool was simplified as per the JIRA above
 
 * Security manager and user database
     * Various minor fixes to M18 release

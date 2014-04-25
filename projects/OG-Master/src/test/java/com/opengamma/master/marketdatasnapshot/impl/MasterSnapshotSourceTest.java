@@ -182,6 +182,11 @@ public class MasterSnapshotSourceTest {
       public UniqueId getUniqueId() {
         return null;
       }
+
+      @Override
+      public NamedSnapshot withUniqueId(UniqueId uniqueId) {
+        return this;
+      }
     };
   }
 
@@ -261,6 +266,11 @@ public class MasterSnapshotSourceTest {
     @Override
     public UniqueId getUniqueId() {
       return null;
+    }
+
+    @Override
+    public NamedSnapshot withUniqueId(UniqueId uniqueId) {
+      return this;
     }
   }
 

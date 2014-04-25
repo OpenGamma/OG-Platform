@@ -24,6 +24,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.SurfaceKey;
 import com.opengamma.core.marketdatasnapshot.SurfaceSnapshot;
@@ -193,6 +194,13 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
         copyFrom.getVolatilityCubes(), copyFrom.getSurfaces());
     _basisViewName = copyFrom.getBasisViewName();
     _valuationTime = copyFrom.getValuationTime();
+  }
+
+  @Override
+  public NamedSnapshot withUniqueId(UniqueId uniqueId) {
+    // As this is a mutable object, we just update and return it
+    setUniqueId(uniqueId);
+    return this;
   }
 
   /**

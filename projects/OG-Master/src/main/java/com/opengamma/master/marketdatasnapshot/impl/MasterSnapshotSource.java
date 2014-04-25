@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Pairs;
 
 /**
  * A {@code MarketDataSnapshotSource} implemented using an underlying {@code MarketDataSnapshotMaster}.
- * <p/>
+ * <p>
  * The {@link MarketDataSnapshotSource} interface provides snapshots to the engine via a narrow API.
  * This class provides the source on top of a standard {@link MarketDataSnapshotMaster}.
  */
@@ -92,7 +92,9 @@ public class MasterSnapshotSource
     // (perhaps as the type searched for is a superclass of the type held), we search
     // again by name only and check the type after.
     // TODO - review usage patterns, do we normally hit or miss using type. If names are generally unique searching by type is potentially redundant
-    return new TypedSnapshotSearcher<>(getMaster(), type, snapshotName, versionCorrection).search();
+    TypedSnapshotSearcher<S> searcher =
+        new TypedSnapshotSearcher<>(getMaster(), type, snapshotName, versionCorrection);
+    return searcher.search();
   }
 
   /**
@@ -158,22 +160,17 @@ public class MasterSnapshotSource
      * @throws DataNotFoundException if no matching snapshot can be found
      */
     public S search() {
-
       S result = findWithMatchingType();
-      return result != null ?
-          result :
-          findWithGeneralType();
+      return result != null ? result : findWithGeneralType();
     }
 
     private S findWithMatchingType() {
-
       MarketDataSnapshotSearchRequest request = createBaseSearchRequest();
       request.setType(_type);
       return selectResult(_master.search(request).getNamedSnapshots(), true);
     }
 
     private S findWithGeneralType() {
-
       MarketDataSnapshotSearchRequest request = createBaseSearchRequest();
       S result = selectResult(_master.search(request).getNamedSnapshots(), false);
 
@@ -193,7 +190,6 @@ public class MasterSnapshotSource
     }
 
     private S selectResult(List<NamedSnapshot> results, boolean warnOnTypeMismatch) {
-
       List<S> filtered = filterForCorrectType(results, warnOnTypeMismatch);
       if (filtered.size() < results.size()) {
         s_logger.info("Filtered out {} snapshot(s) where type is not: {}", results.size() - filtered.size(), _type);
@@ -220,7 +216,6 @@ public class MasterSnapshotSource
     }
 
     private S selectFirst(List<S> filtered) {
-
       if (filtered.isEmpty()) {
         return null;
       }

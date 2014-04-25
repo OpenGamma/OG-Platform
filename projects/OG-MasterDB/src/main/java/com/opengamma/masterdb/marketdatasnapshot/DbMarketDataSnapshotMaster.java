@@ -27,8 +27,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.elsql.ElSqlBundle;
@@ -135,7 +135,7 @@ public class DbMarketDataSnapshotMaster
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
     args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
-    args.addValueNullIgnored("snapshot_type", request.getType() == null ? null : request.getType().getCanonicalName());
+    args.addValueNullIgnored("snapshot_type", request.getType() == null ? null : request.getType().getName());
     args.addValue("details", request.isIncludeData());
     if (snapshotIds != null) {
       StringBuilder buf = new StringBuilder(snapshotIds.size() * 10);
@@ -188,30 +188,32 @@ public class DbMarketDataSnapshotMaster
    */
   @Override
   protected MarketDataSnapshotDocument insert(final MarketDataSnapshotDocument document) {
-    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
-    ArgumentChecker.notNull(document.getName(), "document.name");
-    
-    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getSnapshot();
-    final long docId = nextId("snp_snapshot_seq");
-    final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
+
+    long docId = nextId("snp_snapshot_seq");
+    long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
-    final UniqueId uniqueId = createUniqueId(docOid, docId);
-    marketDataSnaphshot.setUniqueId(uniqueId);
+    UniqueId uniqueId = createUniqueId(docOid, docId);
     document.setUniqueId(uniqueId);
-    
-    // the arguments for inserting into the marketDataSnaphshot table
-    FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(marketDataSnaphshot);
+    // Copy the snapshot adding in the unique id
+    NamedSnapshot snapshot = document.getNamedSnapshot().withUniqueId(uniqueId);
+    // Replace the snapshot in the document so it is available to the caller
+    document.setNamedSnapshot(snapshot);
+
+    // the arguments for inserting into the marketDataSnapshot table
+    FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(snapshot);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final DbMapSqlParameterSource marketDataSnaphshotArgs = createParameterSource().addValue("doc_id", docId)
+    DbMapSqlParameterSource snapshotArgs = createParameterSource()
+        .addValue("doc_id", docId)
         .addValue("doc_oid", docOid).addTimestamp("ver_from_instant", document.getVersionFromInstant())
         .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
         .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
         .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
         .addValue("name", document.getName())
+        .addValue("snapshot_type", document.getNamedSnapshot().getClass().getName())
         .addValue("detail", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
     
-    final String sql = getElSqlBundle().getSql("Insert", marketDataSnaphshotArgs);
-    getJdbcTemplate().update(sql, marketDataSnaphshotArgs);
+    String sql = getElSqlBundle().getSql("Insert", snapshotArgs);
+    getJdbcTemplate().update(sql, snapshotArgs);
     return document;
   }
 

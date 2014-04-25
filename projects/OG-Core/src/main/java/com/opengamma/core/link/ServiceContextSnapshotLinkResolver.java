@@ -5,9 +5,6 @@
  */
 package com.opengamma.core.link;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.id.VersionCorrection;
@@ -19,17 +16,13 @@ import com.opengamma.service.VersionCorrectionProvider;
  *
  * @param <T> the type of config object to be resolved
  */
-/* package */ final class ServiceContextSnapshotLinkResolver<T extends NamedSnapshot> extends SourceLinkResolver<String, T, MarketDataSnapshotSource> {
-
-  /**
-   * Logger for the class.
-   */
-  private static final Logger s_logger = LoggerFactory.getLogger(ServiceContextSnapshotLinkResolver.class);
+final class ServiceContextSnapshotLinkResolver<T extends NamedSnapshot>
+    extends SourceLinkResolver<String, T, MarketDataSnapshotSource> {
 
   /**
    * Creates the resolver using the default service context.
    */
-  /* package */ ServiceContextSnapshotLinkResolver() {
+  ServiceContextSnapshotLinkResolver() {
     super();
   }
 
@@ -38,7 +31,7 @@ import com.opengamma.service.VersionCorrectionProvider;
    *
    * @param serviceContext the service context to use when resolving the link
    */
-  /* package */ ServiceContextSnapshotLinkResolver(ServiceContext serviceContext) {
+  ServiceContextSnapshotLinkResolver(ServiceContext serviceContext) {
     super(serviceContext);
   }
 
