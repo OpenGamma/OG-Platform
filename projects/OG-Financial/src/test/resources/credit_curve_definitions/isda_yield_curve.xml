@@ -9,7 +9,12 @@
     - holiday calendar (w/e only for most calendars)
     - spot date
   -->
- <convention>CONVENTION~ISDA YC EUR</convention>
+ <conventionLink type="com.opengamma.core.link.ResolvableConventionLink">
+  <identifier>
+   <identifier>CONVENTION~ISDA YC EUR</identifier>
+   <type>com.opengamma.financial.convention.ISDAYieldCurveConvention</type>
+  </identifier>
+ </conventionLink>
  <nodes>
   <item type="com.opengamma.financial.analytics.curve.credit.node.ISDACashNode">
    <tenor>P1D</tenor>
@@ -18,7 +23,12 @@
      - ccy
      - day count
    -->
-   <convention>CONVENTION~ISDA YC EUR MM</convention>
+	 <conventionLink type="com.opengamma.core.link.ResolvableConventionLink">
+	  <identifier>
+	   <identifier>CONVENTION~ISDA YC EUR CASH</identifier>
+	   <type>com.opengamma.financial.convention.ISDACashNodeConvention</type>
+	  </identifier>
+	 </conventionLink>
    <ticker>BLOOMBERG_TICKER~EUDR1T Curncy</ticker>
    <dataField></dataField>
    <dataFieldType></dataFieldType>
@@ -26,12 +36,18 @@
   <item type="com.opengamma.financial.analytics.curve.credit.node.ISDASwapNode">
    <tenor>P3M</tenor>
    <!-- 
-    fixed leg convention includes:
+    all convention fields apply to fixed leg since float leg conventions
+    not used in curve bootstrapping. fields include:
       - ccy
       - payment frequency
       - day count
    -->
-   <fixedLegConvention>CONVENTION~ISDA YC EUR SWAP FIX</fixedLegConvention>
+   <conventionLink type="com.opengamma.core.link.ResolvableConventionLink">
+    <identifier>
+     <identifier>CONVENTION~ISDA YC EUR SWAP FIX</identifier>
+     <type>com.opengamma.financial.convention.ISDACashNodeConvention</type>
+    </identifier>
+   </conventionLink>
    <ticker>BLOOMBERG_TICKER~EUDRC Curncy</ticker>
    <dataField></dataField>
    <dataFieldType></dataFieldType>

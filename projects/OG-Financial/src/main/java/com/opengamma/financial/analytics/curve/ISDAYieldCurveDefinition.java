@@ -31,9 +31,9 @@ import com.opengamma.financial.convention.ISDAYieldCurveConvention;
 public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
 
   /**
-   * The curve convention.
+   * The curve level convention.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ConventionLink<ISDAYieldCurveConvention> _conventionLink;
   
   /**
@@ -64,18 +64,19 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve convention.
-   * @return the value of the property
+   * Gets the curve level convention.
+   * @return the value of the property, not null
    */
   public ConventionLink<ISDAYieldCurveConvention> getConventionLink() {
     return _conventionLink;
   }
 
   /**
-   * Sets the curve convention.
-   * @param conventionLink  the new value of the property
+   * Sets the curve level convention.
+   * @param conventionLink  the new value of the property, not null
    */
   public void setConventionLink(ConventionLink<ISDAYieldCurveConvention> conventionLink) {
+    JodaBeanUtils.notNull(conventionLink, "conventionLink");
     this._conventionLink = conventionLink;
   }
 
@@ -268,6 +269,7 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ISDAYieldCurveDefinition) bean)._conventionLink, "conventionLink");
       JodaBeanUtils.notNull(((ISDAYieldCurveDefinition) bean)._nodes, "nodes");
       super.validate(bean);
     }

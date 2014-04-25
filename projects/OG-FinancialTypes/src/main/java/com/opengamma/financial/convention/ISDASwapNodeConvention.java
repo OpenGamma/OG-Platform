@@ -25,7 +25,8 @@ import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Fields apply to the fixed leg only. ISDA model does not make use of
+ * any float leg conventions.
  */
 @BeanDefinition
 public class ISDASwapNodeConvention extends ManageableConvention {
@@ -47,6 +48,9 @@ public class ISDASwapNodeConvention extends ManageableConvention {
   @PropertyDefinition(validate = "notNull")
   private DayCount _dayCount;
   
+  /**
+   * Payment frequency.
+   */
   @PropertyDefinition(validate = "notNull")
   private Period _paymentFrequency;
   
@@ -130,7 +134,7 @@ public class ISDASwapNodeConvention extends ManageableConvention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the paymentFrequency.
+   * Gets payment frequency.
    * @return the value of the property, not null
    */
   public Period getPaymentFrequency() {
@@ -138,7 +142,7 @@ public class ISDASwapNodeConvention extends ManageableConvention {
   }
 
   /**
-   * Sets the paymentFrequency.
+   * Sets payment frequency.
    * @param paymentFrequency  the new value of the property, not null
    */
   public void setPaymentFrequency(Period paymentFrequency) {
