@@ -14,6 +14,9 @@ PortfolioTool was simplified as per the JIRA above
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M18p40
+---------------
+
 To 2.2.0-M18p03
 ---------------
 
