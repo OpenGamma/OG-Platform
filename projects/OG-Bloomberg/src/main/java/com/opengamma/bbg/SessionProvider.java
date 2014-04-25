@@ -57,7 +57,7 @@ public class SessionProvider implements Lifecycle, BloombergConnector.Availabili
    * @param serviceName Name of the service to open
    */
   public SessionProvider(BloombergConnector connector, String serviceName) {
-    this(connector, Collections.singletonList(serviceName));
+    this(connector, Collections.singletonList(ArgumentChecker.notNull(serviceName, "serviceName")));
   }
 
   /**
