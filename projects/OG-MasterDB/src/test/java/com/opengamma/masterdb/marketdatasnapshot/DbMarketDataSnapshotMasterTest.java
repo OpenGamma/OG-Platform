@@ -182,11 +182,11 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
   @Test
   public void test_alternative_snapshot() throws Exception {
 
-    NamedSnapshot snapshot1 = new TestNamedSnapshot(null, "Test 1", 42);
+    NamedSnapshot snapshot1 = new MockNamedSnapshot(null, "Test 1", 42);
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
     doc1 = _snpMaster.add(doc1);
 
-    NamedSnapshot snapshot2 = new TestNamedSnapshot(null, "Test 2", 84);
+    NamedSnapshot snapshot2 = new MockNamedSnapshot(null, "Test 2", 84);
     MarketDataSnapshotDocument doc2 = new MarketDataSnapshotDocument(snapshot2);
     doc2 = _snpMaster.add(doc2);
 
@@ -200,11 +200,11 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
   @Test
   public void test_find_alternative_snapshot_by_name() throws Exception {
 
-    NamedSnapshot snapshot1 = new TestNamedSnapshot(null, "Test 1", 42);
+    NamedSnapshot snapshot1 = new MockNamedSnapshot(null, "Test 1", 42);
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
     _snpMaster.add(doc1);
 
-    NamedSnapshot snapshot2 = new TestNamedSnapshot(null, "Test 2", 84);
+    NamedSnapshot snapshot2 = new MockNamedSnapshot(null, "Test 2", 84);
     MarketDataSnapshotDocument doc2 = new MarketDataSnapshotDocument(snapshot2);
     _snpMaster.add(doc2);
 
@@ -218,16 +218,16 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
   @Test
   public void test_find_alternative_snapshot_by_name_and_type() throws Exception {
 
-    NamedSnapshot snapshot1 = new TestAlternativeNamedSnapshot(null, "TestSameName", 42);
+    NamedSnapshot snapshot1 = new MockAlternativeNamedSnapshot(null, "TestSameName", 42);
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
     _snpMaster.add(doc1);
 
-    NamedSnapshot snapshot2 = new TestNamedSnapshot(null, "TestSameName", 84);
+    NamedSnapshot snapshot2 = new MockNamedSnapshot(null, "TestSameName", 84);
     MarketDataSnapshotDocument doc2 = new MarketDataSnapshotDocument(snapshot2);
     _snpMaster.add(doc2);
 
     MarketDataSnapshotSearchRequest request1 = new MarketDataSnapshotSearchRequest();
-    request1.setType(TestNamedSnapshot.class);
+    request1.setType(MockNamedSnapshot.class);
     request1.setName("TestSameName");
 
     MarketDataSnapshotSearchResult result1 = _snpMaster.search(request1);
