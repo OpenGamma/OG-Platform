@@ -359,8 +359,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       historyRequest.setPagingRequest(PagingRequest.ONE);
       HistoricalTimeSeriesInfoHistoryResult historyResult = data().getHistoricalTimeSeriesMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        // None found in history either; just return
-        return null;
+        throw ex;
       }
       info = historyResult.getFirstDocument();
     }

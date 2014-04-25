@@ -221,7 +221,7 @@ public class WebLegalEntitiesResource extends AbstractWebLegalEntityResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       LegalEntityHistoryResult historyResult = data().getLegalEntityMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setLegalEntity(historyResult.getFirstDocument());
     }

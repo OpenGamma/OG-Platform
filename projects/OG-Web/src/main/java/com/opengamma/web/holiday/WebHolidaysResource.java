@@ -155,7 +155,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       HolidayHistoryResult historyResult = data().getHolidayMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setHoliday(historyResult.getFirstDocument());
     }

@@ -316,7 +316,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       PositionHistoryResult historyResult = data().getPositionMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setPosition(historyResult.getFirstDocument());
     }

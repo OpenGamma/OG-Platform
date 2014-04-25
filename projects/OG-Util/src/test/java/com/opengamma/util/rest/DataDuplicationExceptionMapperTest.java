@@ -5,32 +5,29 @@
  */
 package com.opengamma.util.rest;
 
-import static org.testng.AssertJUnit.assertEquals;
-
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.DataDuplicationException;
 import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Test WebApplicationException.
+ * Test DataDuplicationExceptionMapper.
  */
 @Test(groups = TestGroup.UNIT)
-public class WebApplicationExceptionTest extends AbstractExceptionMapperTestHelper {
+public class DataDuplicationExceptionMapperTest extends AbstractExceptionMapperTestHelper {
 
   @Test(dataProvider="mediaTypes")
   public void test_mapping(MediaType mediaType) throws Exception {
-    WebApplicationException ex = new WebApplicationException(Status.CONFLICT.getStatusCode());
-    WebApplicationExceptionMapper mapper = new WebApplicationExceptionMapper();
+    DataDuplicationException ex = new DataDuplicationException("Test message");
+    DataDuplicationExceptionMapper mapper = new DataDuplicationExceptionMapper();
     init(mapper, mediaType);
     
     Response test = mapper.toResponse(ex);
-    assertEquals(null, test.getEntity());
-    assertEquals(Status.CONFLICT.getStatusCode(), test.getStatus());
+    testResult(test, Status.CONFLICT, ex);
   }
 
 }
