@@ -327,7 +327,9 @@ public class SecurityAndTradingExchangeExposureFunction implements ExposureFunct
 
   @Override
   public List<ExternalId> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-    return null;
+    final String exchange = security.getExchange();
+    final String securityType = security.getSecurityType();
+    return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + exchange));
   }
 
   @Override
