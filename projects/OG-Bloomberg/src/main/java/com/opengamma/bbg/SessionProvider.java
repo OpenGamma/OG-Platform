@@ -5,6 +5,9 @@
  */
 package com.opengamma.bbg;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -37,8 +40,8 @@ public class SessionProvider implements Lifecycle, BloombergConnector.Availabili
 
   /** The connection details. */
   private final BloombergConnector _connector;
-  /** Name of the Bloomberg service to create. */
-  private final String _serviceName;
+  /** Names of the Bloomberg service to create. */
+  private final Set<String> _serviceNames = new HashSet<>();
   /** Controls access to the session. */
   private final Object _lock = new Object();
   /** Duration to wait before retrying after an unsuccessful attempt to connect. */
@@ -54,20 +57,32 @@ public class SessionProvider implements Lifecycle, BloombergConnector.Availabili
    * @param serviceName Name of the service to open
    */
   public SessionProvider(BloombergConnector connector, String serviceName) {
-    this(connector, serviceName, DEFAULT_RETRY_DELAY);
+    this(connector, Collections.singletonList(serviceName));
   }
 
   /**
    * @param connector Bloomberg connection details
-   * @param serviceName Name of the Bloomberg service to open
-   * @param retryDelay Time to wait between unsuccessful connection attempts
+   * @param serviceNames List of service names to open, not null.
    */
-  public SessionProvider(BloombergConnector connector, String serviceName, long retryDelay) {
+  public SessionProvider(BloombergConnector connector, Iterable<String> serviceNames) {
+    this(connector, DEFAULT_RETRY_DELAY, serviceNames);
+  }
+
+  /**
+   * @param connector Bloomberg connection details
+   * @param retryDelay Time to wait between unsuccessful connection attempts
+   * @param serviceNames List of service names to open, not null.
+   */
+  public SessionProvider(BloombergConnector connector, long retryDelay, Iterable<String> serviceNames) {
     ArgumentChecker.notNull(connector, "connector");
-    ArgumentChecker.notEmpty(serviceName, "serviceName");
+    ArgumentChecker.notNull(serviceNames, "serviceNames");
     _retryDuration = Duration.of(retryDelay, ChronoUnit.MILLIS);
     _connector = connector;
-    _serviceName = serviceName;
+
+    for (String serviceName : serviceNames) {
+      ArgumentChecker.notEmpty(serviceName, "serviceName");
+      _serviceNames.add(serviceName);
+    }
   }
 
   /**
@@ -101,17 +116,20 @@ public class SessionProvider implements Lifecycle, BloombergConnector.Availabili
           }
           s_logger.info("Bloomberg session open");
           s_logger.info("Bloomberg service being opened...");
-          try {
-            if (!session.openService(_serviceName)) {
-              throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName);
+
+          for (String serviceName : _serviceNames) {
+            try {
+              if (!session.openService(serviceName)) {
+                throw new ConnectionUnavailableException("Bloomberg service failed to start: " + serviceName);
+              }
+            } catch (InterruptedException ex) {
+              Thread.interrupted();
+              throw new ConnectionUnavailableException("Bloomberg service failed to start: " + serviceName, ex);
+            } catch (Exception ex) {
+              throw new ConnectionUnavailableException("Bloomberg service failed to start: " + serviceName, ex);
             }
-          } catch (InterruptedException ex) {
-            Thread.interrupted();
-            throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName, ex);
-          } catch (Exception ex) {
-            throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName, ex);
+            s_logger.info("Bloomberg service open: {}", serviceName);
           }
-          s_logger.info("Bloomberg service open: {}", _serviceName);
           _session = session;
           newSession = session;
           session = null;
@@ -136,10 +154,14 @@ public class SessionProvider implements Lifecycle, BloombergConnector.Availabili
 
   /**
    * @return The service, not null
+   * @param serviceName the service name, not null
    * @throws ConnectionUnavailableException If no connection is available
    */
-  public Service getService() {
-    return getSession().getService(_serviceName);
+  public Service getService(String serviceName) {
+    ArgumentChecker.notNull(serviceName, "serviceName");
+    ArgumentChecker.isTrue(_serviceNames.contains(serviceName), "service name is not recognized");
+
+    return getSession().getService(serviceName);
   }
 
   /**
@@ -224,7 +246,7 @@ public class SessionProvider implements Lifecycle, BloombergConnector.Availabili
         return;
       }
     } while (!_lastRetry.compareAndSet(lastRetry, Instant.EPOCH));
-    s_logger.info("Bloomberg connection available for {}", _serviceName);
+    s_logger.info("Bloomberg connection available for {}", _serviceNames);
   }
 
 }
