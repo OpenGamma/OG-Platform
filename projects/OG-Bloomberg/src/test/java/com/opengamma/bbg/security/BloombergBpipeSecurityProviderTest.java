@@ -36,7 +36,7 @@ import com.opengamma.util.test.TestGroup;
 public class BloombergBpipeSecurityProviderTest {
 
   private static final String IBM_TICKER = "IBM US Equity";
-  private static final String AUTH_OPTION = "app=opengamma:OpenGamma Application B-Pipe BPS";
+  private static final String BPIPE_APP_NAME = "opengamma:OpenGamma Application B-Pipe BPS";
   private BloombergReferenceDataProvider _refDataProvider;
   private SecurityProvider _securityProvider;
 
@@ -47,7 +47,7 @@ public class BloombergBpipeSecurityProviderTest {
 
   protected SecurityProvider createSecurityProvider() throws Exception {
     BloombergConnector connector = BloombergTestUtils.getBloombergBipeConnector();
-    BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(connector, AUTH_OPTION, 0.002);
+    BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(connector, BPIPE_APP_NAME, 0.002);
     refDataProvider.start();
     _refDataProvider = refDataProvider;
     ExchangeDataProvider exchangeProvider = DefaultExchangeDataProvider.getInstance();
@@ -68,7 +68,7 @@ public class BloombergBpipeSecurityProviderTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void ibmEquity() throws Exception {
     assertIbm(_securityProvider.getSecurity(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId(IBM_TICKER))));
     Thread.sleep(10 * 1000);
