@@ -413,7 +413,8 @@ public class SecurityAndTradingExchangeExposureFunctionTest {
   public void testInterestRateFutureOptionSecurity() {
     final IRFutureOptionSecurity security = ExposureFunctionTestHelper.getInterestRateFutureOptionSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
-    assertNull(ids);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "IRFUTURE_OPTION_Y"), ids.get(0));
   }
 
   @Test
