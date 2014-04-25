@@ -76,10 +76,10 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
    * This will use the statistics tool in the connector.
    * 
    * @param bloombergConnector the bloomberg connector, not null
-   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   * @param applicationName the bpipe application name, if applicable.
    */
-  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, String authenticationOption) {
-    this(bloombergConnector, authenticationOption, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
+  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, String applicationName) {
+    this(bloombergConnector, applicationName, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
   }
 
   /**
@@ -88,11 +88,11 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
    * This will use the statistics tool in the connector.
    * 
    * @param bloombergConnector the bloomberg connector, not null
-   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   * @param applicationName the bpipe application name, if applicable.
    * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
    */
-  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, String authenticationOption, double reAuthorizationScheduleTime) {
-    this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), authenticationOption, reAuthorizationScheduleTime);
+  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, String applicationName, double reAuthorizationScheduleTime) {
+    this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), applicationName, reAuthorizationScheduleTime);
   }
 
   /**
@@ -100,11 +100,11 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
    * 
    * @param bloombergConnector the Bloomberg connector, not null
    * @param statistics the statistics to collect, not null
-   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
+   * @param applicationName the bpipe application name, if applicable.
    * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
    */
-  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String authenticationOption, double reAuthorizationScheduleTime) {
-    _refDataService = new BloombergReferenceDataRequestService(bloombergConnector, statistics, authenticationOption, reAuthorizationScheduleTime);
+  public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String applicationName, double reAuthorizationScheduleTime) {
+    _refDataService = new BloombergReferenceDataRequestService(bloombergConnector, statistics, applicationName, reAuthorizationScheduleTime);
   }
 
   //-------------------------------------------------------------------------
@@ -139,16 +139,16 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      */
     private final BloombergReferenceDataStatistics _statistics;
 
-    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector) {
+    BloombergReferenceDataRequestService(BloombergConnector bloombergConnector) {
       this(bloombergConnector, null);
     }
 
-    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, String authenticationOption) {
-      this(bloombergConnector, authenticationOption, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
+    BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, String applicationName) {
+      this(bloombergConnector, applicationName, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
     }
 
-    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, String authenticationOption, double reAuthorizationScheduleTime) {
-      this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), authenticationOption, reAuthorizationScheduleTime);
+    BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, String applicationName, double reAuthorizationScheduleTime) {
+      this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), applicationName, reAuthorizationScheduleTime);
     }
 
     /**
@@ -156,11 +156,11 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * 
      * @param bloombergConnector the bloomberg connector, not null
      * @param statistics the bloomberg reference data statistics, not null
-     * @param authenticationOption the authentication option, null represent NO_AUTH
+     * @param applicationName the bpipe application name if applicable
      * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
      */
-    public BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String authenticationOption, double reAuthorizationScheduleTime) {
-      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME, authenticationOption, reAuthorizationScheduleTime);
+    BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String applicationName, double reAuthorizationScheduleTime) {
+      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME, applicationName, reAuthorizationScheduleTime);
       ArgumentChecker.notNull(statistics, "statistics");
       _statistics = statistics;
     }

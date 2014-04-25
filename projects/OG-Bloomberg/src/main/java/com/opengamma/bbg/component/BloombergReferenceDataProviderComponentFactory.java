@@ -86,12 +86,10 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   private ConfigSource _configSource;
 
   /**
-   * The authentication option, null means NO_AUTH
-   * <p>
-   * user|none|app=<app>|dir=<property> (default: none)");
+   * The bpipe application name, if applicable
    */
   @PropertyDefinition
-  private String _authenticationOption;
+  private String _applicationName;
 
   /**
    * The identity re authorization schedule time in hours
@@ -145,7 +143,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   }
 
   protected BloombergReferenceDataProvider createBloombergReferenceDataProvider() {
-    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(getBloombergConnector(), getAuthenticationOption(),
+    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(getBloombergConnector(), getApplicationName(),
         getReAuthorizationScheduleTime());
     return underlying;
   }
@@ -357,33 +355,27 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the authentication option, null means NO_AUTH
-   * <p>
-   * user|none|app=<app>|dir=<property> (default: none)");
+   * Gets the bpipe application name, if applicable
    * @return the value of the property
    */
-  public String getAuthenticationOption() {
-    return _authenticationOption;
+  public String getApplicationName() {
+    return _applicationName;
   }
 
   /**
-   * Sets the authentication option, null means NO_AUTH
-   * <p>
-   * user|none|app=<app>|dir=<property> (default: none)");
-   * @param authenticationOption  the new value of the property
+   * Sets the bpipe application name, if applicable
+   * @param applicationName  the new value of the property
    */
-  public void setAuthenticationOption(String authenticationOption) {
-    this._authenticationOption = authenticationOption;
+  public void setApplicationName(String applicationName) {
+    this._applicationName = applicationName;
   }
 
   /**
-   * Gets the the {@code authenticationOption} property.
-   * <p>
-   * user|none|app=<app>|dir=<property> (default: none)");
+   * Gets the the {@code applicationName} property.
    * @return the property, not null
    */
-  public final Property<String> authenticationOption() {
-    return metaBean().authenticationOption().createProperty(this);
+  public final Property<String> applicationName() {
+    return metaBean().applicationName().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -436,7 +428,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           JodaBeanUtils.equal(getMongoConnector(), other.getMongoConnector()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getAuthenticationOption(), other.getAuthenticationOption()) &&
+          JodaBeanUtils.equal(getApplicationName(), other.getApplicationName()) &&
           JodaBeanUtils.equal(getReAuthorizationScheduleTime(), other.getReAuthorizationScheduleTime()) &&
           super.equals(obj);
     }
@@ -452,7 +444,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     hash += hash * 31 + JodaBeanUtils.hashCode(getMongoConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAuthenticationOption());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getApplicationName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReAuthorizationScheduleTime());
     return hash ^ super.hashCode();
   }
@@ -479,7 +471,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     buf.append("mongoConnector").append('=').append(JodaBeanUtils.toString(getMongoConnector())).append(',').append(' ');
     buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
     buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
-    buf.append("authenticationOption").append('=').append(JodaBeanUtils.toString(getAuthenticationOption())).append(',').append(' ');
+    buf.append("applicationName").append('=').append(JodaBeanUtils.toString(getApplicationName())).append(',').append(' ');
     buf.append("reAuthorizationScheduleTime").append('=').append(JodaBeanUtils.toString(getReAuthorizationScheduleTime())).append(',').append(' ');
   }
 
@@ -524,10 +516,10 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", BloombergReferenceDataProviderComponentFactory.class, ConfigSource.class);
     /**
-     * The meta-property for the {@code authenticationOption} property.
+     * The meta-property for the {@code applicationName} property.
      */
-    private final MetaProperty<String> _authenticationOption = DirectMetaProperty.ofReadWrite(
-        this, "authenticationOption", BloombergReferenceDataProviderComponentFactory.class, String.class);
+    private final MetaProperty<String> _applicationName = DirectMetaProperty.ofReadWrite(
+        this, "applicationName", BloombergReferenceDataProviderComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code reAuthorizationScheduleTime} property.
      */
@@ -544,7 +536,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
         "mongoConnector",
         "cacheManager",
         "configSource",
-        "authenticationOption",
+        "applicationName",
         "reAuthorizationScheduleTime");
 
     /**
@@ -568,8 +560,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           return _cacheManager;
         case 195157501:  // configSource
           return _configSource;
-        case -1714316019:  // authenticationOption
-          return _authenticationOption;
+        case -1247425541:  // applicationName
+          return _applicationName;
         case 1130765866:  // reAuthorizationScheduleTime
           return _reAuthorizationScheduleTime;
       }
@@ -641,11 +633,11 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     }
 
     /**
-     * The meta-property for the {@code authenticationOption} property.
+     * The meta-property for the {@code applicationName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> authenticationOption() {
-      return _authenticationOption;
+    public final MetaProperty<String> applicationName() {
+      return _applicationName;
     }
 
     /**
@@ -672,8 +664,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           return ((BloombergReferenceDataProviderComponentFactory) bean).getCacheManager();
         case 195157501:  // configSource
           return ((BloombergReferenceDataProviderComponentFactory) bean).getConfigSource();
-        case -1714316019:  // authenticationOption
-          return ((BloombergReferenceDataProviderComponentFactory) bean).getAuthenticationOption();
+        case -1247425541:  // applicationName
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getApplicationName();
         case 1130765866:  // reAuthorizationScheduleTime
           return ((BloombergReferenceDataProviderComponentFactory) bean).getReAuthorizationScheduleTime();
       }
@@ -701,8 +693,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
         case 195157501:  // configSource
           ((BloombergReferenceDataProviderComponentFactory) bean).setConfigSource((ConfigSource) newValue);
           return;
-        case -1714316019:  // authenticationOption
-          ((BloombergReferenceDataProviderComponentFactory) bean).setAuthenticationOption((String) newValue);
+        case -1247425541:  // applicationName
+          ((BloombergReferenceDataProviderComponentFactory) bean).setApplicationName((String) newValue);
           return;
         case 1130765866:  // reAuthorizationScheduleTime
           ((BloombergReferenceDataProviderComponentFactory) bean).setReAuthorizationScheduleTime((Integer) newValue);
