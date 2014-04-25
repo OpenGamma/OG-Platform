@@ -18,6 +18,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -44,7 +45,9 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalIdBundle;
@@ -131,6 +134,26 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
               s_logger.info("Couldn't get time series for {}", ids);
             }
           }
+          /** Implementation node: fixing series are required for Fed Fund futures: underlying overnight index fixing (when fixing month has started) */
+          if (node.getCurveNode() instanceof RateFutureNode) { // Start Fed Fund futures
+            RateFutureNode nodeRateFut = (RateFutureNode) node.getCurveNode();
+            final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+            Convention conventionRateFut =  conventionSource.getSingle(nodeRateFut.getFutureConvention());
+            if (conventionRateFut instanceof FederalFundsFutureConvention) {
+              FederalFundsFutureConvention conventionFedFundFut = (FederalFundsFutureConvention) conventionRateFut;
+              final ExternalIdBundle onIndexId = ExternalIdBundle.of(conventionFedFundFut.getIndexConvention());
+              final HistoricalTimeSeries onIndexSeries = bundleForCurve.get(dataField, onIndexId);
+              if (onIndexSeries != null) {
+                if (onIndexSeries.getTimeSeries().isEmpty()) {
+                  s_logger.info("Could for get historical time series for {}", onIndexId);
+                } else {
+                  bundle.add(dataField, onIndexId, bundleForCurve.get(dataField, onIndexId));
+                }
+              } else {
+                s_logger.info("Couldn't get time series for {}", onIndexId);
+              }
+            }
+          } // End Fed Fund futures
         }
       }
     }

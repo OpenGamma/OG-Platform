@@ -100,6 +100,7 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
     ArgumentChecker.isFalse(dateLocal.isAfter(lastTradingDateLocal), "Valuation date, {}, is after last trading date, ", dateLocal, lastTradingDateLocal);
     double referencePrice;
     if (transactionDateLocal.isBefore(dateLocal)) { // Transaction was before valuation date.
+      ArgumentChecker.notNull(lastMarginPrice, "last margin price should not be null");
       referencePrice = lastMarginPrice;
     } else { // Transaction is today
       referencePrice = getTradePrice();
