@@ -21,6 +21,46 @@ differentiate between the different types of links
 types of snapshots. These changes should be backwards compatible though some methods
 have been deprecated.
 
+* Bug
+    * [PLAT-5845] - Bloomberg security type resolver does not as for SECURITY_TYP2
+    * [PLAT-6100] - Deployment template doesn't work with windows
+    * [PLAT-6224] - Deployment template includes a pom file in "lib" folder
+    * [PLAT-6408] - Values not being passed correctly between job items
+    * [PLAT-6409] - trade.setProviderId does not appear to be persisted in RemotePositionMaster
+    * [PLAT-6412] - CouponNotionalVisitor does not support definitions of type CouponONArithmeticAverageDefinition
+    * [PLAT-6413] - AnnuityAccrualDatesVisitor does not support definitions of type CouponONSpreadDefinition
+    * [PLAT-6414] - OG-Analytics: SwapFuturesPriceDeliverableSecurityHullWhiteMethod - incorrect priceCurveSensitivity
+    * [PLAT-6415] - Wrong calculation of Interest/Payment Amount in ZCS fixed leg
+    * [PLAT-6417] - Occasional test failure in DependencyGraphTraceBuilder
+    * [PLAT-6421] - NonVersionedRedisConfigSource doesn't handle missing configs correctly
+    * [PLAT-6423] - MultiFileConfigSaver can't handle configs with slashes in the names
+    * [PLAT-6426] - Change yearly index naming convention from 1Y to 12M
+    * [PLAT-6432] - Bloomberg ticks being lost
+* Improvement
+    * [PLAT-5842] - Return zeroes for PV01 and YCNS in the case where there is no sensitivity to a particular curve
+    * [PLAT-6175] - Move equity option market value requirement into the functions that need it.
+    * [PLAT-6375] - jacobian matrix for exogenous curves are not used.
+    * [PLAT-6377] - OG-Analytics : for curve construction test : declare as private all public function which are not a test
+    * [PLAT-6407] - OG-Analytics: FuturesTransactionDefinition add referencePrice method
+    * [PLAT-6422] - Implement NonVersionedRedisHistoricalTimeSeriesSource methods to satisfy engine
+    * [PLAT-6424] - Modify ConventionMasterInitializer to add the ability to add securities
+    * [PLAT-6425] - ForexDefinition does not provide useful feedback in failure cases
+* New Feature
+    * [PLAT-6176] - Function that provides cashflow information for bonds
+    * [PLAT-6344] - Pricing and risk functions for TRS
+    * [PLAT-6345] - Add example TRS views and relevant configs to examples-simulated
+    * [PLAT-6361] - add a getInstance() in BondCapitalIndexedTransactionDiscountingMethod
+    * [PLAT-6362] - add a PresentValueCurveSensitivityDiscountingInflationCalculator using a curve object with issuer 
+    * [PLAT-6368] - finite difference calculator bumping both issuer and inflation curve
+* Task
+    * [PLAT-6181] - Tool to take online/hot backup of HSQL database
+    * [PLAT-6383] - Add support for fixed payments to coupon notional visitor
+    * [PLAT-6384] - Correct expiry convention for TWSE
+    * [PLAT-6404] - Implement PermissionCheckProvider 
+    * [PLAT-6406] - Add value theta and vega functions for equity future option
+    * [PLAT-6411] - Fix SABR views in examples
+
+
 To 2.2.0-M19
 ------------
 
