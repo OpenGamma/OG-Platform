@@ -117,4 +117,30 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
     }
     return bld.build(objectId);
   }
+
+  /**
+   * Builds a URI for snapshot search.
+   *
+   * @param baseUri  the base URI, not null
+   * @param type  the snapshot type, not null
+   * @param name  the name, not null
+   * @param versionCorrection  the version to fetch, null means latest
+   * @return the URI, not null
+   */
+  public static URI uriSearchSingle(URI baseUri, Class<?> type, String name, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(name, "name");
+
+    String vc = versionCorrection != null ?
+        versionCorrection.toString() :
+        VersionCorrection.LATEST.toString();
+
+    return UriBuilder.fromUri(baseUri)
+        .path("snapshotSearches/single")
+        .queryParam("name", name)
+        .queryParam("type", type.getName())
+        .queryParam("versionCorrection", vc)
+        .build();
+  }
 }

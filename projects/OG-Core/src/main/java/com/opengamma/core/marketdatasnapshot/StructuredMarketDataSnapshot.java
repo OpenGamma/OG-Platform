@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -19,14 +18,7 @@ import com.opengamma.util.PublicSPI;
  * values can be overridden or updated separately for yield curves or other structured objects.
  */
 @PublicSPI
-public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
-
-  /**
-   * Gets the name of the snapshot.
-   * 
-   * @return the name
-   */
-  String getName();
+public interface StructuredMarketDataSnapshot extends NamedSnapshot {
 
   /**
    * Gets the basis view name.
@@ -84,7 +76,5 @@ public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
    * no valuation time could be inferred from the snapshot
    */
   Instant getValuationTime();
-
-
 
 }

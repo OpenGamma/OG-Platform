@@ -14,6 +14,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.SurfaceKey;
 import com.opengamma.core.marketdatasnapshot.SurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -178,13 +179,80 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     assertEquals(doc1.getUniqueId(), result3.getFirstDocument().getUniqueId());
   }
 
-  private void assertEquivalent(final MarketDataSnapshotDocument added, final MarketDataSnapshotDocument loaded) {
-    final ManageableMarketDataSnapshot addedSnapshot = added.getSnapshot();
-    final ManageableMarketDataSnapshot loadedSnapshot = loaded.getSnapshot();
-    assertEquivalent(addedSnapshot, loadedSnapshot);
+  @Test
+  public void test_alternative_snapshot() throws Exception {
+
+    NamedSnapshot snapshot1 = new MockNamedSnapshot(null, "Test 1", 42);
+    MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
+    doc1 = _snpMaster.add(doc1);
+
+    NamedSnapshot snapshot2 = new MockNamedSnapshot(null, "Test 2", 84);
+    MarketDataSnapshotDocument doc2 = new MarketDataSnapshotDocument(snapshot2);
+    doc2 = _snpMaster.add(doc2);
+
+    final MarketDataSnapshotDocument doc1Loaded = _snpMaster.get(doc1.getUniqueId());
+    assertEquivalent(doc1, doc1Loaded);
+
+    final MarketDataSnapshotDocument doc2Loaded = _snpMaster.get(doc2.getUniqueId());
+    assertEquivalent(doc2, doc2Loaded);
   }
 
-  private void assertEquivalent(final ManageableMarketDataSnapshot addedSnapshot, final ManageableMarketDataSnapshot loadedSnapshot) {
+  @Test
+  public void test_find_alternative_snapshot_by_name() throws Exception {
+
+    NamedSnapshot snapshot1 = new MockNamedSnapshot(null, "Test 1", 42);
+    MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
+    _snpMaster.add(doc1);
+
+    NamedSnapshot snapshot2 = new MockNamedSnapshot(null, "Test 2", 84);
+    MarketDataSnapshotDocument doc2 = new MarketDataSnapshotDocument(snapshot2);
+    _snpMaster.add(doc2);
+
+    MarketDataSnapshotSearchRequest request = new MarketDataSnapshotSearchRequest();
+    request.setName(doc1.getName());
+
+    MarketDataSnapshotSearchResult result = _snpMaster.search(request);
+    assertTrue(result.getDocuments().size() > 0);
+  }
+
+  @Test
+  public void test_find_alternative_snapshot_by_name_and_type() throws Exception {
+
+    NamedSnapshot snapshot1 = new MockAlternativeNamedSnapshot(null, "TestSameName", 42);
+    MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
+    _snpMaster.add(doc1);
+
+    NamedSnapshot snapshot2 = new MockNamedSnapshot(null, "TestSameName", 84);
+    MarketDataSnapshotDocument doc2 = new MarketDataSnapshotDocument(snapshot2);
+    _snpMaster.add(doc2);
+
+    MarketDataSnapshotSearchRequest request1 = new MarketDataSnapshotSearchRequest();
+    request1.setType(MockNamedSnapshot.class);
+    request1.setName("TestSameName");
+
+    MarketDataSnapshotSearchResult result1 = _snpMaster.search(request1);
+    assertTrue(result1.getDocuments().size() == 1);
+
+    // Search with just name and we should get both instances back
+    MarketDataSnapshotSearchRequest request2 = new MarketDataSnapshotSearchRequest();
+    request2.setName("TestSameName");
+
+    MarketDataSnapshotSearchResult result2 = _snpMaster.search(request2);
+    assertTrue(result2.getDocuments().size() == 2);
+  }
+
+  private void assertEquivalent(final MarketDataSnapshotDocument added, final MarketDataSnapshotDocument loaded) {
+    NamedSnapshot addedSnapshot = added.getNamedSnapshot(NamedSnapshot.class);
+    NamedSnapshot loadedSnapshot = loaded.getNamedSnapshot(NamedSnapshot.class);
+
+    if (addedSnapshot instanceof ManageableMarketDataSnapshot && loadedSnapshot instanceof ManageableMarketDataSnapshot) {
+      assertMarketDataSnapshotsEquivalent((ManageableMarketDataSnapshot) addedSnapshot, (ManageableMarketDataSnapshot) loadedSnapshot);
+    } else {
+      assertEquals(added, loaded);
+    }
+  }
+
+  private void assertMarketDataSnapshotsEquivalent(final ManageableMarketDataSnapshot addedSnapshot, final ManageableMarketDataSnapshot loadedSnapshot) {
     final UnstructuredMarketDataSnapshot addedGlobalValues = addedSnapshot.getGlobalValues();
     final UnstructuredMarketDataSnapshot loadedGlobalValues = loadedSnapshot.getGlobalValues();
     assertEquivalent(addedGlobalValues, loadedGlobalValues);
@@ -208,5 +276,4 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
   public void test_toString() {
     assertEquals("DbMarketDataSnapshotMaster[DbSnp]", _snpMaster.toString());
   }
-
 }

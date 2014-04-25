@@ -83,6 +83,8 @@
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
+    @AND(:snapshot_type)
+      snapshot_type = :snapshot_type
     @AND(:sql_search_object_ids)
       oid IN ( @VALUE(:sql_search_object_ids) )
 
@@ -97,6 +99,7 @@
     main.ver_to_instant AS ver_to_instant,
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant
+    main.snapshot_type AS snapshot_type
     @IF(:details = true)
       , main.detail AS detail
     @IF(:details = false)
@@ -153,9 +156,9 @@
 -- ==========================================================================
 @NAME(Insert)
   INSERT INTO snp_snapshot
-    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, detail)
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, snapshot_type, detail)
   VALUES
-    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :detail)
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :snapshot_type, :detail)
 
 
 -- ==========================================================================
