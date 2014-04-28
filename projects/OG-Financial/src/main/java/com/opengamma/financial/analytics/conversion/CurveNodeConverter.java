@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTra
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.link.ConventionLink;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
@@ -93,20 +94,22 @@ public class CurveNodeConverter {
       if (definition instanceof FederalFundsFutureTransactionDefinition) {
         ArgumentChecker.notNull(timeSeries, "time series");
         RateFutureNode nodeFFF = (RateFutureNode) node.getCurveNode();
-        FederalFundsFutureConvention conventionFFF = (FederalFundsFutureConvention) _conventionSource.getSingle(nodeFFF.getFutureConvention());
+        FederalFundsFutureConvention conventionFFF =  ConventionLink.resolvable(nodeFFF.getFutureConvention(), FederalFundsFutureConvention.class).resolve();
+        // Retrieving id of the underlying index.
         final HistoricalTimeSeries historicalTimeSeriesUnderlyingIndex = timeSeries.get(node.getDataField(), conventionFFF.getIndexConvention()); 
-        // Implementation note: Retrieving id of the underlying index.
         if (historicalTimeSeriesUnderlyingIndex == null) {
           throw new OpenGammaRuntimeException("Could not get price time series for " + conventionFFF.getIndexConvention());
         }
-        final DoubleTimeSeries<ZonedDateTime>[] tsArray = new DoubleTimeSeries[2];
+        final DoubleTimeSeries<ZonedDateTime>[] tsArray = new DoubleTimeSeries[1];
         tsArray[0] = convertTimeSeries(now.getZone(), historicalTimeSeriesUnderlyingIndex.getTimeSeries());
-        // Implementation note: No time series is passed for the closing price; for curve calibration only the trade price is required.
-        return ((InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]>) definition).toDerivative(now, tsArray); //CSIGNORE
+        // No time series is passed for the closing price; for curve calibration only the trade price is required.
+        InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]> definitonInstWithData =  //CSIGNORE
+            (InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]>) definition; //CSIGNORE
+        return definitonInstWithData.toDerivative(now, tsArray);
       }
       if (node.getCurveNode() instanceof RateFutureNode || node.getCurveNode() instanceof DeliverableSwapFutureNode) {
         return ((InstrumentDefinitionWithData<?, Double>) definition).toDerivative(now, (Double) null);
-        // Implementation note: No last closing price is passed; for curve calibration only the trade price is required.
+        // No last closing price is passed; for curve calibration only the trade price is required.
       }
       throw new OpenGammaRuntimeException("Cannot handle swaps with fixings");
     }
@@ -119,7 +122,7 @@ public class CurveNodeConverter {
         - Fed Fund futures: underlying overnight index fixing (when fixing month has started) 
         - Ibor swaps (when the UseFixing flag is true)  */
     return node instanceof ZeroCouponInflationNode || node instanceof RateFutureNode;
-    // || (node instanceof SwapNode && ((SwapNode) node).isUseFixings()); // [PLAT-6430]
+    // [PLAT-6430] Add case for (SwapNode) node).isUseFixings()
   }
 
   private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {

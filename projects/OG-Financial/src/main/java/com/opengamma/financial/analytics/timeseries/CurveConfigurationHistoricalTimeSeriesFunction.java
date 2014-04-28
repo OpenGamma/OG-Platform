@@ -126,7 +126,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
             final HistoricalTimeSeries priceIndexSeries = bundleForCurve.get(dataField, ids);
             if (priceIndexSeries != null) {
               if (priceIndexSeries.getTimeSeries().isEmpty()) {
-                s_logger.info("Could for get historical time series for {}", ids);
+                s_logger.info("Couldn't get historical time series for {}", ids);
               } else {
                 bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
               }
@@ -137,20 +137,16 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
           /** Implementation node: fixing series are required for Fed Fund futures: underlying overnight index fixing (when fixing month has started) */
           if (node.getCurveNode() instanceof RateFutureNode) { // Start Fed Fund futures
             RateFutureNode nodeRateFut = (RateFutureNode) node.getCurveNode();
-            final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+            final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext); 
             Convention conventionRateFut =  conventionSource.getSingle(nodeRateFut.getFutureConvention());
             if (conventionRateFut instanceof FederalFundsFutureConvention) {
               FederalFundsFutureConvention conventionFedFundFut = (FederalFundsFutureConvention) conventionRateFut;
               final ExternalIdBundle onIndexId = ExternalIdBundle.of(conventionFedFundFut.getIndexConvention());
               final HistoricalTimeSeries onIndexSeries = bundleForCurve.get(dataField, onIndexId);
-              if (onIndexSeries != null) {
-                if (onIndexSeries.getTimeSeries().isEmpty()) {
-                  s_logger.info("Could for get historical time series for {}", onIndexId);
-                } else {
-                  bundle.add(dataField, onIndexId, bundleForCurve.get(dataField, onIndexId));
-                }
+              if (onIndexSeries == null || onIndexSeries.getTimeSeries().isEmpty()) {
+                s_logger.info("Could not get historical time series for {}", onIndexId);
               } else {
-                s_logger.info("Couldn't get time series for {}", onIndexId);
+                bundle.add(dataField, onIndexId, bundleForCurve.get(dataField, onIndexId));
               }
             }
           } // End Fed Fund futures
