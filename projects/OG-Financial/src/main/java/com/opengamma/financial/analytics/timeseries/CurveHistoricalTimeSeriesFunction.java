@@ -18,6 +18,7 @@ import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -130,8 +131,7 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
       /** Implementation node: fixing series are required for Fed Fund futures: underlying overnight index fixing (when fixing month has started) */
       if (node.getCurveNode() instanceof RateFutureNode) { // Start Fed Fund futures
         RateFutureNode nodeRateFut = (RateFutureNode) node.getCurveNode();
-        final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-        Convention conventionRateFut =  conventionSource.getSingle(nodeRateFut.getFutureConvention());
+        Convention conventionRateFut =  ConventionLink.resolvable(nodeRateFut.getFutureConvention(), Convention.class).resolve();
         if (conventionRateFut instanceof FederalFundsFutureConvention) {
           FederalFundsFutureConvention conventionFedFundFut = (FederalFundsFutureConvention) conventionRateFut;
           final ExternalIdBundle onIndexId = ExternalIdBundle.of(conventionFedFundFut.getIndexConvention());
