@@ -171,7 +171,7 @@ public class WebUsersResource extends AbstractWebUserResource {
         ManageableUser user = new ManageableUser(userName);
         data().setUser(user);
       } catch (DataNotFoundException ex2) {
-        return null;
+        throw ex;
       }
     }
     return new WebUserResource(this);

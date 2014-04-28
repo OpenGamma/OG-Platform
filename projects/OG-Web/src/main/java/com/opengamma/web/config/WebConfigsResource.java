@@ -273,7 +273,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       ConfigHistoryResult<?> historyResult = data().getConfigMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setConfig(historyResult.getFirstDocument());
     }

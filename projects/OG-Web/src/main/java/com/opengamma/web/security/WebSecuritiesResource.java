@@ -370,7 +370,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       SecurityHistoryResult historyResult = data().getSecurityMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setSecurity(historyResult.getFirstDocument());
     }

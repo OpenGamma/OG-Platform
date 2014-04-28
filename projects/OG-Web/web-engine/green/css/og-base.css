@@ -213,6 +213,11 @@ img {
 .err {
   color: red;
 }
+.section.err {
+  border-color: #0D49A8;
+  background-color: #FFCCCB;
+  color: black;
+}
 .section.info {
   border-color: #0D49A8;
   background-color: #C6D8F5;

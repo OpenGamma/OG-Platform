@@ -160,7 +160,7 @@ public class WebRolesResource extends AbstractWebRoleResource {
         ManageableRole role = new ManageableRole(roleName);
         data().setRole(role);
       } catch (DataNotFoundException ex2) {
-        return null;
+        throw ex;
       }
     }
     return new WebRoleResource(this);

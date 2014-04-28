@@ -242,7 +242,7 @@ public class WebConventionsResource extends AbstractWebConventionResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       ConventionHistoryResult historyResult = data().getConventionMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setConvention(historyResult.getFirstDocument());
     }

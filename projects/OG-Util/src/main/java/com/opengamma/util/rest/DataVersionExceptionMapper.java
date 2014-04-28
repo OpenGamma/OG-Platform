@@ -5,9 +5,10 @@
  */
 package com.opengamma.util.rest;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.DataVersionException;
@@ -17,8 +18,7 @@ import com.opengamma.DataVersionException;
  */
 @Provider
 public class DataVersionExceptionMapper
-    extends AbstractExceptionMapper
-    implements ExceptionMapper<DataVersionException> {
+    extends AbstractSpecificExceptionMapper<DataVersionException> {
 
   /**
    * Creates the mapper.
@@ -29,8 +29,9 @@ public class DataVersionExceptionMapper
 
   //-------------------------------------------------------------------------
   @Override
-  public Response toResponse(final DataVersionException exception) {
-    return createResponse(exception);
+  protected String buildHtmlErrorPage(DataVersionException exception) {
+    Map<String, String> data = new HashMap<>();
+    return createHtmlErrorPage("error-dataversion.html", data);
   }
 
 }

@@ -167,7 +167,7 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
       historyRequest.setPagingRequest(PagingRequest.ONE);
       MarketDataSnapshotHistoryResult historyResult = data().getMarketDataSnapshotMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setSnapshot(historyResult.getFirstDocument());
     }
