@@ -28,13 +28,13 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
 
   private static final long serialVersionUID = 1L;
 
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private Tenor _tenor;
   
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ExternalId _ticker;
 
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private String _dataField;
   
   
@@ -65,7 +65,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
   //-----------------------------------------------------------------------
   /**
    * Gets the tenor.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Tenor getTenor() {
     return _tenor;
@@ -73,9 +73,10 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
 
   /**
    * Sets the tenor.
-   * @param tenor  the new value of the property
+   * @param tenor  the new value of the property, not null
    */
   public void setTenor(Tenor tenor) {
+    JodaBeanUtils.notNull(tenor, "tenor");
     this._tenor = tenor;
   }
 
@@ -90,7 +91,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
   //-----------------------------------------------------------------------
   /**
    * Gets the ticker.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ExternalId getTicker() {
     return _ticker;
@@ -98,9 +99,10 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
 
   /**
    * Sets the ticker.
-   * @param ticker  the new value of the property
+   * @param ticker  the new value of the property, not null
    */
   public void setTicker(ExternalId ticker) {
+    JodaBeanUtils.notNull(ticker, "ticker");
     this._ticker = ticker;
   }
 
@@ -115,7 +117,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
   //-----------------------------------------------------------------------
   /**
    * Gets the dataField.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getDataField() {
     return _dataField;
@@ -123,9 +125,10 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
 
   /**
    * Sets the dataField.
-   * @param dataField  the new value of the property
+   * @param dataField  the new value of the property, not null
    */
   public void setDataField(String dataField) {
+    JodaBeanUtils.notNull(dataField, "dataField");
     this._dataField = dataField;
   }
 
@@ -304,6 +307,14 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ISDAYieldCurveNode) bean)._tenor, "tenor");
+      JodaBeanUtils.notNull(((ISDAYieldCurveNode) bean)._ticker, "ticker");
+      JodaBeanUtils.notNull(((ISDAYieldCurveNode) bean)._dataField, "dataField");
+      super.validate(bean);
     }
 
   }

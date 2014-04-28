@@ -21,6 +21,7 @@ import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.ISDAYieldCurveNode;
 import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -84,12 +85,32 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       return getCurveSpecification(valuationTime, curveDate, (CurveDefinition) curveDefinition);
     } else if (curveDefinition instanceof ConstantCurveDefinition) {
       return getConstantCurveSpecification(valuationTime, curveDate, (ConstantCurveDefinition) curveDefinition);
+    } else if (curveDefinition instanceof ISDAYieldCurveDefinition) {
+      return getCurveSpecificationForISDAYieldCurve(valuationTime, curveDate, (ISDAYieldCurveDefinition) curveDefinition);
+    }
 //    } else if (curveDefinition instanceof SpreadCurveDefinition) {
 //      return getSpreadCurveSpecification(valuationTime, curveDate, (SpreadCurveDefinition) curveDefinition);
-    }
     throw new UnsupportedOperationException("Cannot handle curve definitions of type " + curveDefinition.getClass());
   }
 
+  /**
+   * Creates a {@link CurveSpecification} from an {@link ISDAYieldCurveDefinition}.
+   * 
+   * @param valuationTime The valuation time
+   * @param curveDate The curve date
+   * @param curveDefinition The curve definition
+   * @return The curve specification
+   */
+  private CurveSpecification getCurveSpecificationForISDAYieldCurve(final Instant valuationTime, final LocalDate curveDate, final ISDAYieldCurveDefinition curveDefinition) {
+    String curveName = curveDefinition.getName();
+    final Collection<CurveNodeWithIdentifier> identifiers = new ArrayList<>();
+    for (ISDAYieldCurveNode node : curveDefinition.getNodes()) {
+      CurveNodeWithIdentifierBuilder identifierBuilder = new CurveNodeWithIdentifierBuilder(curveDate, null);
+      identifiers.add(node.accept(identifierBuilder));
+    }
+    return new CurveSpecification(curveDate, curveName, identifiers);
+  }
+  
   /**
    * Creates a {@link CurveSpecification}.
    *

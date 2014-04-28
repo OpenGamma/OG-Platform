@@ -7,19 +7,19 @@ package com.opengamma.financial.analytics.ircurve.strips;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.financial.convention.ISDACashNodeConvention;
-import org.joda.beans.Bean;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class ISDACashNode extends ISDAYieldCurveNode {
 
   private static final long serialVersionUID = 1L;
   
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ConventionLink<ISDACashNodeConvention> _conventionLink;
   
   
@@ -60,7 +60,7 @@ public class ISDACashNode extends ISDAYieldCurveNode {
   //-----------------------------------------------------------------------
   /**
    * Gets the conventionLink.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ConventionLink<ISDACashNodeConvention> getConventionLink() {
     return _conventionLink;
@@ -68,9 +68,10 @@ public class ISDACashNode extends ISDAYieldCurveNode {
 
   /**
    * Sets the conventionLink.
-   * @param conventionLink  the new value of the property
+   * @param conventionLink  the new value of the property, not null
    */
   public void setConventionLink(ConventionLink<ISDACashNodeConvention> conventionLink) {
+    JodaBeanUtils.notNull(conventionLink, "conventionLink");
     this._conventionLink = conventionLink;
   }
 
@@ -208,6 +209,12 @@ public class ISDACashNode extends ISDAYieldCurveNode {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ISDACashNode) bean)._conventionLink, "conventionLink");
+      super.validate(bean);
     }
 
   }

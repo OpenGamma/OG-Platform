@@ -510,7 +510,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitISDASwapNode(ISDASwapNode node) {
-    ISDASwapNodeConvention convention = node.getFixedLegConventionLink().resolve();
+    ISDASwapNodeConvention convention = node.getConventionLink().resolve();
     return Collections.singleton(convention.getCurrency());
   }
 
