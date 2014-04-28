@@ -37,7 +37,11 @@ public enum FailureStatus implements ResultStatus {
   /**
    * No value was provided for a non-nullable argument.
    */
-  MISSING_ARGUMENT;
+  MISSING_ARGUMENT,
+  /**
+   * The user has insufficient permissions to view the result.
+   */
+  PERMISSION_DENIED;
 
   //-------------------------------------------------------------------------
   /**
