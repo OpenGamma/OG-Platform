@@ -5,9 +5,13 @@
  */
 package com.opengamma.bbg;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
+import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.util.test.TestGroup;
 
@@ -36,6 +40,27 @@ public class BloombergConnectorTest {
       connector.notifyAvailabilityListeners();
       Mockito.verify(mock1, Mockito.times(1)).bloombergAvailable();
       Mockito.verify(mock2, Mockito.times(2)).bloombergAvailable();
+    } finally {
+      connector.close();
+    }
+  }
+
+  public void getNullApplicationName() {
+    SessionOptions sessionOptions = new SessionOptions();
+    final BloombergConnector connector = new BloombergConnector("Test", sessionOptions);
+    try {
+      String applicationName = connector.getApplicationName();
+      assertNull(applicationName);
+    } finally {
+      connector.close();
+    }
+  }
+
+  public void getApplicationName() {
+    BloombergConnectorFactoryBean factoryBean = new BloombergConnectorFactoryBean("Test", "127.0.0.1", 8417, "TestAppName");
+    BloombergConnector connector = factoryBean.createObject();
+    try {
+      assertEquals("TestAppName", connector.getApplicationName());
     } finally {
       connector.close();
     }
