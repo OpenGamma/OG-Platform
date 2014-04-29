@@ -14,6 +14,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -21,6 +22,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.Bean;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
  * Result from searching for securities.
@@ -31,6 +35,12 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 @BeanDefinition
 public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument> {
+
+  /**
+   * The number of items that were removed because the user is not authorized to see them.
+   */
+  @PropertyDefinition
+  private int _unauthorizedCount;
 
   /**
    * Creates an instance.
@@ -118,6 +128,31 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the number of items that were removed because the user is not authorized to see them.
+   * @return the value of the property
+   */
+  public int getUnauthorizedCount() {
+    return _unauthorizedCount;
+  }
+
+  /**
+   * Sets the number of items that were removed because the user is not authorized to see them.
+   * @param unauthorizedCount  the new value of the property
+   */
+  public void setUnauthorizedCount(int unauthorizedCount) {
+    this._unauthorizedCount = unauthorizedCount;
+  }
+
+  /**
+   * Gets the the {@code unauthorizedCount} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> unauthorizedCount() {
+    return metaBean().unauthorizedCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public SecuritySearchResult clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -129,7 +164,9 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return super.equals(obj);
+      SecuritySearchResult other = (SecuritySearchResult) obj;
+      return (getUnauthorizedCount() == other.getUnauthorizedCount()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -137,12 +174,13 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnauthorizedCount());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("SecuritySearchResult{");
     int len = buf.length();
     toString(buf);
@@ -156,6 +194,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
+    buf.append("unauthorizedCount").append('=').append(JodaBeanUtils.toString(getUnauthorizedCount())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -169,15 +208,30 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code unauthorizedCount} property.
+     */
+    private final MetaProperty<Integer> _unauthorizedCount = DirectMetaProperty.ofReadWrite(
+        this, "unauthorizedCount", SecuritySearchResult.class, Integer.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "unauthorizedCount");
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 2063040635:  // unauthorizedCount
+          return _unauthorizedCount;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -196,6 +250,34 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code unauthorizedCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> unauthorizedCount() {
+      return _unauthorizedCount;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2063040635:  // unauthorizedCount
+          return ((SecuritySearchResult) bean).getUnauthorizedCount();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2063040635:  // unauthorizedCount
+          ((SecuritySearchResult) bean).setUnauthorizedCount((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
   }
 
   ///CLOVER:ON

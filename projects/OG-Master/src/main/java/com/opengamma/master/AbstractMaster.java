@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.shiro.authz.AuthorizationException;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -33,11 +35,15 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * The identifier version string will be used to return the correct historic version providing
    * that the master supports history.
+   * <p>
+   * Access to a document may be controlled by permissions.
+   * If the user does not have permission to view the document then an exception is thrown.
    *
    * @param uniqueId  the unique identifier, not null
    * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
+   * @throws AuthorizationException if the document requires permissions that the user does not have
    */
   D get(UniqueId uniqueId);
 
@@ -46,12 +52,16 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * The version-correction will be used to return the correct historic version providing
    * that the master supports history.
+   * <p>
+   * Access to a document may be controlled by permissions.
+   * If the user does not have permission to view the document then an exception is thrown.
    *
    * @param objectId  the object identifier, not null
    * @param versionCorrection  the version-correction locator to search at, not null
    * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
+   * @throws AuthorizationException if the document requires permissions that the user does not have
    */
   D get(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
@@ -60,6 +70,9 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * A unique identifier exactly specifies a single object at a single version-correction.
    * This bulk method is potentially a more efficient form of {@link #get} for multiple lookups.
+   * <p>
+   * Access to a document may be controlled by permissions.
+   * If the user does not have permission to view the document then the document is omitted from the result.
    *
    * @param uniqueIds the unique identifiers to query, not null
    * @return the map of results, if there is no data for an identifier it will be missing from the map, not null

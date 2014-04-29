@@ -5,7 +5,10 @@
  */
 package com.opengamma.util.auth;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -81,19 +84,19 @@ public final class ShiroPermissionResolver implements PermissionResolver {
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves the permission.
+   * Resolves the permission from string to object form.
    * <p>
    * This uses a cache to speed up comparisons.
    * 
-   * @param permissionStr  the permission string, not null
+   * @param permissionString  the permission string, not null
    * @return the permission object, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
   @Override
-  public Permission resolvePermission(String permissionStr) {
-    ArgumentChecker.notNull(permissionStr, "permissionStr");
+  public Permission resolvePermission(String permissionString) {
+    ArgumentChecker.notNull(permissionString, "permissionString");
     try {
-      return _cache.getUnchecked(permissionStr);
+      return _cache.getUnchecked(permissionString);
     } catch (UncheckedExecutionException ex) {
       // cache annoyingly wraps underlying runtime exceptions, so unwrap and rethrow
       Throwables.propagateIfPossible(ex.getCause());
@@ -101,6 +104,25 @@ public final class ShiroPermissionResolver implements PermissionResolver {
     }
   }
 
+  /**
+   * Resolves a set of permissions from string to object form.
+   * <p>
+   * The returned set of permissions may be smaller than the input set.
+   * 
+   * @param permissionStrings  the set of permission strings, not null
+   * @return the set of permission objects, not null
+   * @throws InvalidPermissionStringException if the permission string is invalid
+   */
+  public Set<Permission> resolvePermissions(Collection<String> permissionStrings) {
+    ArgumentChecker.notNull(permissionStrings, "permissionStrings");
+    Set<Permission> permissions = new HashSet<>();
+    for (String permissionString : permissionStrings) {
+      permissions.add(resolvePermission(permissionString));
+    }
+    return permissions;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Resolves the permission.
    * <p>

@@ -29,6 +29,9 @@ public interface SecurityMaster extends AbstractChangeProvidingMaster<SecurityDo
 
   /**
    * Searches for securities matching the specified search criteria.
+   * <p>
+   * Access to a document may be controlled by permissions.
+   * If the user does not have permission to view the document then it is omitted from the result.
    *
    * @param request  the search request, not null
    * @return the search result, not null
@@ -40,6 +43,9 @@ public interface SecurityMaster extends AbstractChangeProvidingMaster<SecurityDo
    * Queries the history of a single security.
    * <p>
    * The request must contain an object identifier to identify the security.
+   * <p>
+   * Access to a document version may be controlled by permissions.
+   * If the user does not have permission to view the version then it is omitted from the result.
    *
    * @param request  the history request, not null
    * @return the security history, not null
