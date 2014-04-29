@@ -141,7 +141,7 @@ $(function () {
 </@section>
 
 <#-- SECTION Update time series -->
-<@section title="Update Timeseries">
+<@section title="Update Timeseries" if=userSecurity.isPermitted('HistoricalTimeSeriesMaster:edit:update')>
   <@form method="PUT" action="${uris.oneTimeSeries()}">
   <p>
     <@rowin><input type="submit" value="Update" /></@rowin>
@@ -150,7 +150,7 @@ $(function () {
 </@section>
 
 <#-- SECTION Delete time series -->
-<@section title="Delete Timeseries">
+<@section title="Delete Timeseries" if=userSecurity.isPermitted('HistoricalTimeSeriesMaster:edit:remove')>
   <@form method="DELETE" action="${uris.oneTimeSeries()}">
   <p>
     <@rowin><input type="submit" value="Delete" /></@rowin>

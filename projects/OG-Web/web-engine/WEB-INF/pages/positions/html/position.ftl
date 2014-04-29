@@ -54,7 +54,7 @@ ${id.scheme.name} - ${id.value},
 
 
 <#-- SECTION Update position -->
-<@section title="Update position" if=!deleted>
+<@section title="Update position" if=!deleted && userSecurity.isPermitted('PositionMaster:edit:update')>
   <@form method="PUT" action="${uris.position()}" id="updatePositionForm">
   <p>
     <@rowin>
@@ -69,7 +69,7 @@ ${id.scheme.name} - ${id.value},
 
 
 <#-- SECTION Delete position -->
-<@section title="Delete position" if=!deleted>
+<@section title="Delete position" if=!deleted && userSecurity.isPermitted('PositionMaster:edit:remove')>
   <@form method="DELETE" action="${uris.position()}">
   <p>
     <@rowin><input type="submit" value="Delete" /></@rowin>

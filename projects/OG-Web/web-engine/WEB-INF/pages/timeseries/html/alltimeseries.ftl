@@ -32,13 +32,16 @@
       <td>${item.info.observationTime}</td>
       <td><a href="${uris.oneTimeSeries(item)}">View</a></td>
   </@table>
+<#if (searchResult.unauthorizedCount > 0)>
+  <p>You do not have permission to view ${searchResult.unauthorizedCount} time-series</p>
+</#if>
 </@subsection>
 </#if>
 </@section>
 
 
 <#-- SECTION Add timeseries -->
-<@section title="Add timeseries" if=searchRequest??>
+<@section title="Add timeseries" if=userSecurity.isPermitted('HistoricalTimeSeriesMaster:edit:add')>
   <@form method="POST" action="${uris.allTimeSeries()}">
   <p>
     <@rowin label="Scheme type">

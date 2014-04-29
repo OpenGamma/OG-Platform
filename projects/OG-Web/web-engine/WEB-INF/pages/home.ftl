@@ -20,15 +20,23 @@
       <@link text="Functions" uriObj=functionUris!""/>
       <@link text="Holidays" uriObj=holidayUris!""/>
       <@link text="Legal Entities" uriObj=legalEntityUris!""/>
+<#if userSecurity.isPermitted('PortfolioMaster:view')>
       <@link text="Portfolios" uriObj=portfolioUris!""/>
+</#if>
+<#if userSecurity.isPermitted('PositionMaster:view')>
       <@link text="Positions" uriObj=positionUris!""/>
+</#if>
       <@link text="Regions" uriObj=regionUris!""/>
 <#if userSecurity.isPermitted('RoleMaster:view')>
       <@link text="Roles" uriObj=roleUris!""/>
 </#if>
+<#if userSecurity.isPermitted('SecurityMaster:view')>
       <@link text="Securities" uriObj=securityUris!""/>
+</#if>
       <@link text="Snapshots" uriObj=snapshotUris!""/>
+<#if userSecurity.isPermitted('HistoricalTimeSeriesMaster:view')>
       <@link text="Time Series" uriObj=timeseriesUris!""/>
+</#if>
 <#if userSecurity.isPermitted('UserMaster:view')>
       <@link text="Users" uriObj=userUris!""/>
 </#if>

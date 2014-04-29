@@ -494,7 +494,7 @@
 
 
 <#-- SECTION Update security -->
-<@section title="Update security" if=!deleted>
+<@section title="Update security" if=!deleted && userSecurity.isPermitted('SecurityMaster:edit:update')>
   <@form method="PUT" action="${uris.security()}" id="updateSecurityForm">
   <p>
     <@rowin>
@@ -510,7 +510,7 @@
 </@section>
 
 <#-- SECTION Reload security -->
-<@section title="Reload security" if=!deleted>
+<@section title="Reload security" if=!deleted && userSecurity.isPermitted('SecurityMaster:edit:update')>
   <@form method="PUT" action="${uris.security()}">
   <p>
     <input type="hidden" name="type" value="id"/>
@@ -520,7 +520,7 @@
 </@section>
 
 <#-- SECTION Delete security -->
-<@section title="Delete security" if=!deleted>
+<@section title="Delete security" if=!deleted && userSecurity.isPermitted('SecurityMaster:edit:remove')>
   <@form method="DELETE" action="${uris.security()}">
   <p>
     <@rowin><input type="submit" value="Delete" /></@rowin>

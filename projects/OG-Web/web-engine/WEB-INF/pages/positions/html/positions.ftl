@@ -39,7 +39,7 @@
 
 
 <#-- SECTION Add position -->
-<@section title="Add position">
+<@section title="Add position" if=userSecurity.isPermitted('PositionMaster:edit:add')>
   <@form method="POST" action="${uris.positions()}">
   <p>
     <#if uniqueIdSchemes?exists>
@@ -67,7 +67,7 @@
 </@section>
 
 <#-- SECTION Add position by XML-->
-<@section title="Add position by XML">
+<@section title="Add position by XML" if=userSecurity.isPermitted('PositionMaster:edit:add')>
   <@form method="POST" action="${uris.positions()}" id="addPositionForm">
   <p>
     <#if uniqueIdSchemes?exists>

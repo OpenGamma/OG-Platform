@@ -35,7 +35,7 @@
 
 
 <#-- SECTION Update portfolio -->
-<@section title="Update portfolio" if=!deleted>
+<@section title="Update portfolio" if=!deleted && userSecurity.isPermitted('PortfolioMaster:edit:update')>
   <@form method="PUT" action="${uris.portfolio()}">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${portfolio.name}" /></@rowin>
@@ -47,7 +47,7 @@
 
 
 <#-- SECTION Delete portfolio -->
-<@section title="Delete portfolio" if=!deleted>
+<@section title="Delete portfolio" if=!deleted && userSecurity.isPermitted('PortfolioMaster:edit:update')>
   <@form method="DELETE" action="${uris.portfolio()}">
   <p>
     <@rowin><input type="submit" value="Delete" /></@rowin>
@@ -57,7 +57,7 @@
 
 
 <#-- SECTION Add node -->
-<@section title="Add child node" if=!deleted>
+<@section title="Add child node" if=!deleted && userSecurity.isPermitted('PortfolioMaster:edit:update')>
   <@form method="POST" action="${uris.node(portfolio.rootNode)}">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="" /></@rowin>
@@ -68,7 +68,7 @@
 
 
 <#-- SECTION Add position -->
-<@section title="Add position" if=!deleted>
+<@section title="Add position" if=!deleted && userSecurity.isPermitted('PortfolioMaster:edit:update')>
   <@form method="POST" action="${uris.nodePositions(portfolio.rootNode)}">
   <p>
     <@rowin label="Position URL"><input type="text" size="60" maxlength="255" name="positionurl" value="" /></@rowin>

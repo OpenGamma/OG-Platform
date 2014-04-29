@@ -39,13 +39,20 @@
       <td>${item.versionFromInstant}</td>
       <td><a href="${uris.security(item.security)}">View</a></td>
   </@table>
+<#if (searchResult.unauthorizedCount > 0)>
+<#if (searchResult.unauthorizedCount > 1)>
+  <p>You do not have permission to view ${searchResult.unauthorizedCount} securities</p>
+<#else>
+  <p>You do not have permission to view ${searchResult.unauthorizedCount} security</p>
+</#if>
+</#if>
 </@subsection>
 </#if>
 </@section>
 
 
 <#-- SECTION Add security -->
-<@section title="Add security by XML">
+<@section title="Add security by XML" if=userSecurity.isPermitted('SecurityMaster:edit:add')>
   <@form method="POST" action="${uris.securities()}" id="addSecurityForm">
   <p>
     <#if uniqueIdSchemes?exists>
@@ -71,7 +78,7 @@
 </@section>
 
 <#-- SECTION Load and Add security -->
-<@section title="Load securities by ID">
+<@section title="Load securities by ID" if=userSecurity.isPermitted('SecurityMaster:edit:add')>
   <@form method="POST" action="${uris.securities()}">
   <p> 
     <@rowin label="Scheme type">
