@@ -22,8 +22,22 @@ import com.opengamma.util.PublicSPI;
 public interface PermissionCheckProvider {
 
   /**
+   * Checks if a given user has the requested permission.
+   * <p>
+   * The permission specified to this method will typically start with a data source specific prefix.
+   *
+   * @param userIdBundle  the external identifier bundle with the user credential, not null
+   * @param ipAddress  the IP address of the user, not null
+   * @param requestedPermission  the requested permission, not null
+   * @return true if permitted, false otherwise
+   * @throws RuntimeException if a problem occurs
+   */
+  boolean isPermitted(ExternalIdBundle userIdBundle, String ipAddress, String requestedPermission);
+
+  /**
    * Checks if a given user has the requested permissions.
    * <p>
+   * The permissions specified to this method will typically start with a data source specific prefix.
    *
    * @param userIdBundle  the external identifier bundle with the user credential, not null
    * @param ipAddress  the IP address of the user, not null

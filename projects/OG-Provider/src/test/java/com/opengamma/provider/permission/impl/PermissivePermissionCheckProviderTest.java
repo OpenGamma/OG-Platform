@@ -31,9 +31,9 @@ public class PermissivePermissionCheckProviderTest {
     PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalIdBundle.of("A", "B"), "127.0.0.1", "A", "B", "C");
     PermissionCheckProviderResult resultHolder = test.isPermitted(request);
     assertNotNull(resultHolder);
-    assertNotNull(resultHolder.getPermissionCheckResult());
+    assertNotNull(resultHolder.getCheckedPermissions());
     
-    Map<String, Boolean> permissionCheckResult = resultHolder.getPermissionCheckResult();
+    Map<String, Boolean> permissionCheckResult = resultHolder.getCheckedPermissions();
     assertPermissionResult(permissionCheckResult);
   }
 

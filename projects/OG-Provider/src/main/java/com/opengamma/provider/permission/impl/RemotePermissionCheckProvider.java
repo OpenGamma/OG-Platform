@@ -9,6 +9,8 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.permission.PermissionCheckProvider;
 import com.opengamma.provider.permission.PermissionCheckProviderRequest;
@@ -32,17 +34,24 @@ public class RemotePermissionCheckProvider extends AbstractRemoteClient implemen
     super(baseUri);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean isPermitted(ExternalIdBundle userIdBundle, String ipAddress, String requestedPermission) {
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(userIdBundle, ipAddress, requestedPermission);
+    PermissionCheckProviderResult holderResult = isPermitted(request);
+    return BooleanUtils.isTrue(holderResult.getCheckedPermissions().get(requestedPermission));
+  }
+
   @Override
   public Map<String, Boolean> isPermitted(ExternalIdBundle userIdBundle, String ipAddress, Set<String> requestedPermissions) {
     PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(userIdBundle, ipAddress, requestedPermissions);
     PermissionCheckProviderResult permissionResult = isPermitted(request);
-    return permissionResult.getPermissionCheckResult();
+    return permissionResult.getCheckedPermissions();
   }
 
   @Override
   public PermissionCheckProviderResult isPermitted(PermissionCheckProviderRequest request) {
     ArgumentChecker.notNull(request, "request");
-
     URI uri = DataPermissionCheckProviderResource.uriGet(getBaseUri());
     return accessRemote(uri).post(PermissionCheckProviderResult.class, request);
   }

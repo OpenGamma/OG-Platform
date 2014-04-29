@@ -237,8 +237,8 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
   @Override
   public PermissionCheckProviderResult isPermitted(PermissionCheckProviderRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getIpAddress(), "request.ipAddress");
-    ArgumentChecker.notNull(request.getRequestedPermissions(), "request.rquestedPermissions");
+    ArgumentChecker.notNull(request.getNetworkAddress(), "request.networkAddress");
+    ArgumentChecker.notNull(request.getRequestedPermissions(), "request.requestedPermissions");
     ArgumentChecker.notNull(request.getUserIdBundle(), "request.userIdBundle");
 
     final String emrsId = StringUtils.trimToNull(request.getUserIdBundle().getValue(ExternalSchemes.BLOOMBERG_EMRSID));
@@ -247,7 +247,7 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
     final Map<String, Boolean> permissionResult = initializeResult(request.getRequestedPermissions());
     if (request.getRequestedPermissions().size() > 0) {
       try {
-        Identity userIdentity = _userIdentityCache.get(IdentityCacheKey.of(request.getIpAddress(), emrsId));
+        Identity userIdentity = _userIdentityCache.get(IdentityCacheKey.of(request.getNetworkAddress(), emrsId));
         Set<String> liveDataPermissions = new HashSet<>();
         for (String permission : request.getRequestedPermissions()) {
           if (isReferenceDataEidPermissionCheck(permission)) {
@@ -258,7 +258,7 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
         }
         doLiveDataPermissionCheck(request, permissionResult, userIdentity, liveDataPermissions);
       } catch (ExecutionException | UncheckedExecutionException ex) {
-        s_logger.warn(String.format("Bloomberg authorization failure for user: %s ipAddress: %s", request.getUserIdBundle(), request.getIpAddress()), ex.getCause());
+        s_logger.warn(String.format("Bloomberg authorization failure for user: %s ipAddress: %s", request.getUserIdBundle(), request.getNetworkAddress()), ex.getCause());
         throw new UnauthenticatedException(ex.getCause());
       }
     }

@@ -56,8 +56,8 @@ public class BloombergBpipePermissionCheckProviderTest {
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
-    assertNotNull(resultHolder.getPermissionCheckResult());
-    Map<String, Boolean> checkPermissionResult = resultHolder.getPermissionCheckResult();
+    assertNotNull(resultHolder.getCheckedPermissions());
+    Map<String, Boolean> checkPermissionResult = resultHolder.getCheckedPermissions();
     assertEquals(7, checkPermissionResult.size());
     assertTrue(checkPermissionResult.get("EID:27749"));
     assertTrue(checkPermissionResult.get("EID:35009"));
@@ -75,8 +75,8 @@ public class BloombergBpipePermissionCheckProviderTest {
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
-    assertNotNull(resultHolder.getPermissionCheckResult());
-    Map<String, Boolean> checkPermissionResult = resultHolder.getPermissionCheckResult();
+    assertNotNull(resultHolder.getCheckedPermissions());
+    Map<String, Boolean> checkPermissionResult = resultHolder.getCheckedPermissions();
     assertEquals(7, checkPermissionResult.size());
     assertTrue(checkPermissionResult.get("EID:27749"));
     assertTrue(checkPermissionResult.get("EID:35009"));
@@ -95,8 +95,8 @@ public class BloombergBpipePermissionCheckProviderTest {
 
     resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
-    assertNotNull(resultHolder.getPermissionCheckResult());
-    checkPermissionResult = resultHolder.getPermissionCheckResult();
+    assertNotNull(resultHolder.getCheckedPermissions());
+    checkPermissionResult = resultHolder.getCheckedPermissions();
     assertEquals(7, checkPermissionResult.size());
     assertFalse(checkPermissionResult.get("EID:27749"));
     assertFalse(checkPermissionResult.get("EID:35009"));
@@ -114,8 +114,8 @@ public class BloombergBpipePermissionCheckProviderTest {
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
-    assertNotNull(resultHolder.getPermissionCheckResult());
-    Map<String, Boolean> checkPermissionResult = resultHolder.getPermissionCheckResult();
+    assertNotNull(resultHolder.getCheckedPermissions());
+    Map<String, Boolean> checkPermissionResult = resultHolder.getCheckedPermissions();
     assertEquals(2, checkPermissionResult.size());
     assertTrue(checkPermissionResult.get("LIVEDATA:IBM US Equity"));
     assertFalse(checkPermissionResult.get("LIVEDATA:AAPL US Equity"));

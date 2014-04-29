@@ -17,7 +17,6 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -35,22 +34,21 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class PermissionCheckProviderRequest extends DirectBean {
+public class PermissionCheckProviderRequest implements Bean {
 
   /**
-   * The user identity bundle
+   * The user identity bundle.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalIdBundle _userIdBundle;
-
   /**
-   * The ip address where user is logged in
+   * The network address where user is logged in.
+   * This is intended to be an IP address.
    */
-  @PropertyDefinition(validate = "notNull")
-  private String _ipAddress;
-
+  @PropertyDefinition
+  private String _networkAddress;
   /**
-   * The set of requested permissions
+   * The set of requested permissions.
    */
   @PropertyDefinition(validate = "notNull")
   private final Set<String> _requestedPermissions = new TreeSet<>();
@@ -60,62 +58,58 @@ public class PermissionCheckProviderRequest extends DirectBean {
    * Obtains an instance to get user permissions check request.
    * 
    * @param userId  the identifier of user credentials, not null
-   * @param ipAddress  the user ip address, not null
+   * @param networkAddress  the user network address, may be null
    * @param requestedPermissions  the requested permissions, not null
    * @return the request, not null
    */
-  public static PermissionCheckProviderRequest createGet(ExternalId userId, String ipAddress, String... requestedPermissions) {
-    return createGet(userId, ipAddress, Arrays.asList(requestedPermissions));
+  public static PermissionCheckProviderRequest createGet(ExternalId userId, String networkAddress, String... requestedPermissions) {
+    return createGet(userId, networkAddress, Arrays.asList(requestedPermissions));
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Obtains an instance to get user permissions check request.
    * 
    * @param userIdBundle  the identifier bundle of user credentials, not null
-   * @param ipAddress  the user ip address, not null
+   * @param networkAddress  the user network address, may be null
    * @param requestedPermissions  the requested permissions, not null
    * @return the request, not null
    */
-  public static PermissionCheckProviderRequest createGet(ExternalIdBundle userIdBundle, String ipAddress, String... requestedPermissions) {
-    return createGet(userIdBundle, ipAddress, Arrays.asList(requestedPermissions));
+  public static PermissionCheckProviderRequest createGet(ExternalIdBundle userIdBundle, String networkAddress, String... requestedPermissions) {
+    return createGet(userIdBundle, networkAddress, Arrays.asList(requestedPermissions));
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Obtains an instance to get user permissions check request.
    * 
    * @param userId  the identifier of user credentials, not null
-   * @param ipAddress  the user ip address, not null
+   * @param networkAddress  the user network address, may be null
    * @param requestedPermissions  the requested permissions, not null
    * @return the request, not null
    */
-  public static PermissionCheckProviderRequest createGet(ExternalId userId, String ipAddress, Iterable<String> requestedPermissions) {
+  public static PermissionCheckProviderRequest createGet(ExternalId userId, String networkAddress, Iterable<String> requestedPermissions) {
     ArgumentChecker.notNull(userId, "userId");
-    return createGet(ExternalIdBundle.of(userId), ipAddress, requestedPermissions);
+    return createGet(ExternalIdBundle.of(userId), networkAddress, requestedPermissions);
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Obtains an instance to get user permissions check request.
    * 
    * @param userIdBundle  the external id bundle of user credentials, not null
-   * @param ipAddress  the user ip address, not null
+   * @param networkAddress  the user network address, may be null
    * @param requestedPermissions  the requested permissions, not null
    * @return the request, not null
    */
-  public static PermissionCheckProviderRequest createGet(ExternalIdBundle userIdBundle, String ipAddress, Iterable<String> requestedPermissions) {
+  public static PermissionCheckProviderRequest createGet(ExternalIdBundle userIdBundle, String networkAddress, Iterable<String> requestedPermissions) {
+    ArgumentChecker.notNull(userIdBundle, "userIdBundle");
     ArgumentChecker.notNull(requestedPermissions, "requestedPermissions");
-
     PermissionCheckProviderRequest request = new PermissionCheckProviderRequest();
     request.setUserIdBundle(userIdBundle);
-    request.setIpAddress(ipAddress);
+    request.setNetworkAddress(networkAddress);
     for (String permission : requestedPermissions) {
       request.getRequestedPermissions().add(permission);
     }
     return request;
   }
-
 
   /**
    * Creates an instance.
@@ -142,9 +136,19 @@ public class PermissionCheckProviderRequest extends DirectBean {
     return PermissionCheckProviderRequest.Meta.INSTANCE;
   }
 
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
   //-----------------------------------------------------------------------
   /**
-   * Gets the user identity bundle
+   * Gets the user identity bundle.
    * @return the value of the property, not null
    */
   public ExternalIdBundle getUserIdBundle() {
@@ -152,7 +156,7 @@ public class PermissionCheckProviderRequest extends DirectBean {
   }
 
   /**
-   * Sets the user identity bundle
+   * Sets the user identity bundle.
    * @param userIdBundle  the new value of the property, not null
    */
   public void setUserIdBundle(ExternalIdBundle userIdBundle) {
@@ -170,33 +174,35 @@ public class PermissionCheckProviderRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the ip address where user is logged in
-   * @return the value of the property, not null
+   * Gets the network address where user is logged in.
+   * This is intended to be an IP address.
+   * @return the value of the property
    */
-  public String getIpAddress() {
-    return _ipAddress;
+  public String getNetworkAddress() {
+    return _networkAddress;
   }
 
   /**
-   * Sets the ip address where user is logged in
-   * @param ipAddress  the new value of the property, not null
+   * Sets the network address where user is logged in.
+   * This is intended to be an IP address.
+   * @param networkAddress  the new value of the property
    */
-  public void setIpAddress(String ipAddress) {
-    JodaBeanUtils.notNull(ipAddress, "ipAddress");
-    this._ipAddress = ipAddress;
+  public void setNetworkAddress(String networkAddress) {
+    this._networkAddress = networkAddress;
   }
 
   /**
-   * Gets the the {@code ipAddress} property.
+   * Gets the the {@code networkAddress} property.
+   * This is intended to be an IP address.
    * @return the property, not null
    */
-  public final Property<String> ipAddress() {
-    return metaBean().ipAddress().createProperty(this);
+  public final Property<String> networkAddress() {
+    return metaBean().networkAddress().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the set of requested permissions
+   * Gets the set of requested permissions.
    * @return the value of the property, not null
    */
   public Set<String> getRequestedPermissions() {
@@ -204,7 +210,7 @@ public class PermissionCheckProviderRequest extends DirectBean {
   }
 
   /**
-   * Sets the set of requested permissions
+   * Sets the set of requested permissions.
    * @param requestedPermissions  the new value of the property, not null
    */
   public void setRequestedPermissions(Set<String> requestedPermissions) {
@@ -235,7 +241,7 @@ public class PermissionCheckProviderRequest extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       PermissionCheckProviderRequest other = (PermissionCheckProviderRequest) obj;
       return JodaBeanUtils.equal(getUserIdBundle(), other.getUserIdBundle()) &&
-          JodaBeanUtils.equal(getIpAddress(), other.getIpAddress()) &&
+          JodaBeanUtils.equal(getNetworkAddress(), other.getNetworkAddress()) &&
           JodaBeanUtils.equal(getRequestedPermissions(), other.getRequestedPermissions());
     }
     return false;
@@ -245,7 +251,7 @@ public class PermissionCheckProviderRequest extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIpAddress());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNetworkAddress());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRequestedPermissions());
     return hash;
   }
@@ -265,7 +271,7 @@ public class PermissionCheckProviderRequest extends DirectBean {
 
   protected void toString(StringBuilder buf) {
     buf.append("userIdBundle").append('=').append(JodaBeanUtils.toString(getUserIdBundle())).append(',').append(' ');
-    buf.append("ipAddress").append('=').append(JodaBeanUtils.toString(getIpAddress())).append(',').append(' ');
+    buf.append("networkAddress").append('=').append(JodaBeanUtils.toString(getNetworkAddress())).append(',').append(' ');
     buf.append("requestedPermissions").append('=').append(JodaBeanUtils.toString(getRequestedPermissions())).append(',').append(' ');
   }
 
@@ -285,10 +291,10 @@ public class PermissionCheckProviderRequest extends DirectBean {
     private final MetaProperty<ExternalIdBundle> _userIdBundle = DirectMetaProperty.ofReadWrite(
         this, "userIdBundle", PermissionCheckProviderRequest.class, ExternalIdBundle.class);
     /**
-     * The meta-property for the {@code ipAddress} property.
+     * The meta-property for the {@code networkAddress} property.
      */
-    private final MetaProperty<String> _ipAddress = DirectMetaProperty.ofReadWrite(
-        this, "ipAddress", PermissionCheckProviderRequest.class, String.class);
+    private final MetaProperty<String> _networkAddress = DirectMetaProperty.ofReadWrite(
+        this, "networkAddress", PermissionCheckProviderRequest.class, String.class);
     /**
      * The meta-property for the {@code requestedPermissions} property.
      */
@@ -301,7 +307,7 @@ public class PermissionCheckProviderRequest extends DirectBean {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "userIdBundle",
-        "ipAddress",
+        "networkAddress",
         "requestedPermissions");
 
     /**
@@ -315,8 +321,8 @@ public class PermissionCheckProviderRequest extends DirectBean {
       switch (propertyName.hashCode()) {
         case -1899430296:  // userIdBundle
           return _userIdBundle;
-        case 1634032845:  // ipAddress
-          return _ipAddress;
+        case 1443604966:  // networkAddress
+          return _networkAddress;
         case 1660990518:  // requestedPermissions
           return _requestedPermissions;
       }
@@ -348,11 +354,11 @@ public class PermissionCheckProviderRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code ipAddress} property.
+     * The meta-property for the {@code networkAddress} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> ipAddress() {
-      return _ipAddress;
+    public final MetaProperty<String> networkAddress() {
+      return _networkAddress;
     }
 
     /**
@@ -369,8 +375,8 @@ public class PermissionCheckProviderRequest extends DirectBean {
       switch (propertyName.hashCode()) {
         case -1899430296:  // userIdBundle
           return ((PermissionCheckProviderRequest) bean).getUserIdBundle();
-        case 1634032845:  // ipAddress
-          return ((PermissionCheckProviderRequest) bean).getIpAddress();
+        case 1443604966:  // networkAddress
+          return ((PermissionCheckProviderRequest) bean).getNetworkAddress();
         case 1660990518:  // requestedPermissions
           return ((PermissionCheckProviderRequest) bean).getRequestedPermissions();
       }
@@ -384,8 +390,8 @@ public class PermissionCheckProviderRequest extends DirectBean {
         case -1899430296:  // userIdBundle
           ((PermissionCheckProviderRequest) bean).setUserIdBundle((ExternalIdBundle) newValue);
           return;
-        case 1634032845:  // ipAddress
-          ((PermissionCheckProviderRequest) bean).setIpAddress((String) newValue);
+        case 1443604966:  // networkAddress
+          ((PermissionCheckProviderRequest) bean).setNetworkAddress((String) newValue);
           return;
         case 1660990518:  // requestedPermissions
           ((PermissionCheckProviderRequest) bean).setRequestedPermissions((Set<String>) newValue);
@@ -397,7 +403,6 @@ public class PermissionCheckProviderRequest extends DirectBean {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((PermissionCheckProviderRequest) bean)._userIdBundle, "userIdBundle");
-      JodaBeanUtils.notNull(((PermissionCheckProviderRequest) bean)._ipAddress, "ipAddress");
       JodaBeanUtils.notNull(((PermissionCheckProviderRequest) bean)._requestedPermissions, "requestedPermissions");
     }
 

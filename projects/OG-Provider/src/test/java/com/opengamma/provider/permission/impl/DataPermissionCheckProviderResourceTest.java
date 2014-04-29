@@ -49,9 +49,9 @@ public class DataPermissionCheckProviderResourceTest {
   public void testGet() {
     final PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalIdBundle.of("A", "B"), "127.0.0.1", "A", "B", "C");
     final PermissionCheckProviderResult result = new PermissionCheckProviderResult();
-    result.getPermissionCheckResult().put("A", true);
-    result.getPermissionCheckResult().put("B", true);
-    result.getPermissionCheckResult().put("C", true);
+    result.getCheckedPermissions().put("A", true);
+    result.getCheckedPermissions().put("B", true);
+    result.getCheckedPermissions().put("C", true);
     
     when(_underlying.isPermitted(same(request))).thenReturn(result);
     
