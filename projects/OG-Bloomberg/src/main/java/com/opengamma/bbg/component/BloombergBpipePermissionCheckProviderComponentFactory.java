@@ -56,12 +56,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
   private BloombergConnector _bloombergConnector;
   
   /**
-   * The application name
-   */
-  @PropertyDefinition
-  private String _applicationName;
-
-  /**
    * The identity expiry time in hours
    * <p>
    * Defaults to 24hrs if not set
@@ -81,7 +75,7 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePermissionCheckProvider.class);
 
-    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(getBloombergConnector(), getIdentityExpiryTime(), getApplicationName());
+    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(getBloombergConnector(), getIdentityExpiryTime());
     repo.registerComponent(info, provider);
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataPermissionCheckProviderResource(provider));
@@ -188,31 +182,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the application name
-   * @return the value of the property
-   */
-  public String getApplicationName() {
-    return _applicationName;
-  }
-
-  /**
-   * Sets the application name
-   * @param applicationName  the new value of the property
-   */
-  public void setApplicationName(String applicationName) {
-    this._applicationName = applicationName;
-  }
-
-  /**
-   * Gets the the {@code applicationName} property.
-   * @return the property, not null
-   */
-  public final Property<String> applicationName() {
-    return metaBean().applicationName().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the identity expiry time in hours
    * <p>
    * Defaults to 24hrs if not set
@@ -284,7 +253,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           (isPublishRest() == other.isPublishRest()) &&
           JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
-          JodaBeanUtils.equal(getApplicationName(), other.getApplicationName()) &&
           (getIdentityExpiryTime() == other.getIdentityExpiryTime()) &&
           JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
           super.equals(obj);
@@ -298,7 +266,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getApplicationName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentityExpiryTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
     return hash ^ super.hashCode();
@@ -306,7 +273,7 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("BloombergBpipePermissionCheckProviderComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -323,7 +290,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
     buf.append("bloombergConnector").append('=').append(JodaBeanUtils.toString(getBloombergConnector())).append(',').append(' ');
-    buf.append("applicationName").append('=').append(JodaBeanUtils.toString(getApplicationName())).append(',').append(' ');
     buf.append("identityExpiryTime").append('=').append(JodaBeanUtils.toString(getIdentityExpiryTime())).append(',').append(' ');
     buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
   }
@@ -354,11 +320,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
     private final MetaProperty<BloombergConnector> _bloombergConnector = DirectMetaProperty.ofReadWrite(
         this, "bloombergConnector", BloombergBpipePermissionCheckProviderComponentFactory.class, BloombergConnector.class);
     /**
-     * The meta-property for the {@code applicationName} property.
-     */
-    private final MetaProperty<String> _applicationName = DirectMetaProperty.ofReadWrite(
-        this, "applicationName", BloombergBpipePermissionCheckProviderComponentFactory.class, String.class);
-    /**
      * The meta-property for the {@code identityExpiryTime} property.
      */
     private final MetaProperty<Long> _identityExpiryTime = DirectMetaProperty.ofReadWrite(
@@ -376,7 +337,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
         "classifier",
         "publishRest",
         "bloombergConnector",
-        "applicationName",
         "identityExpiryTime",
         "referenceDataProvider");
 
@@ -395,8 +355,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
           return _publishRest;
         case 2061648978:  // bloombergConnector
           return _bloombergConnector;
-        case -1247425541:  // applicationName
-          return _applicationName;
         case 201583102:  // identityExpiryTime
           return _identityExpiryTime;
         case -1788671322:  // referenceDataProvider
@@ -446,14 +404,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
     }
 
     /**
-     * The meta-property for the {@code applicationName} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> applicationName() {
-      return _applicationName;
-    }
-
-    /**
      * The meta-property for the {@code identityExpiryTime} property.
      * @return the meta-property, not null
      */
@@ -479,8 +429,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
           return ((BloombergBpipePermissionCheckProviderComponentFactory) bean).isPublishRest();
         case 2061648978:  // bloombergConnector
           return ((BloombergBpipePermissionCheckProviderComponentFactory) bean).getBloombergConnector();
-        case -1247425541:  // applicationName
-          return ((BloombergBpipePermissionCheckProviderComponentFactory) bean).getApplicationName();
         case 201583102:  // identityExpiryTime
           return ((BloombergBpipePermissionCheckProviderComponentFactory) bean).getIdentityExpiryTime();
         case -1788671322:  // referenceDataProvider
@@ -500,9 +448,6 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
           return;
         case 2061648978:  // bloombergConnector
           ((BloombergBpipePermissionCheckProviderComponentFactory) bean).setBloombergConnector((BloombergConnector) newValue);
-          return;
-        case -1247425541:  // applicationName
-          ((BloombergBpipePermissionCheckProviderComponentFactory) bean).setApplicationName((String) newValue);
           return;
         case 201583102:  // identityExpiryTime
           ((BloombergBpipePermissionCheckProviderComponentFactory) bean).setIdentityExpiryTime((Long) newValue);
