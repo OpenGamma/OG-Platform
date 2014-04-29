@@ -366,6 +366,6 @@ public final class BloombergConstants {
   /**
    * The name of live data entitlement field
    */
-  public static final String EID_FIELD = "EID";
+  public static final String EID_LIVE_DATA_FIELD = "EID";
 
 }

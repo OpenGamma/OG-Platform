@@ -181,7 +181,8 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     SubscriptionList sl = new SubscriptionList();
     for (String bbgUniqueId : bbgUniqueIds) {
       String securityDes = getBloombergSubscriptionPathPrefix() + bbgUniqueId;
-      Subscription subscription = new Subscription(securityDes, BloombergDataUtils.STANDARD_FIELDS_LIST);
+      final List<String> standardFields = getLiveDataFields();
+      Subscription subscription = new Subscription(securityDes, standardFields);
       sl.add(subscription);
       returnValue.put(bbgUniqueId, subscription);
     }
@@ -197,6 +198,15 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     }
 
     return returnValue;
+  }
+
+  private List<String> getLiveDataFields() {
+    if (!_requiresAuthorization) {
+      return BloombergDataUtils.STANDARD_FIELDS_LIST;
+    }
+    final List<String> result = Lists.newArrayList(BloombergDataUtils.STANDARD_FIELDS_LIST);
+    result.add(BloombergConstants.EID_LIVE_DATA_FIELD);
+    return result;
   }
 
   public long getSubscriptionLimit() {
