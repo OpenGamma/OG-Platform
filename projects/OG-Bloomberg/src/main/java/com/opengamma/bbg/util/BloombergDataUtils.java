@@ -68,8 +68,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.BloombergPermissions;
 import com.opengamma.bbg.historical.normalization.BloombergFixedRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
+import com.opengamma.bbg.livedata.normalization.BloombergEidFieldValueNormalizer;
 import com.opengamma.bbg.livedata.normalization.BloombergRateRuleProvider;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
 import com.opengamma.bbg.referencedata.ReferenceData;
@@ -104,6 +106,7 @@ import com.opengamma.livedata.normalization.SecurityRuleApplier;
 import com.opengamma.livedata.normalization.SecurityRuleProvider;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.normalization.UnitChange;
+import com.opengamma.livedata.permission.PermissionUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
@@ -233,6 +236,9 @@ public final class BloombergDataUtils {
     // Filter out non-price updates
     openGammaRules.add(new FieldFilter(STANDARD_FIELDS_LIST));
 
+    // Normalize EID name and values
+    openGammaRules.add(new BloombergEidFieldValueNormalizer());
+
     // Standardize field names.
     openGammaRules.add(new FieldNameChange("BID", MarketDataRequirementNames.BID));
     openGammaRules.add(new FieldNameChange("ASK", MarketDataRequirementNames.ASK));
@@ -324,7 +330,13 @@ public final class BloombergDataUtils {
           fieldData.add(name, obj);
         }
       } else if (value != null) {
-        fieldData.add(name, value);
+        if (BloombergConstants.EID_LIVE_DATA_FIELD.equalsIgnoreCase(name)) {
+          if (value instanceof Integer) {
+            fieldData.add(PermissionUtils.LIVE_DATA_PERMISSION_FIELD, BloombergPermissions.createEidPermissionString((int) value));
+          }
+        } else {
+          fieldData.add(name, value);
+        }
       } else {
         s_logger.warn("Unable to extract value named {} from element {}", name, subElement);
       }
