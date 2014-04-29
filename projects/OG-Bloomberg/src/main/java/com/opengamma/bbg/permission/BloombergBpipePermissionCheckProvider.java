@@ -50,6 +50,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.BloombergPermissions;
 import com.opengamma.bbg.SessionProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
@@ -250,9 +251,9 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
         Identity userIdentity = _userIdentityCache.get(IdentityCacheKey.of(request.getNetworkAddress(), emrsId));
         Set<String> liveDataPermissions = new HashSet<>();
         for (String permission : request.getRequestedPermissions()) {
-          if (isReferenceDataEidPermissionCheck(permission)) {
+          if (BloombergPermissions.isEid(permission)) {
             doReferenceDataEidPermissionCheck(request, permissionResult, userIdentity, permission);
-          } else if (isLiveDataPermissionCheck(permission)) {
+          } else if (BloombergPermissions.isLiveDataId(permission)) {
             liveDataPermissions.add(permission);
           }
         }
@@ -298,17 +299,8 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
     }
   }
 
-  private boolean isLiveDataPermissionCheck(String permission) {
-    return permission.startsWith("LIVEDATA:");
-  }
-
-  private boolean isReferenceDataEidPermissionCheck(String permission) {
-    return permission.startsWith("EID:");
-  }
-
   private void doReferenceDataEidPermissionCheck(PermissionCheckProviderRequest request, final Map<String, Boolean> permissionResult, Identity userIdentity, String permission) {
-    String eidStr = permission.substring(permission.indexOf("EID:") + 4);
-    int eid = Integer.parseInt(eidStr);
+    int eid = BloombergPermissions.extractEid(permission);
     if (userIdentity.hasEntitlements(new int[] {eid }, _apiRefDataSvc)) {
       permissionResult.put(permission, true);
     } else {

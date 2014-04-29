@@ -24,6 +24,7 @@ import org.threeten.bp.format.DateTimeParseException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.BloombergPermissions;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
@@ -137,7 +138,7 @@ public abstract class SecurityLoader {
             for (FudgeField fudgeField : fieldData.getAllByName(eidDataName)) {
               Object eidValue = fudgeField.getValue();
               if (eidValue instanceof Integer) {
-                security.getRequiredPermissions().add(String.format("%s:%d", BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, (int) eidValue));
+                security.getRequiredPermissions().add(BloombergPermissions.createEidPermissionString((int) eidValue));
               }
             }
           }

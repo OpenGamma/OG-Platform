@@ -47,6 +47,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.BloombergPermissions;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.id.ExternalId;
@@ -387,7 +388,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
               int numValues = eidData.numValues();
               for (int i = 0; i < numValues; i++) {
                 try {
-                  eids.add(String.format("%s:%d", BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, eidData.getValueAsInt32(i)));
+                  int eid = eidData.getValueAsInt32(i);
+                  eids.add(BloombergPermissions.createEidPermissionString(eid));
                 } catch (Exception ex) {
                   getLogger().warn("Error extracting EID from {} for security:{}", eidData, identifiers);
                 }
