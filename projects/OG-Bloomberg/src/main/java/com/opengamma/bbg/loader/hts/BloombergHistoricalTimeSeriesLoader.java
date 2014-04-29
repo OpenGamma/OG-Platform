@@ -279,7 +279,7 @@ public class BloombergHistoricalTimeSeriesLoader extends AbstractHistoricalTimeS
         if (permissionsMap != null) {
           Set<String> permissions = permissionsMap.get(identifers);
           if (permissions != null) {
-            info.getPermissions().addAll(permissions);
+            info.getRequiredPermissions().addAll(permissions);
           }
         }
         
@@ -299,7 +299,7 @@ public class BloombergHistoricalTimeSeriesLoader extends AbstractHistoricalTimeS
         } else {
           // update existing
           HistoricalTimeSeriesInfoDocument doc = searchResult.getDocuments().get(0);
-          if (info.getPermissions().equals(doc.getInfo().getPermissions()) == false) {
+          if (info.getRequiredPermissions().equals(doc.getInfo().getRequiredPermissions()) == false) {
             doc.setInfo(info);
             doc = _htsMaster.update(doc);
           }

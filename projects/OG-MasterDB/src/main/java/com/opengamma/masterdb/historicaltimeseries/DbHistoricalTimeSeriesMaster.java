@@ -417,7 +417,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       }
       // the arguments for inserting into permission table
       final List<DbMapSqlParameterSource> permissionList = new ArrayList<DbMapSqlParameterSource>();
-      for (String permission : info.getPermissions()) {
+      for (String permission : info.getRequiredPermissions()) {
         final DbMapSqlParameterSource permissionArgs = createParameterSource().addValue("doc_id", docId).addValue("permission", permission);
         permissionList.add(permissionArgs);
       }
@@ -429,7 +429,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       getJdbcTemplate().update(sqlDoc, docArgs);
       getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
       getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
-      if (!info.getPermissions().isEmpty()) {
+      if (!info.getRequiredPermissions().isEmpty()) {
         final String sqlPermission = getElSqlBundle().getSql("InsertPermission");
         getJdbcTemplate().batchUpdate(sqlPermission, permissionList.toArray(new DbMapSqlParameterSource[permissionList.size()]));
       }
@@ -573,7 +573,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         }
         final String permission = rs.getString("PERMISSION");
         if (permission != null) {
-          _info.getPermissions().add(permission);
+          _info.getRequiredPermissions().add(permission);
         }
       }
       return _documents;

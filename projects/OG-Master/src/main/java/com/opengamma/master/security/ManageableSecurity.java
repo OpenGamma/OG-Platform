@@ -31,6 +31,7 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.auth.Permissionable;
 
 /**
  * A security that it may be possible to hold a position in.
@@ -41,7 +42,9 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class ManageableSecurity extends DirectBean implements Serializable, Security, MutableUniqueIdentifiable {
+public class ManageableSecurity
+    extends DirectBean
+    implements Serializable, Security, MutableUniqueIdentifiable, Permissionable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -74,19 +77,17 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
    */
   @PropertyDefinition(validate = "notNull", set = "private")
   private String _securityType;
-
   /**
    * The general purpose trade attributes, which can be used for aggregating in portfolios.
    */
   @PropertyDefinition
   private final Map<String, String> _attributes = new HashMap<String, String>();
-
   /**
-   * Set of permissions
+   * The set of required permissions.
    * This is a set of permissions that a user needs to be able to view a security.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Set<String> _permissions = new TreeSet<>();
+  private final Set<String> _requiredPermissions = new TreeSet<>();
 
   /**
    * Creates an empty instance.
@@ -299,32 +300,32 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set of permissions
+   * Gets the set of required permissions.
    * This is a set of permissions that a user needs to be able to view a security.
    * @return the value of the property, not null
    */
-  public Set<String> getPermissions() {
-    return _permissions;
+  public Set<String> getRequiredPermissions() {
+    return _requiredPermissions;
   }
 
   /**
-   * Sets set of permissions
+   * Sets the set of required permissions.
    * This is a set of permissions that a user needs to be able to view a security.
-   * @param permissions  the new value of the property, not null
+   * @param requiredPermissions  the new value of the property, not null
    */
-  public void setPermissions(Set<String> permissions) {
-    JodaBeanUtils.notNull(permissions, "permissions");
-    this._permissions.clear();
-    this._permissions.addAll(permissions);
+  public void setRequiredPermissions(Set<String> requiredPermissions) {
+    JodaBeanUtils.notNull(requiredPermissions, "requiredPermissions");
+    this._requiredPermissions.clear();
+    this._requiredPermissions.addAll(requiredPermissions);
   }
 
   /**
-   * Gets the the {@code permissions} property.
+   * Gets the the {@code requiredPermissions} property.
    * This is a set of permissions that a user needs to be able to view a security.
    * @return the property, not null
    */
-  public final Property<Set<String>> permissions() {
-    return metaBean().permissions().createProperty(this);
+  public final Property<Set<String>> requiredPermissions() {
+    return metaBean().requiredPermissions().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -345,7 +346,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
-          JodaBeanUtils.equal(getPermissions(), other.getPermissions());
+          JodaBeanUtils.equal(getRequiredPermissions(), other.getRequiredPermissions());
     }
     return false;
   }
@@ -358,7 +359,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRequiredPermissions());
     return hash;
   }
 
@@ -381,7 +382,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
-    buf.append("permissions").append('=').append(JodaBeanUtils.toString(getPermissions())).append(',').append(' ');
+    buf.append("requiredPermissions").append('=').append(JodaBeanUtils.toString(getRequiredPermissions())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -421,11 +422,11 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
         this, "attributes", ManageableSecurity.class, (Class) Map.class);
     /**
-     * The meta-property for the {@code permissions} property.
+     * The meta-property for the {@code requiredPermissions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<String>> _permissions = DirectMetaProperty.ofReadWrite(
-        this, "permissions", ManageableSecurity.class, (Class) Set.class);
+    private final MetaProperty<Set<String>> _requiredPermissions = DirectMetaProperty.ofReadWrite(
+        this, "requiredPermissions", ManageableSecurity.class, (Class) Set.class);
     /**
      * The meta-properties.
      */
@@ -436,7 +437,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
         "name",
         "securityType",
         "attributes",
-        "permissions");
+        "requiredPermissions");
 
     /**
      * Restricted constructor.
@@ -457,8 +458,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           return _securityType;
         case 405645655:  // attributes
           return _attributes;
-        case 1133704324:  // permissions
-          return _permissions;
+        case 132663141:  // requiredPermissions
+          return _requiredPermissions;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -520,11 +521,11 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     }
 
     /**
-     * The meta-property for the {@code permissions} property.
+     * The meta-property for the {@code requiredPermissions} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Set<String>> permissions() {
-      return _permissions;
+    public final MetaProperty<Set<String>> requiredPermissions() {
+      return _requiredPermissions;
     }
 
     //-----------------------------------------------------------------------
@@ -541,8 +542,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           return ((ManageableSecurity) bean).getSecurityType();
         case 405645655:  // attributes
           return ((ManageableSecurity) bean).getAttributes();
-        case 1133704324:  // permissions
-          return ((ManageableSecurity) bean).getPermissions();
+        case 132663141:  // requiredPermissions
+          return ((ManageableSecurity) bean).getRequiredPermissions();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -566,8 +567,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
         case 405645655:  // attributes
           ((ManageableSecurity) bean).setAttributes((Map<String, String>) newValue);
           return;
-        case 1133704324:  // permissions
-          ((ManageableSecurity) bean).setPermissions((Set<String>) newValue);
+        case 132663141:  // requiredPermissions
+          ((ManageableSecurity) bean).setRequiredPermissions((Set<String>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -579,7 +580,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._name, "name");
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._securityType, "securityType");
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._attributes, "attributes");
-      JodaBeanUtils.notNull(((ManageableSecurity) bean)._permissions, "permissions");
+      JodaBeanUtils.notNull(((ManageableSecurity) bean)._requiredPermissions, "requiredPermissions");
     }
 
   }

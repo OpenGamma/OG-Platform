@@ -68,7 +68,7 @@ import com.opengamma.util.time.Expiry;
     FX_FORWARD = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     FX_FORWARD.setName("TODO");
     FX_FORWARD.setAttributes(attributes);
-    FX_FORWARD.setPermissions(Sets.newHashSet(permissions));
+    FX_FORWARD.setRequiredPermissions(Sets.newHashSet(permissions));
 
     //-------------------------------------
 

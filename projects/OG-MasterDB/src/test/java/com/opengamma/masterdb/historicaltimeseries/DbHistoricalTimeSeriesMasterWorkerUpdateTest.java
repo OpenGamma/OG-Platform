@@ -157,11 +157,11 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     assertEquals(baseUniqueId, baseDoc.getUniqueId());
     ManageableHistoricalTimeSeriesInfo baseInfo = baseDoc.getValue();
     assertEquals(baseUniqueId, baseInfo.getUniqueId());
-    assertTrue(baseInfo.getPermissions().isEmpty());
+    assertTrue(baseInfo.getRequiredPermissions().isEmpty());
 
     ManageableHistoricalTimeSeriesInfo input = baseInfo.clone();
     input.setName("A1");
-    input.setPermissions(Sets.newHashSet("A"));
+    input.setRequiredPermissions(Sets.newHashSet("A"));
 
     Thread.sleep(100);
     HistoricalTimeSeriesInfoDocument updated = _htsMaster.update(new HistoricalTimeSeriesInfoDocument(input));
@@ -174,15 +174,15 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     assertEquals("A1", updatedInfo.getName());
     assertEquals(baseInfo.getObservationTime(), updatedInfo.getObservationTime());
     assertEquals(baseInfo.getTimeSeriesObjectId(), updatedInfo.getTimeSeriesObjectId());
-    assertNotNull(updatedInfo.getPermissions());
-    assertEquals(1, updatedInfo.getPermissions().size());
-    assertTrue(updatedInfo.getPermissions().contains("A"));
+    assertNotNull(updatedInfo.getRequiredPermissions());
+    assertEquals(1, updatedInfo.getRequiredPermissions().size());
+    assertTrue(updatedInfo.getRequiredPermissions().contains("A"));
 
     assertEquals(updated, _htsMaster.get(updated.getUniqueId()));
 
     input = updatedInfo.clone();
     input.setName("A2");
-    input.setPermissions(Sets.newHashSet("A", "B"));
+    input.setRequiredPermissions(Sets.newHashSet("A", "B"));
     Thread.sleep(100);
     updated = _htsMaster.update(new HistoricalTimeSeriesInfoDocument(input));
     updatedInfo = updated.getValue();
@@ -194,10 +194,10 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     assertEquals("A2", updatedInfo.getName());
     assertEquals(baseInfo.getObservationTime(), updatedInfo.getObservationTime());
     assertEquals(baseInfo.getTimeSeriesObjectId(), updatedInfo.getTimeSeriesObjectId());
-    assertNotNull(updatedInfo.getPermissions());
-    assertEquals(2, updatedInfo.getPermissions().size());
-    assertTrue(updatedInfo.getPermissions().contains("A"));
-    assertTrue(updatedInfo.getPermissions().contains("B"));
+    assertNotNull(updatedInfo.getRequiredPermissions());
+    assertEquals(2, updatedInfo.getRequiredPermissions().size());
+    assertTrue(updatedInfo.getRequiredPermissions().contains("A"));
+    assertTrue(updatedInfo.getRequiredPermissions().contains("B"));
 
     assertEquals(updated, _htsMaster.get(updated.getUniqueId()));
 

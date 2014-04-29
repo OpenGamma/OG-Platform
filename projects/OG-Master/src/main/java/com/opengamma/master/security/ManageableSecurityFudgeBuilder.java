@@ -51,8 +51,8 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     addToMessage(msg, SECURITY_TYPE_FIELD_NAME, security.getSecurityType());
     addToMessage(msg, IDENTIFIERS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, security.getExternalIdBundle()));
     addToMessage(msg, ATTRIBUTES_FIELD_NAME, serializer.objectToFudgeMsg(security.getAttributes()));
-    if (!security.getPermissions().isEmpty()) {
-      addToMessage(msg, PERMISSIONS_FIELD_NAME, serializer.objectToFudgeMsg(security.getPermissions()));
+    if (!security.getRequiredPermissions().isEmpty()) {
+      addToMessage(msg, PERMISSIONS_FIELD_NAME, serializer.objectToFudgeMsg(security.getRequiredPermissions()));
     }
   }
 
@@ -70,7 +70,7 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     security.setExternalIdBundle(ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_FIELD_NAME)));
     security.setAttributes((Map<String, String>) deserializer.fieldValueToObject(msg.getByName(ATTRIBUTES_FIELD_NAME)));
     if (msg.hasField(PERMISSIONS_FIELD_NAME)) {
-      security.setPermissions((Set<String>) deserializer.fieldValueToObject(msg.getByName(PERMISSIONS_FIELD_NAME)));
+      security.setRequiredPermissions((Set<String>) deserializer.fieldValueToObject(msg.getByName(PERMISSIONS_FIELD_NAME)));
     }
   }
 

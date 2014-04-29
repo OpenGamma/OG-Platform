@@ -113,8 +113,8 @@ public class DbSecurityBeanMasterTest extends AbstractDbTest {
     sec.setExternalIdBundle(ExternalIdBundle.of("Test", "OG"));
     sec.addAttribute("1", "One");
     sec.addAttribute("2", "Two");
-    sec.getPermissions().add("A");
-    sec.getPermissions().add("B");
+    sec.getRequiredPermissions().add("A");
+    sec.getRequiredPermissions().add("B");
     SecurityDocument addDoc = new SecurityDocument(sec);
     SecurityDocument added = _secMaster.add(addDoc);
 

@@ -137,7 +137,7 @@ public abstract class SecurityLoader {
             for (FudgeField fudgeField : fieldData.getAllByName(eidDataName)) {
               Object eidValue = fudgeField.getValue();
               if (eidValue instanceof Integer) {
-                security.getPermissions().add(String.format("%s:%d", BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, (int) eidValue));
+                security.getRequiredPermissions().add(String.format("%s:%d", BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, (int) eidValue));
               }
             }
           }

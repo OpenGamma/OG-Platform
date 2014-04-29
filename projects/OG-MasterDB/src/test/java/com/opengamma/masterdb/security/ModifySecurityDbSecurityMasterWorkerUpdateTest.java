@@ -124,40 +124,40 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertNotNull(baseDoc);
     ManageableSecurity baseSecurity = baseDoc.getSecurity();
     assertNotNull(baseSecurity);
-    assertNotNull(baseSecurity.getPermissions());
-    assertTrue(baseSecurity.getPermissions().isEmpty());
+    assertNotNull(baseSecurity.getRequiredPermissions());
+    assertTrue(baseSecurity.getRequiredPermissions().isEmpty());
 
     SecurityDocument input = new SecurityDocument(baseSecurity.clone());
-    input.getSecurity().getPermissions().add("A");
-    input.getSecurity().getPermissions().add("B");
-    baseDoc.getSecurity().setPermissions(Sets.newHashSet("A", "B"));
+    input.getSecurity().getRequiredPermissions().add("A");
+    input.getSecurity().getRequiredPermissions().add("B");
+    baseDoc.getSecurity().setRequiredPermissions(Sets.newHashSet("A", "B"));
 
     Thread.sleep(100);
     SecurityDocument updated = _secMaster.update(baseDoc);
     assertNotNull(updated);
     ManageableSecurity updatedSecurity = updated.getSecurity();
     assertNotNull(updatedSecurity);
-    assertNotNull(updatedSecurity.getPermissions());
-    assertEquals(2, updatedSecurity.getPermissions().size());
-    assertTrue(updatedSecurity.getPermissions().contains("A"));
-    assertTrue(updatedSecurity.getPermissions().contains("B"));
+    assertNotNull(updatedSecurity.getRequiredPermissions());
+    assertEquals(2, updatedSecurity.getRequiredPermissions().size());
+    assertTrue(updatedSecurity.getRequiredPermissions().contains("A"));
+    assertTrue(updatedSecurity.getRequiredPermissions().contains("B"));
     assertEquals(baseSecurity.getName(), updatedSecurity.getName());
     assertEquals(baseSecurity.getSecurityType(), updatedSecurity.getSecurityType());
     assertEquals(baseSecurity.getExternalIdBundle(), updatedSecurity.getExternalIdBundle());
 
     assertEquals(updatedSecurity, _secMaster.get(updated.getUniqueId()).getSecurity());
 
-    updated.getSecurity().setPermissions(Sets.newHashSet("C", "D", "E"));
+    updated.getSecurity().setRequiredPermissions(Sets.newHashSet("C", "D", "E"));
     Thread.sleep(100);
     updated = _secMaster.update(updated);
     assertNotNull(updated);
     updatedSecurity = updated.getSecurity();
     assertNotNull(updatedSecurity);
-    assertNotNull(updatedSecurity.getPermissions());
-    assertEquals(3, updatedSecurity.getPermissions().size());
-    assertTrue(updatedSecurity.getPermissions().contains("C"));
-    assertTrue(updatedSecurity.getPermissions().contains("D"));
-    assertTrue(updatedSecurity.getPermissions().contains("E"));
+    assertNotNull(updatedSecurity.getRequiredPermissions());
+    assertEquals(3, updatedSecurity.getRequiredPermissions().size());
+    assertTrue(updatedSecurity.getRequiredPermissions().contains("C"));
+    assertTrue(updatedSecurity.getRequiredPermissions().contains("D"));
+    assertTrue(updatedSecurity.getRequiredPermissions().contains("E"));
     assertEquals(baseSecurity.getName(), updatedSecurity.getName());
     assertEquals(baseSecurity.getSecurityType(), updatedSecurity.getSecurityType());
     assertEquals(baseSecurity.getExternalIdBundle(), updatedSecurity.getExternalIdBundle());

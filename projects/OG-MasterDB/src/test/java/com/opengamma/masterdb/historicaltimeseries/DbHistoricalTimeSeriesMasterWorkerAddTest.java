@@ -106,7 +106,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
-    info.setPermissions(Sets.newHashSet("A", "B", "C"));
+    info.setRequiredPermissions(Sets.newHashSet("A", "B", "C"));
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     HistoricalTimeSeriesInfoDocument test = _htsMaster.add(doc);
 
@@ -130,11 +130,11 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     assertEquals("OT", testInfo.getObservationTime());
     assertEquals(1, testInfo.getExternalIdBundle().size());
     assertTrue(testInfo.getExternalIdBundle().getExternalIds().contains(id));
-    assertNotNull(testInfo.getPermissions());
-    assertEquals(3, testInfo.getPermissions().size());
-    assertTrue(testInfo.getPermissions().contains("A"));
-    assertTrue(testInfo.getPermissions().contains("B"));
-    assertTrue(testInfo.getPermissions().contains("C"));
+    assertNotNull(testInfo.getRequiredPermissions());
+    assertEquals(3, testInfo.getRequiredPermissions().size());
+    assertTrue(testInfo.getRequiredPermissions().contains("A"));
+    assertTrue(testInfo.getRequiredPermissions().contains("B"));
+    assertTrue(testInfo.getRequiredPermissions().contains("C"));
   }
 
   @Test
@@ -166,7 +166,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
     info.setExternalIdBundle(bundle);
-    info.setPermissions(Sets.newHashSet("A", "B", "C"));
+    info.setRequiredPermissions(Sets.newHashSet("A", "B", "C"));
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
     assertNotNull(added);
@@ -178,7 +178,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     assertEquals("DP", added.getValue().getDataProvider());
     assertEquals("OT", added.getValue().getObservationTime());
     assertEquals(bundle, added.getValue().getExternalIdBundle());
-    Set<String> permissions = added.getValue().getPermissions();
+    Set<String> permissions = added.getValue().getRequiredPermissions();
     assertNotNull(permissions);
     assertEquals(3, permissions.size());
     assertTrue(permissions.contains("A"));

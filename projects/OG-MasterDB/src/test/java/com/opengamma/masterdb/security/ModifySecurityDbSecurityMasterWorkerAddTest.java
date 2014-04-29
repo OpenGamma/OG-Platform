@@ -168,8 +168,8 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     Instant now = Instant.now(_secMaster.getClock());
 
     ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
-    security.getPermissions().add("A");
-    security.getPermissions().add("B");
+    security.getRequiredPermissions().add("A");
+    security.getRequiredPermissions().add("B");
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument test = _secMaster.add(doc);
@@ -193,10 +193,10 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     assertNotNull(idKey);
     assertEquals(1, idKey.size());
     assertEquals(ExternalId.of("A", "B"), idKey.getExternalIds().iterator().next());
-    assertNotNull(security.getPermissions());
-    assertEquals(2, security.getPermissions().size());
-    assertTrue(security.getPermissions().contains("A"));
-    assertTrue(security.getPermissions().contains("B"));
+    assertNotNull(security.getRequiredPermissions());
+    assertEquals(2, security.getRequiredPermissions().size());
+    assertTrue(security.getRequiredPermissions().contains("A"));
+    assertTrue(security.getRequiredPermissions().contains("B"));
   }
 
 }

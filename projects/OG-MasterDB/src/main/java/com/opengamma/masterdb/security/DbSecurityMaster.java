@@ -414,7 +414,7 @@ public class DbSecurityMaster
       }
       // store permissions as attributes
       int count = 0;
-      for (String permission : document.getSecurity().getPermissions()) {
+      for (String permission : document.getSecurity().getRequiredPermissions()) {
         final long securityAttrId = nextId("sec_security_attr_seq");
         final DbMapSqlParameterSource attributeArgs = createParameterSource()
             .addValue("attr_id", securityAttrId)
@@ -470,7 +470,7 @@ public class DbSecurityMaster
         final String securityAttrValue = rs.getString("SECURITY_ATTR_VALUE");
         if (securityAttrKey != null && securityAttrValue != null) {
           if (securityAttrKey.startsWith(PERMISSION_KEY_PREFIX)) {
-            _security.getPermissions().add(securityAttrValue);
+            _security.getRequiredPermissions().add(securityAttrValue);
           } else {
             _security.addAttribute(securityAttrKey, securityAttrValue);
           }

@@ -76,8 +76,8 @@ public class BloombergBpipeSecurityProviderTest {
     assertNotNull(sec);
     assertTrue(sec instanceof EquitySecurity);
     EquitySecurity finSecurity = (EquitySecurity) sec;
-    assertNotNull(finSecurity.getPermissions());
-    Set<String> permissions = finSecurity.getPermissions();
+    assertNotNull(finSecurity.getRequiredPermissions());
+    Set<String> permissions = finSecurity.getRequiredPermissions();
     assertEquals(1, permissions.size());
     assertTrue(permissions.contains(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME + ":" + 39491));
     assertEquals("INTL BUSINESS MACHINES CORP", finSecurity.getName());
