@@ -26,17 +26,15 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups = TestGroup.INTEGRATION)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class BloombergBpipePermissionCheckProviderTest {
-
-  private static final String APPLICATION_BPS = "opengamma:OpenGamma Application B-Pipe BPS";
 
   private BloombergBpipePermissionCheckProvider _provider;
 
   @BeforeMethod
   public void setUp() throws Exception {
     BloombergConnector connector = BloombergTestUtils.getBloombergBipeConnector();
-    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(connector, APPLICATION_BPS);
+    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(connector);
     
     provider.start();
     _provider = provider;
@@ -51,9 +49,9 @@ public class BloombergBpipePermissionCheckProviderTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(enabled = false)
+  @Test
   public void isPermittedEidCheck() {
-    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.91",
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.110",
         "EID:27749", "EID:35009", "EID:39491", "EID:40066", "EID:41095", "EID:46707", "EID:1234");
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
@@ -70,9 +68,9 @@ public class BloombergBpipePermissionCheckProviderTest {
     assertFalse(checkPermissionResult.get("EID:1234"));
   }
 
-  @Test(enabled = false)
+  @Test
   public void notPermittedEidCheckAfterEntitlementRevoked() {
-    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.91",
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.110",
         "EID:27749", "EID:35009", "EID:39491", "EID:40066", "EID:41095", "EID:46707", "EID:1234");
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
@@ -109,7 +107,7 @@ public class BloombergBpipePermissionCheckProviderTest {
     assertFalse(checkPermissionResult.get("EID:1234"));
   }
   
-  @Test(enabled = false)
+  @Test
   public void isPermittedLiveDataCheck() {
     PermissionCheckProviderRequest request = PermissionCheckProviderRequest
         .createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.110", "LIVEDATA:IBM US Equity", "LIVEDATA:AAPL US Equity");

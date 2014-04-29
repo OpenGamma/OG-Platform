@@ -47,8 +47,6 @@ import com.opengamma.util.time.LocalDateRange;
 @Test(groups = TestGroup.INTEGRATION)
 public class BloombergBpipeHistoricalTimeSeriesProviderTest {
 
-  private static final String BPIPE_APP_NAME = "opengamma:OpenGamma Application B-Pipe BPS";
-
   private static final ExternalIdBundle SIMPLE_BUNDLE = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("IBM US Equity"));
   private static final ExternalIdBundle COMPLEX_BUNDLE = ExternalIdBundle.of(
       ExternalId.of("BLOOMBERG_BUID", "EQ0010121400001000"), ExternalId.of("BLOOMBERG_TICKER", "C US Equity"),
@@ -61,7 +59,7 @@ public class BloombergBpipeHistoricalTimeSeriesProviderTest {
   @BeforeMethod
   public void setUp() throws Exception {
     BloombergConnector connector = BloombergTestUtils.getBloombergBipeConnector();
-    BloombergHistoricalTimeSeriesProvider provider = new BloombergHistoricalTimeSeriesProvider(connector, BPIPE_APP_NAME);
+    BloombergHistoricalTimeSeriesProvider provider = new BloombergHistoricalTimeSeriesProvider(connector);
     
     provider.start();
     _provider = provider;
