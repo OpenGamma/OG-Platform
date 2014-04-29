@@ -83,35 +83,10 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
    * <p>
    * This will use the statistics tool in the connector.
    * 
-   * @param bloombergConnector the Bloomberg connector, not null
+   * @param bloombergConnector the bloomberg connector, not null
    */
   public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector) {
-    this(bloombergConnector, null);
-  }
-
-  /**
-   * Creates an instance.
-   * <p>
-   * This will use the statistics tool in the connector.
-   * 
-   * @param bloombergConnector the bloomberg connector, not null
-   * @param applicationName the bpipe application name if applicable
-   */
-  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, String applicationName) {
-    this(bloombergConnector, applicationName, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
-  }
-
-  /**
-   * Creates an instance.
-   * <p>
-   * This will use the statistics tool in the connector.
-   * 
-   * @param bloombergConnector the bloomberg connector, not null
-   * @param applicationName the bpipe application name if applicable
-   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
-   */
-  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, String applicationName, double reAuthorizationScheduleTime) {
-    this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), applicationName, reAuthorizationScheduleTime);
+    this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics());
   }
 
   /**
@@ -119,12 +94,10 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
    * 
    * @param bloombergConnector the bloomberg connector, not null
    * @param statistics the statistics, not null
-   * @param applicationName the bpipe application name if applicable
-   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
    */
-  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String applicationName, double reAuthorizationScheduleTime) {
+  public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
     super(BLOOMBERG_DATA_SOURCE_NAME);
-    _historicalDataService = new BloombergHistoricalDataRequestService(bloombergConnector, statistics, applicationName, reAuthorizationScheduleTime);
+    _historicalDataService = new BloombergHistoricalDataRequestService(bloombergConnector, statistics);
   }
 
   //-------------------------------------------------------------------------
@@ -165,15 +138,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     private final BloombergReferenceDataStatistics _statistics;
 
     BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector) {
-      this(bloombergConnector, null);
-    }
-
-    BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector, String applicationName) {
-      this(bloombergConnector, applicationName, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
-    }
-
-    BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector, String applicationName, double reAuthorizationScheduleTime) {
-      this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics(), applicationName, reAuthorizationScheduleTime);
+      this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics());
     }
 
     /**
@@ -184,8 +149,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      * @param applicationName the bpipe application name if applicable
      * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
      */
-    BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, String applicationName, double reAuthorizationScheduleTime) {
-      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME, applicationName, reAuthorizationScheduleTime);
+    BloombergHistoricalDataRequestService(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
       ArgumentChecker.notNull(statistics, "statistics");
       _statistics = statistics;
     }

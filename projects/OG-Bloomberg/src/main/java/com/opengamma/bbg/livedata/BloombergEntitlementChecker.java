@@ -72,27 +72,15 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
    */
   private final DistributionSpecificationResolver _resolver;
 
-  public BloombergEntitlementChecker(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, DistributionSpecificationResolver resolver) {
-    this(bloombergConnector, referenceDataProvider, resolver, null);
-  }
-
-  public BloombergEntitlementChecker(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, DistributionSpecificationResolver resolver, 
-      String authenticationOption) {
-    this(bloombergConnector, referenceDataProvider, resolver, authenticationOption, AbstractBloombergStaticDataProvider.RE_AUTHORIZATION_SCHEDULE_TIME);
-  }
-
   /**
    * Creates an instance.
    * 
    * @param bloombergConnector the Bloomberg connector, not null
    * @param referenceDataProvider the reference data provider, not null
    * @param resolver the resolver, not null
-   * @param authenticationOption the authentication option, null represent NO_AUTH,  user|none|app=<app>|dir=<property> (default: none)");
-   * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
    */
-  public BloombergEntitlementChecker(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, DistributionSpecificationResolver resolver, String authenticationOption,
-      double reAuthorizationScheduleTime) {
-    super(bloombergConnector, BloombergConstants.AUTH_SVC_NAME, authenticationOption, reAuthorizationScheduleTime);
+  public BloombergEntitlementChecker(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, DistributionSpecificationResolver resolver) {
+    super(bloombergConnector, BloombergConstants.AUTH_SVC_NAME);
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(resolver, "resolver");
 
