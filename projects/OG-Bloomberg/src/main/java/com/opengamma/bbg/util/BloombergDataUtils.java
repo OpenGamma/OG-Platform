@@ -143,7 +143,8 @@ public final class BloombergDataUtils {
       "YLD_CNV_MID", //TODO BBG-96
       "YLD_YTM_MID", //TODO BBG-96
       "PX_DIRTY_MID", //TODO BBG-96
-      "EQY_DVD_YLD_EST");
+      "EQY_DVD_YLD_EST",
+      BloombergConstants.EID_FIELD);
 
   /**
    * The standard fields required for Bloomberg data, as a set.

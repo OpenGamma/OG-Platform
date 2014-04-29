@@ -363,5 +363,9 @@ public final class BloombergConstants {
    * Bpipe application authentication  prefix
    */
   public static final String AUTH_APP_PREFIX = "AuthenticationMode=APPLICATION_ONLY;ApplicationAuthenticationType=APPNAME_AND_KEY;ApplicationName=";
+  /**
+   * The name of live data entitlement field
+   */
+  public static final String EID_FIELD = "EID";
 
 }
