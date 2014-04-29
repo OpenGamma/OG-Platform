@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
+import com.bloomberglp.blpapi.EventHandler;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.livedata.ConnectionUnavailableException;
@@ -62,6 +63,12 @@ public class SessionProviderTest {
       public Session createOpenSession() {
         return session.get();
       }
+
+      @Override
+      public Session createOpenSession(EventHandler eventHandler) {
+        return createOpenSession();
+      }
+
     };
     try {
       final SessionProvider a = new SessionProvider(connector, "A");
