@@ -5,10 +5,6 @@
  */
 package com.opengamma.bbg.permission;
 
-import static com.opengamma.bbg.BloombergConstants.AUTH_SVC_NAME;
-import static com.opengamma.bbg.BloombergConstants.MKT_DATA_SVC_NAME;
-import static com.opengamma.bbg.BloombergConstants.REF_DATA_SVC_NAME;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,9 +18,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authz.UnauthenticatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -41,18 +37,20 @@ import com.bloomberglp.blpapi.Name;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
-import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.SessionProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.provider.permission.PermissionCheckProvider;
@@ -68,12 +66,10 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
   
   private static final String NO_AUTH = "NO_AUTH";
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergBpipePermissionCheckProvider.class);
-  private static final String AUTH_APP_PREFIX = "AuthenticationMode=APPLICATION_ONLY;ApplicationAuthenticationType=APPNAME_AND_KEY;ApplicationName=";
   private static final Name AUTHORIZATION_SUCCESS = Name.getName("AuthorizationSuccess");
+  private static final Name AUTHORIZATION_FAILURE = Name.getName("AuthorizationFailure");
   private static final Name AUTHORIZATION_REVOKED = Name.getName("AuthorizationRevoked");
   private static final Name ENTITITLEMENT_CHANGED = Name.getName("EntitlementChanged");
-  private static final Name TOKEN_SUCCESS = Name.getName("TokenGenerationSuccess");
-  private static final Name TOKEN_ELEMENT = Name.getName("token");
   private static final Name SUBSCRIPTION_FAILURE = Name.getName("SubscriptionFailure");
   private static final Name CATEGORY = Name.getName("category");
   private static final Name DESCRIPTION = Name.getName("description");
@@ -94,19 +90,18 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
   private volatile Service _apiRefDataSvc;
   private volatile Service _apiMktDataSvc;
   private final long _identityExpiry;
-  private final AtomicLong _nextCorrelationId = new AtomicLong(1L);
-  private final String _applicationName;
   private volatile Identity _applicationIdentity;
   private final Map<CorrelationID, SettableFuture<Set<String>>> _subscriptionResponse = new ConcurrentHashMap<>();
+  /** Creates and manages the Bloomberg session and service. */
+  private final SessionProvider _sessionProvider;
 
   /**
    * Creates a bloomberg permission check provider with default identity expiry
    * 
    * @param bloombergConnector the Bloomberg connector, not null
-   * @param applicationName the bloomberg application name, not null
    */
-  public BloombergBpipePermissionCheckProvider(BloombergConnector bloombergConnector, String applicationName) {
-    this(bloombergConnector, DEFAULT_IDENTITY_EXPIRY, applicationName);
+  public BloombergBpipePermissionCheckProvider(BloombergConnector bloombergConnector) {
+    this(bloombergConnector, DEFAULT_IDENTITY_EXPIRY);
   }
 
   /**
@@ -114,19 +109,21 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
    * 
    * @param bloombergConnector the Bloomberg connector, not null
    * @param identityExpiry the identity expiry in hours, not null
-   * @param applicationName the bpipe application name, not null
    */
-  public BloombergBpipePermissionCheckProvider(BloombergConnector bloombergConnector, long identityExpiry, String applicationName) {
+  public BloombergBpipePermissionCheckProvider(BloombergConnector bloombergConnector, long identityExpiry) {
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notNull(bloombergConnector.getSessionOptions(), "bloombergConnector.sessionOptions");
     ArgumentChecker.isTrue(identityExpiry > 0, "identityExpiry must be positive");
-    ArgumentChecker.notNull(applicationName, "applicationName");
+    ArgumentChecker.isTrue(bloombergConnector.requiresAuthorization(), "authentication options must be set");
     
     _identityExpiry = identityExpiry;
     _userIdentityCache = createUserIdentityCache();
     _liveDataPermissionCache = createLiveDataPermissionCache(identityExpiry);
     _bloombergConnector = bloombergConnector;
-    _applicationName = applicationName;
+
+    List<String> serviceNames = Lists.newArrayList(BloombergConstants.AUTH_SVC_NAME, BloombergConstants.REF_DATA_SVC_NAME, BloombergConstants.MKT_DATA_SVC_NAME);
+    SessionEventHandler eventHandler = new SessionEventHandler();
+    _sessionProvider = new SessionProvider(_bloombergConnector, serviceNames, eventHandler);
   }
 
   private LoadingCache<IdentityCacheKey, Identity> createUserIdentityCache() {
@@ -199,10 +196,6 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
     return result;
   }
 
-  private long generateCorrelationID() {
-    return _nextCorrelationId.getAndIncrement();
-  }
-
   private String getBloombergIdentifier(String liveDataPermissionRequest) {
     int index = liveDataPermissionRequest.indexOf("LIVEDATA:");
     if (index != -1) {
@@ -226,12 +219,19 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
       for (Message message : event) {
         if (AUTHORIZATION_SUCCESS.equals(message.messageType())) {
           return userIdentity;
-        } else {
-          s_logger.warn("User: {} authorization failed", userCredential.getUserId());
+        } 
+        if (AUTHORIZATION_FAILURE.equals(message.messageType())) {
+          String failureMsg = "";
+          Element reasonElem = message.getElement("reason");
+          if (reasonElem != null) {
+            failureMsg = reasonElem.getElementAsString("message");
+          }
+          throw new UnauthenticatedException(String.format("User:%s IpAdress:%s authorization failed, reason:%s",
+              userCredential.getUserId(), userCredential.getIpAddress(), failureMsg));
         }
       }
     }
-    throw new OpenGammaRuntimeException(String.format("User: %s IpAdress: %s authorization failed", userCredential.getUserId(), userCredential.getIpAddress()));
+    throw new UnauthenticatedException(String.format("User: %s IpAdress: %s authorization failed", userCredential.getUserId(), userCredential.getIpAddress()));
   }
 
   @Override
@@ -259,6 +259,7 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
         doLiveDataPermissionCheck(request, permissionResult, userIdentity, liveDataPermissions);
       } catch (ExecutionException | UncheckedExecutionException ex) {
         s_logger.warn(String.format("Bloomberg authorization failure for user: %s ipAddress: %s", request.getUserIdBundle(), request.getIpAddress()), ex.getCause());
+        throw new UnauthenticatedException(ex.getCause());
       }
     }
     return new PermissionCheckProviderResult(permissionResult);
@@ -343,89 +344,16 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
   @Override
   public synchronized void start() {
     if (!isRunning()) {
-      createSession();
-      openServices();
-      _applicationIdentity = authorizeApplication();
+      _sessionProvider.start();
+      _session = _sessionProvider.getSession();
+
+      _apiAuthSvc = _sessionProvider.getService(BloombergConstants.AUTH_SVC_NAME);
+      _apiRefDataSvc = _sessionProvider.getService(BloombergConstants.REF_DATA_SVC_NAME);
+      _apiMktDataSvc = _sessionProvider.getService(BloombergConstants.MKT_DATA_SVC_NAME);
+      BloombergBpipeApplicationUserIdentityProvider identityProvider = new BloombergBpipeApplicationUserIdentityProvider(_sessionProvider);
+      _applicationIdentity = identityProvider.getIdentity();
       _isRunning.getAndSet(true);
     }
-  }
-
-  private Identity authorizeApplication() {
-    s_logger.debug("Attempting to authorize application using authentication option: {}{}", AUTH_APP_PREFIX, _applicationName);
-    try {
-      EventQueue tokenEventQueue = new EventQueue();
-      _session.generateToken(new CorrelationID(generateCorrelationID()), tokenEventQueue);
-      String token = null;
-      //Generate token responses will come on this dedicated queue. There would be no other messages on that queue.
-      Event event = tokenEventQueue.nextEvent(WAIT_TIME_MS);
-      if (Event.EventType.TOKEN_STATUS.equals(event.eventType()) || Event.EventType.REQUEST_STATUS.equals(event.eventType())) {
-        for (Message msg : event) {
-          if (TOKEN_SUCCESS.equals(msg.messageType())) {
-            token = msg.getElementAsString(TOKEN_ELEMENT);
-          }
-        }
-      }
-      if (token == null) {
-        throw new OpenGammaRuntimeException(String.format("Failed to get token for bpipe app using  authentication option: %s%s", AUTH_APP_PREFIX, _applicationName));
-      }
-      s_logger.debug("Token: {} generated for application: {}", token, _applicationName);
-      Request authRequest = _apiAuthSvc.createAuthorizationRequest();
-      authRequest.set(TOKEN_ELEMENT, token);
-
-      final Identity appIdentity = _session.createIdentity();
-      EventQueue authEventQueue = new EventQueue();
-      _session.sendAuthorizationRequest(authRequest, appIdentity, authEventQueue, new CorrelationID(generateCorrelationID()));
-
-      event = authEventQueue.nextEvent(WAIT_TIME_MS);
-      s_logger.debug("processEvent");
-      if (event.eventType().equals(Event.EventType.RESPONSE) || event.eventType().equals(Event.EventType.REQUEST_STATUS)) {
-        for (Message msg : event) {
-          if (msg.messageType().equals(AUTHORIZATION_SUCCESS)) {
-            s_logger.debug("Application authorization SUCCESS");
-            return appIdentity;
-          }
-        }
-      }
-      throw new OpenGammaRuntimeException(String.format("Bloomberg authorization failed using authentication option: %s%s", AUTH_APP_PREFIX, _applicationName));
-    } catch (IOException | InterruptedException ex) {
-      throw new OpenGammaRuntimeException(String.format("Bloomberg authorization failed using authentication option: %s%s", AUTH_APP_PREFIX, _applicationName));
-    }
-  }
-
-  private void createSession() {
-    SessionOptions sessionOptions = _bloombergConnector.getSessionOptions();
-    sessionOptions.setAuthenticationOptions(AUTH_APP_PREFIX + _applicationName);
-    s_logger.info("Connecting to {}:{}", sessionOptions.getServerHost(), sessionOptions.getServerPort());
-    _session = new Session(sessionOptions, new SessionEventHandler());
-    boolean sessionStarted;
-    try {
-      sessionStarted = _session.start();
-    } catch (IOException | InterruptedException ex) {
-      throw new OpenGammaRuntimeException(String.format("Error opening session to %s:%s", sessionOptions.getServerHost(), sessionOptions.getServerPort()), ex);
-    }
-    if (!sessionStarted) {
-      throw new OpenGammaRuntimeException(String.format("Failed to start session to %s:%s", sessionOptions.getServerHost(), sessionOptions.getServerPort()));
-    }
-  }
-
-  private void openServices() {
-    SessionOptions sessionOptions = _bloombergConnector.getSessionOptions();
-    try {
-      if (!_session.openService(AUTH_SVC_NAME)) {
-        throw new OpenGammaRuntimeException(String.format("Failed to open service: %s to %s:%s", AUTH_SVC_NAME, sessionOptions.getServerHost(), sessionOptions.getServerPort()));
-      }
-      if (!_session.openService(REF_DATA_SVC_NAME)) {
-        throw new OpenGammaRuntimeException(String.format("Failed to open service: %s to %s:%s", REF_DATA_SVC_NAME, sessionOptions.getServerHost(), sessionOptions.getServerPort()));
-      }
-      if (!_session.openService(MKT_DATA_SVC_NAME)) {
-        throw new OpenGammaRuntimeException(String.format("Failed to open service: %s to %s:%s", MKT_DATA_SVC_NAME, sessionOptions.getServerHost(), sessionOptions.getServerPort()));
-      }
-    } catch (InterruptedException | IOException ex) {
-      throw new OpenGammaRuntimeException(String.format("Failed to start session to %s:%s", sessionOptions.getServerHost(), sessionOptions.getServerPort()), ex);
-    }
-    _apiAuthSvc = _session.getService(AUTH_SVC_NAME);
-    _apiRefDataSvc = _session.getService(REF_DATA_SVC_NAME);
-    _apiMktDataSvc = _session.getService(MKT_DATA_SVC_NAME);
   }
 
   @Override
