@@ -35,6 +35,7 @@ import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTra
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationYearOnYearDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
@@ -58,6 +59,7 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.index.OvernightIndex;
@@ -227,6 +229,9 @@ public class FixedIncomeConverterDataProvider {
     }
     if (security instanceof TotalReturnSwapSecurity) {
       return _totalReturnSwapSecurity;
+    }
+    if (security instanceof DeliverableSwapFutureSecurity) {
+      return _dsfTrade;
     }
     return _default;
   }
@@ -555,30 +560,21 @@ public class FixedIncomeConverterDataProvider {
     }
   };
 
+  /**
+   * Converter for interest rate futures, which will convert to the transaction definition. This requires a time
+   * series containing the last margin price on conversion.
+   */
   private final Converter<InterestRateFutureSecurity, InterestRateFutureTransactionDefinition> _irFutureTrade = new Converter<InterestRateFutureSecurity, InterestRateFutureTransactionDefinition>() {
 
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final InterestRateFutureSecurity security) {
-      final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-      if (timeSeries == null) {
-        return null;
-      }
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
+      return Collections.singleton(getPreviousMonthMarketValueTimeSeriesRequirement(security));
     }
 
     @Override
     public InstrumentDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureTransactionDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-      }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
+      final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
       if (curveNames.length == 1) {
         final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
         return definition.toDerivative(now, lastMarginPrice, singleCurve);
@@ -589,43 +585,25 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureTransactionDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-      }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
+      final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
       return definition.toDerivative(now, lastMarginPrice);
     }
   };
 
+  /**
+   * Converter for interest rate futures, which will convert to the security definition. This does not require any extra
+   * historical data when converting.
+   */
   private final Converter<InterestRateFutureSecurity, InterestRateFutureSecurityDefinition> _irFutureSecurity = new Converter<InterestRateFutureSecurity, InterestRateFutureSecurityDefinition>() {
 
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final InterestRateFutureSecurity security) {
-      final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-      if (timeSeries == null) {
-        return null;
-      }
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
+      return Collections.singleton(getPreviousMonthMarketValueTimeSeriesRequirement(security));
     }
 
     @Override
     public InstrumentDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-      }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
       if (curveNames.length == 1) {
         final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
         return definition.toDerivative(now, singleCurve);
@@ -636,36 +614,25 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-      }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
       return definition.toDerivative(now);
     }
   };
 
+  /**
+   * Converter for FedFunds futures, which will convert to the security definition. This requires only the previous fixings
+   * for the underlying FedFunds index.
+   */
   private final Converter<FederalFundsFutureSecurity, FederalFundsFutureSecurityDefinition> _fedFundsFutureSecurity =
       new Converter<FederalFundsFutureSecurity, FederalFundsFutureSecurityDefinition>() {
 
         @Override
         public Set<ValueRequirement> getTimeSeriesRequirements(final FederalFundsFutureSecurity security) {
-          final HistoricalTimeSeriesResolutionResult futureTS = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-          if (futureTS == null) {
-            return null;
-          }
           final HistoricalTimeSeriesResolutionResult underlyingTS = getTimeSeriesResolver().resolve(security.getUnderlyingId().toBundle(), null, null, null,
               MarketDataRequirementNames.MARKET_VALUE, null);
           if (underlyingTS == null) {
-            return null;
+            return Collections.<ValueRequirement>emptySet();
           }
           final Set<ValueRequirement> requirements = new HashSet<>();
-          requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(futureTS, MarketDataRequirementNames.MARKET_VALUE,
-              DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
           requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(underlyingTS, MarketDataRequirementNames.MARKET_VALUE,
               DateConstraint.VALUATION_TIME.minus(Period.ofMonths(4)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
           return requirements;
@@ -692,23 +659,22 @@ public class FixedIncomeConverterDataProvider {
 
       };
 
+  /**
+   * Converter for FedFunds futures, which will convert to the security definition. This requires the last margin price
+   * of the future as well as previous fixings for the underlying FedFunds index.
+   */
   private final Converter<FederalFundsFutureSecurity, FederalFundsFutureTransactionDefinition> _fedFundsFutureTrade =
       new Converter<FederalFundsFutureSecurity, FederalFundsFutureTransactionDefinition>() {
 
         @Override
         public Set<ValueRequirement> getTimeSeriesRequirements(final FederalFundsFutureSecurity security) {
-          final HistoricalTimeSeriesResolutionResult futureTS = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-          if (futureTS == null) {
-            return null;
-          }
           final HistoricalTimeSeriesResolutionResult underlyingTS = getTimeSeriesResolver().resolve(security.getUnderlyingId().toBundle(), null, null, null,
               MarketDataRequirementNames.MARKET_VALUE, null);
           if (underlyingTS == null) {
-            return null;
+            return Collections.<ValueRequirement>emptySet();
           }
           final Set<ValueRequirement> requirements = new HashSet<>();
-          requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(futureTS, MarketDataRequirementNames.MARKET_VALUE,
-              DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+          requirements.add(getPreviousMonthMarketValueTimeSeriesRequirement(security));
           requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(underlyingTS, MarketDataRequirementNames.MARKET_VALUE,
               DateConstraint.VALUATION_TIME.minus(Period.ofMonths(4)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
           return requirements;
@@ -748,30 +714,17 @@ public class FixedIncomeConverterDataProvider {
 
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final IRFutureOptionSecurity security) {
-      final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-      if (timeSeries == null) {
-        return null;
-      }
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+      return Collections.singleton(getPreviousMonthMarketValueTimeSeriesRequirement(security));
     }
 
     @Override
     public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
       Double lastMarginPrice;
       if (now.toLocalDate().equals(definition.getTradeDate().toLocalDate())) {
         lastMarginPrice = definition.getTradePrice();
       } else {
-        if (ts == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-        }
-        final int length = ts.getTimeSeries().size();
-        if (length == 0) {
-          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-        }
-        lastMarginPrice = ts.getTimeSeries().getLatestValue();
+        lastMarginPrice = getLatestMarketValue(timeSeries, security);
       }
       return definition.toDerivative(now, lastMarginPrice, curveNames);
     }
@@ -779,19 +732,11 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
       Double lastMarginPrice;
       if (now.toLocalDate().equals(definition.getTradeDate().toLocalDate())) {
         lastMarginPrice = definition.getTradePrice();
       } else {
-        if (ts == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-        }
-        final int length = ts.getTimeSeries().size();
-        if (length == 0) {
-          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-        }
-        lastMarginPrice = ts.getTimeSeries().getLatestValue();
+        lastMarginPrice = getLatestMarketValue(timeSeries, security);
       }
       return definition.toDerivative(now, lastMarginPrice);
     }
@@ -1655,6 +1600,66 @@ public class FixedIncomeConverterDataProvider {
       return definition.toDerivative(now, fundingLegTS);
     }
   };
+  
+  private final Converter<DeliverableSwapFutureSecurity, SwapFuturesPriceDeliverableTransactionDefinition> _dsfTrade = 
+      new Converter<DeliverableSwapFutureSecurity, SwapFuturesPriceDeliverableTransactionDefinition>() {
+
+      @Override
+      public Set<ValueRequirement> getTimeSeriesRequirements(DeliverableSwapFutureSecurity security) {
+        return Collections.singleton(getPreviousMonthMarketValueTimeSeriesRequirement(security));
+      }
+  
+      @Override
+      public InstrumentDerivative convert(DeliverableSwapFutureSecurity security, SwapFuturesPriceDeliverableTransactionDefinition definition, ZonedDateTime now, String[] curveNames,
+                                          HistoricalTimeSeriesBundle timeSeries) {
+        final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
+        if (curveNames.length == 1) {
+          final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
+          return definition.toDerivative(now, lastMarginPrice, singleCurve);
+        }
+        return definition.toDerivative(now, lastMarginPrice, curveNames);
+      }
+  
+      @Override
+      public InstrumentDerivative convert(DeliverableSwapFutureSecurity security, SwapFuturesPriceDeliverableTransactionDefinition definition, ZonedDateTime now,
+                                          HistoricalTimeSeriesBundle timeSeries) {
+        final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
+        return definition.toDerivative(now, lastMarginPrice);
+      }
+    };
+  
+  /**
+   * Returns the latest market value of the security from the time series bundle.
+   * @param timeSeries the bundle containing a time series bundle, not null.
+   * @param security the security to return the latest market value for, not null.
+   * @return the latest market value of the security.
+   */
+  private final double getLatestMarketValue(HistoricalTimeSeriesBundle timeSeries, Security security) {
+    final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
+    if (ts == null) {
+      throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+    }
+    final int length = ts.getTimeSeries().size();
+    if (length == 0) {
+      throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
+    }
+    final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
+    return lastMarginPrice;
+  }
+  
+  /**
+   * Returns a value requirement for the previous months market values of the given security.
+   * @param security the security to return the previous market values for, not null.
+   * @return a value requirement for the previous months market values of the given security.
+   */
+  private ValueRequirement getPreviousMonthMarketValueTimeSeriesRequirement(Security security) {
+    final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    if (timeSeries == null) {
+      return null;
+    }
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true);
+  }
 
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
     if (floatingLeg.getFloatingRateType().isIbor()) {
