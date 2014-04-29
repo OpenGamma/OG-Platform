@@ -4,19 +4,7 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-  <!-- This config file is called from fullstack-examplesbloomberg.ini via SpringInfrastructureComponentFactory -->
-
-  <!-- ================================================================== -->
-  <bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
-    <property name="serverHost" value="${bloomberg.host}" />
-    <property name="serverPort" value="${bloomberg.port}" />
-  </bean>
-  
-  <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnector">
-    <constructor-arg value="FullStack"/>
-    <constructor-arg ref="sessionOptions"/>
-  </bean>
-  
+  <!-- This config file is called from fullstack-examplesbloomberg.ini via SpringInfrastructureComponentFactory -->  
   <!-- ================================================================== -->
   <bean id="standardDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
     <property name="driverClass" value="${db.standard.driver}" />
