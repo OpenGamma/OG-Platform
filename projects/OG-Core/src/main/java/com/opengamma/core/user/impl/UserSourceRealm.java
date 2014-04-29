@@ -114,7 +114,7 @@ public class UserSourceRealm extends AuthorizingRealm {
       UserAccount account = loadUserByName(userName);
       account.getStatus().check();
       _profiles.put(userName, account.getProfile());
-      AuthUtils.getSubject().getSession().setAttribute(UserProfile.class.getName(), new ProxyProfile(userName));
+      AuthUtils.getSubject().getSession().setAttribute(UserProfile.ATTRIBUTE_KEY, new ProxyProfile(userName));
       SimplePrincipalCollection principals = new SimplePrincipalCollection();
       principals.add(account.getUserName(), getName());
       return new SimpleAuthenticationInfo(principals, account.getPasswordHash());

@@ -22,6 +22,12 @@ import com.opengamma.util.PublicAPI;
 public interface UserProfile {
 
   /**
+   * The session attribute key for the user profile.
+   * This is used to store the profile in the Apache Shiro session.
+   */
+  String ATTRIBUTE_KEY = UserProfile.class.getName();
+
+  /**
    * Gets the display name, such as the user's real name.
    * This is typically used in a GUI and is not guaranteed to be unique.
    * 

@@ -71,7 +71,7 @@ public class WebUser {
     if (session == null) {
       return null;
     }
-    return (UserProfile) session.getAttribute(UserProfile.class.getName());
+    return (UserProfile) session.getAttribute(UserProfile.ATTRIBUTE_KEY);
   }
 
   /**
