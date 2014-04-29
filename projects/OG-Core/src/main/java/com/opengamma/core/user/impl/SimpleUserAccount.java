@@ -43,7 +43,7 @@ public class SimpleUserAccount implements Bean, UserAccount, Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The user name that uniquely identifies the user
+   * The user name that uniquely identifies the user.
    * This is used with the password to authenticate.
    */
   @PropertyDefinition(validate = "notNull")
@@ -169,7 +169,7 @@ public class SimpleUserAccount implements Bean, UserAccount, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the user name that uniquely identifies the user
+   * Gets the user name that uniquely identifies the user.
    * This is used with the password to authenticate.
    * @return the value of the property, not null
    */
@@ -178,7 +178,7 @@ public class SimpleUserAccount implements Bean, UserAccount, Serializable {
   }
 
   /**
-   * Sets the user name that uniquely identifies the user
+   * Sets the user name that uniquely identifies the user.
    * This is used with the password to authenticate.
    * @param userName  the new value of the property, not null
    */

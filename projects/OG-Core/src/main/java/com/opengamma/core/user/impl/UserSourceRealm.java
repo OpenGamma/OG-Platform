@@ -47,6 +47,7 @@ public class UserSourceRealm extends AuthorizingRealm {
 
   /**
    * The user profiles.
+   * This cache operates with {@code ProxyProfile} to ensure that changes to a user are correctly propagated.
    */
   private final MapCache<String, UserProfile> _profiles = new MapCache<>("profiles", new SoftHashMap<String, UserProfile>());
   /**
@@ -84,6 +85,9 @@ public class UserSourceRealm extends AuthorizingRealm {
   //-------------------------------------------------------------------------
   /**
    * Gets the user profile.
+   * <p>
+   * This method binds the proxy profile that is stored in the user session
+   * to the real profile stored in the cache.
    * 
    * @param userName  the user name, not null
    * @return the user profile, null if not found
@@ -109,20 +113,38 @@ public class UserSourceRealm extends AuthorizingRealm {
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
     try {
+      // load and validate
       UsernamePasswordToken upToken = (UsernamePasswordToken) token;
-      String userName = upToken.getUsername();
-      UserAccount account = loadUserByName(userName);
+      String enteredUserName = upToken.getUsername();
+      UserAccount account = loadUserByName(enteredUserName);
       account.getStatus().check();
+      // make data available in the session
+      String userName = account.getUserName();
       _profiles.put(userName, account.getProfile());
       AuthUtils.getSubject().getSession().setAttribute(UserProfile.ATTRIBUTE_KEY, new ProxyProfile(userName));
+      // return Shiro data
       SimplePrincipalCollection principals = new SimplePrincipalCollection();
-      principals.add(account.getUserName(), getName());
+      principals.add(userName, getName());
       return new SimpleAuthenticationInfo(principals, account.getPasswordHash());
       
     } catch (AuthenticationException ex) {
       throw ex;
     } catch (RuntimeException ex) {
       throw new AuthenticationException("Unable to load authentication data: " + token, ex);
+    }
+  }
+
+  @Override
+  protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
+    // cleanup after login failure
+    // Apache Shiro should provide a protected method to handle this better
+    try {
+      super.assertCredentialsMatch(token, info);
+    } catch (AuthenticationException ex) {
+      String userName = info.getPrincipals().getPrimaryPrincipal().toString();
+      _profiles.remove(userName);
+      AuthUtils.getSubject().getSession().removeAttribute(UserProfile.ATTRIBUTE_KEY);
+      throw ex;
     }
   }
 
