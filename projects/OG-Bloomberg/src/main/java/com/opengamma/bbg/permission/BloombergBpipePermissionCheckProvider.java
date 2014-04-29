@@ -24,6 +24,7 @@ import org.apache.shiro.authz.UnauthenticatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.threeten.bp.Duration;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
@@ -80,7 +81,7 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
   private static final Name LAST_PRICE = Name.getName("LAST_PRICE");
   private static final Name EID = Name.getName("EID");
   private static final int WAIT_TIME_MS = 10 * 1000; // 10 seconds
-  private static final long DEFAULT_IDENTITY_EXPIRY = 24;
+  private static final Duration DEFAULT_IDENTITY_EXPIRY = Duration.ofHours(24);
 
   private final LoadingCache<IdentityCacheKey, Identity> _userIdentityCache;
   private final LoadingCache<String, Set<String>> _liveDataPermissionCache;
@@ -90,7 +91,6 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
   private volatile Service _apiAuthSvc;
   private volatile Service _apiRefDataSvc;
   private volatile Service _apiMktDataSvc;
-  private final long _identityExpiry;
   private volatile Identity _applicationIdentity;
   private final Map<CorrelationID, SettableFuture<Set<String>>> _subscriptionResponse = new ConcurrentHashMap<>();
   /** Creates and manages the Bloomberg session and service. */
@@ -111,14 +111,13 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
    * @param bloombergConnector the Bloomberg connector, not null
    * @param identityExpiry the identity expiry in hours, not null
    */
-  public BloombergBpipePermissionCheckProvider(BloombergConnector bloombergConnector, long identityExpiry) {
+  public BloombergBpipePermissionCheckProvider(BloombergConnector bloombergConnector, Duration identityExpiry) {
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notNull(bloombergConnector.getSessionOptions(), "bloombergConnector.sessionOptions");
-    ArgumentChecker.isTrue(identityExpiry > 0, "identityExpiry must be positive");
+    ArgumentChecker.isTrue(identityExpiry.getSeconds() > 0, "identityExpiry must be positive");
     ArgumentChecker.isTrue(bloombergConnector.requiresAuthorization(), "authentication options must be set");
     
-    _identityExpiry = identityExpiry;
-    _userIdentityCache = createUserIdentityCache();
+    _userIdentityCache = createUserIdentityCache(identityExpiry);
     _liveDataPermissionCache = createLiveDataPermissionCache(identityExpiry);
     _bloombergConnector = bloombergConnector;
 
@@ -127,33 +126,32 @@ public final class BloombergBpipePermissionCheckProvider extends AbstractPermiss
     _sessionProvider = new SessionProvider(_bloombergConnector, serviceNames, eventHandler);
   }
 
-  private LoadingCache<IdentityCacheKey, Identity> createUserIdentityCache() {
-    LoadingCache<IdentityCacheKey, Identity> identityCache = CacheBuilder.newBuilder().expireAfterWrite(_identityExpiry, TimeUnit.HOURS).build(new CacheLoader<IdentityCacheKey, Identity>() {
-
-      @Override
-      public Identity load(IdentityCacheKey userCredential) throws Exception {
-        return loadUserIdentity(userCredential);
-      }
-
-    });
+  private LoadingCache<IdentityCacheKey, Identity> createUserIdentityCache(Duration identityExpiry) {
+    LoadingCache<IdentityCacheKey, Identity> identityCache = CacheBuilder.newBuilder()
+        .expireAfterWrite(identityExpiry.getSeconds(), TimeUnit.SECONDS)
+        .build(new CacheLoader<IdentityCacheKey, Identity>() {
+          @Override
+          public Identity load(IdentityCacheKey userCredential) throws Exception {
+            return loadUserIdentity(userCredential);
+          }
+        });
     return identityCache;
   }
 
-  private LoadingCache<String, Set<String>> createLiveDataPermissionCache(long identityExpiry) {
-    final LoadingCache<String, Set<String>> liveDataPermissionCache = CacheBuilder.newBuilder().expireAfterWrite(identityExpiry, TimeUnit.HOURS).build(new CacheLoader<String, Set<String>>() {
-
-      @Override
-      public Set<String> load(String liveDataPermissionRequest) throws Exception {
-        Map<String, Set<String>> all = loadAll(Collections.singleton(liveDataPermissionRequest));
-        return all.get(liveDataPermissionRequest);
-      }
-
-      @Override
-      public Map<String, Set<String>> loadAll(Iterable<? extends String> liveDataPermissionRequests) throws Exception {
-        return loadLiveDataPermissions(liveDataPermissionRequests);
-      }
-
-    });
+  private LoadingCache<String, Set<String>> createLiveDataPermissionCache(Duration identityExpiry) {
+    final LoadingCache<String, Set<String>> liveDataPermissionCache = CacheBuilder.newBuilder()
+        .expireAfterWrite(identityExpiry.getSeconds(), TimeUnit.SECONDS)
+        .build(new CacheLoader<String, Set<String>>() {
+          @Override
+          public Set<String> load(String liveDataPermissionRequest) throws Exception {
+            Map<String, Set<String>> all = loadAll(Collections.singleton(liveDataPermissionRequest));
+            return all.get(liveDataPermissionRequest);
+          }
+          @Override
+          public Map<String, Set<String>> loadAll(Iterable<? extends String> liveDataPermissionRequests) throws Exception {
+            return loadLiveDataPermissions(liveDataPermissionRequests);
+          }
+        });
     return liveDataPermissionCache;
   }
 

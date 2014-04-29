@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -27,7 +28,10 @@ import com.opengamma.component.ComponentServer;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
+import com.opengamma.provider.permission.PermissionCheckProvider;
+import com.opengamma.provider.permission.impl.ProviderBasedPermissionResolver;
 import com.opengamma.util.ReflectionUtils;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Component factory for accessing remote providers from the local machine.
@@ -73,6 +77,25 @@ public class RemoteProvidersComponentFactory extends AbstractComponentFactory {
       repo.registerComponent(info, target);
       if (isPublishRest()) {
         repo.getRestComponents().republish(info);
+      }
+      if (info.getType() == PermissionCheckProvider.class) {
+        connectPermissionCheckProvider(repo, info, (PermissionCheckProvider) target);
+      }
+    }
+  }
+
+  /**
+   * Connect the permission check provider to the local authorization system.
+   * 
+   * @param repo  the local repository, not null
+   * @param info  the remote information, not null
+   * @param provider  the remote provider, not null
+   */
+  protected void connectPermissionCheckProvider(ComponentRepository repo, ComponentInfo info, PermissionCheckProvider provider) {
+    if (AuthUtils.isPermissive() == false && info.getAttributes().containsKey(ComponentInfoAttributes.ACCEPTED_TYPES)) {
+      String[] permissionPrefixes = StringUtils.split(info.getAttribute(ComponentInfoAttributes.ACCEPTED_TYPES), ',');
+      for (String permissionPrefix : permissionPrefixes) {
+        AuthUtils.getPermissionResolver().registerPrefix(permissionPrefix, new ProviderBasedPermissionResolver(provider));
       }
     }
   }
