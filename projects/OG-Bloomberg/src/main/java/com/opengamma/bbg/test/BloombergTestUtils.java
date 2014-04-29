@@ -56,7 +56,7 @@ public final class BloombergTestUtils {
    * @return the connector, not null
    */
   public static BloombergConnector getBloombergBipeConnector() {
-    return new BloombergConnector("BloombergTestUtils", getSessionOptions("bbgBpipeServer.host", "bbgBpipeServer.port", "bbgBpipeServer.appname"));
+    return new BloombergConnector("BloombergTestUtils", getSessionOptions("bbgBpipeServer.host", "bbgBpipeServer.port", "bbgBpipeServer.app.name"));
   }
 
   /**
