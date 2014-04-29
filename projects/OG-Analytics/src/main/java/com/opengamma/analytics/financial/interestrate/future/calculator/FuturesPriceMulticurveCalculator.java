@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -73,11 +74,11 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
     return 1.0 - interest / futures.getFixingTotalAccrualFactor();
   }
 
-  @Override
   /**
    * The price is 1+underlying swap present value. 
    * There is no adjustment for margining and no correction for discounting between futures settlement and valuation date.
    */
+  @Override
   public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final ParameterProviderInterface multicurve) {
     ArgumentChecker.notNull(futures, "futures");
     ArgumentChecker.notNull(multicurve, "multi-curve provider");
@@ -85,4 +86,8 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
     return 1.0d + pv.getAmount(futures.getCurrency());
   }
 
+  @Override
+  public Double visitSwapFuturesPriceDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures, ParameterProviderInterface data) {
+    return visitSwapFuturesPriceDeliverableSecurity(futures.getUnderlyingSecurity(), data);
+  }
 }
