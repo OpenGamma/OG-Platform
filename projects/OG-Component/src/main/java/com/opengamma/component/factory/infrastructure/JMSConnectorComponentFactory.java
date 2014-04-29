@@ -32,7 +32,7 @@ import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
- * Component Factory for a shared JmsConnector.
+ * Component Factory for a shared JMS connector.
  * <p>
  * A client broker URI must be specified
  * <p>
@@ -62,11 +62,16 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final JmsConnector component = initJmsConnector();
-    final ComponentInfo info = new ComponentInfo(JmsConnector.class, getClassifier());
+    JmsConnector component = initJmsConnector();
+    ComponentInfo info = new ComponentInfo(JmsConnector.class, getClassifier());
     repo.registerComponent(info, component);
   }
 
+  /**
+   * Creates the JMS connector without registering it.
+   * 
+   * @return the JMS connector, not null
+   */
   protected JmsConnector initJmsConnector() throws Exception {
     initDefaults();
     JmsConnectorFactoryBean factoryBean = new JmsConnectorFactoryBean();
@@ -84,14 +89,14 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   protected ActiveMQConnectionFactory initActiveMQConnectionFactory() {
-    final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(getClientBrokerUri());
+    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(getClientBrokerUri());
     connectionFactory.setWatchTopicAdvisories(false);
     return connectionFactory;
   }
 
   protected PooledConnectionFactory initPooledConnectionFactory() {
     PooledConnectionFactory pooledConnectionFactory = new PooledConnectionFactory(initActiveMQConnectionFactory());
-        pooledConnectionFactory.setIdleTimeout(0);
+    pooledConnectionFactory.setIdleTimeout(0);
     return pooledConnectionFactory;
   }
 

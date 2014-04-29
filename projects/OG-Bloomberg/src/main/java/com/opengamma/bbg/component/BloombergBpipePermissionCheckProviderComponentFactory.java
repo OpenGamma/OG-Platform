@@ -192,7 +192,7 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
   }
 
   /**
-   * Sets the identity expiry time in hours.
+   * Sets the identity expiry time in hours
    * <p>
    * Defaults to 24hrs if not set.
    * @param identityExpiryTime  the new value of the property
@@ -253,7 +253,7 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           (isPublishRest() == other.isPublishRest()) &&
           JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
-          (getIdentityExpiryTime() == other.getIdentityExpiryTime()) &&
+          JodaBeanUtils.equal(getIdentityExpiryTime(), other.getIdentityExpiryTime()) &&
           JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
           super.equals(obj);
     }

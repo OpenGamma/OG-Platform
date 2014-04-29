@@ -64,18 +64,18 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final RedisConnector redisConnector = createRedisConnector(repo);
-    final ComponentInfo info = new ComponentInfo(RedisConnector.class, getClassifier());
+    RedisConnector redisConnector = createRedisConnector(repo);
+    ComponentInfo info = new ComponentInfo(RedisConnector.class, getClassifier());
     repo.registerComponent(info, redisConnector);
   }
 
   /**
    * Creates the Redis connector without registering it.
    * 
-   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the Redis connector, not null
    */
-  protected RedisConnector createRedisConnector(final ComponentRepository repo) {
+  protected RedisConnector createRedisConnector(ComponentRepository repo) {
     JedisPoolConfig poolConfig = new JedisPoolConfig();
     poolConfig.setMaxActive(Runtime.getRuntime().availableProcessors() + 5);
     return new RedisConnector(getClassifier(), getHostName(), getRedisPort(), getPassword(), poolConfig, getTimeOut());

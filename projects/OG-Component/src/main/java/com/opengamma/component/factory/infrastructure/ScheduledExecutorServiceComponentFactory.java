@@ -54,18 +54,18 @@ public class ScheduledExecutorServiceComponentFactory extends AbstractComponentF
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final ScheduledExecutorService component = createScheduledExecutorService(repo);
-    final ComponentInfo info = new ComponentInfo(ScheduledExecutorService.class, getClassifier());
+    ScheduledExecutorService component = createScheduledExecutorService(repo);
+    ComponentInfo info = new ComponentInfo(ScheduledExecutorService.class, getClassifier());
     repo.registerComponent(info, component);
   }
 
   /**
    * Creates the executor service without registering it.
    * 
-   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the executor service, not null
    */
-  protected ScheduledExecutorService createScheduledExecutorService(final ComponentRepository repo) {
+  protected ScheduledExecutorService createScheduledExecutorService(ComponentRepository repo) {
     ScheduledExecutorFactoryBean factoryBean = new ScheduledExecutorFactoryBean();
     factoryBean.setThreadNamePrefix(getThreadNamePrefix());
     factoryBean.afterPropertiesSet();
