@@ -359,4 +359,9 @@ public final class BloombergConstants {
       MARKET_SECTOR_MUNI,
       MARKET_SECTOR_PREFERRED);
 
+  /**
+   * Bpipe application authentication  prefix
+   */
+  public static final String AUTH_APP_PREFIX = "AuthenticationMode=APPLICATION_ONLY;ApplicationAuthenticationType=APPNAME_AND_KEY;ApplicationName=";
+
 }
