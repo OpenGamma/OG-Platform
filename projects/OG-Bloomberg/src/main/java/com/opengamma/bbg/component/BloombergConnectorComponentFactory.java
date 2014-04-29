@@ -62,8 +62,7 @@ public class BloombergConnectorComponentFactory extends AbstractComponentFactory
    * The auto restart on disconnection
    */
   @PropertyDefinition
-  private boolean _autoRestartOnDisconnection;
-
+  private boolean _autoRestartOnDisconnection = true;
   /**
    * The bloomberg reference data statistics
    */
@@ -87,9 +86,6 @@ public class BloombergConnectorComponentFactory extends AbstractComponentFactory
     String applicationName = StringUtils.trimToNull(getApplicationName());
     if (applicationName != null) {
       sessionOptions.setAuthenticationOptions(BloombergConstants.AUTH_APP_PREFIX + applicationName);
-    }
-    if (sessionOptions.getServerHost() == null || sessionOptions.getServerHost().contains("$")) {
-      throw new IllegalStateException("Bloomberg SessionOptions does not have a server host");
     }
     sessionOptions.setAutoRestartOnDisconnection(isAutoRestartOnDisconnection());
   
