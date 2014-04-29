@@ -492,7 +492,13 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
                                                       LocalDate end, boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
-    return getHistoricalTimeSeries(uniqueId);
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
+                                                      boolean includeEnd) {
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
   // ------------------------------------------------------------------------
@@ -524,11 +530,6 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   }
 
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end,
-      boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
-  }
-
-  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
       boolean includeEnd) {
     throw new UnsupportedOperationException("Unsupported operation.");
   }
