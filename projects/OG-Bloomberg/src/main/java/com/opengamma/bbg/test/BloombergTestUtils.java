@@ -19,6 +19,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
@@ -55,7 +56,7 @@ public final class BloombergTestUtils {
    * @return the connector, not null
    */
   public static BloombergConnector getBloombergBipeConnector() {
-    return new BloombergConnector("BloombergTestUtils", getSessionOptions("bbgBpipeServer.host", "bbgBpipeServer.port"));
+    return new BloombergConnector("BloombergTestUtils", getSessionOptions("bbgBpipeServer.host", "bbgBpipeServer.port", "bbgBpipeServer.appname"));
   }
 
   /**
@@ -72,7 +73,7 @@ public final class BloombergTestUtils {
   }
 
   private static SessionOptions getSessionOptions() {
-    return getSessionOptions("bbgServer.host", "bbgServer.port");
+    return getSessionOptions("bbgServer.host", "bbgServer.port", null);
   }
 
   /**
@@ -80,7 +81,7 @@ public final class BloombergTestUtils {
    * 
    * @return the session options, not null
    */
-  private static SessionOptions getSessionOptions(String bbgServerHostName, String bbgServerPortName) {
+  private static SessionOptions getSessionOptions(String bbgServerHostName, String bbgServerPortName, String applicationKey) {
     SessionOptions options = new SessionOptions();
     Properties properties = TestProperties.getTestProperties();
     String serverHost = properties.getProperty(bbgServerHostName);
@@ -93,6 +94,12 @@ public final class BloombergTestUtils {
     }
     options.setServerHost(serverHost);
     options.setServerPort(Integer.parseInt(serverPort));
+    if (applicationKey != null) {
+      String applicationName = properties.getProperty(applicationKey);
+      if (applicationName != null) {
+        options.setAuthenticationOptions(BloombergConstants.AUTH_APP_PREFIX + applicationName);
+      }
+    }
     return options;
   }
 
