@@ -43,8 +43,9 @@ public class ExternalSchemesTest {
     assertEquals(ExternalId.of("RIC", "A"), ExternalSchemes.ricSecurityId("A"));
     assertEquals(ExternalId.of("MARKIT_RED_CODE", "A"), ExternalSchemes.markItRedCode("A"));
     assertEquals(ExternalId.of("ISDA", "A"), ExternalSchemes.isda("A"));
-    assertEquals(ExternalId.of("BLOOMBERG_UUID", "A"), ExternalSchemes.bloombergUUIDUserId("A"));
-    assertEquals(ExternalId.of("BLOOMBERG_EMRSID", "A"), ExternalSchemes.bloombergEMRSUserId("A"));
+    assertEquals(ExternalId.of("WINDOWS_USER_ID", "A"), ExternalSchemes.windowsUserId("A"));
+    assertEquals(ExternalId.of("BLOOMBERG_UUID", "A"), ExternalSchemes.bloombergUuidUserId("A"));
+    assertEquals(ExternalId.of("BLOOMBERG_EMRSID", "A"), ExternalSchemes.bloombergEmrsUserId("A"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -69,12 +70,12 @@ public class ExternalSchemesTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_bloombergUuid_null() {
-    ExternalSchemes.bloombergUUIDUserId(null);
+    ExternalSchemes.bloombergUuidUserId(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_bloombergEmrsid_null() {
-    ExternalSchemes.bloombergEMRSUserId(null);
+    ExternalSchemes.bloombergEmrsUserId(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

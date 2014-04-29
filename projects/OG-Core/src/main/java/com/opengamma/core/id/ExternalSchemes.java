@@ -33,6 +33,10 @@ public class ExternalSchemes {
 
   // --------------------------- SCHEMES FOR USER IDENTITY ------------------------------------
   /**
+   * Identification scheme for Windows user id.
+   */
+  public static final ExternalScheme WINDOWS_USER_ID = ExternalScheme.of("WINDOWS_USER_ID");
+  /**
    * Identification scheme for UUID identifier
    */
   public static final ExternalScheme BLOOMBERG_UUID = ExternalScheme.of("BLOOMBERG_UUID");
@@ -178,6 +182,17 @@ public class ExternalSchemes {
 
   //------------------ METHODS FOR USER IDENTITY -----------------------------
   /**
+   * Creates a Windows user id.
+   * 
+   * @param windowsUserId  the Windows user id, not null
+   * @return the identifier, not null
+   */
+  public static ExternalId windowsUserId(String windowsUserId) {
+    ArgumentChecker.notNull(windowsUserId, "windowsUserId");
+    return ExternalId.of(ExternalSchemes.WINDOWS_USER_ID, windowsUserId);
+  }
+
+  /**
    * Creates a UUID identifier.
    * <p>
    * This is an identifier for BPS bloomberg user.
@@ -185,7 +200,7 @@ public class ExternalSchemes {
    * @param uuid the bps bloomberg user identifier, not null
    * @return the user uuid identifier, not null
    */
-  public static ExternalId bloombergUUIDUserId(final String uuid) {
+  public static ExternalId bloombergUuidUserId(final String uuid) {
     return ExternalId.of(BLOOMBERG_UUID, ArgumentChecker.notNull(StringUtils.trimToNull(uuid), "uuid"));
   }
 
@@ -197,7 +212,7 @@ public class ExternalSchemes {
    *  @param emrsid the non-bps bloomberg user identifier, not null
    * @return the user emrsid identifier, not null
    */
-  public static ExternalId bloombergEMRSUserId(final String emrsid) {
+  public static ExternalId bloombergEmrsUserId(final String emrsid) {
     return ExternalId.of(BLOOMBERG_EMRSID, ArgumentChecker.notNull(StringUtils.trimToNull(emrsid), "emrsid"));
   }
 

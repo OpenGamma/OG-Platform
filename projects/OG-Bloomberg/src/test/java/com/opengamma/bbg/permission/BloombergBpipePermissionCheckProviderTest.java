@@ -60,7 +60,7 @@ public class BloombergBpipePermissionCheckProviderTest {
   //-------------------------------------------------------------------------
   @Test
   public void isPermittedEidCheck() {
-    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.110",
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEmrsUserId("og:yomi"), "10.0.2.110",
         EID_27749, EID_35009, EID_39491, EID_40066, EID_41095, EID_46707, EID_1234);
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
@@ -79,7 +79,7 @@ public class BloombergBpipePermissionCheckProviderTest {
 
   @Test
   public void notPermittedEidCheckAfterEntitlementRevoked() {
-    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.110",
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEmrsUserId("og:yomi"), "10.0.2.110",
         EID_27749, EID_35009, EID_39491, EID_40066, EID_41095, EID_46707, EID_1234);
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
@@ -119,7 +119,7 @@ public class BloombergBpipePermissionCheckProviderTest {
   @Test
   public void isPermittedLiveDataCheck() {
     PermissionCheckProviderRequest request = PermissionCheckProviderRequest
-        .createGet(ExternalSchemes.bloombergEMRSUserId("og:yomi"), "10.0.2.110", "LIVEDATA:IBM US Equity", "LIVEDATA:AAPL US Equity");
+        .createGet(ExternalSchemes.bloombergEmrsUserId("og:yomi"), "10.0.2.110", "LIVEDATA:IBM US Equity", "LIVEDATA:AAPL US Equity");
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);

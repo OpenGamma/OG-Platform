@@ -255,12 +255,7 @@ public class UserForm implements Bean {
     List<UserFormError> errors = new ArrayList<>();
     // user name
     if (userName == null) {
-      if (getBaseUser() != null) {
-        userName = getBaseUser().getUserName();
-      }
-      if (userName == null) {
-        errors.add(UserFormError.USERNAME_MISSING);
-      }
+      errors.add(UserFormError.USERNAME_MISSING);
     } else if (isUserNameTooShort(userName)) {
       errors.add(UserFormError.USERNAME_TOO_SHORT);
     } else if (isUserNameTooLong(userName)) {

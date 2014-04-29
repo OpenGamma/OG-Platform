@@ -13,7 +13,7 @@
     <#if err_passwordTooShort??><div class="err">The password is too short, minimum of 6 characters</div></#if>
     <#if err_passwordTooLong??><div class="err">The password is too long, maximum of 100 characters</div></#if>
     <#if err_passwordWeak??><div class="err">The password is too weak</div></#if>
-    <@rowin label="Password"><input type="password" size="40" maxlength="255" name="password" value="" id="password" /></@rowin>
+    <@rowin label="Password"><input type="password" size="40" maxlength="255" name="password" value="" id="password" autofocus /></@rowin>
 
     <@rowin><input type="submit" value="Reset" /></@rowin>
   </p>

@@ -47,6 +47,21 @@
 </@section>
 
 
+<#-- SECTION Update user -->
+<@section title="Update user" if=!deleted>
+  <@form method="PUT" action="${uris.user()}">
+  <p>
+    <@rowin label="User name"><input type="text" size="40" maxlength="20" name="username" value="${user.userName}" id="username" /></@rowin>
+    <@rowin label="Email address"><input type="email" size="40" maxlength="200" name="email" value="${user.emailAddress}" id="email" /></@rowin>
+    <@rowin label="Display name"><input type="text" size="40" maxlength="200" name="displayname" value="${user.profile.displayName}" id="displayname" /></@rowin>
+    <@rowin label="Bloomberg EMRS User"><input type="text" size="40" maxlength="100" name="idBloombergEmrs" value="${idBloombergEmrs}" id="idBloombergEmrs" /></@rowin>
+    <@rowin label="Windows User"><input type="text" size="40" maxlength="100" name="idWindows" value="${idWindows}" id="idWindows" /></@rowin>
+    <@rowin><input type="submit" value="Update" /></@rowin>
+  </p>
+  </@form>
+</@section>
+
+
 <#-- SECTION Reset password -->
 <@section title="Reset password" if=!deleted>
   <@form method="POST" action="${uris.userResetPassword()}">

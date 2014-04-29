@@ -12,7 +12,7 @@
     <#if err_emailMissing??><div class="err">The email address must be entered</div></#if>
     <#if err_emailToolLong??><div class="err">The email address is too long</div></#if>
     <#if err_emailInvalid??><div class="err">The email address is invalid</div></#if>
-    <@rowin label="Email address"><input type="email" size="40" maxlength="200" name="email" value="${email}" id="email" /></@rowin>
+    <@rowin label="Email address"><input type="email" size="40" maxlength="200" name="email" value="${email}" id="email" autofocus /></@rowin>
 
     <#if err_displaynameMissing??><div class="err">The display name must be entered</div></#if>
     <#if err_displaynameTooLong??><div class="err">The display name is too long</div></#if>
