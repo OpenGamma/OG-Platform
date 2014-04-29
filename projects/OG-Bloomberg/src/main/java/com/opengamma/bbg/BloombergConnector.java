@@ -8,10 +8,11 @@ package com.opengamma.bbg;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bloomberglp.blpapi.AbstractSession.StopOption;
+import com.bloomberglp.blpapi.EventHandler;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
@@ -134,17 +135,30 @@ public class BloombergConnector implements Connector {
     return _referenceDataStatistics;
   }
 
-  //-------------------------------------------------------------------------
   /**
-   * Creates and starts a new Bloomberg {@code Session}.
+   * Creates and starts a new Bloomberg {@code Session} in Synchronous mode.
    * <p>
-   * The session is started synchronously. The connector does not retain the state of the session, thus the caller is responsible for its lifecycle.
    * 
    * @return the started Bloomberg session, not null
    * @throws RuntimeException if an error occurs
    */
   public Session createOpenSession() {
-    Session session = createSession();
+    return createOpenSession(null);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates and starts a new Bloomberg {@code Session}.
+   * <p>
+   * The connector does not retain the state of the session, thus the caller is responsible for its lifecycle.
+   * If the specified eventHandler is not null then this Session will operate in asynchronous mode, otherwise the Session will operate in Synchronous mode.
+   * 
+   * @param eventHandler the event handler if provided
+   * @return the started Bloomberg session, not null
+   * @throws RuntimeException if an error occurs
+   */
+  public Session createOpenSession(final EventHandler eventHandler) {
+    Session session = createSession(eventHandler);
     try {
       if (session.start() == false) {
         throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + SessionOptionsUtils.toString(getSessionOptions()));
@@ -153,7 +167,7 @@ public class BloombergConnector implements Connector {
       // Interruption may mean that threads have still been created which must be killed. See PLAT-5309.
       try {
         s_logger.debug("Attempting to stop session which was created but not started");
-        session.stop(StopOption.ASYNC);
+        session.stop();
       } catch (Exception e) {
         s_logger.error("Can't stop session", e);
       }
@@ -163,7 +177,7 @@ public class BloombergConnector implements Connector {
       // Failure from "start" to connect may mean that threads have still been created which must be killed. See PLAT-5309.
       try {
         s_logger.debug("Attempting to stop session which was created but not started");
-        session.stop(StopOption.ASYNC);
+        session.stop();
       } catch (Exception e) {
         s_logger.error("Can't stop session", e);
       }
@@ -173,14 +187,28 @@ public class BloombergConnector implements Connector {
   }
 
   /**
-   * Creates a Bloomberg session that uses the session options.
+   * Creates a Bloomberg session in Synchronous mode that uses the session options.
    * <p>
    * The session is not opened.
    * 
    * @return the Bloomberg session, not null
    */
   public Session createSession() {
-    return new Session(getSessionOptions());
+    return createSession(null);
+  }
+
+  /**
+   * Creates a Bloomberg session that uses the session options.
+   * 
+   * <p>
+   * The session is not opened.
+   * If the specified eventHandler is not null then this Session will operate in asynchronous mode, otherwise the Session will operate in Synchronous mode.
+   * @param eventHandler the event handler if provided
+   * 
+   * @return the Bloomberg session, not null
+   */
+  public Session createSession(final EventHandler eventHandler) {
+    return new Session(getSessionOptions(), eventHandler);
   }
 
   //-------------------------------------------------------------------------
@@ -230,6 +258,34 @@ public class BloombergConnector implements Connector {
       s_logger.debug("Notifying availability to {}", listener);
       listener.bloombergAvailable();
     }
+  }
+
+  /**
+   * Checks if the bloomberg session needs authorization
+   * 
+   * @return true if authentication options is set, otherwise false
+   */
+  public boolean requiresAuthorization() {
+    if (getSessionOptions() != null) {
+      String authenticationOptions = StringUtils.trimToNull(getSessionOptions().authenticationOptions());
+      return authenticationOptions != null;
+    }
+    return false;
+  }
+
+  /**
+   * Returns the application name if available, otherwise null.
+   * 
+   * @return the application name if available.
+   */
+  public String getApplicationName() {
+    String applicationName = null;
+    if (getSessionOptions() != null && getSessionOptions().authenticationOptions() != null) {
+      if (getSessionOptions().authenticationOptions().startsWith(BloombergConstants.AUTH_APP_PREFIX)) {
+        applicationName = getSessionOptions().authenticationOptions().substring(BloombergConstants.AUTH_APP_PREFIX.length());
+      }
+    }
+    return applicationName;
   }
 
 }
