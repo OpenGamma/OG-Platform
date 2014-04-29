@@ -7,6 +7,7 @@ package com.opengamma.bbg.livedata;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -23,16 +24,19 @@ import org.springframework.context.Lifecycle;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.Identity;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.MessageIterator;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.SessionProvider;
+import com.opengamma.bbg.permission.BloombergBpipeApplicationUserIdentityProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
@@ -71,6 +75,8 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   private BloombergLiveDataServer.ConnectTask _connectTask;
   /** For sending a notification message that Bloomberg data is available. */
   private final FudgeMessageSender _availabilityNotificationSender;
+  private volatile Identity _applicationUserIdentity;
+  private final boolean _requiresAuthorization;
 
   /**
    * Creates an instance.
@@ -84,12 +90,24 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
       FudgeMessageSender availabilityNotificationSender) {
     super(cacheManager);
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
+    ArgumentChecker.notNull(bloombergConnector.getSessionOptions(), "bloombergConnector.sessionOptions");
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(availabilityNotificationSender, "availabilityNotificationSender");
+
+    _requiresAuthorization = bloombergConnector.requiresAuthorization();
     _availabilityNotificationSender = availabilityNotificationSender;
+
     _bloombergConnector = bloombergConnector;
     _referenceDataProvider = referenceDataProvider;
-    _sessionProvider = new SessionProvider(_bloombergConnector, BloombergConstants.MKT_DATA_SVC_NAME);
+    _sessionProvider = new SessionProvider(_bloombergConnector, getServiceNames());
+  }
+
+  private List<String> getServiceNames() {
+    List<String> serviceNames = Lists.newArrayList(BloombergConstants.MKT_DATA_SVC_NAME);
+    if (_requiresAuthorization) {
+      serviceNames.add(BloombergConstants.AUTH_SVC_NAME);
+    }
+    return serviceNames;
   }
 
   //-------------------------------------------------------------------------
@@ -122,6 +140,13 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     _sessionProvider.start();
     // getting the session throws an exception if BBG isn't available which is the behaviour we want
     _sessionProvider.getSession();
+
+    if (_requiresAuthorization) {
+      // we need authorization done
+      BloombergBpipeApplicationUserIdentityProvider identityProvider = new BloombergBpipeApplicationUserIdentityProvider(_sessionProvider);
+      _applicationUserIdentity = identityProvider.getIdentity();
+    }
+
     BloombergEventDispatcher eventDispatcher = new BloombergEventDispatcher(this);
     Thread eventDispatcherThread = new Thread(eventDispatcher, "Bloomberg LiveData Dispatcher");
     eventDispatcherThread.setDaemon(true);
@@ -162,7 +187,11 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     }
 
     try {
-      _sessionProvider.getSession().subscribe(sl);
+      if (_requiresAuthorization) {
+        _sessionProvider.getSession().subscribe(sl, _applicationUserIdentity);
+      } else {
+        _sessionProvider.getSession().subscribe(sl);
+      }
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Could not subscribe to " + bbgUniqueIds, e);
     }
