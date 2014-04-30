@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.provider.calculator.inflation.PresentVa
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator;
@@ -138,22 +139,11 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
   @Test
   /**
-   * Test the present value parameter curves sensitivity.
-   */
-  public void presentValueParameterCurveSensitivityCAINWithIssuer() {
-    final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDIC.calculateSensitivity(BOND_TIPS_1_TRANSACTION, MARKET);
-    final MultipleCurrencyParameterSensitivity pvicsExact = PSIC.calculateSensitivity(BOND_TIPS_1_TRANSACTION, MARKET, MARKET.getAllNames());
-    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
-  }
-
-  @Test
-  /**
    * Test the present value curves sensitivity.
    */
   public void presentValueCurveSensitivity() {
-
-    final InflationProviderInterface creditDiscounting = MARKET.withDiscountFactor(BOND_TIPS_1_TRANSACTION.getBondTransaction().getCurrency(),
-        BOND_TIPS_1_TRANSACTION.getBondTransaction().getIssuerEntity());
+    final InflationProviderInterface creditDiscounting = new InflationProviderDecoratedIssuer(MARKET, BOND_TIPS_1_TRANSACTION.getBondStandard().getCurrency(), BOND_TIPS_1_TRANSACTION
+        .getBondStandard().getIssuerEntity());
     final MultipleCurrencyInflationSensitivity sensitivityNominal = BOND_TIPS_1_TRANSACTION.getBondTransaction().getNominal().accept(PVCSDC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity sensitivityCoupon = BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().accept(PVCSDC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity pvcisCalculated = sensitivityNominal.plus(sensitivityCoupon);

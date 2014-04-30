@@ -13,9 +13,9 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -30,7 +30,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class InflationBondPresentValueFromCleanPriceFunction extends InflationBondFromCleanPriceAndCurvesFunction {
   /** The present value calculator */
-  private static final BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer CALCULATOR = BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer.getInstance();
+  private static final BondCapitalIndexedSecurityDiscountingMethod CALCULATOR = BondCapitalIndexedSecurityDiscountingMethod.getInstance();
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
 
   /**
@@ -41,10 +41,10 @@ public class InflationBondPresentValueFromCleanPriceFunction extends InflationBo
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final FunctionInputs inputs, final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface provider, final double cleanPrice,
+  protected Set<ComputedValue> getResult(final FunctionInputs inputs, final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface provider, final double cleanPrice,
       final ValueSpecification spec) {
     final String expectedCurrency = spec.getProperty(CURRENCY);
-    final MultipleCurrencyAmount pvBond = CALCULATOR.presentValueFromCleanPriceReal(bond.getBondTransaction(), provider, cleanPrice);
+    final MultipleCurrencyAmount pvBond = CALCULATOR.presentValueFromCleanRealPrice(bond.getBondTransaction(), provider, cleanPrice);
     final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().accept(PVIC, provider.getInflationProvider()).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     final MultipleCurrencyAmount pv = pvBond.plus(pvSettlement);

@@ -61,6 +61,11 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   private final double _lastKnownFixingTime;
 
   /**
+   * The index ratio.
+   */
+  private final double _indexRatio;
+
+  /**
    * Constructor of the Capital inflation indexed bond.
    * @param nominal The nominal annuity.
    * @param coupon The coupon annuity.
@@ -73,14 +78,15 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param settlement The description of the bond settlement.
    * @param indexStartValue The index value at the start of the bond.
    * @param lastIndexKnownFixing The last index known fixing.
-   * @param lastKnownFixingTime TODO
+   * @param lastKnownFixingTime The last known fixing.
+   * @param indexRatio The last known fixing.
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final double ratioPeriodToNextCoupon, final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue,
-      final double lastIndexKnownFixing, final double lastKnownFixingTime, final String issuer) {
+      final double lastIndexKnownFixing, final double lastKnownFixingTime, final double indexRatio, final String issuer) {
     this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, ratioPeriodToNextCoupon, yieldConvention, couponPerYear, settlement, indexStartValue, lastIndexKnownFixing,
-        lastKnownFixingTime, new LegalEntity(
+        lastKnownFixingTime, indexRatio, new LegalEntity(
             null, issuer, null, null, null));
   }
 
@@ -97,12 +103,13 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param settlement The description of the bond settlement.
    * @param indexStartValue The index value at the start of the bond.
    * @param lastIndexKnownFixing The last index known fixing.
-   * @param lastKnownFixingTime TODO
+   * @param lastKnownFixingTime The last known fixing.
+   * @param indexRatio The index Ratio.
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final double ratioPeriodToNextCoupon, final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue,
-      final double lastIndexKnownFixing, final double lastKnownFixingTime, final LegalEntity issuer) {
+      final double lastIndexKnownFixing, final double lastKnownFixingTime, final double indexRatio, final LegalEntity issuer) {
     super(nominal, coupon, settlementTime, issuer);
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
     ArgumentChecker.notNull(settlement, "Settlement");
@@ -115,6 +122,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     _indexStartValue = indexStartValue;
     _lastIndexKnownFixing = lastIndexKnownFixing;
     _lastKnownFixingTime = lastKnownFixingTime;
+    _indexRatio = indexRatio;
   }
 
   /**
@@ -185,8 +193,24 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * Gets the index value at the start of the bond.
    * @return The index value.
    */
+  public double getLastButOneIndexKnownFixing() {
+    return _lastIndexKnownFixing;
+  }
+
+  /**
+   * Gets the index value at the start of the bond.
+   * @return The index value.
+   */
   public double getLastKnownFixingTime() {
     return _lastKnownFixingTime;
+  }
+
+  /**
+   * Gets the index value at the start of the bond.
+   * @return The index value.
+   */
+  public double getIndexRatio() {
+    return _indexRatio;
   }
 
   /**
