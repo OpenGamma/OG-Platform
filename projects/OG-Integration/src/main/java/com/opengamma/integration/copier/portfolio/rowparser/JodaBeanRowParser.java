@@ -73,7 +73,8 @@ public class JodaBeanRowParser extends RowParser {
   /**
    * Security properties to ignore when scanning
    */
-  private static final String[] IGNORE_METAPROPERTIES = {"securityType", "uniqueid", "objectid", "securitylink", "trades", "gicscode", "parentpositionid", "providerid", "deal", "permissions" };
+  private static final String[] IGNORE_METAPROPERTIES = {
+    "securityType", "uniqueid", "objectid", "securitylink", "trades", "gicscode", "parentpositionid", "providerid", "deal", "requiredPermissions" };
 
   /**
    * Column prefixes
@@ -456,8 +457,9 @@ public class JodaBeanRowParser extends RowParser {
                 isConvertible(JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType()))) {
               result.put(prefix + metaProperty.name(), listToString((List<?>) metaProperty.get(bean)));
             } else if (Map.class.isAssignableFrom(metaProperty.propertyType()) && metaProperty.name().equalsIgnoreCase("attributes")) {
-              result.put(prefix + metaProperty.name(), SingleSheetPositionWriter.attributesToString((Map<String, String>) metaProperty.get(
-                  bean)));
+              @SuppressWarnings("unchecked")
+              Map<String, String> map = (Map<String, String>) metaProperty.get(bean);
+              result.put(prefix + metaProperty.name(), SingleSheetPositionWriter.attributesToString(map));
             } else {
               throw new OpenGammaRuntimeException("Property '" + prefix + metaProperty.name() + "' (" + metaProperty.propertyType() + ") cannot be converted to a string");
             }
