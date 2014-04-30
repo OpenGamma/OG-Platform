@@ -65,6 +65,14 @@ public interface InflationIssuerProviderInterface extends ParameterIssuerProvide
   double getDiscountFactor(Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, Double time);
 
   /**
+   * Gets the discount factor for one issuer in one currency.
+   * @param issuer The issuer.
+   * @param time The time.
+   * @return The discount factor.
+   */
+  double getDiscountFactor(LegalEntity issuer, Double time);
+
+  /**
    * Gets the set of issuer names by currency defined in the market.
    * @return The set of issuers names/currencies.
    */

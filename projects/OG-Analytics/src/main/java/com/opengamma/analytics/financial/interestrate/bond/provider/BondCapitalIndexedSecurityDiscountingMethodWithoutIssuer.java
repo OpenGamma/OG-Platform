@@ -97,6 +97,30 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
   }
 
   /**
+   * Calculates the accrued interest for a fixed-coupon bond using the clean price. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param cleanPrice The clean price
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCleanRealPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
+    ArgumentChecker.notNull(bond, "bond");
+    return dirtyRealPriceFromCleanRealPrice(bond, cleanPrice) - cleanPrice;
+  }
+
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the clean price. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param yield The yield
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCleanYield(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+    ArgumentChecker.notNull(bond, "bond");
+    return dirtyPriceFromRealYield(bond, yield) - cleanPriceFromYield(bond, yield);
+  }
+
+  /**
    * Computes the clean real price of a bond security from a dirty real price.
    * @param bond The bond security.
    * @param dirtyPrice The dirty price.
@@ -105,6 +129,20 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
   public double cleanRealPriceFromDirtyRealPrice(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     return dirtyPrice - bond.getAccruedInterest() / notional;
+  }
+
+  /**
+   * Computes the clean nominal price of a bond security from a dirty real price.
+   * @param bond The bond security.
+   * @param dirtyPrice The dirty price.
+   * @return The clean price.
+   */
+  public double cleanNominalPriceFromDirtyNominalPrice(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
+    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    final double rpibase = bond.getIndexStartValue();
+    final double rpiLast = bond.getLastIndexKnownFixing();
+    final double indexRatio = rpiLast / rpibase;
+    return dirtyPrice - bond.getAccruedInterest() / notional * indexRatio;
   }
 
   /**
