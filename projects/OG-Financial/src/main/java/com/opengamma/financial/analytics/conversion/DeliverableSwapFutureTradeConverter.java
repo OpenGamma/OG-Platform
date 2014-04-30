@@ -67,6 +67,6 @@ public class DeliverableSwapFutureTradeConverter implements TradeConverter {
       final int quantity = trade.getQuantity().intValue();
       return new SwapFuturesPriceDeliverableTransactionDefinition(securityDefinition, quantity, tradeDateTime, tradePrice);
     }
-    throw new IllegalArgumentException("Can only handle DeliverableSwapFutureSecurityDefinition");
+    throw new IllegalArgumentException("Can only handle DeliverableSwapFutureSecurity");
   }
 }
