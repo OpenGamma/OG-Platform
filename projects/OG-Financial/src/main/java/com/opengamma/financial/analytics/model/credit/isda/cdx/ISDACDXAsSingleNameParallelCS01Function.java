@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.engine.ComputationTarget;
@@ -34,6 +35,7 @@ public class ISDACDXAsSingleNameParallelCS01Function extends ISDACDXAsSingleName
     super(ValueRequirementNames.CS01);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition,
                                                 final ISDACompliantYieldCurve yieldCurve,
@@ -49,7 +51,13 @@ public class ISDACDXAsSingleNameParallelCS01Function extends ISDACDXAsSingleName
 
     //TODO: bump type
     Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
-    double cs01 = StandardVanillaParallelCS01CDSFunction.parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4, definition.getBuySellProtection(), tenors);
+    
+    CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod()).with(definition.getBusinessDayAdjustmentConvention())
+        .with(definition.getCalendar()).with(definition.getStubType()).withAccrualDCC(definition.getDayCountFractionConvention());
+
+    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationDate.toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
+    
+    double cs01 = StandardVanillaParallelCS01CDSFunction.parallelCS01(definition, yieldCurve, times, marketSpreads, pricingCDS, bump * 1e-4, definition.getBuySellProtection(), tenors);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01));
   }
