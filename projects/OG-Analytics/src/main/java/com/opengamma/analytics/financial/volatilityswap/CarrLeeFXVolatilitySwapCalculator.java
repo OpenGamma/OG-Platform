@@ -7,12 +7,13 @@ package com.opengamma.analytics.financial.volatilityswap;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
 import com.opengamma.analytics.financial.provider.description.volatilityswap.CarrLeeFXData;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
@@ -23,6 +24,7 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
   private static final double DEFAULT_LOWEST_PUT_DELTA = -0.1;
   private static final double DEFAULT_HIGHEST_CALL_DELTA = 0.1;
   private static final int DEFAULT_NUM_POINTS = 50;
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator NEW_CALCULATOR = new CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator();
   private static final CarrLeeSeasonedSyntheticVolatilitySwapCalculator SEASONED_CALCULATOR = new CarrLeeSeasonedSyntheticVolatilitySwapCalculator();
   private final double _lowestPutDelta;
@@ -122,18 +124,37 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
 
   private double findStrike(final double delta, final double timeToExpiry, final SmileDeltaTermStructureParameters smile, final double forward, final boolean isCall) {
     final Function1D<Double, Double> func = getDeltaDifference(delta, timeToExpiry, smile, forward, isCall);
-    final BisectionSingleRootFinder rtFinder = new BisectionSingleRootFinder(1.e-12);
-    final double strike = rtFinder.getRoot(func, forward * 0.2, forward * 1.8);
+    final Function1D<Double, Double> funcDiff = getDeltaDifferenceDiff(timeToExpiry, smile, forward);
+    final NewtonRaphsonSingleRootFinder rtFinder = new NewtonRaphsonSingleRootFinder(1.e-12);
+    final double strike = rtFinder.getRoot(func, funcDiff, forward);
+
     return strike;
   }
 
   private Function1D<Double, Double> getDeltaDifference(final double delta, final double timeToExpiry, final SmileDeltaTermStructureParameters smile, final double forward,
       final boolean isCall) {
+    final double rootT = Math.sqrt(timeToExpiry);
     return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double strike) {
         final double vol = smile.getVolatility(Triple.of(timeToExpiry, strike, forward));
-        return BlackFormulaRepository.delta(forward, strike, timeToExpiry, vol, isCall) - delta;
+        final double sigRootT = vol * rootT;
+        final double d1 = Math.log(forward / strike) / sigRootT + 0.5 * sigRootT;
+        final double sign = isCall ? 1. : -1.;
+        return sign * NORMAL.getCDF(sign * d1) - delta;
+      }
+    };
+  }
+
+  private Function1D<Double, Double> getDeltaDifferenceDiff(final double timeToExpiry, final SmileDeltaTermStructureParameters smile, final double forward) {
+    final double rootT = Math.sqrt(timeToExpiry);
+    return new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double strike) {
+        final double vol = smile.getVolatility(Triple.of(timeToExpiry, strike, forward));
+        final double sigRootT = vol * rootT;
+        final double d1 = Math.log(forward / strike) / sigRootT + 0.5 * sigRootT;
+        return -NORMAL.getPDF(d1) / strike / sigRootT;
       }
     };
   }
