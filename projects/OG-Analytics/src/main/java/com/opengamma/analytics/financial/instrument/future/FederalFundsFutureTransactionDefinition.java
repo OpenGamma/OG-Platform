@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -74,21 +75,26 @@ public class FederalFundsFutureTransactionDefinition extends FuturesTransactionD
 
   /**
    * {@inheritDoc}
-   * @param date The reference date.
-   * @param data Two time series. The first one with the ON index fixing; the second one with the future closing (margining) prices.
+   * @param dateTime The reference date and time.
+   * @param data One or two time series. The first one is mandatory (not null) and contains with the ON index fixing.
+   * The second one should be present if the reference "dateTime" is not hte trading date; the it contains the the future settlement (margining) prices.
    * The last closing price at a date strictly before "date" is used as last closing.
    * @return The derivative form
    */
   @Override
-  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data) {
-    ArgumentChecker.notNull(date, "Date");
-    ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(date, data[0]);
-    if (getTradeDate().equals(date)) {
+  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime>[] data) {
+    ArgumentChecker.notNull(dateTime, "Date");
+    ArgumentChecker.isTrue(data.length >= 1, "At least one time series: ON index fixing");
+    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime, data[0]);
+    final LocalDate dateLocal = dateTime.toLocalDate();
+    final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
+    if (transactionDateLocal.equals(dateLocal)) { // Transaction is on valuation date.
       return new FederalFundsFutureTransaction(underlying, getQuantity(), getTradePrice());
     }
-    final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
-    ArgumentChecker.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
+    ArgumentChecker.isTrue(data.length >= 2, "When not on the trading date, at least a second time series: futures settlement price.");
+    ArgumentChecker.notNull(data[1], "future settlement price not null.");
+    final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(dateTime.minusMonths(1), dateTime);
+    ArgumentChecker.isFalse(pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
     final double lastMargin = pastClosing.getLatestValue();
     return new FederalFundsFutureTransaction(underlying, getQuantity(), lastMargin);
   }

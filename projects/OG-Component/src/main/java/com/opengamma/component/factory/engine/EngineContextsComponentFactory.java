@@ -53,10 +53,12 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.marketdata.MarketDataELCompiler;
 import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 
 /**
  * Component factory for the config source.
@@ -236,6 +238,17 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   private void initThreadLocalServiceContext() {
+    
+    VersionCorrectionProvider vcProvider = new VersionCorrectionProvider() {
+        @Override
+        public VersionCorrection getPortfolioVersionCorrection() {
+          return VersionCorrection.LATEST;
+        }
+        @Override
+        public VersionCorrection getConfigVersionCorrection() {
+          return VersionCorrection.LATEST;
+        }
+      };
 
     ImmutableMap.Builder<Class<?>, Object> services = ImmutableMap.<Class<?>, Object>builder()
         .put(ConfigSource.class, getConfigSource())
@@ -259,6 +272,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     if (getVolatilityCubeDefinitionSource() != null) {
       services.put(VolatilityCubeDefinitionSource.class, getVolatilityCubeDefinitionSource());
     }
+    services.put(VersionCorrectionProvider.class, vcProvider);
 
     ThreadLocalServiceContext.init(ServiceContext.of(services.build()));
   }
