@@ -61,7 +61,7 @@ import com.opengamma.util.time.Expiry;
         "receiveAmount", "100",
         "forwardDate", forwardDateStr,
         "attributes", attributes,
-        "permissions", permissions);
+        "requiredPermissions", permissions);
 
     ZonedDateTime forwardDate = parseDate(forwardDateStr);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "GB");
@@ -121,7 +121,7 @@ import com.opengamma.util.time.Expiry;
 
     SwapLeg payLeg = new FixedInterestRateLeg(
         DayCounts.ACT_360,
-        SimpleFrequencyFactory.INSTANCE.getFrequency("3m"),
+        SimpleFrequencyFactory.of("3m"),
         ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
         BusinessDayConventions.MODIFIED_FOLLOWING,
         new InterestRateNotional(Currency.USD, 222.33),
@@ -129,7 +129,7 @@ import com.opengamma.util.time.Expiry;
         1.234);
     FloatingInterestRateLeg receiveLeg = new FloatingInterestRateLeg(
         DayCounts.ACT_ACT_ISDA,
-        SimpleFrequencyFactory.INSTANCE.getFrequency("6m"),
+        SimpleFrequencyFactory.of("6m"),
         ExternalId.of(ExternalSchemes.FINANCIAL, "234"),
         BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.GBP, 123.45),
@@ -138,7 +138,7 @@ import com.opengamma.util.time.Expiry;
         FloatingRateType.IBOR);
     receiveLeg.setInitialFloatingRate(321.9);
     receiveLeg.setSettlementDays(5);
-    receiveLeg.setOffsetFixing(SimpleFrequencyFactory.INSTANCE.getFrequency("1m"));
+    receiveLeg.setOffsetFixing(SimpleFrequencyFactory.of("1m"));
     SWAP = new SwapSecurity(tradeDate, effectiveDate, maturityDate, "Cpty", payLeg, receiveLeg);
     SWAP.setName("TODO");
     SWAP.setAttributes(attributes);
@@ -176,7 +176,7 @@ import com.opengamma.util.time.Expiry;
                                        parseDate(lastObservationDateStr),
                                        parseDate(settlementDateStr),
                                        ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
-                                       SimpleFrequencyFactory.INSTANCE.getFrequency("Weekly"));
+                                       SimpleFrequencyFactory.of("Weekly"));
     EQUITY_VARIANCE_SWAP.setName("TODO");
     EQUITY_VARIANCE_SWAP.setAttributes(attributes);
 
