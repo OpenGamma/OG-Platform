@@ -718,27 +718,35 @@ public class FixedIncomeConverterDataProvider {
     }
 
     @Override
-    public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
+    public InstrumentDerivative convert(final IRFutureOptionSecurity security,
+                                        final InterestRateFutureOptionMarginTransactionDefinition definition,
+                                        final ZonedDateTime valuationTime,
         final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
-      Double lastMarginPrice;
-      if (now.toLocalDate().equals(definition.getTradeDate().toLocalDate())) {
-        lastMarginPrice = definition.getTradePrice();
-      } else {
-        lastMarginPrice = getLatestMarketValue(timeSeries, security);
-      }
-      return definition.toDerivative(now, lastMarginPrice, curveNames);
+      double lastMarginPrice = getLastMarginPrice(security, definition, valuationTime, timeSeries);
+      return definition.toDerivative(valuationTime, lastMarginPrice, curveNames);
     }
 
     @Override
     public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      Double lastMarginPrice;
-      if (now.toLocalDate().equals(definition.getTradeDate().toLocalDate())) {
-        lastMarginPrice = definition.getTradePrice();
-      } else {
-        lastMarginPrice = getLatestMarketValue(timeSeries, security);
-      }
+      double lastMarginPrice = getLastMarginPrice(security, definition, now, timeSeries);
       return definition.toDerivative(now, lastMarginPrice);
+    }
+
+    /**
+     * Returns the contract price of the interest rate future option security. If the valuation date is on the trade
+     * date then the trade price is returned, otherwise the last margin price for the contract is returned.
+     * @param security the interest rate future option, not null.
+     * @param definition the interest rate future option definition, not null.
+     * @param valuationDate the valuation time, not null.
+     * @param timeSeries the time series bundle containing the last margin price, not null.
+     * @return the contract price of the interest rate future option.
+     */
+    private double getLastMarginPrice(final IRFutureOptionSecurity security,
+                                      final InterestRateFutureOptionMarginTransactionDefinition definition,
+                                      final ZonedDateTime valuationDate,
+                                      final HistoricalTimeSeriesBundle timeSeries) {
+      return valuationDate.toLocalDate().equals(definition.getTradeDate().toLocalDate()) ? definition.getTradePrice() : getLatestMarketValue(timeSeries, security);
     }
   };
 
@@ -1634,7 +1642,7 @@ public class FixedIncomeConverterDataProvider {
    * @param security the security to return the latest market value for, not null.
    * @return the latest market value of the security.
    */
-  private final double getLatestMarketValue(HistoricalTimeSeriesBundle timeSeries, Security security) {
+  private double getLatestMarketValue(HistoricalTimeSeriesBundle timeSeries, Security security) {
     final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
@@ -1643,8 +1651,7 @@ public class FixedIncomeConverterDataProvider {
     if (length == 0) {
       throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
     }
-    final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
-    return lastMarginPrice;
+    return ts.getTimeSeries().getLatestValue();
   }
   
   /**
