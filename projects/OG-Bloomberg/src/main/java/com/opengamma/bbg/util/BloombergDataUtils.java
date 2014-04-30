@@ -234,7 +234,10 @@ public final class BloombergDataUtils {
     final List<NormalizationRule> openGammaRules = new ArrayList<NormalizationRule>();
 
     // Filter out non-price updates
-    openGammaRules.add(new FieldFilter(STANDARD_FIELDS_LIST));
+    List<String> standardFields = new ArrayList<>(STANDARD_FIELDS_LIST);
+    standardFields.add(BloombergConstants.EID_LIVE_DATA_FIELD);
+    standardFields.add(BloombergConstants.EID_DATA.toString());
+    openGammaRules.add(new FieldFilter(standardFields));
 
     // Normalize EID name and values
     openGammaRules.add(new BloombergEidFieldValueNormalizer());
@@ -280,7 +283,8 @@ public final class BloombergDataUtils {
         MarketDataRequirementNames.YIELD_CONVENTION_MID,
         MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID,
         MarketDataRequirementNames.DIRTY_PRICE_MID,
-        MarketDataRequirementNames.DIVIDEND_YIELD));
+        MarketDataRequirementNames.DIVIDEND_YIELD,
+        PermissionUtils.LIVE_DATA_PERMISSION_FIELD));
     openGammaRules.add(new RequiredFieldFilter(MarketDataRequirementNames.MARKET_VALUE));
 
     final NormalizationRuleSet openGammaRuleSet = new NormalizationRuleSet(
