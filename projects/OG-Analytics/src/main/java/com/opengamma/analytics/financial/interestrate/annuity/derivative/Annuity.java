@@ -112,7 +112,10 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
   /**
    * Gets the payer flag: payer (true) or receiver (false)
    * @return The payer flag.
+   * @deprecated The payer flag is no longer used; the sign of the notional
+   * determines whether a leg is paid or received
    */
+  @Deprecated
   public boolean isPayer() {
     return _isPayer;
   }

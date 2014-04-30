@@ -21,6 +21,10 @@
     -webkit-animation-iteration-count: infinite;
 }
 
+.OG-loader-error {
+    background-image: linear-gradient(to right, rgb(115, 19, 14) 0%, rgb(153, 153, 153) 50%, rgb(115, 19, 14) 100%);
+}
+
 /**
  * White lines
  */

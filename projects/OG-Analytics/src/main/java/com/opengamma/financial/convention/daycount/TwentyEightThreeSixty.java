@@ -44,7 +44,7 @@ public class TwentyEightThreeSixty extends StatelessDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "28/360";
   }
 

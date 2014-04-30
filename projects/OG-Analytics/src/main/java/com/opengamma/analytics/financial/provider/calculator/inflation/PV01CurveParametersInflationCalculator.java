@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <T> The type of the multi-curve provider
  */
 public final class PV01CurveParametersInflationCalculator<T extends ParameterInflationProviderInterface> extends
-  InstrumentDerivativeVisitorSameMethodAdapter<T, ReferenceAmount<Pair<String, Currency>>> {
+    InstrumentDerivativeVisitorSameMethodAdapter<T, ReferenceAmount<Pair<String, Currency>>> {
 
   /**
    * The size of the scaling: 1 basis point.
@@ -51,7 +51,7 @@ public final class PV01CurveParametersInflationCalculator<T extends ParameterInf
    */
   @Override
   public ReferenceAmount<Pair<String, Currency>> visit(final InstrumentDerivative ird, final T multicurves) {
-    final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves, multicurves.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves, multicurves.getAllCurveNames());
     final ReferenceAmount<Pair<String, Currency>> ref = new ReferenceAmount<>();
     for (final Pair<String, Currency> nameCcy : sensi.getAllNamesCurrency()) {
       final DoubleMatrix1D vector = sensi.getSensitivity(nameCcy);

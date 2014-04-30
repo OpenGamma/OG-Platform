@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -54,11 +55,21 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
    */
   @PropertyDefinition(validate = "notNull")
   private CacheManager _cacheManager;
+  /**
+   * Maximum millis between ticks
+   */
+  @PropertyDefinition
+  private Integer _maxMillisBetweenTicks = ExampleLiveDataServer.MAX_MILLIS_BETWEEN_TICKS;
+  /**
+   * Scaling factor
+   */
+  @PropertyDefinition
+  private Double _scalingFactor = ExampleLiveDataServer.SCALING_FACTOR;
 
   //-------------------------------------------------------------------------
   @Override
   protected StandardLiveDataServer initServer(final ComponentRepository repo) {
-    final ExampleLiveDataServer server = new ExampleLiveDataServer(getCacheManager(), getSimulatedData());
+    final ExampleLiveDataServer server = new ExampleLiveDataServer(getCacheManager(), getSimulatedData(), getScalingFactor(), getMaxMillisBetweenTicks());
 
     final Collection<NormalizationRuleSet> rules = ImmutableList.of(StandardRules.getNoNormalization(), NormalizationRules.getMarketValueNormalization());
     final DefaultDistributionSpecificationResolver distSpecResolver = new DefaultDistributionSpecificationResolver(
@@ -96,59 +107,6 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   @Override
   public ExampleLiveDataServerComponentFactory.Meta metaBean() {
     return ExampleLiveDataServerComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -349682038:  // simulatedData
-        return getSimulatedData();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -349682038:  // simulatedData
-        setSimulatedData((Resource) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_simulatedData, "simulatedData");
-    JodaBeanUtils.notNull(_cacheManager, "cacheManager");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ExampleLiveDataServerComponentFactory other = (ExampleLiveDataServerComponentFactory) obj;
-      return JodaBeanUtils.equal(getSimulatedData(), other.getSimulatedData()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSimulatedData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -205,6 +163,110 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
 
   //-----------------------------------------------------------------------
   /**
+   * Gets maximum millis between ticks
+   * @return the value of the property
+   */
+  public Integer getMaxMillisBetweenTicks() {
+    return _maxMillisBetweenTicks;
+  }
+
+  /**
+   * Sets maximum millis between ticks
+   * @param maxMillisBetweenTicks  the new value of the property
+   */
+  public void setMaxMillisBetweenTicks(Integer maxMillisBetweenTicks) {
+    this._maxMillisBetweenTicks = maxMillisBetweenTicks;
+  }
+
+  /**
+   * Gets the the {@code maxMillisBetweenTicks} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> maxMillisBetweenTicks() {
+    return metaBean().maxMillisBetweenTicks().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets scaling factor
+   * @return the value of the property
+   */
+  public Double getScalingFactor() {
+    return _scalingFactor;
+  }
+
+  /**
+   * Sets scaling factor
+   * @param scalingFactor  the new value of the property
+   */
+  public void setScalingFactor(Double scalingFactor) {
+    this._scalingFactor = scalingFactor;
+  }
+
+  /**
+   * Gets the the {@code scalingFactor} property.
+   * @return the property, not null
+   */
+  public final Property<Double> scalingFactor() {
+    return metaBean().scalingFactor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExampleLiveDataServerComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExampleLiveDataServerComponentFactory other = (ExampleLiveDataServerComponentFactory) obj;
+      return JodaBeanUtils.equal(getSimulatedData(), other.getSimulatedData()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getMaxMillisBetweenTicks(), other.getMaxMillisBetweenTicks()) &&
+          JodaBeanUtils.equal(getScalingFactor(), other.getScalingFactor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSimulatedData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxMillisBetweenTicks());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ExampleLiveDataServerComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("simulatedData").append('=').append(JodaBeanUtils.toString(getSimulatedData())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("maxMillisBetweenTicks").append('=').append(JodaBeanUtils.toString(getMaxMillisBetweenTicks())).append(',').append(' ');
+    buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(getScalingFactor())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ExampleLiveDataServerComponentFactory}.
    */
   public static class Meta extends AbstractStandardLiveDataServerComponentFactory.Meta {
@@ -224,12 +286,24 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", ExampleLiveDataServerComponentFactory.class, CacheManager.class);
     /**
+     * The meta-property for the {@code maxMillisBetweenTicks} property.
+     */
+    private final MetaProperty<Integer> _maxMillisBetweenTicks = DirectMetaProperty.ofReadWrite(
+        this, "maxMillisBetweenTicks", ExampleLiveDataServerComponentFactory.class, Integer.class);
+    /**
+     * The meta-property for the {@code scalingFactor} property.
+     */
+    private final MetaProperty<Double> _scalingFactor = DirectMetaProperty.ofReadWrite(
+        this, "scalingFactor", ExampleLiveDataServerComponentFactory.class, Double.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "simulatedData",
-        "cacheManager");
+        "cacheManager",
+        "maxMillisBetweenTicks",
+        "scalingFactor");
 
     /**
      * Restricted constructor.
@@ -244,6 +318,10 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
           return _simulatedData;
         case -1452875317:  // cacheManager
           return _cacheManager;
+        case -1944334024:  // maxMillisBetweenTicks
+          return _maxMillisBetweenTicks;
+        case -794828874:  // scalingFactor
+          return _scalingFactor;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -278,6 +356,64 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
+    }
+
+    /**
+     * The meta-property for the {@code maxMillisBetweenTicks} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> maxMillisBetweenTicks() {
+      return _maxMillisBetweenTicks;
+    }
+
+    /**
+     * The meta-property for the {@code scalingFactor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> scalingFactor() {
+      return _scalingFactor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -349682038:  // simulatedData
+          return ((ExampleLiveDataServerComponentFactory) bean).getSimulatedData();
+        case -1452875317:  // cacheManager
+          return ((ExampleLiveDataServerComponentFactory) bean).getCacheManager();
+        case -1944334024:  // maxMillisBetweenTicks
+          return ((ExampleLiveDataServerComponentFactory) bean).getMaxMillisBetweenTicks();
+        case -794828874:  // scalingFactor
+          return ((ExampleLiveDataServerComponentFactory) bean).getScalingFactor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -349682038:  // simulatedData
+          ((ExampleLiveDataServerComponentFactory) bean).setSimulatedData((Resource) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((ExampleLiveDataServerComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case -1944334024:  // maxMillisBetweenTicks
+          ((ExampleLiveDataServerComponentFactory) bean).setMaxMillisBetweenTicks((Integer) newValue);
+          return;
+        case -794828874:  // scalingFactor
+          ((ExampleLiveDataServerComponentFactory) bean).setScalingFactor((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ExampleLiveDataServerComponentFactory) bean)._simulatedData, "simulatedData");
+      JodaBeanUtils.notNull(((ExampleLiveDataServerComponentFactory) bean)._cacheManager, "cacheManager");
+      super.validate(bean);
     }
 
   }

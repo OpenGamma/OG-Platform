@@ -16,26 +16,31 @@ import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class PointSelectorFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
-  @Test
   public void roundTrip() {
     HashSet<String> calcConfigNames = Sets.newHashSet("ccn1", "ccn2");
     Set<String> securityTypes = Sets.newHashSet("EQUITY", "FX_FORWARD");
-    PointSelector selector = new PointSelector(calcConfigNames,
-                                               ImmutableSet.of(ExternalId.of("s", "v1"), ExternalId.of("s", "v2")),
-                                               ExternalScheme.of("anotherScheme"),
-                                               Pattern.compile("\\d*"),
-                                               ExternalScheme.of("anotherScheme2"),
-                                               Pattern.compile("\\w*"),
-                                               securityTypes);
+    PointSelector selector = new PointSelector(
+        calcConfigNames,
+        ImmutableSet.of(ExternalId.of("s", "v1"), ExternalId.of("s", "v2")),
+        ExternalScheme.of("anotherScheme"),
+        Pattern.compile("\\d*"),
+        ExternalScheme.of("anotherScheme2"),
+        Pattern.compile("\\w*"),
+        securityTypes);
     assertEncodeDecodeCycle(PointSelector.class, selector);
   }
 
-  @Test
   public void roundTripWithNulls() {
     PointSelector selector = new PointSelector(null, null, null, null, null, null, null);
     assertEncodeDecodeCycle(PointSelector.class, selector);
   }
+
 }

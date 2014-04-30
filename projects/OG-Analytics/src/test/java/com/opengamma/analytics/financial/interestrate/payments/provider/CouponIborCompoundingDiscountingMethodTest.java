@@ -29,11 +29,13 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing and sensitivities of Ibor compounded coupon in the discounting method.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborCompoundingDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveCad();
@@ -76,7 +78,7 @@ public class CouponIborCompoundingDiscountingMethodTest {
     final int nbSub = CPN_BEFORE.getFixingTimes().length;
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {
       notionalAccrued *= (1.0 + CPN_BEFORE.getPaymentAccrualFactors()[loopsub]
-          * MULTICURVES.getForwardRate(CPN_BEFORE.getIndex(), CPN_BEFORE.getFixingPeriodStartTimes()[loopsub], CPN_BEFORE.getFixingPeriodEndTimes()[loopsub],
+          * MULTICURVES.getSimplyCompoundForwardRate(CPN_BEFORE.getIndex(), CPN_BEFORE.getFixingPeriodStartTimes()[loopsub], CPN_BEFORE.getFixingPeriodEndTimes()[loopsub],
               CPN_BEFORE.getFixingPeriodAccrualFactors()[loopsub]));
     }
     final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_BEFORE.getPaymentTime());
@@ -97,7 +99,7 @@ public class CouponIborCompoundingDiscountingMethodTest {
     final MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_1, MULTICURVES);
     double accruedNotional = (1.0 + CPN_DEFINITION.getPaymentAccrualFactors()[0] * FIXING_RATES[1]) * NOTIONAL;
     accruedNotional *= (1.0 + CPN_1.getPaymentAccrualFactors()[0]
-        * MULTICURVES.getForwardRate(CPN_1.getIndex(), CPN_1.getFixingPeriodStartTimes()[0], CPN_1.getFixingPeriodEndTimes()[0], CPN_1.getFixingPeriodAccrualFactors()[0]));
+        * MULTICURVES.getSimplyCompoundForwardRate(CPN_1.getIndex(), CPN_1.getFixingPeriodStartTimes()[0], CPN_1.getFixingPeriodEndTimes()[0], CPN_1.getFixingPeriodAccrualFactors()[0]));
     final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_1.getPaymentTime());
     final double pvExpected = (accruedNotional - NOTIONAL) * dfPayment;
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvExpected, pvComputed.getAmount(CAD), TOLERANCE_PV);

@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.marketdata.manipulator.function;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashSet;
@@ -13,6 +12,11 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -51,7 +55,9 @@ public class MarketDataPointRandomizingManipulatorTest {
     StructureManipulator<Double> manipulator = createManipulator(0.9, 1.1);
     Set<Double> producedValues = new HashSet<>(10000);
     for (int i = 0; i < 10000; i++) {
-      Double shifted = manipulator.execute(1000d);
+      ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "notUsed").get();
+      ValueSpecification valueSpec = new ValueSpecification("notUsed", ComputationTargetSpecification.NULL, properties);
+      Double shifted = manipulator.execute(1000d, valueSpec, new FunctionExecutionContext());
       assertTrue("Expected shifted to be >= 900 but was " + shifted, shifted >= 900);
       assertTrue("Expected shifted to be < 1100 but was " + shifted, shifted < 1100);
       producedValues.add(shifted);

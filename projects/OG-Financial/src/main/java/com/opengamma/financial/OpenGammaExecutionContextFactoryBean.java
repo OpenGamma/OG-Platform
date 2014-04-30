@@ -1,15 +1,16 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -17,7 +18,6 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -34,7 +34,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   private ConventionBundleSource _conventionBundleSource;
   private ExchangeSource _exchangeSource;
   private ConfigSource _configSource;
-  private OrganizationSource _organizationSource;
+  private LegalEntitySource _legalEntitySource;
   private ConfigMaster _configMaster;
   private OverrideOperationCompiler _overrideOperationCompiler;
   private ConventionSource _conventionSource;
@@ -71,12 +71,12 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     _regionSource = regionRepository;
   }
 
-  public OrganizationSource getOrganizationSource() {
-    return _organizationSource;
+  public LegalEntitySource getLegalEntitySource() {
+    return _legalEntitySource;
   }
 
-  public void setOrganizationSource(final OrganizationSource organizationSource) {
-    _organizationSource = organizationSource;
+  public void setLegalEntitySource(final LegalEntitySource legalEntitySource) {
+    _legalEntitySource = legalEntitySource;
   }
 
   public ExchangeSource getExchangeSource() {
@@ -146,8 +146,8 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     if (getRegionSource() != null) {
       OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
     }
-    if (getOrganizationSource() != null) {
-      context.setOrganizationSource(getOrganizationSource());
+    if (getLegalEntitySource() != null) {
+      context.setLegalEntitySource(getLegalEntitySource());
     }
     if (getExchangeSource() != null) {
       OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());

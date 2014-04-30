@@ -7,12 +7,25 @@ package com.opengamma.id;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
-import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
@@ -26,7 +39,8 @@ import com.opengamma.util.PublicAPI;
  * This class is mutable and not thread-safe.
  */
 @PublicAPI
-public final class ExternalIdSearch implements Iterable<ExternalId>, Serializable {
+@BeanDefinition(builderScope = "private")
+public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalId>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -34,126 +48,164 @@ public final class ExternalIdSearch implements Iterable<ExternalId>, Serializabl
   /**
    * The set of identifiers.
    */
-  private final SortedSet<ExternalId> _externalIds = new TreeSet<ExternalId>();
+  @PropertyDefinition(validate = "notNull")
+  private final Set<ExternalId> _externalIds;
   /**
-   * The search type.
+   * The search type, default 'ANY'.
    */
-  private ExternalIdSearchType _searchType = ExternalIdSearchType.ANY;
+  @PropertyDefinition(validate = "notNull")
+  private final ExternalIdSearchType _searchType;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an empty search, with the search type set to any.
-   */
-  public ExternalIdSearch() {
-  }
-
-  /**
-   * Creates a search matching an identifier, with the search type set to any.
+   * <p>
+   * This uses {@link ExternalIdSearchType#ANY}.
+   * <p>
+   * This search will not match anything.
    * 
-   * @param identifier  the identifier, not null
+   * @return the external identifier search, not null
    */
-  public ExternalIdSearch(ExternalId identifier) {
-    addExternalId(identifier);
-  }
-
-  /**
-   * Creates a search matching any of a collection of identifiers.
-   * 
-   * @param identifiers  the collection of identifiers, not null
-   */
-  public ExternalIdSearch(ExternalId... identifiers) {
-    addExternalIds(identifiers);
+  public static ExternalIdSearch of() {
+    return new ExternalIdSearch(ExternalIdSearchType.ANY, ImmutableSet.<ExternalId>of());
   }
 
   /**
    * Creates a search matching any of a collection of identifiers.
+   * <p>
+   * This uses {@link ExternalIdSearchType#ANY}.
    * 
-   * @param identifiers  the collection of identifiers, not null
+   * @param externalIds  the identifiers, not null
+   * @return the external identifier search, not null
    */
-  public ExternalIdSearch(Iterable<ExternalId> identifiers) {
-    this(identifiers, ExternalIdSearchType.ANY);
+  public static ExternalIdSearch of(ExternalId... externalIds) {
+    ArgumentChecker.noNulls(externalIds, "externalIds");
+    return new ExternalIdSearch(ExternalIdSearchType.ANY, Arrays.asList(externalIds));
   }
 
   /**
-   * Creates a search matching any of a collection of identifiers.
+   * Creates a search of the specified type matching a collection of identifiers.
    * 
-   * @param identifiers  the collection of identifiers, not null
    * @param searchType  the search type, not null
+   * @param externalIds  the identifiers, not null
+   * @return the external identifier search, not null
    */
-  public ExternalIdSearch(Iterable<ExternalId> identifiers, ExternalIdSearchType searchType) {
-    addExternalIds(identifiers);
-    setSearchType(searchType);
+  public static ExternalIdSearch of(ExternalIdSearchType searchType, ExternalId... externalIds) {
+    ArgumentChecker.noNulls(externalIds, "externalIds");
+    return new ExternalIdSearch(searchType, Arrays.asList(externalIds));
+  }
+
+  /**
+   * Creates a search matching any of a collection of identifiers.
+   * <p>
+   * This uses {@link ExternalIdSearchType#ANY}.
+   * 
+   * @param externalIds  the collection of identifiers, not null
+   * @return the external identifier search, not null
+   */
+  public static ExternalIdSearch of(Iterable<ExternalId> externalIds) {
+    return new ExternalIdSearch(ExternalIdSearchType.ANY, externalIds);
+  }
+
+  /**
+   * Creates a search of the specified type matching a collection of identifiers.
+   * 
+   * @param searchType  the search type, not null
+   * @param externalIds  the collection of identifiers, not null
+   * @return the external identifier search, not null
+   */
+  public static ExternalIdSearch of(ExternalIdSearchType searchType, Iterable<ExternalId> externalIds) {
+    return new ExternalIdSearch(searchType, externalIds);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the set of searched for identifiers.
+   * Creates a search matching any of a collection of identifiers.
    * 
-   * @return the identifier set, live and modifiable, not null, no nulls
+   * @param searchType  the search type, not null
+   * @param externalIds  the collection of identifiers, not null
    */
-  public SortedSet<ExternalId> getExternalIds() {
-    return _externalIds;
+  private ExternalIdSearch(ExternalIdSearchType searchType, Iterable<ExternalId> externalIds) {
+    ArgumentChecker.notNull(searchType, "searchType");
+    ArgumentChecker.noNulls(externalIds, "externalIds");
+    _externalIds = ImmutableSet.copyOf(externalIds);
+    _searchType = searchType;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Adds an identifier to the set of searched for identifiers.
+   * Returns a copy of this search with an additional identifier to search for.
+   * <p>
+   * This instance is immutable and unaffected by this method call.
    * 
    * @param externalId  the identifier to add, not null
+   * @return the external identifier search with the specified identifier, not null
    */
-  public void addExternalId(ExternalId externalId) {
+  public ExternalIdSearch withExternalIdAdded(ExternalId externalId) {
     ArgumentChecker.notNull(externalId, "externalId");
-    _externalIds.add(externalId);
+    Set<ExternalId> ids = Sets.newHashSet(_externalIds);
+    ids.add(externalId);
+    return new ExternalIdSearch(_searchType, ids);
   }
 
   /**
-   * Adds a identifiers to the set of searched for identifiers.
+   * Returns a copy of this search with additional identifiers to search for.
+   * <p>
+   * This instance is immutable and unaffected by this method call.
    * 
    * @param externalIds  the identifiers to add, not null
+   * @return the external identifier search with the specified identifier, not null
    */
-  public void addExternalIds(ExternalId... externalIds) {
+  public ExternalIdSearch withExternalIdsAdded(ExternalId... externalIds) {
     ArgumentChecker.noNulls(externalIds, "externalIds");
-    _externalIds.addAll(Arrays.asList(externalIds));
+    Set<ExternalId> ids = Sets.newHashSet(_externalIds);
+    Iterables.addAll(ids, Arrays.asList(externalIds));
+    return new ExternalIdSearch(_searchType, ids);
   }
 
   /**
-   * Adds a identifiers to the set of searched for identifiers.
+   * Returns a copy of this search with additional identifiers to search for.
+   * <p>
+   * This instance is immutable and unaffected by this method call.
    * 
    * @param externalIds  the identifiers to add, not null
+   * @return the external identifier search with the specified identifier, not null
    */
-  public void addExternalIds(Iterable<ExternalId> externalIds) {
+  public ExternalIdSearch withExternalIdsAdded(Iterable<ExternalId> externalIds) {
     ArgumentChecker.noNulls(externalIds, "externalIds");
-    Iterables.addAll(_externalIds, externalIds);
+    Set<ExternalId> ids = Sets.newHashSet(_externalIds);
+    Iterables.addAll(ids, externalIds);
+    return new ExternalIdSearch(_searchType, ids);
   }
 
   /**
-   * Removes an identifier from the set of searched for identifiers.
+   * Returns a copy of this search with the identifier removed.
+   * <p>
+   * This instance is immutable and unaffected by this method call.
    * 
    * @param externalId  the identifier to remove, null ignored
+   * @return the external identifier search with the specified identifier removed, not null
    */
-  public void removeExternalId(ExternalId externalId) {
-    if (externalId != null) {
-      _externalIds.remove(externalId);
+  public ExternalIdSearch withExternalIdRemoved(ExternalId externalId) {
+    if (externalId == null || contains(externalId) == false) {
+      return this;
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the search type.
-   * This is ANY by default.
-   * 
-   * @return the search type, not null
-   */
-  public ExternalIdSearchType getSearchType() {
-    return _searchType;
+    Set<ExternalId> ids = Sets.newHashSet(_externalIds);
+    ids.remove(externalId);
+    return new ExternalIdSearch(_searchType, ids);
   }
 
   /**
-   * Sets the search type.
+   * Returns a copy of this search with the specified search type.
    * 
-   * @param searchType  the search type, not null
+   * @param searchType  the new search type, not null
+   * @return a copy of this search with the new search type, not null
    */
-  public void setSearchType(ExternalIdSearchType searchType) {
-    ArgumentChecker.notNull(searchType, "searchType");
-    _searchType = searchType;
+  public ExternalIdSearch withSearchType(ExternalIdSearchType searchType) {
+    if (searchType == _searchType) {
+      return this;
+    }
+    return new ExternalIdSearch(searchType, _externalIds);
   }
 
   //-------------------------------------------------------------------------
@@ -301,32 +353,288 @@ public final class ExternalIdSearch implements Iterable<ExternalId>, Serializabl
     return (getSearchType() == ExternalIdSearchType.NONE && size() == 0);
   }
 
-  //-------------------------------------------------------------------
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code ExternalIdSearch}.
+   * @return the meta-bean, not null
+   */
+  public static ExternalIdSearch.Meta meta() {
+    return ExternalIdSearch.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(ExternalIdSearch.Meta.INSTANCE);
+  }
+
+  private ExternalIdSearch(
+      Set<ExternalId> externalIds,
+      ExternalIdSearchType searchType) {
+    JodaBeanUtils.notNull(externalIds, "externalIds");
+    JodaBeanUtils.notNull(searchType, "searchType");
+    this._externalIds = ImmutableSet.copyOf(externalIds);
+    this._searchType = searchType;
+  }
+
+  @Override
+  public ExternalIdSearch.Meta metaBean() {
+    return ExternalIdSearch.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of identifiers.
+   * @return the value of the property, not null
+   */
+  public Set<ExternalId> getExternalIds() {
+    return _externalIds;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the search type, default 'ANY'.
+   * @return the value of the property, not null
+   */
+  public ExternalIdSearchType getSearchType() {
+    return _searchType;
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExternalIdSearch clone() {
+    return this;
+  }
+
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if (obj == this) {
       return true;
     }
-    if (obj instanceof ExternalIdSearch) {
+    if (obj != null && obj.getClass() == this.getClass()) {
       ExternalIdSearch other = (ExternalIdSearch) obj;
-      return _externalIds.equals(other._externalIds);
+      return JodaBeanUtils.equal(getExternalIds(), other.getExternalIds()) &&
+          JodaBeanUtils.equal(getSearchType(), other.getSearchType());
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return _externalIds.hashCode() ^ _searchType.hashCode();
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSearchType());
+    return hash;
   }
 
   @Override
   public String toString() {
-    return new StrBuilder()
-        .append("Search")
-        .append("[")
-        .appendWithSeparators(_externalIds, ", ")
-        .append("]")
-        .toString();
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ExternalIdSearch{");
+    buf.append("externalIds").append('=').append(getExternalIds()).append(',').append(' ');
+    buf.append("searchType").append('=').append(JodaBeanUtils.toString(getSearchType()));
+    buf.append('}');
+    return buf.toString();
   }
 
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code ExternalIdSearch}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code externalIds} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ExternalId>> _externalIds = DirectMetaProperty.ofImmutable(
+        this, "externalIds", ExternalIdSearch.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code searchType} property.
+     */
+    private final MetaProperty<ExternalIdSearchType> _searchType = DirectMetaProperty.ofImmutable(
+        this, "searchType", ExternalIdSearch.class, ExternalIdSearchType.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "externalIds",
+        "searchType");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1153096979:  // externalIds
+          return _externalIds;
+        case -710454014:  // searchType
+          return _searchType;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public ExternalIdSearch.Builder builder() {
+      return new ExternalIdSearch.Builder();
+    }
+
+    @Override
+    public Class<? extends ExternalIdSearch> beanType() {
+      return ExternalIdSearch.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code externalIds} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Set<ExternalId>> externalIds() {
+      return _externalIds;
+    }
+
+    /**
+     * The meta-property for the {@code searchType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ExternalIdSearchType> searchType() {
+      return _searchType;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1153096979:  // externalIds
+          return ((ExternalIdSearch) bean).getExternalIds();
+        case -710454014:  // searchType
+          return ((ExternalIdSearch) bean).getSearchType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code ExternalIdSearch}.
+   */
+  private static final class Builder extends DirectFieldsBeanBuilder<ExternalIdSearch> {
+
+    private Set<ExternalId> _externalIds = new HashSet<ExternalId>();
+    private ExternalIdSearchType _searchType;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1153096979:  // externalIds
+          return _externalIds;
+        case -710454014:  // searchType
+          return _searchType;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case -1153096979:  // externalIds
+          this._externalIds = (Set<ExternalId>) newValue;
+          break;
+        case -710454014:  // searchType
+          this._searchType = (ExternalIdSearchType) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public ExternalIdSearch build() {
+      return new ExternalIdSearch(
+          _externalIds,
+          _searchType);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(96);
+      buf.append("ExternalIdSearch.Builder{");
+      buf.append("externalIds").append('=').append(JodaBeanUtils.toString(_externalIds)).append(',').append(' ');
+      buf.append("searchType").append('=').append(JodaBeanUtils.toString(_searchType));
+      buf.append('}');
+      return buf.toString();
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

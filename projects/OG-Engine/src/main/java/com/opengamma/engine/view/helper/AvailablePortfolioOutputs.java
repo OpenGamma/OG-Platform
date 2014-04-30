@@ -30,6 +30,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
@@ -46,6 +47,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Implementation of {@link AvailableOutputs} that scans a function repository to give possible outputs available on a portfolio.
@@ -131,27 +133,46 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   private final class FunctionApplicator extends AbstractPortfolioNodeTraversalCallback {
 
-
     private final FunctionCompilationContext _context;
     private final Collection<CompiledFunctionDefinition> _functions;
+    private final Map<ComputationTargetType, CompiledFunctionDefinition[]> _functionsByType = new HashMap<ComputationTargetType, CompiledFunctionDefinition[]>();
     private final FunctionExclusionGroups _functionExclusionGroups;
     private final MarketDataAvailabilityFilter _marketDataAvailabilityFilter;
     private final Map<UniqueId, UniqueIdentifiable> _targetCache;
-    private final Map<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>> _resultsCache =
-        new HashMap<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>>();
-    private final Map<ValueRequirement, List<Pair<List<ValueRequirement>, Set<ValueSpecification>>>> _resolutionCache =
-        new HashMap<ValueRequirement, List<Pair<List<ValueRequirement>, Set<ValueSpecification>>>>();
+    private final Map<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>> _resultsCache = new HashMap<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>>();
+    private final Map<ValueRequirement, List<Pair<List<ValueRequirement>, Set<ValueSpecification>>>> _resolutionCache = new HashMap<ValueRequirement, List<Pair<List<ValueRequirement>, Set<ValueSpecification>>>>();
     private final Integer _totalWork;
     private int _work;
 
     public FunctionApplicator(final FunctionCompilationContext context, final Collection<CompiledFunctionDefinition> functions, final FunctionExclusionGroups functionExclusionGroups,
         final MarketDataAvailabilityFilter marketDataAvailabilityFilter, final TargetCachePopulator targetCache) {
       _context = context;
-      _functions = functions;
+      _functions = new ArrayList<CompiledFunctionDefinition>(functions.size());
+      for (CompiledFunctionDefinition function : functions) {
+        if (function.getTargetType() != null) {
+          _functions.add(function);
+        }
+      }
       _functionExclusionGroups = functionExclusionGroups;
       _marketDataAvailabilityFilter = marketDataAvailabilityFilter;
       _totalWork = targetCache.getWork() * functions.size();
       _targetCache = targetCache.getCache();
+    }
+
+    private CompiledFunctionDefinition[] getFunctions(final ComputationTargetType targetType) {
+      CompiledFunctionDefinition[] functions = _functionsByType.get(targetType);
+      if (functions == null) {
+        final List<CompiledFunctionDefinition> subset = new ArrayList<CompiledFunctionDefinition>(_functions.size());
+        for (CompiledFunctionDefinition function : _functions) {
+          if (function.getTargetType().isCompatible(targetType)) {
+            subset.add(function);
+          }
+        }
+        functions = subset.toArray(new CompiledFunctionDefinition[subset.size()]);
+        _functionsByType.put(targetType, functions);
+      }
+      _work += _functions.size() - functions.length;
+      return functions;
     }
 
     private Set<ValueSpecification> getCachedResult(final Set<ValueRequirement> visited, final ValueRequirement requirement) {
@@ -177,7 +198,6 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       return null;
     }
 
-    @SuppressWarnings("unchecked")
     private void setCachedResult(final Set<ValueRequirement> visited, final ValueRequirement requirement, final Set<ValueSpecification> results) {
       s_logger.debug("Caching result for {} on {}", requirement, visited);
       List<Pair<List<ValueRequirement>, Set<ValueSpecification>>> entries = _resolutionCache.get(requirement);
@@ -185,7 +205,8 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         entries = new LinkedList<Pair<List<ValueRequirement>, Set<ValueSpecification>>>();
         _resolutionCache.put(requirement, entries);
       }
-      entries.add((Pair<List<ValueRequirement>, Set<ValueSpecification>>) (Pair<?, ?>) Pair.of(new ArrayList<ValueRequirement>(visited), (results != null) ? results : Collections.emptySet()));
+      List<ValueRequirement> list = new ArrayList<ValueRequirement>(visited);
+      entries.add(Pairs.of(list, (results != null) ? results : Collections.<ValueSpecification>emptySet()));
     }
 
     private Set<ValueSpecification> satisfyRequirement(final Set<ValueRequirement> visitedRequirements, final Set<FunctionExclusionGroup> visitedFunctions, final ComputationTarget target,
@@ -203,9 +224,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       Map<CompiledFunctionDefinition, Set<ValueSpecification>> functionResults = _resultsCache.get(target);
       if (functionResults == null) {
         functionResults = new HashMap<CompiledFunctionDefinition, Set<ValueSpecification>>();
-        for (final CompiledFunctionDefinition function : _functions) {
+        for (final CompiledFunctionDefinition function : getFunctions(target.getType())) {
           try {
-            if (function.getTargetType().isCompatible(target.getType()) && function.canApplyTo(_context, target)) {
+            if (function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               if (results != null) {
                 functionResults.put(function, results);
@@ -213,6 +234,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
             }
           } catch (final Throwable t) {
             s_logger.error("Error applying {} to {}", function, target);
+            t.printStackTrace();
             s_logger.info("Exception thrown", t);
           }
         }
@@ -256,6 +278,46 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       }
     }
 
+    // Note: This is the logic from GetFunctionsStep, modified to omit the intersection against the satisfying properties
+    private ValueProperties satisfyingProperties(final ValueRequirement requirement, final String functionName) {
+      final ValueProperties constraints = requirement.getConstraints();
+      final Set<String> functionNames = constraints.getValues(ValuePropertyNames.FUNCTION);
+      if (functionNames == null) {
+        final Set<String> allProperties = constraints.getProperties();
+        if (allProperties == null) {
+          // Requirement made no constraints
+          return ValueProperties.with(ValuePropertyNames.FUNCTION, functionName).get();
+        } else if (!allProperties.isEmpty()) {
+          // Requirement made no constraint on function identifier
+          return constraints.copy().with(ValuePropertyNames.FUNCTION, functionName).get();
+        } else {
+          // Requirement used a nearly infinite property bundle that omitted a function identifier
+          return constraints.copy().withAny(ValuePropertyNames.FUNCTION).get();
+        }
+      } else {
+        if (functionNames.isEmpty()) {
+          final Set<String> allProperties = constraints.getProperties();
+          if (allProperties.isEmpty()) {
+            // Requirement is for an infinite or nearly infinite property bundle. This is valid but may be indicative of an error
+            return constraints;
+          } else {
+            // Requirement had a wild card for the function but is otherwise finite
+            return constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionName).get();
+          }
+        } else if (functionNames.size() == 1) {
+          // Requirement is fully specified
+          return constraints;
+        } else {
+          // Requirement allowed a choice of function - pick one
+          return constraints.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionNames.iterator().next()).get();
+        }
+      }
+    }
+
+    private ValueSpecification satisfyingSpecification(final ValueRequirement requirement, final ComputationTargetSpecification targetSpec, final String functionName) {
+      return new ValueSpecification(requirement.getValueName(), targetSpec, satisfyingProperties(requirement, functionName));
+    }
+
     private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<ValueRequirement> visitedRequirements, final Set<FunctionExclusionGroup> visitedFunctions,
         final CompiledFunctionDefinition function, final ComputationTarget target, final ValueRequirement requiredOutputValue, final ValueSpecification resolvedOutputValue) {
       final Set<ValueRequirement> requirements;
@@ -286,13 +348,12 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           final UniqueIdentifiable requirementTarget = _targetCache.get(targetSpec.getUniqueId());
           if (isAvailable(targetSpec, requirementTarget, requirement)) {
             s_logger.debug("Requirement {} can be satisfied by market data", requirement);
-            inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement.getValueName(), targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "marketdata").get())),
-                requirement);
+            inputs.put(new SingleItem<ValueSpecification>(satisfyingSpecification(requirement, targetSpec, MarketDataSourcingFunction.UNIQUE_ID)), requirement);
           } else {
             if (requirementTarget != null) {
               s_logger.debug("Resolving {} for function {}", requirement, function);
-              final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, ComputationTargetResolverUtils.createResolvedTarget(targetSpec, requirementTarget),
-                  requirement);
+              final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions,
+                  ComputationTargetResolverUtils.createResolvedTarget(targetSpec, requirementTarget), requirement);
               if (satisfied == null) {
                 s_logger.debug("Can't satisfy {} for function {}", requirement, function);
                 if (!function.canHandleMissingRequirements()) {
@@ -304,17 +365,14 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
               }
             } else {
               s_logger.debug("No target cached for {}, assuming ok", targetSpec);
-              inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement.getValueName(), targetSpec,
-                  ValueProperties.with(ValuePropertyNames.FUNCTION, "").get())), requirement);
+              inputs.put(new SingleItem<ValueSpecification>(satisfyingSpecification(requirement, targetSpec, "UncachedTarget")), requirement);
             }
           }
         } else {
           s_logger.debug("Externally referenced entity {}, assuming ok", targetRef);
           final ExternalId eid = targetRef.getRequirement().getIdentifiers().iterator().next();
           final UniqueId uid = UniqueId.of(eid.getScheme().getName(), eid.getValue());
-          inputs.put(
-              new SingleItem<ValueSpecification>(new ValueSpecification(requirement.getValueName(), new ComputationTargetSpecification(targetRef.getType(), uid), ValueProperties.with(
-                  ValuePropertyNames.FUNCTION, "").get())), requirement);
+          inputs.put(new SingleItem<ValueSpecification>(satisfyingSpecification(requirement, new ComputationTargetSpecification(targetRef.getType(), uid), "ExternalEntity")), requirement);
         }
       }
       final Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
@@ -368,9 +426,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
       final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
       final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
-      for (final CompiledFunctionDefinition function : _functions) {
+      for (final CompiledFunctionDefinition function : getFunctions(ComputationTargetType.PORTFOLIO_NODE)) {
         try {
-          if (function.getTargetType().isCompatible(ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
+          if (function.canApplyTo(_context, target)) {
             final Set<ValueSpecification> results = function.getResults(_context, target);
             for (final ValueSpecification result : results) {
               visitedRequirements.clear();
@@ -386,8 +444,8 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                   continue;
                 }
               }
-              final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, new ValueRequirement(result.getValueName(), result
-                  .getTargetSpecification()), result);
+              final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, new ValueRequirement(result.getValueName(),
+                  result.getTargetSpecification()), result);
               if (resolved != null) {
                 s_logger.info("Resolved {} on {}", result.getValueName(), portfolioNode);
                 for (final ValueSpecification resolvedItem : resolved) {
@@ -417,9 +475,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, position);
       final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
       final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
-      for (final CompiledFunctionDefinition function : _functions) {
+      for (final CompiledFunctionDefinition function : getFunctions(ComputationTargetType.POSITION)) {
         try {
-          if (function.getTargetType().isCompatible(ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
+          if (function.canApplyTo(_context, target)) {
             final Set<ValueSpecification> results = function.getResults(_context, target);
             for (final ValueSpecification result : results) {
               visitedRequirements.clear();
@@ -435,8 +493,8 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                   continue;
                 }
               }
-              final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target,
-                  new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
+              final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, new ValueRequirement(result.getValueName(),
+                  result.getTargetSpecification()), result);
               if (resolved != null) {
                 s_logger.info("Resolved {} on {}", result.getValueName(), position);
                 for (final ValueSpecification resolvedItem : resolved) {

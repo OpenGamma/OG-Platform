@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.server.mxbean;
 
+/**
+ * Data of a distributor trace.
+ */
 public class DistributorTrace {
 
   private final String _jmsTopic;
@@ -40,4 +43,5 @@ public class DistributorTrace {
   public long getMessagesSent() {
     return _messagesSent;
   }
+
 }

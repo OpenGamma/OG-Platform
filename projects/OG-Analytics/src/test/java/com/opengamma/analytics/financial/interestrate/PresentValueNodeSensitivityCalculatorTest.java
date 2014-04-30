@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPh
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -29,6 +30,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTestBase {
 
   private static PresentValueCalculator VALUE_CALCULATOR = PresentValueCalculator.getInstance();

@@ -23,6 +23,7 @@ public final class DbManagementUtils {
     s_jdbcVendorMap.put("derby", DerbyDbManagement.getInstance());
     s_jdbcVendorMap.put("hsqldb", HSQLDbManagement.getInstance());
     s_jdbcVendorMap.put("sqlserver", SqlServer2008DbManagement.getInstance());
+    s_jdbcVendorMap.put("oracle", Oracle11gDbManagement.getInstance());
   }
   
   /**

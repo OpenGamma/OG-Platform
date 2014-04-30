@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity.issuer;
@@ -11,6 +11,8 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteIssuerProviderDiscount;
@@ -77,7 +79,7 @@ public class SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalc
         yieldBumped[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
         final HullWhiteIssuerProviderDiscount marketDscBumped = new HullWhiteIssuerProviderDiscount(new IssuerProviderDiscount(issuercurves.getMulticurveProvider().withDiscountFactor(ccy, dscBumped),
-            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters(), issuercurves.getHullWhiteIssuerCurrency());
+            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters()/*, issuercurves.getHullWhiteIssuerCurrency()*/);
         final Double valueBumped = instrument.accept(_valueCalculator, marketDscBumped);
         final Double valueDiff = valueBumped + valueInitMinus;
         sensitivity[loopnode] = valueDiff / _shift;
@@ -100,7 +102,7 @@ public class SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalc
         yieldBumped[loopnode] += _shift;
         final YieldAndDiscountCurve fwdBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
         final HullWhiteIssuerProviderDiscount marketFwdBumped = new HullWhiteIssuerProviderDiscount(new IssuerProviderDiscount(issuercurves.getMulticurveProvider().withForward(index, fwdBumped),
-            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters(), issuercurves.getHullWhiteIssuerCurrency());
+            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters()/*, issuercurves.getHullWhiteIssuerCurrency()*/);
         final Double valueBumped = instrument.accept(_valueCalculator, marketFwdBumped);
         final Double valueDiff = valueBumped + valueInitMinus;
         sensitivity[loopnode] = valueDiff / _shift;
@@ -124,7 +126,7 @@ public class SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalc
         final YieldAndDiscountCurve fwdBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
         final HullWhiteIssuerProviderDiscount marketFwdBumpedPlus = new HullWhiteIssuerProviderDiscount(new IssuerProviderDiscount(issuercurves.getMulticurveProvider().withForward(index,
             fwdBumpedPlus),
-            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters(), issuercurves.getHullWhiteIssuerCurrency());
+            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters()/*, issuercurves.getHullWhiteIssuerCurrency()*/);
         final Double valueBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
@@ -132,7 +134,7 @@ public class SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalc
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         final HullWhiteIssuerProviderDiscount marketFwdBumpedMinus = new HullWhiteIssuerProviderDiscount(new IssuerProviderDiscount(issuercurves.getMulticurveProvider().withForward(index,
             fwdBumpedMinus),
-            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters(), issuercurves.getHullWhiteIssuerCurrency());
+            issuercurves.getIssuerProvider().getIssuerCurves()), issuercurves.getHullWhiteParameters()/*, issuercurves.getHullWhiteIssuerCurrency()*/);
         final Double valueBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final Double valueDiff = valueBumpedPlus - valueBumpedMinus;
         sensitivity[loopnode] = valueDiff / (2 * _shift);
@@ -141,9 +143,9 @@ public class SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalc
       result = result.plus(name, new DoubleMatrix1D(sensitivity));
     }
     // Discounting issuer
-    final Set<Pair<String, Currency>> issuerCcies = issuercurves.getIssuerProvider().getIssuersCurrencies();
-    for (final Pair<String, Currency> ic : issuerCcies) {
-      final YieldAndDiscountCurve curve = issuercurves.getIssuerProvider().getCurve(ic);
+    final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerCcies = issuercurves.getIssuerProvider().getIssuers();
+    for (final Pair<Object, LegalEntityFilter<LegalEntity>> ic : issuerCcies) {
+      final YieldAndDiscountCurve curve = issuercurves.getIssuerProvider().getIssuerCurve(ic);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
       final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
@@ -154,8 +156,8 @@ public class SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalc
         final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
         final YieldAndDiscountCurve icBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
-        final HullWhiteIssuerProviderDiscount providerIcBumped = new HullWhiteIssuerProviderDiscount(issuercurves.getIssuerProvider().withIssuerCurrency(ic, icBumped),
-            issuercurves.getHullWhiteParameters(), issuercurves.getHullWhiteIssuerCurrency());
+        final HullWhiteIssuerProviderDiscount providerIcBumped = new HullWhiteIssuerProviderDiscount(issuercurves.getIssuerProvider().withIssuerCurve(ic, icBumped),
+            issuercurves.getHullWhiteParameters()/*, issuercurves.getHullWhiteIssuerCurrency()*/);
         final Double valueBumped = instrument.accept(_valueCalculator, providerIcBumped);
         final Double valueDiff = valueBumped + valueInitMinus;
         sensitivity[loopnode] = valueDiff / _shift;

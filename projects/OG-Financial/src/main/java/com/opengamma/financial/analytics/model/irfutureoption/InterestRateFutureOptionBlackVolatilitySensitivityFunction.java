@@ -26,20 +26,25 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 @Deprecated
 public class InterestRateFutureOptionBlackVolatilitySensitivityFunction extends InterestRateFutureOptionBlackFunction {
+  /** The calculator */
   private static final PresentValueBlackSensitivityBlackCalculator CALCULATOR = PresentValueBlackSensitivityBlackCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_VEGA}
+   */
   public InterestRateFutureOptionBlackVolatilitySensitivityFunction() {
-    super(ValueRequirementNames.VALUE_VEGA);
+    super(ValueRequirementNames.VALUE_VEGA, true);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     final SurfaceValue sensitivities = irFutureOption.accept(CALCULATOR, data);
     final HashMap<DoublesPair, Double> result = sensitivities.getMap();
     if (result.size() != 1) {
       throw new OpenGammaRuntimeException("Expecting only one result for Black value vega");
     }
-    return Collections.singleton(new ComputedValue(spec, result.values().iterator().next()));
+    return Collections.singleton(new ComputedValue(spec, result.values().iterator().next() / 100.0));
   }
 
 }

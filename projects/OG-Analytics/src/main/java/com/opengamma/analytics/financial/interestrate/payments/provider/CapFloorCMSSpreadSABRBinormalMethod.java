@@ -246,7 +246,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod {
     final MultipleCurrencyMulticurveSensitivity cmsCap1CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap1, sabrData);
     final MultipleCurrencyMulticurveSensitivity cmsCap2CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap2, sabrData);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cmsSpread.getPaymentTime(), -cmsSpread.getPaymentTime() * discountFactorPayment));
+    list.add(DoublesPair.of(cmsSpread.getPaymentTime(), -cmsSpread.getPaymentTime() * discountFactorPayment));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurves.getName(ccy), list);
     final MulticurveSensitivity dfCurveSensitivity = MulticurveSensitivity.ofYieldDiscounting(resultMap);

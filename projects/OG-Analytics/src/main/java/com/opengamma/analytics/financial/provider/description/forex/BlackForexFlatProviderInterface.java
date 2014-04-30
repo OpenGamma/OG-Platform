@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.forex;
@@ -20,15 +20,15 @@ public interface BlackForexFlatProviderInterface extends BlackForexProviderInter
     * @param time The time to expiration.
     * @return The volatility.
     */
-  double getVolatility(final Currency ccy1, final Currency ccy2, final double time);
+  double getVolatility(Currency ccy1, Currency ccy2, double time);
 
   /**
-   * Returns XXX
+   * Returns the volatility sensitivities at a particular time.
    * @param ccy1 The first currency.
    * @param ccy2 The second currency.
    * @param time The time to expiration.
-   * @return XXX.
+   * @return The sensitivities
    */
-  Double[] getVolatilityTimeSensitivity(final Currency ccy1, final Currency ccy2, final double time);
+  Double[] getVolatilityTimeSensitivity(Currency ccy1, Currency ccy2, double time);
 
 }

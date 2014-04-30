@@ -6,9 +6,9 @@
 package com.opengamma.analytics.financial.instrument.index.generator;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -21,7 +21,7 @@ public class GBPDeposit extends GeneratorDeposit {
    * @param calendar A GBP calendar.
    */
   public GBPDeposit(final Calendar calendar) {
-    super("GBP Deposit", Currency.GBP, calendar, 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
+    super("GBP Deposit", Currency.GBP, calendar, 0, DayCounts.ACT_365, BusinessDayConventions.MODIFIED_FOLLOWING, true);
   }
 
 }

@@ -21,7 +21,6 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -46,7 +45,6 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
   public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters,
       ComputationTargetSpecification computationTargetSpecification, Collection<ValueSpecification> inputs,
       Collection<ValueSpecification> outputs, ExecutionLogMode logMode) {
-    ArgumentChecker.notNull(logMode, "logMode");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
@@ -55,10 +53,40 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
     _logMode = logMode;
   }
 
+  /**
+   * Constructs a job item corresponding to a node in a dependency graph.
+   * 
+   * @param functionUniqueIdentifier the function identifier, not null
+   * @param functionParameters the function parameters, not null
+   * @param computationTargetSpecification the function's target, never null
+   * @param inputs the mapped identifiers for the function's inputs, never null
+   * @param outputs the mapped identifiers for the function's output, never null
+   * @param logMode the log capturing mode, not null
+   */
+  public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters,
+      ComputationTargetSpecification computationTargetSpecification, ValueSpecification[] inputs, ValueSpecification[] outputs,
+      ExecutionLogMode logMode) {
+    _functionUniqueIdentifier = functionUniqueIdentifier;
+    _functionParameters = functionParameters;
+    _computationTargetSpecification = computationTargetSpecification;
+    _inputSpecifications = inputs;
+    _outputSpecifications = outputs;
+    _logMode = logMode;
+  }
+
+  /**
+   * Constructs a job item based on the data used in the network message.
+   * 
+   * @param functionUniqueIdentifier the function identifier to execute, never null
+   * @param functionParameters the function's execution parameters, never null
+   * @param computationTargetSpecification the function's target, never null
+   * @param inputs the mapped identifiers for the function's inputs, never null
+   * @param outputs the mapped identifiers for the function's output, never null
+   * @param logMode the log capturing mode, not null
+   */
   public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters,
       ComputationTargetSpecification computationTargetSpecification, long[] inputs, long[] outputs,
       ExecutionLogMode logMode) {
-    ArgumentChecker.notNull(logMode, "logMode");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;

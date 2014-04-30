@@ -45,10 +45,10 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod extends I
    * @return The present value curve sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
-    PresentValueSABRSensitivityDataBundle securitySensitivity = ((InterestRateFutureOptionMarginSecuritySABRMethod) getSecurityMethod()).priceSABRSensitivity(transaction.getUnderlyingOption(),
+    PresentValueSABRSensitivityDataBundle securitySensitivity = ((InterestRateFutureOptionMarginSecuritySABRMethod) getSecurityMethod()).priceSABRSensitivity(transaction.getUnderlyingSecurity(),
         sabrData);
-    securitySensitivity = securitySensitivity.multiplyBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
+    securitySensitivity = securitySensitivity.multiplyBy(transaction.getQuantity() * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor());
     return securitySensitivity;
   }
 

@@ -1,0 +1,280 @@
+-- SQL for role master
+
+-- ==========================================================================
+@NAME(GetIdByName)
+  SELECT
+    role_id AS doc_id,
+    deleted AS deleted
+  FROM
+    usr_role_name_lookup
+  WHERE role_name_ci = :name_ci
+
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS doc_id,
+    main.version AS version,
+    main.role_name AS role_name,
+    main.description AS description,
+    au.assoc_user as assoc_user,
+    ap.assoc_perm as assoc_perm,
+    ar.assoc_role as assoc_role
+  FROM
+    usr_role main
+    LEFT JOIN usr_role_assocuser au on (au.role_id = main.id)
+    LEFT JOIN usr_role_assocperm ap on (ap.role_id = main.id)
+    LEFT JOIN usr_role_assocrole ar on (ar.role_id = main.id)
+  WHERE main.id = :doc_id
+  ORDER BY
+    main.id
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
+  SELECT
+    main.id AS doc_id,
+    main.version AS version,
+    main.role_name AS role_name,
+    main.description AS description,
+    au.assoc_user as assoc_user,
+    ap.assoc_perm as assoc_perm,
+    ar.assoc_role as assoc_role
+  FROM
+    usr_role main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN usr_role_assocuser au on (au.role_id = main.id)
+    LEFT JOIN usr_role_assocperm ap on (ap.role_id = main.id)
+    LEFT JOIN usr_role_assocrole ar on (ar.role_id = main.id)
+  ORDER BY
+    main.@VALUE(:sort_order),
+    main.id
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  @PAGING(:paging_offset,:paging_fetch)
+    SELECT
+      id
+    FROM
+      usr_role
+    @INCLUDE(SearchWhere)
+    ORDER BY
+      @VALUE(:sort_order),
+      usr_role.id
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(id)
+  FROM
+    usr_role
+  @INCLUDE(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  @WHERE
+    @AND(:sql_search_object_ids)
+      id IN ( @VALUE(:sql_search_object_ids) )
+    @AND(:role_name_ci)
+      role_name_ci @LIKE :role_name_ci
+    @AND(:assoc_user)
+      id IN ( @INCLUDE(SelectAssocUser) )
+    @AND(:assoc_perm)
+      id IN ( @INCLUDE(SelectAssocPerm) )
+    @AND(:assoc_role)
+      id IN ( @INCLUDE(SelectAssocRole) )
+
+
+-- ==========================================================================
+@NAME(SelectAssocUser)
+  SELECT
+    DISTINCT role_id
+  FROM
+    usr_role_assocuser
+  WHERE assoc_user = :assoc_user
+
+
+-- ==========================================================================
+@NAME(SelectAssocPerm)
+  SELECT
+    DISTINCT role_id
+  FROM
+    usr_role_assocperm
+  WHERE assoc_perm = :assoc_perm
+
+
+-- ==========================================================================
+@NAME(SelectAssocRole)
+  SELECT
+    DISTINCT role_id
+  FROM
+    usr_role_assocrole
+  WHERE assoc_role = :assoc_role
+
+
+-- ==========================================================================
+@NAME(GetEventHistory)
+  SELECT
+    eh.id AS id,
+    eh.role_id AS doc_id,
+    eh.version AS version,
+    eh.event_type AS event_type,
+    eh.active_user AS active_user,
+    eh.event_instant AS event_instant,
+    ei.description AS description
+  FROM
+    usr_role_event_history eh
+    LEFT JOIN usr_role_event_item ei ON (ei.event_id = eh.id)
+  WHERE
+    eh.role_id = :doc_id
+
+-- ==========================================================================
+@NAME(GetResolvedRoles)
+  WITH RECURSIVE cte_perms AS (
+    SELECT
+      main.id AS id,
+      main.role_name,
+      ar.assoc_role AS assoc_role
+    FROM
+      usr_role main
+      LEFT JOIN usr_role_assocrole ar on (ar.role_id = main.id)
+    WHERE
+      main.id IN (@INCLUDE(GetResolvedRolesUser))
+    UNION ALL
+      SELECT
+        main.id AS id,
+        main.role_name,
+        ar.assoc_role AS assoc_role
+      FROM cte_perms,
+        usr_role main
+        LEFT JOIN usr_role_assocrole ar on (ar.role_id = main.id)
+      WHERE
+        main.role_name_ci = cte_perms.assoc_role
+  )
+  SELECT
+    DISTINCT role_name,
+    ap.assoc_perm AS assoc_perm
+  FROM
+    cte_perms main
+    LEFT JOIN usr_role_assocperm ap on (ap.role_id = main.id)
+
+
+-- ==========================================================================
+@NAME(GetResolvedRolesUser)
+  SELECT
+    DISTINCT role_id
+  FROM
+    usr_role_assocuser
+  WHERE assoc_user = :user_name_ci
+
+
+-- ==========================================================================
+@NAME(InsertMain)
+  INSERT INTO usr_role
+    (id, version, role_name, role_name_ci, description)
+  VALUES
+    (:doc_id, :version, :role_name, :role_name_ci, :description)
+
+
+-- ==========================================================================
+@NAME(InsertAssocUser)
+  INSERT INTO usr_role_assocuser
+    (id, role_id, assoc_user)
+  VALUES
+    (:id, :doc_id, :assoc_user)
+
+
+-- ==========================================================================
+@NAME(InsertAssocPerm)
+  INSERT INTO usr_role_assocperm
+    (id, role_id, assoc_perm)
+  VALUES
+    (:id, :doc_id, :assoc_perm)
+
+
+-- ==========================================================================
+@NAME(InsertAssocRole)
+  INSERT INTO usr_role_assocrole
+    (id, role_id, assoc_role)
+  VALUES
+    (:id, :doc_id, :assoc_role)
+
+
+-- ==========================================================================
+@NAME(InsertNameLookup)
+  INSERT INTO usr_role_name_lookup
+    (role_name_ci, role_id, deleted)
+  VALUES
+    (:name_ci, :doc_id, 'N')
+
+
+-- ==========================================================================
+@NAME(InsertEvent)
+  INSERT INTO usr_role_event_history
+    (id, role_id, version, event_type, active_user, event_instant)
+  VALUES
+    (:id, :doc_id, :version, :event_type, :active_user, :event_instant)
+
+
+-- ==========================================================================
+@NAME(InsertEventItem)
+  INSERT INTO usr_role_event_item
+    (id, event_id, description)
+  VALUES
+    (:id, :event_id, :description)
+
+
+-- ==========================================================================
+@NAME(UpdateMain)
+  UPDATE usr_role
+  SET
+    version = :version,
+    role_name = :role_name,
+    role_name_ci = :role_name_ci,
+    description = :description
+  WHERE id = :doc_id
+
+
+-- ==========================================================================
+@NAME(UpdateNameLookupToDeleted)
+  UPDATE usr_role_name_lookup
+  SET deleted = 'Y'
+  WHERE role_id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteMain)
+  DELETE FROM usr_role
+  WHERE id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteAssocUsers)
+  DELETE FROM usr_role_assocuser
+  WHERE role_id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteAssocPerms)
+  DELETE FROM usr_role_assocperm
+  WHERE role_id = :doc_id
+
+
+-- ==========================================================================
+@NAME(DeleteAssocRoles)
+  DELETE FROM usr_role_assocrole
+  WHERE role_id = :doc_id
+
+
+-- ==========================================================================
+@NAME(GetSchemaVersion)
+  SELECT version_value
+  FROM usr_schema_version
+  WHERE version_key = :version_key
+
+
+-- ==========================================================================

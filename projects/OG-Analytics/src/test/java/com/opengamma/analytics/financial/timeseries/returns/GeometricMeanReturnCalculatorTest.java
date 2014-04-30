@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeometricMeanReturnCalculatorTest {
   private static final Function1D<double[], Double> SIMPLE = new SimplyCompoundedGeometricMeanReturnCalculator();
   private static final Function1D<double[], Double> CONTINUOUS = new ContinuouslyCompoundedGeometricMeanReturnCalculator();

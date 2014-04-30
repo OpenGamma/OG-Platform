@@ -20,7 +20,25 @@ import com.opengamma.util.ArgumentChecker;
  * $$
  */
 public class AddCurveSpreadFunction implements CurveSpreadFunction {
-  private static final String NAME = "+";
+  /** The operation name */
+  public static final String NAME = "+";
+  /** An instance of this function */
+  private static final AddCurveSpreadFunction INSTANCE = new AddCurveSpreadFunction();
+
+  /**
+   * Gets an instance of this function
+   * @return The instance
+   */
+  public static CurveSpreadFunction getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * @deprecated Use {@link #getInstance()}
+   */
+  @Deprecated
+  public AddCurveSpreadFunction() {
+  }
 
   /**
    * @param curves An array of curves, not null or empty
@@ -48,11 +66,14 @@ public class AddCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getOperationName() {
     return NAME;
   }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
 }

@@ -46,6 +46,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the {@link ComputationTargetResults} class.
@@ -68,7 +69,8 @@ public class ComputationTargetResultsTest {
     private final String _requirementValue;
     private final ValueProperties _requirementConstraints;
 
-    public MockFunction(final ComputationTargetType type, final String resultValue, final ValueProperties resultProperties, final String requirementValue, final ValueProperties requirementConstraints) {
+    public MockFunction(final ComputationTargetType type, final String resultValue, final ValueProperties resultProperties, final String requirementValue,
+        final ValueProperties requirementConstraints) {
       setUniqueId(String.valueOf(_identifier++));
       _type = type;
       _resultValue = resultValue;
@@ -111,7 +113,8 @@ public class ComputationTargetResultsTest {
 
   private static class MockFunction2 extends MockFunction {
 
-    public MockFunction2(final ComputationTargetType type, final String resultValue, final ValueProperties resultProperties, final String requirementValue, final ValueProperties requirementConstraints) {
+    public MockFunction2(final ComputationTargetType type, final String resultValue, final ValueProperties resultProperties, final String requirementValue,
+        final ValueProperties requirementConstraints) {
       super(type, resultValue, resultProperties, requirementValue, requirementConstraints);
     }
 
@@ -169,6 +172,7 @@ public class ComputationTargetResultsTest {
     context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
     context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.of(Instant.now(), Instant.now())));
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), context);
+    TestLifecycle.register(cfs);
     cfs.initialize();
     final FunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     final CompiledFunctionResolver compiledFunctionResolver = functionResolver.compile(Instant.now());
@@ -178,11 +182,16 @@ public class ComputationTargetResultsTest {
   }
 
   public void testMaximalResults_emptyRepo() {
-    final ComputationTargetResults ctr = createComputationTargetResults(emptyFunctionRepo());
-    final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
-    final Collection<ValueSpecification> values = ctr.getMaximalResults(target);
-    s_logger.debug("testMaximalResults_emptyRepo = {}", values);
-    assertTrue(values.isEmpty());
+    TestLifecycle.begin();
+    try {
+      final ComputationTargetResults ctr = createComputationTargetResults(emptyFunctionRepo());
+      final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+      final Collection<ValueSpecification> values = ctr.getMaximalResults(target);
+      s_logger.debug("testMaximalResults_emptyRepo = {}", values);
+      assertTrue(values.isEmpty());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   private Set<String> getResults(final Collection<ValueSpecification> values) {
@@ -194,29 +203,44 @@ public class ComputationTargetResultsTest {
   }
 
   public void testMaximalResults_basicRepo() {
-    final ComputationTargetResults ctr = createComputationTargetResults(basicFunctionRepo());
-    final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
-    final Collection<ValueSpecification> values = ctr.getMaximalResults(target);
-    s_logger.debug("testMaximalResults_basicRepo = {}", values);
-    final Set<String> results = getResults(values);
-    assertEquals(results, ImmutableSet.of("A3", "A2", "A1", "B3", "B2", "B1", "C3", "D3", "D2", "E3", "F3", "G3", "G2", "G1", "H3", "H2", "H1", "I3", "J3", "J2", "K3", "L3"));
+    TestLifecycle.begin();
+    try {
+      final ComputationTargetResults ctr = createComputationTargetResults(basicFunctionRepo());
+      final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+      final Collection<ValueSpecification> values = ctr.getMaximalResults(target);
+      s_logger.debug("testMaximalResults_basicRepo = {}", values);
+      final Set<String> results = getResults(values);
+      assertEquals(results, ImmutableSet.of("A3", "A2", "A1", "B3", "B2", "B1", "C3", "D3", "D2", "E3", "F3", "G3", "G2", "G1", "H3", "H2", "H1", "I3", "J3", "J2", "K3", "L3"));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPartialResults_emptyRepo() {
-    final ComputationTargetResults ctr = createComputationTargetResults(emptyFunctionRepo());
-    final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
-    final Collection<ValueSpecification> values = ctr.getPartialResults(target);
-    s_logger.debug("testPartialResults_emptyRepo = {}", values);
-    assertTrue(values.isEmpty());
+    TestLifecycle.begin();
+    try {
+      final ComputationTargetResults ctr = createComputationTargetResults(emptyFunctionRepo());
+      final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+      final Collection<ValueSpecification> values = ctr.getPartialResults(target);
+      s_logger.debug("testPartialResults_emptyRepo = {}", values);
+      assertTrue(values.isEmpty());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPartialResults_basicRepo() {
-    final ComputationTargetResults ctr = createComputationTargetResults(basicFunctionRepo());
-    final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
-    final Collection<ValueSpecification> values = ctr.getPartialResults(target);
-    s_logger.debug("testPartialResults_basicRepo = {}", values);
-    final Set<String> results = getResults(values);
-    assertEquals(results, ImmutableSet.of("B1", "D2", "E3", "F3", "H3", "H2", "H1", "J3", "J2", "K3", "L3"));
+    TestLifecycle.begin();
+    try {
+      final ComputationTargetResults ctr = createComputationTargetResults(basicFunctionRepo());
+      final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+      final Collection<ValueSpecification> values = ctr.getPartialResults(target);
+      s_logger.debug("testPartialResults_basicRepo = {}", values);
+      final Set<String> results = getResults(values);
+      assertEquals(results, ImmutableSet.of("B1", "D2", "E3", "F3", "H3", "H2", "H1", "J3", "J2", "K3", "L3"));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
 }

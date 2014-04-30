@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MonotoneConvexSplineInterpolatorTest {
 
   private static final double EPS = 1e-13;
@@ -254,6 +256,7 @@ public class MonotoneConvexSplineInterpolatorTest {
   /**
    * f(t) may have discontinuity
    */
+  @Test(enabled = false)
   public void discontTest() {
 
     final double[] xValues = new double[] {0., 0.1, 4., 10., 20., 30. };

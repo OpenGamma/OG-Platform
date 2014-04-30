@@ -9,12 +9,10 @@ import java.util.List;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.change.AggregatingChangeManager;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.CombinedMaster;
+import com.opengamma.master.ChangeProvidingCombinedMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
@@ -30,27 +28,12 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 /**
  * A {@link HistoricalTimeSeriesMaster} which delegates its calls to a list of underlying {@link HistoricalTimeSeriesMaster}s.
  * 
- * This class extends {@link CombinedMaster} to implement methods specific to the {@link HistoricalTimeSeriesMaster}.
+ * This class extends {@link ChangeProvidingCombinedMaster} to implement methods specific to the {@link HistoricalTimeSeriesMaster}.
  */
-public class CombinedHistoricalTimeSeriesMaster extends CombinedMaster<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster> implements HistoricalTimeSeriesMaster {
+public class CombinedHistoricalTimeSeriesMaster extends ChangeProvidingCombinedMaster<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster> implements HistoricalTimeSeriesMaster {
   
-  private AggregatingChangeManager _changeManager;
-
   public CombinedHistoricalTimeSeriesMaster(List<HistoricalTimeSeriesMaster> masterList) {
     super(masterList);
-    
-    AggregatingChangeManager changeManager = new AggregatingChangeManager();
-    
-    for (HistoricalTimeSeriesMaster master : masterList) {
-      changeManager.addChangeManager(master.changeManager());
-    }
-    _changeManager = changeManager;
-
-  }
-
-  @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
   }
 
   @Override

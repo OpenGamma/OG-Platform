@@ -22,13 +22,13 @@ public class MonotoneConvexSplineInterpolator1D extends PiecewisePolynomialInter
   private static final long serialVersionUID = 1L;
 
   private static final PiecewisePolynomialFunction1D FUNC = new PiecewisePolynomialFunction1D();
-  private final MonotoneConvexSplineInterpolator _baseMethod = new MonotoneConvexSplineInterpolator();
+  private static final MonotoneConvexSplineInterpolator BASE_METHOD = new MonotoneConvexSplineInterpolator();
 
   /**
    * Default constructor where the interpolation method is fixed
    */
   public MonotoneConvexSplineInterpolator1D() {
-    super(new ShapePreservingCubicSplineInterpolator());
+    super(BASE_METHOD);
   }
 
   @Override
@@ -73,11 +73,11 @@ public class MonotoneConvexSplineInterpolator1D extends PiecewisePolynomialInter
 
   @Override
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
-    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, false), this._baseMethod);
+    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, false), BASE_METHOD);
   }
 
   @Override
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
-    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, true), this._baseMethod);
+    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, true), BASE_METHOD);
   }
 }

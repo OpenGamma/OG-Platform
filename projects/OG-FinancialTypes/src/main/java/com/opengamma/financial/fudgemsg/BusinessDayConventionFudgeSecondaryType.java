@@ -32,12 +32,12 @@ public final class BusinessDayConventionFudgeSecondaryType extends SecondaryFiel
 
   @Override
   public String secondaryToPrimary(BusinessDayConvention object) {
-    return object.getConventionName();
+    return object.getName();
   }
 
   @Override
   public BusinessDayConvention primaryToSecondary(final String string) {
-    return BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(string);
+    return BusinessDayConventionFactory.of(string);
   }
 
 }

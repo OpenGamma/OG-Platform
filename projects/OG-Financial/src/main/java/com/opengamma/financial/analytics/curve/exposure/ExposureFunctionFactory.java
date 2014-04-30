@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve.exposure;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -14,6 +15,8 @@ import com.opengamma.core.security.SecuritySource;
 public class ExposureFunctionFactory {
 
   public static ExposureFunction getExposureFunction(final SecuritySource securitySource, final String name) {
+    ArgumentChecker.notNull(securitySource, "security source");
+    ArgumentChecker.notNull(name, "name");
     if ("Contract Category".equals(name)) {
       return new ContractCategoryExposureFunction(securitySource);
     }
@@ -46,4 +49,5 @@ public class ExposureFunctionFactory {
     }
     throw new OpenGammaRuntimeException("Could not get exposure function called " + name);
   }
+
 }

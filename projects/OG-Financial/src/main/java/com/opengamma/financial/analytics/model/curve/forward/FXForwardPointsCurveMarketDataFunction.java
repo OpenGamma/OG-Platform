@@ -20,7 +20,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -34,7 +33,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -53,12 +51,18 @@ public class FXForwardPointsCurveMarketDataFunction extends AbstractFunction {
   /** Name of the calculation method */
   public static final String FX_FORWARD_QUOTES = "FXForwardQuotes";
 
+  private ConfigDBFXForwardCurveSpecificationSource _fxForwardCurveSpecificationSource;
+  private ConfigDBFXForwardCurveDefinitionSource _fxForwardCurveDefinitionSource;
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _fxForwardCurveSpecificationSource = ConfigDBFXForwardCurveSpecificationSource.init(context, this);
+    _fxForwardCurveDefinitionSource = ConfigDBFXForwardCurveDefinitionSource.init(context, this);
+  }
+
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBFXForwardCurveDefinitionSource curveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
-    final ConfigDBFXForwardCurveSpecificationSource curveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
@@ -85,12 +89,12 @@ public class FXForwardPointsCurveMarketDataFunction extends AbstractFunction {
         }
         final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(target.getUniqueId());
         final String curveName = curveNames.iterator().next();
-        final FXForwardCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currencyPair.toString());
+        final FXForwardCurveDefinition definition = _fxForwardCurveDefinitionSource.getDefinition(curveName, currencyPair.toString());
         if (definition == null) {
           s_logger.error("Couldn't find FX forward curve definition called " + curveName + " with target " + target);
           return null;
         }
-        final FXForwardCurveSpecification specification = curveSpecificationSource.getSpecification(curveName, currencyPair.toString());
+        final FXForwardCurveSpecification specification = _fxForwardCurveSpecificationSource.getSpecification(curveName, currencyPair.toString());
         if (specification == null) {
           s_logger.error("Couldn't find FX forward curve specification called " + curveName + " with target " + target);
           return null;
@@ -117,11 +121,11 @@ public class FXForwardPointsCurveMarketDataFunction extends AbstractFunction {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(target.getUniqueId());
-        final FXForwardCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currencyPair.toString());
+        final FXForwardCurveDefinition definition = _fxForwardCurveDefinitionSource.getDefinition(curveName, currencyPair.toString());
         if (definition == null) {
           throw new OpenGammaRuntimeException("Couldn't find FX forward curve definition called " + curveName + " for target " + target);
         }
-        final FXForwardCurveSpecification specification = curveSpecificationSource.getSpecification(curveName, currencyPair.toString());
+        final FXForwardCurveSpecification specification = _fxForwardCurveSpecificationSource.getSpecification(curveName, currencyPair.toString());
         if (specification == null) {
           throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + curveName + " for target " + target);
         }
@@ -147,7 +151,6 @@ public class FXForwardPointsCurveMarketDataFunction extends AbstractFunction {
         final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, curveName).get();
         return new ValueSpecification(ValueRequirementNames.FX_FORWARD_POINTS_CURVE_MARKET_DATA, target.toSpecification(), properties);
       }
-
 
       @Override
       public boolean canHandleMissingRequirements() {

@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRATMVolatilityCalculatorTest {
   private static final SABRATMVolatilityCalculator CALCULATOR = new SABRATMVolatilityCalculator(new SABRHaganVolatilityFunction());
   private static final SABRFormulaData DATA = new SABRFormulaData(0.5, 1, 0.5, 0.3);

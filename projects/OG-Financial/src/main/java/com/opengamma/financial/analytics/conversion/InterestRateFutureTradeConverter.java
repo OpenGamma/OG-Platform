@@ -1,51 +1,63 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
 
-import org.apache.commons.lang.Validate;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Convert the Trade on Interest Rate Future to the Definition version.
- * @deprecated Use the generic FutureTradeConverter.
+ * Interest rate future trade converter.
  */
-@Deprecated
-public class InterestRateFutureTradeConverter {
-  private final InterestRateFutureSecurityConverterDeprecated _securityConverter;
+public class InterestRateFutureTradeConverter implements TradeConverter {
 
-  public InterestRateFutureTradeConverter(final InterestRateFutureSecurityConverterDeprecated securityConverter) {
-    Validate.notNull(securityConverter, "security converter");
-    _securityConverter = securityConverter;
+  private final InterestRateFutureSecurityConverter _securityConverter;
+  
+  public InterestRateFutureTradeConverter(SecuritySource securitySource,
+                                          HolidaySource holidaySource,
+                                          ConventionSource conventionSource,
+                                          RegionSource regionSource) {
+    _securityConverter = new InterestRateFutureSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
   }
-
-  public InterestRateFutureTransactionDefinition convert(final Trade trade) {
-    Validate.notNull(trade, "trade");
-    Validate.isTrue(trade.getSecurity() instanceof InterestRateFutureSecurity, "Can only handle trades with security type InterestRateFutureSecurity");
-    final InterestRateFutureSecurityDefinition securityDefinition = _securityConverter.visitInterestRateFutureSecurity((InterestRateFutureSecurity) trade.getSecurity());
-    // REVIEW: Setting this quantity to one so that we don't double-count the number of trades when the position scaling takes place
-    final int quantity = trade.getQuantity().intValue();
-    ZonedDateTime tradeDate;
-    if (trade.getTradeTime() != null) {
-      final ZoneId zone = trade.getTradeTime().getOffset();
-      tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(zone);
-    } else {
-      tradeDate = trade.getTradeDate().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);
+  
+  public InstrumentDefinitionWithData<?, Double> convert(Trade trade) {
+    ArgumentChecker.notNull(trade, "trade");
+    final Security security = trade.getSecurity();
+    if (security instanceof InterestRateFutureSecurity) {
+      final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) ((InterestRateFutureSecurity) security).accept(_securityConverter);
+      Double tradePrice = trade.getPremium(); // TODO: [PLAT-1958] The trade price is stored in the trade premium. 
+      if (tradePrice == null) {
+        throw new OpenGammaRuntimeException("Trade premium should not be null.");
+      }
+      final LocalDate tradeDate = trade.getTradeDate();
+      if (tradeDate == null) {
+        throw new OpenGammaRuntimeException("Trade date should not be null");
+      }
+      final OffsetTime tradeTime = trade.getTradeTime();
+      if (tradeTime == null) {
+        throw new OpenGammaRuntimeException("Trade time should not be null");
+      }
+      final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
+      final int quantity = trade.getQuantity().intValue();
+      return new InterestRateFutureTransactionDefinition(securityDefinition, quantity, tradeDateTime, tradePrice);
     }
-    final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium(); //TODO remove the default value and throw an exception
-    return new InterestRateFutureTransactionDefinition(securityDefinition, tradeDate, tradePrice, quantity);
-    //tradeDate, tradePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
-    //securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), quantity, securityDefinition.getName());
+    throw new IllegalArgumentException("Can only handle InterestRateFutureSecurity");
   }
-
 }

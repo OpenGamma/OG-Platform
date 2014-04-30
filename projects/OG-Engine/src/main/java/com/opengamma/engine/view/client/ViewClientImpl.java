@@ -5,10 +5,13 @@
  */
 package com.opengamma.engine.view.client;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -17,6 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.resource.EngineResourceRetainer;
@@ -25,9 +31,11 @@ import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -83,6 +91,11 @@ public class ViewClientImpl implements ViewClient {
   private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<>();
 
   /**
+   * Holds the context information to be passed to the view process where it will be added to each log statement (using the MDC mechanism).
+   */
+  private Map<String, String> _viewProcessContextMap;
+
+  /**
    * Constructs an instance.
    * 
    * @param id the unique identifier assigned to this view client
@@ -90,7 +103,7 @@ public class ViewClientImpl implements ViewClient {
    * @param user the user who owns this client
    * @param timer the timer to use for scheduled tasks
    */
-  public ViewClientImpl(UniqueId id, ViewProcessorImpl viewProcessor, UserPrincipal user, Timer timer) {
+  public ViewClientImpl(UniqueId id, ViewProcessorImpl viewProcessor, UserPrincipal user, ScheduledExecutorService timer) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(user, "user");
@@ -101,7 +114,6 @@ public class ViewClientImpl implements ViewClient {
     _user = user;
     _latestCycleRetainer = new EngineResourceRetainer(viewProcessor.getViewCycleManager());
 
-
     ViewResultListener mergedViewProcessListener = new ViewResultListener() {
 
       @Override
@@ -110,37 +122,52 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition,
-                                         boolean hasMarketDataPermissions) {
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
 
-        _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(),
-                                                                                               compiledViewDefinition);
-        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(),
-                                                                                       compiledViewDefinition,
-                                                                                       hasMarketDataPermissions);
+        _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
+        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition, hasMarketDataPermissions);
 
         PortfolioFilter filter = _portfolioPermissionProvider.createPortfolioFilter(getUser());
 
-        // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
-        // pass to downstream listeners? Some special perm denied message in place of results on each computation
-        // cycle?
-
-
-        // Would be better if there was a builder for this!
-        CompiledViewDefinition replacementViewDef = new CompiledViewDefinitionImpl(
-            compiledViewDefinition.getResolverVersionCorrection(),
-            compiledViewDefinition.getCompilationIdentifier(),
-            compiledViewDefinition.getViewDefinition(),
-            filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
-            compiledViewDefinition.getCompiledCalculationConfigurations(),
-            compiledViewDefinition.getValidFrom(),
-            compiledViewDefinition.getValidTo());
-
-
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+
+          if (_canAccessComputationResults) {
+
+            CompiledViewDefinition replacementViewDef = createFilteredViewDefinition(compiledViewDefinition, filter);
+            listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+          } else {
+            // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
+            // pass to downstream listeners? Some special perm denied message in place of results on each computation
+            // cycle?
+
+            // In order to do something, we'll tell listeners that the compilation failed. Clearly
+            // in the future this wants to be more fine grained
+            listener.viewDefinitionCompilationFailed(
+                Instant.now(), new Exception("User: " + _user + " does not have permission for data in this view"));
+          }
+        }
+      }
+
+      private CompiledViewDefinition createFilteredViewDefinition(CompiledViewDefinition compiledViewDefinition, PortfolioFilter filter) {
+
+        // TODO see [PLAT-2478] and DependencyGraphStructureBuilder
+        if (compiledViewDefinition instanceof CompiledViewDefinitionWithGraphsImpl) {
+          CompiledViewDefinitionWithGraphsImpl cvdwg = (CompiledViewDefinitionWithGraphsImpl) compiledViewDefinition;
+          Collection<DependencyGraphExplorer> dependencyGraphExplorers = cvdwg.getDependencyGraphExplorers();
+          Collection<DependencyGraph> graphs = new ArrayList<DependencyGraph>(dependencyGraphExplorers.size());
+          for (DependencyGraphExplorer explorer : dependencyGraphExplorers) {
+            graphs.add(explorer.getWholeGraph());
+          }
+          return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(), cvdwg.getCompilationIdentifier(), cvdwg.getViewDefinition(), graphs,
+              cvdwg.getResolvedIdentifiers(), filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()), cvdwg.getFunctionInitId(),
+              cvdwg.getCompiledCalculationConfigurations(), cvdwg.getValidFrom(), cvdwg.getValidTo());
+        } else {
+          // Would be better if there was a builder for this!
+          return new CompiledViewDefinitionImpl(compiledViewDefinition.getResolverVersionCorrection(), compiledViewDefinition.getCompilationIdentifier(),
+              compiledViewDefinition.getViewDefinition(), filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+              compiledViewDefinition.getCompiledCalculationConfigurations(), compiledViewDefinition.getValidFrom(), compiledViewDefinition.getValidTo());
         }
       }
 
@@ -162,10 +189,8 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
-                                                                             isFirstResult) ? fullResult : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
-                                                                         isFirstResult) ? deltaResult : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, isFirstResult) ? fullResult : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, isFirstResult) ? deltaResult : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleCompleted(userFullResult, userDeltaResult);
             } else if (!isFirstResult || resultMode != ViewResultMode.DELTA_ONLY) {
@@ -183,15 +208,15 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getFragmentResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
-                                                                             prevResult == null) ? fullFragment : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
-                                                                         prevResult == null) ? deltaFragment : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, prevResult == null) ? fullFragment : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, prevResult == null) ? deltaFragment : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleFragmentCompleted(userFullResult, userDeltaResult);
-            } else if (prevResult == null || resultMode != ViewResultMode.DELTA_ONLY) {
-              // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
-              s_logger.warn("Ignored CycleFragmentCompleted call with no useful results to propagate");
+            } else {
+              if ((prevResult != null) || (resultMode != ViewResultMode.DELTA_ONLY)) {
+                // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
+                s_logger.warn("Ignored CycleFragmentCompleted call with no useful results to propagate");
+              }
             }
           }
         }
@@ -233,8 +258,7 @@ public class ViewClientImpl implements ViewClient {
 
       @Override
       public void clientShutdown(Exception e) {
-        throw new UnsupportedOperationException(
-            "Shutdown notification unexpectedly received from merging result listener");
+        throw new UnsupportedOperationException("Shutdown notification unexpectedly received from merging result listener");
       }
 
     };
@@ -276,43 +300,52 @@ public class ViewClientImpl implements ViewClient {
 
   @Override
   public void attachToViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions, boolean privateProcess) {
+    final boolean isPaused;
     _clientLock.lock();
     try {
       checkNotTerminated();
-
+      checkNotAttached();
       // The client is detached right now so the merging update listener is paused. Although the following calls may
       // cause initial updates to be pushed through, they will not be seen until the merging update listener is
-      // resumed, at which point the new permission provider will be in place. 
+      // resumed, at which point the new permission provider will be in place. This is important to prevent potential
+      // deadlocks as the initial notifications will be passed to the merging listener while the _clientLock is held -
+      // they must not be passed on to the underlying listener.
       ViewProcessorImpl viewProcessor = getViewProcessor();
-      ViewPermissionContext context = privateProcess ?
-          viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions) :
-          viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
-      attachToViewProcessCore(context);
+      ViewPermissionContext context = privateProcess ? viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions,
+          _viewProcessContextMap) : viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions, _viewProcessContextMap);
+      isPaused = attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
     }
+    _mergingViewProcessListener.setPaused(isPaused);
   }
 
   @Override
   public void attachToViewProcess(UniqueId processId) {
+    final boolean isPaused;
     _clientLock.lock();
     try {
       checkNotTerminated();
-      ViewPermissionContext context =
-          getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
-      attachToViewProcessCore(context);
+      checkNotAttached();
+      // See concurrency notes in {@link #attachToViewProcess(UniqueId,ViewExecutionOptions,boolean)}.
+      ViewPermissionContext context = getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
+      isPaused = attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
     }
+    _mergingViewProcessListener.setPaused(isPaused);
   }
 
-  private void attachToViewProcessCore(ViewPermissionContext context) {
+  /**
+   * @param context the permission set
+   * @return the pause state to pass to the merging result listener
+   */
+  private boolean attachToViewProcessCore(final ViewPermissionContext context) {
     _permissionProvider = context.getViewPermissionProvider();
     _portfolioPermissionProvider = context.getViewPortfolioPermissionProvider();
     _isAttached.set(true);
-    boolean isPaused = getState() == ViewClientState.PAUSED;
-    _mergingViewProcessListener.setPaused(isPaused);
     _completionLatch = new CountDownLatch(1);
+    return getState() == ViewClientState.PAUSED;
   }
 
   @Override
@@ -341,6 +374,17 @@ public class ViewClientImpl implements ViewClient {
   @Override
   public ViewDefinition getLatestViewDefinition() {
     return getViewProcessor().getLatestViewDefinition(getUniqueId());
+  }
+  
+  @Override
+  public ViewProcess getViewProcess() {
+    _clientLock.lock();
+    try {
+      checkAttached();
+      return getViewProcessor().getViewProcessForClient(getUniqueId());
+    } finally {
+      _clientLock.unlock();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -391,15 +435,17 @@ public class ViewClientImpl implements ViewClient {
 
   @Override
   public void resume() {
+    boolean unpause = false;
     _clientLock.lock();
     try {
       checkNotTerminated();
-      if (isAttached()) {
-        _mergingViewProcessListener.setPaused(false);
-      }
+      unpause = isAttached();
       _state = ViewClientState.STARTED;
     } finally {
       _clientLock.unlock();
+    }
+    if (unpause) {
+      _mergingViewProcessListener.setPaused(false);
     }
   }
 
@@ -467,6 +513,15 @@ public class ViewClientImpl implements ViewClient {
     } finally {
       _clientLock.unlock();
     }
+  }
+
+  @Override
+  public void setViewProcessContextMap(Map<String, String> context) {
+
+    if (isAttached()) {
+      throw new IllegalStateException("Unable to set process context whilst attached to a view process");
+    }
+    _viewProcessContextMap = context;
   }
 
   @Override
@@ -549,6 +604,12 @@ public class ViewClientImpl implements ViewClient {
   private void checkAttached() {
     if (!isAttached()) {
       throw new IllegalStateException("This method is not valid on a detached view client.");
+    }
+  }
+
+  private void checkNotAttached() {
+    if (isAttached()) {
+      throw new IllegalStateException("This method is not valid on an attached view client.");
     }
   }
 

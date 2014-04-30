@@ -17,10 +17,12 @@ import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class HistoricalVolatilityCalculatorTestCase {
   private static final long[] T_RAW = new long[] {1l, 2l, 3l, 4l, 5l, 6l, 7l, 8l, 9l, 10l, 11l, 12l, 13l, 14l, 15l, 16l, 17l, 18l, 19l, 20l, 21l};
   private static final LocalDate[] T = new LocalDate[T_RAW.length];

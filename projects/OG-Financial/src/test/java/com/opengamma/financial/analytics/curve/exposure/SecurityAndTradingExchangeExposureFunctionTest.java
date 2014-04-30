@@ -48,6 +48,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -395,6 +396,13 @@ public class SecurityAndTradingExchangeExposureFunctionTest {
   }
 
   @Test
+  public void testFXVolatilitySecurity() {
+    final FXVolatilitySwapSecurity security = ExposureFunctionTestHelper.getFXVolatilitySwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertNull(ids);
+  }
+
+  @Test
   public void testGovernmentBondSecurity() {
     final GovernmentBondSecurity security = ExposureFunctionTestHelper.getGovernmentBondSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
@@ -405,7 +413,8 @@ public class SecurityAndTradingExchangeExposureFunctionTest {
   public void testInterestRateFutureOptionSecurity() {
     final IRFutureOptionSecurity security = ExposureFunctionTestHelper.getInterestRateFutureOptionSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
-    assertNull(ids);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.SECURITY_IDENTIFIER, "IRFUTURE_OPTION_Y"), ids.get(0));
   }
 
   @Test

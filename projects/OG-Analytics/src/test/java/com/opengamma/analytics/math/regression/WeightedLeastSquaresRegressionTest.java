@@ -13,6 +13,12 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class WeightedLeastSquaresRegressionTest {
   private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister.DEFAULT_SEED);
   private static final double EPS = 1e-2;

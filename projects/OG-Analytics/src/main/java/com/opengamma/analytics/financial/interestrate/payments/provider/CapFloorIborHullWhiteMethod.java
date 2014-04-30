@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
@@ -87,16 +88,16 @@ public final class CapFloorIborHullWhiteMethod {
     final double t1 = cap.getFixingPeriodEndTime();
     final double deltaF = cap.getFixingAccrualFactor();
     final double deltaP = cap.getPaymentYearFraction();
-    final double k = cap.getStrike();
+    final double k = cap.getStrike(); // Add a check on strike above -1/deltaF
     final double dfPay = multicurves.getDiscountFactor(ccy, tp);
-    final double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF);
+    final double forward = multicurves.getSimplyCompoundForwardRate(cap.getIndex(), t0, t1, deltaF); // Add a check on strike above -1/deltaF
     final double alpha0 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t0);
     final double alpha1 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t1);
     final double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
     final double omega = (cap.isCap() ? 1.0 : -1.0);
     double pv = deltaP / deltaF * dfPay * omega * ((1.0 + deltaF * forward) * NORMAL.getCDF(omega * (-kappa - alpha0)) - (1.0 + deltaF * k) * NORMAL.getCDF(omega * (-kappa - alpha1)));
     pv *= cap.getNotional();
-    return MultipleCurrencyAmount.of(cap.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(ccy, pv);
   }
 
   /**
@@ -120,7 +121,7 @@ public final class CapFloorIborHullWhiteMethod {
     final double omega = (cap.isCap() ? 1.0 : -1.0);
     // Forward sweep
     final double dfPay = multicurves.getDiscountFactor(ccy, tp);
-    final double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF);
+    final double forward = multicurves.getSimplyCompoundForwardRate(cap.getIndex(), t0, t1, deltaF);
     final double alpha0 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t0);
     final double alpha1 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t1);
     final double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
@@ -135,12 +136,12 @@ public final class CapFloorIborHullWhiteMethod {
 
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(cap.getPaymentTime(), -cap.getPaymentTime() * dfPay * dfPayBar));
+    listDiscounting.add(DoublesPair.of(cap.getPaymentTime(), -cap.getPaymentTime() * dfPay * dfPayBar));
     mapDsc.put(multicurves.getName(ccy), listDiscounting);
 
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(cap.getIndex()), listForward);
 
     return MultipleCurrencyMulticurveSensitivity.of(ccy, MulticurveSensitivity.of(mapDsc, mapFwd));
@@ -168,7 +169,7 @@ public final class CapFloorIborHullWhiteMethod {
     final double omega = (cap.isCap() ? 1.0 : -1.0);
     // Forward sweep
     final double dfPay = multicurves.getDiscountFactor(ccy, tp);
-    final double forward = multicurves.getForwardRate(cap.getIndex(), t[0], t[1], deltaF);
+    final double forward = multicurves.getSimplyCompoundForwardRate(cap.getIndex(), t[0], t[1], deltaF);
     final int nbSigma = parameters.getVolatility().length;
     final double[] alpha = new double[2];
     final double[][] alphaDerivatives = new double[2][nbSigma];

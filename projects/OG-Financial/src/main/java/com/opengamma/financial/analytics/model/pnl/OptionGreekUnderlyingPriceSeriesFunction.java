@@ -34,6 +34,7 @@ import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeS
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -56,7 +57,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     _underlyings = new ArrayList<Pair<UnderlyingType, String>>();
     final List<UnderlyingType> types = greek.getUnderlying().getUnderlyings();
     for (final UnderlyingType type : types) {
-      _underlyings.add(Pair.of(type, ValueRequirementNames.PRICE_SERIES + "_" + type));
+      _underlyings.add(Pairs.of(type, ValueRequirementNames.PRICE_SERIES + "_" + type));
     }
   }
 

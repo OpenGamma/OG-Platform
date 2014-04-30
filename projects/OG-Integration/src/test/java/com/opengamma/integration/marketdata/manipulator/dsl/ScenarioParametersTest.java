@@ -29,8 +29,8 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
   public void setParametersFromScript() throws IOException {
     String scriptFile = "src/test/groovy/ScenarioParametersTest.groovy";
     String script = IOUtils.toString(new BufferedReader(new FileReader(scriptFile)));
-    ScenarioParameters scenarioParameters = new ScenarioDslParameters(script);
-    Map<String,Object> parameters = scenarioParameters.getParameters();
+    ScenarioParameters scenarioParameters = ScenarioDslParameters.of(script);
+    Map<String, Object> parameters = scenarioParameters.getParameters();
     assertEquals("foo", parameters.get("aString"));
     assertEquals(Lists.newArrayList(1, 2, 3), parameters.get("aList"));
     assertEquals(1.234, ((Number) parameters.get("aDouble")).doubleValue());
@@ -40,7 +40,8 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void fudgeRoundTrip() {
-    ScenarioDslParameters parameters = new ScenarioDslParameters("str = \"foo\"\ndbl = 1.23");
+    ScenarioDslParameters parameters = ScenarioDslParameters.of("str = \"foo\"\ndbl = 1.23");
     assertEncodeDecodeCycle(ScenarioDslParameters.class, parameters);
   }
+
 }

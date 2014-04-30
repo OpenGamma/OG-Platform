@@ -71,15 +71,15 @@ public class VolatilitySurfaceData<X, Y> {
     _xLabel = xLabel;
     _ys = ys;
     _yLabel = yLabel;
-    _uniqueXs = new TreeSet<X>(); 
+    _uniqueXs = new TreeSet<X>();
     _strips = Maps.newHashMap();
     for (Map.Entry<Pair<X, Y>, Double> entries : values.entrySet()) {
       if (_strips.containsKey(entries.getKey().getFirst())) {
-        _strips.get(entries.getKey().getFirst()).add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
+        _strips.get(entries.getKey().getFirst()).add(ObjectsPair.of(entries.getKey().getSecond(), entries.getValue()));
       } else {
         _uniqueXs.add(entries.getKey().getFirst());
         final List<ObjectsPair<Y, Double>> list = Lists.newArrayList();
-        list.add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
+        list.add(ObjectsPair.of(entries.getKey().getSecond(), entries.getValue()));
         _strips.put(entries.getKey().getFirst(), list);
       }
     }
@@ -106,7 +106,7 @@ public class VolatilitySurfaceData<X, Y> {
   }
   
   public Double getVolatility(final X x, final Y y) {
-    return _values.get(Pair.of(x, y));
+    return _values.get(ObjectsPair.of(x, y));
   }
   
   public SortedSet<X> getUniqueXValues() {
@@ -173,4 +173,19 @@ public class VolatilitySurfaceData<X, Y> {
     return getDefinitionName().hashCode() * getSpecificationName().hashCode() * getTarget().hashCode();
   }
 
+  @Override
+  public String toString() {
+    return "VolatilitySurfaceData [" +
+        "_definitionName='" + _definitionName + "'" +
+        ", _specificationName='" + _specificationName + "'" +
+        ", _target=" + _target +
+        ", _xLabel='" + _xLabel + "'" +
+        ", _yLabel='" + _yLabel + "'" +
+        ", _xs=" + (_xs == null ? null : Arrays.asList(_xs)) +
+        ", _ys=" + (_ys == null ? null : Arrays.asList(_ys)) +
+        ", _values=" + _values +
+        ", _uniqueXs=" + _uniqueXs +
+        ", _strips=" + _strips +
+        "]";
+  }
 }

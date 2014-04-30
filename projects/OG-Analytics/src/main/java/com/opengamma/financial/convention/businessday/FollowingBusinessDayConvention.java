@@ -29,8 +29,8 @@ public class FollowingBusinessDayConvention extends AbstractBusinessDayConventio
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Following";
-  }
+  }  
 
 }

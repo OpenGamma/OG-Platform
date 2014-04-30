@@ -7,6 +7,7 @@ package com.opengamma.financial.sensitivities;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -68,65 +69,6 @@ public class SecurityEntryData extends DirectBean {
   @Override
   public SecurityEntryData.Meta metaBean() {
     return SecurityEntryData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 575402001:  // currency
-        return getCurrency();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 42976526:  // factorSetId
-        return getFactorSetId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((ExternalId) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((LocalDate) newValue);
-        return;
-      case 42976526:  // factorSetId
-        setFactorSetId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityEntryData other = (SecurityEntryData) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getFactorSetId(), other.getFactorSetId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorSetId());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -227,6 +169,57 @@ public class SecurityEntryData extends DirectBean {
    */
   public final Property<ExternalId> factorSetId() {
     return metaBean().factorSetId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SecurityEntryData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityEntryData other = (SecurityEntryData) obj;
+      return JodaBeanUtils.equal(getId(), other.getId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getFactorSetId(), other.getFactorSetId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorSetId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("SecurityEntryData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("factorSetId").append('=').append(JodaBeanUtils.toString(getFactorSetId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -336,6 +329,41 @@ public class SecurityEntryData extends DirectBean {
      */
     public final MetaProperty<ExternalId> factorSetId() {
       return _factorSetId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((SecurityEntryData) bean).getId();
+        case 575402001:  // currency
+          return ((SecurityEntryData) bean).getCurrency();
+        case -414641441:  // maturityDate
+          return ((SecurityEntryData) bean).getMaturityDate();
+        case 42976526:  // factorSetId
+          return ((SecurityEntryData) bean).getFactorSetId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((SecurityEntryData) bean).setId((ExternalId) newValue);
+          return;
+        case 575402001:  // currency
+          ((SecurityEntryData) bean).setCurrency((Currency) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((SecurityEntryData) bean).setMaturityDate((LocalDate) newValue);
+          return;
+        case 42976526:  // factorSetId
+          ((SecurityEntryData) bean).setFactorSetId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

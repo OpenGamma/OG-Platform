@@ -6,26 +6,27 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.FxDigitalOptionTradeSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.TradeSecurityExtractor;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -62,52 +63,6 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
   @Override
   public FxDigitalOptionTrade.Meta metaBean() {
     return FxDigitalOptionTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995205722:  // payout
-        return getPayout();
-      case 1569172439:  // payoutCurrency
-        return getPayoutCurrency();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995205722:  // payout
-        setPayout((BigDecimal) newValue);
-        return;
-      case 1569172439:  // payoutCurrency
-        setPayoutCurrency((Currency) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FxDigitalOptionTrade other = (FxDigitalOptionTrade) obj;
-      return JodaBeanUtils.equal(getPayout(), other.getPayout()) &&
-          JodaBeanUtils.equal(getPayoutCurrency(), other.getPayoutCurrency()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayout());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayoutCurrency());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -158,6 +113,54 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
    */
   public final Property<Currency> payoutCurrency() {
     return metaBean().payoutCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FxDigitalOptionTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FxDigitalOptionTrade other = (FxDigitalOptionTrade) obj;
+      return JodaBeanUtils.equal(getPayout(), other.getPayout()) &&
+          JodaBeanUtils.equal(getPayoutCurrency(), other.getPayoutCurrency()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayout());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayoutCurrency());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("FxDigitalOptionTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("payout").append('=').append(JodaBeanUtils.toString(getPayout())).append(',').append(' ');
+    buf.append("payoutCurrency").append('=').append(JodaBeanUtils.toString(getPayoutCurrency())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -235,6 +238,31 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
      */
     public final MetaProperty<Currency> payoutCurrency() {
       return _payoutCurrency;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995205722:  // payout
+          return ((FxDigitalOptionTrade) bean).getPayout();
+        case 1569172439:  // payoutCurrency
+          return ((FxDigitalOptionTrade) bean).getPayoutCurrency();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995205722:  // payout
+          ((FxDigitalOptionTrade) bean).setPayout((BigDecimal) newValue);
+          return;
+        case 1569172439:  // payoutCurrency
+          ((FxDigitalOptionTrade) bean).setPayoutCurrency((Currency) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

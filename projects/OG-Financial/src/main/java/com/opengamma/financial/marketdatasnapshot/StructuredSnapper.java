@@ -8,6 +8,7 @@ package com.opengamma.financial.marketdatasnapshot;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.cycle.ComputationCacheResponse;
@@ -50,7 +52,7 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
 
   public StructuredSnapper(final String requirementName) {
     super();
-    _requirementName = requirementName.intern();
+    _requirementName = ValueRequirement.getInterned(requirementName);
   }
 
   public String getRequirementName() {
@@ -128,30 +130,20 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
   private Map<String, Collection<ValueSpecification>> getMatchingSpecifications(final Map<String, DependencyGraph> graphs,
       final String specName) {
     final Map<String, Collection<ValueSpecification>> ret = new HashMap<String, Collection<ValueSpecification>>();
-
     for (final Entry<String, DependencyGraph> kvp : graphs.entrySet()) {
       final String config = kvp.getKey();
       final DependencyGraph graph = kvp.getValue();
-
-      final Set<DependencyNode> nodes = graph.getDependencyNodes();
-      final Iterable<Iterable<ValueSpecification>> specs = Iterables.transform(nodes,
-          new Function<DependencyNode, Iterable<ValueSpecification>>() {
-
-            @Override
-            public Iterable<ValueSpecification> apply(final DependencyNode input) {
-              return Iterables.filter(input.getOutputValues(), new Predicate<ValueSpecification>() {
-
-                @Override
-                public boolean apply(final ValueSpecification input) {
-                  return input.getValueName() == _requirementName; // Should be interned
-                }
-              });
-            }
-          });
       final Set<ValueSpecification> specsSet = new HashSet<ValueSpecification>();
-      for (final Iterable<ValueSpecification> group : specs) {
-        for (final ValueSpecification valueSpecification : group) {
-          specsSet.add(valueSpecification);
+      final Iterator<DependencyNode> nodes = graph.nodeIterator();
+      while (nodes.hasNext()) {
+        final DependencyNode node = nodes.next();
+        final int count = node.getOutputCount();
+        for (int i = 0; i < count; i++) {
+          final ValueSpecification output = node.getOutputValue(i);
+          // Value names are interned
+          if (output.getValueName() == _requirementName) {
+            specsSet.add(output);
+          }
         }
       }
       ret.put(config, specsSet);
@@ -162,8 +154,8 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
   protected static ManageableUnstructuredMarketDataSnapshot getUnstructured(final SnapshotDataBundle bundle) {
     final Set<Entry<ExternalIdBundle, Double>> bundlePoints = bundle.getDataPointSet();
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
-    for (final Map.Entry<ExternalIdBundle, Double> bundlePoint : bundle.getDataPointSet()) {
-      snapshot.putValue(bundlePoint.getKey(), MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(bundlePoint.getValue()));
+    for (final Map.Entry<ExternalIdBundle, Double> bundlePoint : bundlePoints) {
+      snapshot.putValue(bundlePoint.getKey(), MarketDataRequirementNames.MARKET_VALUE, ValueSnapshot.of(bundlePoint.getValue()));
     }
     return snapshot;
   }

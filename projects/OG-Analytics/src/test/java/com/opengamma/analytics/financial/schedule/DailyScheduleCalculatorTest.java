@@ -13,11 +13,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.Temporal;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DailyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
   private static final DailyScheduleCalculator CALCULATOR = new DailyScheduleCalculator();
 

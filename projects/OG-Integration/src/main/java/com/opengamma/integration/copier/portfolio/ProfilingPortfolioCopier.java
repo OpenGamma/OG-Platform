@@ -11,8 +11,8 @@ import org.springframework.util.StringUtils;
 import org.threeten.bp.Instant;
 import org.threeten.bp.temporal.ChronoUnit;
 
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -39,15 +39,15 @@ public class ProfilingPortfolioCopier implements PortfolioCopier {
   }
 
   @Override
-  public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter) {
-    copy(portfolioReader, portfolioWriter, null);
+  public void copy(PositionReader positionReader, PositionWriter positionWriter) {
+    copy(positionReader, positionWriter, null);
   }
 
   @Override
-  public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter, PortfolioCopierVisitor visitor) {
+  public void copy(PositionReader positionReader, PositionWriter positionWriter, PortfolioCopierVisitor visitor) {
 
-    ArgumentChecker.notNull(portfolioWriter, "portfolioWriter");
-    ArgumentChecker.notNull(portfolioReader, "portfolioReader");
+    ArgumentChecker.notNull(positionWriter, "positionWriter");
+    ArgumentChecker.notNull(positionReader, "positionReader");
     
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 
@@ -57,7 +57,7 @@ public class ProfilingPortfolioCopier implements PortfolioCopier {
 
       // Read in next row, checking for errors and EOF
       try {
-        next = portfolioReader.readNext();
+        next = positionReader.readNext();
       } catch (Exception e) {
         // skip to next row on uncaught exception while parsing row
         s_logger.error("Unable to parse row", e);
@@ -81,18 +81,18 @@ public class ProfilingPortfolioCopier implements PortfolioCopier {
         // Set current path
         String[] path;
         if (_structure == null) {
-          path = portfolioReader.getCurrentPath();
+          path = positionReader.getCurrentPath();
         } else {
           path = new String[_structure.length];
           for (int i = 0; i < _structure.length; i++) {
             path[i] = position.getAttributes().get(_structure[i]);
           }
         }
-        portfolioWriter.setPath(path);
+        positionWriter.setPath(path);
 
         // Write position and security data
         ObjectsPair<ManageablePosition, ManageableSecurity[]> written =
-            portfolioWriter.writePosition(position, securities);
+            positionWriter.writePosition(position, securities);
         
         if (visitor != null && written != null) {
           visitor.info(StringUtils.arrayToDelimitedString(path, "/"), written.getFirst(), written.getSecond());

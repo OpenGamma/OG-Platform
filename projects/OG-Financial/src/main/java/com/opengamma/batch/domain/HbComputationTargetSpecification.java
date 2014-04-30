@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -103,72 +104,6 @@ public class HbComputationTargetSpecification extends DirectBean {
   @Override
   public HbComputationTargetSpecification.Meta metaBean() {
     return HbComputationTargetSpecification.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 3575610:  // type
-        return getType();
-      case -1680381419:  // uidScheme
-        return getUidScheme();
-      case -605679871:  // uidValue
-        return getUidValue();
-      case -2117765528:  // uidVersion
-        return getUidVersion();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case 3575610:  // type
-        setType((ComputationTargetType) newValue);
-        return;
-      case -1680381419:  // uidScheme
-        setUidScheme((String) newValue);
-        return;
-      case -605679871:  // uidValue
-        setUidValue((String) newValue);
-        return;
-      case -2117765528:  // uidVersion
-        setUidVersion((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HbComputationTargetSpecification other = (HbComputationTargetSpecification) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getUidScheme(), other.getUidScheme()) &&
-          JodaBeanUtils.equal(getUidValue(), other.getUidValue()) &&
-          JodaBeanUtils.equal(getUidVersion(), other.getUidVersion());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUidScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUidValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUidVersion());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -297,6 +232,60 @@ public class HbComputationTargetSpecification extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HbComputationTargetSpecification clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HbComputationTargetSpecification other = (HbComputationTargetSpecification) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getUidScheme(), other.getUidScheme()) &&
+          JodaBeanUtils.equal(getUidValue(), other.getUidValue()) &&
+          JodaBeanUtils.equal(getUidVersion(), other.getUidVersion());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUidScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUidValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUidVersion());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("HbComputationTargetSpecification{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("uidScheme").append('=').append(JodaBeanUtils.toString(getUidScheme())).append(',').append(' ');
+    buf.append("uidValue").append('=').append(JodaBeanUtils.toString(getUidValue())).append(',').append(' ');
+    buf.append("uidVersion").append('=').append(JodaBeanUtils.toString(getUidVersion())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HbComputationTargetSpecification}.
    */
@@ -419,6 +408,46 @@ public class HbComputationTargetSpecification extends DirectBean {
      */
     public final MetaProperty<String> uidVersion() {
       return _uidVersion;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((HbComputationTargetSpecification) bean).getId();
+        case 3575610:  // type
+          return ((HbComputationTargetSpecification) bean).getType();
+        case -1680381419:  // uidScheme
+          return ((HbComputationTargetSpecification) bean).getUidScheme();
+        case -605679871:  // uidValue
+          return ((HbComputationTargetSpecification) bean).getUidValue();
+        case -2117765528:  // uidVersion
+          return ((HbComputationTargetSpecification) bean).getUidVersion();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((HbComputationTargetSpecification) bean).setId((Long) newValue);
+          return;
+        case 3575610:  // type
+          ((HbComputationTargetSpecification) bean).setType((ComputationTargetType) newValue);
+          return;
+        case -1680381419:  // uidScheme
+          ((HbComputationTargetSpecification) bean).setUidScheme((String) newValue);
+          return;
+        case -605679871:  // uidValue
+          ((HbComputationTargetSpecification) bean).setUidValue((String) newValue);
+          return;
+        case -2117765528:  // uidVersion
+          ((HbComputationTargetSpecification) bean).setUidVersion((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

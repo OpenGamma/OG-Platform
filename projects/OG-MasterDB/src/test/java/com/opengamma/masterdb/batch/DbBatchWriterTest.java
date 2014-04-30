@@ -43,9 +43,7 @@ import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.calcnode.InvocationResult;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -150,6 +148,11 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
       @Override
       public UniqueId getViewDefinitionId() {
         return UniqueId.of("viewdef", "viewdef", "viewdef");
+      }
+
+      @Override
+      public String getName() {
+        return "cycle_name";
       }
 
     };
@@ -279,6 +282,7 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
     assertNotNull(run2.getStartInstant());
     assertNull(run2.getEndInstant());
     assertNotNull(run2.getMarketData());
+    assertNotNull(run2.getName());
 
     // Map<String, String> props = run2.getPropertiesMap();
     //assertEquals(10, props.size());

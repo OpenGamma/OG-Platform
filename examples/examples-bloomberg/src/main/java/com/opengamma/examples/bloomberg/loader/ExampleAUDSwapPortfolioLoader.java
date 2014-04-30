@@ -15,9 +15,9 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -37,6 +37,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -49,6 +50,7 @@ import com.opengamma.util.time.DateUtils;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolContext> {
+
   /** The trade date */
   private static final ZonedDateTime TRADE_DATE = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
   /** The maturity */
@@ -56,9 +58,9 @@ public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolC
   /** The counterparty */
   private static final String COUNTERPARTY = "Cpty";
   /** Act/365 day-count */
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Act/365");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
   /** Act/360 day-count */
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
   /** Quarterly frequency */
   private static final Frequency QUARTERLY = PeriodFrequency.QUARTERLY;
   /** Semi-annual frequency */
@@ -66,7 +68,7 @@ public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolC
   /** The region */
   private static final ExternalId REGION =  ExternalSchemes.financialRegionId("AU");
   /** Following business day convention */
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** The notional */
   private static final InterestRateNotional NOTIONAL = new InterestRateNotional(Currency.AUD, 15000000);
   /** 3m Libor ticker */
@@ -78,16 +80,25 @@ public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolC
   /** The portfolio name */
   public static final String PORTFOLIO_NAME = "AUD Swap Portfolio";
 
+  //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   * @param args The arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
-    new ExampleAUDSwapPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    try {
+      boolean success =
+          new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class) &&
+          new ExampleAUDSwapPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
+      ShutdownUtils.exit(success ? 0 : -1);
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     final FloatingInterestRateLeg payLeg1 = new FloatingInterestRateLeg(ACT_365, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, AUD_LIBOR_3M, FloatingRateType.IBOR);

@@ -12,6 +12,8 @@ import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureD
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -34,6 +36,9 @@ public class MarkToMarketSpotFuturesFunction extends MarkToMarketFuturesFunction
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+    if (requirements == null) {
+      return null;
+    }
     final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
     final ValueRequirement spotAssetRequirement = getSpotAssetRequirement(security);
     if (spotAssetRequirement != null) {
@@ -49,5 +54,13 @@ public class MarkToMarketSpotFuturesFunction extends MarkToMarketFuturesFunction
     final Double spotUnderlyer = getSpot(inputs);
     return new SimpleFutureDataBundle(null, marketPrice, spotUnderlyer, null, null);
   }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    return super.createValueProperties(target)
+        .withoutAny(ValuePropertyNames.CURRENCY);
+  }
+
+
 }
 

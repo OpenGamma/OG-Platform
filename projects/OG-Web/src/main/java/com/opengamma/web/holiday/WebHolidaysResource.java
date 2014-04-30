@@ -114,6 +114,8 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       ExternalId id = ExternalId.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
       if (HolidayType.BANK.name().equals(type)) {
         searchRequest.addRegionExternalId(id);
+      } else if (HolidayType.CUSTOM.name().equals(type)) {
+        searchRequest.addCustomExternalId(id);
       } else { // assume settlement/trading
         searchRequest.addExchangeExternalId(id);
       }
@@ -153,7 +155,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       HolidayHistoryResult historyResult = data().getHolidayMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setHoliday(historyResult.getFirstDocument());
     }

@@ -72,5 +72,4 @@ public class EquityOptionBAWImpliedVolatilityFunction extends EquityOptionBAWFun
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
   }
-
 }

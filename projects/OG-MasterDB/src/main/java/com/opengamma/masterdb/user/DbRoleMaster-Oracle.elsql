@@ -1,0 +1,32 @@
+-- SQL for role master on Oracle11g
+
+-- ==========================================================================
+@NAME(GetResolvedRoles)
+  WITH cte_perms (id, role_name, assoc_role) AS (
+    SELECT
+      main.id AS id,
+      main.role_name,
+      ar.assoc_role AS assoc_role
+    FROM
+      usr_role main
+      LEFT JOIN usr_role_assocrole ar on (ar.role_id = main.id)
+    WHERE
+      main.id IN (@INCLUDE(GetResolvedRolesUser))
+    UNION ALL
+      SELECT
+        main.id AS id,
+        main.role_name,
+        ar.assoc_role AS assoc_role
+      FROM cte_perms,
+        usr_role main
+        LEFT JOIN usr_role_assocrole ar on (ar.role_id = main.id)
+      WHERE
+        main.role_name_ci = cte_perms.assoc_role
+  )
+  SELECT
+    DISTINCT role_name,
+    ap.assoc_perm AS assoc_perm
+  FROM
+    cte_perms main
+    LEFT JOIN usr_role_assocperm ap on (ap.role_id = main.id)
+

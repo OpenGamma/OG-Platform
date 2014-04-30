@@ -6,20 +6,29 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.ObjectUtils;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -35,7 +44,21 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   /**
    * A map with issuer discounting curves.
    */
-  private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
+  private final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
+
+  /**
+   * The set of names of all curves used in the inflation provider.
+   */
+  private Set<String> _inflationNames;
+  /**
+   * The set of all curves names. If contains the names of the inflation provider curves names and the issuer curves names.
+   */
+  private final Set<String> _allNames = new TreeSet<>();
+  /**
+   * The map between the curves names and the curves themselves.
+   */
+  //TODO these aren't the best names
+  private final Map<String, YieldAndDiscountCurve> _issuerCurvesNames = new LinkedHashMap<>();
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
@@ -43,6 +66,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public InflationIssuerProviderDiscount() {
     _inflationProvider = new InflationProviderDiscount();
     _issuerCurves = new LinkedHashMap<>();
+    setAllCurves();
   }
 
   /**
@@ -52,6 +76,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public InflationIssuerProviderDiscount(final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(fxMatrix);
     _issuerCurves = new LinkedHashMap<>();
+    setAllCurves();
   }
 
   /**
@@ -64,10 +89,11 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param fxMatrix The FXMatrix.
    */
   public InflationIssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves,
-      final FXMatrix fxMatrix) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves,
+      final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, priceIndexCurves, fxMatrix);
     _issuerCurves = issuerCurves;
+    setAllCurves();
   }
 
   /**
@@ -75,16 +101,55 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param inflation The inflation provider.
    * @param issuerCurves A map with issuer discounting curves.
    */
-  public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
+  public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     _inflationProvider = inflation;
     _issuerCurves = issuerCurves;
+    setAllCurves();
+  }
+
+  /**
+   * Constructor from exiting multicurveProvider and inflation map. The given provider and map are used for the new provider (the same maps are used, not copied).
+   * @param inflation The inflation provider.
+   * @param issuerProvider A map with issuer discounting curves.
+   */
+  public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final IssuerProviderDiscount issuerProvider) {
+    _inflationProvider = inflation;
+    _issuerCurves = issuerProvider.getIssuerCurves();
+    setAllCurves();
+  }
+
+  /**
+   * Constructor from exiting issuerProvider. The given provider and map are used for the new provider (the same maps are used, not copied).
+   * @param issuerProvider A map with issuer discounting curves.
+   */
+  public InflationIssuerProviderDiscount(final IssuerProviderDiscount issuerProvider) {
+    _inflationProvider = new InflationProviderDiscount();
+    _inflationProvider.setAll(new InflationProviderDiscount(issuerProvider.getMulticurveProvider()));
+    _issuerCurves = issuerProvider.getIssuerCurves();
+    setAllCurves();
   }
 
   @Override
   public InflationIssuerProviderDiscount copy() {
     final InflationProviderDiscount inflationProvider = _inflationProvider.copy();
-    final LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<>(_issuerCurves);
+    final LinkedHashMap<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<>(_issuerCurves);
     return new InflationIssuerProviderDiscount(inflationProvider, issuerCurves);
+  }
+
+  /**
+   * Sets all curves.
+   */
+  protected void setAllCurves() {
+    _inflationNames = _inflationProvider.getAllCurveNames();
+    _allNames.addAll(_inflationNames);
+    _allNames.addAll(_inflationProvider.getMulticurveProvider().getAllCurveNames());
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getValue() == null) {
+        throw new OpenGammaRuntimeException("Curve with key " + entry.getValue() + " was null");
+      }
+      _allNames.add(entry.getValue().getName());
+      _issuerCurvesNames.put(entry.getValue().getName(), entry.getValue());
+    }
   }
 
   /**
@@ -92,26 +157,23 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param issuerCcy The issuer/currency pair.
    * @param curve The curve.
    */
-  public void setCurve(final Pair<String, Currency> issuerCcy, final YieldAndDiscountCurve curve) {
+  public void setCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(issuerCcy, "Name-currency");
     ArgumentChecker.notNull(curve, "curve");
     if (_issuerCurves.containsKey(issuerCcy)) {
       throw new IllegalArgumentException("Issuer/currency curve already set: " + issuerCcy.toString());
     }
     _issuerCurves.put(issuerCcy, curve);
-  }
-
-  public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
-    setCurve(new ObjectsPair<>(issuer, ccy), curve);
+    setAllCurves();
   }
 
   @Override
-  public double getDiscountFactor(final Pair<String, Currency> issuerCcy, final Double time) {
+  public double getDiscountFactor(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final Double time) {
     return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
   }
 
   @Override
-  public Set<Pair<String, Currency>> getIssuersCcy() {
+  public Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers() {
     return _issuerCurves.keySet();
   }
 
@@ -125,8 +187,71 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     return _inflationProvider;
   }
 
-  public YieldAndDiscountCurve getCurve(final Pair<String, Currency> issuerCcy) {
-    return _issuerCurves.get(issuerCcy);
+  /**
+   * Gets the curve for an identifier / filter pair.
+   * @param issuer The issuer
+   * @return The curve, null if not found
+   */
+  public YieldAndDiscountCurve getCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> issuer) {
+    return _issuerCurves.get(issuer);
+  }
+
+  /**
+   * Gets the curve for an issuer.
+   * @param issuer The issuer
+   * @return The curve, null if not found
+   */
+  public YieldAndDiscountCurve getCurve(final LegalEntity issuer) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(issuer))) {
+        return entry.getValue();
+      }
+    }
+    throw new IllegalArgumentException("Could not get curve for " + issuer);
+  }
+
+  /**
+   * Gets the curve(with a name) for an issuer .
+   * @param name The name
+   * @return The curve, null if not found
+   */
+  public YieldAndDiscountCurve getCurve(final String name) {
+    for (final Entry<String, YieldAndDiscountCurve> entry : _issuerCurvesNames.entrySet()) {
+      if (entry.getKey().equals(name)) {
+        return entry.getValue();
+      }
+    }
+    throw new IllegalArgumentException("Could not get curve for " + name);
+  }
+
+  @Override
+  public Integer getNumberOfParameters(final String name) {
+    final PriceIndexCurve inflationCurve = _inflationProvider.getCurve(name);
+    final YieldAndDiscountCurve curve = _inflationProvider.getMulticurveProvider().getCurve(name);
+    final YieldAndDiscountCurve issuerCurve = _issuerCurvesNames.get(name);
+    if (inflationCurve != null) {
+      return inflationCurve.getNumberOfParameters();
+    } else if (curve != null) {
+      return curve.getNumberOfParameters();
+    } else if (issuerCurve != null) {
+      return issuerCurve.getNumberOfParameters();
+    }
+    throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames(final String name) {
+    final PriceIndexCurve inflationCurve = _inflationProvider.getCurve(name);
+    final YieldAndDiscountCurve curve = _inflationProvider.getMulticurveProvider().getCurve(name);
+    final YieldAndDiscountCurve issuerCurve = _issuerCurvesNames.get(name);
+    if (inflationCurve != null) {
+      return inflationCurve.getUnderlyingCurvesNames();
+    } else if (curve != null) {
+      return curve.getUnderlyingCurvesNames();
+    } else if (issuerCurve != null) {
+      return issuerCurve.getUnderlyingCurvesNames();
+    }
+    throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
   }
 
   //     =====     Methods related to InflationProvider     =====
@@ -162,6 +287,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    */
   public void setCurve(final IndexPrice index, final PriceIndexCurve curve) {
     _inflationProvider.setCurve(index, curve);
+    setAllCurves();
   }
 
   /**
@@ -255,6 +381,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    */
   public void setCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     _inflationProvider.setCurve(ccy, curve);
+    setAllCurves();
   }
 
   /**
@@ -264,6 +391,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    */
   public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _inflationProvider.setCurve(index, curve);
+    setAllCurves();
   }
 
   /**
@@ -273,6 +401,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    */
   public void setCurve(final IndexON index, final YieldAndDiscountCurve curve) {
     _inflationProvider.setCurve(index, curve);
+    setAllCurves();
   }
 
   /**
@@ -312,14 +441,16 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   //     =====     Methods related to All     =====
 
   @Override
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   */
   public Set<String> getAllNames() {
+    return getAllCurveNames();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
     final Set<String> names = new TreeSet<>();
     names.addAll(_inflationProvider.getAllNames());
-    final Set<Pair<String, Currency>> issuerSet = _issuerCurves.keySet();
-    for (final Pair<String, Currency> issuer : issuerSet) {
+    final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerSet = _issuerCurves.keySet();
+    for (final Pair<Object, LegalEntityFilter<LegalEntity>> issuer : issuerSet) {
       names.add(_issuerCurves.get(issuer).getName());
     }
     return names;
@@ -328,8 +459,8 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   /**
    * Set all the curves contains in another bundle. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other bundle.
-   * TODO: REVIEW: Should we check that the curve are already present?
    */
+  //  * TODO: REVIEW: Should we check that the curve are already present?
   public void setAll(final InflationIssuerProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     _inflationProvider.setAll(other.getInflationProvider());
@@ -339,8 +470,99 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   //     =====     Convenience methods     =====
 
   @Override
-  public InflationProviderInterface withDiscountFactor(final Currency ccy, final Pair<String, Currency> replacement) {
+  public InflationProviderInterface withDiscountFactor(final Currency ccy, final Pair<Object, LegalEntityFilter<LegalEntity>> replacement) {
     return _inflationProvider.withDiscountFactor(ccy, _issuerCurves.get(replacement));
+  }
+
+  @Override
+  public InflationProviderInterface withDiscountFactor(final Currency ccy, final LegalEntity replacement) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(replacement))) {
+        return _inflationProvider.withDiscountFactor(ccy, entry.getValue());
+      }
+    }
+    throw new IllegalArgumentException("Issuer discounting curve not found: " + replacement);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _inflationProvider.hashCode();
+    result = prime * result + _issuerCurves.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof InflationIssuerProviderDiscount)) {
+      return false;
+    }
+    final InflationIssuerProviderDiscount other = (InflationIssuerProviderDiscount) obj;
+    if (!ObjectUtils.equals(_inflationProvider, other._inflationProvider)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_issuerCurves, other._issuerCurves)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public IssuerProviderDiscount getIssuerProvider() {
+    return new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    if (_inflationProvider.getMulticurveProvider().getAllNames().contains(name)) {
+      return _inflationProvider.parameterSensitivity(name, pointSensitivity);
+    }
+    final YieldAndDiscountCurve curve = _issuerCurvesNames.get(name);
+    if (curve == null) {
+      throw new IllegalArgumentException("Could not get curve called " + name);
+    }
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && !pointSensitivity.isEmpty()) {
+      for (final DoublesPair timeAndS : pointSensitivity) {
+        final double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
+        }
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _inflationProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    final YieldAndDiscountCurve curve = _issuerCurvesNames.get(name);
+    if (curve == null) {
+      return _inflationProvider.parameterInflationSensitivity(name, pointSensitivity);
+    }
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final DoublesPair timeAndS : pointSensitivity) {
+        final double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
+        }
+      }
+    }
+    return result;
   }
 
 }

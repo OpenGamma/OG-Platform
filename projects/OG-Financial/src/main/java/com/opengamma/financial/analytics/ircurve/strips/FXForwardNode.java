@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve.strips;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -60,6 +61,7 @@ public class FXForwardNode extends CurveNode {
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _receiveCurrency;
+
   /**
    * Used by the fudge builder.
    */
@@ -131,83 +133,6 @@ public class FXForwardNode extends CurveNode {
   @Override
   public FXForwardNode.Meta metaBean() {
     return FXForwardNode.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1583746178:  // startTenor
-        return getStartTenor();
-      case 45907375:  // maturityTenor
-        return getMaturityTenor();
-      case -616625820:  // fxForwardConvention
-        return getFxForwardConvention();
-      case -295641895:  // payCurrency
-        return getPayCurrency();
-      case -1228590060:  // receiveCurrency
-        return getReceiveCurrency();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1583746178:  // startTenor
-        setStartTenor((Tenor) newValue);
-        return;
-      case 45907375:  // maturityTenor
-        setMaturityTenor((Tenor) newValue);
-        return;
-      case -616625820:  // fxForwardConvention
-        setFxForwardConvention((ExternalId) newValue);
-        return;
-      case -295641895:  // payCurrency
-        setPayCurrency((Currency) newValue);
-        return;
-      case -1228590060:  // receiveCurrency
-        setReceiveCurrency((Currency) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_startTenor, "startTenor");
-    JodaBeanUtils.notNull(_maturityTenor, "maturityTenor");
-    JodaBeanUtils.notNull(_fxForwardConvention, "fxForwardConvention");
-    JodaBeanUtils.notNull(_payCurrency, "payCurrency");
-    JodaBeanUtils.notNull(_receiveCurrency, "receiveCurrency");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FXForwardNode other = (FXForwardNode) obj;
-      return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
-          JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
-          JodaBeanUtils.equal(getFxForwardConvention(), other.getFxForwardConvention()) &&
-          JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
-          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFxForwardConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -341,6 +266,63 @@ public class FXForwardNode extends CurveNode {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FXForwardNode clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXForwardNode other = (FXForwardNode) obj;
+      return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
+          JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
+          JodaBeanUtils.equal(getFxForwardConvention(), other.getFxForwardConvention()) &&
+          JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
+          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFxForwardConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("FXForwardNode{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
+    buf.append("fxForwardConvention").append('=').append(JodaBeanUtils.toString(getFxForwardConvention())).append(',').append(' ');
+    buf.append("payCurrency").append('=').append(JodaBeanUtils.toString(getPayCurrency())).append(',').append(' ');
+    buf.append("receiveCurrency").append('=').append(JodaBeanUtils.toString(getReceiveCurrency())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FXForwardNode}.
    */
@@ -463,6 +445,56 @@ public class FXForwardNode extends CurveNode {
      */
     public final MetaProperty<Currency> receiveCurrency() {
       return _receiveCurrency;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1583746178:  // startTenor
+          return ((FXForwardNode) bean).getStartTenor();
+        case 45907375:  // maturityTenor
+          return ((FXForwardNode) bean).getMaturityTenor();
+        case -616625820:  // fxForwardConvention
+          return ((FXForwardNode) bean).getFxForwardConvention();
+        case -295641895:  // payCurrency
+          return ((FXForwardNode) bean).getPayCurrency();
+        case -1228590060:  // receiveCurrency
+          return ((FXForwardNode) bean).getReceiveCurrency();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1583746178:  // startTenor
+          ((FXForwardNode) bean).setStartTenor((Tenor) newValue);
+          return;
+        case 45907375:  // maturityTenor
+          ((FXForwardNode) bean).setMaturityTenor((Tenor) newValue);
+          return;
+        case -616625820:  // fxForwardConvention
+          ((FXForwardNode) bean).setFxForwardConvention((ExternalId) newValue);
+          return;
+        case -295641895:  // payCurrency
+          ((FXForwardNode) bean).setPayCurrency((Currency) newValue);
+          return;
+        case -1228590060:  // receiveCurrency
+          ((FXForwardNode) bean).setReceiveCurrency((Currency) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FXForwardNode) bean)._startTenor, "startTenor");
+      JodaBeanUtils.notNull(((FXForwardNode) bean)._maturityTenor, "maturityTenor");
+      JodaBeanUtils.notNull(((FXForwardNode) bean)._fxForwardConvention, "fxForwardConvention");
+      JodaBeanUtils.notNull(((FXForwardNode) bean)._payCurrency, "payCurrency");
+      JodaBeanUtils.notNull(((FXForwardNode) bean)._receiveCurrency, "receiveCurrency");
+      super.validate(bean);
     }
 
   }

@@ -13,15 +13,20 @@ import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 
 /**
- * Calculates a weighted volatility series from a series of absolute returns.
+ * Calculates a weighted volatility series from a series of absolute or relative returns.
  */
-public class TimeSeriesWeightedVolatilityOperator extends Function1D<DateDoubleTimeSeries<?>, DateDoubleTimeSeries<?>> {
+public final class TimeSeriesWeightedVolatilityOperator extends Function1D<DateDoubleTimeSeries<?>, DateDoubleTimeSeries<?>> {
 
   private static final TimeSeriesPercentageChangeOperator PERCENTAGE_CHANGE = new TimeSeriesPercentageChangeOperator();
+  private static final TimeSeriesDifferenceOperator ABSOLUTE_CHANGE = new TimeSeriesDifferenceOperator();
+  
+  private final Function1D<DateDoubleTimeSeries<?>, DateDoubleTimeSeries<?>> _changeOperator;
   
   private final double _lambda;
   
-  public TimeSeriesWeightedVolatilityOperator(double lambda) {
+  private TimeSeriesWeightedVolatilityOperator(Function1D<DateDoubleTimeSeries<?>, DateDoubleTimeSeries<?>> changeOperator, 
+                                               double lambda) {
+    _changeOperator = changeOperator;
     if (lambda <= 0 || lambda > 1) {
       throw new OpenGammaRuntimeException("lambda must be in the range (0, 1]");
     }
@@ -32,7 +37,7 @@ public class TimeSeriesWeightedVolatilityOperator extends Function1D<DateDoubleT
   public DateDoubleTimeSeries<?> evaluate(DateDoubleTimeSeries<?> ts) {
     Validate.notNull(ts, "time series");
     Validate.isTrue(ts.size() > 1, "time series length must be > 1");
-    DateDoubleTimeSeries<?> percentageChangeSeries = PERCENTAGE_CHANGE.evaluate(ts);
+    DateDoubleTimeSeries<?> percentageChangeSeries = _changeOperator.evaluate(ts);
     int n = percentageChangeSeries.size();
     double[] weightedVariances = new double[n];
     double[] weightedVolatilities = new double[n];
@@ -46,6 +51,24 @@ public class TimeSeriesWeightedVolatilityOperator extends Function1D<DateDoubleT
     }
     
     return ImmutableLocalDateDoubleTimeSeries.of(percentageChangeSeries.timesArrayFast(), weightedVolatilities);
+  }
+  
+  /**
+   * Calculates weighted volatilities using the relative difference series
+   * @param lambda lambda value to apply
+   * @return a TimeSeriesWeightedVolatilityOperator instance
+   */
+  public static TimeSeriesWeightedVolatilityOperator relative(double lambda) {
+    return new TimeSeriesWeightedVolatilityOperator(PERCENTAGE_CHANGE, lambda);
+  }
+
+  /**
+   * Calculates weighted volatilities using the absolute difference series
+   * @param lambda lambda value to apply
+   * @return a TimeSeriesWeightedVolatilityOperator instance
+   */
+  public static TimeSeriesWeightedVolatilityOperator absolute(double lambda) {
+    return new TimeSeriesWeightedVolatilityOperator(ABSOLUTE_CHANGE, lambda);
   }
 
 }

@@ -23,9 +23,9 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -232,8 +232,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
   }
 
   private BusinessDayConvention businessDayConvention() {
-    return select(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"));
+    return select(BusinessDayConventions.FOLLOWING, BusinessDayConventions.MODIFIED_FOLLOWING, BusinessDayConventions.NONE);
   }
 
   private Currency currency() {
@@ -249,7 +248,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
   }
 
   private DayCount dayCount() {
-    return select(DayCountFactory.INSTANCE.getDayCount("Act/Act"), DayCountFactory.INSTANCE.getDayCount("30/360"));
+    return select(DayCounts.ACT_ACT_ISDA, DayCounts.THIRTY_U_360);
   }
 
   @SuppressWarnings("unchecked")
@@ -335,10 +334,20 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final ExerciseType exerciseType = exerciseType();
     final ExternalId underlyingIdentifier = createBondFutureSecurity().getExternalIdBundle().getExternalId(_security);
     final double pointValue = 1000;
+    final boolean isMargined = false;
     final Currency currency = currency();
     final double strike = 1.25;
     final OptionType optionType = optionType();
-    final BondFutureOptionSecurity security = new BondFutureOptionSecurity(tradingExchange, settlementExchange, expiry, exerciseType, underlyingIdentifier, pointValue, currency, strike, optionType);
+    final BondFutureOptionSecurity security = new BondFutureOptionSecurity(tradingExchange,
+                                                                           settlementExchange,
+                                                                           expiry,
+                                                                           exerciseType,
+                                                                           underlyingIdentifier,
+                                                                           pointValue,
+                                                                           isMargined,
+                                                                           currency,
+                                                                           strike,
+                                                                           optionType);
     store(security);
     return security;
   }

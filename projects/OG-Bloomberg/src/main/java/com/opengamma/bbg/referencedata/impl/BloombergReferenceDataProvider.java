@@ -19,17 +19,18 @@ import static com.opengamma.bbg.BloombergConstants.SECURITY_DATA;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_ERROR;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.Lifecycle;
 
-import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
 import com.google.common.base.CharMatcher;
@@ -56,68 +57,74 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
   /**
    * Implementation class.
    */
-  private final BloombergReferenceDataProviderImpl _impl;
+  private final BloombergReferenceDataRequestService _refDataService;
 
   /**
    * Creates an instance.
    * <p>
    * This will use the statistics tool in the connector.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param bloombergConnector the bloomberg connector, not null
    */
   public BloombergReferenceDataProvider(BloombergConnector bloombergConnector) {
-    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
+    this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics());
   }
 
   /**
    * Creates an instance with statistics gathering.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
-   * @param statistics  the statistics to collect, not null
+   * @param bloombergConnector the Bloomberg connector, not null
+   * @param statistics the statistics to collect, not null
    */
   public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
-    _impl = new BloombergReferenceDataProviderImpl(bloombergConnector, statistics);
+    _refDataService = new BloombergReferenceDataRequestService(bloombergConnector, statistics);
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
-    return _impl.doBulkGet(request);
+    return _refDataService.doBulkGet(request);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void start() {
-    _impl.start();
+    _refDataService.start();
   }
 
   @Override
   public void stop() {
-    _impl.stop();
+    _refDataService.stop();
   }
 
   @Override
   public boolean isRunning() {
-    return _impl.isRunning();
+    return _refDataService.isRunning();
   }
 
   //-------------------------------------------------------------------------
   /**
    * Loads reference-data from Bloomberg.
    */
-  static class BloombergReferenceDataProviderImpl extends AbstractBloombergStaticDataProvider {
-
+  static class BloombergReferenceDataRequestService extends AbstractBloombergStaticDataProvider {
     /**
      * Bloomberg statistics.
      */
     private final BloombergReferenceDataStatistics _statistics;
 
+    BloombergReferenceDataRequestService(BloombergConnector bloombergConnector) {
+      this(ArgumentChecker.notNull(bloombergConnector, "bloombergConnector"), bloombergConnector.getReferenceDataStatistics());
+    }
+
     /**
      * Creates an instance.
      * 
-     * @param provider  the provider, not null
+     * @param bloombergConnector the bloomberg connector, not null
+     * @param statistics the bloomberg reference data statistics, not null
+     * @param applicationName the bpipe application name if applicable
+     * @param reAuthorizationScheduleTime the identity re authorization schedule time in hours
      */
-    public BloombergReferenceDataProviderImpl(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+    BloombergReferenceDataRequestService(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
       super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
       ArgumentChecker.notNull(statistics, "statistics");
       _statistics = statistics;
@@ -133,7 +140,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Get reference-data from Bloomberg.
      * 
-     * @param request  the request, not null
+     * @param request the request, not null
      * @return the reference-data result, not null
      */
     ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
@@ -141,24 +148,31 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       Set<String> dataFields = request.getFields();
       validateIdentifiers(identifiers);
       validateFields(dataFields);
-      
+
       ensureStarted();
-      s_logger.debug("Getting reference data for {}, fields {}", identifiers, dataFields);
-      
+      getLogger().debug("Getting reference data for {}, fields {}", identifiers, dataFields);
+
       Request bbgRequest = createRequest(identifiers, dataFields);
       _statistics.recordStatistics(identifiers, dataFields);
-      BlockingQueue<Element> resultElements = callBloomberg(bbgRequest);
-      if (resultElements == null || resultElements.isEmpty()) {
-        throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + dataFields + " fields for " + identifiers);
+      ReferenceDataProviderGetResult result = new ReferenceDataProviderGetResult();
+      try {
+        List<Element> resultElements = submitRequest(bbgRequest).get();
+        if (resultElements == null || resultElements.isEmpty()) {
+          getLogger().warn("Unable to get a Bloomberg response for {} fields for {}", dataFields, identifiers);
+        } else {
+          result = parse(identifiers, dataFields, resultElements);
+        }
+      } catch (InterruptedException | ExecutionException ex) {
+        getLogger().warn(String.format("Unable to get a Bloomberg response fields:[%s] for security[%s]", dataFields, identifiers), ex);
       }
-      return parse(identifiers, dataFields, resultElements);
+      return result;
     }
 
     //-------------------------------------------------------------------------
     /**
      * Checks that all the identifiers are valid.
      * 
-     * @param identifiers  the set of identifiers, not null
+     * @param identifiers the set of identifiers, not null
      */
     private void validateIdentifiers(Set<String> identifiers) {
       Set<String> excluded = new HashSet<String>();
@@ -173,7 +187,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       }
       if (excluded.size() > 0) {
         String message = MessageFormatter.format("Request contains invalid identifiers {} from ({})", excluded, identifiers).getMessage();
-        s_logger.error(message);
+        getLogger().error(message);
         throw new OpenGammaRuntimeException(message);
       }
     }
@@ -181,7 +195,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Checks that all the fields are valid.
      * 
-     * @param fields  the set of fields, not null
+     * @param fields the set of fields, not null
      */
     private void validateFields(Set<String> fields) {
       Set<String> excluded = new HashSet<String>();
@@ -195,7 +209,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       }
       if (excluded.size() > 0) {
         String message = MessageFormatter.format("Request contains invalid fields {} from ({})", excluded, fields).getMessage();
-        s_logger.error(message);
+        getLogger().error(message);
         throw new OpenGammaRuntimeException(message);
       }
     }
@@ -203,12 +217,16 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     //-------------------------------------------------------------------------
     /**
      * Creates the Bloomberg request.
+     * 
+     * @param identifiers the identifiers, not null
+     * @param dataFields the datafields, not null
+     * @return the bloomberg request, not null
      */
-    private Request createRequest(Set<String> identifiers, Set<String> dataFields) {
+    protected Request createRequest(Set<String> identifiers, Set<String> dataFields) {
       // create request
       Request request = getService().createRequest(BLOOMBERG_REFERENCE_DATA_REQUEST);
       Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
-      
+
       // identifiers
       for (String identifier : identifiers) {
         if (StringUtils.isEmpty(identifier)) {
@@ -216,7 +234,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
         }
         securitiesElem.appendValue(identifier);
       }
-      
+
       // fields
       Element fieldElem = request.getElement(BLOOMBERG_FIELDS_REQUEST);
       for (String dataField : dataFields) {
@@ -227,47 +245,32 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
           fieldElem.appendValue(dataField);
         }
       }
-      if (dataFields.contains(BloombergConstants.FIELD_EID_DATA)) {
-        request.set("returnEids", true);
-      }
+      request.set("returnEids", true);
       return request;
     }
 
-    //-------------------------------------------------------------------------
-    /**
-     * Call Bloomberg.
-     * 
-     * @param request  the request, not null
-     * @return the response, may be null
-     */
-    private BlockingQueue<Element> callBloomberg(Request request) {
-      CorrelationID cid = submitBloombergRequest(request);
-      return getResultElement(cid);
-    }
-
-    //-------------------------------------------------------------------------
     /**
      * Performs the main work to parse the result from Bloomberg.
      * <p>
      * This is part of {@link #getFields(Set, Set)}.
      * 
-     * @param securityKeys  the set of securities, not null
-     * @param fields  the set of fields, not null
-     * @param resultElements  the result elements from Bloomberg, not null
+     * @param securityKeys the set of securities, not null
+     * @param fields the set of fields, not null
+     * @param resultElements the result elements from Bloomberg, not null
      * @return the parsed result, not null
      */
-    protected ReferenceDataProviderGetResult parse(Set<String> securityKeys, Set<String> fields, BlockingQueue<Element> resultElements) {
+    protected ReferenceDataProviderGetResult parse(Set<String> securityKeys, Set<String> fields, List<Element> resultElements) {
       ReferenceDataProviderGetResult result = new ReferenceDataProviderGetResult();
       for (Element resultElem : resultElements) {
         if (resultElem.hasElement(RESPONSE_ERROR)) {
           Element responseError = resultElem.getElement(RESPONSE_ERROR);
           String category = responseError.getElementAsString(BloombergConstants.CATEGORY);
           if ("LIMIT".equals(category)) {
-            s_logger.error("Limit reached {}", responseError);
+            getLogger().error("Limit reached {}", responseError);
           }
           throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securityKeys + ": " + responseError);
         }
-        
+
         Element securityDataArray = resultElem.getElement(SECURITY_DATA);
         int numSecurities = securityDataArray.numValues();
         for (int iSecurityElem = 0; iSecurityElem < numSecurities; iSecurityElem++) {
@@ -275,16 +278,19 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
           String securityKey = securityElem.getElementAsString(SECURITY);
           ReferenceData refData = new ReferenceData(securityKey);
           if (securityElem.hasElement(SECURITY_ERROR)) {
-            parseIdentifierError(refData, securityElem.getElement(SECURITY_ERROR));
+            Element securityError = securityElem.getElement(SECURITY_ERROR);
+            getLogger().warn("Bloomberg referenceData security error: {} {}", securityKey, securityError);
+            parseIdentifierError(refData, securityError);
           }
           if (securityElem.hasElement(FIELD_DATA)) {
             parseFieldData(refData, securityElem.getElement(FIELD_DATA));
           }
           if (securityElem.hasElement(FIELD_EXCEPTIONS)) {
-            parseFieldExceptions(refData, securityElem.getElement(FIELD_EXCEPTIONS));
+            Element fieldExceptions = securityElem.getElement(FIELD_EXCEPTIONS);
+            parseFieldExceptions(refData, fieldExceptions);
           }
           if (securityElem.hasElement(EID_DATA)) {
-            parseEidData(refData, securityElem.getElement(FIELD_DATA));
+            parseEidData(refData, securityElem.getElement(EID_DATA));
           }
           result.addReferenceData(refData);
         }
@@ -295,8 +301,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes an error affecting the whole identifier.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param element  the bloomberg element, not null
+     * @param refData the per identifier reference data result, not null
+     * @param element the bloomberg element, not null
      */
     protected void parseIdentifierError(ReferenceData refData, Element element) {
       ReferenceDataError error = buildError(null, element);
@@ -306,8 +312,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the field data.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param element  the bloomberg element, not null
+     * @param refData the per identifier reference data result, not null
+     * @param element the bloomberg element, not null
      */
     protected void parseFieldData(ReferenceData refData, Element element) {
       FudgeMsg fieldData = BloombergDataUtils.parseElement(element);
@@ -317,11 +323,14 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the an error affecting a single field on a one identifier.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param fieldExceptionArray  the bloomberg data, not null
+     * @param refData the per identifier reference data result, not null
+     * @param fieldExceptionArray the bloomberg data, not null
      */
     protected void parseFieldExceptions(ReferenceData refData, Element fieldExceptionArray) {
       int numExceptions = fieldExceptionArray.numValues();
+      if (numExceptions > 0) {
+        getLogger().warn("Bloomberg referenceData field exceptions: {}", fieldExceptionArray);
+      }
       for (int i = 0; i < numExceptions; i++) {
         Element exceptionElem = fieldExceptionArray.getValueAsElement(i);
         String fieldId = exceptionElem.getElementAsString(FIELD_ID);
@@ -333,24 +342,33 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the EID data.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param element  the bloomberg element, not null
+     * @param refData the per identifier reference data result, not null
+     * @param eidElement the bloomberg element, not null
      */
-    protected void parseEidData(ReferenceData refData, Element element) {
-      refData.setEntitlementInfo(element);
+    protected void parseEidData(ReferenceData refData, Element eidElement) {
+      for (int i = 0; i < eidElement.numValues(); i++) {
+        refData.getEidValues().add(eidElement.getValueAsInt32(i));
+      }
+      if (refData.getFieldValues() instanceof MutableFudgeMsg) {
+        MutableFudgeMsg fieldValues = (MutableFudgeMsg) refData.getFieldValues();
+        for (Integer eid : refData.getEidValues()) {
+          fieldValues.add(BloombergConstants.EID_DATA.toString(), eid);
+        }
+      }
     }
 
     /**
      * Creates an instance from a Bloomberg element.
      * 
-     * @param field  the field, null if linked to the identifier rather than a field
-     * @param element  the element, not null
+     * @param field the field, null if linked to the identifier rather than a field
+     * @param element the element, not null
      * @return the error, not null
      */
     public ReferenceDataError buildError(String field, Element element) {
-      return new ReferenceDataError(field, element.getElementAsInt32("code"), element.getElementAsString("category"),
-          element.getElementAsString("subcategory"), element.getElementAsString("message"));
+      return new ReferenceDataError(field, element.getElementAsInt32("code"), element.getElementAsString("category"), element.getElementAsString("subcategory"),
+          element.getElementAsString("message"));
     }
+
   }
 
 }

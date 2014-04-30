@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.SortedMap;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -32,7 +34,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Config object that contains parameters for the Hull-White one factor model.
  */
-@Config(description = "Hull-White one factor parameters")
+@Config(description = "Hull-White one factor parameters", group = ConfigGroups.MISC)
 @BeanDefinition
 public class HullWhiteOneFactorParameters extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
@@ -107,82 +109,6 @@ public class HullWhiteOneFactorParameters extends DirectBean implements Serializ
   @Override
   public HullWhiteOneFactorParameters.Meta metaBean() {
     return HullWhiteOneFactorParameters.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 575402001:  // currency
-        return getCurrency();
-      case -884768197:  // meanReversionId
-        return getMeanReversionId();
-      case 287677828:  // initialVolatilityId
-        return getInitialVolatilityId();
-      case -1883573694:  // volatilityTermStructure
-        return getVolatilityTermStructure();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -884768197:  // meanReversionId
-        setMeanReversionId((ExternalId) newValue);
-        return;
-      case 287677828:  // initialVolatilityId
-        setInitialVolatilityId((ExternalId) newValue);
-        return;
-      case -1883573694:  // volatilityTermStructure
-        setVolatilityTermStructure((SortedMap<Tenor, ExternalId>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_meanReversionId, "meanReversionId");
-    JodaBeanUtils.notNull(_initialVolatilityId, "initialVolatilityId");
-    JodaBeanUtils.notNull(_volatilityTermStructure, "volatilityTermStructure");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HullWhiteOneFactorParameters other = (HullWhiteOneFactorParameters) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getMeanReversionId(), other.getMeanReversionId()) &&
-          JodaBeanUtils.equal(getInitialVolatilityId(), other.getInitialVolatilityId()) &&
-          JodaBeanUtils.equal(getVolatilityTermStructure(), other.getVolatilityTermStructure());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMeanReversionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialVolatilityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -315,6 +241,60 @@ public class HullWhiteOneFactorParameters extends DirectBean implements Serializ
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HullWhiteOneFactorParameters clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HullWhiteOneFactorParameters other = (HullWhiteOneFactorParameters) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getMeanReversionId(), other.getMeanReversionId()) &&
+          JodaBeanUtils.equal(getInitialVolatilityId(), other.getInitialVolatilityId()) &&
+          JodaBeanUtils.equal(getVolatilityTermStructure(), other.getVolatilityTermStructure());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMeanReversionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialVolatilityId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("HullWhiteOneFactorParameters{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("meanReversionId").append('=').append(JodaBeanUtils.toString(getMeanReversionId())).append(',').append(' ');
+    buf.append("initialVolatilityId").append('=').append(JodaBeanUtils.toString(getInitialVolatilityId())).append(',').append(' ');
+    buf.append("volatilityTermStructure").append('=').append(JodaBeanUtils.toString(getVolatilityTermStructure())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HullWhiteOneFactorParameters}.
    */
@@ -438,6 +418,55 @@ public class HullWhiteOneFactorParameters extends DirectBean implements Serializ
      */
     public final MetaProperty<SortedMap<Tenor, ExternalId>> volatilityTermStructure() {
       return _volatilityTermStructure;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((HullWhiteOneFactorParameters) bean).getUniqueId();
+        case 575402001:  // currency
+          return ((HullWhiteOneFactorParameters) bean).getCurrency();
+        case -884768197:  // meanReversionId
+          return ((HullWhiteOneFactorParameters) bean).getMeanReversionId();
+        case 287677828:  // initialVolatilityId
+          return ((HullWhiteOneFactorParameters) bean).getInitialVolatilityId();
+        case -1883573694:  // volatilityTermStructure
+          return ((HullWhiteOneFactorParameters) bean).getVolatilityTermStructure();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((HullWhiteOneFactorParameters) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 575402001:  // currency
+          ((HullWhiteOneFactorParameters) bean).setCurrency((Currency) newValue);
+          return;
+        case -884768197:  // meanReversionId
+          ((HullWhiteOneFactorParameters) bean).setMeanReversionId((ExternalId) newValue);
+          return;
+        case 287677828:  // initialVolatilityId
+          ((HullWhiteOneFactorParameters) bean).setInitialVolatilityId((ExternalId) newValue);
+          return;
+        case -1883573694:  // volatilityTermStructure
+          ((HullWhiteOneFactorParameters) bean).setVolatilityTermStructure((SortedMap<Tenor, ExternalId>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HullWhiteOneFactorParameters) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((HullWhiteOneFactorParameters) bean)._meanReversionId, "meanReversionId");
+      JodaBeanUtils.notNull(((HullWhiteOneFactorParameters) bean)._initialVolatilityId, "initialVolatilityId");
+      JodaBeanUtils.notNull(((HullWhiteOneFactorParameters) bean)._volatilityTermStructure, "volatilityTermStructure");
     }
 
   }

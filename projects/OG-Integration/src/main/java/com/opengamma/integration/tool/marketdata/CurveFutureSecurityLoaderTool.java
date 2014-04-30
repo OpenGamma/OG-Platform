@@ -5,9 +5,7 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,8 +37,8 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -49,19 +47,16 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMasterUtils;
 import com.opengamma.scripts.Scriptable;
-import com.opengamma.util.money.Currency;
-
 
 /**
  */
 @Scriptable
 public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolContext> {
-  /**
-   * Logger.
-   */
+
+  /** Logger. */
   private static Logger s_logger = LoggerFactory.getLogger(CurveFutureSecurityLoaderTool.class);
 
-  /** Portfolio name option flag*/
+  /** Portfolio name option flag */
   private static final String CURVE_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
@@ -69,16 +64,13 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
   private static final String VERBOSE_OPT = "v";
 
   //-------------------------------------------------------------------------
-
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
-  public static void main(final String[] args) {  // CSIGNORE
-    new CurveFutureSecurityLoaderTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+  public static void main(final String[] args) { // CSIGNORE
+    new CurveFutureSecurityLoaderTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -98,13 +90,14 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
 
     // filter out ids that are already loaded into the sec master
     final Set<ExternalId> unloadedIds = filterPresentIds(curveNodesExternalIds);
-    
+
     // Load the required future securities
     loadSecuritylData(getCommandLine().hasOption(WRITE_OPT), unloadedIds);
   }
 
   /**
    * Generate quarterly dates +/- 2 years around today to cover futures from past and near future
+   * 
    * @return list of dates
    */
   private List<LocalDate> buildDates() {
@@ -120,6 +113,7 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
 
   /**
    * Get all the curve definition config object names specified by glob expression.
+   * 
    * @param configMaster
    * @param nameExpr glob type expression - e.g. blah*
    * @return list of names of config objects matching glob expression
@@ -136,6 +130,7 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
 
   /**
    * For a given list of curve definitions, on a given list of dates, get all ids on futures required by those curves.
+   * 
    * @param configSource configuration source
    * @param curveDefs curve definitions
    * @param dates list of dates to construct the curve on
@@ -151,7 +146,7 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
             System.out.println("Processing curve " + curveDefinition.getName() + " for date " + date);
           }
           try {
-            final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+            final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition, VersionCorrection.LATEST);
             for (final FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
               s_logger.info("Processing strip " + strip.getSecurity());
               if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
@@ -184,11 +179,11 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
       }
     }
   }
-  
+
   private boolean isVerbose() {
     return getCommandLine().hasOption(VERBOSE_OPT);
   }
-  
+
   private Set<ExternalId> filterPresentIds(Set<ExternalId> externalIds) {
     Set<ExternalId> filtered = new HashSet<>();
     SecuritySource securitySource = getToolContext().getSecuritySource();
@@ -210,19 +205,14 @@ public class CurveFutureSecurityLoaderTool extends AbstractTool<IntegrationToolC
 
     final Options options = super.createOptions(contextProvided);
 
-    final Option curveNameOption = new Option(
-        CURVE_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
+    final Option curveNameOption = new Option(CURVE_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
     curveNameOption.setRequired(true);
     options.addOption(curveNameOption);
 
-    final Option writeOption = new Option(
-        WRITE_OPT, "write", false,
-        "Actually persists the time series to the database if specified, otherwise pretty-prints without persisting");
+    final Option writeOption = new Option(WRITE_OPT, "write", false, "Actually persists the time series to the database if specified, otherwise pretty-prints without persisting");
     options.addOption(writeOption);
 
-    final Option verboseOption = new Option(
-        VERBOSE_OPT, "verbose", false,
-        "Displays progress messages on the terminal");
+    final Option verboseOption = new Option(VERBOSE_OPT, "verbose", false, "Displays progress messages on the terminal");
     options.addOption(verboseOption);
 
     return options;

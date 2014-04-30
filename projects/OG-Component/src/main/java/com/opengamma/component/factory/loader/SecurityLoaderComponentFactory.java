@@ -8,6 +8,7 @@ package com.opengamma.component.factory.loader;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -100,80 +101,6 @@ public class SecurityLoaderComponentFactory extends AbstractSecurityLoaderCompon
   @Override
   public SecurityLoaderComponentFactory.Meta metaBean() {
     return SecurityLoaderComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case 809869649:  // securityProvider
-        return getSecurityProvider();
-      case 1142795725:  // securityEnhancer1
-        return getSecurityEnhancer1();
-      case 1142795726:  // securityEnhancer2
-        return getSecurityEnhancer2();
-      case 1142795727:  // securityEnhancer3
-        return getSecurityEnhancer3();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case 809869649:  // securityProvider
-        setSecurityProvider((SecurityProvider) newValue);
-        return;
-      case 1142795725:  // securityEnhancer1
-        setSecurityEnhancer1((SecurityEnhancer) newValue);
-        return;
-      case 1142795726:  // securityEnhancer2
-        setSecurityEnhancer2((SecurityEnhancer) newValue);
-        return;
-      case 1142795727:  // securityEnhancer3
-        setSecurityEnhancer3((SecurityEnhancer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_securityMaster, "securityMaster");
-    JodaBeanUtils.notNull(_securityProvider, "securityProvider");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityLoaderComponentFactory other = (SecurityLoaderComponentFactory) obj;
-      return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
-          JodaBeanUtils.equal(getSecurityEnhancer1(), other.getSecurityEnhancer1()) &&
-          JodaBeanUtils.equal(getSecurityEnhancer2(), other.getSecurityEnhancer2()) &&
-          JodaBeanUtils.equal(getSecurityEnhancer3(), other.getSecurityEnhancer3()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer1());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer2());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer3());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -304,6 +231,63 @@ public class SecurityLoaderComponentFactory extends AbstractSecurityLoaderCompon
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SecurityLoaderComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityLoaderComponentFactory other = (SecurityLoaderComponentFactory) obj;
+      return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
+          JodaBeanUtils.equal(getSecurityEnhancer1(), other.getSecurityEnhancer1()) &&
+          JodaBeanUtils.equal(getSecurityEnhancer2(), other.getSecurityEnhancer2()) &&
+          JodaBeanUtils.equal(getSecurityEnhancer3(), other.getSecurityEnhancer3()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer1());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer2());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer3());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("SecurityLoaderComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("securityProvider").append('=').append(JodaBeanUtils.toString(getSecurityProvider())).append(',').append(' ');
+    buf.append("securityEnhancer1").append('=').append(JodaBeanUtils.toString(getSecurityEnhancer1())).append(',').append(' ');
+    buf.append("securityEnhancer2").append('=').append(JodaBeanUtils.toString(getSecurityEnhancer2())).append(',').append(' ');
+    buf.append("securityEnhancer3").append('=').append(JodaBeanUtils.toString(getSecurityEnhancer3())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SecurityLoaderComponentFactory}.
    */
@@ -426,6 +410,53 @@ public class SecurityLoaderComponentFactory extends AbstractSecurityLoaderCompon
      */
     public final MetaProperty<SecurityEnhancer> securityEnhancer3() {
       return _securityEnhancer3;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -887218750:  // securityMaster
+          return ((SecurityLoaderComponentFactory) bean).getSecurityMaster();
+        case 809869649:  // securityProvider
+          return ((SecurityLoaderComponentFactory) bean).getSecurityProvider();
+        case 1142795725:  // securityEnhancer1
+          return ((SecurityLoaderComponentFactory) bean).getSecurityEnhancer1();
+        case 1142795726:  // securityEnhancer2
+          return ((SecurityLoaderComponentFactory) bean).getSecurityEnhancer2();
+        case 1142795727:  // securityEnhancer3
+          return ((SecurityLoaderComponentFactory) bean).getSecurityEnhancer3();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -887218750:  // securityMaster
+          ((SecurityLoaderComponentFactory) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case 809869649:  // securityProvider
+          ((SecurityLoaderComponentFactory) bean).setSecurityProvider((SecurityProvider) newValue);
+          return;
+        case 1142795725:  // securityEnhancer1
+          ((SecurityLoaderComponentFactory) bean).setSecurityEnhancer1((SecurityEnhancer) newValue);
+          return;
+        case 1142795726:  // securityEnhancer2
+          ((SecurityLoaderComponentFactory) bean).setSecurityEnhancer2((SecurityEnhancer) newValue);
+          return;
+        case 1142795727:  // securityEnhancer3
+          ((SecurityLoaderComponentFactory) bean).setSecurityEnhancer3((SecurityEnhancer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityLoaderComponentFactory) bean)._securityMaster, "securityMaster");
+      JodaBeanUtils.notNull(((SecurityLoaderComponentFactory) bean)._securityProvider, "securityProvider");
+      super.validate(bean);
     }
 
   }

@@ -7,6 +7,8 @@ package com.opengamma.engine.test;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -33,6 +35,8 @@ import com.opengamma.util.test.AbstractTestResultListener;
  */
 public class TestViewResultListener extends AbstractTestResultListener implements ViewResultListener {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(TestViewResultListener.class);
+
   public ViewDefinitionCompiledCall getViewDefinitionCompiled(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ViewDefinitionCompiledCall.class, timeoutMillis);
   }
@@ -40,11 +44,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   public ViewDefinitionCompilationFailedCall getViewDefinitionCompilationFailed(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ViewDefinitionCompilationFailedCall.class, timeoutMillis);
   }
-  
+
   public CycleStartedCall getCycleStarted(long timeoutMillis) throws InterruptedException {
     return expectNextCall(CycleStartedCall.class, timeoutMillis);
   }
-  
+
   public CycleCompletedCall getCycleCompleted(long timeoutMillis) throws InterruptedException {
     return expectNextCall(CycleCompletedCall.class, timeoutMillis);
   }
@@ -52,28 +56,32 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   public CycleFragmentCompletedCall getCycleFragmentCompleted(long timeoutMillis) throws InterruptedException {
     return expectNextCall(CycleFragmentCompletedCall.class, timeoutMillis);
   }
-  
+
+  public CycleExecutionFailedCall getCycleExecutionFailed(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(CycleExecutionFailedCall.class, timeoutMillis);
+  }
+
   public ProcessCompletedCall getProcessCompleted(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ProcessCompletedCall.class, timeoutMillis);
   }
-  
+
   public ProcessTerminatedCall getProcessTerminated(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ProcessTerminatedCall.class, timeoutMillis);
   }
-  
+
   public ClientShutdownCall getClientShutdown(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ClientShutdownCall.class, timeoutMillis);
   }
-  
+
   //-------------------------------------------------------------------------  
   public void assertViewDefinitionCompiled() {
     assertViewDefinitionCompiled(0);
   }
-  
+
   public void assertViewDefinitionCompiled(long timeoutMillis) {
     assertViewDefinitionCompiled(timeoutMillis, null);
   }
-  
+
   public void assertViewDefinitionCompiled(long timeoutMillis, CompiledViewDefinition expectedCompiledViewDefinition) {
     ViewDefinitionCompiledCall call;
     try {
@@ -85,11 +93,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       assertEquals(expectedCompiledViewDefinition, ((ViewDefinitionCompiledCall) call).getCompiledViewDefinition());
     }
   }
-  
+
   public void assertViewDefinitionCompilationFailed() {
     assertViewDefinitionCompilationFailed(0);
   }
-  
+
   public void assertViewDefinitionCompilationFailed(long timeoutMillis) {
     assertViewDefinitionCompilationFailed(timeoutMillis, null);
   }
@@ -105,11 +113,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       assertEquals(exceptionMessage, call.getException().getMessage());
     }
   }
-  
+
   public void assertCycleStarted() {
     assertCycleStarted(0);
   }
-  
+
   public void assertCycleStarted(long timeoutMillis) {
     try {
       getCycleStarted(timeoutMillis);
@@ -121,11 +129,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   public void assertCycleCompleted() {
     assertCycleCompleted(0);
   }
-  
+
   public void assertCycleCompleted(long timeoutMillis) {
     assertCycleCompleted(timeoutMillis, null, null);
   }
-  
+
   public void assertCycleCompleted(long timeoutMillis, ViewComputationResultModel expectedFullResult, ViewDeltaResultModel expectedDeltaResult) {
     CycleCompletedCall call;
     try {
@@ -140,7 +148,7 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       assertEquals(expectedDeltaResult, call.getDeltaResult());
     }
   }
-  
+
   public void assertMultipleCycleCompleted(int count) {
     for (int i = 0; i < count; i++) {
       try {
@@ -183,11 +191,23 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       }
     }
   }
-  
+
+  public void assertCycleExecutionFailed() {
+    assertCycleExecutionFailed(0);
+  }
+
+  public void assertCycleExecutionFailed(long timeoutMillis) {
+    try {
+      getCycleExecutionFailed(timeoutMillis);
+    } catch (Exception e) {
+      throw new AssertionError("Expected cycleExecutionFailed call error: " + e.getMessage());
+    }
+  }
+
   public void assertProcessCompleted() {
     assertProcessCompleted(0);
   }
-  
+
   public void assertProcessCompleted(long timeoutMillis) {
     try {
       getProcessCompleted(timeoutMillis);
@@ -195,11 +215,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       throw new AssertionError("Expected processCompleted call error: " + e.getMessage());
     }
   }
-  
+
   public void assertProcessTerminated() {
     assertProcessTerminated(0);
   }
-  
+
   public void assertProcessTerminated(long timeoutMillis) {
     try {
       getProcessTerminated(timeoutMillis);
@@ -207,11 +227,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       throw new AssertionError("Expected processTerminated call error: " + e.getMessage());
     }
   }
-  
+
   public void assertClientShutdown() {
     assertClientShutdown(0);
   }
-  
+
   public void assertClientShutdown(long timeoutMillis) {
     try {
       getClientShutdown(timeoutMillis);
@@ -219,56 +239,65 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       throw new AssertionError("Expected clientShutdown call error: " + e.getMessage());
     }
   }
-    
+
   //-------------------------------------------------------------------------
   @Override
   public UserPrincipal getUser() {
     return UserPrincipal.getTestUser();
   }
-  
+
   @Override
   public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+    s_logger.debug("viewDefinitionCompiled ({}, {})", compiledViewDefinition, hasMarketDataPermissions);
     callReceived(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
   }
 
   @Override
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+    s_logger.debug("viewDefinitionCompilationFailed ({}, {})", valuationTime, exception);
     callReceived(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
   }
 
   @Override
   public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    s_logger.debug("cycleStarted ({})", cycleMetadata);
     callReceived(new CycleStartedCall(cycleMetadata), true);
   }
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    s_logger.debug("cycleCompleted ({}, {})", fullResult, deltaResult);
     callReceived(new CycleCompletedCall(fullResult, deltaResult), true);
   }
 
   @Override
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+    s_logger.debug("cycleExecutionFailed ({}, {})", executionOptions, exception);
     callReceived(new CycleExecutionFailedCall(executionOptions, exception));
   }
 
   @Override
   public void processCompleted() {
+    s_logger.debug("processCompleted ()");
     callReceived(new ProcessCompletedCall());
   }
 
   @Override
   public void cycleFragmentCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    s_logger.debug("cycleFragmentCompleted ({}, {})", fullResult, deltaResult);
     callReceived(new CycleFragmentCompletedCall(fullResult, deltaResult), true);
   }
 
   @Override
   public void processTerminated(boolean executionInterrupted) {
+    s_logger.debug("processTerminated ({})", executionInterrupted);
     callReceived(new ProcessTerminatedCall(executionInterrupted));
   }
 
   @Override
   public void clientShutdown(Exception e) {
+    s_logger.debug("clientShutdown ()", e);
     callReceived(new ClientShutdownCall(e));
   }
-  
+
 }

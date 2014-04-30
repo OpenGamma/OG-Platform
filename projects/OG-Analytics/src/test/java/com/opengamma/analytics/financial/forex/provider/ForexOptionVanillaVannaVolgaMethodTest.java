@@ -37,15 +37,20 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaVannaVolgaMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
@@ -56,7 +61,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1),
@@ -95,9 +100,9 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
 
   private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
 
-  private static final BlackForexSmileProvider SMILE_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
-  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
-  private static final BlackForexVannaVolgaProvider VANNAVOLGA_MULTICURVES = new BlackForexVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pairs.of(EUR, USD));
+  private static final BlackForexVannaVolgaProvider VANNAVOLGA_MULTICURVES = new BlackForexVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 

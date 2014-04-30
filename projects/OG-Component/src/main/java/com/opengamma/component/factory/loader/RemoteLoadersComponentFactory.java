@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -95,58 +96,6 @@ public class RemoteLoadersComponentFactory extends AbstractComponentFactory {
     return RemoteLoadersComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        return getBaseUri();
-      case -614707837:  // publishRest
-        return isPublishRest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        setBaseUri((URI) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_baseUri, "baseUri");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RemoteLoadersComponentFactory other = (RemoteLoadersComponentFactory) obj;
-      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the remote URI.
@@ -196,6 +145,54 @@ public class RemoteLoadersComponentFactory extends AbstractComponentFactory {
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RemoteLoadersComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RemoteLoadersComponentFactory other = (RemoteLoadersComponentFactory) obj;
+      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("RemoteLoadersComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("baseUri").append('=').append(JodaBeanUtils.toString(getBaseUri())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -273,6 +270,37 @@ public class RemoteLoadersComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          return ((RemoteLoadersComponentFactory) bean).getBaseUri();
+        case -614707837:  // publishRest
+          return ((RemoteLoadersComponentFactory) bean).isPublishRest();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          ((RemoteLoadersComponentFactory) bean).setBaseUri((URI) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((RemoteLoadersComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RemoteLoadersComponentFactory) bean)._baseUri, "baseUri");
+      super.validate(bean);
     }
 
   }

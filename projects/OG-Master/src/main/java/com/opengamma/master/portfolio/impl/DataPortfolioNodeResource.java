@@ -77,7 +77,7 @@ public class DataPortfolioNodeResource extends AbstractDataResource {
   @GET
   public Response get() {
     ManageablePortfolioNode result = getPortfolioMaster().getNode(_urlResourceId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

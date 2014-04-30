@@ -118,7 +118,12 @@ $.register_module({
                     $('.OG-blotter-trade-save').show();
                     $('.ui-dialog-title').html(form_wrapper.title);
                 } else {
-                    og.dev.warn('no form found for ' + str);
+                    if (config.details && config.details.data) {
+                        display_error('No trade entry form available for ' + str + "<br/> " +
+                                          JSON.stringify(config.details.data || {}, null, '\t'));
+                    } else {
+                        display_error('No trade entry form available for ' + str);
+                    }
                 }
             };
             constructor.create_dialog = function () {

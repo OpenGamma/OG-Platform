@@ -35,6 +35,14 @@ public class WebSecuritiesUris {
    * Gets the URI.
    * @return the URI
    */
+  public URI base() {
+    return securities();
+  }
+
+  /**
+   * Gets the URI.
+   * @return the URI
+   */
   public URI securities() {
     return WebSecuritiesResource.uri(_data);
   }

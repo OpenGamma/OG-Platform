@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -35,6 +36,7 @@ import com.opengamma.util.time.DateUtils;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -69,7 +71,7 @@ public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
     final double[] df = new double[nbCfe];
     for (int loopcf = 0; loopcf < nbCfe; loopcf++) {
       df[loopcf] = CURVES.getCurve(CURVES_NAMES[0]).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
-      adj[loopcf] = MODEL.futuresConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
+      adj[loopcf] = MODEL.futuresConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getTradingLastTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
       assertTrue("DeliverableSwapFuturesSecurityHullWhiteMethod: price", adj[loopcf] <= 1.0);
     }
     double priceExpected = 1.0;

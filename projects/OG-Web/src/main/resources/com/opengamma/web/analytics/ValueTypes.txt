@@ -18,7 +18,7 @@
 'FX Present Value' com.opengamma.financial.analytics.CurrencyLabelledMatrix1D
 'Forward' java.lang.Double
 'ForwardCurve' com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve
-'HazardRateCurve' com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCurve
+'HazardRateCurve' com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve
 'HistoricalVaR Standard Deviation' java.lang.Double
 'HistoricalVaR' java.lang.Double
 'Implied Volatility' java.lang.Double

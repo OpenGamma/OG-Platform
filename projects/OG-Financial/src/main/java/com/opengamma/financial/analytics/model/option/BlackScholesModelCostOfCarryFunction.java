@@ -43,25 +43,43 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURVE).get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD).get()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
-    if ((curveNames == null) || (curveNames.size() != 1)) {
+    final String curveName = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.CURVE);
+    if (curveName == null) {
       return null;
     }
-    final String curveName = curveNames.iterator().next();
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(option.getCurrency()),
-        ValueProperties.with(ValuePropertyNames.CURVE, curveName).get()));
+    final ValueProperties.Builder constraints = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
+    final Set<String> curveCalculationMethods = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethods != null) {
+      if (curveCalculationMethods.isEmpty()) {
+        constraints.withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      } else {
+        constraints.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethods);
+      }
+      if (desiredValue.getConstraints().isOptional(ValuePropertyNames.CURVE_CALCULATION_METHOD)) {
+        constraints.withOptional(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      }
+    }
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(option.getCurrency()), constraints.get()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final String curveName = inputs.keySet().iterator().next().getProperty(ValuePropertyNames.CURVE);
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE, curveName).get()));
+    final ValueSpecification input = inputs.keySet().iterator().next();
+    final ValueProperties.Builder properties = createValueProperties();
+    final String curveName = input.getProperties().getStrictValue(ValuePropertyNames.CURVE);
+    properties.with(ValuePropertyNames.CURVE, curveName);
+    final String curveCalculationMethod = input.getProperties().getStrictValue(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethod != null) {
+      properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod);
+    }
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), properties.get()));
   }
 
   @Override
@@ -76,8 +94,8 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
     final Expiry expiry = option.getExpiry();
     final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry());
     final double b = curve.getInterestRate(t);
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE,
-        desiredValues.iterator().next().getConstraint(ValuePropertyNames.CURVE)).get()), b));
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), desiredValue.getConstraints()), b));
   }
 
   @Override

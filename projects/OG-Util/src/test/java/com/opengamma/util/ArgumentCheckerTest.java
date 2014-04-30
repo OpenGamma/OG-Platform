@@ -12,9 +12,11 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
@@ -114,6 +116,50 @@ public class ArgumentCheckerTest {
     } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       assertEquals(ex.getMessage().contains("Injected"), true);
+      throw ex;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_notBlank_String_ok() {
+    String str = "Kirk";
+    assertEquals("Kirk", ArgumentChecker.notBlank(str, "name"));
+  }
+
+  public void test_notBlank_String_ok_trimmed() {
+    String str = " Kirk ";
+    assertEquals("Kirk", ArgumentChecker.notBlank(str, "name"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notBlank_String_null() {
+    String str = null;
+    try {
+      ArgumentChecker.notBlank(str, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notBlank_String_empty() {
+    String str = "";
+    try {
+      ArgumentChecker.notBlank(str, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notBlank_String_spaces() {
+    String str = "  ";
+    try {
+      ArgumentChecker.notBlank(str, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
   }
@@ -396,6 +442,55 @@ public class ArgumentCheckerTest {
     Iterable<?> coll = Arrays.asList((Object) null);
     try {
       ArgumentChecker.noNulls(coll, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_noNulls_Map_ok() {
+    Map<Object, Object> map = new HashMap<>();
+    map.put("A", "B");
+    ArgumentChecker.noNulls(map, "name");
+  }
+
+  public void test_noNulls_Map_ok_empty() {
+    Map<Object, Object> map = new HashMap<>();
+    ArgumentChecker.noNulls(map, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_noNulls_Map_null() {
+    Map<Object, Object> map = null;
+    try {
+      ArgumentChecker.noNulls(map, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_noNulls_Map_nullKey() {
+    Map<Object, Object> map = new HashMap<>();
+    map.put("A", "B");
+    map.put(null, "Z");
+    try {
+      ArgumentChecker.noNulls(map, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_noNulls_Map_nullValue() {
+    Map<Object, Object> map = new HashMap<>();
+    map.put("A", "B");
+    map.put("Z", null);
+    try {
+      ArgumentChecker.noNulls(map, "name");
     } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;

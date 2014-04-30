@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * For an instrument, computes the sensitivity of a present value to the parameters used in the curve.
@@ -56,7 +56,7 @@ public class ParameterSensitivityBlockCalculator extends AbstractParameterSensit
         if (!fixedCurves.contains(curveName)) {
           final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
           final Double[] oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivity(ccy).getSensitivities().get(curveName), curve);
-          result.put(new ObjectsPair<>(curveName, ccy), new DoubleMatrix1D(oneCurveSensitivity));
+          result.put(Pairs.of(curveName, ccy), new DoubleMatrix1D(oneCurveSensitivity));
         }
       }
     }

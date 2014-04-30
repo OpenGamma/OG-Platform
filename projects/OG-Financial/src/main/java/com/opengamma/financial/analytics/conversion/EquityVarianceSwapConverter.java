@@ -19,9 +19,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Converts {@link EquityVarianceSwapSecurity} to {@link EquityVarianceSwapDefinition}, which is required
+ * for use in the analytics library.
  */
 public class EquityVarianceSwapConverter extends FinancialSecurityVisitorAdapter<EquityVarianceSwapDefinition> {
+  /** The holiday source */
   private final HolidaySource _holidaySource;
 
   /**
@@ -50,7 +52,6 @@ public class EquityVarianceSwapConverter extends FinancialSecurityVisitorAdapter
           security.getSettlementDate(), periodFrequency,
           security.getCurrency(), calendar, security.getAnnualizationFactor(),
           security.getStrike(), security.getNotional(), true);
-
     }
     return EquityVarianceSwapDefinition.fromVegaParams(security.getFirstObservationDate(), security.getLastObservationDate(),
         security.getSettlementDate(), periodFrequency,

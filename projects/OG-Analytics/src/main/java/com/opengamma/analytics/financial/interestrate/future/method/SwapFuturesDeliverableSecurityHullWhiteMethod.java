@@ -72,7 +72,7 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
     final double[] adjustments = new double[nbCf];
     final double[] df = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
-      adjustments[loopcf] = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
+      adjustments[loopcf] = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), futures.getTradingLastTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
       df[loopcf] = curves.getCurve(cfe.getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
     }
     double price = 1.0;
@@ -88,7 +88,7 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
     final double[] adjustments = new double[nbCf];
     final double[] df = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
-      adjustments[loopcf] = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), futures.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
+      adjustments[loopcf] = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), futures.getTradingLastTime(), cfe.getNthPayment(loopcf).getPaymentTime(), futures.getDeliveryTime());
       df[loopcf] = curves.getCurve(cfe.getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
     }
     double price = 1.0;
@@ -108,7 +108,7 @@ public final class SwapFuturesDeliverableSecurityHullWhiteMethod {
     }
     final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
+      final DoublesPair dfSensi = DoublesPair.of(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();

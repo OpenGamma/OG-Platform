@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * In-memory storage of function costs.
@@ -34,14 +34,14 @@ public class InMemoryFunctionCostsMaster implements FunctionCostsMaster {
   //-------------------------------------------------------------------------
   @Override
   public FunctionCostsDocument load(String configuration, String functionId, Instant versionAsOf) {
-    Pair<String, String> pair = new ObjectsPair<String, String>(configuration, functionId);
+    Pair<String, String> pair = Pairs.of(configuration, functionId);
     FunctionCostsDocument doc = _data.get(pair);
     return doc != null ? doc.clone() : null;
   }
 
   @Override
   public FunctionCostsDocument store(final FunctionCostsDocument costs) {
-    Pair<String, String> pair = new ObjectsPair<String, String>(costs.getConfigurationName(), costs.getFunctionId());
+    Pair<String, String> pair = Pairs.of(costs.getConfigurationName(), costs.getFunctionId());
     costs.setVersion(Instant.now());
     _data.put(pair, costs.clone());
     return costs;

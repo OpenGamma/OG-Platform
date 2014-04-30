@@ -21,10 +21,12 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.PCHIPYieldCurveInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This relates to [PLAT-4316]
  */
+@Test(groups = TestGroup.UNIT, enabled = false)
 public class FailingSABRInterpolatorTest {
 
   private final static double[] datearray = {9.0 / 365, 44.0 / 365, 72.0 / 365, 135.0 / 365, 226.0 / 365, 317.0 / 365, 499.0 / 365, 681.0 / 365, 863.0 / 365, 1045.0 / 365, 1227. / 365 };

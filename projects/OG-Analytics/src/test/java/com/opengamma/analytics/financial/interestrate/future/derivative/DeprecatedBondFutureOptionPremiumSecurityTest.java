@@ -15,12 +15,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedBondFutureOptionPremiumSecurityTest {
 
   // 5-Year U.S. Treasury Note Futures: FVU1

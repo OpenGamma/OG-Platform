@@ -15,6 +15,8 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -26,7 +28,18 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class RunQueueTest {
 
-  private final ExecutorService _executor = Executors.newCachedThreadPool();
+  private ExecutorService _executor;
+
+  @BeforeClass
+  public void init() {
+    _executor = Executors.newCachedThreadPool();
+  }
+
+  @AfterClass
+  public void done() {
+    _executor.shutdownNow();
+    _executor = null;
+  }
 
   private ContextRunnable runnable() {
     return new ContextRunnable() {

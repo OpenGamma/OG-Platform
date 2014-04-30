@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.cash.provider;
@@ -15,11 +15,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * The methods associated to the pricing of cash deposit by discounting.
@@ -54,9 +51,8 @@ public final class DepositCounterpartDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final DepositCounterpart deposit, final IssuerProviderInterface multicurves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
-    final Pair<String, Currency> issuerCcy = new ObjectsPair<>(deposit.getCounterpartName(), deposit.getCurrency());
-    final double dfStart = multicurves.getDiscountFactor(issuerCcy, deposit.getStartTime());
-    final double dfEnd = multicurves.getDiscountFactor(issuerCcy, deposit.getEndTime());
+    final double dfStart = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getStartTime());
+    final double dfEnd = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getEndTime());
     final double pv = (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd - deposit.getInitialAmount() * dfStart;
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
@@ -70,18 +66,17 @@ public final class DepositCounterpartDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final DepositCounterpart deposit, final IssuerProviderInterface multicurves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
-    final Pair<String, Currency> issuerCcy = new ObjectsPair<>(deposit.getCounterpartName(), deposit.getCurrency());
-    final double dfStart = multicurves.getDiscountFactor(issuerCcy, deposit.getStartTime());
-    final double dfEnd = multicurves.getDiscountFactor(issuerCcy, deposit.getEndTime());
+    final double dfStart = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getStartTime());
+    final double dfEnd = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getEndTime());
     // Backward sweep
     final double pvBar = 1.0;
     final double dfEndBar = deposit.getNotional() + deposit.getInterestAmount() * pvBar;
     final double dfStartBar = -deposit.getInitialAmount() * pvBar;
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
-    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
-    mapDsc.put(multicurves.getName(issuerCcy), listDiscounting);
+    listDiscounting.add(DoublesPair.of(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
+    listDiscounting.add(DoublesPair.of(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
+    mapDsc.put(multicurves.getName(deposit.getCounterparty()), listDiscounting);
     MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity();
     result = result.plus(deposit.getCurrency(), MulticurveSensitivity.ofYieldDiscounting(mapDsc));
     return result;
@@ -98,9 +93,8 @@ public final class DepositCounterpartDiscountingMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
     ArgumentChecker.isTrue(deposit.getNotional() != 0.0, "Notional is 0");
-    final Pair<String, Currency> issuerCcy = new ObjectsPair<>(deposit.getCounterpartName(), deposit.getCurrency());
-    final double dfStart = multicurves.getDiscountFactor(issuerCcy, deposit.getStartTime());
-    final double dfEnd = multicurves.getDiscountFactor(issuerCcy, deposit.getEndTime());
+    final double dfStart = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getStartTime());
+    final double dfEnd = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getEndTime());
     return (deposit.getInitialAmount() * dfStart - (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd) / (deposit.getNotional() * deposit.getAccrualFactor() * dfEnd);
   }
 
@@ -115,18 +109,17 @@ public final class DepositCounterpartDiscountingMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
     ArgumentChecker.isTrue(deposit.getNotional() != 0.0, "Notional is 0");
-    final Pair<String, Currency> issuerCcy = new ObjectsPair<>(deposit.getCounterpartName(), deposit.getCurrency());
-    final double dfStart = multicurves.getDiscountFactor(issuerCcy, deposit.getStartTime());
-    final double dfEnd = multicurves.getDiscountFactor(issuerCcy, deposit.getEndTime());
+    final double dfStart = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getStartTime());
+    final double dfEnd = multicurves.getDiscountFactor(deposit.getCounterparty(), deposit.getEndTime());
     // Backward sweep
     final double parSpreadBar = 1.0;
     final double dfEndBar = -(deposit.getInitialAmount() * dfStart / (dfEnd * dfEnd)) / (deposit.getNotional() * deposit.getAccrualFactor()) * parSpreadBar;
     final double dfStartBar = (deposit.getInitialAmount() / dfEnd) / (deposit.getNotional() * deposit.getAccrualFactor()) * parSpreadBar;
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
-    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
-    mapDsc.put(multicurves.getName(issuerCcy), listDiscounting);
+    listDiscounting.add(DoublesPair.of(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
+    listDiscounting.add(DoublesPair.of(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
+    mapDsc.put(multicurves.getName(deposit.getCounterparty()), listDiscounting);
     return MulticurveSensitivity.ofYieldDiscounting(mapDsc);
   }
 

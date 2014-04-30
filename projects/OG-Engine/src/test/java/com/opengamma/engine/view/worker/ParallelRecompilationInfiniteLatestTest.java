@@ -32,6 +32,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -39,6 +40,8 @@ import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfigurationImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -64,10 +67,10 @@ public class ParallelRecompilationInfiniteLatestTest extends AbstractParallelRec
 
   private CompiledViewDefinitionWithGraphs compiledViewDefinition(final ViewDefinition viewDefinition, final Map<ComputationTargetReference, UniqueId> resolutions) {
     final VersionCorrection versionCorrection = VersionCorrection.of(Instant.now(), Instant.now());
-    final DependencyGraph graph = new DependencyGraph("Default");
+    final DependencyGraph graph = new TestDependencyGraphBuilder("Default").buildGraph();
     final Portfolio portfolio = Mockito.mock(Portfolio.class);
     return new CompiledViewDefinitionWithGraphsImpl(versionCorrection, "view-id", viewDefinition, Collections.singleton(graph), new HashMap<ComputationTargetReference, UniqueId>(resolutions),
-        portfolio, 0);
+        portfolio, 0, Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph)), null, null);
   }
 
   private ViewProcessWorkerFactory workerFactory(final ExecutorService executor, final Map<ComputationTargetReference, UniqueId> resolutions) {

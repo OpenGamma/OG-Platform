@@ -5,8 +5,18 @@
  */
 package com.opengamma.engine.function.dsl;
 
+/**
+ * A function input gate.
+ */
 public class FunctionInput extends FunctionGate<FunctionInput> {
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the name
+   */
   public FunctionInput(String name) {
     super(name);
   }
+
 }

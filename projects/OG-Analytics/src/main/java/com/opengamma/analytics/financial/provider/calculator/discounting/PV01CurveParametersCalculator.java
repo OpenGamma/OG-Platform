@@ -44,13 +44,15 @@ public final class PV01CurveParametersCalculator<T extends ParameterProviderInte
 
   /**
    * Calculates the change in present value of an instrument due to a parallel move of each yield curve the instrument is sensitive to, scaled so that the move is 1bp.
-   * @param ird The instrument.
-   * @param multicurves The multi-curves provider.
+   * @param ird The instrument, not null
+   * @param multicurves The multi-curves provider, not null
    * @return The scale sensitivity for each curve/currency.
    */
   @Override
   public ReferenceAmount<Pair<String, Currency>> visit(final InstrumentDerivative ird, final T multicurves) {
-    final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves, multicurves.getMulticurveProvider().getAllNames());
+    ArgumentChecker.notNull(ird, "derivative");
+    ArgumentChecker.notNull(multicurves, "multicurves");
+    final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves);
     final ReferenceAmount<Pair<String, Currency>> ref = new ReferenceAmount<>();
     for (final Pair<String, Currency> nameCcy : sensi.getAllNamesCurrency()) {
       final DoubleMatrix1D vector = sensi.getSensitivity(nameCcy);

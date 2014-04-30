@@ -24,12 +24,10 @@ import org.springframework.context.Lifecycle;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.opengamma.core.user.AuthenticationUtils;
-import com.opengamma.core.user.OGUser;
+import com.opengamma.core.user.UserAccount;
 import com.opengamma.core.user.UserSource;
-import com.opengamma.core.user.impl.SimpleOGUser;
+import com.opengamma.core.user.impl.SimpleUserAccount;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
@@ -208,18 +206,18 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
     }
   }
   
-  protected OGUser getOGUser(String userId) {
+  protected UserAccount getUserAccount(String userName) {
     if (getUserSource() == null) {
-      // Nothing will work without an OG User. So we return a mock one.
-      SimpleOGUser simpleUser = new SimpleOGUser(userId);
-      simpleUser.getEntitlements().add("*");
+      // Nothing will work without a UserAccount. So we return a mock one.
+      SimpleUserAccount simpleUser = new SimpleUserAccount(userName);
+      simpleUser.getPermissions().add("*");
       return simpleUser;
     }
     try {
-      return getUserSource().getUser(userId, VersionCorrection.LATEST);
+      return getUserSource().getAccount(userName);
       
     } catch (RuntimeException ex) {
-      s_logger.warn("Authentication could not find user {}", userId);
+      s_logger.warn("Authentication could not find user {}", userName);
       return null;
     }
   }
@@ -231,16 +229,12 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
       return UserPrincipal.getLocalUser(userId);
     }
     
-    OGUser ogUser = getOGUser(userId);
-    if (ogUser == null) {
+    UserAccount user = getUserAccount(userId);
+    if (user == null) {
       s_logger.info("Not allowing login for {} because no user in UserSource", userId);
       return null;
     }
-    
-    if (isCheckPassword() && !AuthenticationUtils.passwordsMatch(ogUser, password)) {
-      s_logger.info("Not allowing login for {} because passwords don't match", userId);
-      return null;
-    }
+    // password check not supported
     return UserPrincipal.getLocalUser(userId);
   }
   

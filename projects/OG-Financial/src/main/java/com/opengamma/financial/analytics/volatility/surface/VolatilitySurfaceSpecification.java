@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -16,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Specification for a volatility surface - contains all available points on the surface.
  */
-@Config(description = "Volatility surface specification")
+@Config(description = "Volatility surface specification", group = ConfigGroups.VOL)
 public class VolatilitySurfaceSpecification {
   private final SurfaceInstrumentProvider<?, ?> _surfaceInstrumentProvider;
   private final String _name;
@@ -24,18 +25,24 @@ public class VolatilitySurfaceSpecification {
   private final String _quoteUnits;
   private final UniqueIdentifiable _target;
   private final ExerciseType _exerciseType;
+  private final boolean _useUnderlyingSecurityForExpiry;
 
   public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
     this(name, target, surfaceQuoteType, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE, new EuropeanExerciseType(), surfaceInstrumentProvider);
   }
 
-  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final String quoteUnits, 
+  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final String quoteUnits,
       final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
     this(name, target, surfaceQuoteType, quoteUnits, new EuropeanExerciseType(), surfaceInstrumentProvider);
   }
 
-  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final String quoteUnits, 
+  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final String quoteUnits,
       final ExerciseType exerciseType, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
+    this(name, target, surfaceQuoteType, quoteUnits, exerciseType, surfaceInstrumentProvider, false);
+  }
+
+  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final String quoteUnits,
+      final ExerciseType exerciseType, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider, final boolean useUnderlyingSecurityForExpiry) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(surfaceQuoteType, "surface quote type");
@@ -48,6 +55,7 @@ public class VolatilitySurfaceSpecification {
     _quoteUnits = quoteUnits;
     _exerciseType = exerciseType;
     _surfaceInstrumentProvider = surfaceInstrumentProvider;
+    _useUnderlyingSecurityForExpiry = useUnderlyingSecurityForExpiry;
   }
 
   public SurfaceInstrumentProvider<?, ?> getSurfaceInstrumentProvider() {
@@ -66,6 +74,10 @@ public class VolatilitySurfaceSpecification {
     return _quoteUnits;
   }
 
+  public boolean isUseUnderlyingSecurityForExpiry() {
+    return _useUnderlyingSecurityForExpiry;
+  }
+
   /**
    * @deprecated use getTarget()
    * @throws ClassCastException if target not a currency
@@ -79,7 +91,7 @@ public class VolatilitySurfaceSpecification {
   public UniqueIdentifiable getTarget() {
     return _target;
   }
-  
+
   public ExerciseType getExerciseType() {
     return _exerciseType;
   }
@@ -98,7 +110,8 @@ public class VolatilitySurfaceSpecification {
         other.getSurfaceInstrumentProvider().equals(getSurfaceInstrumentProvider()) &&
         other.getSurfaceQuoteType().equals(getSurfaceQuoteType()) &&
         other.getExerciseType().equals(getExerciseType()) &&
-        other.getQuoteUnits().equals(getQuoteUnits());
+        other.getQuoteUnits().equals(getQuoteUnits()) &&
+        other.isUseUnderlyingSecurityForExpiry() == isUseUnderlyingSecurityForExpiry();
   }
 
   @Override

@@ -49,11 +49,14 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 @Deprecated
 public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
 
-  private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
 
-  protected InterestRateInstrumentTradeOrSecurityConverter getSecurityConverter() {
-    return _securityConverter;
+  protected InterestRateInstrumentTradeOrSecurityConverter getSecurityConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, context.getComputationTargetResolver().getVersionCorrection());
   }
 
   protected FixedIncomeConverterDataProvider getDefinitionConverter() {
@@ -62,13 +65,10 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecate
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
   }
 
   @Override
@@ -105,9 +105,10 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecate
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
     final Set<ValueRequirement> timeSeriesRequirements = new HashSet<ValueRequirement>();
+    final InterestRateInstrumentTradeOrSecurityConverter securityConverter = getSecurityConverter(executionContext);
     for (final FixedIncomeStripWithSecurity strip : curve.getStrips()) {
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-      final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
+      final InstrumentDefinition<?> definition = securityConverter.visit(financialSecurity);
       final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(financialSecurity, definition);
       if (requirements == null) {
         throw new OpenGammaRuntimeException("Can't get time series requirements for " + strip + " on " + curveName);

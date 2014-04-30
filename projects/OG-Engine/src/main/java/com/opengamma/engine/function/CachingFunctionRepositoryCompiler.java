@@ -23,6 +23,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.PoolExecutor.CompletionListener;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Implements a {@link FunctionRepositoryCompiler} that caches the results of previous compilations so that a minimal compilation is performed each time.
@@ -199,7 +200,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   @Override
   public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final PoolExecutor executor, final Instant atInstant) {
     clearInvalidCache(context.getFunctionInitId());
-    final Pair<FunctionRepository, Instant> key = Pair.of(repository, atInstant);
+    final Pair<FunctionRepository, Instant> key = Pairs.of(repository, atInstant);
     // Try a previous compilation
     final InMemoryCompiledFunctionRepository previous = getPreviousCompilation(key);
     if (previous != null) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -16,24 +16,24 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * 
+ *
  */
 public class VolatilityWeightedFXForwardCurveNodeReturnSeriesFunction extends FXForwardCurveNodeReturnSeriesFunction {
 
   @Override
-  protected ValueProperties getResultProperties(ComputationTarget target) {
+  protected ValueProperties getResultProperties(final ComputationTarget target) {
     return VolatilityWeightingFunctionUtils.addVolatilityWeightingProperties(super.getResultProperties(target));
   }
 
   @Override
-  protected String getFCHTSStart(ValueProperties constraints) {
-    Set<String> startDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+  protected String getFCHTSStart(final ValueProperties constraints) {
+    final Set<String> startDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
     if (startDates == null || startDates.size() != 1) {
       return null;
     }
-    String startDate = Iterables.getOnlyElement(startDates);
+    final String startDate = Iterables.getOnlyElement(startDates);
 
-    Set<String> volWeightingStartDates = constraints.getValues(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_START_DATE_PROPERTY);
+    final Set<String> volWeightingStartDates = constraints.getValues(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_START_DATE_PROPERTY);
     if (volWeightingStartDates == null || volWeightingStartDates.size() != 1) {
       // NOTE jonathan 2013-04-29 -- should start a day earlier so the result after weighting starts at the startDate,
       // but need to know previous date with data
@@ -42,22 +42,21 @@ public class VolatilityWeightedFXForwardCurveNodeReturnSeriesFunction extends FX
       return Iterables.getOnlyElement(volWeightingStartDates);
     }
   }
-  
+
   @Override
-  protected LocalDateDoubleTimeSeries getReturnSeries(LocalDateDoubleTimeSeries ts, ValueRequirement desiredValue) {
-    LocalDateDoubleTimeSeries differenceSeries = super.getReturnSeries(ts, desiredValue);
-    double lambda = Double.parseDouble(desiredValue.getConstraint(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_LAMBDA_PROPERTY));
-    TimeSeriesWeightedVolatilityOperator weightedVol = new TimeSeriesWeightedVolatilityOperator(lambda);
-    LocalDateDoubleTimeSeries weightedVolSeries = (LocalDateDoubleTimeSeries) weightedVol.evaluate(ts);
-    int n = weightedVolSeries.size();
-    double endDateWeightedVol = weightedVolSeries.getLatestValueFast();
-    double[] volWeightedDifferences = new double[n];
+  protected LocalDateDoubleTimeSeries getReturnSeries(final LocalDateDoubleTimeSeries ts, final ValueRequirement desiredValue) {
+    final LocalDateDoubleTimeSeries differenceSeries = super.getReturnSeries(ts, desiredValue);
+    final double lambda = Double.parseDouble(desiredValue.getConstraint(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_LAMBDA_PROPERTY));
+    final TimeSeriesWeightedVolatilityOperator weightedVol = TimeSeriesWeightedVolatilityOperator.relative(lambda);
+    final LocalDateDoubleTimeSeries weightedVolSeries = (LocalDateDoubleTimeSeries) weightedVol.evaluate(ts);
+    final int n = weightedVolSeries.size();
+    final double endDateWeightedVol = weightedVolSeries.getLatestValueFast();
+    final double[] volWeightedDifferences = new double[n];
     for (int i = 0; i < n; i++) {
-      System.out.println(differenceSeries.getTimeAtIndex(i) + "," + differenceSeries.getValueAtIndexFast(i) + "," + weightedVolSeries.getValueAtIndexFast(i));
-      volWeightedDifferences[i] = differenceSeries.getValueAtIndexFast(i) * endDateWeightedVol / weightedVolSeries.getValueAtIndexFast(i); 
+      volWeightedDifferences[i] = differenceSeries.getValueAtIndexFast(i) * endDateWeightedVol / weightedVolSeries.getValueAtIndexFast(i);
     }
-    LocalDateDoubleTimeSeries volWeightedDifferenceSeries = ImmutableLocalDateDoubleTimeSeries.of(weightedVolSeries.timesArrayFast(), volWeightedDifferences);
+    final LocalDateDoubleTimeSeries volWeightedDifferenceSeries = ImmutableLocalDateDoubleTimeSeries.of(weightedVolSeries.timesArrayFast(), volWeightedDifferences);
     return volWeightedDifferenceSeries;
   }
-  
+
 }

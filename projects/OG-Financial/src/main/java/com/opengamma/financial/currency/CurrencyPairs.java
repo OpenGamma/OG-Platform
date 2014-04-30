@@ -5,10 +5,24 @@
  */
 package com.opengamma.financial.currency;
 
+import java.util.Map;
 import java.util.Set;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -19,10 +33,12 @@ import com.opengamma.util.money.Currency;
 /**
  * A set of market convention currency pairs.
  * <p>
- * This class is immutable and thread-safe.
+ * This class is mutable although once created is normally treated as immutable.
  */
-@Config(description = "Currency pairs")
-public final class CurrencyPairs implements MutableUniqueIdentifiable, UniqueIdentifiable {
+@Config(description = "Currency pairs", group = ConfigGroups.CURRENCY)
+@BeanDefinition
+public final class CurrencyPairs implements Bean, UniqueIdentifiable, MutableUniqueIdentifiable {
+  // TODO: this really should be immutable
 
   /**
    * The engine type corresponding to the data.
@@ -36,85 +52,87 @@ public final class CurrencyPairs implements MutableUniqueIdentifiable, UniqueIde
   public static final String DEFAULT_CURRENCY_PAIRS = "DEFAULT";
 
   /**
-   * The pairs.
+   * The set of known currency pairs.
    */
-  private final Set<CurrencyPair> _pairs;
-
+  @PropertyDefinition(set = "manual")
+  private Set<CurrencyPair> _pairs;
   /**
    * The unique identifier of the convention document these pairs were fetched from.
    */
+  @PropertyDefinition
   private UniqueId _uniqueId;
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance based on a set of pairs.
-   * 
+   *
    * @param pairs the pairs, not null
    * @return the currency pairs instance, not null
    */
-  public static CurrencyPairs of(Set<CurrencyPair> pairs) {
+  public static CurrencyPairs of(final Set<CurrencyPair> pairs) {
     return new CurrencyPairs(pairs);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance based on a set of pairs.
+   *
+   * @param pairs the pairs, not null
+   */
+  private CurrencyPairs() {
+    _pairs = ImmutableSet.of();
   }
 
   /**
    * Creates an instance based on a set of pairs.
-   * 
+   *
    * @param pairs the pairs, not null
    */
-  private CurrencyPairs(Set<CurrencyPair> pairs) {
+  private CurrencyPairs(final Set<CurrencyPair> pairs) {
     ArgumentChecker.notNull(pairs, "pairs");
     _pairs = ImmutableSet.copyOf(pairs);
   }
 
-  @Override
-  public void setUniqueId(final UniqueId uniqueId) {
-    _uniqueId = uniqueId;
-  }
-
-  @Override
-  public UniqueId getUniqueId() {
-    return _uniqueId;
+  /**
+   * Sets the set of known currency pairs.
+   * @param pairs  the new value of the property
+   */
+  public void setPairs(final Set<CurrencyPair> pairs) {
+    _pairs = ImmutableSet.copyOf(pairs);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Finds the currency pair instance for the two currencies.
-   * 
-   * @param currency1 the first currency, not null
+   * <p>
+   * The returned pair will be either 'currency1-currency2' or 'currency2-currency1'.
+   *
+   * @param currency1  the first currency, not null
    * @param currency2 the second currency, not null
    * @return the market convention currency pair for the two currencies, null if not found
    */
-  public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2) {
+  public CurrencyPair getCurrencyPair(final Currency currency1, final Currency currency2) {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
-
-    CurrencyPair pair = CurrencyPair.of(currency1, currency2);
+    final CurrencyPair pair = CurrencyPair.of(currency1, currency2);
     if (_pairs.contains(pair)) {
       return pair;
     }
-    CurrencyPair inverse = pair.inverse();
+    final CurrencyPair inverse = pair.inverse();
     if (_pairs.contains(inverse)) {
       return inverse;
     }
     return null;
   }
 
-  /**
-   * The immutable set of pairs.
-   * 
-   * @return the immutable pairs set, not null
-   */
-  public Set<CurrencyPair> getPairs() {
-    return _pairs;
-  }
-
   //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj instanceof CurrencyPairs) {
-      CurrencyPairs other = (CurrencyPairs) obj;
+      final CurrencyPairs other = (CurrencyPairs) obj;
       return _pairs.equals(other._pairs);
     }
     return false;
@@ -130,4 +148,189 @@ public final class CurrencyPairs implements MutableUniqueIdentifiable, UniqueIde
     return "CurrencyPairs[" + _pairs + "]";
   }
 
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code CurrencyPairs}.
+   * @return the meta-bean, not null
+   */
+  public static CurrencyPairs.Meta meta() {
+    return CurrencyPairs.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(CurrencyPairs.Meta.INSTANCE);
+  }
+
+  @Override
+  public CurrencyPairs.Meta metaBean() {
+    return CurrencyPairs.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of known currency pairs.
+   * @return the value of the property
+   */
+  public Set<CurrencyPair> getPairs() {
+    return _pairs;
+  }
+
+  /**
+   * Gets the the {@code pairs} property.
+   * @return the property, not null
+   */
+  public Property<Set<CurrencyPair>> pairs() {
+    return metaBean().pairs().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unique identifier of the convention document these pairs were fetched from.
+   * @return the value of the property
+   */
+  public UniqueId getUniqueId() {
+    return _uniqueId;
+  }
+
+  /**
+   * Sets the unique identifier of the convention document these pairs were fetched from.
+   * @param uniqueId  the new value of the property
+   */
+  public void setUniqueId(UniqueId uniqueId) {
+    this._uniqueId = uniqueId;
+  }
+
+  /**
+   * Gets the the {@code uniqueId} property.
+   * @return the property, not null
+   */
+  public Property<UniqueId> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CurrencyPairs clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code CurrencyPairs}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code pairs} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<CurrencyPair>> _pairs = DirectMetaProperty.ofReadWrite(
+        this, "pairs", CurrencyPairs.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", CurrencyPairs.class, UniqueId.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "pairs",
+        "uniqueId");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 106428633:  // pairs
+          return _pairs;
+        case -294460212:  // uniqueId
+          return _uniqueId;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends CurrencyPairs> builder() {
+      return new DirectBeanBuilder<CurrencyPairs>(new CurrencyPairs());
+    }
+
+    @Override
+    public Class<? extends CurrencyPairs> beanType() {
+      return CurrencyPairs.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code pairs} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Set<CurrencyPair>> pairs() {
+      return _pairs;
+    }
+
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<UniqueId> uniqueId() {
+      return _uniqueId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 106428633:  // pairs
+          return ((CurrencyPairs) bean).getPairs();
+        case -294460212:  // uniqueId
+          return ((CurrencyPairs) bean).getUniqueId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 106428633:  // pairs
+          ((CurrencyPairs) bean).setPairs((Set<CurrencyPair>) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((CurrencyPairs) bean).setUniqueId((UniqueId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

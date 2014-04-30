@@ -23,7 +23,6 @@ import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
 import org.threeten.bp.ZoneId;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PlatformConfigUtils;
@@ -228,13 +227,14 @@ public class ComponentManager {
    * 
    * @param resource  the configuration resource to load, not null
    * @return this manager, for chaining, not null
+   * @throws ComponentConfigException if the resource cannot be loaded
    */
   public ComponentManager load(Resource resource) {
     _logger.logInfo("  Using item: " + ResourceUtils.getLocation(resource));
     if (resource.getFilename().endsWith(".properties")) {
       String nextConfig = loadProperties(resource);
       if (nextConfig == null) {
-        throw new OpenGammaRuntimeException("The properties file must contain the key '" + MANAGER_NEXT_FILE + "' to specify the next file to load: " + resource);
+        throw new ComponentConfigException("The properties file must contain the key '" + MANAGER_NEXT_FILE + "' to specify the next file to load: " + resource);
       }
       return load(nextConfig);
     }
@@ -242,7 +242,7 @@ public class ComponentManager {
       loadIni(resource);
       return this;
     }
-    throw new OpenGammaRuntimeException("Unknown file format: " + resource);
+    throw new ComponentConfigException("Unknown file format: " + resource);
   }
 
   //-------------------------------------------------------------------------
@@ -278,8 +278,8 @@ public class ComponentManager {
     _logger.logDebug("--- Using merged properties ---");
     Map<String, String> properties = new TreeMap<String, String>(getProperties());
     for (String key : properties.keySet()) {
-      if (key.contains("password")) {
-        _logger.logDebug(" " + key + " = " + StringUtils.repeat("*", properties.get(key).length()));
+      if (key.contains("password") || key.startsWith("shiro.")) {
+        _logger.logDebug(" " + key + " = *** HIDDEN ***");
       } else {
         _logger.logDebug(" " + key + " = " + properties.get(key));
       }
@@ -305,8 +305,8 @@ public class ComponentManager {
    * Initializes the global definitions from the config.
    */
   protected void initGlobal() {
-    LinkedHashMap<String, String> global = _configIni.getGroup("global");
-    if (global != null) {
+    if (_configIni.getGroups().contains("global")) {
+      LinkedHashMap<String, String> global = _configIni.getGroup("global");
       PlatformConfigUtils.configureSystemProperties();
       String zoneId = global.get("time.zone");
       if (zoneId != null) {
@@ -333,6 +333,7 @@ public class ComponentManager {
    * 
    * @param groupName  the group name, not null
    * @param groupConfig  the config data, not null
+   * @throws ComponentConfigException if the resource cannot be initialized
    */
   protected void initComponent(String groupName, LinkedHashMap<String, String> groupConfig) {
     _logger.logInfo("--- Initializing " + groupName + " ---");
@@ -350,14 +351,14 @@ public class ComponentManager {
     try {
       setFactoryProperties(factory, remainingConfig);
     } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Failed to set component factory properties: '" + groupName + "' with " + groupConfig, ex);
+      throw new ComponentConfigException("Failed to set component factory properties: '" + groupName + "' with " + groupConfig, ex);
     }
     
     // init
     try {
       initFactory(factory, remainingConfig);
     } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Failed to init component factory: '" + groupName + "' with " + groupConfig, ex);
+      throw new ComponentConfigException("Failed to init component factory: '" + groupName + "' with " + groupConfig, ex);
     }
     
     long endInstant = System.nanoTime();
@@ -371,6 +372,7 @@ public class ComponentManager {
    * 
    * @param typeStr  the factory type class name, not null
    * @return the factory, not null
+   * @throws ComponentConfigException if the factory cannot be initialized
    */
   protected ComponentFactory loadFactory(String typeStr) {
     ComponentFactory factory;
@@ -378,11 +380,11 @@ public class ComponentManager {
       Class<? extends ComponentFactory> cls = getClass().getClassLoader().loadClass(typeStr).asSubclass(ComponentFactory.class);
       factory = cls.newInstance();
     } catch (ClassNotFoundException ex) {
-      throw new OpenGammaRuntimeException("Unknown component factory: " + typeStr, ex);
+      throw new ComponentConfigException("Unknown component factory: " + typeStr, ex);
     } catch (InstantiationException ex) {
-      throw new OpenGammaRuntimeException("Unable to create component factory: " + typeStr, ex);
+      throw new ComponentConfigException("Unable to create component factory: " + typeStr, ex);
     } catch (IllegalAccessException ex) {
-      throw new OpenGammaRuntimeException("Unable to access component factory: " + typeStr, ex);
+      throw new ComponentConfigException("Unable to access component factory: " + typeStr, ex);
     }
     return factory;
   }
@@ -486,28 +488,35 @@ public class ComponentManager {
    * <p>
    * The double colon is used in the format {@code Type::Classifier}.
    * If the type is omitted, this method will try to infer it.
+   * If the value ends in '?' then it is treated as optional.
    * 
    * @param bean  the bean, not null
    * @param mp  the property, not null
    * @param value  the configured value containing double colon, not null
+   * @throws ComponentConfigException if the property cannot be initialized
    */
   protected void setPropertyComponentRef(Bean bean, MetaProperty<?> mp, String value) {
     Class<?> propertyType = mp.propertyType();
     String type = StringUtils.substringBefore(value, "::");
     String classifier = StringUtils.substringAfter(value, "::");
-    if (type.length() == 0) {
-      try {
-        // infer type
-        mp.set(bean, getRepository().getInstance(propertyType, classifier));
-        return;
-      } catch (RuntimeException ex) {
-        throw new OpenGammaRuntimeException("Unable to set property " + mp + " of type " + propertyType.getName(), ex);
-      }
+    boolean optional = false;
+    if (classifier.endsWith("?")) {
+      optional = true;
+      classifier = classifier.substring(0, classifier.length() - 1).trim();
     }
+    // infer type
+    if (type.length() == 0) {
+      type = propertyType.getName();
+    }
+    // find info
     ComponentInfo info = getRepository().findInfo(type, classifier);
     if (info == null) {
-      throw new OpenGammaRuntimeException("Unable to find component reference '" + value + "' while setting property " + mp);
+      if (optional) {
+        return;
+      }
+      throw new ComponentConfigException("Unable to find component reference '" + value + "' while setting property " + mp);
     }
+    // store component
     if (ComponentInfo.class.isAssignableFrom(propertyType)) {
       mp.set(bean, info);
     } else {
@@ -523,6 +532,7 @@ public class ComponentManager {
    * @param bean  the bean, not null
    * @param mp  the property, not null
    * @param value  the configured value, not null
+   * @throws ComponentConfigException if the property cannot be initialized
    */
   protected void setPropertyInferType(Bean bean, MetaProperty<?> mp, String value) {
     Class<?> propertyType = mp.propertyType();
@@ -535,7 +545,7 @@ public class ComponentManager {
         mp.setString(bean, value);
         
       } catch (RuntimeException ex) {
-        throw new OpenGammaRuntimeException("Unable to set property " + mp, ex);
+        throw new ComponentConfigException("Unable to set property " + mp, ex);
       }
     }
   }
@@ -550,11 +560,12 @@ public class ComponentManager {
    * @param factory  the factory to initialize, not null
    * @param remainingConfig  the remaining configuration data, not null
    * @throws Exception to allow components to throw checked exceptions
+   * @throws ComponentConfigException if configuration is specified but not used
    */
   protected void initFactory(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) throws Exception {
     factory.init(getRepository(), remainingConfig);
     if (remainingConfig.size() > 0) {
-      throw new IllegalStateException("Configuration was specified but not used: " + remainingConfig);
+      throw new ComponentConfigException("Configuration was specified but not used: " + remainingConfig);
     }
   }
 

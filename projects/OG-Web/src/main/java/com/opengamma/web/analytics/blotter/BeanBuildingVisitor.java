@@ -7,6 +7,7 @@ package com.opengamma.web.analytics.blotter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -16,6 +17,7 @@ import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -61,13 +63,24 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    // TODO implement visitSetProperty()
-    throw new UnsupportedOperationException("visitSetProperty not implemented");
+    List<?> dataValues = _data.getCollectionValues(property.name());
+    if (dataValues == null) {
+      return;
+    }
+    Set<Object> values = Sets.newHashSetWithExpectedSize(dataValues.size());
+    Class<?> collectionType = JodaBeanUtils.collectionType(property, property.declaringType());
+    for (Object dataValue : dataValues) {
+      values.add(convert(dataValue, property, collectionType, traverser));
+    }
+    _builder.set(property, values);
   }
 
   @Override
   public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
     List<?> dataValues = _data.getCollectionValues(property.name());
+    if (dataValues == null) {
+      return;
+    }
     List<Object> values = Lists.newArrayList();
     Class<?> collectionType = JodaBeanUtils.collectionType(property, property.declaringType());
     for (Object dataValue : dataValues) {

@@ -15,21 +15,14 @@ import com.opengamma.util.PublicAPI;
  * Static helper for constructing instances of {@link MarketDataSpecification}.
  */
 @PublicAPI
-public class MarketData {
-
-  /**
-   * Avoid creating multiple instances since the live case is so common and most requests should come through this
-   * helper. 
-   */
-  private static final LiveMarketDataSpecification LIVE_SPEC = new LiveMarketDataSpecification();
-  
+public class MarketData {  
   /**
    * Gets a live market data specification.
    * 
    * @return the live market data specification
    */
   public static LiveMarketDataSpecification live() {
-    return LIVE_SPEC;
+    return LiveMarketDataSpecification.LIVE_SPEC;
   }
   
   /**
@@ -40,7 +33,7 @@ public class MarketData {
    */
   public static LiveMarketDataSpecification live(String dataSource) {
     ArgumentChecker.notNull(dataSource, "dataSource");
-    return new LiveMarketDataSpecification(dataSource.intern());
+    return LiveMarketDataSpecification.of(dataSource.intern());
   }
   
   //-------------------------------------------------------------------------
@@ -63,7 +56,7 @@ public class MarketData {
    * @return the user market data specification, not null
    */
   public static UserMarketDataSpecification user(UniqueId snapshotId) {
-    return new UserMarketDataSpecification(snapshotId);
+    return UserMarketDataSpecification.of(snapshotId);
   }
   
 }

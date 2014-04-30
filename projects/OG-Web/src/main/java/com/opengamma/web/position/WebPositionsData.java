@@ -9,30 +9,32 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based positions.
  */
 @BeanDefinition
-public class WebPositionsData extends DirectBean {
+public class WebPositionsData extends WebPerRequestData {
   /**
    * The position master.
    */
@@ -54,11 +56,6 @@ public class WebPositionsData extends DirectBean {
   @PropertyDefinition
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
-  /**
    * The position id from the input URI.
    */
   @PropertyDefinition
@@ -78,6 +75,11 @@ public class WebPositionsData extends DirectBean {
    */
   @PropertyDefinition
   private PositionDocument _versioned;
+  /**
+   * The external schemes.
+   */
+  @PropertyDefinition
+  private final Map<ExternalScheme, String> _externalSchemes = Maps.newHashMap();
 
   /**
    * Creates an instance.
@@ -123,100 +125,6 @@ public class WebPositionsData extends DirectBean {
   @Override
   public WebPositionsData.Meta metaBean() {
     return WebPositionsData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-      case -903470221:  // securityLoader
-        return getSecurityLoader();
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case 358729161:  // historicalTimeSeriesSource
-        return getHistoricalTimeSeriesSource();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case 1240319664:  // uriPositionId
-        return getUriPositionId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
-      case 747804969:  // position
-        return getPosition();
-      case -1407102089:  // versioned
-        return getVersioned();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-      case -903470221:  // securityLoader
-        setSecurityLoader((SecurityLoader) newValue);
-        return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case 358729161:  // historicalTimeSeriesSource
-        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case 1240319664:  // uriPositionId
-        setUriPositionId((String) newValue);
-        return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
-      case 747804969:  // position
-        setPosition((PositionDocument) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((PositionDocument) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebPositionsData other = (WebPositionsData) obj;
-      return JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriPositionId(), other.getUriPositionId()) &&
-          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
-          JodaBeanUtils.equal(getPosition(), other.getPosition()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPosition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -321,31 +229,6 @@ public class WebPositionsData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the position id from the input URI.
    * @return the value of the property
    */
@@ -446,9 +329,105 @@ public class WebPositionsData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the external schemes.
+   * @return the value of the property, not null
+   */
+  public Map<ExternalScheme, String> getExternalSchemes() {
+    return _externalSchemes;
+  }
+
+  /**
+   * Sets the external schemes.
+   * @param externalSchemes  the new value of the property, not null
+   */
+  public void setExternalSchemes(Map<ExternalScheme, String> externalSchemes) {
+    JodaBeanUtils.notNull(externalSchemes, "externalSchemes");
+    this._externalSchemes.clear();
+    this._externalSchemes.putAll(externalSchemes);
+  }
+
+  /**
+   * Gets the the {@code externalSchemes} property.
+   * @return the property, not null
+   */
+  public final Property<Map<ExternalScheme, String>> externalSchemes() {
+    return metaBean().externalSchemes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public WebPositionsData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebPositionsData other = (WebPositionsData) obj;
+      return JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getUriPositionId(), other.getUriPositionId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getPosition(), other.getPosition()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          JodaBeanUtils.equal(getExternalSchemes(), other.getExternalSchemes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPosition());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSchemes());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("WebPositionsData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("uriPositionId").append('=').append(JodaBeanUtils.toString(getUriPositionId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("position").append('=').append(JodaBeanUtils.toString(getPosition())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+    buf.append("externalSchemes").append('=').append(JodaBeanUtils.toString(getExternalSchemes())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code WebPositionsData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -475,11 +454,6 @@ public class WebPositionsData extends DirectBean {
     private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesSource", WebPositionsData.class, HistoricalTimeSeriesSource.class);
     /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebPositionsData.class, UriInfo.class);
-    /**
      * The meta-property for the {@code uriPositionId} property.
      */
     private final MetaProperty<String> _uriPositionId = DirectMetaProperty.ofReadWrite(
@@ -500,19 +474,25 @@ public class WebPositionsData extends DirectBean {
     private final MetaProperty<PositionDocument> _versioned = DirectMetaProperty.ofReadWrite(
         this, "versioned", WebPositionsData.class, PositionDocument.class);
     /**
+     * The meta-property for the {@code externalSchemes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<ExternalScheme, String>> _externalSchemes = DirectMetaProperty.ofReadWrite(
+        this, "externalSchemes", WebPositionsData.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "positionMaster",
         "securityLoader",
         "securitySource",
         "historicalTimeSeriesSource",
-        "uriInfo",
         "uriPositionId",
         "uriVersionId",
         "position",
-        "versioned");
+        "versioned",
+        "externalSchemes");
 
     /**
      * Restricted constructor.
@@ -531,8 +511,6 @@ public class WebPositionsData extends DirectBean {
           return _securitySource;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 1240319664:  // uriPositionId
           return _uriPositionId;
         case 666567687:  // uriVersionId
@@ -541,6 +519,8 @@ public class WebPositionsData extends DirectBean {
           return _position;
         case -1407102089:  // versioned
           return _versioned;
+        case -1949439709:  // externalSchemes
+          return _externalSchemes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -594,14 +574,6 @@ public class WebPositionsData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code uriPositionId} property.
      * @return the meta-property, not null
      */
@@ -631,6 +603,81 @@ public class WebPositionsData extends DirectBean {
      */
     public final MetaProperty<PositionDocument> versioned() {
       return _versioned;
+    }
+
+    /**
+     * The meta-property for the {@code externalSchemes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<ExternalScheme, String>> externalSchemes() {
+      return _externalSchemes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1840419605:  // positionMaster
+          return ((WebPositionsData) bean).getPositionMaster();
+        case -903470221:  // securityLoader
+          return ((WebPositionsData) bean).getSecurityLoader();
+        case -702456965:  // securitySource
+          return ((WebPositionsData) bean).getSecuritySource();
+        case 358729161:  // historicalTimeSeriesSource
+          return ((WebPositionsData) bean).getHistoricalTimeSeriesSource();
+        case 1240319664:  // uriPositionId
+          return ((WebPositionsData) bean).getUriPositionId();
+        case 666567687:  // uriVersionId
+          return ((WebPositionsData) bean).getUriVersionId();
+        case 747804969:  // position
+          return ((WebPositionsData) bean).getPosition();
+        case -1407102089:  // versioned
+          return ((WebPositionsData) bean).getVersioned();
+        case -1949439709:  // externalSchemes
+          return ((WebPositionsData) bean).getExternalSchemes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1840419605:  // positionMaster
+          ((WebPositionsData) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+        case -903470221:  // securityLoader
+          ((WebPositionsData) bean).setSecurityLoader((SecurityLoader) newValue);
+          return;
+        case -702456965:  // securitySource
+          ((WebPositionsData) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case 358729161:  // historicalTimeSeriesSource
+          ((WebPositionsData) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+          return;
+        case 1240319664:  // uriPositionId
+          ((WebPositionsData) bean).setUriPositionId((String) newValue);
+          return;
+        case 666567687:  // uriVersionId
+          ((WebPositionsData) bean).setUriVersionId((String) newValue);
+          return;
+        case 747804969:  // position
+          ((WebPositionsData) bean).setPosition((PositionDocument) newValue);
+          return;
+        case -1407102089:  // versioned
+          ((WebPositionsData) bean).setVersioned((PositionDocument) newValue);
+          return;
+        case -1949439709:  // externalSchemes
+          ((WebPositionsData) bean).setExternalSchemes((Map<ExternalScheme, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebPositionsData) bean)._externalSchemes, "externalSchemes");
+      super.validate(bean);
     }
 
   }

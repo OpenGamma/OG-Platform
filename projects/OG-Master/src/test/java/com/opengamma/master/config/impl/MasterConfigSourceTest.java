@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.config.impl;
 
-
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -32,10 +31,10 @@ public class MasterConfigSourceTest {
   private static final ConfigItem<ExternalId> ITEM;
   static {
     ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
-    item.setName("Test");    
+    item.setName("Test");
     ITEM = item;
   }
-  
+
   private MasterConfigSource _configSource;
 
   @BeforeMethod
@@ -53,13 +52,8 @@ public class MasterConfigSourceTest {
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_1arg_nullMaster() throws Exception {
+  public void test_constructor_nullMaster() throws Exception {
     new MasterConfigSource(null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_2arg_nullMaster() throws Exception {
-    new MasterConfigSource(null, null);
   }
 
   public void search() throws Exception {

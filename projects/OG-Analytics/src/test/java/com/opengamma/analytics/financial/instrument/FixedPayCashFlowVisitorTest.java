@@ -72,10 +72,12 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FixedPayCashFlowVisitorTest {
   private static final ForwardRateAgreementDefinition RECEIVER_FRA_UNFIXED = ForwardRateAgreementDefinition.from(FRA_START.plusYears(3), FRA_END.plusYears(3),
       -FRA_NOTIONAL, USD_IBOR_INDEX1, FRA_RATE, NO_HOLIDAY);

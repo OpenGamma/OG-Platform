@@ -11,7 +11,6 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -19,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an Federal Funds Futures.
  */
-public class FederalFundsFutureSecurity implements InstrumentDerivative {
+public class FederalFundsFutureSecurity extends FuturesSecurity {
 
   /**
    * The OIS-like index on which the future fixes.
@@ -64,6 +63,7 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    * @param index The OIS-like index on which the future fixes.
    * @param accruedInterest The accrual interest of the period already fixed. Interest (fixing rate * accrual fraction) for a notional of 1.
    * @param fixingPeriodTime The times of the fixing periods not yet fixed. There is one date more than period.
+   * @param lastTradingTime The last trading time of the futures.
    * @param fixingPeriodAccrualFactor The accrual factors (or year fractions) associated to the fixing periods not yet fixed in the Index day count convention.
    * @param fixingTotalAccrualFactor The total accrual factor for all fixing periods (including the one that have fixed already).
    * @param notional The future notional.
@@ -73,9 +73,10 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    * @deprecated Use the constructor that does not take curve names
    */
   @Deprecated
-  public FederalFundsFutureSecurity(final IndexON index, final double accruedInterest, final double[] fixingPeriodTime, final double[] fixingPeriodAccrualFactor,
-      final double fixingTotalAccrualFactor, final double notional,
-      final double paymentAccrualFactor, final String name, final String oisCurveName) {
+  public FederalFundsFutureSecurity(final IndexON index, final double accruedInterest, final double[] fixingPeriodTime, final double lastTradingTime,
+      final double[] fixingPeriodAccrualFactor, final double fixingTotalAccrualFactor, final double notional, final double paymentAccrualFactor, final String name,
+      final String oisCurveName) {
+    super(lastTradingTime);
     ArgumentChecker.notNull(index, "Index overnight");
     ArgumentChecker.notNull(fixingPeriodTime, "Fixing period time");
     ArgumentChecker.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
@@ -97,14 +98,16 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    * @param index The OIS-like index on which the future fixes.
    * @param accruedInterest The accrual interest of the period already fixed. Interest (fixing rate * accrual fraction) for a notional of 1.
    * @param fixingPeriodTime The times of the fixing periods not yet fixed. There is one date more than period.
+   * @param lastTradingTime The last trading time of the futures.
    * @param fixingPeriodAccrualFactor The accrual factors (or year fractions) associated to the fixing periods not yet fixed in the Index day count convention.
    * @param fixingTotalAccrualFactor The total accrual factor for all fixing periods (including the one that have fixed already).
    * @param notional The future notional.
    * @param paymentAccrualFactor The future payment accrual factor. Usually a standardized number of 1/12 for a 30-day future.
    * @param name The future name.
    */
-  public FederalFundsFutureSecurity(final IndexON index, final double accruedInterest, final double[] fixingPeriodTime, final double[] fixingPeriodAccrualFactor,
-      final double fixingTotalAccrualFactor, final double notional, final double paymentAccrualFactor, final String name) {
+  public FederalFundsFutureSecurity(final IndexON index, final double accruedInterest, final double[] fixingPeriodTime, final double lastTradingTime,
+      final double[] fixingPeriodAccrualFactor, final double fixingTotalAccrualFactor, final double notional, final double paymentAccrualFactor, final String name) {
+    super(lastTradingTime);
     ArgumentChecker.notNull(index, "Index overnight");
     ArgumentChecker.notNull(fixingPeriodTime, "Fixing period time");
     ArgumentChecker.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
@@ -120,7 +123,6 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
     _name = name;
     _oisCurveName = null;
   }
-
 
   /**
    * Gets the OIS-like index on which the future fixes.
@@ -203,6 +205,7 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    * Gets the future currency.
    * @return The currency.
    */
+  @Override
   public Currency getCurrency() {
     return _index.getCurrency();
   }

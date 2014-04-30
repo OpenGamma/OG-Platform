@@ -13,10 +13,12 @@ import com.opengamma.analytics.math.ComplexMathUtils;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class JTransformsWrapperTest {
 
   private final static double MU = -1.0;

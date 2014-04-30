@@ -84,7 +84,7 @@ public class PortfolioHedgingCalculator {
     final Currency ccy = sensi.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: all the currencies are supposed to be the same, we choose any of them.
     for (final Pair<String, Integer> nameSize : order) {
-      if (sensi.getSensitivities().containsKey(new ObjectsPair<>(nameSize.getFirst(), ccy))) {
+      if (sensi.getSensitivities().containsKey(ObjectsPair.of(nameSize.getFirst(), ccy))) {
         psArray = ArrayUtils.addAll(psArray, sensi.getSensitivity(nameSize.getFirst(), ccy).getData());
       } else { // When curve is not in the sensitivity, add zeros.
         psArray = ArrayUtils.addAll(psArray, new double[nameSize.getSecond()]);

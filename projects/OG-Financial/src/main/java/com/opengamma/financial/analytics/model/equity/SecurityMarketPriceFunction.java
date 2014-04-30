@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.equity;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -27,7 +28,8 @@ import com.opengamma.financial.security.MarketSecurityVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * Provides the market price for the security of a position as a value on the position
+ * Provides the market price for the security of a position as a value on the position. <p>
+ * See also {@link SecurityMarkCurrentFunction}
  */
 public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInvoker {
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -17,31 +18,52 @@ import com.opengamma.engine.value.ValueSpecification;
 public class DependencyNodeJobExecutionResultCache {
 
   private final Map<ValueSpecification, DependencyNodeJobExecutionResult> _resultsBySpec = new ConcurrentHashMap<ValueSpecification, DependencyNodeJobExecutionResult>();
-  
-  public void put(ValueSpecification valueSpec, DependencyNodeJobExecutionResult jobExecutionResult) {
+
+  public void put(final ValueSpecification valueSpec, DependencyNodeJobExecutionResult jobExecutionResult) {
     _resultsBySpec.put(valueSpec, jobExecutionResult);
   }
-  
-  public DependencyNodeJobExecutionResult get(ValueSpecification valueSpec) {
+
+  /**
+   * Stores the execution result for a dependency graph node.
+   * 
+   * @param node the dependency node to store, not null
+   * @param jobExecutionResult the result to store, not null
+   */
+  public void put(final DependencyNode node, final DependencyNodeJobExecutionResult jobExecutionResult) {
+    final int outputs = node.getOutputCount();
+    for (int i = 0; i < outputs; i++) {
+      put(node.getOutputValue(i), jobExecutionResult);
+    }
+  }
+
+  public DependencyNodeJobExecutionResult get(final ValueSpecification valueSpec) {
     return _resultsBySpec.get(valueSpec);
   }
-  
+
   /**
-   * Finds the execution result for a job producing one or more of the given value specifications.
-   * <p>
-   * The first matching result is returned.
+   * Finds the execution result for a dependency graph node.
    * 
-   * @param valueSpecs  the value specifications, not null
+   * @param node the dependency node to search for, not null
    * @return the execution result, null if no match
    */
-  public DependencyNodeJobExecutionResult find(Set<ValueSpecification> valueSpecs) {
-    for (ValueSpecification valueSpec : valueSpecs) {
-      DependencyNodeJobExecutionResult result = _resultsBySpec.get(valueSpec);
+  public DependencyNodeJobExecutionResult get(final DependencyNode node) {
+    final int outputs = node.getOutputCount();
+    for (int i = 0; i < outputs; i++) {
+      final DependencyNodeJobExecutionResult result = get(node.getOutputValue(i));
       if (result != null) {
         return result;
       }
     }
     return null;
   }
-  
+
+  /**
+   * Returns the set of data produced by nodes that have already been executed.
+   * 
+   * @return the executed values
+   */
+  public Set<ValueSpecification> getExecutedData() {
+    return _resultsBySpec.keySet();
+  }
+
 }

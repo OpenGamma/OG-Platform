@@ -13,10 +13,12 @@ import com.opengamma.analytics.financial.equity.variance.pricing.RealizedVarianc
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RealizedVarianceTest {
 
   // -------------------------------- SETUP ------------------------------------------

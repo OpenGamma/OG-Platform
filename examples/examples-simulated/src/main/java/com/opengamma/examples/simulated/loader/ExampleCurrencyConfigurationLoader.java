@@ -18,22 +18,21 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class ExampleCurrencyConfigurationLoader extends AbstractTool<ToolContext> {
 
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(final String[] args) { // CSIGNORE
+    new ExampleCurveAndSurfaceDefinitionLoader().invokeAndTerminate(args);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
     CurrencyPairsConfigPopulator.populateCurrencyPairsConfigMaster(configMaster);
     CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(configMaster);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Main method to run the tool.
-   * 
-   * @param args the arguments, unused
-   */
-  public static void main(final String[] args) { // CSIGNORE
-    new ExampleCurveAndSurfaceDefinitionLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
   }
 
 }

@@ -5,25 +5,35 @@
  */
 package com.opengamma.engine.function.dsl;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import java.util.Map;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * The set of inputs and outputs.
+ */
 @BeanDefinition
 public class FunctionSignatureResolution extends DirectBean {
 
+  /**
+   * The resolved inputs.
+   */
   @PropertyDefinition(validate = "notNull")
   private InputsResolution _inputs;
-
+  /**
+   * The resolved outputs.
+   */
   @PropertyDefinition(validate = "notNull")
   private OutputsResolution _outputs;
 
@@ -46,35 +56,62 @@ public class FunctionSignatureResolution extends DirectBean {
     return FunctionSignatureResolution.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1183866391:  // inputs
-        return getInputs();
-      case -1106114670:  // outputs
-        return getOutputs();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the resolved inputs.
+   * @return the value of the property, not null
+   */
+  public InputsResolution getInputs() {
+    return _inputs;
   }
 
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1183866391:  // inputs
-        setInputs((InputsResolution) newValue);
-        return;
-      case -1106114670:  // outputs
-        setOutputs((OutputsResolution) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  /**
+   * Sets the resolved inputs.
+   * @param inputs  the new value of the property, not null
+   */
+  public void setInputs(InputsResolution inputs) {
+    JodaBeanUtils.notNull(inputs, "inputs");
+    this._inputs = inputs;
   }
 
+  /**
+   * Gets the the {@code inputs} property.
+   * @return the property, not null
+   */
+  public final Property<InputsResolution> inputs() {
+    return metaBean().inputs().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the resolved outputs.
+   * @return the value of the property, not null
+   */
+  public OutputsResolution getOutputs() {
+    return _outputs;
+  }
+
+  /**
+   * Sets the resolved outputs.
+   * @param outputs  the new value of the property, not null
+   */
+  public void setOutputs(OutputsResolution outputs) {
+    JodaBeanUtils.notNull(outputs, "outputs");
+    this._outputs = outputs;
+  }
+
+  /**
+   * Gets the the {@code outputs} property.
+   * @return the property, not null
+   */
+  public final Property<OutputsResolution> outputs() {
+    return metaBean().outputs().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_inputs, "inputs");
-    JodaBeanUtils.notNull(_outputs, "outputs");
-    super.validate();
+  public FunctionSignatureResolution clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -98,56 +135,22 @@ public class FunctionSignatureResolution extends DirectBean {
     return hash;
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the inputs.
-   * @return the value of the property, not null
-   */
-  public InputsResolution getInputs() {
-    return _inputs;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("FunctionSignatureResolution{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the inputs.
-   * @param inputs  the new value of the property, not null
-   */
-  public void setInputs(InputsResolution inputs) {
-    JodaBeanUtils.notNull(inputs, "inputs");
-    this._inputs = inputs;
-  }
-
-  /**
-   * Gets the the {@code inputs} property.
-   * @return the property, not null
-   */
-  public final Property<InputsResolution> inputs() {
-    return metaBean().inputs().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the outputs.
-   * @return the value of the property, not null
-   */
-  public OutputsResolution getOutputs() {
-    return _outputs;
-  }
-
-  /**
-   * Sets the outputs.
-   * @param outputs  the new value of the property, not null
-   */
-  public void setOutputs(OutputsResolution outputs) {
-    JodaBeanUtils.notNull(outputs, "outputs");
-    this._outputs = outputs;
-  }
-
-  /**
-   * Gets the the {@code outputs} property.
-   * @return the property, not null
-   */
-  public final Property<OutputsResolution> outputs() {
-    return metaBean().outputs().createProperty(this);
+  protected void toString(StringBuilder buf) {
+    buf.append("inputs").append('=').append(JodaBeanUtils.toString(getInputs())).append(',').append(' ');
+    buf.append("outputs").append('=').append(JodaBeanUtils.toString(getOutputs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -225,6 +228,37 @@ public class FunctionSignatureResolution extends DirectBean {
      */
     public final MetaProperty<OutputsResolution> outputs() {
       return _outputs;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1183866391:  // inputs
+          return ((FunctionSignatureResolution) bean).getInputs();
+        case -1106114670:  // outputs
+          return ((FunctionSignatureResolution) bean).getOutputs();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1183866391:  // inputs
+          ((FunctionSignatureResolution) bean).setInputs((InputsResolution) newValue);
+          return;
+        case -1106114670:  // outputs
+          ((FunctionSignatureResolution) bean).setOutputs((OutputsResolution) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FunctionSignatureResolution) bean)._inputs, "inputs");
+      JodaBeanUtils.notNull(((FunctionSignatureResolution) bean)._outputs, "outputs");
     }
 
   }

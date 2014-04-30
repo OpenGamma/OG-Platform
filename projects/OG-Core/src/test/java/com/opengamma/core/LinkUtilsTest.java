@@ -19,6 +19,7 @@ import com.opengamma.util.test.TestGroup;
  * Test {@link LinkUtils}.
  */
 @Test(groups = TestGroup.UNIT)
+@SuppressWarnings("deprecation")
 public class LinkUtilsTest {
 
   private static final ObjectId OBJECT_ID = ObjectId.of("A", "B");

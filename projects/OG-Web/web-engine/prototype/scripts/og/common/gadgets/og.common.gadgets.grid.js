@@ -211,7 +211,15 @@ $.register_module({
                     return time ? (last ? ((delta = time - last), (last = time), delta) : ((last = time), 0)) : delta;
                 };
             })(null, 0);
-            if (templates) init_data.call(grid); else compile_templates.call(grid, init_data);
+            if (templates) {
+                init_data.call(grid);
+            } else {
+                compile_templates.call(grid, init_data);
+            }
+            og.api.rest.on('fatal', function () {
+                var elm = $(templates.loading({text: 'error loading view', error: 'OG-loader-error'}));
+                grid.elements.parent.html(elm);
+            });
         };
         var init_data = function () {
             var grid = this, config = grid.config;
@@ -220,21 +228,31 @@ $.register_module({
             })(false);
             grid.elements.parent.html(templates.loading({text: 'preparing view...'}));
             grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: grid.label})
-                .on('meta', init_grid, grid).on('data', render_rows, grid)
+                .on('meta', init_grid, grid)
+                .on('data', render_rows, grid)
                 .on('cycle', function (cycle) {grid.fire('cycle', cycle);})
                 .on('disconnect', function () {
                     if (grid.selector) grid.selector.clear(); // may not have been instantiated yet
                     grid.clipboard.clear();
                 })
                 .on('fatal', function (error) {
-                    grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
+                    og.common.util.ui.dialog({type: 'error', message: 'fatal error: ' + error });
+                    grid.kill();
+                    grid.elements.parent.html('');
+                    grid.fire('fatal');
                 })
                 .on('title', function (row_name, col_name, name) {grid.fire('title', row_name, col_name, name);})
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
                     grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
-                    if (grid.views.list.length === 1) grid.views.list = [];
-                    if (grid.elements.empty) return; else render_header.call(grid);
+                    if (grid.views.list.length === 1) {
+                        grid.views.list = [];
+                    }
+                    if (grid.elements.empty) {
+                        return;
+                    } else {
+                        render_header.call(grid);
+                    }
                 });
             grid.clipboard = new og.common.grid.Clipboard(grid);
         };
@@ -375,8 +393,15 @@ $.register_module({
             meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             verify_state.call(grid);
-            if (!reorder_cols.call(grid)) populate_cols.call(grid);
-            if (grid.elements.empty) init_elements.call(grid); else grid.clipboard.clear(), grid.selector.clear();
+            if (!reorder_cols.call(grid)) {
+                populate_cols.call(grid);
+            }
+            if (grid.elements.empty) {
+                init_elements.call(grid);
+            } else {
+                grid.clipboard.clear();
+                grid.selector.clear();
+            }
             grid.resize(config[has]('collapse_level'));
             render_rows.call(grid, null, true);
         };
@@ -450,6 +475,8 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, fixed, loading) {
+                var result = {rows: [], loading: loading};
+                if (loading) return result;
                 var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, row, col,
                     index, data_row, data_col, inner = meta.inner, prefix,
                     cols = meta.viewport.cols, rows = meta.viewport.rows, highlight = state.highlight,
@@ -457,7 +484,6 @@ $.register_module({
                     total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
                     col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
                     widths = meta.columns.widths, result = {rows: [], loading: loading};
-                if (loading) return result;
                 for (row = 0; row < row_len; row += 1) {
                     result.rows
                         .push({top: row_height * grid_row++, cells: (cells = []), data_row: data_row = rows[row]});
@@ -486,7 +512,11 @@ $.register_module({
             };
             return function (data, loading, quiet) { // TODO handle scenario where grid was busy when data stopped
                 var grid = this, meta = grid.meta;
-                if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
+                if (grid.busy() || grid_elements_empty(grid.elements)) {
+                    return;
+                } else {
+                    grid.busy(true); // don't accept more data if rendering
+                }
                 grid.data = data;
                 grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body
@@ -502,6 +532,11 @@ $.register_module({
                 if (!quiet) grid.fire('render');
             };
         })();
+        var grid_elements_empty = function (elements) {
+            var empty = !(elements.fixed_body.length && elements.fixed_head.length
+                && elements.scroll_body.length && elements.scroll_head.length);
+            return empty;
+        };
         var set_css = function (id, sets, offset) {
             var partial = 0, total_width = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, [])
                 .reduce(function (acc, val) {return val.width + acc;}, 0);
@@ -581,7 +616,9 @@ $.register_module({
                 state.col_override = new Array(meta.fixed_length + meta.scroll_length);
                 state.col_reorder = [];
             }
-            if (!Object.equals(meta.structure, state.structure)) unravel_structure.call(grid);
+            if (!Object.equals(meta.structure, state.structure)) {
+                unravel_structure.call(grid);
+            }
         };
         var viewport = function (handler) {
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
@@ -590,10 +627,18 @@ $.register_module({
                 scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv, reorder,
                 row_end = Math.min(row_start + meta.visible_rows + buffer.row, grid.state.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
-            lcv = Math.max(0, row_start - buffer.row); viewport.rows = [];
-            while (lcv < row_end) viewport.rows.push(grid.state.available[lcv++]);
+            if (row_end < 0) {
+                return; // bail if number of rows is negative, occurs if you drag a grid before the grid loads
+            }
+            lcv = Math.max(0, row_start - buffer.row);
+            viewport.rows = [];
+            while (lcv < row_end) {
+                viewport.rows.push(grid.state.available[lcv++]);
+            }
             (viewport.cols = []), (lcv = 0);
-            while (lcv < fixed_len) viewport.cols.push(lcv++);
+            while (lcv < fixed_len) {
+                viewport.cols.push(lcv++);
+            }
             reorder = grid.state.col_reorder.length && grid.state.col_reorder;
             viewport.cols = viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
                 var lcv;
@@ -754,7 +799,11 @@ $.register_module({
             columns.scan.all = columns.scan.fixed
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar;
-            if (collapse) state.nodes.collapse.forEach(function (node) {state.nodes[node] = false;});
+            if (collapse) {
+                state.nodes.collapse.forEach(function (node) {
+                    state.nodes[node] = false;
+                });
+            }
             meta.rows = (state.available = available.call(grid)).length;
             meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,
@@ -775,8 +824,11 @@ $.register_module({
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
             grid.elements.style.empty();
-            if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
-            else sheet.appendChild(document.createTextNode(css));
+            if ((sheet = grid.elements.style[0]).styleSheet) {// IE
+                sheet.styleSheet.cssText = css;
+            } else {
+                sheet.appendChild(document.createTextNode(css));
+            }
             grid.fire('resize');
             return viewport.call(grid, render_header);
         };

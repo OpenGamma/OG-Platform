@@ -45,15 +45,17 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Test class for the replication method for CMS caplet/floorlet with a SABR smile.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorCMSSABRReplicationMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -79,7 +81,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 5);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 5);
-  private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount PAYMENT_DAY_COUNT = DayCounts.ACT_360;
   private static final double ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 10000000; //10m
 
@@ -172,7 +174,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
     final double maturity = CMS_CAP.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_CAP.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - CMS_CAP.getSettlementTime();
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_CAP.getFixingTime(), maturity);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CMS_CAP.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
@@ -270,7 +272,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
         .isEndOfMonth());
     final ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     final Period capPeriod = Period.ofMonths(6);
-    final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+    final DayCount capDayCount = DayCounts.ACT_360;
     final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP, CALENDAR);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE);
     final double pvCalculator = PVSSC.visit(cap, SABR_MULTICURVES).getAmount(EUR);
@@ -292,7 +294,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
         .isEndOfMonth());
     final ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     final Period capPeriod = Period.ofMonths(6);
-    final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+    final DayCount capDayCount = DayCounts.ACT_360;
     final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP, CALENDAR);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE);
     MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSSSC.visit(cap, SABR_MULTICURVES);

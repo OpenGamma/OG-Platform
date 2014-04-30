@@ -19,6 +19,8 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.BLACK;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
@@ -27,6 +29,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -43,11 +46,10 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.FXVanillaOptionConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
@@ -60,10 +62,10 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- * Base function for all FX option pricing and risk functions that use a Black surface
- * and curves constructed using the discounting method.
+ * Base function for all FX option pricing and risk functions that use a Black surface and curves constructed using the discounting method.
  */
 public abstract class BlackDiscountingFXOptionFunction extends DiscountingFunction {
 
@@ -74,30 +76,34 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
     super(valueRequirements);
   }
 
+  /**
+   * Gets the currency pairs configuration called {@link CurrencyPairs#DEFAULT_CURRENCY_PAIRS} from a {@link CurrencyPairsSource}.
+   * 
+   * @param context The compilation context
+   * @return The currency pairs
+   */
   protected CurrencyPairs getCurrencyPairs(final FunctionCompilationContext context) {
+    @SuppressWarnings("deprecation")
     final CurrencyPairsSource currencyPairsSource = OpenGammaCompilationContext.getCurrencyPairsSource(context);
     return currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
   }
 
   @Override
-  protected TradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
+  protected DefaultTradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final FXVanillaOptionConverter fxOptionConverter = new FXVanillaOptionConverter(getCurrencyPairs(context));
-    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .fxOptionVisitor(fxOptionConverter)
+    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().fxOptionVisitor(fxOptionConverter)
         .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
-    return new TradeConverter(futureTradeConverter, securityConverter);
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter();
+    return new DefaultTradeConverter(futureTradeConverter, securityConverter);
   }
 
   /**
-   * Base compiled function for all pricing and risk functions that use a Black surface
-   * and curves constructed using the discounting method.
+   * Base compiled function for all pricing and risk functions that use a Black surface and curves constructed using the discounting method.
    */
   protected abstract class BlackDiscountingCompiledFunction extends DiscountingCompiledFunction {
 
@@ -106,8 +112,8 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property.
      */
-    protected BlackDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected BlackDiscountingCompiledFunction(final DefaultTradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+        final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }
 
@@ -117,16 +123,11 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
       return security instanceof FXOptionSecurity;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-          .with(PROPERTY_VOLATILITY_MODEL, BLACK)
-          .withAny(X_INTERPOLATOR_NAME)
-          .withAny(LEFT_X_EXTRAPOLATOR_NAME)
-          .withAny(RIGHT_X_EXTRAPOLATOR_NAME)
-          .withAny(SURFACE)
-          .withAny(CURVE_EXPOSURES);
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
+      final ValueProperties.Builder properties = createValueProperties().with(PROPERTY_CURVE_TYPE, DISCOUNTING).with(PROPERTY_VOLATILITY_MODEL, BLACK).withAny(X_INTERPOLATOR_NAME)
+          .withAny(LEFT_X_EXTRAPOLATOR_NAME).withAny(RIGHT_X_EXTRAPOLATOR_NAME).withAny(SURFACE).withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
@@ -135,9 +136,9 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
         final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
         final String currency = getResultCurrency(target, baseQuotePair);
         properties.with(CURRENCY, currency);
-        return properties;
+        return Collections.singleton(properties);
       }
-      return properties;
+      return Collections.singleton(properties);
     }
 
     @Override
@@ -157,16 +158,11 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
       final String rightExtrapolatorName = Iterables.getOnlyElement(rightExtrapolatorNames);
       final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
       final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-      final ValueProperties surfaceProperties = ValueProperties.builder()
-          .with(ValuePropertyNames.SURFACE, surface)
-          .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, FOREX)
-          .with(X_INTERPOLATOR_NAME, interpolatorName)
-          .with(LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-          .with(RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-          .get();
+      final ValueProperties surfaceProperties = ValueProperties.builder().with(SURFACE, surface).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, FOREX).with(X_INTERPOLATOR_NAME, interpolatorName)
+          .with(LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName).with(RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
       final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-      final ValueRequirement surfaceRequirement = new ValueRequirement(STANDARD_VOLATILITY_SURFACE_DATA,
-          ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currenciesTarget), surfaceProperties);
+      final ValueRequirement surfaceRequirement = new ValueRequirement(STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currenciesTarget),
+          surfaceProperties);
       requirements.add(surfaceRequirement);
       return requirements;
     }
@@ -194,6 +190,7 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
 
     /**
      * Gets the Black surface and curve data.
+     * 
      * @param executionContext The execution context, not null
      * @param inputs The function inputs, not null
      * @param target The computation target, not null
@@ -204,13 +201,14 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
       final FXOptionSecurity security = (FXOptionSecurity) target.getTrade().getSecurity();
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final SmileDeltaTermStructureParametersStrikeInterpolation volatilitySurface = (SmileDeltaTermStructureParametersStrikeInterpolation) inputs.getValue(STANDARD_VOLATILITY_SURFACE_DATA);
-      final Pair<Currency, Currency> currencyPair = Pair.of(security.getPutCurrency(), security.getCallCurrency());
+      final Pair<Currency, Currency> currencyPair = Pairs.of(security.getPutCurrency(), security.getCallCurrency());
       final BlackForexSmileProvider blackData = new BlackForexSmileProvider(data, volatilitySurface, currencyPair);
       return blackData;
     }
 
     /**
      * Gets the currency code of the result.
+     * 
      * @param target The computation target
      * @param baseQuotePair The base/quote pair for the currencies in the security
      * @return The result currency code.

@@ -1,15 +1,16 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -17,7 +18,6 @@ import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsResolver;
@@ -231,23 +231,23 @@ public final class OpenGammaExecutionContext {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a {@code OrganizationSource} from the context.
+   * Gets a {@code LegalEntitySource} from the context.
    *
    * @param context the context to examine, not null
    * @return the value, null if not found
    */
-  public static OrganizationSource getOrganizationSource(final FunctionExecutionContext context) {
-    return context.getOrganizationSource();
+  public static LegalEntitySource getLegalEntitySource(final FunctionExecutionContext context) {
+    return context.getLegalEntitySource();
   }
 
   /**
-   * Stores a {@code OrganizationSource} in the context.
+   * Stores a {@code LegalEntitySource} in the context.
    *
    * @param context the context to store in, not null
-   * @param organizationSource the value to store, not null
+   * @param legalEntitySource the value to store, not null
    */
-  public static void setOrganizationSource(final FunctionExecutionContext context, final OrganizationSource organizationSource) {
-    context.setOrganizationSource(organizationSource);
+  public static void setLegalEntitySource(final FunctionExecutionContext context, final LegalEntitySource legalEntitySource) {
+    context.setLegalEntitySource(legalEntitySource);
   }
 
   //-------------------------------------------------------------------------

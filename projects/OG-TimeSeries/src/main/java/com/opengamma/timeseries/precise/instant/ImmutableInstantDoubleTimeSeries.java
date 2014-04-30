@@ -290,15 +290,39 @@ public final class ImmutableInstantDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public InstantDoubleTimeSeries subSeriesFast(long startInstant, long endInstant) {
+  public InstantDoubleTimeSeries subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd) {
+    if (endTime < startTime) {
+      throw new IllegalArgumentException("Invalid subSeries: endTime < startTime");
+    }
+    // special case for start equals end
+    if (startTime == endTime) {
+      if (includeStart && includeEnd) {
+        int pos = Arrays.binarySearch(_times, startTime);
+        if (pos >= 0) {
+          return new ImmutableInstantDoubleTimeSeries(new long[] {startTime}, new double[] {_values[pos]});
+        }
+      }
+      return EMPTY_SERIES;
+    }
+    // special case when this is empty
     if (isEmpty()) {
       return EMPTY_SERIES;
     }
-    int startPos = Arrays.binarySearch(_times, startInstant);
-    int endPos = (endInstant == Integer.MIN_VALUE) ? _times.length : Arrays.binarySearch(_times, endInstant);
+    // normalize to include start and exclude end
+    if (includeStart == false) {
+      startTime++;
+    }
+    if (includeEnd) {
+      if (endTime != Long.MAX_VALUE) {
+        endTime++;
+      }
+    }
+    // calculate
+    int startPos = Arrays.binarySearch(_times, startTime);
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
+    int endPos = Arrays.binarySearch(_times, endTime);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
-    if (endPos > _times.length) {
+    if (includeEnd && endTime == Long.MAX_VALUE) {
       endPos = _times.length;
     }
     long[] timesArray = Arrays.copyOfRange(_times, startPos, endPos);

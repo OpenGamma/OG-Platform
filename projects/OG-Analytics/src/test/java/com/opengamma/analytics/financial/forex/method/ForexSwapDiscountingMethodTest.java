@@ -32,6 +32,7 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -40,6 +41,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @deprecated The class tests deprecated code
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class ForexSwapDiscountingMethodTest {
 
   private static final Currency CUR_1 = Currency.EUR;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifier
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * 
+ *
  */
 public abstract class StandardVanillaIR01CDSFunction extends StandardVanillaCDSFunction {
 
@@ -46,10 +46,6 @@ public abstract class StandardVanillaIR01CDSFunction extends StandardVanillaCDSF
     }
     final Set<String> yieldCurveBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
     if (yieldCurveBumpTypes == null || yieldCurveBumpTypes.size() != 1) {
-      return null;
-    }
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
@@ -80,8 +76,7 @@ public abstract class StandardVanillaIR01CDSFunction extends StandardVanillaCDSF
   protected ValueProperties.Builder getCommonResultProperties() {
     return createValueProperties()
         .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE);
   }
 
   @Override

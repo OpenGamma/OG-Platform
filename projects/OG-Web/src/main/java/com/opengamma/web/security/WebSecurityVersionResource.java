@@ -17,6 +17,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -75,6 +76,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
     out.put("deleted", !latestSecDoc.isLatest());
     addSecuritySpecificMetaData(versionedSecurity.getSecurity(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
+    out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(createBeanXML(versionedSecurity.getSecurity())));
     return out;
   }
 

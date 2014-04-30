@@ -7,6 +7,7 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -25,12 +26,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  * A credit security based on a underlying CDS Index rather than a reference
  * entity for a standard CDS trade.
  */
 @BeanDefinition
+@SecurityDescription(type = CreditDefaultSwapIndexSecurity.SECURITY_TYPE, description = "Cds index")
 public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSecurity {
 
   /** Serialization version */
@@ -143,75 +146,6 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
     return CreditDefaultSwapIndexSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case 461393382:  // adjustSettlementDate
-        return isAdjustSettlementDate();
-      case -638821960:  // upfrontPayment
-        return getUpfrontPayment();
-      case 880904088:  // indexCoupon
-        return getIndexCoupon();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTime) newValue);
-        return;
-      case 461393382:  // adjustSettlementDate
-        setAdjustSettlementDate((Boolean) newValue);
-        return;
-      case -638821960:  // upfrontPayment
-        setUpfrontPayment((InterestRateNotional) newValue);
-        return;
-      case 880904088:  // indexCoupon
-        setIndexCoupon((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
-    JodaBeanUtils.notNull(_adjustSettlementDate, "adjustSettlementDate");
-    JodaBeanUtils.notNull(_upfrontPayment, "upfrontPayment");
-    JodaBeanUtils.notNull(_indexCoupon, "indexCoupon");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CreditDefaultSwapIndexSecurity other = (CreditDefaultSwapIndexSecurity) obj;
-      return JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(isAdjustSettlementDate(), other.isAdjustSettlementDate()) &&
-          JodaBeanUtils.equal(getUpfrontPayment(), other.getUpfrontPayment()) &&
-          JodaBeanUtils.equal(getIndexCoupon(), other.getIndexCoupon()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the date on which the upfront payment is exchanged (usually T + 3bd).
@@ -317,6 +251,60 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
    */
   public final Property<Double> indexCoupon() {
     return metaBean().indexCoupon().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CreditDefaultSwapIndexSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CreditDefaultSwapIndexSecurity other = (CreditDefaultSwapIndexSecurity) obj;
+      return JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          (isAdjustSettlementDate() == other.isAdjustSettlementDate()) &&
+          JodaBeanUtils.equal(getUpfrontPayment(), other.getUpfrontPayment()) &&
+          JodaBeanUtils.equal(getIndexCoupon(), other.getIndexCoupon()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("CreditDefaultSwapIndexSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("adjustSettlementDate").append('=').append(JodaBeanUtils.toString(isAdjustSettlementDate())).append(',').append(' ');
+    buf.append("upfrontPayment").append('=').append(JodaBeanUtils.toString(getUpfrontPayment())).append(',').append(' ');
+    buf.append("indexCoupon").append('=').append(JodaBeanUtils.toString(getIndexCoupon())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -426,6 +414,50 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
      */
     public final MetaProperty<Double> indexCoupon() {
       return _indexCoupon;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -295948169:  // settlementDate
+          return ((CreditDefaultSwapIndexSecurity) bean).getSettlementDate();
+        case 461393382:  // adjustSettlementDate
+          return ((CreditDefaultSwapIndexSecurity) bean).isAdjustSettlementDate();
+        case -638821960:  // upfrontPayment
+          return ((CreditDefaultSwapIndexSecurity) bean).getUpfrontPayment();
+        case 880904088:  // indexCoupon
+          return ((CreditDefaultSwapIndexSecurity) bean).getIndexCoupon();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -295948169:  // settlementDate
+          ((CreditDefaultSwapIndexSecurity) bean).setSettlementDate((ZonedDateTime) newValue);
+          return;
+        case 461393382:  // adjustSettlementDate
+          ((CreditDefaultSwapIndexSecurity) bean).setAdjustSettlementDate((Boolean) newValue);
+          return;
+        case -638821960:  // upfrontPayment
+          ((CreditDefaultSwapIndexSecurity) bean).setUpfrontPayment((InterestRateNotional) newValue);
+          return;
+        case 880904088:  // indexCoupon
+          ((CreditDefaultSwapIndexSecurity) bean).setIndexCoupon((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexSecurity) bean)._settlementDate, "settlementDate");
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexSecurity) bean)._adjustSettlementDate, "adjustSettlementDate");
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexSecurity) bean)._upfrontPayment, "upfrontPayment");
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexSecurity) bean)._indexCoupon, "indexCoupon");
+      super.validate(bean);
     }
 
   }

@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Object to represent values linked to a reference for which the values can be added or multiplied by a constant.
- * Used for different sensitivities (parallel curve sensitivity,...). The objects stored as a HashMap(String, Double).
+ * Used for different sensitivities (parallel curve sensitivity,...). The objects stored as a HashMap(REFERENCE, Double).
  * @param <REFERENCE> The reference object.
  */
 public class ReferenceAmount<REFERENCE> {
@@ -107,8 +107,7 @@ public class ReferenceAmount<REFERENCE> {
       return false;
     }
     @SuppressWarnings("unchecked")
-    final
-    ReferenceAmount<REFERENCE> other = (ReferenceAmount<REFERENCE>) obj;
+    final ReferenceAmount<REFERENCE> other = (ReferenceAmount<REFERENCE>) obj;
     if (_data == null) {
       if (other._data != null) {
         return false;

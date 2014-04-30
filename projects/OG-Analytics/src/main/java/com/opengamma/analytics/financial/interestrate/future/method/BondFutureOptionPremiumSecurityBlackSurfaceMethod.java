@@ -168,7 +168,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
     // Backward sweep
     final double priceBar = 1.0;
     final double volatilityBar = priceAdjoint[2] * priceBar;
-    final DoublesPair expiryStrikeDelay = new DoublesPair(security.getExpirationTime(), strike);
+    final DoublesPair expiryStrikeDelay = DoublesPair.of(security.getExpirationTime(), strike);
     final SurfaceValue sensitivity = SurfaceValue.from(expiryStrikeDelay, volatilityBar);
     return sensitivity;
   }

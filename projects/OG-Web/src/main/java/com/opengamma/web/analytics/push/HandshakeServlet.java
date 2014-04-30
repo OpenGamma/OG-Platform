@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * <p>Sets up a connection for a client.  A connection corresponds to one view, e.g. a single browser tab or
@@ -61,9 +62,8 @@ public class HandshakeServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    Principal requestUser = req.getUserPrincipal();
-    String userId = requestUser != null ? requestUser.getName() : null;
-    String clientId = _connectionManager.clientConnected(userId);
+    String userName = (AuthUtils.isPermissive() ? null : AuthUtils.getUserName());
+    String clientId = _connectionManager.clientConnected(userName);
     resp.setContentType(MediaType.APPLICATION_JSON);
     JSONObject json = new JSONObject();
     try {

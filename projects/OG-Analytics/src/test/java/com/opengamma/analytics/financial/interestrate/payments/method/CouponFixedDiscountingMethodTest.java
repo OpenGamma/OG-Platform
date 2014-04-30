@@ -24,6 +24,7 @@ import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -31,6 +32,7 @@ import com.opengamma.util.time.DateUtils;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedDiscountingMethodTest {
 
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("TARGET");

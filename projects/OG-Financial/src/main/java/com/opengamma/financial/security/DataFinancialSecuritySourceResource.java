@@ -51,7 +51,7 @@ public class DataFinancialSecuritySourceResource extends DataSecuritySourceResou
   public Response searchBonds(@QueryParam("issuerName") String issuerName) {
     FinancialSecuritySource source = (FinancialSecuritySource) getSecuritySource();
     Collection<? extends Security> result = source.getBondsWithIssuerName(issuerName);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    return responseOkObject(FudgeListWrapper.of(result));
   }
 
   //-------------------------------------------------------------------------

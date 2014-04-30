@@ -93,13 +93,13 @@ public final class CouponONDiscountingMethod implements PricingMethod {
     final double dfBar = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * pvBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapDsc);
     final Map<String, List<DoublesPair>> resultMapFwd = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
-    listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfRatioStart * dfRatioStartBar));
-    listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfRatioEnd * dfRatioEndBar));
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfRatioStart * dfRatioStartBar));
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfRatioEnd * dfRatioEndBar));
     resultMapFwd.put(coupon.getForwardCurveName(), listForward);
     result = result.plus(new InterestRateCurveSensitivity(resultMapFwd));
     return result;
@@ -139,8 +139,8 @@ public final class CouponONDiscountingMethod implements PricingMethod {
     final double dfForwardStartBar = 1.0 / (coupon.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
-    listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(coupon.getForwardCurveName(), listForward);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;

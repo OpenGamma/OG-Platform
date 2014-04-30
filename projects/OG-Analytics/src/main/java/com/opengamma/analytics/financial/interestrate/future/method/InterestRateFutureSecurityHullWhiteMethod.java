@@ -69,7 +69,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
     final double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
     final double forward = (dfForwardStart / dfForwardEnd - 1) / future.getFixingPeriodAccrualFactor();
-    final double futureConvexityFactor = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
+    final double futureConvexityFactor = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), future.getTradingLastTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
     final double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
     return price;
   }
@@ -86,7 +86,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
     final double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
-    final double futureConvexityFactor = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
+    final double futureConvexityFactor = MODEL.futuresConvexityFactor(curves.getHullWhiteParameter(), future.getTradingLastTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
     // Backward sweep
     final double priceBar = 1.0;
     final double forwardBar = -futureConvexityFactor * priceBar;
@@ -94,8 +94,8 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
     final double dfForwardStartBar = 1.0 / (future.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
-    listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    listForward.add(DoublesPair.of(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(DoublesPair.of(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(future.getForwardCurveName(), listForward);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;

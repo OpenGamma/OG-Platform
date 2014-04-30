@@ -21,12 +21,14 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScho
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ComplexChooserOptionDefinitionTest {
   private static final double CALL_STRIKE = 110;
   private static final double PUT_STRIKE = 90;

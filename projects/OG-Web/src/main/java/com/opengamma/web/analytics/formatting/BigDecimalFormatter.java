@@ -26,6 +26,7 @@ import com.opengamma.web.server.conversion.DoubleValueDecimalPlaceFormatter;
 import com.opengamma.web.server.conversion.DoubleValueFormatter;
 import com.opengamma.web.server.conversion.DoubleValueSignificantFiguresFormatter;
 import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceFormatter;
+import com.opengamma.web.server.conversion.PercentageValueSignificantFiguresFormatter;
 
 /**
  *
@@ -50,6 +51,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.GAMMA_PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.DV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.GAMMA_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -113,6 +115,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.FORWARD_VANNA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.FORWARD_VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.IMPLIED_VOLATILITY, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.DRIFTLESS_THETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Position/value greeks
     addBulkConversion("(POSITION_|VALUE_).*", DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -155,8 +158,8 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     // Bonds
     s_formatters.put(ValueRequirementNames.CLEAN_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     s_formatters.put(ValueRequirementNames.DIRTY_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
-    s_formatters.put(ValueRequirementNames.YTM, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
-    s_formatters.put(ValueRequirementNames.MARKET_YTM, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.YTM, PercentageValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.MARKET_YTM, PercentageValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.MARKET_DIRTY_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     s_formatters.put(ValueRequirementNames.MACAULAY_DURATION, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
     s_formatters.put(ValueRequirementNames.CONVEXITY, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);

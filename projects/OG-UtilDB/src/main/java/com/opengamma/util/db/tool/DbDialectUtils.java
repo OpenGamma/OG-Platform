@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.HSQLDbDialect;
+import com.opengamma.util.db.Oracle11gDbDialect;
 import com.opengamma.util.db.PostgresDbDialect;
 import com.opengamma.util.db.SqlServer2008DbDialect;
 import com.opengamma.util.time.DateUtils;
@@ -40,6 +41,7 @@ public final class DbDialectUtils {
     addDbDialect("hsqldb", new HSQLDbDialect());
     addDbDialect("postgres", new PostgresDbDialect());
     addDbDialect("sqlserver2008", new SqlServer2008DbDialect());
+    addDbDialect("oracle11g", new Oracle11gDbDialect());
   }
 
   //-------------------------------------------------------------------------

@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function;
 
+import com.opengamma.engine.depgraph.DependencyNodeFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -15,7 +16,7 @@ import com.opengamma.util.PublicAPI;
  * another where IterationCount = 50000.
  */
 @PublicAPI
-public class ParameterizedFunction {
+public class ParameterizedFunction implements DependencyNodeFunction {
 
   private String _uniqueId;
   private final CompiledFunctionDefinition _function;
@@ -63,17 +64,28 @@ public class ParameterizedFunction {
   }
 
   /**
+   * Returns the function identifier.
+   * 
+   * @return the function identifier
+   */
+  @Override
+  public String getFunctionId() {
+    return getFunction().getFunctionDefinition().getUniqueId();
+  }
+
+  /**
    * Returns the function parameters.
    * 
    * @return the function parameters
    */
+  @Override
   public FunctionParameters getParameters() {
     return _parameters;
   }
 
   @Override
   public String toString() {
-    return "ParameterizedFunction[" + getFunction() + ", " + getParameters() + "]";
+    return "ParameterizedFunction[" + getFunctionId() + ", " + getParameters() + "]";
   }
 
   @Override

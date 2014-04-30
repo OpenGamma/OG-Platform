@@ -9,9 +9,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SmileInterpolatorMixedLogNormalTest extends SmileInterpolatorTestCase {
 
   private static final GeneralSmileInterpolator INTERPOLATOR = new SmileInterpolatorMixedLogNormal();

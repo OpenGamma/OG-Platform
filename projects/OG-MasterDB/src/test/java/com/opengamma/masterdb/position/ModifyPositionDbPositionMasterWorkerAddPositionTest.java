@@ -309,7 +309,9 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
-    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV")));
+    ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
+    trade.setProviderId(ExternalId.of("TRD", "123"));
+    position.getTrades().add(trade);
     
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);

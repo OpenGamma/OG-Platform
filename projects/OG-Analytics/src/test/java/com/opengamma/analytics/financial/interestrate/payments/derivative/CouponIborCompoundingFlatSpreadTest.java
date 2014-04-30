@@ -18,21 +18,23 @@ import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the building of compounded Ibor coupons.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborCompoundingFlatSpreadTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster MASTER_IBOR = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR1M = MASTER_IBOR.getIndex("USDLIBOR1M");
-  private static final BusinessDayConvention PREC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+  private static final BusinessDayConvention PREC = BusinessDayConventions.PRECEDING;
 
   private static final Period TENOR_3M = Period.ofMonths(3);
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);

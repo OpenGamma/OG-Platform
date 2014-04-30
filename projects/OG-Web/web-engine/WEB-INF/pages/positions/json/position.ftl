@@ -1,4 +1,3 @@
-<#escape x as x?html>
 {
     "template_data": {
         "name": "${position.name}",
@@ -33,9 +32,9 @@
                           <#if userAttr?has_content>"userAttributes" : {<#list userAttr?keys as key>"${key}":"${userAttr[key]}"<#if key_has_next>,</#if></#list>} </#if>},
             </#if>
             "id": "${trade.uniqueId.objectId}",
-            "trade_date_time": "<#if trade.tradeDate?has_content>${trade.tradeDate}</#if><#if trade.tradeTime?has_content> ${trade.tradeTime.toString(timeFormatter)} (${trade.tradeTime.toString(offsetFormatter)})</#if>",
+            "trade_date_time": "<#if trade.tradeDate?has_content>${trade.tradeDate}</#if><#if trade.tradeTime?has_content> ${trade.tradeTime.toString(timeFormatterJson)} (${trade.tradeTime.toString(offsetFormatterJson)})</#if>",
             "premium": "<#if trade.premium?has_content>${trade.premium}</#if><#if trade.premiumCurrency?has_content> ${trade.premiumCurrency}</#if>",
-            "premium_date_time": "<#if trade.premiumDate?has_content>${trade.premiumDate}</#if><#if trade.premiumTime?has_content> ${trade.premiumTime.toString(timeFormatter)} (${trade.premiumTime.toString(offsetFormatter)})</#if>",
+            "premium_date_time": "<#if trade.premiumDate?has_content>${trade.premiumDate}</#if><#if trade.premiumTime?has_content> ${trade.premiumTime.toString(timeFormatterJson)} (${trade.premiumTime.toString(offsetFormatterJson)})</#if>",
             "quantity": "${trade.quantity}",
             "counterParty": "${trade.counterpartyExternalId}",
             "tradeDate": "${trade.tradeDate}"
@@ -45,6 +44,6 @@
     </#if>
     "securities": [
         <#list position.securityLink.externalId.externalIds as item>{"scheme": "${item.scheme.name}", "value": "${item.value}" }<#if item_has_next>,</#if></#list>
-    ]
+    ],
+    "xml":"${positionXml!''}"
 }
-</#escape>

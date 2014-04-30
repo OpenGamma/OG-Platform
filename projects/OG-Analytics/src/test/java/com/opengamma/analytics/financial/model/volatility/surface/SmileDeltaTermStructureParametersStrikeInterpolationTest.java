@@ -16,12 +16,14 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests related to the construction of term structure of smile data from delta.
  * Tests related to the interpolation of volatility.
  */
+@Test(groups = TestGroup.UNIT)
 public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
 
   private static final double[] TIME_TO_EXPIRY = {0.10, 0.25, 0.50, 1.00, 2.00, 3.00};

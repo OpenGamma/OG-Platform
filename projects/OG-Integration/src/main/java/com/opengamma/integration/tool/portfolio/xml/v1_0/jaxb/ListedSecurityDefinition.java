@@ -5,25 +5,27 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedSecurityExtractor;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * XML access to a listed security.
@@ -76,73 +78,6 @@ public abstract class ListedSecurityDefinition extends DirectBean {
   @Override
   public ListedSecurityDefinition.Meta metaBean() {
     return ListedSecurityDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
-      case 1257391553:  // pointValue
-        return getPointValue();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1989774883:  // exchange
-        return getExchange();
-      case -1075726114:  // additionalAttributes
-        return getAdditionalAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
-        setUnderlyingId((IdWrapper) newValue);
-        return;
-      case 1257391553:  // pointValue
-        setPointValue((Integer) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1989774883:  // exchange
-        setExchange((String) newValue);
-        return;
-      case -1075726114:  // additionalAttributes
-        setAdditionalAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ListedSecurityDefinition other = (ListedSecurityDefinition) obj;
-      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
-          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -260,6 +195,60 @@ public abstract class ListedSecurityDefinition extends DirectBean {
    */
   public final Property<Map<String, String>> additionalAttributes() {
     return metaBean().additionalAttributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ListedSecurityDefinition clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ListedSecurityDefinition other = (ListedSecurityDefinition) obj;
+      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          (getPointValue() == other.getPointValue()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("ListedSecurityDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("pointValue").append('=').append(JodaBeanUtils.toString(getPointValue())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("exchange").append('=').append(JodaBeanUtils.toString(getExchange())).append(',').append(' ');
+    buf.append("additionalAttributes").append('=').append(JodaBeanUtils.toString(getAdditionalAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -386,6 +375,47 @@ public abstract class ListedSecurityDefinition extends DirectBean {
      */
     public final MetaProperty<Map<String, String>> additionalAttributes() {
       return _additionalAttributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -771625640:  // underlyingId
+          return ((ListedSecurityDefinition) bean).getUnderlyingId();
+        case 1257391553:  // pointValue
+          return ((ListedSecurityDefinition) bean).getPointValue();
+        case 575402001:  // currency
+          return ((ListedSecurityDefinition) bean).getCurrency();
+        case 1989774883:  // exchange
+          return ((ListedSecurityDefinition) bean).getExchange();
+        case -1075726114:  // additionalAttributes
+          return ((ListedSecurityDefinition) bean).getAdditionalAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -771625640:  // underlyingId
+          ((ListedSecurityDefinition) bean).setUnderlyingId((IdWrapper) newValue);
+          return;
+        case 1257391553:  // pointValue
+          ((ListedSecurityDefinition) bean).setPointValue((Integer) newValue);
+          return;
+        case 575402001:  // currency
+          ((ListedSecurityDefinition) bean).setCurrency((Currency) newValue);
+          return;
+        case 1989774883:  // exchange
+          ((ListedSecurityDefinition) bean).setExchange((String) newValue);
+          return;
+        case -1075726114:  // additionalAttributes
+          ((ListedSecurityDefinition) bean).setAdditionalAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

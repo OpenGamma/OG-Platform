@@ -81,4 +81,43 @@ public class PiecewisePolynomialResult {
   public int getDimensions() {
     return _dim;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _coefMatrix.hashCode();
+    result = prime * result + _dim;
+    result = prime * result + _knots.hashCode();
+    result = prime * result + _order;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof PiecewisePolynomialResult)) {
+      return false;
+    }
+    PiecewisePolynomialResult other = (PiecewisePolynomialResult) obj;
+    if (!_coefMatrix.equals(other._coefMatrix)) {
+      return false;
+    }
+    if (_dim != other._dim) {
+      return false;
+    }
+    if (!_knots.equals(other._knots)) {
+      return false;
+    }
+    if (_order != other._order) {
+      return false;
+    }
+    return true;
+  }
+
 }

@@ -6,10 +6,10 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.ws.rs.Consumes;
@@ -28,12 +28,13 @@ import com.opengamma.core.config.impl.DataConfigSourceResource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter.Mode;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
-import com.opengamma.financial.rest.AbstractRestfulJmsResultPublisherExpiryJob;
+import com.opengamma.financial.rest.RestfulJmsResultPublisherExpiryJob;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
@@ -98,11 +99,6 @@ public class DataViewProcessorResource extends AbstractDataResource {
    */
   private final ScheduledExecutorService _scheduler;
   /**
-   * The stale view client expiry job.
-   */
-  @SuppressWarnings("unused")
-  private final AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource> _expiryJob;
-  /**
    * The cycle manager.
    */
   private final AtomicReference<DataViewCycleManagerResource> _cycleManagerResource = new AtomicReference<DataViewCycleManagerResource>();
@@ -117,7 +113,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param viewProcessor the view processor, not null
    * @param targetResolver the target resolver, not null
    * @param volatilityCubeDefinitionSource the volatility cube, not null
@@ -126,26 +122,33 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * @param scheduler the scheduler, not null
    * @param htsSource the hts source, may be null
    */
-  public DataViewProcessorResource(final ViewProcessor viewProcessor, final ComputationTargetResolver targetResolver, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
-      final JmsConnector jmsConnector,
-      final FudgeContext fudgeContext, final ScheduledExecutorService scheduler, final HistoricalTimeSeriesSource htsSource) {
+  public DataViewProcessorResource(final ViewProcessor viewProcessor,
+                                   final ComputationTargetResolver targetResolver,
+                                   final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
+                                   final JmsConnector jmsConnector,
+                                   final FudgeContext fudgeContext,
+                                   final ScheduledExecutorService scheduler,
+                                   final HistoricalTimeSeriesSource htsSource) {
     _viewProcessor = viewProcessor;
     _htsSource = htsSource;
     _targetResolver = targetResolver;
     _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
     _jmsConnector = jmsConnector;
     _scheduler = scheduler;
-    _expiryJob = new AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource>(VIEW_CLIENT_TIMEOUT_MILLIS, scheduler) {
-      @Override
-      protected Collection<DataViewClientResource> getResources() {
-        return _createdViewClients.values();
-      }
-    };
+    _scheduler.scheduleAtFixedRate(createExpiryJob(),
+                                   VIEW_CLIENT_TIMEOUT_MILLIS,
+                                   VIEW_CLIENT_TIMEOUT_MILLIS,
+                                   TimeUnit.MILLISECONDS);
+  }
+
+  private RestfulJmsResultPublisherExpiryJob<DataViewClientResource> createExpiryJob() {
+    return new RestfulJmsResultPublisherExpiryJob<>(
+        _createdViewClients.values(), VIEW_CLIENT_TIMEOUT_MILLIS);
   }
 
   /**
    * Gets the viewProcessor field.
-   * 
+   *
    * @return the viewProcessor
    */
   public ViewProcessor getViewProcessor() {
@@ -174,9 +177,11 @@ public class DataViewProcessorResource extends AbstractDataResource {
     return new DataNamedMarketDataSpecificationRepositoryResource(getViewProcessor().getNamedMarketDataSpecificationRepository());
   }
 
-  @Path(PATH_SNAPSHOTTER)
-  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource, _htsSource);
+  @Path(PATH_SNAPSHOTTER + "/{mode}")
+  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl(@PathParam("mode") final String mode) {
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver,
+                                                                    _htsSource,
+                                                                    Mode.valueOf(Mode.class, mode));
     return new DataMarketDataSnapshotterResource(getViewProcessor(), snp);
   }
 
@@ -189,7 +194,8 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @Path(PATH_CLIENTS + "/{viewClientId}")
-  public DataViewClientResource getViewClient(@Context final UriInfo uriInfo, @PathParam("viewClientId") final String viewClientIdString) {
+  public DataViewClientResource getViewClient(@Context final UriInfo uriInfo,
+                                              @PathParam("viewClientId") final String viewClientIdString) {
     final UniqueId viewClientId = UniqueId.parse(viewClientIdString);
     final DataViewClientResource viewClientResource = _createdViewClients.get(viewClientId);
     if (viewClientResource != null) {
@@ -232,6 +238,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
     return UriBuilder.fromUri(clientsBaseUri).segment(viewClientId.toString()).build();
   }
 
+  public static URI uriSnapshotter(final URI clientsBaseUri, final Mode mode) {
+    return UriBuilder.fromUri(clientsBaseUri).path(PATH_SNAPSHOTTER).segment(mode.name()).build();
+  }
+
   private URI getViewProcessorUri(final UriInfo uriInfo) {
     return uriInfo.getBaseUri().resolve(UriBuilder.fromUri(uriInfo.getMatchedURIs().get(1)).build());
   }
@@ -240,7 +250,8 @@ public class DataViewProcessorResource extends AbstractDataResource {
     DataViewCycleManagerResource resource = _cycleManagerResource.get();
     if (resource == null) {
       final URI baseUri = UriBuilder.fromUri(viewProcessorUri).path(PATH_CYCLES).build();
-      final DataViewCycleManagerResource newResource = new DataViewCycleManagerResource(baseUri, getViewProcessor().getViewCycleManager());
+      final DataViewCycleManagerResource newResource = new DataViewCycleManagerResource(baseUri,
+                                                                                        getViewProcessor().getViewCycleManager());
       if (_cycleManagerResource.compareAndSet(null, newResource)) {
         resource = newResource;
         final DataViewCycleManagerResource.ReleaseExpiredReferencesRunnable task = newResource.createReleaseExpiredReferencesTask();

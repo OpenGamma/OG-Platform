@@ -7,6 +7,8 @@ package com.opengamma.financial.convention;
 
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleExchangeNameSecurityId;
 
+import com.opengamma.financial.convention.expirycalc.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;

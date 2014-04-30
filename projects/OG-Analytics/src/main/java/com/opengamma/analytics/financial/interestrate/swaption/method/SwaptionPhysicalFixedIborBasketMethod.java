@@ -51,7 +51,7 @@ public final class SwaptionPhysicalFixedIborBasketMethod {
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
       final double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
       final SwapFixedCoupon<? extends Payment> swap = swaption.getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
-      basket[loopcal] = SwaptionPhysicalFixedIbor.from(swaption.getTimeToExpiry(), swap, swaption.getSettlementTime(), true);
+      basket[loopcal] = SwaptionPhysicalFixedIbor.from(swaption.getTimeToExpiry(), swap, swaption.getSettlementTime(), swaption.isCall(), true);
     }
     return basket;
   }
@@ -72,12 +72,13 @@ public final class SwaptionPhysicalFixedIborBasketMethod {
     final int nbPeriods = legFixed.getNumberOfPayments();
     final int nbStrikes = relativeMoneyness.length;
     final SwaptionPhysicalFixedIbor[] basket = new SwaptionPhysicalFixedIbor[nbPeriods * nbStrikes];
-    final double notional = 1; // Math.abs(legFixed.getNthPayment(0).getNotional());
+    final double notional = 1;
     for (int loopcal = 0; loopcal < nbPeriods; loopcal++) {
       final double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
       final SwapFixedCoupon<? extends Payment> swap = swaption.getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
       for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
-        basket[loopcal * nbStrikes + loopstrike] = SwaptionPhysicalFixedIbor.from(swaption.getTimeToExpiry(), swap.withRateShifted(relativeMoneyness[loopstrike]), swaption.getSettlementTime(), true);
+        basket[loopcal * nbStrikes + loopstrike] = SwaptionPhysicalFixedIbor.from(swaption.getTimeToExpiry(), swap.withRateShifted(relativeMoneyness[loopstrike]),
+            swaption.getSettlementTime(), swaption.isCall(), true);
       }
     }
     return basket;

@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -34,6 +36,7 @@ import com.opengamma.engine.view.cycle.ComputationCycleQuery;
 import com.opengamma.engine.view.cycle.ComputationResultsResponse;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleState;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -43,7 +46,7 @@ import com.opengamma.util.tuple.Pair;
  * {@link ViewCycle} implementation that acts as a placeholder when a calculation cycle hasn't completed and there isn't a cycle available. This is cleaner than using a null cycle reference and being
  * forced to do a null check everywhere it's used. Only a single instance of this class should ever exist.
  */
-/*package*/ final class EmptyViewCycle implements ViewCycle {
+/*package*/final class EmptyViewCycle implements ViewCycle {
 
   /** Reference to the empty cycle. */
   /* package */static final EngineResourceReference<ViewCycle> REFERENCE = new EmptyViewCycleReference();
@@ -80,6 +83,11 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  public String getName() {
+    throw new UnsupportedOperationException("getName not supported");
+  }
+
+  @Override
   public ViewCycleState getState() {
     throw new UnsupportedOperationException("getState not supported");
   }
@@ -87,6 +95,11 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public Duration getDuration() {
     return Duration.ZERO;
+  }
+  
+  @Override
+  public ViewCycleExecutionOptions getExecutionOptions() {
+    throw new UnsupportedOperationException("getExecutionOptions not supported");
   }
 
   @Override
@@ -166,14 +179,15 @@ import com.opengamma.util.tuple.Pair;
 
     @Override
     public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
-        Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
-        Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
-      throw new UnsupportedOperationException("getCompiledCalculationConfigurations not implemented");
+        Map<String, DependencyGraph> graphsByConfiguration,
+        Map<String, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByConfiguration,
+        Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByConfiguration) {
+      throw new UnsupportedOperationException("withMarketDataManipulationSelections not implemented");
     }
 
     @Override
     public Map<String, CompiledViewCalculationConfiguration> getCompiledCalculationConfigurationsMap() {
-      throw new UnsupportedOperationException("getCompiledCalculationConfigurations not implemented");
+      throw new UnsupportedOperationException("getCompiledCalculationConfigurationsMap not implemented");
     }
 
     @Override
@@ -220,13 +234,35 @@ import com.opengamma.util.tuple.Pair;
   private static class EmptyDependencyGraphExplorer implements DependencyGraphExplorer {
 
     @Override
+    public String getCalculationConfigurationName() {
+      return "Empty";
+    }
+
+    @Override
     public DependencyGraph getWholeGraph() {
       throw new UnsupportedOperationException("getWholeGraph not implemented");
     }
 
     @Override
-    public DependencyGraph getSubgraphProducing(ValueSpecification output) {
+    public DependencyGraphExplorer getSubgraphProducing(ValueSpecification output) {
       return null;
     }
+
+    @Override
+    public DependencyNode getNodeProducing(ValueSpecification output) {
+      return null;
+    }
+
+    @Override
+    public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs() {
+      return Collections.emptyMap();
+    }
+
+    @Override
+    public Set<ComputationTargetSpecification> getComputationTargets() {
+      return Collections.emptySet();
+    }
+
   }
+
 }

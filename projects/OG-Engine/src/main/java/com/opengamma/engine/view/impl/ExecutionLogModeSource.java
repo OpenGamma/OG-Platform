@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
@@ -25,9 +25,9 @@ public class ExecutionLogModeSource {
 
   private final ReentrantLock _lock = new ReentrantLock();
   private final Map<Pair<String, ValueSpecification>, Integer> _elevatedLogTargets = new HashMap<Pair<String, ValueSpecification>, Integer>();
-  private final Map<DependencyNode, Integer> _elevatedLogNodes = new ConcurrentHashMap<DependencyNode, Integer>();
+  private final Map<String, Map<ValueSpecification, Integer>> _elevatedLogNodes = new ConcurrentHashMap<String, Map<ValueSpecification, Integer>>();
+  private final Map<ValueSpecification, Integer> _elevatedLogSpecs = new ConcurrentHashMap<ValueSpecification, Integer>();
   private CompiledViewDefinitionWithGraphs _compiledViewDefinition;
-  private Map<String, DependencyGraph> _graphs = new HashMap<String, DependencyGraph>();
 
   /**
    * Ensures at least a minimum level of logging output is present in the results for the given value specifications. Changes will take effect from the next computation cycle.
@@ -71,11 +71,16 @@ public class ExecutionLogModeSource {
   /**
    * Gets the log mode for a dependency node.
    * 
-   * @param dependencyNode the dependency node, not null
+   * @param calcConfig the calculation configuration, not null
+   * @param output an output from the node, not null
    * @return the log mode, not null
    */
-  public ExecutionLogMode getLogMode(DependencyNode dependencyNode) {
-    return _elevatedLogNodes.containsKey(dependencyNode) ? ExecutionLogMode.FULL : ExecutionLogMode.INDICATORS;
+  public ExecutionLogMode getLogMode(final String calcConfig, final ValueSpecification output) {
+    Map<ValueSpecification, Integer> modesByConfig = _elevatedLogNodes.get(calcConfig);
+    if (modesByConfig == null) {
+      return ExecutionLogMode.INDICATORS;
+    }
+    return modesByConfig.containsKey(output) ? ExecutionLogMode.FULL : ExecutionLogMode.INDICATORS;
   }
 
   //-------------------------------------------------------------------------
@@ -91,31 +96,39 @@ public class ExecutionLogModeSource {
 
   private void addElevatedNode(Pair<String, ValueSpecification> target) {
     // Must be called while holding the lock
-    incrementNodeRefCount(getNodeProducing(target));
+    incrementNodeRefCount(getNodeProducing(target), getOrCreateModes(target.getFirst()));
   }
 
-  private void incrementNodeRefCount(DependencyNode node) {
+  private void incrementNodeRefCount(DependencyNode node, Map<ValueSpecification, Integer> refCounts) {
     if (node == null) {
       return;
     }
-    incrementRefCount(node, _elevatedLogNodes);
-    for (DependencyNode inputNode : node.getInputNodes()) {
-      incrementNodeRefCount(inputNode);
+    int count = node.getOutputCount();
+    for (int i = 0; i < count; i++) {
+      incrementRefCount(node.getOutputValue(i), refCounts);
+    }
+    count = node.getInputCount();
+    for (int i = 0; i < count; i++) {
+      incrementNodeRefCount(node.getInputNode(i), refCounts);
     }
   }
 
   private void removeElevatedNode(Pair<String, ValueSpecification> target) {
     // Must be called while holding the lock
-    decrementNodeRefCount(getNodeProducing(target));
+    decrementNodeRefCount(getNodeProducing(target), getOrCreateModes(target.getFirst()));
   }
 
-  private void decrementNodeRefCount(DependencyNode node) {
+  private void decrementNodeRefCount(DependencyNode node, Map<ValueSpecification, Integer> refCounts) {
     if (node == null) {
       return;
     }
-    decrementRefCount(node, _elevatedLogNodes);
-    for (DependencyNode inputNode : node.getInputNodes()) {
-      decrementNodeRefCount(inputNode);
+    int count = node.getOutputCount();
+    for (int i = 0; i < count; i++) {
+      decrementRefCount(node.getOutputValue(i), refCounts);
+    }
+    count = node.getInputCount();
+    for (int i = 0; i < count; i++) {
+      decrementNodeRefCount(node.getInputNode(i), refCounts);
     }
   }
 
@@ -125,18 +138,14 @@ public class ExecutionLogModeSource {
     }
     String calcConfigName = target.getFirst();
     ValueSpecification valueSpec = target.getSecond();
-    DependencyGraph depGraph = _graphs.get(calcConfigName);
-    if (depGraph == null) {
-      try {
-        depGraph = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigName).getWholeGraph();
-      } catch (Exception e) {
-        // No graph available - an empty one will return null for any of the value specifications
-        depGraph = new DependencyGraph(calcConfigName);
-      }
-      _graphs.put(calcConfigName, depGraph);
+    final DependencyGraphExplorer explorer;
+    try {
+      explorer = _compiledViewDefinition.getDependencyGraphExplorer(calcConfigName);
+    } catch (Exception e) {
+      // No graph available
+      return null;
     }
-    DependencyNode node = depGraph.getNodeProducing(valueSpec);
-    return node;
+    return explorer.getNodeProducing(valueSpec);
   }
 
   private void rebuildNodeLogModes() {
@@ -147,8 +156,16 @@ public class ExecutionLogModeSource {
     }
   }
 
-  //-------------------------------------------------------------------------
-  private <T> boolean incrementRefCount(T key, Map<T, Integer> refMap) {
+  private Map<ValueSpecification, Integer> getOrCreateModes(final String calcConfig) {
+    Map<ValueSpecification, Integer> modesByConfig = _elevatedLogNodes.get(calcConfig);
+    if (modesByConfig == null) {
+      modesByConfig = new ConcurrentHashMap<ValueSpecification, Integer>();
+      _elevatedLogNodes.put(calcConfig, modesByConfig);
+    }
+    return modesByConfig;
+  }
+
+  private static <T> boolean incrementRefCount(T key, Map<T, Integer> refMap) {
     Integer refCount = refMap.get(key);
     if (refCount == null) {
       refMap.put(key, 1);
@@ -159,7 +176,7 @@ public class ExecutionLogModeSource {
     }
   }
 
-  private <T> boolean decrementRefCount(T key, Map<T, Integer> refMap) {
+  private static <T> boolean decrementRefCount(T key, Map<T, Integer> refMap) {
     Integer value = refMap.get(key);
     if (value == null) {
       return false;

@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the curve generator related to curves based on several underlying curve for which the rates (continously compounded) are added.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorCurveAddYieldTest {
 
   private static final String CURVE_NAME = "EUR Curve";

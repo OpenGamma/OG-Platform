@@ -68,7 +68,8 @@ import com.opengamma.util.OpenGammaClock;
     super(positionMaster, portfoioMaster, securityMaster, metaBeans, stringConvert);
   }
 
-  /* package */ UniqueId addTrade(BeanDataSource tradeData,
+  @SuppressWarnings("deprecation")
+  UniqueId addTrade(BeanDataSource tradeData,
                                   BeanDataSource securityData,
                                   BeanDataSource underlyingData,
                                   UniqueId nodeId) {
@@ -151,6 +152,7 @@ import com.opengamma.util.OpenGammaClock;
     }
   }
 
+  @SuppressWarnings("deprecation")
   private UniqueId updateSecuritiesAndPosition(BeanDataSource securityData,
                                                BeanDataSource underlyingData,
                                                ManageableTrade trade,

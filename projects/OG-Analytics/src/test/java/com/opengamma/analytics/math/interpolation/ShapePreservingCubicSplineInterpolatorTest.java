@@ -12,10 +12,12 @@ import java.util.Random;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ShapePreservingCubicSplineInterpolatorTest {
   private static final double EPS = 1e-10;
   private static final double INF = 1. / 0.;

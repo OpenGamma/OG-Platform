@@ -29,12 +29,15 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutput;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutputAggregationType;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}.
@@ -66,8 +69,12 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
   private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
   private static final String SCENARIO_ID_FIELD = "scenarioId";
   private static final String SCENARIO_PARAMETERS_ID_FIELD = "scenarioParametersId";
+  
+  private static final String MERGED_OUTPUTS_FIELD = "mergedOutputs";
+  private static final String MERGED_OUTPUT_FIELD = "mergedOutput";
+  private static final String MERGED_OUTPUT_AGGREGATION_TYPE_FIELD = "aggregationType";
 
-  // field names for column dat
+  // field names for column data
   private static final String COLUMNS_FIELD = "columns";
   private static final String HEADER_FIELD = "header";
   private static final String VALUE_NAME_FIELD = "valueName";
@@ -135,6 +142,22 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
       if (scenarioParametersId != null) {
         serializer.addToMessageWithClassHeaders(calcConfigMsg, SCENARIO_PARAMETERS_ID_FIELD, null, scenarioParametersId, UniqueId.class);
       }
+      if (!calcConfig.getMergedOutputs().isEmpty()) {
+        MutableFudgeMsg mergedOutputsMsg = serializer.newMessage();
+        for (ViewCalculationConfiguration.MergedOutput mergedOutput : calcConfig.getMergedOutputs()) {
+          MutableFudgeMsg mergedOutputMsg = serializer.newMessage();
+          serializer.addToMessage(mergedOutputMsg, NAME_FIELD, null, mergedOutput.getMergedOutputName());
+          mergedOutputMsg.add(MERGED_OUTPUT_AGGREGATION_TYPE_FIELD, mergedOutput.getAggregationType().toString());
+          for (Pair<String, ValueProperties> portfolioRequirement : mergedOutput.getPortfolioRequirements()) {
+            MutableFudgeMsg reqMsg = serializer.newMessage();
+            serializer.addToMessage(reqMsg, PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD, null, portfolioRequirement.getFirst());
+            serializer.addToMessage(reqMsg, PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD, null, portfolioRequirement.getSecond());
+            serializer.addToMessage(mergedOutputMsg, PORTFOLIO_REQUIREMENT_FIELD, null, reqMsg);
+          }
+          serializer.addToMessage(mergedOutputsMsg, MERGED_OUTPUT_FIELD, null, mergedOutputMsg);
+        }
+        serializer.addToMessage(calcConfigMsg, MERGED_OUTPUTS_FIELD, null, mergedOutputsMsg);
+      }
       MutableFudgeMsg columnsMsg = serializer.newMessage();
       for (ViewCalculationConfiguration.Column column : calcConfig.getColumns()) {
         MutableFudgeMsg columnMsg = serializer.newMessage();
@@ -180,7 +203,6 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
 
   @Override
   public ViewDefinition buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    
     final FudgeField portfolioIdField = message.getByName(PORTFOLIO_ID_FIELD);
     final UniqueId portfolioId = portfolioIdField == null ? null : deserializer.fieldValueToObject(UniqueId.class, portfolioIdField);
     final String name = message.getFieldValue(String.class, message.getByName(NAME_FIELD));
@@ -235,7 +257,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
           FudgeMsg reqMsg = (FudgeMsg) requirement.getValue();
           String requiredOutput = reqMsg.getString(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD);
           ValueProperties constraints = deserializer.fieldValueToObject(ValueProperties.class, reqMsg.getByName(PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD));
-          requirements.add(Pair.of(requiredOutput, constraints));
+          requirements.add(Pairs.of(requiredOutput, constraints));
         }
         calcConfig.addPortfolioRequirements(securityType, requirements);
       }
@@ -263,9 +285,24 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
                                                                  calcConfigMsg.getByName(SCENARIO_PARAMETERS_ID_FIELD)));
       }
       List<ViewCalculationConfiguration.Column> columns = Lists.newArrayList();
+      if (calcConfigMsg.hasField(MERGED_OUTPUTS_FIELD)) {
+        FudgeMsg mergedOutputsMsg = calcConfigMsg.getMessage(MERGED_OUTPUTS_FIELD);
+        for (FudgeField mergedOutputField : mergedOutputsMsg.getAllByName(MERGED_OUTPUT_FIELD)) {
+          FudgeMsg mergedOutputMsg = (FudgeMsg) mergedOutputField.getValue();
+          String mergedOutputName = mergedOutputMsg.getString(NAME_FIELD);
+          MergedOutputAggregationType aggregationType = MergedOutputAggregationType.valueOf(mergedOutputMsg.getString(MERGED_OUTPUT_AGGREGATION_TYPE_FIELD));
+          MergedOutput mergedOutput = new MergedOutput(mergedOutputName, aggregationType);
+          for (FudgeField reqField : mergedOutputMsg.getAllByName(PORTFOLIO_REQUIREMENT_FIELD)) {
+            FudgeMsg reqMsg = (FudgeMsg) reqField.getValue();
+            String valueName = reqMsg.getString(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD);
+            ValueProperties constraints = deserializer.fieldValueToObject(ValueProperties.class, reqMsg.getByName(PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD));
+            mergedOutput.addMergedRequirement(valueName, constraints);
+          }
+          calcConfig.addMergedOutput(mergedOutput);
+        }
+      }
       if (calcConfigMsg.hasField(COLUMNS_FIELD)) {
-        FudgeField columnsField = calcConfigMsg.getByName(COLUMNS_FIELD);
-        FudgeMsg columnsMsg = (FudgeMsg) columnsField.getValue();
+        FudgeMsg columnsMsg = calcConfigMsg.getMessage(COLUMNS_FIELD);
         for (FudgeField field : columnsMsg.getAllFields()) {
           FudgeMsg columnMsg = (FudgeMsg) field.getValue();
           String header = deserializer.fieldValueToObject(String.class, columnMsg.getByName(HEADER_FIELD));

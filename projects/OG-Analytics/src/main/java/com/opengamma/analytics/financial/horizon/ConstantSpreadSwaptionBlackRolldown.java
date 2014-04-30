@@ -13,18 +13,28 @@ import com.opengamma.analytics.math.surface.Surface;
 /**
  * Calculates the change in value of a swaption when the curves and (Black) surface have been
  * shifted forward in time without slide.
- * @deprecated {@link YieldCurveBundle} is deprecated
+ * @deprecated {@link YieldCurveWithBlackSwaptionBundle} is deprecated
  */
 @Deprecated
 public final class ConstantSpreadSwaptionBlackRolldown implements RolldownFunction<YieldCurveWithBlackSwaptionBundle> {
+  /** Rolls down the yield curves without slide */
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
+  /** Rolls down the volatility surface without slide */
   private static final ConstantSpreadSurfaceRolldownFunction SURFACE_ROLLDOWN = ConstantSpreadSurfaceRolldownFunction.getInstance();
+  /** The singleton instance */
   private static final ConstantSpreadSwaptionBlackRolldown INSTANCE = new ConstantSpreadSwaptionBlackRolldown();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static ConstantSpreadSwaptionBlackRolldown getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private ConstantSpreadSwaptionBlackRolldown() {
   }
 

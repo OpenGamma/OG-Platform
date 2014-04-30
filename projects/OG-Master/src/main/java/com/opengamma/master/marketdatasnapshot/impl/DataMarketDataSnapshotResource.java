@@ -103,7 +103,7 @@ public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource
       request.setObjectId(getUrlId());
     }
     MarketDataSnapshotHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

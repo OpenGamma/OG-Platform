@@ -18,7 +18,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Method to compute the price of bond future as the cheapest forward.
+ * @deprecated Use the {@link BondFuturesTransactionDiscountingMethod}.
  */
+@Deprecated
 public final class BondFutureDiscountingMethod extends BondFutureMethod {
 
   /**

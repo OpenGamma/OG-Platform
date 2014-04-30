@@ -30,11 +30,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing methods for overnight indexed coupon with spread in the discounting method.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponONSpreadDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -68,7 +70,7 @@ public class CouponONSpreadDiscountingMethodTest {
   @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(CPN_OIS, MULTICURVES);
-    final double forward = MULTICURVES.getForwardRate(EONIA, CPN_OIS.getFixingPeriodStartTime(), CPN_OIS.getFixingPeriodEndTime(), CPN_OIS.getFixingPeriodAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EONIA, CPN_OIS.getFixingPeriodStartTime(), CPN_OIS.getFixingPeriodEndTime(), CPN_OIS.getFixingPeriodAccrualFactor());
     final double pvExpected = (NOTIONAL * CPN_OIS.getFixingPeriodAccrualFactor() * forward + SPREAD_AMOUNT) * MULTICURVES.getDiscountFactor(CPN_OIS.getCurrency(), CPN_OIS.getPaymentTime());
     assertEquals("CouponOISDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EONIA.getCurrency()), TOLERANCE_PV);
   }

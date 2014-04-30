@@ -104,7 +104,7 @@ public class DataSecurityResource
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     SecurityHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

@@ -21,11 +21,10 @@ public class CoppClarkExchangeFileTool extends AbstractTool<IntegrationToolConte
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new CoppClarkExchangeFileTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new CoppClarkExchangeFileTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

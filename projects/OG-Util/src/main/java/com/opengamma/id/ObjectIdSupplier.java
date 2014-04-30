@@ -42,6 +42,16 @@ public class ObjectIdSupplier implements Supplier<ObjectId> {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the scheme in use.
+   * 
+   * @return the scheme, not null
+   */
+  public String getScheme() {
+    return _scheme;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Generates the next object identifier.
    * 
    * @return the next unique identifier, not null

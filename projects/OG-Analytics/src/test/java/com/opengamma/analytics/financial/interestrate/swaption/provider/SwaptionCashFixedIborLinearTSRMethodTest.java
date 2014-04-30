@@ -28,14 +28,16 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRS
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Class to test the present value of the cash-settled European swaption in the Linear Terminal Swap Rate method.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborLinearTSRMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -52,7 +54,7 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(12);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, SWAP_TENOR, CALENDAR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
@@ -62,9 +64,9 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER, CALENDAR);
   private static final boolean IS_LONG = true;
-  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, false, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, !IS_LONG);
   //to derivatives
   private static final SwaptionCashFixedIbor SWAPTION_PAYER_LONG = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final SwaptionCashFixedIbor SWAPTION_RECEIVER_LONG = SWAPTION_RECEIVER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
@@ -109,9 +111,9 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
     for (int loopstrike = 0; loopstrike < nbStrike + 1; loopstrike++) {
       strike[loopstrike] = strikeMin + loopstrike * (strikeMax - strikeMin) / nbStrike;
       swapDefinition[loopstrike] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER, CALENDAR);
-      swaptionCashDefinition[loopstrike] = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, swapDefinition[loopstrike], IS_LONG);
+      swaptionCashDefinition[loopstrike] = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, swapDefinition[loopstrike], true, IS_LONG);
       swaptionCash[loopstrike] = swaptionCashDefinition[loopstrike].toDerivative(REFERENCE_DATE);
-      swaptionPhysDefinition[loopstrike] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition[loopstrike], IS_LONG);
+      swaptionPhysDefinition[loopstrike] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition[loopstrike], true, IS_LONG);
       swaptionPhys[loopstrike] = swaptionPhysDefinition[loopstrike].toDerivative(REFERENCE_DATE);
     }
     final double[] pvCashStandard = new double[nbStrike + 1];

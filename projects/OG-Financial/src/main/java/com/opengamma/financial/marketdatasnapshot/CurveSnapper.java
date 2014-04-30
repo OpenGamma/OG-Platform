@@ -26,16 +26,16 @@ public class CurveSnapper extends
   }
 
   @Override
-  CurveKey getKey(ValueSpecification spec) {
+  CurveKey getKey(final ValueSpecification spec) {
     final String curve = getSingleProperty(spec, ValuePropertyNames.CURVE);
-    return new CurveKey(curve);
+    return CurveKey.of(curve);
   }
 
   @Override
-  CurveSnapshot buildSnapshot(ViewComputationResultModel resultModel, CurveKey key,
-      SnapshotDataBundle bundle) {
-    ManageableUnstructuredMarketDataSnapshot values = getUnstructured(bundle);
-      ManageableCurveSnapshot ret = new ManageableCurveSnapshot();
+  CurveSnapshot buildSnapshot(final ViewComputationResultModel resultModel, final CurveKey key,
+      final SnapshotDataBundle bundle) {
+    final ManageableUnstructuredMarketDataSnapshot values = getUnstructured(bundle);
+    final ManageableCurveSnapshot ret = new ManageableCurveSnapshot();
     ret.setValues(values);
     ret.setValuationTime(resultModel.getViewCycleExecutionOptions().getValuationTime());
     return ret;

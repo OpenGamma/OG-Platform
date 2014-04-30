@@ -7,6 +7,7 @@ package com.opengamma.master;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -144,79 +145,6 @@ public abstract class AbstractHistoryRequest extends DirectBean implements Paged
   @Override
   public AbstractHistoryRequest.Meta metaBean() {
     return AbstractHistoryRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        return getPagingRequest();
-      case 90495162:  // objectId
-        return getObjectId();
-      case 825630012:  // versionsFromInstant
-        return getVersionsFromInstant();
-      case 288644747:  // versionsToInstant
-        return getVersionsToInstant();
-      case -1002076478:  // correctionsFromInstant
-        return getCorrectionsFromInstant();
-      case -1241747055:  // correctionsToInstant
-        return getCorrectionsToInstant();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        setPagingRequest((PagingRequest) newValue);
-        return;
-      case 90495162:  // objectId
-        setObjectId((ObjectId) newValue);
-        return;
-      case 825630012:  // versionsFromInstant
-        setVersionsFromInstant((Instant) newValue);
-        return;
-      case 288644747:  // versionsToInstant
-        setVersionsToInstant((Instant) newValue);
-        return;
-      case -1002076478:  // correctionsFromInstant
-        setCorrectionsFromInstant((Instant) newValue);
-        return;
-      case -1241747055:  // correctionsToInstant
-        setCorrectionsToInstant((Instant) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractHistoryRequest other = (AbstractHistoryRequest) obj;
-      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
-          JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
-          JodaBeanUtils.equal(getVersionsFromInstant(), other.getVersionsFromInstant()) &&
-          JodaBeanUtils.equal(getVersionsToInstant(), other.getVersionsToInstant()) &&
-          JodaBeanUtils.equal(getCorrectionsFromInstant(), other.getCorrectionsFromInstant()) &&
-          JodaBeanUtils.equal(getCorrectionsToInstant(), other.getCorrectionsToInstant());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsToInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsToInstant());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -406,6 +334,63 @@ public abstract class AbstractHistoryRequest extends DirectBean implements Paged
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public AbstractHistoryRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractHistoryRequest other = (AbstractHistoryRequest) obj;
+      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+          JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
+          JodaBeanUtils.equal(getVersionsFromInstant(), other.getVersionsFromInstant()) &&
+          JodaBeanUtils.equal(getVersionsToInstant(), other.getVersionsToInstant()) &&
+          JodaBeanUtils.equal(getCorrectionsFromInstant(), other.getCorrectionsFromInstant()) &&
+          JodaBeanUtils.equal(getCorrectionsToInstant(), other.getCorrectionsToInstant());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsToInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsToInstant());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("AbstractHistoryRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
+    buf.append("objectId").append('=').append(JodaBeanUtils.toString(getObjectId())).append(',').append(' ');
+    buf.append("versionsFromInstant").append('=').append(JodaBeanUtils.toString(getVersionsFromInstant())).append(',').append(' ');
+    buf.append("versionsToInstant").append('=').append(JodaBeanUtils.toString(getVersionsToInstant())).append(',').append(' ');
+    buf.append("correctionsFromInstant").append('=').append(JodaBeanUtils.toString(getCorrectionsFromInstant())).append(',').append(' ');
+    buf.append("correctionsToInstant").append('=').append(JodaBeanUtils.toString(getCorrectionsToInstant())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractHistoryRequest}.
    */
@@ -544,6 +529,51 @@ public abstract class AbstractHistoryRequest extends DirectBean implements Paged
      */
     public final MetaProperty<Instant> correctionsToInstant() {
       return _correctionsToInstant;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return ((AbstractHistoryRequest) bean).getPagingRequest();
+        case 90495162:  // objectId
+          return ((AbstractHistoryRequest) bean).getObjectId();
+        case 825630012:  // versionsFromInstant
+          return ((AbstractHistoryRequest) bean).getVersionsFromInstant();
+        case 288644747:  // versionsToInstant
+          return ((AbstractHistoryRequest) bean).getVersionsToInstant();
+        case -1002076478:  // correctionsFromInstant
+          return ((AbstractHistoryRequest) bean).getCorrectionsFromInstant();
+        case -1241747055:  // correctionsToInstant
+          return ((AbstractHistoryRequest) bean).getCorrectionsToInstant();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          ((AbstractHistoryRequest) bean).setPagingRequest((PagingRequest) newValue);
+          return;
+        case 90495162:  // objectId
+          ((AbstractHistoryRequest) bean).setObjectId((ObjectId) newValue);
+          return;
+        case 825630012:  // versionsFromInstant
+          ((AbstractHistoryRequest) bean).setVersionsFromInstant((Instant) newValue);
+          return;
+        case 288644747:  // versionsToInstant
+          ((AbstractHistoryRequest) bean).setVersionsToInstant((Instant) newValue);
+          return;
+        case -1002076478:  // correctionsFromInstant
+          ((AbstractHistoryRequest) bean).setCorrectionsFromInstant((Instant) newValue);
+          return;
+        case -1241747055:  // correctionsToInstant
+          ((AbstractHistoryRequest) bean).setCorrectionsToInstant((Instant) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

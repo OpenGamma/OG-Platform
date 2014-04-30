@@ -11,11 +11,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test DayCount accrued interest.
  */
+@Test(groups = TestGroup.UNIT)
 public class DayCountAccruedInterestTest {
 
   private static final ActualActualISDA ACT_ACT_ISDA = new ActualActualISDA();

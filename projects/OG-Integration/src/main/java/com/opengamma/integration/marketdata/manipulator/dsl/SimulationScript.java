@@ -25,6 +25,7 @@ import groovy.lang.Script;
  * Base class for scripts that create {@link Simulation}s and {@link Scenario}s. The methods in this class are available
  * in the script and form the basis of a DSL.
  */
+@SuppressWarnings("unused") // it is used reflectively by Groovy
 public abstract class SimulationScript extends Script {
 
   /** The currently building simulation. */
@@ -62,7 +63,7 @@ public abstract class SimulationScript extends Script {
    * </pre>
    * @param body The block that defines the script's parameters
    */
-  public void parameters(Closure body) {
+  public void parameters(Closure<?> body) {
     ParametersDelegate parametersDelegate = new ParametersDelegate();
     body.setDelegate(parametersDelegate);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -120,7 +121,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the simulation
    * @return The simulation
    */
-  public Simulation simulation(String name, Closure body) {
+  public Simulation simulation(String name, Closure<?> body) {
     _simulation = new Simulation(name);
     body.setDelegate(_simulation);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -134,7 +135,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the scenario
    * @return The scenario
    */
-  public Scenario scenario(String name, Closure body) {
+  public Scenario scenario(String name, Closure<?> body) {
     // scenarios can be defined as part of a simulation or stand-alone
     if (_simulation != null) {
       _scenario = _simulation.scenario(name);
@@ -151,8 +152,19 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure which defines how to select and transform a curve.
    * @param body The block that defines the selection and transformation
    */
-  public void curve(Closure body) {
-    CurveBuilder selector = new CurveBuilder(_scenario);
+  public void curve(Closure<?> body) {
+    DslYieldCurveSelectorBuilder selector = new DslYieldCurveSelectorBuilder(_scenario);
+    body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
+    body.call();
+  }
+
+  /**
+   * Defines a method in the DSL that takes a closure which defines how to select and transform a curve.
+   * @param body The block that defines the selection and transformation
+   */
+  public void curveData(Closure<?> body) {
+    DslYieldCurveDataSelectorBuilder selector = new DslYieldCurveDataSelectorBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -162,8 +174,8 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure which defines how to select and transform a market data point.
    * @param body The block that defines the selection and transformation
    */
-  public void marketData(Closure body) {
-    PointBuilder selector = new PointBuilder(_scenario);
+  public void marketData(Closure<?> body) {
+    DslPointSelectorBuilder selector = new DslPointSelectorBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -173,61 +185,21 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure which defines how to select and transform a volatility surface.
    * @param body The block that defines the selection and transformation
    */
-  public void surface(Closure body) {
-    SurfaceBuilder selector = new SurfaceBuilder(_scenario);
+  public void surface(Closure<?> body) {
+    DslVolatilitySurfaceSelectorBuilder selector = new DslVolatilitySurfaceSelectorBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
   }
 
   /**
-   * Delegate class for closures that define a surface transformation in the DSL.
+   * Defines a method in the DSL that takes a closure which defines how to select and transform spot rates.
+   * @param body The block that defines the selection and transformation
    */
-  private static final class SurfaceBuilder extends VolatilitySurfaceSelector.Builder {
-
-    private SurfaceBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    public void apply(Closure body) {
-      VolatilitySurfaceManipulatorBuilder builder = new VolatilitySurfaceManipulatorBuilder(getScenario(), getSelector());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
-  }
-
-  /**
-   * Delegate class for blocks that define a market data point transformation in the DSL.
-   */
-  private static final class PointBuilder extends PointSelector.Builder {
-
-    private PointBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    public void apply(Closure body) {
-      PointManipulatorBuilder builder = new PointManipulatorBuilder(getScenario(), getSelector());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
-  }
-
-  /**
-   * Delegate class for closures that define a curve transformation in the DSL.
-   */
-  private static final class CurveBuilder extends YieldCurveSelector.Builder {
-
-    private CurveBuilder(Scenario scenario) {
-      super(scenario);
-    }
-
-    public void apply(Closure body) {
-      YieldCurveManipulatorBuilder builder = new YieldCurveManipulatorBuilder(getSelector(), getScenario());
-      body.setDelegate(builder);
-      body.setResolveStrategy(Closure.DELEGATE_FIRST);
-      body.call();
-    }
+  public void spotRate(Closure<?> body) {
+    DslSpotRateSelectorBuilder builder = new DslSpotRateSelectorBuilder(_scenario);
+    body.setDelegate(builder);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
+    body.call();
   }
 }

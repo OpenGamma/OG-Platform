@@ -6,7 +6,7 @@ CREATE TABLE rsk_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '50');
+INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '51');
 
 CREATE SEQUENCE rsk_hibernate_sequence
     START WITH 1 INCREMENT BY 1;
@@ -173,7 +173,7 @@ create table rsk_run_property (
 
 create table rsk_run_status (
     id bigint not null, 
-    run_id bigint not null,
+    run_id bigint DEFAULT 0 not null,
     calculation_configuration_id bigint not null,
     computation_target_id bigint not null,
     status varchar(255) not null,

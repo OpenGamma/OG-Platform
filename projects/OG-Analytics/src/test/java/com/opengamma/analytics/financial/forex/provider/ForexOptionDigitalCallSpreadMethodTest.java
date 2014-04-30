@@ -35,20 +35,22 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the pricing method for digital Forex option transactions with Black function and a volatility provider.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionDigitalCallSpreadMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
@@ -59,14 +61,14 @@ public class ForexOptionDigitalCallSpreadMethodTest {
 
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = ForexSmileProviderDataSets.smile5points(REFERENCE_DATE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = ForexSmileProviderDataSets.smileFlat(REFERENCE_DATE);
-  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final int SETTLEMENT_DAYS = 2;
 
   private static final ForexOptionVanillaBlackSmileMethod METHOD_VANILLA_BLACK = ForexOptionVanillaBlackSmileMethod.getInstance();
@@ -133,7 +135,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = FXDataSets.smile3points(REFERENCE_DATE, interpolator);
-    final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(MULTICURVES, smileTerm, Pair.of(EUR, USD));
+    final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(MULTICURVES, smileTerm, Pairs.of(EUR, USD));
     final double strikeM = STRIKE * (1 - CALL_SPREAD);
     final double strikeP = STRIKE * (1 + CALL_SPREAD);
     final Forex forexM = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeM));
@@ -274,7 +276,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
     final MulticurveProviderDiscount multicurvesP = MULTICURVES.copy();
     multicurvesP.setForexMatrix(fxMatrixP);
-    final BlackForexSmileProviderDiscount smileP = new BlackForexSmileProviderDiscount(multicurvesP, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final BlackForexSmileProviderDiscount smileP = new BlackForexSmileProviderDiscount(multicurvesP, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
     final MultipleCurrencyAmount ce = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pv = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pvP = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_FOR, smileP);
@@ -576,7 +578,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
         SMILE_MULTICURVES);
     assertEquals("Forex vanilla option: vega node size", SMILE_TERM.getNumberExpiration(), sensi.getVega().getData().length);
     assertEquals("Forex vanilla option: vega node size", SMILE_TERM.getNumberStrike(), sensi.getVega().getData()[0].length);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM,
         SMILE_MULTICURVES);
@@ -632,7 +634,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = FXDataSets.smile5points(REFERENCE_DATE, interpolator);
-    final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(MULTICURVES, smileTerm, Pair.of(EUR, USD));
+    final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(MULTICURVES, smileTerm, Pairs.of(EUR, USD));
 
     final int nbStrike = 100;
     final double range = 0.40; // Spot = 1.40

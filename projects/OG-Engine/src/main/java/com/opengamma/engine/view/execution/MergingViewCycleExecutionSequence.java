@@ -32,6 +32,7 @@ public abstract class MergingViewCycleExecutionSequence implements ViewCycleExec
     MarketDataSelector marketDataSelector = base.getMarketDataSelector();
     Map<DistinctMarketDataSelector, FunctionParameters> functionParameters = base.getFunctionParameters();
     Instant valuationTime = base.getValuationTime();
+    String name = base.getName();
     if (defaults != null) {
       if (marketDataSpecifications.isEmpty()) {
         marketDataSpecifications = defaults.getMarketDataSpecifications();
@@ -45,8 +46,13 @@ public abstract class MergingViewCycleExecutionSequence implements ViewCycleExec
       if (valuationTime == null) {
         valuationTime = defaults.getValuationTime();
       }
+      
+      if (name == null) {
+        name = defaults.getName();
+      }
     }
     return ViewCycleExecutionOptions.builder()
+        .setName(name)
         .setValuationTime(valuationTime)
         .setMarketDataSpecifications(marketDataSpecifications)
         .setMarketDataSelector(marketDataSelector)

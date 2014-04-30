@@ -17,12 +17,14 @@ import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremi
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedBondFutureOptionPremiumTransactionTest {
 
   // 5-Year U.S. Treasury Note Futures: FVU1

@@ -17,7 +17,8 @@
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
     di.valid_from AS key_valid_from,
-    di.valid_to AS key_valid_to
+    di.valid_to AS key_valid_to,
+    pm.permission AS permission
   FROM
     hts_document main
     INNER JOIN hts_name nm ON (main.name_id = nm.id)
@@ -27,6 +28,7 @@
     INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
     LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
     LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+    LEFT JOIN hts_permission pm ON (pm.doc_id = main.id)
   WHERE main.id = :doc_id
     AND main.oid = :doc_oid
 
@@ -48,7 +50,8 @@
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
     di.valid_from AS key_valid_from,
-    di.valid_to AS key_valid_to
+    di.valid_to AS key_valid_to,
+    pm.permission AS permission
   FROM
     hts_document main
     INNER JOIN hts_name nm ON (main.name_id = nm.id)
@@ -58,6 +61,7 @@
     INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
     LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
     LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+    LEFT JOIN hts_permission pm ON (pm.doc_id = main.id)
   WHERE main.oid = :doc_oid
     AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
     AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
@@ -81,7 +85,8 @@
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
     di.valid_from AS key_valid_from,
-    di.valid_to AS key_valid_to
+    di.valid_to AS key_valid_to,
+    pm.permission AS permission
   FROM
     hts_document main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -92,6 +97,7 @@
     INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
     LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
     LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+    LEFT JOIN hts_permission pm ON (pm.doc_id = main.id)
   ORDER BY
     main.id
 
@@ -147,7 +153,7 @@
         WHERE UPPER(name) @LIKE UPPER(:observation_time)
       )
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
     @AND(:external_id_value)
       id IN ( @INCLUDE(SelectKeyValue) )
     @AND(:sql_search_external_ids_type = EXACT)
@@ -257,7 +263,7 @@
   FROM
     hts_idkey
   WHERE
-    @INCLUDE(:sql_search_external_ids)
+    @VALUE(:sql_search_external_ids)
 
 
 -- ==========================================================================
@@ -278,7 +284,8 @@
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
     di.valid_from AS key_valid_from,
-    di.valid_to AS key_valid_to
+    di.valid_to AS key_valid_to,
+    pm.permission AS permission
   FROM
     hts_document main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -289,6 +296,7 @@
     INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
     LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
     LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+    LEFT JOIN hts_permission pm ON (pm.doc_id = main.id)
   ORDER BY
     main.ver_from_instant DESC,
     main.corr_from_instant DESC
@@ -351,6 +359,13 @@
     (doc_id, idkey_id, valid_from, valid_to)
   VALUES
     (:doc_id, ( @INCLUDE(SelectIdKey) ), :valid_from, :valid_to)
+    
+-- ==========================================================================
+@NAME(InsertPermission)
+  INSERT INTO hts_permission
+    (doc_id, permission)
+  VALUES
+    (:doc_id, :permission)
 
 
 -- ==========================================================================
@@ -447,7 +462,7 @@
                 AND corr_instant <= :corrected_to_instant
                 AND point_date = p.point_date
             )
-        ORDER BY point_date @INCLUDE(:order) 
+        ORDER BY point_date @VALUE(:order) 
     ) AS points
   ORDER BY point_date ASC
 

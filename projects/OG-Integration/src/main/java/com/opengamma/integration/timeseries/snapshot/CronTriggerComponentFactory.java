@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -157,154 +158,6 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   @Override
   public CronTriggerComponentFactory.Meta metaBean() {
     return CronTriggerComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -1438096408:  // jobName
-        return getJobName();
-      case -1637271358:  // jobGroup
-        return getJobGroup();
-      case 3373707:  // name
-        return getName();
-      case -348729402:  // cronExpression
-        return getCronExpression();
-      case 836243736:  // schemeBlackList
-        return getSchemeBlackList();
-      case 1058119597:  // dataFieldBlackList
-        return getDataFieldBlackList();
-      case 1272470629:  // dataSource
-        return getDataSource();
-      case 650692196:  // normalizationRuleSetId
-        return getNormalizationRuleSetId();
-      case 951232793:  // observationTime
-        return getObservationTime();
-      case -747889643:  // globalPrefix
-        return getGlobalPrefix();
-      case -1707859415:  // htsMaster
-        return getHtsMaster();
-      case -745461486:  // redisConnector
-        return getRedisConnector();
-      case -332642308:  // baseDir
-        return getBaseDir();
-      case -160710469:  // scheduler
-        return getScheduler();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -1438096408:  // jobName
-        setJobName((String) newValue);
-        return;
-      case -1637271358:  // jobGroup
-        setJobGroup((String) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -348729402:  // cronExpression
-        setCronExpression((String) newValue);
-        return;
-      case 836243736:  // schemeBlackList
-        setSchemeBlackList((String) newValue);
-        return;
-      case 1058119597:  // dataFieldBlackList
-        setDataFieldBlackList((String) newValue);
-        return;
-      case 1272470629:  // dataSource
-        setDataSource((String) newValue);
-        return;
-      case 650692196:  // normalizationRuleSetId
-        setNormalizationRuleSetId((String) newValue);
-        return;
-      case 951232793:  // observationTime
-        setObservationTime((String) newValue);
-        return;
-      case -747889643:  // globalPrefix
-        setGlobalPrefix((String) newValue);
-        return;
-      case -1707859415:  // htsMaster
-        setHtsMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case -745461486:  // redisConnector
-        setRedisConnector((RedisConnector) newValue);
-        return;
-      case -332642308:  // baseDir
-        setBaseDir((String) newValue);
-        return;
-      case -160710469:  // scheduler
-        setScheduler((Scheduler) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_jobName, "jobName");
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_cronExpression, "cronExpression");
-    JodaBeanUtils.notNull(_observationTime, "observationTime");
-    JodaBeanUtils.notNull(_scheduler, "scheduler");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CronTriggerComponentFactory other = (CronTriggerComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getJobName(), other.getJobName()) &&
-          JodaBeanUtils.equal(getJobGroup(), other.getJobGroup()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getCronExpression(), other.getCronExpression()) &&
-          JodaBeanUtils.equal(getSchemeBlackList(), other.getSchemeBlackList()) &&
-          JodaBeanUtils.equal(getDataFieldBlackList(), other.getDataFieldBlackList()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
-          JodaBeanUtils.equal(getNormalizationRuleSetId(), other.getNormalizationRuleSetId()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(getGlobalPrefix(), other.getGlobalPrefix()) &&
-          JodaBeanUtils.equal(getHtsMaster(), other.getHtsMaster()) &&
-          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
-          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
-          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJobName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJobGroup());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCronExpression());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -689,6 +542,93 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CronTriggerComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CronTriggerComponentFactory other = (CronTriggerComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getJobName(), other.getJobName()) &&
+          JodaBeanUtils.equal(getJobGroup(), other.getJobGroup()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getCronExpression(), other.getCronExpression()) &&
+          JodaBeanUtils.equal(getSchemeBlackList(), other.getSchemeBlackList()) &&
+          JodaBeanUtils.equal(getDataFieldBlackList(), other.getDataFieldBlackList()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getNormalizationRuleSetId(), other.getNormalizationRuleSetId()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getGlobalPrefix(), other.getGlobalPrefix()) &&
+          JodaBeanUtils.equal(getHtsMaster(), other.getHtsMaster()) &&
+          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
+          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
+          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJobName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJobGroup());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCronExpression());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(512);
+    buf.append("CronTriggerComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("jobName").append('=').append(JodaBeanUtils.toString(getJobName())).append(',').append(' ');
+    buf.append("jobGroup").append('=').append(JodaBeanUtils.toString(getJobGroup())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("cronExpression").append('=').append(JodaBeanUtils.toString(getCronExpression())).append(',').append(' ');
+    buf.append("schemeBlackList").append('=').append(JodaBeanUtils.toString(getSchemeBlackList())).append(',').append(' ');
+    buf.append("dataFieldBlackList").append('=').append(JodaBeanUtils.toString(getDataFieldBlackList())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("normalizationRuleSetId").append('=').append(JodaBeanUtils.toString(getNormalizationRuleSetId())).append(',').append(' ');
+    buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
+    buf.append("globalPrefix").append('=').append(JodaBeanUtils.toString(getGlobalPrefix())).append(',').append(' ');
+    buf.append("htsMaster").append('=').append(JodaBeanUtils.toString(getHtsMaster())).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(JodaBeanUtils.toString(getRedisConnector())).append(',').append(' ');
+    buf.append("baseDir").append('=').append(JodaBeanUtils.toString(getBaseDir())).append(',').append(' ');
+    buf.append("scheduler").append('=').append(JodaBeanUtils.toString(getScheduler())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CronTriggerComponentFactory}.
    */
@@ -971,6 +911,107 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Scheduler> scheduler() {
       return _scheduler;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((CronTriggerComponentFactory) bean).getClassifier();
+        case -1438096408:  // jobName
+          return ((CronTriggerComponentFactory) bean).getJobName();
+        case -1637271358:  // jobGroup
+          return ((CronTriggerComponentFactory) bean).getJobGroup();
+        case 3373707:  // name
+          return ((CronTriggerComponentFactory) bean).getName();
+        case -348729402:  // cronExpression
+          return ((CronTriggerComponentFactory) bean).getCronExpression();
+        case 836243736:  // schemeBlackList
+          return ((CronTriggerComponentFactory) bean).getSchemeBlackList();
+        case 1058119597:  // dataFieldBlackList
+          return ((CronTriggerComponentFactory) bean).getDataFieldBlackList();
+        case 1272470629:  // dataSource
+          return ((CronTriggerComponentFactory) bean).getDataSource();
+        case 650692196:  // normalizationRuleSetId
+          return ((CronTriggerComponentFactory) bean).getNormalizationRuleSetId();
+        case 951232793:  // observationTime
+          return ((CronTriggerComponentFactory) bean).getObservationTime();
+        case -747889643:  // globalPrefix
+          return ((CronTriggerComponentFactory) bean).getGlobalPrefix();
+        case -1707859415:  // htsMaster
+          return ((CronTriggerComponentFactory) bean).getHtsMaster();
+        case -745461486:  // redisConnector
+          return ((CronTriggerComponentFactory) bean).getRedisConnector();
+        case -332642308:  // baseDir
+          return ((CronTriggerComponentFactory) bean).getBaseDir();
+        case -160710469:  // scheduler
+          return ((CronTriggerComponentFactory) bean).getScheduler();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((CronTriggerComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -1438096408:  // jobName
+          ((CronTriggerComponentFactory) bean).setJobName((String) newValue);
+          return;
+        case -1637271358:  // jobGroup
+          ((CronTriggerComponentFactory) bean).setJobGroup((String) newValue);
+          return;
+        case 3373707:  // name
+          ((CronTriggerComponentFactory) bean).setName((String) newValue);
+          return;
+        case -348729402:  // cronExpression
+          ((CronTriggerComponentFactory) bean).setCronExpression((String) newValue);
+          return;
+        case 836243736:  // schemeBlackList
+          ((CronTriggerComponentFactory) bean).setSchemeBlackList((String) newValue);
+          return;
+        case 1058119597:  // dataFieldBlackList
+          ((CronTriggerComponentFactory) bean).setDataFieldBlackList((String) newValue);
+          return;
+        case 1272470629:  // dataSource
+          ((CronTriggerComponentFactory) bean).setDataSource((String) newValue);
+          return;
+        case 650692196:  // normalizationRuleSetId
+          ((CronTriggerComponentFactory) bean).setNormalizationRuleSetId((String) newValue);
+          return;
+        case 951232793:  // observationTime
+          ((CronTriggerComponentFactory) bean).setObservationTime((String) newValue);
+          return;
+        case -747889643:  // globalPrefix
+          ((CronTriggerComponentFactory) bean).setGlobalPrefix((String) newValue);
+          return;
+        case -1707859415:  // htsMaster
+          ((CronTriggerComponentFactory) bean).setHtsMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case -745461486:  // redisConnector
+          ((CronTriggerComponentFactory) bean).setRedisConnector((RedisConnector) newValue);
+          return;
+        case -332642308:  // baseDir
+          ((CronTriggerComponentFactory) bean).setBaseDir((String) newValue);
+          return;
+        case -160710469:  // scheduler
+          ((CronTriggerComponentFactory) bean).setScheduler((Scheduler) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CronTriggerComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((CronTriggerComponentFactory) bean)._jobName, "jobName");
+      JodaBeanUtils.notNull(((CronTriggerComponentFactory) bean)._name, "name");
+      JodaBeanUtils.notNull(((CronTriggerComponentFactory) bean)._cronExpression, "cronExpression");
+      JodaBeanUtils.notNull(((CronTriggerComponentFactory) bean)._observationTime, "observationTime");
+      JodaBeanUtils.notNull(((CronTriggerComponentFactory) bean)._scheduler, "scheduler");
+      super.validate(bean);
     }
 
   }

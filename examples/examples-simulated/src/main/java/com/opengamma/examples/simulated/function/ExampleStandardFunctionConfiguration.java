@@ -128,7 +128,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveName("model/fxoption/black", "Discounting");
     i.setCurveName("model/bond/riskFree", "Discounting");
     i.setCurveName("model/bond/credit", "Discounting");
-    i.setCubeName(null, "SECONDARY");
+    i.setCubeDefinitionName("model/sabrcube", "USD PROVIDER1");
+    i.setCubeSpecificationName("model/sabrcube", "USD PROVIDER1");
+    i.setSurfaceDefinitionName("model/sabrcube", "US FWD SWAP PROVIDER1");
+    i.setSurfaceSpecificationName("model/sabrcube", "US FWD SWAP PROVIDER1");
     i.setForwardCurveName(null, "Forward3M");
     i.setSurfaceName(null, "SECONDARY");
     i.setSurfaceName("model/swaption/black", "PROVIDER1");
@@ -210,7 +213,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     return CombiningFunctionConfigurationSource.of(fxForwardRepository, fxOptionRepository);
   }
 
-  protected void setForexOptionDefaults(FXOptionPropertiesFunctions defaults) {
+  protected void setForexOptionDefaults(final FXOptionPropertiesFunctions defaults) {
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FXOptionPropertiesFunctions.CurrencyInfo>() {
       @Override
       public FXOptionPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
@@ -230,7 +233,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
 
   }
 
-  protected void setForexForwardDefaults(FXForwardPropertiesFunctions defaults) {
+  protected void setForexForwardDefaults(final FXForwardPropertiesFunctions defaults) {
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FXForwardPropertiesFunctions.CurrencyInfo>() {
       @Override
       public FXForwardPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {

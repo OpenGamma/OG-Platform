@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the repeated one-dimensional integration to integrate 2-D functions.
  */
+@Test(groups = TestGroup.UNIT)
 public class IntegratorRepeated2DTest {
 
   @Test

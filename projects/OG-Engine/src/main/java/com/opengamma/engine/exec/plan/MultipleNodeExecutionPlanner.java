@@ -25,10 +25,14 @@ import com.opengamma.engine.calcnode.stats.FunctionCosts;
 import com.opengamma.engine.calcnode.stats.FunctionCostsPerConfiguration;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
+import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces an execution plan for a graph that will execute on multiple calculation nodes.
@@ -168,36 +172,72 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
     return _functionCosts;
   }
 
-  private GraphExecutionPlan createSingleNodePlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitializationId) {
-    return s_smallJobPlanner.createPlan(graph, logModeSource, functionInitializationId);
+  private GraphExecutionPlan createSingleNodePlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitializationId,
+      final Set<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
+    return s_smallJobPlanner.createPlan(graph, logModeSource, functionInitializationId, sharedValues, parameters);
   }
 
-  private void createGraphFragments(final DependencyGraph graph, final Collection<GraphFragment> rootFragments, final Collection<GraphFragment> allFragments) {
-    final Map<DependencyNode, GraphFragment> fragments = Maps.newHashMapWithExpectedSize(graph.getSize());
-    final FunctionCostsPerConfiguration functionCosts = getFunctionCosts().getStatistics(graph.getCalculationConfigurationName());
-    for (DependencyNode node : graph.getDependencyNodes()) {
-      final GraphFragment fragment = new GraphFragment(node, functionCosts.getStatistics(node.getFunction().getFunction().getFunctionDefinition().getUniqueId()));
-      fragments.put(node, fragment);
-      allFragments.add(fragment);
+  private static final class FragmentGatherer {
+
+    private final Map<DependencyNode, GraphFragment> _node2Fragment;
+    private final Set<GraphFragment> _allFragments;
+    private final FunctionCostsPerConfiguration _costs;
+    private final Set<ValueSpecification> _sharedValues;
+
+    public FragmentGatherer(final int size, final FunctionCostsPerConfiguration costs, final Set<ValueSpecification> sharedValues) {
+      _node2Fragment = Maps.newHashMapWithExpectedSize(size);
+      _allFragments = Sets.newHashSetWithExpectedSize(size);
+      _costs = costs;
+      _sharedValues = sharedValues;
     }
-    for (DependencyNode node : graph.getDependencyNodes()) {
-      final GraphFragment fragment = fragments.get(node);
-      for (DependencyNode input : node.getInputNodes()) {
-        final GraphFragment f = fragments.get(input);
-        if (f != null) {
-          fragment.getInputFragments().add(f);
+
+    public GraphFragment createFragments(final DependencyNode root) {
+      final GraphFragment rootFragment = new GraphFragment(root, _costs.getStatistics(root.getFunction().getFunctionId()));
+      _node2Fragment.put(root, rootFragment);
+      _allFragments.add(rootFragment);
+      final int inputs = root.getInputCount();
+      for (int i = 0; i < inputs; i++) {
+        final ValueSpecification inputValue = root.getInputValue(i);
+        if (isShared(inputValue)) {
+          // The input is in the shared cache, so don't create a fragment for that node
+          continue;
+        }
+        final DependencyNode inputNode = root.getInputNode(i);
+        GraphFragment inputFragment = _node2Fragment.get(inputNode);
+        if (inputFragment == null) {
+          inputFragment = createFragments(inputNode);
+        }
+        inputFragment.getOutputFragments().add(rootFragment);
+        rootFragment.getInputFragments().add(inputFragment);
+      }
+      return rootFragment;
+    }
+
+    public Set<GraphFragment> getAllFragments() {
+      return _allFragments;
+    }
+
+    public boolean isShared(final ValueSpecification value) {
+      return _sharedValues.contains(value);
+    }
+
+  }
+
+  private Set<GraphFragment> createGraphFragments(final DependencyGraph graph, final FragmentGatherer fragments) {
+    final int rootCount = graph.getRootCount();
+    final Set<GraphFragment> roots = Sets.newHashSetWithExpectedSize(rootCount);
+    rootLoop: for (int i = 0; i < rootCount; i++) { //CSIGNORE
+      final DependencyNode root = graph.getRootNode(i);
+      final int outputs = root.getOutputCount();
+      for (int j = 0; j < outputs; j++) {
+        if (fragments.isShared(root.getOutputValue(j))) {
+          // Don't create a fragment for the root; its output(s) are already in the shared cache
+          continue rootLoop;
         }
       }
-      for (DependencyNode output : node.getDependentNodes()) {
-        final GraphFragment f = fragments.get(output);
-        if (f != null) {
-          fragment.getOutputFragments().add(f);
-        }
-      }
+      roots.add(fragments.createFragments(root));
     }
-    for (DependencyNode node : graph.getRootNodes()) {
-      rootFragments.add(fragments.get(node));
-    }
+    return roots;
   }
 
   /**
@@ -306,22 +346,22 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
     for (final GraphFragment fragment : allFragments) {
       Pair<List<GraphFragment>, List<GraphFragment>> event = concurrencyEvent.get(fragment.getStartTime());
       if (event == null) {
-        event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), null);
+        event = Pairs.of((List<GraphFragment>) new LinkedList<GraphFragment>(), (List<GraphFragment>) null);
         concurrencyEvent.put(fragment.getStartTime(), event);
       } else {
         if (event.getFirst() == null) {
-          event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), event.getSecond());
+          event = Pairs.of((List<GraphFragment>) new LinkedList<GraphFragment>(), event.getSecond());
           concurrencyEvent.put(fragment.getStartTime(), event);
         }
       }
       event.getFirst().add(fragment);
       event = concurrencyEvent.get(fragment.getStartTime() + fragment.getJobCost());
       if (event == null) {
-        event = Pair.of(null, (List<GraphFragment>) new LinkedList<GraphFragment>());
+        event = Pairs.of((List<GraphFragment>) null, (List<GraphFragment>) new LinkedList<GraphFragment>());
         concurrencyEvent.put(fragment.getStartTime() + fragment.getJobCost(), event);
       } else {
         if (event.getSecond() == null) {
-          event = Pair.of(event.getFirst(), (List<GraphFragment>) new LinkedList<GraphFragment>());
+          event = Pairs.of(event.getFirst(), (List<GraphFragment>) new LinkedList<GraphFragment>());
           concurrencyEvent.put(fragment.getStartTime() + fragment.getJobCost(), event);
         }
       }
@@ -400,12 +440,27 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
     }
   }
 
-  private GraphExecutionPlan createMultipleNodePlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitializationId) {
-    final GraphFragmentContext context = new GraphFragmentContext(logModeSource, functionInitializationId);
-    context.setTerminalOutputs(graph.getTerminalOutputs().keySet());
-    final Set<GraphFragment> allFragments = Sets.newHashSetWithExpectedSize(graph.getSize());
-    final Set<GraphFragment> rootFragments = Sets.newHashSetWithExpectedSize(graph.getRootNodes().size());
-    createGraphFragments(graph, rootFragments, allFragments);
+  /**
+   * Updates the shared value cache with details of any "private" values that, as a result of tail jobs, do not need to leave the calculation node.
+   * 
+   * @param context the operating context, not null
+   * @param allFragments all discovered fragments, not null
+   */
+  private void exportPrivateValues(final GraphFragmentContext context, final Collection<GraphFragment> allFragments) {
+    final Map<ValueSpecification, Boolean> sharedValues = context.getSharedCacheValues();
+    for (GraphFragment fragment : allFragments) {
+      fragment.exportPrivateValues(sharedValues);
+    }
+  }
+
+  private GraphExecutionPlan createMultipleNodePlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitializationId,
+      final Set<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
+    final GraphFragmentContext context = new GraphFragmentContext(graph.getCalculationConfigurationName(), logModeSource, functionInitializationId, sharedValues, parameters);
+    context.setTerminalOutputs(DependencyGraphImpl.getTerminalOutputSpecifications(graph));
+    FragmentGatherer gatherer = new FragmentGatherer(graph.getSize(), getFunctionCosts().getStatistics(graph.getCalculationConfigurationName()), sharedValues);
+    final Set<GraphFragment> rootFragments = createGraphFragments(graph, gatherer);
+    final Set<GraphFragment> allFragments = gatherer.getAllFragments();
+    gatherer = null;
     int failCount = 0;
     do {
       if (mergeSharedInputs(rootFragments, allFragments)) {
@@ -424,6 +479,7 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
       }
     } while (true);
     findTailFragments(allFragments);
+    exportPrivateValues(context, allFragments);
     long totalSize = 0;
     long totalInvocationCost = 0;
     long totalDataCost = 0;
@@ -438,22 +494,23 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
       }
     }
     final int totalJobs = allFragments.size();
-    return new GraphExecutionPlan(graph.getCalculationConfigurationName(), functionInitializationId, jobs, allFragments.size(), (double) totalSize / (double) totalJobs, (double) totalInvocationCost /
-        (double) totalJobs, (double) totalDataCost / (double) totalJobs);
+    return new GraphExecutionPlan(graph.getCalculationConfigurationName(), functionInitializationId, jobs, allFragments.size(), (double) totalSize / (double) totalJobs,
+        (double) totalInvocationCost / (double) totalJobs, (double) totalDataCost / (double) totalJobs);
   }
 
   // GraphExecutionPlanner
 
   @Override
-  public GraphExecutionPlan createPlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitializationId) {
+  public GraphExecutionPlan createPlan(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final long functionInitialisationId,
+      final Set<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
     final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
     try {
       if (graph.getSize() <= getMinimumJobItems()) {
         // If the graph is too small, run it as-is
-        return createSingleNodePlan(graph, logModeSource, functionInitializationId);
+        return createSingleNodePlan(graph, logModeSource, functionInitialisationId, sharedValues, parameters);
       } else {
         // Split the graph into multiple fragments
-        return createMultipleNodePlan(graph, logModeSource, functionInitializationId);
+        return createMultipleNodePlan(graph, logModeSource, functionInitialisationId, sharedValues, parameters);
       }
     } finally {
       timer.finished();

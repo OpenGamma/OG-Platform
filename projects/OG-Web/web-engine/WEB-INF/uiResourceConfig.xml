@@ -363,6 +363,7 @@
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.calibrate_columns.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
+    <fragment>/scripts/og/common/details/og.common.details.legalentity_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.favorites.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.calendar_ui_changes.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search.get_quantities.js</fragment>
@@ -373,6 +374,7 @@
     <fragment>/scripts/og/common/og.common.timeseries_data.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries.js</fragment>
     <fragment>/scripts/og/common/og.common.user.js</fragment>
+    <fragment>/scripts/og/common/og.common.error.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
@@ -412,7 +414,7 @@
     <fragment>/scripts/og/analytics/og.analytics.form.filtersmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.dropmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.form2.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="blotter.js">
@@ -442,6 +444,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cashsecurity.js</fragment>
     <!--CDS Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycdssecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyrecoverylockcdssecurity.js</fragment>

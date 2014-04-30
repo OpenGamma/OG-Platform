@@ -19,6 +19,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
@@ -31,7 +32,7 @@ import com.opengamma.util.test.TestProperties;
 /**
  * Test utilities for Bloomberg.
  */
-public class BloombergTestUtils {
+public final class BloombergTestUtils {
 
   /**
    * Restricted constructor.
@@ -50,6 +51,15 @@ public class BloombergTestUtils {
   }
 
   /**
+   * Creates a Bloomberg connector for testing.
+   * 
+   * @return the connector, not null
+   */
+  public static BloombergConnector getBloombergBipeConnector() {
+    return new BloombergConnector("BloombergTestUtils", getSessionOptions("bbgBpipeServer.host", "bbgBpipeServer.port", "bbgBpipeServer.app.name"));
+  }
+
+  /**
    * Creates a Bloomberg reference data provider for testing.
    * This must be started before use by the caller.
    * This must be closed after use by the caller.
@@ -62,24 +72,34 @@ public class BloombergTestUtils {
     return new BloombergReferenceDataProvider(bbgConnector);
   }
 
+  private static SessionOptions getSessionOptions() {
+    return getSessionOptions("bbgServer.host", "bbgServer.port", null);
+  }
+
   /**
    * Creates Bloomberg session options for testing.
    * 
    * @return the session options, not null
    */
-  private static SessionOptions getSessionOptions() {
+  private static SessionOptions getSessionOptions(String bbgServerHostName, String bbgServerPortName, String applicationKey) {
     SessionOptions options = new SessionOptions();
     Properties properties = TestProperties.getTestProperties();
-    String serverHost = properties.getProperty("bbgServer.host");
+    String serverHost = properties.getProperty(bbgServerHostName);
     if (StringUtils.isBlank(serverHost)) {
-      throw new OpenGammaRuntimeException("bloomberg.host is missing in tests.properties");
+      throw new OpenGammaRuntimeException(bbgServerHostName + " is missing in tests.properties");
     }
-    String serverPort = properties.getProperty("bbgServer.port");
+    String serverPort = properties.getProperty(bbgServerPortName);
     if (StringUtils.isBlank(serverPort)) {
-      throw new OpenGammaRuntimeException("bloomberg.port is missing in tests.properties");
+      throw new OpenGammaRuntimeException(bbgServerPortName + " is missing in tests.properties");
     }
     options.setServerHost(serverHost);
     options.setServerPort(Integer.parseInt(serverPort));
+    if (applicationKey != null) {
+      String applicationName = properties.getProperty(applicationKey);
+      if (applicationName != null) {
+        options.setAuthenticationOptions(BloombergConstants.AUTH_APP_PREFIX + applicationName);
+      }
+    }
     return options;
   }
 
@@ -105,6 +125,7 @@ public class BloombergTestUtils {
   /**
    * Creates a Mongo caching reference data provider for testing.
    * 
+   * @param bbgProvider  the Bloomberg provider to wrap, not null
    * @return the provider, not null
    */
   public static ReferenceDataProvider getMongoCachingReferenceDataProvider(BloombergReferenceDataProvider bbgProvider) {

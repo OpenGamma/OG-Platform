@@ -7,6 +7,7 @@ package com.opengamma.financial.security.swap;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -105,65 +106,6 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
     return FloatingVarianceSwapLeg.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
-      case -1233038860:  // monitoringFrequency
-        return getMonitoringFrequency();
-      case 663363412:  // annualizationFactor
-        return getAnnualizationFactor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
-        setUnderlyingId((ExternalId) newValue);
-        return;
-      case -1233038860:  // monitoringFrequency
-        setMonitoringFrequency((Frequency) newValue);
-        return;
-      case 663363412:  // annualizationFactor
-        setAnnualizationFactor((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FloatingVarianceSwapLeg other = (FloatingVarianceSwapLeg) obj;
-      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          JodaBeanUtils.equal(getMonitoringFrequency(), other.getMonitoringFrequency()) &&
-          JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMonitoringFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the ID of the underlying.
@@ -238,6 +180,57 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
    */
   public final Property<Double> annualizationFactor() {
     return metaBean().annualizationFactor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FloatingVarianceSwapLeg clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FloatingVarianceSwapLeg other = (FloatingVarianceSwapLeg) obj;
+      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          JodaBeanUtils.equal(getMonitoringFrequency(), other.getMonitoringFrequency()) &&
+          JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMonitoringFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("FloatingVarianceSwapLeg{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("monitoringFrequency").append('=').append(JodaBeanUtils.toString(getMonitoringFrequency())).append(',').append(' ');
+    buf.append("annualizationFactor").append('=').append(JodaBeanUtils.toString(getAnnualizationFactor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -331,6 +324,42 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
      */
     public final MetaProperty<Double> annualizationFactor() {
       return _annualizationFactor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -771625640:  // underlyingId
+          return ((FloatingVarianceSwapLeg) bean).getUnderlyingId();
+        case -1233038860:  // monitoringFrequency
+          return ((FloatingVarianceSwapLeg) bean).getMonitoringFrequency();
+        case 663363412:  // annualizationFactor
+          return ((FloatingVarianceSwapLeg) bean).getAnnualizationFactor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -771625640:  // underlyingId
+          ((FloatingVarianceSwapLeg) bean).setUnderlyingId((ExternalId) newValue);
+          return;
+        case -1233038860:  // monitoringFrequency
+          ((FloatingVarianceSwapLeg) bean).setMonitoringFrequency((Frequency) newValue);
+          return;
+        case 663363412:  // annualizationFactor
+          ((FloatingVarianceSwapLeg) bean).setAnnualizationFactor((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FloatingVarianceSwapLeg) bean)._underlyingId, "underlyingId");
+      super.validate(bean);
     }
 
   }

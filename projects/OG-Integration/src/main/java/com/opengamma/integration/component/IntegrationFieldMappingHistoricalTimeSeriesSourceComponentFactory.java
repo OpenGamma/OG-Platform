@@ -8,6 +8,7 @@ package com.opengamma.integration.component;
 import java.util.Collection;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -71,51 +72,6 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
     return IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 789967022:  // bbgReferenceData
-        return getBbgReferenceData();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 789967022:  // bbgReferenceData
-        setBbgReferenceData((ReferenceDataProvider) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_bbgReferenceData, "bbgReferenceData");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory other = (IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getBbgReferenceData(), other.getBbgReferenceData()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBbgReferenceData());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the reference data.
@@ -140,6 +96,51 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
    */
   public final Property<ReferenceDataProvider> bbgReferenceData() {
     return metaBean().bbgReferenceData().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory other = (IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getBbgReferenceData(), other.getBbgReferenceData()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBbgReferenceData());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("bbgReferenceData").append('=').append(JodaBeanUtils.toString(getBbgReferenceData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -201,6 +202,32 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
      */
     public final MetaProperty<ReferenceDataProvider> bbgReferenceData() {
       return _bbgReferenceData;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 789967022:  // bbgReferenceData
+          return ((IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory) bean).getBbgReferenceData();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 789967022:  // bbgReferenceData
+          ((IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory) bean).setBbgReferenceData((ReferenceDataProvider) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory) bean)._bbgReferenceData, "bbgReferenceData");
+      super.validate(bean);
     }
 
   }

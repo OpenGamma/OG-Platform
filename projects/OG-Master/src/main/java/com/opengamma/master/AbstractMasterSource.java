@@ -23,6 +23,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An abstract source built on top of an underlying master.
@@ -32,42 +33,27 @@ import com.opengamma.util.tuple.Pair;
  * @param <M> the type of the master
  */
 @PublicSPI
-@SuppressWarnings("deprecation")
 public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D extends AbstractDocument, M extends AbstractChangeProvidingMaster<? extends D>>
-    extends AbstractSource<V> implements Source<V>, VersionedSource, ObjectChangeListenerManager {
+    extends AbstractSource<V>
+    implements Source<V>, ObjectChangeListenerManager {
 
   /**
    * The master.
    */
   private final M _master;
   /**
-   * The version-correction locator to search at, null to not override versions.
-   */
-  private volatile VersionCorrection _versionCorrection;
-  /**
    * The listeners.
    */
   private final ConcurrentHashMap<Pair<ObjectId, ObjectChangeListener>, ChangeListener> _registeredListeners = new ConcurrentHashMap<Pair<ObjectId, ObjectChangeListener>, ChangeListener>();
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
+   * Creates an instance with an underlying master.
    * 
    * @param master the master, not null
    */
   public AbstractMasterSource(final M master) {
-    this(master, null);
-  }
-
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   * 
-   * @param master the master, not null
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  public AbstractMasterSource(final M master, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(master, "master");
     _master = master;
-    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
@@ -78,25 +64,6 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
    */
   public M getMaster() {
     return _master;
-  }
-
-  /**
-   * Gets the version-correction locator to search at.
-   * 
-   * @return the version-correction locator to search at, null if not overriding versions
-   */
-  public VersionCorrection getVersionCorrection() {
-    return _versionCorrection;
-  }
-
-  /**
-   * Sets the version-correction locator to search at.
-   * 
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  @Override
-  public void setVersionCorrection(final VersionCorrection versionCorrection) {
-    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
@@ -111,12 +78,7 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
    */
   public D getDocument(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    final VersionCorrection vc = getVersionCorrection(); // lock against change
-    if (vc != null) {
-      return (D) getMaster().get(uniqueId.getObjectId(), vc);
-    } else {
-      return (D) getMaster().get(uniqueId);
-    }
+    return (D) getMaster().get(uniqueId);
   }
 
   /**
@@ -132,8 +94,7 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
   public D getDocument(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    VersionCorrection overrideVersionCorrection = getVersionCorrection();
-    return (D) getMaster().get(objectId, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
+    return (D) getMaster().get(objectId, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
@@ -165,13 +126,13 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
         }
       }
     };
-    _registeredListeners.put(Pair.of(oid, listener), changeListener);
+    _registeredListeners.put(Pairs.of(oid, listener), changeListener);
     changeManager().addChangeListener(changeListener);
   }
 
   @Override
   public void removeChangeListener(ObjectId oid, ObjectChangeListener listener) {
-    ChangeListener changeListener = _registeredListeners.remove(Pair.of(oid, listener));
+    ChangeListener changeListener = _registeredListeners.remove(Pairs.of(oid, listener));
     changeManager().removeChangeListener(changeListener);
   }
 
@@ -182,11 +143,7 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    String str = getClass().getSimpleName() + "[" + getMaster();
-    if (getVersionCorrection() != null) {
-      str += ",versionCorrection=" + getVersionCorrection();
-    }
-    return str + "]";
+    return getClass().getSimpleName() + "[" + getMaster() + "]";
   }
 
 }

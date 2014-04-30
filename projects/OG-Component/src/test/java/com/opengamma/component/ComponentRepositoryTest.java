@@ -7,6 +7,9 @@ package com.opengamma.component;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -20,6 +23,7 @@ import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
+import org.springframework.context.Phased;
 import org.springframework.jmx.support.MBeanServerFactoryBean;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.ServletContextAware;
@@ -74,6 +78,90 @@ public class ComponentRepositoryTest {
     repo.stop();
     assertEquals(1, mock.starts);
     assertEquals(1, mock.stops);
+  }
+
+  public void test_registerPhased() {
+    ComponentRepository repo = new ComponentRepository(LOGGER);
+    final List<String> order = new ArrayList<>();
+    class Simple1 implements Lifecycle {
+      @Override
+      public void start() {
+        order.add("Simple1");
+      }
+      @Override
+      public void stop() {
+        order.add("Simple1");
+      }
+      @Override
+      public boolean isRunning() {
+        return false;
+      }
+    }
+    class Simple2 implements Lifecycle {
+      @Override
+      public void start() {
+        order.add("Simple2");
+      }
+      @Override
+      public void stop() {
+        order.add("Simple2");
+      }
+      @Override
+      public boolean isRunning() {
+        return false;
+      }
+    }
+    class PhaseMinus1 implements Lifecycle, Phased {
+      @Override
+      public void start() {
+        order.add("-1");
+      }
+      @Override
+      public void stop() {
+        order.add("-1");
+      }
+      @Override
+      public boolean isRunning() {
+        return false;
+      }
+      @Override
+      public int getPhase() {
+        return -1;
+      }
+    }
+    class PhasePlus1 implements Lifecycle, Phased {
+      @Override
+      public void start() {
+        order.add("1");
+      }
+      @Override
+      public void stop() {
+        order.add("1");
+      }
+      @Override
+      public boolean isRunning() {
+        return false;
+      }
+      @Override
+      public int getPhase() {
+        return 1;
+      }
+    }
+    repo.registerLifecycle(new PhasePlus1());
+    repo.registerLifecycle(new Simple1());
+    repo.registerLifecycle(new PhaseMinus1());
+    repo.registerLifecycle(new Simple2());
+    repo.start();
+    assertEquals("-1", order.get(0));
+    assertEquals("Simple1", order.get(1));
+    assertEquals("Simple2", order.get(2));
+    assertEquals("1", order.get(3));
+    order.clear();
+    repo.stop();
+    assertEquals("1", order.get(0));
+    assertEquals("Simple2", order.get(1));
+    assertEquals("Simple1", order.get(2));
+    assertEquals("-1", order.get(3));
   }
 
   public void test_registerSCAware() {

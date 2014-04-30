@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -32,12 +34,11 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
-import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -52,17 +53,24 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -75,23 +83,27 @@ import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.curve.ZeroCouponInflationNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.convention.PriceIndexConvention;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces price index curves using the discounting method.
  */
 public class InflationProviderDiscountingFunction extends
-  MultiCurveFunction<InflationProviderInterface, InflationDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
+    MultiCurveFunction<InflationProviderInterface, InflationDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationProviderDiscountingFunction.class);
   /** The calculator */
   private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
@@ -109,6 +121,21 @@ public class InflationProviderDiscountingFunction extends
   public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
       final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<InflationProviderInterface, Double> getCalculator() {
+    return PSIMQC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> getSensitivityCalculator() {
+    return PSIMQCSC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
   }
 
   /**
@@ -135,7 +162,9 @@ public class InflationProviderDiscountingFunction extends
     @SuppressWarnings("unchecked")
     @Override
     protected Pair<InflationProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder,
-        final InflationProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource) {
+        final InflationProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -157,7 +186,7 @@ public class InflationProviderDiscountingFunction extends
         int j = 0;
         final int nCurves = group.getTypesForCurves().size();
         final SingleCurveBundle<GeneratorPriceIndexCurve>[] singleCurves = new SingleCurveBundle[nCurves];
-        for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
           final List<IndexPrice> inflation = new ArrayList<>();
           final String curveName = entry.getKey();
           final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();
@@ -176,17 +205,15 @@ public class InflationProviderDiscountingFunction extends
             if (marketData == null) {
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
-            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource,
-                snapshot, node.getIdentifier(), timeSeries, now));
+            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(context,
+                snapshot, node.getIdentifier(), timeSeries, now, fx));
             // Construction of the first guess for the root finder
             final SwapFixedInflationZeroCouponDefinition swap = (SwapFixedInflationZeroCouponDefinition) definitionForNode;
             final CouponInflationDefinition couponInflation = (CouponInflationDefinition) swap.getSecondLeg().getNthPayment(swap.getSecondLeg().getNumberOfPayments() - 1);
             final CouponFixedCompoundingDefinition couponFix = (CouponFixedCompoundingDefinition) swap.getFirstLeg().getNthPayment(swap.getFirstLeg().getNumberOfPayments() - 1);
             if (couponInflation instanceof CouponInflationZeroCouponInterpolationDefinition) {
-              final CouponInflationZeroCouponInterpolationDefinition coupon = (CouponInflationZeroCouponInterpolationDefinition) couponInflation;
               parameterGuessForCurves[k] = 100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length);
             } else {
-              final CouponInflationZeroCouponMonthlyDefinition coupon = (CouponInflationZeroCouponMonthlyDefinition) couponInflation;
               parameterGuessForCurves[k] = 100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length);
             }
             derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
@@ -194,18 +221,17 @@ public class InflationProviderDiscountingFunction extends
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
             if (type instanceof InflationCurveTypeConfiguration) {
               final InflationCurveTypeConfiguration inflationConfiguration = (InflationCurveTypeConfiguration) type;
-              final String reference = inflationConfiguration.getReference();
-              final PriceIndexConvention priceIndexConvention = conventionSource.getConvention(PriceIndexConvention.class, inflationConfiguration.getPriceIndex());
-              if (priceIndexConvention == null) {
-                throw new OpenGammaRuntimeException("Could not get convention called " + inflationConfiguration.getPriceIndex());
+              final Security sec = securitySource.getSingle(inflationConfiguration.getPriceIndex().toBundle());
+              if (sec == null) {
+                throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationConfiguration.getPriceIndex()
+                    + " was null");
               }
-              try {
-                final Currency currency = Currency.of(reference);
-                //should this map check that the curve name has not already been entered?
-                inflation.add(new IndexPrice(priceIndexConvention.getName(), currency));
-              } catch (final IllegalArgumentException e) {
-                throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for inflation curves");
+              if (!(sec instanceof PriceIndex)) {
+                throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationConfiguration.getPriceIndex()
+                    + " not of type PriceIndex");
               }
+              final PriceIndex indexSecurity = (PriceIndex) sec;
+              inflation.add(new IndexPrice(indexSecurity.getName(), Currency.of(inflationConfiguration.getReference())));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -216,36 +242,19 @@ public class InflationProviderDiscountingFunction extends
           final GeneratorPriceIndexCurve generator = getGenerator(definition, now.toLocalDate());
           singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
           // seasonal curve construction
-          final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-          final SeasonalCurve seasonalCurve = new SeasonalCurve(seasonalStep, seasonalFactors, false);
-
           // TODO : inputs () should be retrieve from historical data, for this we need two things :
           // 1) historical value of the price index (this can be retrieve from bloomberg using the appropriate ticker)
-          // 2) A statistical treatment on this data should be done, usually am kind of specific ARIMA.
+          // 2) A statistical treatment on this data should be done, usually a kind of specific ARIMA.
         }
         final MultiCurveBundle<GeneratorPriceIndexCurve> groupBundle = new MultiCurveBundle<>(singleCurves);
         curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
+      final CurveBuildingBlockBundle knownbundle = getKnownBundle(inputs);
       final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
-          (InflationProviderDiscount) knownData, inflationMap, getCalculator(), getSensitivityCalculator());
-      final Pair<InflationProviderInterface, CurveBuildingBlockBundle> result = Pair.of((InflationProviderInterface) temp.getFirst(), temp.getSecond());
+          (InflationProviderDiscount) knownData, knownbundle, inflationMap, getCalculator(), getSensitivityCalculator());
+      final Pair<InflationProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((InflationProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<InflationProviderInterface, Double> getCalculator() {
-      return PSIMQC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> getSensitivityCalculator() {
-      return PSIMQCSC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
     }
 
     @Override
@@ -260,6 +269,22 @@ public class InflationProviderDiscountingFunction extends
         knownData.getMulticurveProvider().setForexMatrix(fxMatrix);
       }
       return knownData;
+    }
+
+    protected CurveBuildingBlockBundle getKnownBundle(final FunctionInputs inputs) {
+      //TODO requires that the discounting curves are supplied externally
+      CurveBuildingBlockBundle knownBundle;
+      if (getExogenousRequirements().isEmpty()) {
+        knownBundle = new CurveBuildingBlockBundle();
+      } else {
+        knownBundle = (CurveBuildingBlockBundle) inputs.getValue(ValueRequirementNames.JACOBIAN_BUNDLE);
+      }
+      return knownBundle;
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+      return getResults(context, target);
     }
 
     @Override
@@ -281,15 +306,22 @@ public class InflationProviderDiscountingFunction extends
     }
 
     @Override
-    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime) {
+    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final FunctionExecutionContext context,
+        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData,
+        final ZonedDateTime valuationTime, final FXMatrix fx) {
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
+      final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+      final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
-          .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .cashNodeVisitor(new CashNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .fraNode(new FRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .zeroCouponInflationNode(new ZeroCouponInflationNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, historicalData))
+          .immFRANode(new RollDateFRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new RollDateSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .rateFutureNode(new RateFutureNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .swapNode(new SwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, fx))
+          .zeroCouponInflationNode(new ZeroCouponInflationNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, historicalData))
           .create();
     }
 
@@ -302,12 +334,19 @@ public class InflationProviderDiscountingFunction extends
       result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
+            .withoutAny(CURVE)
             .with(CURVE, curveName)
             .get();
-        final ValueSpecification curveSpec = new ValueSpecification(PRICE_INDEX_CURVE, ComputationTargetSpecification.NULL, curveProperties);
-        result.add(new ComputedValue(curveSpec, provider.getCurve(curveName)));
+        final PriceIndexCurve curve = provider.getCurve(curveName);
+        if (curve == null) {
+          s_logger.error("Could not get curve called {} from configuration {}", curveName, getCurveConstructionConfigurationName());
+        } else {
+          final ValueSpecification curveSpec = new ValueSpecification(PRICE_INDEX_CURVE, ComputationTargetSpecification.NULL, curveProperties);
+          result.add(new ComputedValue(curveSpec, curve));
+        }
       }
       return result;
     }
   }
+
 }

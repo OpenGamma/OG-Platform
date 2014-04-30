@@ -5,6 +5,9 @@
  */
 package com.opengamma.component.tool;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -20,6 +23,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.StartupUtils;
 
 /**
@@ -82,15 +86,86 @@ public abstract class AbstractTool<T extends ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
+   * Main entry point to initialize and run the tool from standard command-line
+   * arguments, terminating the JVM once complete.
+   * <p>
+   * This base class defines three options:<br />
+   * c/config - the config file, mandatory<br />
+   * l/logback - the logback configuration, default tool-logback.xml<br />
+   * h/help - prints the help tool<br />
+   * <p>
+   * This method is intended for use from a standalone main method.
+   * It will print exceptions to system err and terminate the JVM.
+   * This method never returns.
+   * <p>
+   * This method calculates the {@code ToolContext} type by reflection of generics.
+   *
+   * @param args  the command-line arguments, not null
+   */
+  public void invokeAndTerminate(final String[] args) {
+    invokeAndTerminate(args, null, null);
+  }
+
+  /**
+   * Main entry point to initialize and run the tool from standard command-line
+   * arguments, terminating the JVM once complete.
+   * <p>
+   * This base class defines three options:<br />
+   * c/config - the config file, mandatory<br />
+   * l/logback - the logback configuration, default tool-logback.xml<br />
+   * h/help - prints the help tool<br />
+   * <p>
+   * This method is intended for use from a standalone main method.
+   * It will print exceptions to system err and terminate the JVM.
+   * This method never returns.
+   * <p>
+   * This method calculates the {@code ToolContext} type by reflection of generics.
+   *
+   * @param args  the command-line arguments, not null
+   * @param defaultConfigResource  the default configuration resource location, null if mandatory on command line
+   * @param defaultLogbackResource  the default logback resource, null to use tool-logback.xml as the default
+   */
+  public void invokeAndTerminate(final String[] args, final String defaultConfigResource, final String defaultLogbackResource) {
+    try {
+      // reflection to find the tool context type via reflection
+      Class<?> cls = getClass();
+      ParameterizedType type = null;
+      while (cls != AbstractTool.class) {
+        Type loop = cls.getGenericSuperclass();
+        if (loop instanceof ParameterizedType) {
+          type = (ParameterizedType) loop;
+          break;
+        }
+        cls = cls.getSuperclass();
+      }
+      if (type == null || type.getActualTypeArguments().length != 1 ||
+          type.getActualTypeArguments()[0] instanceof Class == false ||
+          ToolContext.class.isAssignableFrom((Class<?>) type.getActualTypeArguments()[0]) == false) {
+        System.err.println("Subclass must declare tool context type");
+        ShutdownUtils.exit(-2);
+      }
+      @SuppressWarnings("unchecked")
+      Class<T> toolContextClass = (Class<T>) type.getActualTypeArguments()[0];
+      // invoke and terminate the tool
+      boolean success = initAndRun(args, defaultConfigResource, defaultLogbackResource, toolContextClass);
+      ShutdownUtils.exit(success ? 0 : -1);
+      
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
+  }
+
+  /**
    * Initializes and runs the tool from standard command-line arguments.
    * <p>
-   * The base class defined three options:<br />
+   * This base class defines three options:<br />
    * c/config - the config file, mandatory<br />
    * l/logback - the logback configuration, default tool-logback.xml<br />
    * h/help - prints the help tool<br />
    *
-   * @param args the command-line arguments, not null
-   * @param toolContextClass the type of tool context to create, should match the generic type argument
+   * @param args  the command-line arguments, not null
+   * @param toolContextClass  the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
   public boolean initAndRun(final String[] args, final Class<? extends T> toolContextClass) {
@@ -100,15 +175,15 @@ public abstract class AbstractTool<T extends ToolContext> {
   /**
    * Initializes and runs the tool from standard command-line arguments.
    * <p>
-   * The base class defined three options:<br />
+   * This base class defines three options:<br />
    * c/config - the config file, mandatory unless default specified<br />
    * l/logback - the logback configuration, default tool-logback.xml<br />
    * h/help - prints the help tool<br />
    *
-   * @param args the command-line arguments, not null
-   * @param defaultConfigResource the default configuration resource location, null if mandatory on command line
-   * @param defaultLogbackResource the default logback resource, null to use tool-logback.xml as the default
-   * @param toolContextClass the type of tool context to create, should match the generic type argument
+   * @param args  the command-line arguments, not null
+   * @param defaultConfigResource  the default configuration resource location, null if mandatory on command line
+   * @param defaultLogbackResource  the default logback resource, null to use tool-logback.xml as the default
+   * @param toolContextClass  the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
   public boolean initAndRun(final String[] args, final String defaultConfigResource, final String defaultLogbackResource,
@@ -121,6 +196,7 @@ public abstract class AbstractTool<T extends ToolContext> {
     try {
       line = parser.parse(options, args);
     } catch (final ParseException e) {
+      System.err.println(e.getMessage());
       usage(options);
       return false;
     }
@@ -143,8 +219,8 @@ public abstract class AbstractTool<T extends ToolContext> {
    * <p>
    * This starts the tool context and calls {@link #run(ToolContext)}. This will catch exceptions and print a stack trace.
    *
-   * @param configResource the config resource location, not null
-   * @param toolContextClass the type of tool context to create, should match the generic type argument
+   * @param configResource  the config resource location, not null
+   * @param toolContextClass  the type of tool context to create, should match the generic type argument
    * @return true if successful
    */
   public final boolean run(final String configResource, final Class<? extends T> toolContextClass) {
@@ -156,8 +232,8 @@ public abstract class AbstractTool<T extends ToolContext> {
    * <p>
    * This starts the tool contexts and calls {@link #run(ToolContexts)}. This will catch exceptions and print a stack trace.
    *
-   * @param configResources the config resource locations for multiple tool contexts, not null
-   * @param toolContextClass the type of tool context to create, should match the generic type argument
+   * @param configResources  the config resource locations for multiple tool contexts, not null
+   * @param toolContextClass  the type of tool context to create, should match the generic type argument
    * @return true if successful
    */
   @SuppressWarnings("unchecked")
@@ -199,7 +275,7 @@ public abstract class AbstractTool<T extends ToolContext> {
    * <p>
    * This will catch not handle exceptions, but will convert checked exceptions to unchecked.
    *
-   * @param toolContext the tool context, not null
+   * @param toolContext  the tool context, not null
    * @throws RuntimeException if an error occurs
    */
   @SuppressWarnings("unchecked")
@@ -212,7 +288,7 @@ public abstract class AbstractTool<T extends ToolContext> {
    * <p>
    * This will catch not handle exceptions, but will convert checked exceptions to unchecked.
    *
-   * @param toolContexts the tool contexts, not null or empty
+   * @param toolContexts  the tool contexts, not null or empty
    * @throws RuntimeException if an error occurs
    */
   public final void run(final T[] toolContexts) {
@@ -250,7 +326,7 @@ public abstract class AbstractTool<T extends ToolContext> {
   /**
    * Gets the i-th tool context.
    *
-   * @param i the index of the tool context to retrieve
+   * @param i  the index of the tool context to retrieve
    * @return the i-th context, not null during {@code doRun}
    */
   protected T getToolContext(final int i) {
@@ -287,7 +363,7 @@ public abstract class AbstractTool<T extends ToolContext> {
    * <p>
    * Subclasses may override this and add their own parameters. The base class defined the options h/help, c/config, l/logback.
    *
-   * @param mandatoryConfigResource whether the config resource is mandatory
+   * @param mandatoryConfigResource  whether the config resource is mandatory
    * @return the set of command line options, not null
    */
   protected Options createOptions(final boolean mandatoryConfigResource) {

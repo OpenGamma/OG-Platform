@@ -18,9 +18,9 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -73,16 +73,22 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
   public static final Currency[] s_currencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.NZD, Currency.DKK };
 
   private static final String ID_SCHEME = "MULTI_ASSET_PORFOLIO_LOADER";
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final ExternalId USDLIBOR3M = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
   private static final LocalDate TODAY = LocalDate.now();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(String[] args) { //CSIGNORE
-    new ExampleMultiAssetPortfolioLoader().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new ExampleMultiAssetPortfolioLoader().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   private void persistToPortfolio() {
     PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(PORTFOLIO_NAME);
@@ -124,7 +130,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
     final CapFloorSecurity cmsCap = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 4, 1, 1, 0), ZoneOffset.UTC),
         ZonedDateTime.of(LocalDateTime.of(2016, 4, 1, 1, 0), ZoneOffset.UTC), 1.5E7,
         ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDISDA10P10Y"), 0.03, SimpleFrequency.ANNUAL, Currency.USD,
-        DayCountFactory.INSTANCE.getDayCount("Actual/360"), false, true, false);
+        DayCounts.ACT_360, false, true, false);
     cmsCap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     cmsCap.setName(getCapFloorName(cmsCap));
     securities.add(cmsCap);
@@ -132,7 +138,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
     final CapFloorSecurity cmsFloor = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 9, 9, 1, 0), ZoneOffset.UTC),
         ZonedDateTime.of(LocalDateTime.of(2016, 9, 9, 1, 0), ZoneOffset.UTC), 1.5E7,
         ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDISDA10P10Y"), 0.01, SimpleFrequency.SEMI_ANNUAL, Currency.USD,
-        DayCountFactory.INSTANCE.getDayCount("Actual/360"), false, false, false);
+        DayCounts.ACT_360, false, false, false);
     cmsFloor.setName(getCapFloorName(cmsFloor));
     cmsFloor.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     securities.add(cmsFloor);
@@ -142,7 +148,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
   private String getCapFloorName(final CapFloorSecurity capFloorSec) {
     return String.format("%s %s @ %.2f [%s-%s] %s, %s %s %s", capFloorSec.isIbor() ? "IBOR" : "CMS", capFloorSec.isCap() ? "cap " : "floor ",
         capFloorSec.getStrike(), capFloorSec.getStartDate().toLocalDate(), capFloorSec.getMaturityDate().toLocalDate(),
-        capFloorSec.getFrequency().getConventionName(), capFloorSec.getCurrency().getCode(),
+        capFloorSec.getFrequency().getName(), capFloorSec.getCurrency().getCode(),
         PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(capFloorSec.getNotional()), capFloorSec.isPayer() ? " Short" : " Long");
   }
 
@@ -354,15 +360,15 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 1.0E7),
             false,
             USDLIBOR3M,
             FloatingRateType.IBOR),
-        new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"),
+        new FixedInterestRateLeg(DayCounts.THIRTY_U_360,
             SimpleFrequency.SEMI_ANNUAL,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 1.0E7),
             false,
             0.04));
@@ -383,15 +389,15 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 3000000.0),
             false,
             USDLIBOR3M,
             FloatingRateType.IBOR),
-        new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"),
+        new FixedInterestRateLeg(DayCounts.THIRTY_U_360,
             SimpleFrequency.SEMI_ANNUAL,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 3000000.0),
             false,
             0.01));
@@ -412,15 +418,15 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 6000000.0),
             false,
             USDLIBOR3M,
             FloatingRateType.IBOR),
-        new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"),
+        new FixedInterestRateLeg(DayCounts.THIRTY_U_360,
             SimpleFrequency.SEMI_ANNUAL,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 6000000.0),
             false,
             0.035));
@@ -442,7 +448,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
     final CapFloorSecurity sec1 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(year + 1, 1, 1, 1, 0), ZoneOffset.UTC),
         ZonedDateTime.of(LocalDateTime.of(year + 3, 1, 1, 1, 0), ZoneOffset.UTC), 1.5E7,
         USDLIBOR3M, 0.01, SimpleFrequency.QUARTERLY, Currency.USD,
-        DayCountFactory.INSTANCE.getDayCount("30U/360"), false, true, true);
+        DayCounts.THIRTY_U_360, false, true, true);
     sec1.setName(getCapFloorName(sec1));
     sec1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     securities.add(sec1);
@@ -450,7 +456,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
     final CapFloorSecurity sec2 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(year + 1, 1, 1, 1, 0), ZoneOffset.UTC),
         ZonedDateTime.of(LocalDateTime.of(year + 3, 1, 1, 1, 0), ZoneOffset.UTC), 1.5E7,
         USDLIBOR3M, 0.01, SimpleFrequency.QUARTERLY, Currency.USD,
-        DayCountFactory.INSTANCE.getDayCount("30U/360"), false, false, true);
+        DayCounts.THIRTY_U_360, false, false, true);
     sec2.setName(getCapFloorName(sec2));
     sec2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     securities.add(sec2);

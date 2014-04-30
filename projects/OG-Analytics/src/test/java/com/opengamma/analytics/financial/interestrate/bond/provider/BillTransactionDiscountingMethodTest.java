@@ -15,11 +15,12 @@ import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefiniti
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadRateIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.ParameterSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.ParameterSensitivityIssuerDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.SimpleParameterSensitivityIssuerCalculator;
@@ -33,26 +34,28 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of bills transactions by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class BillTransactionDiscountingMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
 
@@ -74,12 +77,13 @@ public class BillTransactionDiscountingMethodTest {
 
   private final static PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
   private final static PresentValueCurveSensitivityIssuerCalculator PVCSIC = PresentValueCurveSensitivityIssuerCalculator.getInstance();
-  private static final ParameterSensitivityIssuerCalculator PS_PVI_C = new ParameterSensitivityIssuerCalculator(PVCSIC);
+  private static final ParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface> PS_PVI_C = new ParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface>(PVCSIC);
   private static final ParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_PVI_FDC = new ParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
   private final static ParSpreadMarketQuoteIssuerDiscountingCalculator PSMQIDC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
+  private final static ParSpreadRateIssuerDiscountingCalculator PSRIDC = ParSpreadRateIssuerDiscountingCalculator.getInstance();
   private final static ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSMQCSIDC = ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityIssuerCalculator<IssuerProviderInterface> PS_PSMQ_C = new SimpleParameterSensitivityIssuerCalculator<>(PSMQCSIDC);
+  private static final SimpleParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface> PS_PSMQ_C = new SimpleParameterSensitivityIssuerCalculator<>(PSMQCSIDC);
   private static final SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_PSMQ_FDC = new SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PSMQIDC, SHIFT_FD);
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -97,6 +101,19 @@ public class BillTransactionDiscountingMethodTest {
     pvSecurity = pvSecurity.multipliedBy(QUANTITY);
     final double pvSettle = BILL_TRA_DEFINITION.getSettlementAmount() * ISSUER_MULTICURVE.getMulticurveProvider().getDiscountFactor(EUR, BILL_TRA.getBillPurchased().getSettlementTime());
     assertEquals("Bill Security: discounting method - present value", pvSecurity.getAmount(EUR) + pvSettle, pvTransactionComputed.getAmount(EUR), TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+   * Tests the present value against explicit computation.
+   */
+  public void presentValueFromYield() {
+    final MultipleCurrencyAmount pvTransactionComputed = METHOD_TRANSACTION.presentValueFromYield(BILL_TRA, YIELD, ISSUER_MULTICURVE);
+    final MultipleCurrencyAmount pvSecurity = METHOD_SECURITY.presentValue(BILL_TRA.getBillStandard(), ISSUER_MULTICURVE);
+    final double pvSettle = ISSUER_MULTICURVE.getMulticurveProvider().getDiscountFactor(BILL_TRA.getCurrency(), BILL_TRA.getBillPurchased().getSettlementTime())
+        * BILL_TRA.getSettlementAmount();
+    final MultipleCurrencyAmount pvTransactionExpected = pvSecurity.plus(MultipleCurrencyAmount.of(BILL_TRA.getCurrency(), pvSettle));
+    assertEquals("Bill Security: discounting method - present value from yield", pvTransactionExpected.getAmount(EUR), pvTransactionComputed.getAmount(EUR), TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -146,6 +163,16 @@ public class BillTransactionDiscountingMethodTest {
     final double spreadMethod = METHOD_TRANSACTION.parSpread(BILL_TRA, ISSUER_MULTICURVE);
     final double spreadCalculator = BILL_TRA.accept(PSMQIDC, ISSUER_MULTICURVE);
     assertEquals("Bill Security: discounting method - par spread", spreadMethod, spreadCalculator, TOLERANCE_SPREAD);
+  }
+
+  @Test
+  /**
+   * Tests the par spread (Method vs Calculator).
+   */
+  public void parSpreadCalculatorVsCalculator2() {
+    final double spreadCalculator = BILL_TRA.accept(PSMQIDC, ISSUER_MULTICURVE);
+    final double spreadCalculator2 = BILL_TRA.accept(PSRIDC, ISSUER_MULTICURVE);
+    assertEquals("Bill Security: discounting method - par spread", spreadCalculator, spreadCalculator2, TOLERANCE_SPREAD);
   }
 
   @Test

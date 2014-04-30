@@ -15,16 +15,19 @@ import com.opengamma.analytics.financial.forex.method.TestsDataSetsForex;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SmileDeltaTermStructureDataBundleTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
-  private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.EUR, Currency.EUR);
+  private static final Pair<Currency, Currency> CCYS = Pairs.of(Currency.EUR, Currency.EUR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILES = TestsDataSetsForex.smile5points(REFERENCE_DATE, 0);
   private static final SmileDeltaTermStructureDataBundle FX_DATA = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, CCYS);
@@ -46,7 +49,7 @@ public class SmileDeltaTermStructureDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCurrencyPair() {
-    new SmileDeltaTermStructureDataBundle(CURVES, SMILES, Pair.of(Currency.AUD, Currency.SEK));
+    new SmileDeltaTermStructureDataBundle(CURVES, SMILES, Pairs.of(Currency.AUD, Currency.SEK));
   }
 
   @Test
@@ -63,7 +66,7 @@ public class SmileDeltaTermStructureDataBundleTest {
     assertFalse(FX_DATA.equals(other));
     other = new SmileDeltaTermStructureDataBundle(CURVES, TestsDataSetsForex.smile5points(REFERENCE_DATE, 1), CCYS);
     assertFalse(FX_DATA.equals(other));
-    other = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, Pair.of(Currency.EUR, Currency.GBP));
+    other = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, Pairs.of(Currency.EUR, Currency.GBP));
     assertFalse(FX_DATA.equals(other));
   }
 

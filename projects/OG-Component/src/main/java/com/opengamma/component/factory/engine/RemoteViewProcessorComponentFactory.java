@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -67,45 +68,6 @@ public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponent
     return RemoteViewProcessorComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RemoteViewProcessorComponentFactory other = (RemoteViewProcessorComponentFactory) obj;
-      return JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the JMS connector.
@@ -129,6 +91,51 @@ public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponent
    */
   public final Property<JmsConnector> jmsConnector() {
     return metaBean().jmsConnector().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RemoteViewProcessorComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RemoteViewProcessorComponentFactory other = (RemoteViewProcessorComponentFactory) obj;
+      return JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("RemoteViewProcessorComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -190,6 +197,26 @@ public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponent
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
       return _jmsConnector;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1495762275:  // jmsConnector
+          return ((RemoteViewProcessorComponentFactory) bean).getJmsConnector();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1495762275:  // jmsConnector
+          ((RemoteViewProcessorComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

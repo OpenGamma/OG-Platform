@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -83,50 +84,6 @@ public class EquitySecurityBean extends SecurityBean {
   @Override
   public EquitySecurityBean.Meta metaBean() {
     return EquitySecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1989774883:  // exchange
-        return getExchange();
-      case -2028219097:  // shortName
-        return getShortName();
-      case -508582744:  // companyName
-        return getCompanyName();
-      case 575402001:  // currency
-        return getCurrency();
-      case 762040799:  // gicsCode
-        return getGicsCode();
-      case -1294005119:  // preferred
-        return isPreferred();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1989774883:  // exchange
-        setExchange((ExchangeBean) newValue);
-        return;
-      case -2028219097:  // shortName
-        setShortName((String) newValue);
-        return;
-      case -508582744:  // companyName
-        setCompanyName((String) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 762040799:  // gicsCode
-        setGicsCode((GICSCodeBean) newValue);
-        return;
-      case -1294005119:  // preferred
-        setPreferred((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -280,6 +237,12 @@ public class EquitySecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EquitySecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EquitySecurityBean}.
    */
@@ -418,6 +381,51 @@ public class EquitySecurityBean extends SecurityBean {
      */
     public final MetaProperty<Boolean> preferred() {
       return _preferred;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1989774883:  // exchange
+          return ((EquitySecurityBean) bean).getExchange();
+        case -2028219097:  // shortName
+          return ((EquitySecurityBean) bean).getShortName();
+        case -508582744:  // companyName
+          return ((EquitySecurityBean) bean).getCompanyName();
+        case 575402001:  // currency
+          return ((EquitySecurityBean) bean).getCurrency();
+        case 762040799:  // gicsCode
+          return ((EquitySecurityBean) bean).getGicsCode();
+        case -1294005119:  // preferred
+          return ((EquitySecurityBean) bean).isPreferred();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1989774883:  // exchange
+          ((EquitySecurityBean) bean).setExchange((ExchangeBean) newValue);
+          return;
+        case -2028219097:  // shortName
+          ((EquitySecurityBean) bean).setShortName((String) newValue);
+          return;
+        case -508582744:  // companyName
+          ((EquitySecurityBean) bean).setCompanyName((String) newValue);
+          return;
+        case 575402001:  // currency
+          ((EquitySecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 762040799:  // gicsCode
+          ((EquitySecurityBean) bean).setGicsCode((GICSCodeBean) newValue);
+          return;
+        case -1294005119:  // preferred
+          ((EquitySecurityBean) bean).setPreferred((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

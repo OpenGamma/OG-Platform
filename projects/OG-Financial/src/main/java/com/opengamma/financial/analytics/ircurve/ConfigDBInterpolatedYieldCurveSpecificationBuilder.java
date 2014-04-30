@@ -17,6 +17,7 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  *
@@ -29,12 +30,13 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
   }
 
   // This is factored out into a method so it's easier to remove if we want to disable caching.
-  private CurveSpecificationBuilderConfiguration getBuilderConfig(final Map<String, CurveSpecificationBuilderConfiguration> cache, final String conventionName) {
+  private CurveSpecificationBuilderConfiguration getBuilderConfig(final Map<String, CurveSpecificationBuilderConfiguration> cache, final String conventionName,
+      final VersionCorrection version) {
     CurveSpecificationBuilderConfiguration builderSpecDoc = cache.get(conventionName);
     if (builderSpecDoc != null) {
       return builderSpecDoc;
     }
-    builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
+    builderSpecDoc = _configSource.getSingle(CurveSpecificationBuilderConfiguration.class, conventionName, version);
     if (builderSpecDoc != null) {
       cache.put(conventionName, builderSpecDoc);
     }
@@ -42,16 +44,16 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
   }
 
   @Override
-  public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate, final YieldCurveDefinition curveDefinition) {
+  public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate, final YieldCurveDefinition curveDefinition, final VersionCorrection version) {
     try {
       final Map<String, CurveSpecificationBuilderConfiguration> cache = new HashMap<>();
       final Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<>();
       for (final FixedIncomeStrip strip : curveDefinition.getStrips()) {
         final String conventionName = strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode();
-        final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(cache, conventionName);
+        final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(cache, conventionName, version);
         if (builderConfig == null) {
-          throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve=" + curveDefinition.getName() + ", currency=" + curveDefinition.getCurrency() + ", strip="
-              + strip);
+          throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve=" + curveDefinition.getName() + ", currency=" + curveDefinition.getCurrency() +
+              ", strip=" + strip);
         }
         ExternalId identifier;
         switch (strip.getInstrumentType()) {
@@ -130,8 +132,8 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       final String rightExtrapolatorName = curveDefinition.getRightExtrapolatorName();
       final boolean interpolateYield = curveDefinition.isInterpolateYields();
       final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-      return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, interpolateYield,
-          securities, curveDefinition.getRegionId());
+      return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, interpolateYield, securities,
+          curveDefinition.getRegionId());
     } catch (final OpenGammaRuntimeException e) {
       throw new OpenGammaRuntimeException("Error constructing " + curveDefinition.getName() + "_" + curveDefinition.getCurrency().getCode() + ": " + e.getMessage());
     }

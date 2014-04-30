@@ -53,7 +53,7 @@ public class CapFloorSecurityConverterDeprecated extends FinancialSecurityVisito
     final Currency currency = capFloorSecurity.getCurrency();
     final Frequency payFreq = capFloorSecurity.getFrequency();
     // FIXME: convert frequency to period in a better way
-    final Period tenorPayment = getTenor(payFreq);
+    final Period tenorPayment = ConversionUtils.getTenor(payFreq);
     final boolean isIbor = capFloorSecurity.isIbor();
     final ConventionBundle iborIndexConvention;
     final ExternalId regionId;
@@ -82,26 +82,10 @@ public class CapFloorSecurityConverterDeprecated extends FinancialSecurityVisito
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final IborIndex iborIndex = new IborIndex(currency, tenorPayment, iborIndexConvention.getSettlementDays(), iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isEOMConvention());
-    final Period fixedLegPaymentPeriod = getTenor(swapIndexConvention.getSwapFixedLegFrequency());
+    final Period fixedLegPaymentPeriod = ConversionUtils.getTenor(swapIndexConvention.getSwapFixedLegFrequency());
     final IndexSwap swapIndex = new IndexSwap(fixedLegPaymentPeriod, swapIndexConvention.getSwapFixedLegDayCount(), iborIndex, swapIndexConvention.getPeriod(), calendar);
     return AnnuityCapFloorCMSDefinition.from(startDate, endDate, notional, swapIndex, tenorPayment, capFloorSecurity.getDayCount(), capFloorSecurity.isPayer(), capFloorSecurity.getStrike(),
         capFloorSecurity.isCap(), calendar);
-  }
-
-  private static Period getTenor(final Frequency freq) {
-    Period tenor;
-    if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(12);
-    } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(6);
-    } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(3);
-    } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(1);
-    } else {
-      throw new OpenGammaRuntimeException("Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floors");
-    }
-    return tenor;
   }
 
 }

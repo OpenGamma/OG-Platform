@@ -83,7 +83,7 @@ public class DataTradeResource extends AbstractDataResource {
   public Response get() {
     UniqueId tradeId = getUrlTradeId().atLatestVersion();
     ManageableTrade result = getPositionMaster().getTrade(tradeId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET
@@ -91,7 +91,7 @@ public class DataTradeResource extends AbstractDataResource {
   public Response getVersioned(@PathParam("versionId") String versionId) {
     UniqueId tradeId = getUrlTradeId().atVersion(versionId);
     ManageableTrade result = getPositionMaster().getTrade(tradeId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

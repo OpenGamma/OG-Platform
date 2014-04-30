@@ -41,12 +41,14 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborSABRMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -97,7 +99,7 @@ public class CapFloorIborSABRMethodTest {
   public void presentValue() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_SABR.presentValue(CAP_LONG, SABR_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double maturity = CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
     final double volatility = SABR_PARAMETER.getVolatility(CAP_LONG.getFixingTime(), maturity, STRIKE, forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
@@ -165,7 +167,7 @@ public class CapFloorIborSABRMethodTest {
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRCapProviderDiscount sabrBundleAlphaBumped = new SABRCapProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EURIBOR3M);

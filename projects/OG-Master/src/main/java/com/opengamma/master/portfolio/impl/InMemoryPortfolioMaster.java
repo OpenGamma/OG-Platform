@@ -6,7 +6,11 @@
 package com.opengamma.master.portfolio.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -33,6 +37,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 import com.opengamma.util.paging.Paging;
 
 /**
@@ -49,7 +54,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
    * A cache of portfolio nodes by identifier.
    */
   private final ConcurrentMap<ObjectId, ManageablePortfolioNode> _storeNodes = new ConcurrentHashMap<ObjectId, ManageablePortfolioNode>();
-
+  private final ConcurrentMap<String, Set<PortfolioDocument>> _portfoliosByName = new ConcurrentHashMap<String, Set<PortfolioDocument>>();
   
   /**
    * Creates an instance.
@@ -88,6 +93,26 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
 
   //-------------------------------------------------------------------------
   @Override
+  protected void updateCaches(ObjectIdentifiable replacedObject, PortfolioDocument updatedDocument) {
+    PortfolioDocument replacedPortfolio = (PortfolioDocument) replacedObject;
+    if (replacedPortfolio != null) {
+      Set<PortfolioDocument> docsWithName = _portfoliosByName.get(replacedPortfolio.getValue().getName());
+      if (docsWithName != null) {
+        docsWithName.remove(replacedPortfolio);
+      }
+    }
+    if (updatedDocument != null) {
+      Set<PortfolioDocument> docsWithName = _portfoliosByName.get(updatedDocument.getValue().getName());
+      if (docsWithName == null) {
+        docsWithName = new HashSet<PortfolioDocument>();
+        _portfoliosByName.put(updatedDocument.getValue().getName(), docsWithName);
+      }
+      docsWithName.add(updatedDocument);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   protected void validateDocument(PortfolioDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
@@ -111,21 +136,29 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
   }
   
   private PortfolioDocument clonePortfolioDocument(PortfolioDocument document) {
-    PortfolioDocument clone = JodaBeanUtils.clone(document);
-    ManageablePortfolio portfolioClone = JodaBeanUtils.clone(document.getPortfolio());
-    portfolioClone.setRootNode(clonePortfolioNode(portfolioClone.getRootNode()));
-    clone.setPortfolio(portfolioClone);
-    return clone;
+    if (isCloneResults()) {
+      PortfolioDocument clone = JodaBeanUtils.clone(document);
+      ManageablePortfolio portfolioClone = JodaBeanUtils.clone(document.getPortfolio());
+      portfolioClone.setRootNode(clonePortfolioNode(portfolioClone.getRootNode()));
+      clone.setPortfolio(portfolioClone);
+      return clone;
+    } else {
+      return document;
+    }
   }
   
   private ManageablePortfolioNode clonePortfolioNode(ManageablePortfolioNode node) {
-    ManageablePortfolioNode clone = JodaBeanUtils.clone(node);
-    List<ManageablePortfolioNode> childNodes = new ArrayList<ManageablePortfolioNode>(node.getChildNodes().size());
-    for (ManageablePortfolioNode child : node.getChildNodes()) {
-      childNodes.add(clonePortfolioNode(child));
+    if (isCloneResults()) {
+      ManageablePortfolioNode clone = JodaBeanUtils.clone(node);
+      List<ManageablePortfolioNode> childNodes = new ArrayList<ManageablePortfolioNode>(node.getChildNodes().size());
+      for (ManageablePortfolioNode child : node.getChildNodes()) {
+        childNodes.add(clonePortfolioNode(child));
+      }
+      clone.setChildNodes(childNodes);
+      return clone;
+    } else {
+      return node;
     }
-    clone.setChildNodes(childNodes);
-    return clone;
   }
 
   @Override
@@ -143,6 +176,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
     _store.put(objectId, clonedDoc);
     storeNodes(clonedDoc.getPortfolio().getRootNode(), document.getPortfolio().getRootNode(), uniqueId, null);
     _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
+    updateCaches(null, clonedDoc);
     return document;
   }
   
@@ -207,6 +241,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
     }
     storeNodes(clonedDoc.getPortfolio().getRootNode(), document.getPortfolio().getRootNode(), uniqueId, null);
     _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), document.getVersionFromInstant(), document.getVersionToInstant(), now);
+    updateCaches(storedDocument, clonedDoc);
     return document;
   }
 
@@ -228,6 +263,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
     }
     removeNodes(storedDocument.getPortfolio().getRootNode());
     _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
+    updateCaches(storedDocument, null);
   }
 
   @Override
@@ -238,10 +274,22 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
   @Override
   public PortfolioSearchResult search(PortfolioSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
+    Collection<PortfolioDocument> docsToCheck = null;
+    
+    if ((request.getName() != null) && !RegexUtils.containsWildcard(request.getName())) {
+      docsToCheck = _portfoliosByName.get(request.getName());
+    } else {
+      docsToCheck = _store.values();
+    }
+    if (docsToCheck == null) {
+      docsToCheck = Collections.emptySet();
+    }
+    
     final List<PortfolioDocument> list = new ArrayList<PortfolioDocument>();
-    for (PortfolioDocument doc : _store.values()) {
+    for (PortfolioDocument doc : docsToCheck) {
       if (request.matches(doc)) {
-        list.add(clonePortfolioDocument(doc));
+        PortfolioDocument docToAdd = isCloneResults() ? clonePortfolioDocument(doc) : doc;
+        list.add(docToAdd);
       }
     }
     final PortfolioSearchResult result = new PortfolioSearchResult();
@@ -262,6 +310,10 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
     if (node == null) {
       throw new DataNotFoundException("Node not found: " + nodeId);
     }
-    return clonePortfolioNode(node);
+    if (isCloneResults()) {
+      return clonePortfolioNode(node);
+    } else {
+      return node;
+    }
   }
 }

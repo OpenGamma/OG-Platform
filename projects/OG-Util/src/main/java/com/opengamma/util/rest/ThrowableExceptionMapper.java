@@ -5,9 +5,10 @@
  */
 package com.opengamma.util.rest;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 /**
@@ -15,8 +16,7 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 public class ThrowableExceptionMapper
-    extends AbstractExceptionMapper
-    implements ExceptionMapper<Throwable> {
+    extends AbstractSpecificExceptionMapper<Throwable> {
 
   /**
    * Creates the mapper.
@@ -27,8 +27,20 @@ public class ThrowableExceptionMapper
 
   //-------------------------------------------------------------------------
   @Override
-  public Response toResponse(final Throwable exception) {
-    return createResponse(exception);
+  protected String buildHtmlErrorPage(Throwable exception) {
+    Map<String, String> data = new HashMap<>();
+    buildOutputMessage(exception, data);
+    return createHtmlErrorPage("error-servererror.html", data);
+  }
+
+  @Override
+  protected void logHtmlException(Throwable exception, String htmlPage) {
+    s_logger.error("RESTful website exception caught", exception);
+  }
+
+  @Override
+  protected void logRestfulError(Throwable exception) {
+    s_logger.error("RESTful web-service exception caught and tunnelled to client:", exception);
   }
 
 }

@@ -8,6 +8,7 @@ package com.opengamma.engine.depgraph;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolvedValueProducer.Chain;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
@@ -72,31 +74,33 @@ public final class DependencyGraphBuilder implements Cancelable {
    * Disables the multi-threaded graph building. If set, value requirements will be queued as they are added and the graph built by a single thread when {@link #getDependencyGraph} is called. This is
    * false by default but can be controlled by the {@code DependencyGraphBuilder.noBackgroundThreads} property. When set the value of {@link #_maxAdditionalThreads} is ignored.
    */
-  private static final boolean NO_BACKGROUND_THREADS =
-      System.getProperty("DependencyGraphBuilder.noBackgroundThreads", "FALSE").equalsIgnoreCase("TRUE");
+  private static final boolean NO_BACKGROUND_THREADS = System.getProperty("DependencyGraphBuilder.noBackgroundThreads", "FALSE").equalsIgnoreCase("TRUE");
 
   /**
    * Limits the maximum number of additional threads that the builder will spawn by default. This is used for the default value for {@link #_maxAdditionalThreads}. A value of {@code -1} will use the
    * number of processor cores as the default. The number of threads actually used by be different as the {@link DependencyGraphBuilderFactory} may only provide a limited pool to all active graph
    * builders. This is {@code -1} by default (use the number of processor cores) but can be controlled by the {@code DependencyGraphBuilder.maxAdditionalThreads} property.
    */
-  private static final int MAX_ADDITIONAL_THREADS =
-      Integer.parseInt(System.getProperty("DependencyGraphBuilder.maxAdditionalThreads", "-1"));
+  private static final int MAX_ADDITIONAL_THREADS = Integer.parseInt(System.getProperty("DependencyGraphBuilder.maxAdditionalThreads", "-1"));
 
   /**
    * Writes the dependency graph structure (in ASCII) out after each graph build completes. Graphs are written to the user's temporary folder with the name {@code dependencyGraph} and a numeric suffix
    * from the builder's object ID. The default value is off but can be controlled by the {@code DependencyGraphBuilder.dumpDependencyGraph} property.
    */
-  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH =
-      System.getProperty("DependencyGraphBuilder.dumpDependencyGraph", "FALSE").equalsIgnoreCase("TRUE");
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = System.getProperty("DependencyGraphBuilder.dumpDependencyGraph", "FALSE").equalsIgnoreCase("TRUE");
 
   /**
    * Writes the value requirements that could not be resolved out. Failure information is written to the user's temporary folder with the name {@code resolutionFailure} and a sequential numeric suffix
    * from the builder's object ID. The verbosity of failure information will depend on the {@link #_disableFailureReporting} flag typically controlled by
    * {@link DependencyGraphBuilderFactory#setEnableFailureReporting}. The default value is off but can be controlled by the {@code DependencyGraphBuilder.dumpFailureInfo} property.
    */
-  private static final boolean DEBUG_DUMP_FAILURE_INFO =
-      System.getProperty("DependencyGraphBuilder.dumpFailureInfo", "FALSE").equalsIgnoreCase("TRUE");
+  private static final boolean DEBUG_DUMP_FAILURE_INFO = System.getProperty("DependencyGraphBuilder.dumpFailureInfo", "FALSE").equalsIgnoreCase("TRUE");
+
+  /**
+   * Controls whether to GZIP the outputs created by {@link #DEBUG_DUMP_DEPENDENCY_GRAPH} and {@link #DEBUG_DUMP_FAILURE_INFO}. The default value is off but can be controlled by the
+   * {@code DependencyGraphBuilder.dumpGZIP} property to save disk space and/or I/O overheads when a large volume of debugging data is being generated.
+   */
+  private static final boolean DEBUG_DUMP_GZIP = System.getProperty("DependencyGraphBuilder.dumpGZIP", "FALSE").equalsIgnoreCase("TRUE");
 
   /** Profiler for monitoring the {@link #abortLoops} operation. */
   private static final Profiler s_abortLoops = Profiler.create(DependencyGraphBuilder.class, "abortLoops");
@@ -142,15 +146,13 @@ public final class DependencyGraphBuilder implements Cancelable {
   private FunctionExclusionGroups _functionExclusionGroups;
 
   // The resolve task is ref-counted once for the map (it is being used as a set)
-  private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements =
-      new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
+  private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
 
   /** The number of active resolve tasks for this instance of DependencyGraphBuilder */
   private final AtomicInteger _activeResolveTasks = new AtomicInteger();
 
   // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
-  private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications =
-      new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
+  private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications = new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
 
   /**
    * Number of additional threads to launch while requirements are being added or the graph is being built. The total number of threads used for graph construction may be up to this value or may be
@@ -356,6 +358,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     ComputationTargetSpecification specification = getCompilationContext().getComputationTargetResolver().getSpecificationResolver().getTargetSpecification(reference);
     if (specification == null) {
       s_logger.warn("Couldn't resolve {}", reference);
+      return null;
     }
     if (specification.getType().accept(s_isUnionType, null) == Boolean.TRUE) {
       final ComputationTarget target = getCompilationContext().getComputationTargetResolver().resolve(specification);
@@ -400,6 +403,14 @@ public final class DependencyGraphBuilder implements Cancelable {
     return tasks;
   }
 
+  /**
+   * Fetches an existing resolution of the given value specification.
+   * <p>
+   * The {@code valueSpecification} parameter must be normalized.
+   * 
+   * @param valueSpecification the specification to search for, not null
+   * @return the resolved value, or null if not resolved
+   */
   protected ResolvedValue getResolvedValue(final ValueSpecification valueSpecification) {
     return _getTerminalValuesCallback.getProduction(valueSpecification);
   }
@@ -462,6 +473,10 @@ public final class DependencyGraphBuilder implements Cancelable {
   /**
    * Adds a target requirement to the graph. The requirement is queued and the call returns; construction of the graph will happen on a background thread (if additional threads is non-zero), or when
    * the call to {@link #getDependencyGraph} is made. If it was not possible to satisfy the requirement that must be checked after graph construction is complete.
+   * <p>
+   * The caller must ensure that the same requirement is not passed multiple times to the builder. Depending on scheduling and memory availability, the cases may be identified and coalesced (by
+   * {@link GraphBuildingContext#resolveRequirement}) into a single logical operation. Alternatively the resolutions may run to completion to include terminal outputs in the result. If the function
+   * library contains an ambiguity or other aspect that means the resolved value specification could differ this will result in an invalid dependency graph.
    * 
    * @param requirement requirement to add, not null
    */
@@ -486,10 +501,14 @@ public final class DependencyGraphBuilder implements Cancelable {
   /**
    * Adds target requirements to the graph. The requirements are queued and the call returns; construction of the graph will happen on a background thread (if additional threads is non-zero), or when
    * the call to {@link #getDependencyGraph} is made. If it was not possible to satisfy one or more requirements that must be checked after graph construction is complete.
+   * <p>
+   * The caller must ensure that the same requirement is not passed multiple times to the builder. Depending on scheduling and memory availability, the cases may be identified and coalesced (by
+   * {@link GraphBuildingContext#resolveRequirement}) into a single logical operation. Alternatively the resolutions may run to completion to include terminal outputs in the result. If the function
+   * library contains an ambiguity or other aspect that means the resolved value specification could differ this will result in an invalid dependency graph.
    * 
    * @param requirements requirements to add, not null and not containing nulls.
    */
-  public void addTarget(final Set<ValueRequirement> requirements) {
+  public void addTarget(final Collection<ValueRequirement> requirements) {
     ArgumentChecker.noNulls(requirements, "requirements");
 
     // Check that the market data availability provider, the function resolver and the calc config name are non-null
@@ -999,19 +1018,13 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   protected DependencyGraph createDependencyGraph() {
-    final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
-    s_logger.debug("Converting internal representation to dependency graph");
-    for (final DependencyNode node : getTerminalValuesCallback().getGraphNodes()) {
-      graph.addDependencyNode(node);
-    }
-    for (final Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : getTerminalValuesCallback().getTerminalValues().entrySet()) {
-      graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
-    }
-    //graph.dumpStructureASCII(System.out);
+    final Pair<Collection<DependencyNode>, Integer> nodes = getTerminalValuesCallback().getGraphRootNodes();
+    final DependencyGraphImpl graph = new DependencyGraphImpl(getCalculationConfigurationName(), nodes.getFirst(), nodes.getSecond(), getTerminalValuesCallback()
+        .getTerminalValuesBySpecification());
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");
       ps.println("Configuration = " + getCalculationConfigurationName());
-      graph.dumpStructureASCII(ps);
+      DependencyGraphImpl.dumpStructureASCII(graph, ps);
       ps.close();
     }
     s_logger.info("{} built after {} steps", graph, _completedSteps);
@@ -1025,8 +1038,15 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   protected PrintStream openDebugStream(final String name) {
     try {
-      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt.gz";
-      return new PrintStream(new GZIPOutputStream(new FileOutputStream(fileName)));
+      String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt";
+      if (DEBUG_DUMP_GZIP) {
+        fileName = fileName + ".gz";
+      }
+      OutputStream output = new FileOutputStream(fileName);
+      if (DEBUG_DUMP_GZIP) {
+        output = new GZIPOutputStream(output);
+      }
+      return new PrintStream(output);
     } catch (final IOException e) {
       s_logger.error("Can't open debug file", e);
       return System.out;

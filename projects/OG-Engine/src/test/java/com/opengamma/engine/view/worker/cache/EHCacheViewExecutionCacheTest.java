@@ -15,8 +15,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -27,34 +25,24 @@ import org.mockito.Mockito;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.impl.SimplePortfolio;
-import com.opengamma.core.position.impl.SimplePortfolioNode;
-import com.opengamma.core.position.impl.SimplePosition;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.function.CompiledFunctionService;
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.function.LazyFunctionRepositoryCompiler;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder.NodeBuilder;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfigurationImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.worker.cache.EHCacheViewExecutionCache.CompiledViewDefinitionWithGraphsHolder;
@@ -67,9 +55,10 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests the {@link EHCacheViewExecutionCache} class.
  */
-@Test(groups = TestGroup.UNIT_DB)
+@Test(groups = TestGroup.UNIT)
 public class EHCacheViewExecutionCacheTest {
 
+  private final Instant _now = Instant.now();
   private CacheManager _cacheManager;
 
   @BeforeClass
@@ -80,13 +69,6 @@ public class EHCacheViewExecutionCacheTest {
   @AfterClass
   public void tearDownClass() {
     EHCacheUtils.shutdownQuiet(_cacheManager);
-  }
-
-  private Security createSecurity(final UniqueId uid, final ExternalId eid) {
-    final Security security = Mockito.mock(Security.class);
-    Mockito.when(security.getUniqueId()).thenReturn(uid);
-    Mockito.when(security.getExternalIdBundle()).thenReturn(eid.toBundle());
-    return security;
   }
 
   private Portfolio createPortfolio() {
@@ -100,48 +82,14 @@ public class EHCacheViewExecutionCacheTest {
   }
 
   private DependencyGraph createDependencyGraph() {
-    final DependencyGraph graph = new DependencyGraph("Default");
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
-    final ComputationTarget t1 = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new SimplePortfolioNode(UniqueId.of("Node", "0"), "node"));
-    final DependencyNode n1 = new DependencyNode(t1.toSpecification());
-    n1.setFunction(new MockFunction("F1", t1));
-    n1.addOutputValue(new ValueSpecification("Foo", t1.toSpecification(), properties));
-    n1.addTerminalOutputValue(new ValueSpecification("Foo", t1.toSpecification(), properties));
-    graph.addDependencyNode(n1);
-    final ComputationTarget t2 = new ComputationTarget(ComputationTargetType.POSITION, new SimplePosition(UniqueId.of("Pos", "0"), BigDecimal.ONE, ExternalId.of("Security", "Foo")));
-    final DependencyNode n2 = new DependencyNode(t2.toSpecification());
-    n2.setFunction(new MockFunction("F2", t1));
-    n2.addOutputValue(new ValueSpecification("Foo", t2.toSpecification(), properties));
-    n1.addInputValue(new ValueSpecification("Foo", t2.toSpecification(), properties));
-    n1.addInputNode(n2);
-    graph.addDependencyNode(n2);
-    final ComputationTarget t3 = new ComputationTarget(ComputationTargetType.SECURITY, createSecurity(UniqueId.of("Pos", "0"), ExternalId.of("Security", "Foo")));
-    final DependencyNode n3 = new DependencyNode(t3.toSpecification());
-    n3.setFunction(new MockFunction("F3", t1));
-    n3.addOutputValue(new ValueSpecification("Foo", t3.toSpecification(), properties));
-    n2.addInputValue(new ValueSpecification("Foo", t3.toSpecification(), properties));
-    n2.addInputNode(n3);
-    graph.addDependencyNode(n3);
-    graph.addTerminalOutput(new ValueRequirement("Foo", t1.toSpecification()), new ValueSpecification("Foo", t1.toSpecification(), properties));
-    return graph;
-  }
-
-  private FunctionCompilationContext createFunctionCompilationContext() {
-    final FunctionCompilationContext context = new FunctionCompilationContext();
-    final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
-    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, UniqueId.of("Portfolio", "0", "V")), VersionCorrection.LATEST)).thenReturn(
-        new ComputationTarget(ComputationTargetType.PORTFOLIO, createPortfolio()));
-    Mockito.when(targetResolver.atVersionCorrection(VersionCorrection.LATEST)).thenReturn(Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class));
-    context.setRawComputationTargetResolver(targetResolver);
-    return context;
-  }
-
-  private FunctionRepository createFunctionRepository() {
-    final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
-    functions.addFunction(new MockFunction("F1", new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new SimplePortfolioNode(UniqueId.of("Node", "0"), "node"))));
-    functions.addFunction(new MockFunction("F2", new ComputationTarget(ComputationTargetType.POSITION, new SimplePosition(UniqueId.of("Pos", "0"), BigDecimal.ONE, ExternalId.of("Security", "Foo")))));
-    functions.addFunction(new MockFunction("F3", new ComputationTarget(ComputationTargetType.SECURITY, createSecurity(UniqueId.of("Pos", "0"), ExternalId.of("Security", "Foo")))));
-    return functions;
+    final TestDependencyGraphBuilder gb = new TestDependencyGraphBuilder("Default");
+    final NodeBuilder n1 = gb.addNode("Foo", ComputationTargetSpecification.NULL);
+    n1.addTerminalOutput("Foo");
+    final NodeBuilder n2 = gb.addNode("Bar", ComputationTargetSpecification.NULL);
+    n1.addInput(n2.addOutput("Bar"));
+    final NodeBuilder n3 = gb.addNode("Cow", ComputationTargetSpecification.NULL);
+    n2.addInput(n3.addOutput("Cow"));
+    return gb.buildGraph();
   }
 
   private CompiledViewDefinitionWithGraphs createCompiledViewDefinitionWithGraphs() {
@@ -151,17 +99,20 @@ public class EHCacheViewExecutionCacheTest {
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     final DependencyGraph graph = createDependencyGraph();
     final Collection<DependencyGraph> graphs = Collections.singleton(graph);
-    final Map<ComputationTargetReference, UniqueId> resolutions = ImmutableMap.<ComputationTargetReference, UniqueId>of(
-        new ComputationTargetRequirement(ComputationTargetType.SECURITY, ExternalId.of("Security", "Foo")), UniqueId.of("Sec", "0"));
-    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, graphs, resolutions, portfolio, 0);
+    final Collection<CompiledViewCalculationConfiguration> calcConfigs = Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph));
+    final Map<ComputationTargetReference, UniqueId> resolutions = ImmutableMap.<ComputationTargetReference, UniqueId>of(new ComputationTargetRequirement(ComputationTargetType.SECURITY,
+        ExternalId.of("Security", "Foo")), UniqueId.of("Sec", "0"));
+    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.of(_now, _now), "", viewDefinition, graphs, resolutions, portfolio, 0, calcConfigs, null, null);
   }
 
   private EHCacheViewExecutionCache createCache() {
-    final ConfigSource configSource = Mockito.mock(ConfigSource.class);
-    Mockito.when(configSource.getConfig(ViewDefinition.class, UniqueId.of("View", "0", "V"))).thenReturn(createViewDefinition());
-    final CompiledFunctionService functions = new CompiledFunctionService(createFunctionRepository(), new LazyFunctionRepositoryCompiler(), createFunctionCompilationContext());
-    functions.initialize();
-    return new EHCacheViewExecutionCache(_cacheManager, configSource, functions);
+    final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
+    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, UniqueId.of("Portfolio", "0", "V")), VersionCorrection.of(_now, _now)))
+        .thenReturn(new ComputationTarget(ComputationTargetType.PORTFOLIO, createPortfolio()));
+    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.of(ViewDefinition.class), UniqueId.of("View", "0", "V")), VersionCorrection.LATEST))
+        .thenReturn(new ComputationTarget(ComputationTargetType.of(ViewDefinition.class), createViewDefinition()));
+    Mockito.when(targetResolver.atVersionCorrection(VersionCorrection.of(_now, _now))).thenReturn(Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class));
+    return new EHCacheViewExecutionCache(_cacheManager, targetResolver);
   }
 
   public void testCompiledViewDefinitionWithGraphs_serialization() throws Exception {
@@ -172,6 +123,7 @@ public class EHCacheViewExecutionCacheTest {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     final ObjectOutputStream oos = new ObjectOutputStream(baos);
     oos.writeObject(holder);
+    oos.close();
     final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
     final ObjectInputStream ois = new ObjectInputStream(bais);
     final Object newHolder = ois.readObject();
@@ -188,7 +140,7 @@ public class EHCacheViewExecutionCacheTest {
   public void testCompiledViewDefinitionWithGraphs_caching() {
     final EHCacheViewExecutionCache cache = createCache();
     final CompiledViewDefinitionWithGraphs object = createCompiledViewDefinitionWithGraphs();
-    final ViewExecutionCacheKey key = new ViewExecutionCacheKey(UniqueId.of("Key", "1"), new Serializable[] {"Foo" });
+    final ViewExecutionCacheKey key = new ViewExecutionCacheKey(UniqueId.of("Key", "1"), "Foo", "No-op");
     // Miss
     assertNull(cache.getCompiledViewDefinitionWithGraphs(key));
     // Store

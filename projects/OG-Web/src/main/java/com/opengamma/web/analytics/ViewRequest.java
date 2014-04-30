@@ -21,8 +21,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewRequest {
 
-  /** The ID if the view definition used by the view. */
+  /** The unique identifier of the view definition. */
   private final UniqueId _viewDefinitionId;
+  /** The unique identifier of an existing view process to attach to. */
+  private final UniqueId _viewProcessId;
   /** Used for aggregating the view's portfolio. */
   private final List<String> _aggregators;
   /** Valuation time used by the calculation engine. */
@@ -36,7 +38,8 @@ public class ViewRequest {
 
   /**
    *
-   * @param viewDefinitionId The ID if the view definition used by the view, not null
+   * @param viewDefinitionId The unqiue identifier of the view definition, not null
+   * @param viewProcessId  the unique identifier of an existing view process to connect to, null to use the default
    * @param aggregators Used for aggregating the view's portfolio, not null
    * @param marketDataSpecs The source(s) of market data for the view, not empty
    * @param valuationTime The valuation time used when calculating the analytics, can be null
@@ -44,6 +47,7 @@ public class ViewRequest {
    * @param portfolioVersionCorrection Version and correction time for the portfolio used when calculating the analytics
    */
   public ViewRequest(UniqueId viewDefinitionId,
+                     UniqueId viewProcessId,
                      List<String> aggregators,
                      List<MarketDataSpecification> marketDataSpecs,
                      Instant valuationTime,
@@ -56,16 +60,24 @@ public class ViewRequest {
     _marketDataSpecs = marketDataSpecs;
     _valuationTime = valuationTime;
     _viewDefinitionId = viewDefinitionId;
+    _viewProcessId = viewProcessId;
     _aggregators = ImmutableList.copyOf(aggregators);
     _portfolioVersionCorrection = portfolioVersionCorrection;
     _blotter = blotter;
   }
 
   /**
-   * @return The ID if the view definition used by the view, not null
+   * @return the unique identifier of the view definition, not null
    */
   public UniqueId getViewDefinitionId() {
     return _viewDefinitionId;
+  }
+  
+  /**
+   * @return the unique identifier of an existing view process to attach to, null to use the default
+   */
+  public UniqueId getViewProcessId() {
+    return _viewProcessId;
   }
 
   /**

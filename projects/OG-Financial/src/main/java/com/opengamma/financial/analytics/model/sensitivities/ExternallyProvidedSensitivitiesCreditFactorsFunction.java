@@ -57,11 +57,6 @@ public class ExternallyProvidedSensitivitiesCreditFactorsFunction extends Abstra
   public static final String CREDIT_SENSITIVITIES_REQUIREMENT = ValueRequirementNames.CREDIT_SENSITIVITIES;
 
   @Override
-  public void init(final FunctionCompilationContext context) {
-
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
   }
@@ -118,8 +113,7 @@ public class ExternallyProvidedSensitivitiesCreditFactorsFunction extends Abstra
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
     final Set<ComputedValue> results = getResultsForExternalRiskFactors(executionContext.getSecuritySource(), inputs, target, security);
     //s_logger.warn("execute, returning " + results);
@@ -156,8 +150,7 @@ public class ExternallyProvidedSensitivitiesCreditFactorsFunction extends Abstra
     if (underlyingRawSecurity != null) {
       final FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
       @SuppressWarnings("unchecked")
-      final
-      List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, factorIdMsg.getMessage());
+      final List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, factorIdMsg.getMessage());
       return factorExposureDataList;
     } else {
       throw new OpenGammaRuntimeException("Couldn't find factor list security " + securityEntryData.getFactorSetId());

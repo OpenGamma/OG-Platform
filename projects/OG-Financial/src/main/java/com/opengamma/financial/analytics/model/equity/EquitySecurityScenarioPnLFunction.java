@@ -25,53 +25,52 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Simple scenario Function returns the difference in PresentValue between defined Scenario and current market conditions. <p>
- * Price shift is relative, hence the market value under shift, d = (1 + d ) * market_value, 
- * and pnl = scenario_value - market_value = d * market_value. <p>
- * Shift to option volatilities clearly have no effect. <p>
- *
- *  For this function to resolve, at least one of the following properties must be set.
- *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_PRICE_SHIFT}
- *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_VOL_SHIFT}
- *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_PRICE_SHIFT_TYPE}
- *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_VOL_SHIFT_TYPE}
+ * Simple scenario Function returns the difference in PresentValue between defined Scenario and current market conditions.
+ * <p>
+ * Price shift is relative, hence the market value under shift, d = (1 + d ) * market_value, and pnl = scenario_value - market_value = d * market_value.
+ * <p>
+ * Shift to option volatilities clearly have no effect.
+ * <p>
+ * For this function to resolve, at least one of the following properties must be set. {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_PRICE_SHIFT}
+ * {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_VOL_SHIFT} {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_PRICE_SHIFT_TYPE} {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_VOL_SHIFT_TYPE}
  */
 public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final String s_priceShift = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT;
   private static final String s_volShift = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT;
   private static final String s_priceShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT_TYPE;
-  private static final String s_volShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT_TYPE; 
-  
+  private static final String s_volShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT_TYPE;
+
   private String getValueRequirementName() {
     return ValueRequirementNames.PNL;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    
+
     // Get equity price (market value)
     final EquitySecurity equity = (EquitySecurity) target.getSecurity();
     final double price = (Double) inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()));
-    
+
     // Get shift to price, if provided, and hence PNL
     final double pnl;
-    
+
     ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     String stockConstraint = constraints.getValues(s_priceShift).iterator().next();
     String priceShiftTypeConstraint = constraints.getValues(s_priceShiftType).iterator().next();
-    
-    if (stockConstraint.equals("")) { 
+
+    if (stockConstraint.equals("")) {
       pnl = 0.0;
     } else {
-      
+
       final Double shiftStock = Double.valueOf(stockConstraint);
-      
+
       if (priceShiftTypeConstraint.equals("Additive")) {
         // The shift is itself the pnl
         pnl = shiftStock;
@@ -83,24 +82,16 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
         pnl = shiftStock * price;
       }
     }
-    
+
     // Return PNL with specification
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueSpecification valueSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
     return Collections.singleton(new ComputedValue(valueSpec, pnl));
   }
-  
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getSecurity() instanceof EquitySecurity) {
-      return true;
-    }
-    return false;
-  }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.EQUITY_SECURITY;
   }
 
   @Override
@@ -112,13 +103,13 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
         .get();
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     ValueSpecification input = inputs.keySet().iterator().next();
     if (getValueRequirementName().equals(input.getValueName())) {
       return inputs.keySet();
-    } else {    
+    } else {
       return getResults(context, target);
     }
   }
@@ -129,7 +120,7 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
    * We also use getRequirements to set defaults for the shift properties.
    */
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    
+
     // Test constraints are provided, else set to ""
     final ValueProperties constraints = desiredValue.getConstraints();
     ValueProperties.Builder scenarioDefaults = null;
@@ -137,7 +128,7 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
 
     final Set<String> priceShiftSet = constraints.getValues(s_priceShift);
     if (priceShiftSet == null || priceShiftSet.isEmpty()) {
-      scenarioDefaults = constraints.copy().withoutAny(s_priceShift).with(s_priceShift, ""); 
+      scenarioDefaults = constraints.copy().withoutAny(s_priceShift).with(s_priceShift, "");
     } else {
       somethingConstrained = true;
     }
@@ -171,17 +162,17 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
     } else {
       somethingConstrained = true;
     }
-    
+
     if (!somethingConstrained) {
       return null;
     }
     // If defaults have been added, this adds additional copy of the Function into dep graph with the adjusted constraints
     if (scenarioDefaults != null) {
       return Collections.singleton(new ValueRequirement(getValueRequirementName(), target.toSpecification(), scenarioDefaults.get()));
-    } else {  // Scenarios are defined, so we're satisfied
+    } else { // Scenarios are defined, so we're satisfied
       return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId()));
     }
   }
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(EquitySecurityScenarioPnLFunction.class);
 }

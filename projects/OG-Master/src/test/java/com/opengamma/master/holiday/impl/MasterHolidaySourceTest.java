@@ -50,72 +50,55 @@ public class MasterHolidaySourceTest {
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_1arg_nullMaster() throws Exception {
+  public void test_constructor_nullMaster() throws Exception {
     new MasterHolidaySource(null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_2arg_nullMaster() throws Exception {
-    new MasterHolidaySource(null, null);
   }
 
   //-------------------------------------------------------------------------
   public void test_getHoliday_UniqueId_noOverride_found() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
-    
+
     HolidayDocument doc = new HolidayDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterHolidaySource test = new MasterHolidaySource(mock);
     Holiday testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
-    
-    assertEquals(example(), testResult);
-  }
 
-  public void test_getHoliday_UniqueId_found() throws Exception {
-    HolidayMaster mock = mock(HolidayMaster.class);
-    
-    HolidayDocument doc = new HolidayDocument(example());
-    when(mock.get(OID, VC)).thenReturn(doc);
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
-    Holiday testResult = test.get(UID);
-    verify(mock, times(1)).get(OID, VC);
-    
     assertEquals(example(), testResult);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getHoliday_UniqueId_notFound() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
-    
-    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+
+    when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     try {
       test.get(UID);
     } finally {
-      verify(mock, times(1)).get(OID, VC);
+      verify(mock, times(1)).get(UID);
     }
   }
 
   //-------------------------------------------------------------------------
   public void test_getHoliday_ObjectId_found() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
-    
+
     HolidayDocument doc = new HolidayDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     Holiday testResult = test.get(OID, VC);
     verify(mock, times(1)).get(OID, VC);
-    
+
     assertEquals(example(), testResult);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getHoliday_ObjectId_notFound() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
-    
+
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     try {
       test.get(OID, VC);
     } finally {
@@ -128,16 +111,15 @@ public class MasterHolidaySourceTest {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionCorrection(VC);
     ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
     HolidaySearchResult result = new HolidaySearchResult();
     result.getDocuments().add(new HolidayDocument(holiday));
-    
+
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     boolean testResult = test.isHoliday(DATE_MONDAY, GBP);
     verify(mock, times(1)).search(request);
-    
+
     assertEquals(true, testResult);
   }
 
@@ -145,14 +127,13 @@ public class MasterHolidaySourceTest {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionCorrection(VC);
     HolidaySearchResult result = new HolidaySearchResult();
-    
+
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     boolean testResult = test.isHoliday(DATE_MONDAY, GBP);
     verify(mock, times(1)).search(request);
-    
+
     assertEquals(false, testResult);
   }
 
@@ -162,12 +143,12 @@ public class MasterHolidaySourceTest {
     request.setDateToCheck(DATE_SUNDAY);
     request.setVersionCorrection(VC);
     HolidaySearchResult result = new HolidaySearchResult();
-    
+
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     boolean testResult = test.isHoliday(DATE_SUNDAY, GBP);
     verify(mock, times(0)).search(request);
-    
+
     assertEquals(true, testResult);
   }
 
@@ -176,16 +157,15 @@ public class MasterHolidaySourceTest {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, ExternalIdBundle.of(ID));
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionCorrection(VC);
     ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
     HolidaySearchResult result = new HolidaySearchResult();
     result.getDocuments().add(new HolidayDocument(holiday));
-    
+
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     boolean testResult = test.isHoliday(DATE_MONDAY, HolidayType.BANK, ID);
     verify(mock, times(1)).search(request);
-    
+
     assertEquals(true, testResult);
   }
 
@@ -194,16 +174,15 @@ public class MasterHolidaySourceTest {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, BUNDLE);
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionCorrection(VC);
     ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
     HolidaySearchResult result = new HolidaySearchResult();
     result.getDocuments().add(new HolidayDocument(holiday));
-    
+
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     boolean testResult = test.isHoliday(DATE_MONDAY, HolidayType.BANK, BUNDLE);
     verify(mock, times(1)).search(request);
-    
+
     assertEquals(true, testResult);
   }
 

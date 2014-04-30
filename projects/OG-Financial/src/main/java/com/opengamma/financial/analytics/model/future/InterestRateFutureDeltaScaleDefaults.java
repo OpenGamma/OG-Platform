@@ -16,34 +16,27 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackPositionDeltaGammaScaleDefaults;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**
- * Function for injecting default scale factors for delta positions into the dependency graph.<p>
+ * Function for injecting default scale factors for delta positions into the dependency graph.
+ * <p>
  * See {@link InterestRateFutureOptionBlackPositionDeltaGammaScaleDefaults}
+ * 
  * @deprecated These properties are no longer needed when using {@link MultiCurvePricingFunction} and related classes.
  */
 @Deprecated
-public class InterestRateFutureDeltaScaleDefaults extends DefaultPropertyFunction {
-  private final String _defaultScale;
+public class InterestRateFutureDeltaScaleDefaults extends StaticDefaultPropertyFunction {
 
+  private final Set<String> _defaultScale;
 
   public InterestRateFutureDeltaScaleDefaults(final String scaleFactor) {
-    super(ComputationTargetType.SECURITY, true);
-    _defaultScale = scaleFactor;
-  }
-  
-  @Override
-  protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.DELTA, ValuePropertyNames.SCALE);
-    defaults.addValuePropertyName(ValueRequirementNames.VALUE_DELTA, ValuePropertyNames.SCALE);
+    super(ComputationTargetType.SECURITY, ValuePropertyNames.SCALE, true, ValueRequirementNames.DELTA, ValueRequirementNames.VALUE_DELTA);
+    _defaultScale = Collections.singleton(scaleFactor);
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.SCALE.equals(propertyName)) {
-      return Collections.singleton(_defaultScale);
-    }
-    return null;
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    return _defaultScale;
   }
 }

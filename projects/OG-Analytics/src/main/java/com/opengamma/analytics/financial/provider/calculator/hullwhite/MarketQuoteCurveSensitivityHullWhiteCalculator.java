@@ -61,7 +61,7 @@ public class MarketQuoteCurveSensitivityHullWhiteCalculator extends InstrumentDe
   }
 
   @Override
-  public MulticurveSensitivity visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MulticurveSensitivity visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAP_FUT.priceCurveSensitivity(futures, hullWhite);
   }
 

@@ -130,29 +130,29 @@ public class ExampleGraphBuildingSpeedTest {
       }
       for (int i = 0; i < COUNT; i++) {
         final long tStart = System.nanoTime();
-        final CompiledViewDefinitionWithGraphsImpl compiled = ViewDefinitionCompiler.compile(view, _viewCompilationServices, Instant.now().minus(Duration.ofDays(10 + i)),
-            VersionCorrection.LATEST);
+        final Instant now = Instant.now();
+        final CompiledViewDefinitionWithGraphsImpl compiled = ViewDefinitionCompiler.compile(view, _viewCompilationServices, now.minus(Duration.ofDays(10 + i)),
+            VersionCorrection.of(now, now));
         final long tStop = System.nanoTime();
         s_logger.info("Compilation {} of view in {}ms", i, (tStop - tStart) / 1e6);
-        final Map<String, Integer> nodeCounts = new HashMap<String, Integer>();
+        final Map<String, String> nodeCounts = new HashMap<String, String>();
         for (final DependencyGraph graph : CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compiled)) {
-          if (graph.getTerminalOutputSpecifications().isEmpty()) {
+          if (graph.getTerminalOutputs().isEmpty()) {
             s_logger.warn("Didn't compile any terminal output specifications into the graph for {}", graph.getCalculationConfigurationName());
             if (terminalOutputs.get(graph.getCalculationConfigurationName()) == null) {
-              nodeCounts.put(graph.getCalculationConfigurationName(), 0);
-              terminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputSpecifications());
+              nodeCounts.put(graph.getCalculationConfigurationName(), "0, 0");
+              terminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs().keySet());
             } else {
               assertEquals(terminalOutputs.get(graph.getCalculationConfigurationName()).size(), 0);
             }
           } else {
-            s_logger.debug("{} graph = {} output specifications from {} nodes", new Object[] {graph.getCalculationConfigurationName(), graph.getTerminalOutputSpecifications().size(),
-                graph.getDependencyNodes().size() });
-            nodeCounts.put(graph.getCalculationConfigurationName(), graph.getDependencyNodes().size());
+            s_logger.debug("{} graph = {} output specifications from {} nodes", new Object[] {graph.getCalculationConfigurationName(), graph.getTerminalOutputs().size(), graph.getSize() });
+            nodeCounts.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs().size() + ", " + graph.getSize());
             if (terminalOutputs.get(graph.getCalculationConfigurationName()) == null) {
-              terminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputSpecifications());
+              terminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs().keySet());
             } else {
-              final Set<ValueSpecification> missing = Sets.difference(terminalOutputs.get(graph.getCalculationConfigurationName()), graph.getTerminalOutputSpecifications());
-              final Set<ValueSpecification> extra = Sets.difference(graph.getTerminalOutputSpecifications(), terminalOutputs.get(graph.getCalculationConfigurationName()));
+              final Set<ValueSpecification> missing = Sets.difference(terminalOutputs.get(graph.getCalculationConfigurationName()), graph.getTerminalOutputs().keySet());
+              final Set<ValueSpecification> extra = Sets.difference(graph.getTerminalOutputs().keySet(), terminalOutputs.get(graph.getCalculationConfigurationName()));
               if (!missing.isEmpty()) {
                 if (missing.size() < 8) {
                   s_logger.info("Missing = {}", missing);
@@ -171,7 +171,7 @@ public class ExampleGraphBuildingSpeedTest {
                   }
                 }
               }
-              assertEquals(graph.getTerminalOutputSpecifications().size(), terminalOutputs.get(graph.getCalculationConfigurationName()).size());
+              assertEquals(graph.getTerminalOutputs().size(), terminalOutputs.get(graph.getCalculationConfigurationName()).size());
               assertEquals(missing.size(), extra.size());
               final Collection<ValueSpecification> extraCopy = new LinkedList<ValueSpecification>(extra);
               for (ValueSpecification vs1 : missing) {

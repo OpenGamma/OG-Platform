@@ -7,6 +7,7 @@ package com.opengamma.masterdb.security.hibernate.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -49,59 +50,6 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
   @Override
   public StandardVanillaCDSSecurityBean.Meta metaBean() {
     return StandardVanillaCDSSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1354573786:  // coupon
-        return getCoupon();
-      case 487875210:  // cashSettlementDate
-        return getCashSettlementDate();
-      case -1224855431:  // adjustCashSettlementDate
-        return getAdjustCashSettlementDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1354573786:  // coupon
-        setCoupon((Double) newValue);
-        return;
-      case 487875210:  // cashSettlementDate
-        setCashSettlementDate((ZonedDateTimeBean) newValue);
-        return;
-      case -1224855431:  // adjustCashSettlementDate
-        setAdjustCashSettlementDate((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      StandardVanillaCDSSecurityBean other = (StandardVanillaCDSSecurityBean) obj;
-      return JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
-          JodaBeanUtils.equal(getCashSettlementDate(), other.getCashSettlementDate()) &&
-          JodaBeanUtils.equal(getAdjustCashSettlementDate(), other.getAdjustCashSettlementDate()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustCashSettlementDate());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -177,6 +125,57 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
    */
   public final Property<Boolean> adjustCashSettlementDate() {
     return metaBean().adjustCashSettlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public StandardVanillaCDSSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      StandardVanillaCDSSecurityBean other = (StandardVanillaCDSSecurityBean) obj;
+      return JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
+          JodaBeanUtils.equal(getCashSettlementDate(), other.getCashSettlementDate()) &&
+          JodaBeanUtils.equal(getAdjustCashSettlementDate(), other.getAdjustCashSettlementDate()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustCashSettlementDate());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("StandardVanillaCDSSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
+    buf.append("cashSettlementDate").append('=').append(JodaBeanUtils.toString(getCashSettlementDate())).append(',').append(' ');
+    buf.append("adjustCashSettlementDate").append('=').append(JodaBeanUtils.toString(getAdjustCashSettlementDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -270,6 +269,36 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
      */
     public final MetaProperty<Boolean> adjustCashSettlementDate() {
       return _adjustCashSettlementDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1354573786:  // coupon
+          return ((StandardVanillaCDSSecurityBean) bean).getCoupon();
+        case 487875210:  // cashSettlementDate
+          return ((StandardVanillaCDSSecurityBean) bean).getCashSettlementDate();
+        case -1224855431:  // adjustCashSettlementDate
+          return ((StandardVanillaCDSSecurityBean) bean).getAdjustCashSettlementDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1354573786:  // coupon
+          ((StandardVanillaCDSSecurityBean) bean).setCoupon((Double) newValue);
+          return;
+        case 487875210:  // cashSettlementDate
+          ((StandardVanillaCDSSecurityBean) bean).setCashSettlementDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1224855431:  // adjustCashSettlementDate
+          ((StandardVanillaCDSSecurityBean) bean).setAdjustCashSettlementDate((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

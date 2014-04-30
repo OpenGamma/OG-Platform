@@ -14,11 +14,7 @@
   <!-- ================================================================== -->
   <!-- Functions -->
   <bean id="mainCompiledFunctionService" class="com.opengamma.engine.function.CompiledFunctionService">
-    <constructor-arg>
-      <bean class="com.opengamma.engine.function.config.FunctionRepositoryFactoryBean">
-        <property name="functionConfigurationSource" ref="sharedFunctionConfigurationSource" />
-      </bean>
-    </constructor-arg>
+    <constructor-arg ref="sharedFunctionConfigurationSource" />
     <constructor-arg>
       <bean class="com.opengamma.engine.function.CachingFunctionRepositoryCompiler" />
     </constructor-arg>
@@ -146,7 +142,6 @@
     <property name="viewExecutionCache">
       <bean class="com.opengamma.engine.view.worker.cache.EHCacheViewExecutionCache">
         <constructor-arg ref="standardCacheManager" />
-        <constructor-arg ref="combinedConfigSource" />
         <constructor-arg ref="mainCompiledFunctionService" />
       </bean>
     </property>
@@ -164,11 +159,17 @@
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">
     <property name="viewProcessor" ref="mainViewProcessor" />
-    <property name="mastersAndSources">
-      <map>
-        <entry key-ref="centralConfigMaster" value-ref="sharedConfigSource" />
-        <entry key-ref="userInterpolatedYieldCurveDefinitionMaster" value-ref="userInterpolatedYieldCurveDefinitionSource" />
-      </map>
+    <property name="masters">
+      <list>
+        <ref bean="sharedConfigSource" />
+        <ref bean="userInterpolatedYieldCurveDefinitionSource" />
+        <bean class="com.opengamma.financial.config.ConfigSourceChangeProvider">
+          <constructor-arg ref="sharedConfigSource" />
+        </bean>
+        <bean class=" com.opengamma.financial.timeseries.HistoricalTimeSeriesSourceChangeProvider">
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+        </bean>
+      </list>
     </property>
     <property name="watchSetProviders">
       <set>
@@ -181,8 +182,12 @@
             </set>
           </constructor-arg>
         </bean>
-        <bean class="com.opengamma.financial.view.ConfigDocumentWatchSetProvider">
-          <constructor-arg ref="combinedConfigSource" />
+        <bean class="com.opengamma.financial.view.StaticWatchSetProvider">
+          <constructor-arg>
+            <map>
+              <entry key="OpenGamma~InterpolatedYieldCurveSpecification" value="ConfigItemType~CurveSpecificationBuilderConfiguration" />
+            </map>
+          </constructor-arg>
         </bean>
       </set>
     </property>

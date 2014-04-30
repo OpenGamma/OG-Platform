@@ -12,7 +12,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -27,7 +27,7 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
   
   private static final Logger s_logger = LoggerFactory.getLogger(CapFloorSecurityGenerator.class);
 
-  private static final DayCount[] DAY_COUNT = new DayCount[] {DayCountFactory.INSTANCE.getDayCount("Act/360"), DayCountFactory.INSTANCE.getDayCount("30U/360") };
+  private static final DayCount[] DAY_COUNT = new DayCount[] {DayCounts.ACT_360, DayCounts.THIRTY_U_360 };
   private static final Frequency[] FREQUENCY = new Frequency[] {SimpleFrequency.QUARTERLY, SimpleFrequency.SEMI_ANNUAL, SimpleFrequency.ANNUAL };
   private static final Tenor[] TENORS = new Tenor[] {Tenor.TWO_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(10), Tenor.ofYears(20) };
   private static final Tenor[] IBOR_TENORS = new Tenor[] {Tenor.ONE_DAY, Tenor.TWO_DAYS, Tenor.THREE_DAYS, Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), 
@@ -40,7 +40,7 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
     sb.append(ibor ? "Ibor " : "CMS ");
     sb.append(cap ? "cap " : "floor");
     sb.append(" @ ").append(strike).append(" [").append(startDate.toString(DATE_FORMATTER)).append(" - ").append(maturityDate.toString(DATE_FORMATTER)).append("], ");
-    sb.append(frequency.getConventionName()).append(", ").append(currency.getCode()).append(' ').append(NOTIONAL_FORMATTER.format(notional));
+    sb.append(frequency.getName()).append(", ").append(currency.getCode()).append(' ').append(NOTIONAL_FORMATTER.format(notional));
     return sb.toString();
   }
 

@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,6 +28,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
@@ -48,10 +50,10 @@ import com.sun.jersey.api.client.ClientResponse;
 /**
  * Provides access to a remote {@link ViewClient}.
  * <p>
- * At most <b>one</b> remote view client is supported for any view client; attempting to attach more than one remote
- * view client to a single engine-side view client may result in undesired behaviour including inconsistencies.
+ * At most <b>one</b> remote view client is supported for any view client; attempting to attach more than one remote view client to a single engine-side view client may result in undesired behaviour
+ * including inconsistencies.
  */
-public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implements ViewClient {
+public class RemoteViewClient extends AbstractRestfulJmsResultConsumer<ViewResultListener> implements ViewClient {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewClient.class);
@@ -83,23 +85,23 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   /**
    * Creates an instance.
    * 
-   * @param viewProcessor  the view processor
-   * @param baseUri  the base URI to connect to
-   * @param fudgeContext  the Fudge context
-   * @param jmsConnector  the JMS connector
-   * @param scheduler  the scheduler
+   * @param viewProcessor the view processor
+   * @param baseUri the base URI to connect to
+   * @param fudgeContext the Fudge context
+   * @param jmsConnector the JMS connector
+   * @param scheduler the scheduler
    */
   public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsConnector jmsConnector, ScheduledExecutorService scheduler) {
     super(baseUri, fudgeContext, jmsConnector, scheduler, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2);
     _viewProcessor = viewProcessor;
     _scheduler = scheduler;
     _internalResultListener = new AbstractViewResultListener() {
-      
+
       @Override
       public UserPrincipal getUser() {
         return RemoteViewClient.this.getUser();
       }
-      
+
       @Override
       public void processCompleted() {
         RemoteViewClient.this.processCompleted();
@@ -107,13 +109,13 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
 
     };
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public void heartbeatFailed(Exception e) {
     super.heartbeatFailed(e);
     terminateRemoteClient();
-    
+
     ViewResultListener listener = _resultListener;
     if (listener != null) {
       listener.clientShutdown(e);
@@ -199,15 +201,21 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public MarketDataInjector getLiveDataOverrideInjector() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR);
-    return new RemoteLiveDataInjector(uri);
+    return new RemoteLiveDataInjector(uri, getClient());
   }
-  
+
   @Override
   public ViewDefinition getLatestViewDefinition() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_DEFINITION);
     return getClient().accessFudge(uri).get(ViewDefinition.class);
   }
 
+  @Override
+  public ViewProcess getViewProcess() {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_PROCESS);
+    return new RemoteViewProcess(uri, getClient());
+  }
+  
   private void processCompleted() {
     if (_completionLatch != null) {
       _completionLatch.countDown();
@@ -243,6 +251,12 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add(DataViewClientResource.UPDATE_PERIOD_FIELD, periodMillis);
     getClient().accessFudge(uri).put(msg);
+  }
+
+  @Override
+  public void setViewProcessContextMap(Map<String, String> context) {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_PROCESS_CONTEXT_MAP);
+    getClient().accessFudge(uri).put(context);
   }
 
   @Override
@@ -298,9 +312,9 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     } finally {
       _listenerLock.unlock();
     }
-    
+
     _completionLatch.await();
-    
+
     _listenerLock.lock();
     try {
       decrementListenerDemand();
@@ -342,7 +356,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
       return null;
     }
   }
-  
+
   @Override
   public boolean isViewCycleAccessSupported() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
@@ -365,7 +379,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
       return null;
     }
     URI referenceUri = response.getLocation();
-    return new RemoteViewCycleReference(referenceUri, _scheduler);
+    return new RemoteViewCycleReference(referenceUri, _scheduler, getClient());
   }
 
   @Override
@@ -376,9 +390,9 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
       return null;
     }
     URI referenceUri = response.getLocation();
-    return new RemoteViewCycleReference(referenceUri, _scheduler);
+    return new RemoteViewCycleReference(referenceUri, _scheduler, getClient());
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> targets) {
@@ -398,32 +412,31 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
 
   private void terminateRemoteClient() {
     stopHeartbeating();
-    
+
     // Release any threads blocked on completion
     processCompleted();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
-  protected void dispatchListenerCall(Function<?, ?> listenerCall) {
+  protected void dispatchListenerCall(Function<ViewResultListener, ?> listenerCall) {
     ViewResultListener listener = _resultListener;
     if (listener != null) {
       try {
-        ((Function<ViewResultListener, ?>) listenerCall).apply(listener);
+        listenerCall.apply(listener);
       } catch (Exception e) {
         s_logger.warn("Exception notifying ViewClient listener of call " + listenerCall.getClass().getName(), e);
       }
     }
-    ((Function<ViewResultListener, ?>) listenerCall).apply(_internalResultListener);
+    listenerCall.apply(_internalResultListener);
   }
 
   @Override
   protected void onStartResultStream() {
     super.onStartResultStream();
-    
+
     _completionLatch = new CountDownLatch(1);
-    
+
     // We have not been listening to results so far, so initialise the state of the latch
     if (isAttached() && isCompleted()) {
       processCompleted();
@@ -435,5 +448,5 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     super.onEndResultStream();
     _completionLatch = null;
   }
-  
+
 }

@@ -57,15 +57,17 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the pricing of CMS spread option in binormal with correlation by strike approach.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -84,7 +86,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   //Swaps
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final boolean FIXED_IS_PAYER = true; // Irrelevant for the underlying
   private static final double RATE = 0.0; // Irrelevant for the underlying
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
@@ -102,14 +104,14 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 5);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 5);
-  private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount PAYMENT_DAY_COUNT = DayCounts.ACT_360;
   private static final double PAYMENT_ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double STRIKE = 0.0010; // 10 bps
   private static final boolean IS_CAP = true;
   // to derivatives
   private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE);
   private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, PAYMENT_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
@@ -417,10 +419,10 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final double shiftAlpha = 0.00001;
     final double maturity1 = CMS_CAP_SPREAD.getUnderlyingSwap1().getFixedLeg().getNthPayment(CMS_CAP_SPREAD.getUnderlyingSwap1().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_CAP_SPREAD.getSettlementTime();
-    final DoublesPair expectedExpiryTenor1 = new DoublesPair(CMS_CAP_SPREAD.getFixingTime(), maturity1);
+    final DoublesPair expectedExpiryTenor1 = DoublesPair.of(CMS_CAP_SPREAD.getFixingTime(), maturity1);
     final double maturity2 = CMS_CAP_SPREAD.getUnderlyingSwap2().getFixedLeg().getNthPayment(CMS_CAP_SPREAD.getUnderlyingSwap2().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_CAP_SPREAD.getSettlementTime();
-    final DoublesPair expectedExpiryTenor2 = new DoublesPair(CMS_CAP_SPREAD.getFixingTime(), maturity2);
+    final DoublesPair expectedExpiryTenor2 = DoublesPair.of(CMS_CAP_SPREAD.getFixingTime(), maturity2);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
@@ -462,10 +464,10 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final double shiftAlpha = 0.00001;
     final double maturity1 = CMS_CAP_SPREAD.getUnderlyingSwap1().getFixedLeg().getNthPayment(CMS_CAP_SPREAD.getUnderlyingSwap1().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_CAP_SPREAD.getSettlementTime();
-    final DoublesPair expectedExpiryTenor1 = new DoublesPair(CMS_CAP_SPREAD.getFixingTime(), maturity1);
+    final DoublesPair expectedExpiryTenor1 = DoublesPair.of(CMS_CAP_SPREAD.getFixingTime(), maturity1);
     final double maturity2 = CMS_CAP_SPREAD.getUnderlyingSwap2().getFixedLeg().getNthPayment(CMS_CAP_SPREAD.getUnderlyingSwap2().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_CAP_SPREAD.getSettlementTime();
-    final DoublesPair expectedExpiryTenor2 = new DoublesPair(CMS_CAP_SPREAD.getFixingTime(), maturity2);
+    final DoublesPair expectedExpiryTenor2 = DoublesPair.of(CMS_CAP_SPREAD.getFixingTime(), maturity2);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);

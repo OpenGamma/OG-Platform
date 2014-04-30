@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -38,13 +38,13 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class BlackDiscountingBCSIRFutureOptionFunction extends BlackDiscountingIRFutureOptionFunction {
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesSmileProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesSmileProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteSensitivityBlockCalculator<BlackSTIRFuturesSmileProviderInterface> CALCULATOR =
+  private static final MarketQuoteSensitivityBlockCalculator<BlackSTIRFuturesProviderInterface> CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   /**
@@ -63,7 +63,7 @@ public class BlackDiscountingBCSIRFutureOptionFunction extends BlackDiscountingI
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final Set<ComputedValue> result = new HashSet<>();
-        final BlackSTIRFuturesSmileProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSTIRFuturesProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final CurveBuildingBlockBundle blocks = getMergedCurveBuildingBlocks(inputs);
         final MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, blackData, blocks);
         for (final ValueRequirement desiredValue : desiredValues) {

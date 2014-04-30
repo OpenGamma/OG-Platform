@@ -10,16 +10,14 @@ import java.util.Map;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
@@ -85,23 +83,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount fixedLegDayCount;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      fixedLegDayCount = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      fixedLegDayCount = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount,
         calendar, curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), fixedLegDayCount, curveBlack, calendar);
@@ -115,6 +99,22 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     final double pv = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     return CurrencyAmount.of(swaption.getCurrency(), pv);
+  }
+
+  /**
+   * Computes the present value of a physical delivery European swaption in the Black model.
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The present value.
+   */
+  public double forward(final SwaptionPhysicalFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
+    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
+    return PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), fixedLegDayCount, curveBlack, calendar);
   }
 
   @Override
@@ -150,23 +150,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount dayCountModification;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      dayCountModification = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      dayCountModification = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      dayCountModification = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount dayCountModification = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack, calendar);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
@@ -199,23 +185,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount dayCountModification;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      dayCountModification = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      dayCountModification = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      dayCountModification = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount dayCountModification = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar,
         curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack, calendar);
@@ -223,7 +195,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);
@@ -243,23 +215,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount fixedLegDayCount;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      fixedLegDayCount = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      fixedLegDayCount = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount,
         calendar, curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), fixedLegDayCount, curveBlack, calendar);
@@ -269,13 +227,56 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
 
     final double expiry = swaption.getTimeToExpiry();
-    return pvbpModified * BlackFormulaRepository.delta(forwardModified, strikeModified, expiry, volatility, swaption.isCall()) * (swaption.isLong() ? 1.0 : -1.0);
+    return BlackFormulaRepository.delta(forwardModified, strikeModified, expiry, volatility, swaption.isCall()) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
-  public CurrencyAmount delta(final SwaptionPhysicalFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  /**
+   * Calculates the delta
+   * @param swaption The swaption, not null
+   * @param curves Yield curves and swaption volatility surface, not null
+   * @return The delta
+   */
+  public CurrencyAmount delta(final SwaptionPhysicalFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curves) {
     ArgumentChecker.notNull(swaption, "Swaption");
-    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    return CurrencyAmount.of(swaption.getCurrency(), forwardDeltaTheoretical(swaption, curveBlack));
+    ArgumentChecker.notNull(curves, "Curves with Black volatility");
+    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curves.getBlackParameters().getGeneratorSwap();
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount dayCountModification = fixedIborGenerator.getFixedLegDayCount();
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curves, calendar);
+    final double sign = swaption.isLong() ? 1.0 : -1.0;
+    return CurrencyAmount.of(swaption.getCurrency(), forwardDeltaTheoretical(swaption, curves) * forwardModified * sign);
+  }
+
+  /**
+   * Computes the gamma of the swaption. The gamma is the second order derivative of the option present value to the spot fx rate.
+   * @param swaption The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The gamma.
+   */
+  public CurrencyAmount gamma(final SwaptionPhysicalFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    final double gamma = forwardGammaTheoretical(swaption, curves);
+    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curves.getBlackParameters().getGeneratorSwap();
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount dayCountModification = fixedIborGenerator.getFixedLegDayCount();
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curves, calendar);
+    final double sign = swaption.isLong() ? 1.0 : -1.0;
+    return CurrencyAmount.of(swaption.getCurrency(), gamma * forwardModified * forwardModified * sign);
+  }
+
+  /**
+   * Calculates the theta
+   * @param swaption The swaption, not null
+   * @param curves Yield curves and swaption volatility surface, not null
+   * @return The delta
+   */
+  public CurrencyAmount theta(final SwaptionPhysicalFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curves) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curves, "Curves with Black volatility");
+    final double sign = swaption.isLong() ? 1.0 : -1.0;
+    return CurrencyAmount.of(swaption.getCurrency(), forwardThetaTheoretical(swaption, curves) * sign);
   }
 
   /**
@@ -288,23 +289,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount fixedLegDayCount;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      fixedLegDayCount = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      fixedLegDayCount = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount,
         calendar, curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), fixedLegDayCount, curveBlack, calendar);
@@ -314,7 +301,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
 
     final double expiry = swaption.getTimeToExpiry();
-    return pvbpModified * BlackFormulaRepository.gamma(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
+    return BlackFormulaRepository.gamma(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
   /**
@@ -327,23 +314,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount fixedLegDayCount;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      fixedLegDayCount = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      fixedLegDayCount = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount,
         calendar, curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), fixedLegDayCount, curveBlack, calendar);
@@ -353,7 +326,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
 
     final double expiry = swaption.getTimeToExpiry();
-    return pvbpModified * BlackFormulaRepository.driftlessTheta(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
+    return BlackFormulaRepository.driftlessTheta(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
   /**
@@ -366,23 +339,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount fixedLegDayCount;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      fixedLegDayCount = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      fixedLegDayCount = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount,
         calendar, curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), fixedLegDayCount, curveBlack, calendar);
@@ -392,10 +351,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
 
     final double expiry = swaption.getTimeToExpiry();
-    final boolean isCall = swaption.isCall();
-
-    return forwardModified * pvbpModified * BlackFormulaRepository.price(forwardModified, strikeModified, expiry, volatility, isCall) * (swaption.isLong() ? 1.0 : -1.0) + pvbpModified *
-        BlackFormulaRepository.driftlessTheta(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
+    return pvbpModified * BlackFormulaRepository.driftlessTheta(forwardModified, strikeModified, expiry, volatility);
   }
 
   /**
@@ -408,23 +364,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    Calendar calendar;
-    DayCount fixedLegDayCount;
-    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
-      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
-      calendar = fixedIborGenerator.getCalendar();
-      fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
-      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
-      calendar = fixedONGenerator.getOvernightCalendar();
-      fixedLegDayCount = fixedONGenerator.getFixedLegDayCount();
-    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
-      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-      calendar = fixedCompoundedON.getOvernightCalendar();
-      fixedLegDayCount = fixedCompoundedON.getFixedLegDayCount();
-    } else {
-      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
-    }
+    final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+    final Calendar calendar = fixedIborGenerator.getCalendar();
+    final DayCount fixedLegDayCount = fixedIborGenerator.getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount,
         calendar, curveBlack);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), fixedLegDayCount, curveBlack, calendar);
@@ -435,7 +377,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
 
     final double expiry = swaption.getTimeToExpiry();
 
-    return pvbpModified * BlackFormulaRepository.vega(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
+    return BlackFormulaRepository.vega(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
 }

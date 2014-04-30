@@ -126,5 +126,9 @@ public class DeprecatedFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
     functions.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
     functions.add(functionConfiguration(CrossCurrencySwapFXPVFunction.class));
+    functions.add(functionConfiguration(SwapPayLegPresentValueFunction.class));
+    functions.add(functionConfiguration(SwapReceiveLegPresentValueFunction.class));
+    functions.add(functionConfiguration(SwapLegDetailFunction.class, "true"));
+    functions.add(functionConfiguration(SwapLegDetailFunction.class, "false"));
   }
 }
