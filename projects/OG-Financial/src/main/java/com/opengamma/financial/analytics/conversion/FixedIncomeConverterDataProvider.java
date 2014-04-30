@@ -727,10 +727,12 @@ public class FixedIncomeConverterDataProvider {
     }
 
     @Override
-    public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
+    public InstrumentDerivative convert(final IRFutureOptionSecurity security,
+                                        final InterestRateFutureOptionMarginTransactionDefinition definition,
+                                        final ZonedDateTime valuationTime,
         final HistoricalTimeSeriesBundle timeSeries) {
-      double lastMarginPrice = getLastMarginPrice(security, definition, now, timeSeries);
-      return definition.toDerivative(now, lastMarginPrice);
+      double lastMarginPrice = getLastMarginPrice(security, definition, valuationTime, timeSeries);
+      return definition.toDerivative(valuationTime, lastMarginPrice);
     }
 
     /**
