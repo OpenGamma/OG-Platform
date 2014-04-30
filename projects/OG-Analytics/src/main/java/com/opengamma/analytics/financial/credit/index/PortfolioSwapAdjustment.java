@@ -25,6 +25,9 @@ public class PortfolioSwapAdjustment {
 
   private final CDSIndexCalculator _pricer;
 
+  /**
+   * Default constructor
+   */
   public PortfolioSwapAdjustment() {
     _pricer = new CDSIndexCalculator();
   }
@@ -36,8 +39,7 @@ public class PortfolioSwapAdjustment {
    * @param indexCDS analytic description of a CDS traded at a certain time
    * @param indexCoupon The coupon of the index (as a fraction)
    * @param yieldCurve The yield curve
-   * @param creditCurves The credit curves of the (undefaulted) individual single names making up the index 
-   * @param recoveryRates The recovery rates for in individual single names. 
+   * @param intrinsicData The credit curves of the individual single names making up the index 
    * @return credit curve adjusted so they will exactly reprice the index.
    */
   public IntrinsicIndexDataBundle adjustCurves(final double indexPUF, final CDSAnalytic indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
@@ -63,8 +65,7 @@ public class PortfolioSwapAdjustment {
    * @param indexCDS analytic descriptions of the index for different terms 
    * @param indexCoupon The coupon of the index (as a fraction)
    * @param yieldCurve The yield curve
-   * @param creditCurves The credit curves of the (undefaulted) individual single names making up the index 
-   * @param recoveryRates The recovery rates for in individual single names. 
+   * @param intrinsicData The credit curves of the individual single names making up the index 
    * @return credit curve adjusted so they will exactly reprice the index at the different terms.
    */
   public IntrinsicIndexDataBundle adjustCurves(final double[] indexPUF, final CDSAnalytic[] indexCDS, final double indexCoupon, final ISDACompliantYieldCurve yieldCurve,
@@ -84,7 +85,7 @@ public class PortfolioSwapAdjustment {
 
     final double[] indexKnots = new double[nIndexTerms];
     for (int i = 0; i < nIndexTerms; i++) {
-      ArgumentChecker.isTrue(indexPUF[i] <= 1.0, "indexPUF must be given as a fraction. Value of {} is too high.", indexPUF);
+      ArgumentChecker.isTrue(indexPUF[i] <= 1.0, "indexPUF must be given as a fraction. Value of {} is too high.", indexPUF[i]);
       indexKnots[i] = indexCDS[i].getProtectionEnd();
       if (i > 0) {
         ArgumentChecker.isTrue(indexKnots[i] > indexKnots[i - 1], "indexCDS must be in assending order of maturity");
@@ -205,7 +206,11 @@ public class PortfolioSwapAdjustment {
     final int nCurves = creditCurve.length;
     final ISDACompliantCreditCurve[] adjCurves = new ISDACompliantCreditCurve[nCurves];
     for (int jj = 0; jj < nCurves; jj++) {
-      adjCurves[jj] = adjustCreditCurve(creditCurve[jj], amount, firstKnots[jj], lastknots[jj]);
+      if (creditCurve[jj] == null) {
+        adjCurves[jj] = null;
+      } else {
+        adjCurves[jj] = adjustCreditCurve(creditCurve[jj], amount, firstKnots[jj], lastknots[jj]);
+      }
     }
     return adjCurves;
   }
