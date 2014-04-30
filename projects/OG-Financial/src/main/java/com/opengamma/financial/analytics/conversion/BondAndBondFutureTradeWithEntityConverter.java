@@ -477,8 +477,8 @@ public class BondAndBondFutureTradeWithEntityConverter {
           return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
               calendar, dayCount, yieldConvention, isEOM, legalEntity);
         } else if ("Daily".equals(interpolationMethod)) {
-          return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
-              calendar, dayCount, yieldConvention, isEOM, legalEntity);
+          return BondCapitalIndexedSecurityDefinition.fromInterpolation(priceIndex, monthLag, firstAccrualDate, baseCPI, maturityDate, paymentPeriod, 1.0, rate, businessDay, settlementDays, calendar,
+              dayCount, yieldConvention, isEOM, legalEntity);
         } else {
           throw new OpenGammaRuntimeException("Bond interpolation method is not valid");
         }

@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -36,7 +38,7 @@ import com.opengamma.util.tuple.Pair;
  * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
 public class InflationIssuerProviderDiscount implements InflationIssuerProviderInterface {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationIssuerProviderDiscount.class);
   /**
    * The multicurve provider.
    */
@@ -170,6 +172,20 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   @Override
   public double getDiscountFactor(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final Double time) {
     return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
+  }
+
+  @Override
+  public double getDiscountFactor(final LegalEntity issuer, final Double time) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(issuer))) {
+        return entry.getValue().getDiscountFactor(time);
+      }
+    }
+    s_logger.error("Could not find issuer discounting curve for {}. There are {} curve available", issuer, _issuerCurves.size());
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      s_logger.error("matching key = {}, filter {} matches = {}", entry.getKey().getFirst(), issuer, entry.getKey().getSecond().getFilteredData(issuer));
+    }
+    throw new IllegalArgumentException("Issuer discounting curve not found for " + issuer);
   }
 
   @Override
@@ -468,6 +484,18 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   }
 
   //     =====     Convenience methods     =====
+
+  /**
+   * Replaces an issuer curve.
+   * @param ic The key of the curve to replace
+   * @param replacement The replacement curve
+   * @return A new provider with the curve replaced.
+   */
+  public InflationIssuerProviderDiscount withIssuerCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
+    final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
+    newIssuerCurves.put(ic, replacement);
+    return new InflationIssuerProviderDiscount(_inflationProvider, newIssuerCurves);
+  }
 
   @Override
   public InflationProviderInterface withDiscountFactor(final Currency ccy, final Pair<Object, LegalEntityFilter<LegalEntity>> replacement) {

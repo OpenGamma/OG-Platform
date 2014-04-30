@@ -27,7 +27,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -39,11 +39,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -79,9 +81,9 @@ public abstract class InflationBondFromCleanPriceAndCurvesFunction extends Abstr
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final Double cleanPrice = (Double) inputs.getValue(MARKET_VALUE);
-    final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, null);
+    final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final BondCapitalIndexedTransaction<?> bond = (BondCapitalIndexedTransaction<?>) derivative;
-    final InflationProviderInterface issuerCurves = (InflationProviderInterface) inputs.getValue(CURVE_BUNDLE);
+    final InflationIssuerProviderInterface issuerCurves = (InflationIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     return getResult(inputs, bond, issuerCurves, cleanPrice, spec);
   }
@@ -133,6 +135,8 @@ public abstract class InflationBondFromCleanPriceAndCurvesFunction extends Abstr
             .get();
         requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
+      final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+      requirements.addAll(BondAndBondFutureFunctionUtils.getConversionRequirements(security, timeSeriesResolver));
       return requirements;
     } catch (final Exception e) {
       s_logger.error(e.getMessage(), e);
@@ -164,6 +168,7 @@ public abstract class InflationBondFromCleanPriceAndCurvesFunction extends Abstr
    * @param spec The result specification
    * @return The set of results
    */
-  protected abstract Set<ComputedValue> getResult(FunctionInputs inputs, BondCapitalIndexedTransaction<?> bond, InflationProviderInterface issuerCurves, double cleanPrice, ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(FunctionInputs inputs, BondCapitalIndexedTransaction<?> bond, InflationIssuerProviderInterface issuerCurves, double cleanPrice,
+      ValueSpecification spec);
 
 }
