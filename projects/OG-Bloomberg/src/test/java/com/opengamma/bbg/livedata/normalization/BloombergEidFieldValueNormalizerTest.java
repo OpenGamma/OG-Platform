@@ -19,11 +19,12 @@ import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.livedata.permission.PermissionUtils;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test EID normalisation in liveData
+ * Test EID field name and value normalization in liveData and snapshot
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BloombergEidFieldValueNormalizerTest {
 
   public void normalizeEidNameAndValue() {
