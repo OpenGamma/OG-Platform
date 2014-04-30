@@ -5,16 +5,17 @@
  */
 package com.opengamma.analytics.util.time;
 
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.env.AnalyticsEnvironment;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,19 +25,27 @@ import com.opengamma.util.ArgumentChecker;
 public final class TimeCalculator {
   /**
    * The day count used to convert to time.
+   * @deprecated Should use {@link AnalyticsEnvironment} in preference. Will be removed in a later version.
    */
+  @Deprecated
   private static final DayCount MODEL_DAYCOUNT;
 
   static {
     /*
-     * Initialise MODEL_DAYCOUNT to what is set in TimeCalculator.properties, otherwise default to Actual/Actual ISDA
+     * Initialise MODEL_DAYCOUNT to what is set in TimeCalculator.properties.
+     * Deprecated, maintained for backwards compatibility.
      */
-    final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
-    final String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
+    String modelDayCount = null;
+    try {
+      final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
+      modelDayCount = conventions.getString("MODEL_DAYCOUNT");
+    } catch (final MissingResourceException ex) {
+      // pass
+    }
     if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
       MODEL_DAYCOUNT = DayCountFactory.of(modelDayCount);
     } else {
-      MODEL_DAYCOUNT = DayCounts.ACT_ACT_ISDA;
+      MODEL_DAYCOUNT = null;
     }
   }
 
@@ -97,7 +106,8 @@ public final class TimeCalculator {
    * @return The time.
    */
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
-    return getTimeBetween(date1, date2, MODEL_DAYCOUNT);
+    final DayCount dayCount = MODEL_DAYCOUNT != null ? MODEL_DAYCOUNT : AnalyticsEnvironment.resolve().getModelDayCount();
+    return getTimeBetween(date1, date2, dayCount);
   }
 
   /**
