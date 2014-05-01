@@ -106,7 +106,7 @@ public final class TimeCalculator {
    * @return The time.
    */
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
-    final DayCount dayCount = MODEL_DAYCOUNT != null ? MODEL_DAYCOUNT : AnalyticsEnvironment.resolve().getModelDayCount();
+    final DayCount dayCount = MODEL_DAYCOUNT != null ? MODEL_DAYCOUNT : AnalyticsEnvironment.getInstance().getModelDayCount();
     return getTimeBetween(date1, date2, dayCount);
   }
 

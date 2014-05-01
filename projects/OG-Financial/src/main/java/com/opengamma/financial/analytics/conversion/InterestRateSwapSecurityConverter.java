@@ -230,7 +230,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       }
     }
 
-    return AnalyticsEnvironment.resolve().getFloatingAnnuityDefinitionBuilder().
+    return AnalyticsEnvironment.getInstance().getFloatingAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
         notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
@@ -377,7 +377,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
     CompoundingMethod compoundingMethod = leg.getCompoundingMethod();
     
-    return AnalyticsEnvironment.resolve().getFixedAnnuityDefinitionBuilder().
+    return AnalyticsEnvironment.getInstance().getFixedAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
 //        notional((payer ? -1 : 1) * leg.getNotional().getAmount()).
