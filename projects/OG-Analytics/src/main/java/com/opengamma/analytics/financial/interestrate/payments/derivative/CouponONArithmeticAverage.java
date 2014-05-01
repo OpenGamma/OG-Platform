@@ -24,7 +24,7 @@ public final class CouponONArithmeticAverage extends Coupon {
   /**
    * The times of the fixing periods. The length is one greater than the number of periods, as it includes accrual start and end.
    */
-  private final double[] _fixingPeriodSartTimes;
+  private final double[] _fixingPeriodStartTimes;
 
   /**
    * The times of the fixing periods. The length is one greater than the number of periods, as it includes accrual start and end.
@@ -61,7 +61,7 @@ public final class CouponONArithmeticAverage extends Coupon {
       final double[] fixingPeriodEndTimes, final double[] fixingPeriodAccrualFactors, final double rateAccrued, final double fixingPeriodRemainingAccrualFactor) {
     super(currency, paymentTime, paymentYearFraction, notional);
     _index = index;
-    _fixingPeriodSartTimes = fixingPeriodStartTimes;
+    _fixingPeriodStartTimes = fixingPeriodStartTimes;
     _fixingPeriodEndTimes = fixingPeriodEndTimes;
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
     _rateAccrued = rateAccrued;
@@ -109,7 +109,7 @@ public final class CouponONArithmeticAverage extends Coupon {
    * @return The times.
    */
   public double[] getFixingPeriodStartTimes() {
-    return _fixingPeriodSartTimes;
+    return _fixingPeriodStartTimes;
   }
 
   /**
@@ -173,7 +173,7 @@ public final class CouponONArithmeticAverage extends Coupon {
     long temp;
     temp = Double.doubleToLongBits(_fixingPeriodRemainingAccrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + Arrays.hashCode(_fixingPeriodSartTimes);
+    result = prime * result + Arrays.hashCode(_fixingPeriodStartTimes);
     result = prime * result + ((_index == null) ? 0 : _index.hashCode());
     temp = Double.doubleToLongBits(_rateAccrued);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -204,7 +204,7 @@ public final class CouponONArithmeticAverage extends Coupon {
     if (Double.doubleToLongBits(_fixingPeriodRemainingAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodRemainingAccrualFactor)) {
       return false;
     }
-    if (!Arrays.equals(_fixingPeriodSartTimes, other._fixingPeriodSartTimes)) {
+    if (!Arrays.equals(_fixingPeriodStartTimes, other._fixingPeriodStartTimes)) {
       return false;
     }
     if (_index == null) {

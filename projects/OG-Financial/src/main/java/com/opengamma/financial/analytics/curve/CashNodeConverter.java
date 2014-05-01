@@ -112,15 +112,15 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     } catch (Exception e) { // If the convention is not found, try with the security
       final Security security = _securitySource.getSingle(cashNode.getConvention().toBundle());
       if (security == null) {
-        throw new OpenGammaRuntimeException("Could not find " + cashNode.getConvention() + " as a convention or a Ibor index");
+        throw new OpenGammaRuntimeException("Could not find " + cashNode.getConvention() + " as a convention or a Ibor index", e);
       }
       if (!(security instanceof com.opengamma.financial.security.index.IborIndex)) {
-        throw new OpenGammaRuntimeException("Security should be of type IborIndex");
+        throw new OpenGammaRuntimeException("Security should be of type IborIndex", e);
       }
       final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) security; 
       final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
       if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("Convention with id " + indexSecurity.getConventionId() + " was null");
+        throw new OpenGammaRuntimeException("Convention with id " + indexSecurity.getConventionId() + " was null", e);
       }
       final IborIndex index = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
       final Currency currency = indexConvention.getCurrency();
