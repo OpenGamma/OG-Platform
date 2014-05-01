@@ -5,18 +5,10 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
-import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.management.ManagementService;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -28,7 +20,6 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.springframework.context.Lifecycle;
 import org.springframework.jmx.support.MBeanServerFactoryBean;
 
 import com.opengamma.component.ComponentInfo;
@@ -36,11 +27,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 
 /**
- * Component Factory for {@code MBeanServer) that also registers {@code CacheManager} with JMX.
- * <p>
- * Because the MBeanServer is expected to run for the life of the VM and because
- * CacheManagers can come and go, there is proper lifecycle handling to clean up instances
- * of ManagementService associated with the CacheManagers to prevent memory leaks.
+ * Component Factory for the JMX {@code MBeanServer).
  * <p>
  * This class is designed to allow protected methods to be overridden.
  */
@@ -52,86 +39,26 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-  /**
-   * The cache manager to register.
-   * If omitted, all cache managers are registered.
-   * @deprecated no need to set this
-   */
-  @PropertyDefinition
-  @Deprecated
-  private CacheManager _cacheManager;
 
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final ComponentInfo info = new ComponentInfo(MBeanServer.class, getClassifier());
-    final MBeanServer mBeanServer = createMBeanServer(repo);
+    ComponentInfo info = new ComponentInfo(MBeanServer.class, getClassifier());
+    MBeanServer mBeanServer = createMBeanServer(repo);
     repo.registerComponent(info, mBeanServer);
-    registerCacheManagers(mBeanServer, repo);
   }
 
   /**
    * Creates the MBean server without registering it.
    * 
-   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the MBean server, not null
    */
-  protected MBeanServer createMBeanServer(final ComponentRepository repo) {
+  protected MBeanServer createMBeanServer(ComponentRepository repo) {
     MBeanServerFactoryBean factoryBean = new MBeanServerFactoryBean();
     factoryBean.setLocateExistingServerIfPossible(true);
     factoryBean.afterPropertiesSet();
     return factoryBean.getObject();
-  }
-
-  /**
-   * Registers the cache manager with the MBean server.
-   * 
-   * @param mBeanServer  the MBean server, not null
-   * @param repo the component repository, only used to register secondary items like lifecycle, not null
-   */
-  protected void registerCacheManagers(final MBeanServer mBeanServer, final ComponentRepository repo) {
-    CacheManager cacheManager = getCacheManager();
-    if (cacheManager != null) {
-      ManagementService jmxService = new ManagementService(cacheManager, mBeanServer, true, true, true, true);
-      repo.registerLifecycle(new CacheManagerLifecycle(jmxService));
-    } else {
-      Set<CacheManager> set = Collections.newSetFromMap(new IdentityHashMap<CacheManager, Boolean>());
-      set.addAll(repo.getInstances(CacheManager.class));
-      for (CacheManager mgr : set) {
-        ManagementService jmxService = new ManagementService(mgr, mBeanServer, true, true, true, true);
-        repo.registerLifecycle(new CacheManagerLifecycle(jmxService));
-      }
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Lifecycle for cache manager.
-   */
-  static final class CacheManagerLifecycle implements Lifecycle {
-    private ManagementService _jmxService;
-    CacheManagerLifecycle(ManagementService jmxService) {
-      _jmxService = jmxService;
-    }
-    @Override
-    public void start() {
-      try {
-        _jmxService.init();
-      } catch (CacheException ex) {
-        if (ex.getCause() instanceof InstanceAlreadyExistsException == false) {
-          throw ex;
-        }
-      }
-    }
-    @Override
-    public void stop() {
-      _jmxService.dispose();
-      _jmxService = null;
-    }
-    @Override
-    public boolean isRunning() {
-      return _jmxService != null;
-    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -180,40 +107,6 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the cache manager to register.
-   * If omitted, all cache managers are registered.
-   * @deprecated no need to set this
-   * @return the value of the property
-   */
-  @Deprecated
-  public CacheManager getCacheManager() {
-    return _cacheManager;
-  }
-
-  /**
-   * Sets the cache manager to register.
-   * If omitted, all cache managers are registered.
-   * @deprecated no need to set this
-   * @param cacheManager  the new value of the property
-   */
-  @Deprecated
-  public void setCacheManager(CacheManager cacheManager) {
-    this._cacheManager = cacheManager;
-  }
-
-  /**
-   * Gets the the {@code cacheManager} property.
-   * If omitted, all cache managers are registered.
-   * @deprecated no need to set this
-   * @return the property, not null
-   */
-  @Deprecated
-  public final Property<CacheManager> cacheManager() {
-    return metaBean().cacheManager().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public MBeanServerComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -227,7 +120,6 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
     if (obj != null && obj.getClass() == this.getClass()) {
       MBeanServerComponentFactory other = (MBeanServerComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
     return false;
@@ -237,13 +129,12 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("MBeanServerComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -258,7 +149,6 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -277,17 +167,11 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", MBeanServerComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code cacheManager} property.
-     */
-    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
-        this, "cacheManager", MBeanServerComponentFactory.class, CacheManager.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "classifier",
-        "cacheManager");
+        "classifier");
 
     /**
      * Restricted constructor.
@@ -300,8 +184,6 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -1452875317:  // cacheManager
-          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -330,24 +212,12 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
       return _classifier;
     }
 
-    /**
-     * The meta-property for the {@code cacheManager} property.
-     * @deprecated no need to set this
-     * @return the meta-property, not null
-     */
-    @Deprecated
-    public final MetaProperty<CacheManager> cacheManager() {
-      return _cacheManager;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return ((MBeanServerComponentFactory) bean).getClassifier();
-        case -1452875317:  // cacheManager
-          return ((MBeanServerComponentFactory) bean).getCacheManager();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -357,9 +227,6 @@ public class MBeanServerComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           ((MBeanServerComponentFactory) bean).setClassifier((String) newValue);
-          return;
-        case -1452875317:  // cacheManager
-          ((MBeanServerComponentFactory) bean).setCacheManager((CacheManager) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

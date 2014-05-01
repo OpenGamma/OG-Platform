@@ -9,7 +9,12 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.management.ManagementService;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -22,35 +27,34 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
+import org.springframework.context.Lifecycle;
 
-import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.AbstractAliasedComponentFactory;
 import com.opengamma.util.ResourceUtils;
 
 /**
- * Component Factory for an Ehcache CacheManager using the standard OG ehcache config found on the classpath.
+ * Component Factory for an Ehcache CacheManager using the standard OG Ehcache config found on the classpath.
  * <p>
  * The cache is shared by default, but this can be overridden.
  * The config is plucked from the classpath by default, but can be explicitly specified.
  * <p>
  * The shutdown method is registered for lifecycleStop.
  * <p>
+ * The cache manager can be registered with JMX. Because the MBeanServer is expected to run for the life
+ * of the VM and because CacheManagers can come and go, there is proper lifecycle handling to clean up
+ * instances of ManagementService associated with the CacheManagers to prevent memory leaks.
+ * <p>
  * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
-public class CacheManagerComponentFactory extends AbstractComponentFactory {
+public class CacheManagerComponentFactory extends AbstractAliasedComponentFactory {
 
   /**
    * The default configuration location.
    */
   private static final String DEFAULT_EHCACHE_CONFIG = "classpath:common/default-ehcache.xml";
 
-  /**
-   * The classifier that the factory should publish under.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _classifier;
   /**
    * Whether the manager is shared.
    */
@@ -65,24 +69,76 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final CacheManager component = createCacheManager(repo);
-    final ComponentInfo info = new ComponentInfo(CacheManager.class, getClassifier());
-    repo.registerComponent(info, component);
-    repo.registerLifecycleStop(component, "shutdown");
+    CacheManager cacheManager = createCacheManager(repo);
+    registerComponentAndAliases(repo, CacheManager.class, cacheManager);
+    repo.registerLifecycleStop(cacheManager, "shutdown");
+    registerMBean(repo, cacheManager);
   }
 
   /**
    * Creates the cache manager without registering it.
    * 
-   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the cache manager, not null
    */
-  protected CacheManager createCacheManager(final ComponentRepository repo) throws IOException {
+  protected CacheManager createCacheManager(ComponentRepository repo) throws IOException {
     EhCacheManagerFactoryBean factoryBean = new EhCacheManagerFactoryBean();
     factoryBean.setShared(isShared());
     factoryBean.setConfigLocation(ResourceUtils.createResource(getConfigLocation()));
     factoryBean.afterPropertiesSet();
     return factoryBean.getObject();
+  }
+
+  /**
+   * Registers a JMX MBean for the cache manager.
+   * <p>
+   * Cannot assume MBean server exists at this point, so a lifecycle is used.
+   * 
+   * @param repo  the component repository, not null
+   * @param cacheManager  the cache manager, not null
+   */
+  protected void registerMBean(ComponentRepository repo, CacheManager cacheManager) {
+    repo.registerLifecycle(new CacheManagerLifecycle(repo, cacheManager));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Lifecycle for cache manager.
+   * This delays registering the cache manager with the MBean server until necessary.
+   */
+  static final class CacheManagerLifecycle implements Lifecycle {
+    private volatile ComponentRepository _repo;
+    private volatile CacheManager _cacheManager;
+    private volatile ManagementService _jmxService;
+    CacheManagerLifecycle(ComponentRepository repo, CacheManager cacheManager) {
+      _repo = repo;
+      _cacheManager = cacheManager;
+    }
+    @Override
+    public void start() {
+      MBeanServer mbeanServer = _repo.findInstance(MBeanServer.class);
+      if (mbeanServer != null) {
+        _jmxService = new ManagementService(_cacheManager, mbeanServer, true, true, true, true);
+        try {
+          _jmxService.init();
+        } catch (CacheException ex) {
+          if (ex.getCause() instanceof InstanceAlreadyExistsException == false) {
+            throw ex;
+          }
+        }
+      }
+    }
+    @Override
+    public void stop() {
+      if (_jmxService != null) {
+        _jmxService.dispose();
+        _jmxService = null;
+      }
+    }
+    @Override
+    public boolean isRunning() {
+      return _jmxService != null;
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -102,32 +158,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   @Override
   public CacheManagerComponentFactory.Meta metaBean() {
     return CacheManagerComponentFactory.Meta.INSTANCE;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the classifier that the factory should publish under.
-   * @return the value of the property, not null
-   */
-  public String getClassifier() {
-    return _classifier;
-  }
-
-  /**
-   * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
-   */
-  public void setClassifier(String classifier) {
-    JodaBeanUtils.notNull(classifier, "classifier");
-    this._classifier = classifier;
-  }
-
-  /**
-   * Gets the the {@code classifier} property.
-   * @return the property, not null
-   */
-  public final Property<String> classifier() {
-    return metaBean().classifier().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -194,8 +224,7 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CacheManagerComponentFactory other = (CacheManagerComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          (isShared() == other.isShared()) &&
+      return (isShared() == other.isShared()) &&
           JodaBeanUtils.equal(getConfigLocation(), other.getConfigLocation()) &&
           super.equals(obj);
     }
@@ -205,7 +234,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isShared());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigLocation());
     return hash ^ super.hashCode();
@@ -213,7 +241,7 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("CacheManagerComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -227,7 +255,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("shared").append('=').append(JodaBeanUtils.toString(isShared())).append(',').append(' ');
     buf.append("configLocation").append('=').append(JodaBeanUtils.toString(getConfigLocation())).append(',').append(' ');
   }
@@ -236,17 +263,12 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   /**
    * The meta-bean for {@code CacheManagerComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractAliasedComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code classifier} property.
-     */
-    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", CacheManagerComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code shared} property.
      */
@@ -262,7 +284,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "classifier",
         "shared",
         "configLocation");
 
@@ -275,8 +296,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          return _classifier;
         case -903566235:  // shared
           return _shared;
         case -1277483753:  // configLocation
@@ -302,14 +321,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code classifier} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> classifier() {
-      return _classifier;
-    }
-
-    /**
      * The meta-property for the {@code shared} property.
      * @return the meta-property, not null
      */
@@ -329,8 +340,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          return ((CacheManagerComponentFactory) bean).getClassifier();
         case -903566235:  // shared
           return ((CacheManagerComponentFactory) bean).isShared();
         case -1277483753:  // configLocation
@@ -342,9 +351,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          ((CacheManagerComponentFactory) bean).setClassifier((String) newValue);
-          return;
         case -903566235:  // shared
           ((CacheManagerComponentFactory) bean).setShared((Boolean) newValue);
           return;
@@ -357,7 +363,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((CacheManagerComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((CacheManagerComponentFactory) bean)._configLocation, "configLocation");
       super.validate(bean);
     }

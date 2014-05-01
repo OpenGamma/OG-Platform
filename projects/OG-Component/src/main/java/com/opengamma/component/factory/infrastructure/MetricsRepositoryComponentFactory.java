@@ -3,14 +3,17 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.component.factory.metric;
+package com.opengamma.component.factory.infrastructure;
 
 import info.ganglia.gmetric4j.gmetric.GMetric;
 import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import javax.management.MBeanServer;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -23,6 +26,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
@@ -34,101 +38,218 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
- * 
+ * Component Factory to setup the metrics server.
+ * <p>
+ * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
-public class MetricRepositoryFactory extends AbstractComponentFactory {
+public class MetricsRepositoryComponentFactory extends AbstractComponentFactory {
+
+  /**
+   * The registry name.
+   */
   @PropertyDefinition(validate = "notEmpty")
   private String _registryName;
-  
+  /**
+   * Whether to publish over JMX.
+   */
   @PropertyDefinition
   private boolean _jmxPublish = true;
-
+  /**
+   * Whether to publish over SLF4J.
+   */
   @PropertyDefinition
   private boolean _slf4jPublish = true;
-
+  /**
+   * Whether to publish over Ganglia.
+   */
   @PropertyDefinition
   private boolean _gangliaPublish = true;
-
+  /**
+   * The Ganglia address.
+   */
   @PropertyDefinition
   private String _gangliaAddress;
-  
+  /**
+   * The Ganglia port.
+   */
   @PropertyDefinition
   private Integer _gangliaPort;
-
+  /**
+   * The Ganglia addressing mode.
+   */
   @PropertyDefinition
   private String _gangliaAddressingMode;
-  
+  /**
+   * The Ganglia time to live.
+   */
   @PropertyDefinition
   private Integer _gangliaTtl = 1;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     MetricRegistry summaryRegistry = new MetricRegistry();
     MetricRegistry detailedRegistry = new MetricRegistry();
-    
     if (isJmxPublish()) {
-      JmxReporter jmxReporter = JmxReporter.forRegistry(summaryRegistry).build();
-      jmxReporter.start();
-      jmxReporter = JmxReporter.forRegistry(detailedRegistry).build();
-      jmxReporter.start();
+      initJmxPublish(repo, summaryRegistry, detailedRegistry);
     }
-    
     if (isSlf4jPublish()) {
-      Slf4jReporter logReporter = Slf4jReporter.forRegistry(summaryRegistry)
-          .outputTo(LoggerFactory.getLogger(OpenGammaMetricRegistry.class))
-          .convertRatesTo(TimeUnit.SECONDS)
-          .convertDurationsTo(TimeUnit.MILLISECONDS)
-          .build();
-      logReporter.start(1, TimeUnit.MINUTES);
-      logReporter = Slf4jReporter.forRegistry(detailedRegistry)
-          .outputTo(LoggerFactory.getLogger(OpenGammaMetricRegistry.class))
-          .convertRatesTo(TimeUnit.SECONDS)
-          .convertDurationsTo(TimeUnit.MILLISECONDS)
-          .build();
-      logReporter.start(1, TimeUnit.MINUTES);
+      initSlf4jPublish(repo, summaryRegistry, detailedRegistry);
     }
-    
     if (isGangliaPublish()) {
-      // Only publish on Ganglia for summary.
-      ArgumentChecker.notNull(getGangliaAddress(), "gangliaAddress");
-      ArgumentChecker.notNull(getGangliaPort(), "gangliaPort");
-      ArgumentChecker.notNull(getGangliaAddressingMode(), "gangliaAddressingMode");
-      ArgumentChecker.notNull(getGangliaTtl(), "gangliaTtl");
-      GMetric ganglia = new GMetric(getGangliaAddress(), getGangliaPort(), UDPAddressingMode.valueOf(getGangliaAddressingMode()), getGangliaTtl(), true);
-      GangliaReporter gangliaReporter = GangliaReporter.forRegistry(summaryRegistry)
-          .convertRatesTo(TimeUnit.SECONDS)
-          .convertDurationsTo(TimeUnit.MILLISECONDS)
-          .build(ganglia);
-      gangliaReporter.start(1, TimeUnit.MINUTES);
+      initGangliaPublish(repo, summaryRegistry, detailedRegistry);
     }
-    
     OpenGammaMetricRegistry.setSummaryRegistry(summaryRegistry);
     OpenGammaMetricRegistry.setDetailedRegistry(detailedRegistry);
+  }
+
+  /**
+   * Initialize publishing by JMX.
+   * 
+   * @param repo  the component repository, not null
+   * @param summaryRegistry  the summary metrics registry, not null
+   * @param detailedRegistry  the detailed metrics registry, not null
+   */
+  protected void initJmxPublish(ComponentRepository repo, MetricRegistry summaryRegistry, MetricRegistry detailedRegistry) {
+    repo.registerLifecycle(new JmxReporterLifecycle(repo, summaryRegistry, detailedRegistry));
+  }
+
+  /**
+   * Initialize publishing by SLF4J.
+   * 
+   * @param repo  the component repository, not null
+   * @param summaryRegistry  the summary metrics registry, not null
+   * @param detailedRegistry  the detailed metrics registry, not null
+   */
+  protected void initSlf4jPublish(ComponentRepository repo, MetricRegistry summaryRegistry, MetricRegistry detailedRegistry) {
+    Slf4jReporter logReporter = Slf4jReporter.forRegistry(summaryRegistry)
+        .outputTo(LoggerFactory.getLogger(OpenGammaMetricRegistry.class))
+        .convertRatesTo(TimeUnit.SECONDS)
+        .convertDurationsTo(TimeUnit.MILLISECONDS)
+        .build();
+    logReporter.start(1, TimeUnit.MINUTES);
+    logReporter = Slf4jReporter.forRegistry(detailedRegistry)
+        .outputTo(LoggerFactory.getLogger(OpenGammaMetricRegistry.class))
+        .convertRatesTo(TimeUnit.SECONDS)
+        .convertDurationsTo(TimeUnit.MILLISECONDS)
+        .build();
+    logReporter.start(1, TimeUnit.MINUTES);
+  }
+
+  /**
+   * Initialize publishing by Ganglia.
+   * <p>
+   * Only the summary registry is published.
+   * 
+   * @param repo  the component repository, not null
+   * @param summaryRegistry  the summary metrics registry, not null
+   * @param detailedRegistry  the detailed metrics registry, not null
+   */
+  protected void initGangliaPublish(ComponentRepository repo, MetricRegistry summaryRegistry, MetricRegistry detailedRegistry) throws IOException {
+    ArgumentChecker.notNull(getGangliaAddress(), "gangliaAddress");
+    ArgumentChecker.notNull(getGangliaPort(), "gangliaPort");
+    ArgumentChecker.notNull(getGangliaAddressingMode(), "gangliaAddressingMode");
+    ArgumentChecker.notNull(getGangliaTtl(), "gangliaTtl");
+    GMetric ganglia = new GMetric(getGangliaAddress(), getGangliaPort(), UDPAddressingMode.valueOf(getGangliaAddressingMode()), getGangliaTtl(), true);
+    GangliaReporter gangliaReporter = GangliaReporter.forRegistry(summaryRegistry)
+        .convertRatesTo(TimeUnit.SECONDS)
+        .convertDurationsTo(TimeUnit.MILLISECONDS)
+        .build(ganglia);
+    repo.registerLifecycle(new GangliaReporterLifecycle(gangliaReporter));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Lifecycle for JMX reporter.
+   * This delays registering the reporter with the MBean server until necessary.
+   */
+  static final class JmxReporterLifecycle implements Lifecycle {
+    private final ComponentRepository _repo;
+    private final MetricRegistry _summaryRegistry;
+    private final MetricRegistry _detailedRegistry;
+    private volatile JmxReporter _summaryReporter;
+    private volatile JmxReporter _detailedReporter;
+    JmxReporterLifecycle(ComponentRepository repo, MetricRegistry summaryRegistry, MetricRegistry detailedRegistry) {
+      _repo = repo;
+      _summaryRegistry = summaryRegistry;
+      _detailedRegistry = detailedRegistry;
+    }
+    @Override
+    public void start() {
+      MBeanServer mbeanServer = _repo.findInstance(MBeanServer.class);
+      _summaryReporter = JmxReporter.forRegistry(_summaryRegistry).registerWith(mbeanServer).build();
+      _summaryReporter.start();
+      _detailedReporter = JmxReporter.forRegistry(_detailedRegistry).registerWith(mbeanServer).build();
+      _detailedReporter.start();
+    }
+    @Override
+    public void stop() {
+      if (_summaryReporter != null) {
+        _summaryReporter.stop();
+        _summaryReporter = null;
+      }
+      if (_detailedReporter != null) {
+        _detailedReporter.stop();
+        _detailedReporter = null;
+      }
+    }
+    @Override
+    public boolean isRunning() {
+      return _summaryReporter != null || _detailedReporter != null;
+    }
+  }
+
+  /**
+   * Lifecycle for Ganglia reporter.
+   * This delays registering the reporter with Ganglia until necessary.
+   */
+  static final class GangliaReporterLifecycle implements Lifecycle {
+    private volatile GangliaReporter _gangliaReporter;
+    public GangliaReporterLifecycle(GangliaReporter gangliaReporter) {
+      _gangliaReporter = gangliaReporter;
+    }
+    @Override
+    public void start() {
+      if (_gangliaReporter != null) {
+        _gangliaReporter.start(1, TimeUnit.MINUTES);
+      }
+    }
+    @Override
+    public void stop() {
+      if (_gangliaReporter != null) {
+        _gangliaReporter.stop();
+        _gangliaReporter = null;
+      }
+    }
+    @Override
+    public boolean isRunning() {
+      return (_gangliaReporter != null);
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code MetricRepositoryFactory}.
+   * The meta-bean for {@code MetricsRepositoryComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static MetricRepositoryFactory.Meta meta() {
-    return MetricRepositoryFactory.Meta.INSTANCE;
+  public static MetricsRepositoryComponentFactory.Meta meta() {
+    return MetricsRepositoryComponentFactory.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(MetricRepositoryFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(MetricsRepositoryComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public MetricRepositoryFactory.Meta metaBean() {
-    return MetricRepositoryFactory.Meta.INSTANCE;
+  public MetricsRepositoryComponentFactory.Meta metaBean() {
+    return MetricsRepositoryComponentFactory.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the registryName.
+   * Gets the registry name.
    * @return the value of the property, not empty
    */
   public String getRegistryName() {
@@ -136,7 +257,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the registryName.
+   * Sets the registry name.
    * @param registryName  the new value of the property, not empty
    */
   public void setRegistryName(String registryName) {
@@ -154,7 +275,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the jmxPublish.
+   * Gets whether to publish over JMX.
    * @return the value of the property
    */
   public boolean isJmxPublish() {
@@ -162,7 +283,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the jmxPublish.
+   * Sets whether to publish over JMX.
    * @param jmxPublish  the new value of the property
    */
   public void setJmxPublish(boolean jmxPublish) {
@@ -179,7 +300,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the slf4jPublish.
+   * Gets whether to publish over SLF4J.
    * @return the value of the property
    */
   public boolean isSlf4jPublish() {
@@ -187,7 +308,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the slf4jPublish.
+   * Sets whether to publish over SLF4J.
    * @param slf4jPublish  the new value of the property
    */
   public void setSlf4jPublish(boolean slf4jPublish) {
@@ -204,7 +325,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the gangliaPublish.
+   * Gets whether to publish over Ganglia.
    * @return the value of the property
    */
   public boolean isGangliaPublish() {
@@ -212,7 +333,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the gangliaPublish.
+   * Sets whether to publish over Ganglia.
    * @param gangliaPublish  the new value of the property
    */
   public void setGangliaPublish(boolean gangliaPublish) {
@@ -229,7 +350,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the gangliaAddress.
+   * Gets the Ganglia address.
    * @return the value of the property
    */
   public String getGangliaAddress() {
@@ -237,7 +358,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the gangliaAddress.
+   * Sets the Ganglia address.
    * @param gangliaAddress  the new value of the property
    */
   public void setGangliaAddress(String gangliaAddress) {
@@ -254,7 +375,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the gangliaPort.
+   * Gets the Ganglia port.
    * @return the value of the property
    */
   public Integer getGangliaPort() {
@@ -262,7 +383,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the gangliaPort.
+   * Sets the Ganglia port.
    * @param gangliaPort  the new value of the property
    */
   public void setGangliaPort(Integer gangliaPort) {
@@ -279,7 +400,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the gangliaAddressingMode.
+   * Gets the Ganglia addressing mode.
    * @return the value of the property
    */
   public String getGangliaAddressingMode() {
@@ -287,7 +408,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the gangliaAddressingMode.
+   * Sets the Ganglia addressing mode.
    * @param gangliaAddressingMode  the new value of the property
    */
   public void setGangliaAddressingMode(String gangliaAddressingMode) {
@@ -304,7 +425,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the gangliaTtl.
+   * Gets the Ganglia time to live.
    * @return the value of the property
    */
   public Integer getGangliaTtl() {
@@ -312,7 +433,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the gangliaTtl.
+   * Sets the Ganglia time to live.
    * @param gangliaTtl  the new value of the property
    */
   public void setGangliaTtl(Integer gangliaTtl) {
@@ -329,7 +450,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   @Override
-  public MetricRepositoryFactory clone() {
+  public MetricsRepositoryComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
   }
 
@@ -339,7 +460,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MetricRepositoryFactory other = (MetricRepositoryFactory) obj;
+      MetricsRepositoryComponentFactory other = (MetricsRepositoryComponentFactory) obj;
       return JodaBeanUtils.equal(getRegistryName(), other.getRegistryName()) &&
           (isJmxPublish() == other.isJmxPublish()) &&
           (isSlf4jPublish() == other.isSlf4jPublish()) &&
@@ -370,7 +491,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
-    buf.append("MetricRepositoryFactory{");
+    buf.append("MetricsRepositoryComponentFactory{");
     int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
@@ -395,7 +516,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code MetricRepositoryFactory}.
+   * The meta-bean for {@code MetricsRepositoryComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
     /**
@@ -407,42 +528,42 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
      * The meta-property for the {@code registryName} property.
      */
     private final MetaProperty<String> _registryName = DirectMetaProperty.ofReadWrite(
-        this, "registryName", MetricRepositoryFactory.class, String.class);
+        this, "registryName", MetricsRepositoryComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code jmxPublish} property.
      */
     private final MetaProperty<Boolean> _jmxPublish = DirectMetaProperty.ofReadWrite(
-        this, "jmxPublish", MetricRepositoryFactory.class, Boolean.TYPE);
+        this, "jmxPublish", MetricsRepositoryComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code slf4jPublish} property.
      */
     private final MetaProperty<Boolean> _slf4jPublish = DirectMetaProperty.ofReadWrite(
-        this, "slf4jPublish", MetricRepositoryFactory.class, Boolean.TYPE);
+        this, "slf4jPublish", MetricsRepositoryComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code gangliaPublish} property.
      */
     private final MetaProperty<Boolean> _gangliaPublish = DirectMetaProperty.ofReadWrite(
-        this, "gangliaPublish", MetricRepositoryFactory.class, Boolean.TYPE);
+        this, "gangliaPublish", MetricsRepositoryComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code gangliaAddress} property.
      */
     private final MetaProperty<String> _gangliaAddress = DirectMetaProperty.ofReadWrite(
-        this, "gangliaAddress", MetricRepositoryFactory.class, String.class);
+        this, "gangliaAddress", MetricsRepositoryComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code gangliaPort} property.
      */
     private final MetaProperty<Integer> _gangliaPort = DirectMetaProperty.ofReadWrite(
-        this, "gangliaPort", MetricRepositoryFactory.class, Integer.class);
+        this, "gangliaPort", MetricsRepositoryComponentFactory.class, Integer.class);
     /**
      * The meta-property for the {@code gangliaAddressingMode} property.
      */
     private final MetaProperty<String> _gangliaAddressingMode = DirectMetaProperty.ofReadWrite(
-        this, "gangliaAddressingMode", MetricRepositoryFactory.class, String.class);
+        this, "gangliaAddressingMode", MetricsRepositoryComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code gangliaTtl} property.
      */
     private final MetaProperty<Integer> _gangliaTtl = DirectMetaProperty.ofReadWrite(
-        this, "gangliaTtl", MetricRepositoryFactory.class, Integer.class);
+        this, "gangliaTtl", MetricsRepositoryComponentFactory.class, Integer.class);
     /**
      * The meta-properties.
      */
@@ -487,13 +608,13 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
     }
 
     @Override
-    public BeanBuilder<? extends MetricRepositoryFactory> builder() {
-      return new DirectBeanBuilder<MetricRepositoryFactory>(new MetricRepositoryFactory());
+    public BeanBuilder<? extends MetricsRepositoryComponentFactory> builder() {
+      return new DirectBeanBuilder<MetricsRepositoryComponentFactory>(new MetricsRepositoryComponentFactory());
     }
 
     @Override
-    public Class<? extends MetricRepositoryFactory> beanType() {
-      return MetricRepositoryFactory.class;
+    public Class<? extends MetricsRepositoryComponentFactory> beanType() {
+      return MetricsRepositoryComponentFactory.class;
     }
 
     @Override
@@ -571,21 +692,21 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1329285016:  // registryName
-          return ((MetricRepositoryFactory) bean).getRegistryName();
+          return ((MetricsRepositoryComponentFactory) bean).getRegistryName();
         case 1313494970:  // jmxPublish
-          return ((MetricRepositoryFactory) bean).isJmxPublish();
+          return ((MetricsRepositoryComponentFactory) bean).isJmxPublish();
         case 283122412:  // slf4jPublish
-          return ((MetricRepositoryFactory) bean).isSlf4jPublish();
+          return ((MetricsRepositoryComponentFactory) bean).isSlf4jPublish();
         case 113968702:  // gangliaPublish
-          return ((MetricRepositoryFactory) bean).isGangliaPublish();
+          return ((MetricsRepositoryComponentFactory) bean).isGangliaPublish();
         case -798358237:  // gangliaAddress
-          return ((MetricRepositoryFactory) bean).getGangliaAddress();
+          return ((MetricsRepositoryComponentFactory) bean).getGangliaAddress();
         case 44258738:  // gangliaPort
-          return ((MetricRepositoryFactory) bean).getGangliaPort();
+          return ((MetricsRepositoryComponentFactory) bean).getGangliaPort();
         case -772603358:  // gangliaAddressingMode
-          return ((MetricRepositoryFactory) bean).getGangliaAddressingMode();
+          return ((MetricsRepositoryComponentFactory) bean).getGangliaAddressingMode();
         case 555621019:  // gangliaTtl
-          return ((MetricRepositoryFactory) bean).getGangliaTtl();
+          return ((MetricsRepositoryComponentFactory) bean).getGangliaTtl();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -594,28 +715,28 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1329285016:  // registryName
-          ((MetricRepositoryFactory) bean).setRegistryName((String) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setRegistryName((String) newValue);
           return;
         case 1313494970:  // jmxPublish
-          ((MetricRepositoryFactory) bean).setJmxPublish((Boolean) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setJmxPublish((Boolean) newValue);
           return;
         case 283122412:  // slf4jPublish
-          ((MetricRepositoryFactory) bean).setSlf4jPublish((Boolean) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setSlf4jPublish((Boolean) newValue);
           return;
         case 113968702:  // gangliaPublish
-          ((MetricRepositoryFactory) bean).setGangliaPublish((Boolean) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setGangliaPublish((Boolean) newValue);
           return;
         case -798358237:  // gangliaAddress
-          ((MetricRepositoryFactory) bean).setGangliaAddress((String) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setGangliaAddress((String) newValue);
           return;
         case 44258738:  // gangliaPort
-          ((MetricRepositoryFactory) bean).setGangliaPort((Integer) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setGangliaPort((Integer) newValue);
           return;
         case -772603358:  // gangliaAddressingMode
-          ((MetricRepositoryFactory) bean).setGangliaAddressingMode((String) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setGangliaAddressingMode((String) newValue);
           return;
         case 555621019:  // gangliaTtl
-          ((MetricRepositoryFactory) bean).setGangliaTtl((Integer) newValue);
+          ((MetricsRepositoryComponentFactory) bean).setGangliaTtl((Integer) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -623,7 +744,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notEmpty(((MetricRepositoryFactory) bean)._registryName, "registryName");
+      JodaBeanUtils.notEmpty(((MetricsRepositoryComponentFactory) bean)._registryName, "registryName");
       super.validate(bean);
     }
 

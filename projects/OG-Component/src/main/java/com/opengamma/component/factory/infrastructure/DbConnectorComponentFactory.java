@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.component.factory.master;
+package com.opengamma.component.factory.infrastructure;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -36,29 +36,30 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.AbstractAliasedComponentFactory;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
  * Component factory for a database connector.
+ * <p>
+ * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
-public class DbConnectorComponentFactory extends AbstractComponentFactory {
+public class DbConnectorComponentFactory extends AbstractAliasedComponentFactory {
 
-  /**
-   * The classifier that the factory should publish under.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _classifier;
   /**
    * The data source.
    */
   @PropertyDefinition(validate = "notNull")
   private DataSource _dataSource;
+  /**
+   * The name of the connector, defaults to the classifier. 
+   */
+  @PropertyDefinition
+  private String _name;
   /**
    * The database dialect helper class.
    */
@@ -70,7 +71,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _hibernateMappingFiles;
   /**
-   * Indicates whether Hibnerate should output its SQL.
+   * Indicates whether Hibernate should output its SQL.
    */
   @PropertyDefinition
   private boolean _hibernateShowSql;
@@ -94,12 +95,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private int _transactionTimeout;
-  /**
-   * The name of the data to be accessed, defaults to the classifier. 
-   */
-  @PropertyDefinition
-  private String _name;
-  
+
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -108,48 +104,62 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     }
     initDbConnector(repo);
   }
-  
+
+  /**
+   * Creates and registers the database connector.
+   * 
+   * @param repo  the component repository, not null
+   * @return the connector, not null
+   */
   protected DbConnector initDbConnector(ComponentRepository repo) {
-    DbDialect dialect = createDialect();
-    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
-    SessionFactory hibernateSessionFactory = createHibernateSessionFactory(dialect);
-    HibernateTemplate hibernateTemplate = createHibernateTemplate(hibernateSessionFactory);
-    TransactionTemplate transactionTemplate = createTransactionTemplate(hibernateSessionFactory);
-    DbConnector dbConnector = new DbConnector(getName(), dialect, getDataSource(), jdbcTemplate, hibernateTemplate, transactionTemplate);
-    
-    ComponentInfo info = new ComponentInfo(DbConnector.class, getClassifier());
-    repo.registerComponent(info, dbConnector);
+    DbConnector dbConnector = createDbConnector(repo);
+    registerComponentAndAliases(repo, DbConnector.class, dbConnector);
     return dbConnector;
   }
 
-  private TransactionTemplate createTransactionTemplate(SessionFactory hibernateSessionFactory) {
-    DefaultTransactionDefinition transactionDef = new DefaultTransactionDefinition();
-    transactionDef.setName(getName());
-    if (getTransactionIsolationLevel() != null) {
-      transactionDef.setIsolationLevelName(getTransactionIsolationLevel());
-    }
-    if (getTransactionPropagationBehavior() != null) {
-      transactionDef.setPropagationBehaviorName(getTransactionPropagationBehavior());
-    }
-    if (getTransactionTimeout() != 0) {
-      transactionDef.setTimeout(getTransactionTimeout());
-    }
-    return new TransactionTemplate(createTransactionManager(hibernateSessionFactory), transactionDef);
+  /**
+   * Creates the database connector, without registering it.
+   * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
+   * @return the connector, not null
+   */
+  protected DbConnector createDbConnector(ComponentRepository repo) {
+    DbDialect dialect = createDialect(repo);
+    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
+    SessionFactory hibernateSessionFactory = createHibernateSessionFactory(repo, dialect);
+    HibernateTemplate hibernateTemplate = createHibernateTemplate(repo, hibernateSessionFactory);
+    TransactionTemplate transactionTemplate = createTransactionTemplate(repo, hibernateSessionFactory);
+    return new DbConnector(getName(), dialect, getDataSource(), jdbcTemplate, hibernateTemplate, transactionTemplate);
   }
-  
+
+  /**
+   * Creates the database dialect.
+   * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
+   * @return the dialect, not null
+   */
+  protected DbDialect createDialect(ComponentRepository repo) {
+    try {
+      return (DbDialect) getClass().getClassLoader().loadClass(getDialect()).newInstance();
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Unable to create database dialect from class: " + getDialect(), ex);
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates the Hibernate session factory.
    * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @param dialect  the dialect instance, not null
    * @return the session factory, may be null
    */
-  protected SessionFactory createHibernateSessionFactory(DbDialect dialect) {
+  protected SessionFactory createHibernateSessionFactory(ComponentRepository repo, DbDialect dialect) {
     if (getHibernateMappingFiles() == null) {
       return null; // Hibernate not required
     }
     LocalSessionFactoryBean factory = new LocalSessionFactoryBean();
-    factory.setMappingResources(getHibernateMappingResources());
+    factory.setMappingResources(getHibernateMappingResources(repo));
     factory.setDataSource(getDataSource());
     Properties props = new Properties();
     props.setProperty("hibernate.dialect", dialect.getHibernateDialect().getClass().getName());
@@ -168,27 +178,28 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     }
     return factory.getObject();
   }
-  
+
   /**
    * Creates the complete list of Hibernate configuration files.
    * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the set of Hibernate files, not null
    */
-  protected String[] getHibernateMappingResources() {
+  protected String[] getHibernateMappingResources(ComponentRepository repo) {
     String hibernateMappingFilesClassName = getHibernateMappingFiles();
     Class<?> hibernateMappingFilesClass;
     try {
       hibernateMappingFilesClass = getClass().getClassLoader().loadClass(hibernateMappingFilesClassName);
-    } catch (ClassNotFoundException e) {
-      throw new OpenGammaRuntimeException("Could not find Hibernate mapping files implementation " + hibernateMappingFilesClassName, e);
+    } catch (ClassNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Could not find Hibernate mapping files implementation: " + hibernateMappingFilesClassName, ex);
     }
     HibernateMappingFiles hibernateMappingFiles;
     try {
       hibernateMappingFiles = (HibernateMappingFiles) hibernateMappingFilesClass.newInstance();
-    } catch (InstantiationException e) {
-      throw new OpenGammaRuntimeException("Could not instantiate Hibernate mapping files implementation " + hibernateMappingFilesClassName, e);
-    } catch (IllegalAccessException e) {
-      throw new OpenGammaRuntimeException("Could not access Hibernate mapping files implementation " + hibernateMappingFilesClassName, e);
+    } catch (InstantiationException ex) {
+      throw new OpenGammaRuntimeException("Could not instantiate Hibernate mapping files implementation: " + hibernateMappingFilesClassName, ex);
+    } catch (IllegalAccessException ex) {
+      throw new OpenGammaRuntimeException("Could not access Hibernate mapping files implementation: " + hibernateMappingFilesClassName, ex);
     }
     Set<String> config = new HashSet<String>();
     for (Class<?> cls : hibernateMappingFiles.getHibernateMappingFiles()) {
@@ -197,14 +208,55 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     }
     return (String[]) config.toArray(new String[config.size()]);
   }
-  
+
+  /**
+   * Creates the Hibernate template, using the session factory.
+   * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
+   * @param sessionFactory  the Hibernate session factory, may be null
+   * @return the Hibernate template, not null
+   */
+  protected HibernateTemplate createHibernateTemplate(ComponentRepository repo, SessionFactory sessionFactory) {
+    if (sessionFactory == null) {
+      return null;
+    }
+    return new HibernateTemplate(sessionFactory);
+  }
+
+  /**
+   * Creates the transaction template.
+   * <p>
+   * This is Hibernate aware if Hibernate is available.
+   * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
+   * @param hibernateSessionFactory  the session factory, not null
+   * @return the template, not null
+   */
+  protected TransactionTemplate createTransactionTemplate(ComponentRepository repo, SessionFactory hibernateSessionFactory) {
+    DefaultTransactionDefinition transactionDef = new DefaultTransactionDefinition();
+    transactionDef.setName(getName());
+    if (getTransactionIsolationLevel() != null) {
+      transactionDef.setIsolationLevelName(getTransactionIsolationLevel());
+    }
+    if (getTransactionPropagationBehavior() != null) {
+      transactionDef.setPropagationBehaviorName(getTransactionPropagationBehavior());
+    }
+    if (getTransactionTimeout() != 0) {
+      transactionDef.setTimeout(getTransactionTimeout());
+    }
+    return new TransactionTemplate(createTransactionManager(repo, hibernateSessionFactory), transactionDef);
+  }
+
   /**
    * Creates the transaction manager.
+   * <p>
+   * This is Hibernate aware if Hibernate is available.
    * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @param hibernateSessionFactory  the Hibernate session factory, may be null
    * @return the transaction manager, not null
    */
-  protected PlatformTransactionManager createTransactionManager(SessionFactory hibernateSessionFactory) {
+  protected PlatformTransactionManager createTransactionManager(ComponentRepository repo, SessionFactory hibernateSessionFactory) {
     AbstractPlatformTransactionManager newTransMgr;
     if (hibernateSessionFactory == null) {
       newTransMgr = new DataSourceTransactionManager(getDataSource());
@@ -213,32 +265,6 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     }
     newTransMgr.setNestedTransactionAllowed(true);
     return newTransMgr;
-  }
-  
-  /**
-   * Creates the Hibernate template, using the session factory.
-   * 
-   * @param sessionFactory  the Hibernate session factory, may be null
-   * @return the Hibernate template, not null
-   */
-  protected HibernateTemplate createHibernateTemplate(SessionFactory sessionFactory) {
-    if (sessionFactory == null) {
-      return null;
-    }
-    return new HibernateTemplate(sessionFactory);
-  }
-  
-  /**
-   * Creates the database dialect.
-   * 
-   * @return the dialect, not null
-   */
-  protected DbDialect createDialect() {
-    try {
-      return (DbDialect) getClass().getClassLoader().loadClass(getDialect()).newInstance();
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Unable to create database dialect from class '" + getDialect() + "'", e);
-    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -258,32 +284,6 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   public DbConnectorComponentFactory.Meta metaBean() {
     return DbConnectorComponentFactory.Meta.INSTANCE;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the classifier that the factory should publish under.
-   * @return the value of the property, not null
-   */
-  public String getClassifier() {
-    return _classifier;
-  }
-
-  /**
-   * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
-   */
-  public void setClassifier(String classifier) {
-    JodaBeanUtils.notNull(classifier, "classifier");
-    this._classifier = classifier;
-  }
-
-  /**
-   * Gets the the {@code classifier} property.
-   * @return the property, not null
-   */
-  public final Property<String> classifier() {
-    return metaBean().classifier().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -310,6 +310,31 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
    */
   public final Property<DataSource> dataSource() {
     return metaBean().dataSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of the connector, defaults to the classifier.
+   * @return the value of the property
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name of the connector, defaults to the classifier.
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -365,7 +390,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates whether Hibnerate should output its SQL.
+   * Gets indicates whether Hibernate should output its SQL.
    * @return the value of the property
    */
   public boolean isHibernateShowSql() {
@@ -373,7 +398,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets indicates whether Hibnerate should output its SQL.
+   * Sets indicates whether Hibernate should output its SQL.
    * @param hibernateShowSql  the new value of the property
    */
   public void setHibernateShowSql(boolean hibernateShowSql) {
@@ -489,31 +514,6 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the name of the data to be accessed, defaults to the classifier.
-   * @return the value of the property
-   */
-  public String getName() {
-    return _name;
-  }
-
-  /**
-   * Sets the name of the data to be accessed, defaults to the classifier.
-   * @param name  the new value of the property
-   */
-  public void setName(String name) {
-    this._name = name;
-  }
-
-  /**
-   * Gets the the {@code name} property.
-   * @return the property, not null
-   */
-  public final Property<String> name() {
-    return metaBean().name().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public DbConnectorComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -526,8 +526,8 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DbConnectorComponentFactory other = (DbConnectorComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+      return JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getDialect(), other.getDialect()) &&
           JodaBeanUtils.equal(getHibernateMappingFiles(), other.getHibernateMappingFiles()) &&
           (isHibernateShowSql() == other.isHibernateShowSql()) &&
@@ -535,7 +535,6 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getTransactionIsolationLevel(), other.getTransactionIsolationLevel()) &&
           JodaBeanUtils.equal(getTransactionPropagationBehavior(), other.getTransactionPropagationBehavior()) &&
           (getTransactionTimeout() == other.getTransactionTimeout()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
           super.equals(obj);
     }
     return false;
@@ -544,8 +543,8 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDialect());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHibernateMappingFiles());
     hash += hash * 31 + JodaBeanUtils.hashCode(isHibernateShowSql());
@@ -553,13 +552,12 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionIsolationLevel());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionPropagationBehavior());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionTimeout());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("DbConnectorComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -573,8 +571,8 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("dialect").append('=').append(JodaBeanUtils.toString(getDialect())).append(',').append(' ');
     buf.append("hibernateMappingFiles").append('=').append(JodaBeanUtils.toString(getHibernateMappingFiles())).append(',').append(' ');
     buf.append("hibernateShowSql").append('=').append(JodaBeanUtils.toString(isHibernateShowSql())).append(',').append(' ');
@@ -582,29 +580,28 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     buf.append("transactionIsolationLevel").append('=').append(JodaBeanUtils.toString(getTransactionIsolationLevel())).append(',').append(' ');
     buf.append("transactionPropagationBehavior").append('=').append(JodaBeanUtils.toString(getTransactionPropagationBehavior())).append(',').append(' ');
     buf.append("transactionTimeout").append('=').append(JodaBeanUtils.toString(getTransactionTimeout())).append(',').append(' ');
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DbConnectorComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractAliasedComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code classifier} property.
-     */
-    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", DbConnectorComponentFactory.class, String.class);
-    /**
      * The meta-property for the {@code dataSource} property.
      */
     private final MetaProperty<DataSource> _dataSource = DirectMetaProperty.ofReadWrite(
         this, "dataSource", DbConnectorComponentFactory.class, DataSource.class);
+    /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", DbConnectorComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code dialect} property.
      */
@@ -641,25 +638,19 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<Integer> _transactionTimeout = DirectMetaProperty.ofReadWrite(
         this, "transactionTimeout", DbConnectorComponentFactory.class, Integer.TYPE);
     /**
-     * The meta-property for the {@code name} property.
-     */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
-        this, "name", DbConnectorComponentFactory.class, String.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "classifier",
         "dataSource",
+        "name",
         "dialect",
         "hibernateMappingFiles",
         "hibernateShowSql",
         "allowHibernateThreadBoundSession",
         "transactionIsolationLevel",
         "transactionPropagationBehavior",
-        "transactionTimeout",
-        "name");
+        "transactionTimeout");
 
     /**
      * Restricted constructor.
@@ -670,10 +661,10 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          return _classifier;
         case 1272470629:  // dataSource
           return _dataSource;
+        case 3373707:  // name
+          return _name;
         case 1655014950:  // dialect
           return _dialect;
         case 1110639547:  // hibernateMappingFiles
@@ -688,8 +679,6 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
           return _transactionPropagationBehavior;
         case -1923367773:  // transactionTimeout
           return _transactionTimeout;
-        case 3373707:  // name
-          return _name;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -711,19 +700,19 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code classifier} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> classifier() {
-      return _classifier;
-    }
-
-    /**
      * The meta-property for the {@code dataSource} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<DataSource> dataSource() {
       return _dataSource;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
     }
 
     /**
@@ -782,22 +771,14 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
       return _transactionTimeout;
     }
 
-    /**
-     * The meta-property for the {@code name} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> name() {
-      return _name;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          return ((DbConnectorComponentFactory) bean).getClassifier();
         case 1272470629:  // dataSource
           return ((DbConnectorComponentFactory) bean).getDataSource();
+        case 3373707:  // name
+          return ((DbConnectorComponentFactory) bean).getName();
         case 1655014950:  // dialect
           return ((DbConnectorComponentFactory) bean).getDialect();
         case 1110639547:  // hibernateMappingFiles
@@ -812,8 +793,6 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
           return ((DbConnectorComponentFactory) bean).getTransactionPropagationBehavior();
         case -1923367773:  // transactionTimeout
           return ((DbConnectorComponentFactory) bean).getTransactionTimeout();
-        case 3373707:  // name
-          return ((DbConnectorComponentFactory) bean).getName();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -821,11 +800,11 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          ((DbConnectorComponentFactory) bean).setClassifier((String) newValue);
-          return;
         case 1272470629:  // dataSource
           ((DbConnectorComponentFactory) bean).setDataSource((DataSource) newValue);
+          return;
+        case 3373707:  // name
+          ((DbConnectorComponentFactory) bean).setName((String) newValue);
           return;
         case 1655014950:  // dialect
           ((DbConnectorComponentFactory) bean).setDialect((String) newValue);
@@ -848,16 +827,12 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
         case -1923367773:  // transactionTimeout
           ((DbConnectorComponentFactory) bean).setTransactionTimeout((Integer) newValue);
           return;
-        case 3373707:  // name
-          ((DbConnectorComponentFactory) bean).setName((String) newValue);
-          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((DbConnectorComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((DbConnectorComponentFactory) bean)._dataSource, "dataSource");
       JodaBeanUtils.notNull(((DbConnectorComponentFactory) bean)._dialect, "dialect");
       super.validate(bean);

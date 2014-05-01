@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -18,11 +19,14 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
 import org.threeten.bp.ZoneId;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PlatformConfigUtils;
@@ -538,6 +542,10 @@ public class ComponentManager {
     Class<?> propertyType = mp.propertyType();
     if (propertyType == Resource.class) {
       mp.set(bean, ResourceUtils.createResource(value));
+      
+    } else if (Collection.class.isAssignableFrom(mp.propertyType()) && JodaBeanUtils.collectionType(mp, bean.getClass()) == String.class) {
+      Iterable<String> split = Splitter.on(',').trimResults().split(value);
+      mp.set(bean, ImmutableList.copyOf(split));
       
     } else {
       // set property by value type conversion from String

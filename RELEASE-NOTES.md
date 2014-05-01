@@ -6,6 +6,37 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+* PLAT-6443 Enhance component-based infrastructure factories
+Renamed factories:
+- com.opengamma.component.factory.master.DataSourceComponentFactory -> com.opengamma.component.factory.infrastructure.DataSourceComponentFactory
+- com.opengamma.component.factory.master.DbConnectorComponentFactory -> com.opengamma.component.factory.infrastructure.DbConnectorComponentFactory
+- com.opengamma.component.factory.master.DbManagementComponentFactory -> com.opengamma.component.factory.tool.DbManagementComponentFactory
+- com.opengamma.component.factory.infrastructure.JMSConnectorComponentFactory -> com.opengamma.component.factory.infrastructure.ActiveMqJmsConnectorComponentFactory
+- com.opengamma.component.factory.metric.MetricRepositoryFactory -> com.opengamma.component.factory.infrastructure.MetricsRepositoryComponentFactory
+
+- MBeanServerComponentFactory no longer has "cacheManager" parameter (CacheManager JMX now works automatically)
+- ActiveMqJmsConnectorComponentFactory no longer has "connectionFactory" parameter (no longer applicable)
+- DataSourceComponentFactory, DbConnectorComponentFactory, CacheManagerComponentFactory and ActiveMqJmsConnectorComponentFactory now
+support "classifierAliases" parameter, which may be a comma separated list
+- protected methods have changed names
+
+Common infrastructure files added:
+- common/common-metrics.ini
+- common/common-infra.ini
+- common/common-infra-full.ini
+- common/common-dbinfra-full.ini
+
+A standard fullstack ini file can use:
+#============================================================================
+MANAGER.INCLUDE = classpath:common/common-metrics.ini
+MANAGER.INCLUDE = classpath:common/common-infra-full.ini
+MANAGER.INCLUDE = classpath:common/common-dbinfra-full.ini
+MANAGER.INCLUDE = classpath:common/common-shiro.ini
+MANAGER.INCLUDE = classpath:common/common-dbmasters.ini
+
+#============================================================================
+
+
 To 2.2.0-M20
 ------------
 

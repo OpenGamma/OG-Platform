@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.component.factory.master;
+package com.opengamma.component.factory.infrastructure;
 
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -27,9 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
-import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.AbstractAliasedComponentFactory;
 import com.opengamma.util.db.management.jmx.DatabaseMBean;
 
 /**
@@ -38,15 +37,11 @@ import com.opengamma.util.db.management.jmx.DatabaseMBean;
  * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
-public class DataSourceComponentFactory extends AbstractComponentFactory {
+public class DataSourceComponentFactory extends AbstractAliasedComponentFactory {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DataSourceComponentFactory.class);
 
-  /**
-   * The classifier that the factory should publish under.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _classifier;
   /**
    * The fully-qualified class name of the database driver.
    */
@@ -58,7 +53,7 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private String _jdbcUrl;
   /**
-   * The database username.
+   * The database user name.
    */
   @PropertyDefinition(validate = "notNull")
   private String _username;
@@ -103,37 +98,25 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Creates the data source and registers it with the component repository.
+   * Creates and registers the data source.
    * 
-   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param repo  the component repository, not null
    * @return the cache manager, not null
    */
-  protected DataSource initDataSource(final ComponentRepository repo) {
-    final DataSource dataSource = createDataSource(repo);
-    final ComponentInfo info = new ComponentInfo(DataSource.class, getClassifier());
-    repo.registerComponent(info, dataSource);
-    DatabaseMBean.Local mbeanLocal = new DatabaseMBean.Local(getDriverClass(), dataSource);
-    mbeanLocal.setLocalJdbc(getJdbcUrl());
-    mbeanLocal.setUsername(getUsername());
-    final Hashtable<String, String> mbeanName = new Hashtable<String, String>();
-    mbeanName.put("type", "DataSourceComponent");
-    mbeanName.put("name", getClassifier());
-    try {
-      repo.registerMBean(mbeanLocal.mbean(), new ObjectName("com.opengamma", mbeanName));
-    } catch (MalformedObjectNameException e) {
-      s_logger.error("Couldn't register MBEAN for {}: {}", this, e.getMessage());
-      s_logger.warn("Caught exception", e);
-    }
+  protected DataSource initDataSource(ComponentRepository repo) {
+    DataSource dataSource = createDataSource(repo);
+    registerComponentAndAliases(repo, DataSource.class, dataSource);
+    registerMBean(repo, dataSource);
     return dataSource;
   }
 
   /**
    * Creates the data source without registering it.
    * 
-   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the data source, not null
    */
-  protected DataSource createDataSource(final ComponentRepository repo) {
+  protected DataSource createDataSource(ComponentRepository repo) {
     BoneCPDataSource dataSource = new BoneCPDataSource();
     dataSource.setDriverClass(getDriverClass());
     dataSource.setJdbcUrl(getJdbcUrl());
@@ -145,6 +128,27 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     dataSource.setMinConnectionsPerPartition(getMinConnectionsPerPartition());
     dataSource.setMaxConnectionsPerPartition(getMaxConnectionsPerPartition());
     return dataSource;
+  }
+
+  /**
+   * Registers the JMX MBean for the data source.
+   * 
+   * @param repo  the component repository, not null
+   * @param dataSource  the data source, not null
+   */
+  protected void registerMBean(ComponentRepository repo, DataSource dataSource) {
+    DatabaseMBean.Local mbeanLocal = new DatabaseMBean.Local(getDriverClass(), dataSource);
+    mbeanLocal.setLocalJdbc(getJdbcUrl());
+    mbeanLocal.setUsername(getUsername());
+    Hashtable<String, String> mbeanName = new Hashtable<String, String>();
+    mbeanName.put("type", "DataSourceComponent");
+    mbeanName.put("name", getClassifier());
+    try {
+      repo.registerMBean(mbeanLocal.mbean(), new ObjectName("com.opengamma", mbeanName));
+    } catch (MalformedObjectNameException ex) {
+      s_logger.error("Couldn't register MBEAN for {}: {}", this, ex.getMessage());
+      s_logger.warn("Caught exception", ex);
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -164,32 +168,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   @Override
   public DataSourceComponentFactory.Meta metaBean() {
     return DataSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the classifier that the factory should publish under.
-   * @return the value of the property, not null
-   */
-  public String getClassifier() {
-    return _classifier;
-  }
-
-  /**
-   * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
-   */
-  public void setClassifier(String classifier) {
-    JodaBeanUtils.notNull(classifier, "classifier");
-    this._classifier = classifier;
-  }
-
-  /**
-   * Gets the the {@code classifier} property.
-   * @return the property, not null
-   */
-  public final Property<String> classifier() {
-    return metaBean().classifier().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -246,7 +224,7 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the database username.
+   * Gets the database user name.
    * @return the value of the property, not null
    */
   public String getUsername() {
@@ -254,7 +232,7 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the database username.
+   * Sets the database user name.
    * @param username  the new value of the property, not null
    */
   public void setUsername(String username) {
@@ -434,8 +412,7 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DataSourceComponentFactory other = (DataSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getDriverClass(), other.getDriverClass()) &&
+      return JodaBeanUtils.equal(getDriverClass(), other.getDriverClass()) &&
           JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
           JodaBeanUtils.equal(getUsername(), other.getUsername()) &&
           JodaBeanUtils.equal(getPassword(), other.getPassword()) &&
@@ -452,7 +429,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDriverClass());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUsername());
@@ -467,7 +443,7 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("DataSourceComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -481,7 +457,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("driverClass").append('=').append(JodaBeanUtils.toString(getDriverClass())).append(',').append(' ');
     buf.append("jdbcUrl").append('=').append(JodaBeanUtils.toString(getJdbcUrl())).append(',').append(' ');
     buf.append("username").append('=').append(JodaBeanUtils.toString(getUsername())).append(',').append(' ');
@@ -497,17 +472,12 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   /**
    * The meta-bean for {@code DataSourceComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractAliasedComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code classifier} property.
-     */
-    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", DataSourceComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code driverClass} property.
      */
@@ -558,7 +528,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "classifier",
         "driverClass",
         "jdbcUrl",
         "username",
@@ -578,8 +547,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          return _classifier;
         case 1227291184:  // driverClass
           return _driverClass;
         case -1752402828:  // jdbcUrl
@@ -618,14 +585,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code classifier} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> classifier() {
-      return _classifier;
-    }
-
     /**
      * The meta-property for the {@code driverClass} property.
      * @return the meta-property, not null
@@ -702,8 +661,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          return ((DataSourceComponentFactory) bean).getClassifier();
         case 1227291184:  // driverClass
           return ((DataSourceComponentFactory) bean).getDriverClass();
         case -1752402828:  // jdbcUrl
@@ -729,9 +686,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
-          ((DataSourceComponentFactory) bean).setClassifier((String) newValue);
-          return;
         case 1227291184:  // driverClass
           ((DataSourceComponentFactory) bean).setDriverClass((String) newValue);
           return;
@@ -765,7 +719,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._driverClass, "driverClass");
       JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._jdbcUrl, "jdbcUrl");
       JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._username, "username");

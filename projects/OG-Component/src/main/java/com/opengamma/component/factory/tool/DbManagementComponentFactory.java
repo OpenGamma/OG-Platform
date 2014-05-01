@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.component.factory.master;
+package com.opengamma.component.factory.tool;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,6 +28,8 @@ import com.opengamma.util.db.management.DbManagementUtils;
 
 /**
  * Component factory for a {@link DbManagement} instance.
+ * <p>
+ * This class is designed to allow protected methods to be overridden.
  */
 @BeanDefinition
 public class DbManagementComponentFactory extends AbstractComponentFactory {
@@ -53,12 +55,21 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private String _password;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    initDbManagement(repo);
+    DbManagement dbManagement = createDbManagement(repo);
+    ComponentInfo info = new ComponentInfo(DbManagement.class, getClassifier());
+    repo.registerComponent(info, dbManagement);
   }
 
-  protected DbManagement initDbManagement(ComponentRepository repo) {
+  /**
+   * Creates the management object without registering it.
+   * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
+   * @return the management object, not null
+   */
+  protected DbManagement createDbManagement(ComponentRepository repo) {
     // REVIEW jonathan 2012-10-12 -- should not be doing this (PLAT-2745)
     String dbHost;
     if (getJdbcUrl().startsWith("jdbc:sqlserver")) {
@@ -73,11 +84,8 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
       }
       dbHost = getJdbcUrl().substring(0, lastSlashIdx);
     }
-
     DbManagement dbManagement = DbManagementUtils.getDbManagement(dbHost);
     dbManagement.initialise(dbHost, getUsername(), getPassword());
-    ComponentInfo info = new ComponentInfo(DbManagement.class, getClassifier());
-    repo.registerComponent(info, dbManagement);
     return dbManagement;
   }
 
