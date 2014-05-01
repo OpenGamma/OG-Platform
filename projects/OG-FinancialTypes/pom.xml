@@ -23,6 +23,11 @@
   <dependencies>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-util</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-master</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -30,6 +35,11 @@
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-analytics</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
     </dependency>
   </dependencies>
 

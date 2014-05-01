@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.json.simple.JSONObject;
+import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
@@ -33,7 +33,7 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 /**
  * Example for coupled fokker.
  */
-@SuppressWarnings({"deprecation", "unused", "unchecked" })
+@SuppressWarnings({"deprecation", "unused" })
 public class CoupledFokkerPlankExample {
 //CSOFF
   
@@ -103,20 +103,24 @@ public class CoupledFokkerPlankExample {
     final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 
-    JSONObject json = new JSONObject();
+    // output in JSON format without using a JSON library to save dependencies
+    StrBuilder buf = new StrBuilder(2048).append('{');
 
     ByteArrayOutputStream state_1_stream = new ByteArrayOutputStream();
     PrintStream state_1_out = new PrintStream(state_1_stream, true);
     PDEUtilityTools.printSurface("State 1 density", res1, state_1_out);
     state_1_out.close();
-    json.put("state_1_data", state_1_stream.toString());
+    buf.append("\"state_1_data\":\"").append(state_1_stream.toString()).append("\",");
 
     ByteArrayOutputStream state_2_stream = new ByteArrayOutputStream();
     PrintStream state_2_out = new PrintStream(state_2_stream, true);
     PDEUtilityTools.printSurface("State 2 density", res2, state_2_out);
     state_2_out.close();
-    json.put("state_2_data", state_2_stream.toString());
+    buf.append("\"state_2_data\":\"").append(state_2_stream.toString()).append("\"}");
 
-    out.print(json.toString());
+    buf.replaceAll("\t", "\\t").replaceAll("\r\n", "\\r\\n").replaceAll("\n", "\\n");
+    
+    out.print(buf.toString());
   }
+
 }
