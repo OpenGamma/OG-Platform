@@ -34,7 +34,7 @@ import com.opengamma.master.security.SecurityDescription;
  */
 @BeanDefinition
 @SecurityDescription(type = InterestRateSwapSecurity.SECURITY_TYPE, description = "Interest rate swap")
-public final class InterestRateSwapSecurity extends FinancialSecurity {
+public final class InterestRateSwapSecurity extends FinancialSecurity {            `
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
