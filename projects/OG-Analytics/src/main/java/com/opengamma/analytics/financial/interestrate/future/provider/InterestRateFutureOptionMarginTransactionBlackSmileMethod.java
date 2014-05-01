@@ -125,4 +125,18 @@ public final class InterestRateFutureOptionMarginTransactionBlackSmileMethod ext
     return txnSensitivity;
   }
 
+  /**
+   * Computes the present value theta of a transaction.
+   * @param transaction the future option transaction.
+   * @param blackData the curve and Black volatility data.
+   * @return the present value theta.
+   */
+  public double presentValueTheta(final InterestRateFutureOptionMarginTransaction transaction, final BlackSTIRFuturesProviderInterface blackData) {
+    final double securitySensitivity = getSecurityMethod().priceTheta(transaction.getUnderlyingSecurity(), blackData);
+    final double txnSensitivity = securitySensitivity
+        * transaction.getQuantity()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
+    return txnSensitivity;
+  }
 }

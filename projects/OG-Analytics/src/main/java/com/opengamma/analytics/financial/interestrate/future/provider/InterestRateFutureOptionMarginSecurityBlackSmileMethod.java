@@ -9,7 +9,9 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
@@ -205,6 +207,25 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return priceAdjoint[2];
+  }
+  
+  /**
+   * Computes the options theta.
+   * @param security the future option.
+   * @param black the curve and black volatility data.
+   * @return the theta.
+   */
+  public double priceTheta(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface black) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(black, "black");
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), black);
+    final double strike = security.getStrike();
+    final double rateStrike = 1.0 - strike;
+    final double forward = 1 - priceFuture;
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    final double volatility = black.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
+    final double rate = ((MulticurveProviderDiscount) black.getMulticurveProvider()).getCurve(security.getCurrency()).getInterestRate(security.getExpirationTime());
+    return BlackFormulaRepository.theta(forward, rateStrike, delay, volatility, security.isCall(), rate);
   }
 
   /**

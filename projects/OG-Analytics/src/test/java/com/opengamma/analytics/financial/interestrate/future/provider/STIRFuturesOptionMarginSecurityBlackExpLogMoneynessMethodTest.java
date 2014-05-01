@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBl
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.StandardDataSetsBlack;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesExpLogMoneynessProvider;
@@ -162,4 +163,50 @@ public class STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: delta", deltaCallExpected - 1.0d, deltaPutComputed, TOLERANCE_DELTA);
   }
 
+  public void theoreticalGamma() {
+    final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
+    final double rateFutures = 1.0d - priceFutures;
+    final double rateStrike = 1.0d - STRIKE_099;
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, CALL_ERZ4_099.getExpirationTime(), !CALL_ERZ4_099.isCall());
+    final double logmoney = Math.log(rateStrike / rateFutures);
+    final double expiry = CALL_ERZ4_099.getExpirationTime();
+    final double volatility = BLACK_SURFACE_LOGMONEY.getZValue(expiry, logmoney);
+    final BlackFunctionData dataBlack = new BlackFunctionData(rateFutures, 1.0, volatility);
+    final double[] firstDerivs = new double[3];
+    final double[][] secondDerivs = new double[3][3];
+    BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
+    final double gammaCallExpected = secondDerivs[0][0];
+    final double gammaCallComputed = METHOD_OPT.gammaUnderlyingPrice(CALL_ERZ4_099, MULTICURVE_BLACK);
+    assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: gamma", gammaCallExpected, gammaCallComputed, TOLERANCE_DELTA);
+    assertTrue("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: gamma", (0.0d < gammaCallComputed));
+  }
+
+  public void theoreticalVega() {
+    final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
+    final double rateFutures = 1.0d - priceFutures;
+    final double rateStrike = 1.0d - STRIKE_099;
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, CALL_ERZ4_099.getExpirationTime(), !CALL_ERZ4_099.isCall());
+    final double logmoney = Math.log(rateStrike / rateFutures);
+    final double expiry = CALL_ERZ4_099.getExpirationTime();
+    final double volatility = BLACK_SURFACE_LOGMONEY.getZValue(expiry, logmoney);
+    final BlackFunctionData dataBlack = new BlackFunctionData(rateFutures, 1.0, volatility);
+    final double[] priceAD = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    final double vegaCallExpected = priceAD[2];
+    final double vegaCallComputed = METHOD_OPT.vegaUnderlyingPrice(CALL_ERZ4_099, MULTICURVE_BLACK);
+    assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: vega", vegaCallExpected, vegaCallComputed, TOLERANCE_DELTA);
+    assertTrue("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: vega", 0.0d < vegaCallComputed);
+  }
+
+  public void theoreticalTheta() {
+    final double priceFutures = METHOD_FUTURE.price(CALL_ERZ4_099.getUnderlyingFuture(), MULTICURVE);
+    final double rateFutures = 1.0d - priceFutures;
+    final double rateStrike = 1.0d - STRIKE_099;
+    final double logmoney = Math.log(rateStrike / rateFutures);
+    final double expiry = CALL_ERZ4_099.getExpirationTime();
+    final double volatility = BLACK_SURFACE_LOGMONEY.getZValue(expiry, logmoney);
+    final double rate = -Math.log(MULTICURVE.getMulticurveProvider().getDiscountFactor(CALL_ERZ4_099.getCurrency(), CALL_ERZ4_099.getExpirationTime())) / CALL_ERZ4_099.getExpirationTime();
+    final double thetaCallExpected = BlackFormulaRepository.theta(rateFutures, rateStrike, CALL_ERZ4_099.getExpirationTime(), volatility, !CALL_ERZ4_099.isCall(), rate);
+    final double thetaCallComputed = METHOD_OPT.thetaUnderlyingPrice(CALL_ERZ4_099, MULTICURVE_BLACK);
+    assertEquals("STIRFuturesOptionMarginSecurityBlackExpLogMoneynessMethod: theta", thetaCallExpected, thetaCallComputed, TOLERANCE_DELTA);
+  }
 }
