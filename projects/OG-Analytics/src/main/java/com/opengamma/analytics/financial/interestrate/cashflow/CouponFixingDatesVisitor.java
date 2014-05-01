@@ -9,6 +9,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
@@ -38,6 +39,11 @@ public final class CouponFixingDatesVisitor extends InstrumentDefinitionVisitorA
    * Private constructor.
    */
   private CouponFixingDatesVisitor() {
+  }
+  
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponFixedDefinition(CouponFixedDefinition payment) {
+    return Pairs.of((LocalDate) null, (LocalDate) null);
   }
 
   @Override
