@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -48,7 +49,7 @@ public final class FuturesPriceBlackBondFuturesCalculator extends InstrumentDeri
   @Override
   public Double visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(black, "Black  data");
+    ArgumentChecker.notNull(black, "black");
     final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
@@ -58,5 +59,9 @@ public final class FuturesPriceBlackBondFuturesCalculator extends InstrumentDeri
     final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
     return priceSecurity;
   }
-
+  
+  @Override
+  public Double visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, BlackBondFuturesProviderInterface data) {
+    return visitBondFuturesOptionMarginSecurity(option.getUnderlyingSecurity(), data);
+  }
 }

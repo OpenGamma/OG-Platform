@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -140,7 +141,62 @@ public final class BondFuturesOptionMarginSecurityBlackBondFuturesMethod extends
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return priceAdjoint[1];
   }
+  
+  /**
+   * The theoretical gamma of the option with respect to the underlying futures price.
+   * @param security The future option security, not null
+   * @param black The curve and Black volatility data, not null
+   * @return The gamma.
+   */
+  public double gammaUnderlyingPrice(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(black, "Black data");
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    final double strike = security.getStrike();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
+    final double delay = security.getUnderlyingFuture().getNoticeLastTime() - security.getExpirationTime();
+    final double volatility = black.getVolatility(security.getExpirationTime(), delay, strike, priceFutures);
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
+    final double[] firstDerivs = new double[3];
+    final double[][] secondDerivs = new double[3][3];
+    BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
+    return secondDerivs[0][0];
+  }
 
-  // TODO: Add theoretical theta: priceTimeSensitivity
+  /**
+   * The theoretical gamma of the option with respect to the underlying futures price.
+   * @param security The future option security, not null
+   * @param black The curve and Black volatility data, not null
+   * @return The gamma.
+   */
+  public double vegaUnderlyingPrice(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(black, "Black data");
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    final double strike = security.getStrike();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
+    final double delay = security.getUnderlyingFuture().getNoticeLastTime() - security.getExpirationTime();
+    final double volatility = black.getVolatility(security.getExpirationTime(), delay, strike, priceFutures);
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
+    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    return priceAdjoint[2];
+  }
+  
+  /**
+   * The theoretical theta of the option with respect to the underlying futures price.
+   * @param security The future option security, not null
+   * @param black The curve and Black volatility data, not null
+   * @return The theta.
+   */
+  public double theta(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(black, "Black data");
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    final double strike = security.getStrike();
+    final double delay = security.getUnderlyingFuture().getNoticeLastTime() - security.getExpirationTime();
+    final double volatility = black.getVolatility(security.getExpirationTime(), delay, strike, priceFutures);
+    final double rate = -Math.log(black.getMulticurveProvider().getDiscountFactor(security.getCurrency(), security.getExpirationTime())) / security.getExpirationTime();
+    return BlackFormulaRepository.theta(priceFutures, strike, security.getExpirationTime(), volatility, security.isCall(), rate);
+  }
 
 }

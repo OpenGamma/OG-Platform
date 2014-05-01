@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.StandardDataSetsBlack;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesExpLogMoneynessProviderDiscount;
@@ -149,7 +150,47 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: delta", deltaCallExpected - 1.0d, deltaPutComputed, TOLERANCE_DELTA);
   }
 
-  // TODO: Check theoretical theta
+  public void theoreticalGamma() {
+    final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_116, CALL_BOBL_116.getExpirationTime(), CALL_BOBL_116.isCall());
+    final double logmoney = Math.log(STRIKE_116 / priceFutures);
+    final double expiry = CALL_BOBL_116.getExpirationTime();
+    final double volatility = BLACK_SURFACE.getZValue(expiry, logmoney);
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
+    final double[] firstDerivs = new double[3];
+    final double[][] secondDerivs = new double[3][3];
+    BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
+    final double gammaCallExpected = secondDerivs[0][0];
+    final double gammaCallComputed = METHOD_OPT.gammaUnderlyingPrice(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: gamma", gammaCallExpected, gammaCallComputed, TOLERANCE_DELTA);
+    assertTrue("BondFuturesOptionMarginSecurityBlackFlatMethod: gamma", 0.0d < gammaCallComputed);
+  }
+
+  public void theoreticalVega() {
+    final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE_116, CALL_BOBL_116.getExpirationTime(), CALL_BOBL_116.isCall());
+    final double logmoney = Math.log(STRIKE_116 / priceFutures);
+    final double expiry = CALL_BOBL_116.getExpirationTime();
+    final double volatility = BLACK_SURFACE.getZValue(expiry, logmoney);
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
+    final double[] priceAD = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    final double vegaCallExpected = priceAD[2];
+    final double vegaCallComputed = METHOD_OPT.vegaUnderlyingPrice(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: vega", vegaCallExpected, vegaCallComputed, TOLERANCE_DELTA);
+    assertTrue("BondFuturesOptionMarginSecurityBlackFlatMethod: vega", (0.0d < vegaCallComputed) && (vegaCallComputed < 1.0d));
+  }
+
+
+  public void theoreticalTheta() {
+    final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
+    final double logmoney = Math.log(STRIKE_116 / priceFutures);
+    final double expiry = CALL_BOBL_116.getExpirationTime();
+    final double volatility = BLACK_SURFACE.getZValue(expiry, logmoney);
+    final double rate = -Math.log(ISSUER_SPECIFIC_MULTICURVES.getMulticurveProvider().getDiscountFactor(CALL_BOBL_116.getCurrency(), CALL_BOBL_116.getExpirationTime())) / CALL_BOBL_116.getExpirationTime();
+    final double thetaCallExpected = BlackFormulaRepository.theta(priceFutures, STRIKE_116, CALL_BOBL_116.getExpirationTime(), volatility, CALL_BOBL_116.isCall(), rate);
+    final double thetaCallComputed = METHOD_OPT.theta(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
+    assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: theta", thetaCallExpected, thetaCallComputed, TOLERANCE_DELTA);
+  }
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
