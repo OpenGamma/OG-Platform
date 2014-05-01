@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform</artifactId>
-    <version>2.2.0-M18p07-SNAPSHOT-SNAPSHOT</version>
+    <version>2.2.0-M18p07-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>deployment-template</artifactId>
