@@ -24,8 +24,6 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.ISDACashNode;
-import com.opengamma.financial.analytics.ircurve.strips.ISDASwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
@@ -261,20 +259,5 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     }
   }
   
-  @Override
-  public CurveNodeWithIdentifier visitISDACashNode(ISDACashNode node) {
-    ExternalId ticker = node.getTicker();
-    String dataField = node.getDataField();
-    DataFieldType dataFieldType = DataFieldType.OUTRIGHT;
-    return new CurveNodeWithIdentifier(node, ticker, dataField, dataFieldType);
-  }
-
-  @Override
-  public CurveNodeWithIdentifier visitISDASwapNode(ISDASwapNode node) {
-    ExternalId ticker = node.getTicker();
-    String dataField = node.getDataField();
-    DataFieldType dataFieldType = DataFieldType.OUTRIGHT;
-    return new CurveNodeWithIdentifier(node, ticker, dataField, dataFieldType);
-  }
 
 }

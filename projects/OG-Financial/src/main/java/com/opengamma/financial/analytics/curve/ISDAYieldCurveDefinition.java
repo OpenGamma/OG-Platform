@@ -30,11 +30,14 @@ import com.opengamma.financial.convention.ISDAYieldCurveConvention;
 @BeanDefinition
 public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
 
+  private static final long serialVersionUID = 1L;
+
   /**
-   * The curve level convention.
+   * The curve convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private ConventionLink<ISDAYieldCurveConvention> _conventionLink;
+  private ConventionLink<ISDAYieldCurveConvention> _curveConventionLink;
+  
   
   /**
    * The constituents of the curve.
@@ -64,28 +67,28 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve level convention.
+   * Gets the curve convention.
    * @return the value of the property, not null
    */
-  public ConventionLink<ISDAYieldCurveConvention> getConventionLink() {
-    return _conventionLink;
+  public ConventionLink<ISDAYieldCurveConvention> getCurveConventionLink() {
+    return _curveConventionLink;
   }
 
   /**
-   * Sets the curve level convention.
-   * @param conventionLink  the new value of the property, not null
+   * Sets the curve convention.
+   * @param curveConventionLink  the new value of the property, not null
    */
-  public void setConventionLink(ConventionLink<ISDAYieldCurveConvention> conventionLink) {
-    JodaBeanUtils.notNull(conventionLink, "conventionLink");
-    this._conventionLink = conventionLink;
+  public void setCurveConventionLink(ConventionLink<ISDAYieldCurveConvention> curveConventionLink) {
+    JodaBeanUtils.notNull(curveConventionLink, "curveConventionLink");
+    this._curveConventionLink = curveConventionLink;
   }
 
   /**
-   * Gets the the {@code conventionLink} property.
+   * Gets the the {@code curveConventionLink} property.
    * @return the property, not null
    */
-  public final Property<ConventionLink<ISDAYieldCurveConvention>> conventionLink() {
-    return metaBean().conventionLink().createProperty(this);
+  public final Property<ConventionLink<ISDAYieldCurveConvention>> curveConventionLink() {
+    return metaBean().curveConventionLink().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -127,7 +130,7 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ISDAYieldCurveDefinition other = (ISDAYieldCurveDefinition) obj;
-      return JodaBeanUtils.equal(getConventionLink(), other.getConventionLink()) &&
+      return JodaBeanUtils.equal(getCurveConventionLink(), other.getCurveConventionLink()) &&
           JodaBeanUtils.equal(getNodes(), other.getNodes()) &&
           super.equals(obj);
     }
@@ -137,7 +140,7 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionLink());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveConventionLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNodes());
     return hash ^ super.hashCode();
   }
@@ -158,7 +161,7 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("conventionLink").append('=').append(JodaBeanUtils.toString(getConventionLink())).append(',').append(' ');
+    buf.append("curveConventionLink").append('=').append(JodaBeanUtils.toString(getCurveConventionLink())).append(',').append(' ');
     buf.append("nodes").append('=').append(JodaBeanUtils.toString(getNodes())).append(',').append(' ');
   }
 
@@ -173,11 +176,11 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code conventionLink} property.
+     * The meta-property for the {@code curveConventionLink} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ConventionLink<ISDAYieldCurveConvention>> _conventionLink = DirectMetaProperty.ofReadWrite(
-        this, "conventionLink", ISDAYieldCurveDefinition.class, (Class) ConventionLink.class);
+    private final MetaProperty<ConventionLink<ISDAYieldCurveConvention>> _curveConventionLink = DirectMetaProperty.ofReadWrite(
+        this, "curveConventionLink", ISDAYieldCurveDefinition.class, (Class) ConventionLink.class);
     /**
      * The meta-property for the {@code nodes} property.
      */
@@ -189,7 +192,7 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "conventionLink",
+        "curveConventionLink",
         "nodes");
 
     /**
@@ -201,8 +204,8 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1372086027:  // conventionLink
-          return _conventionLink;
+        case -837722662:  // curveConventionLink
+          return _curveConventionLink;
         case 104993457:  // nodes
           return _nodes;
       }
@@ -226,11 +229,11 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code conventionLink} property.
+     * The meta-property for the {@code curveConventionLink} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ConventionLink<ISDAYieldCurveConvention>> conventionLink() {
-      return _conventionLink;
+    public final MetaProperty<ConventionLink<ISDAYieldCurveConvention>> curveConventionLink() {
+      return _curveConventionLink;
     }
 
     /**
@@ -245,8 +248,8 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1372086027:  // conventionLink
-          return ((ISDAYieldCurveDefinition) bean).getConventionLink();
+        case -837722662:  // curveConventionLink
+          return ((ISDAYieldCurveDefinition) bean).getCurveConventionLink();
         case 104993457:  // nodes
           return ((ISDAYieldCurveDefinition) bean).getNodes();
       }
@@ -257,8 +260,8 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1372086027:  // conventionLink
-          ((ISDAYieldCurveDefinition) bean).setConventionLink((ConventionLink<ISDAYieldCurveConvention>) newValue);
+        case -837722662:  // curveConventionLink
+          ((ISDAYieldCurveDefinition) bean).setCurveConventionLink((ConventionLink<ISDAYieldCurveConvention>) newValue);
           return;
         case 104993457:  // nodes
           ((ISDAYieldCurveDefinition) bean).setNodes((SortedSet<ISDAYieldCurveNode>) newValue);
@@ -269,7 +272,7 @@ public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((ISDAYieldCurveDefinition) bean)._conventionLink, "conventionLink");
+      JodaBeanUtils.notNull(((ISDAYieldCurveDefinition) bean)._curveConventionLink, "curveConventionLink");
       JodaBeanUtils.notNull(((ISDAYieldCurveDefinition) bean)._nodes, "nodes");
       super.validate(bean);
     }

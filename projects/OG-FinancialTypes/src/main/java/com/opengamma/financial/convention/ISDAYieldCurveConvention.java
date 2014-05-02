@@ -17,9 +17,11 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.convention.ConventionType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.util.money.Currency;
@@ -33,19 +35,19 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
   private static final long serialVersionUID = 1L;
 
   private static final ConventionType TYPE = ConventionType.of("ISDAYieldCurve");
-  
+
   /**
    * The number of settlement days.
    */
   @PropertyDefinition(validate = "notNull")
   private int _settlementDays;
-  
+
   /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-  
+
   /**
    * The business day convention.
    */
@@ -54,11 +56,37 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
 
   /**
    * The region calendar.
+   * TODO SSM-293. Should use a link when one is available.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionCalendar;
-
   
+  /**
+   * Day count for curve.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _curveDayCount;
+
+  /**
+   * Day count convention for cash.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _cashDayCount;
+  
+  /**
+   * Day count convention for swap fixed legs.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _swapFixedLegDayCount;
+
+  /**
+   * Frequency of payments for fixed leg swap payments.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Period _swapFixedLegInterval;
+
+
+
   @Override
   public ConventionType getConventionType() {
     return TYPE;
@@ -164,6 +192,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
   //-----------------------------------------------------------------------
   /**
    * Gets the region calendar.
+   * TODO SSM-293. Should use a link when one is available.
    * @return the value of the property, not null
    */
   public ExternalId getRegionCalendar() {
@@ -172,6 +201,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
 
   /**
    * Sets the region calendar.
+   * TODO SSM-293. Should use a link when one is available.
    * @param regionCalendar  the new value of the property, not null
    */
   public void setRegionCalendar(ExternalId regionCalendar) {
@@ -181,10 +211,115 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
 
   /**
    * Gets the the {@code regionCalendar} property.
+   * TODO SSM-293. Should use a link when one is available.
    * @return the property, not null
    */
   public final Property<ExternalId> regionCalendar() {
     return metaBean().regionCalendar().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets day count for curve.
+   * @return the value of the property, not null
+   */
+  public DayCount getCurveDayCount() {
+    return _curveDayCount;
+  }
+
+  /**
+   * Sets day count for curve.
+   * @param curveDayCount  the new value of the property, not null
+   */
+  public void setCurveDayCount(DayCount curveDayCount) {
+    JodaBeanUtils.notNull(curveDayCount, "curveDayCount");
+    this._curveDayCount = curveDayCount;
+  }
+
+  /**
+   * Gets the the {@code curveDayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> curveDayCount() {
+    return metaBean().curveDayCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets day count convention for cash.
+   * @return the value of the property, not null
+   */
+  public DayCount getCashDayCount() {
+    return _cashDayCount;
+  }
+
+  /**
+   * Sets day count convention for cash.
+   * @param cashDayCount  the new value of the property, not null
+   */
+  public void setCashDayCount(DayCount cashDayCount) {
+    JodaBeanUtils.notNull(cashDayCount, "cashDayCount");
+    this._cashDayCount = cashDayCount;
+  }
+
+  /**
+   * Gets the the {@code cashDayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> cashDayCount() {
+    return metaBean().cashDayCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets day count convention for swap fixed legs.
+   * @return the value of the property, not null
+   */
+  public DayCount getSwapFixedLegDayCount() {
+    return _swapFixedLegDayCount;
+  }
+
+  /**
+   * Sets day count convention for swap fixed legs.
+   * @param swapFixedLegDayCount  the new value of the property, not null
+   */
+  public void setSwapFixedLegDayCount(DayCount swapFixedLegDayCount) {
+    JodaBeanUtils.notNull(swapFixedLegDayCount, "swapFixedLegDayCount");
+    this._swapFixedLegDayCount = swapFixedLegDayCount;
+  }
+
+  /**
+   * Gets the the {@code swapFixedLegDayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> swapFixedLegDayCount() {
+    return metaBean().swapFixedLegDayCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets frequency of payments for fixed leg swap payments.
+   * @return the value of the property, not null
+   */
+  public Period getSwapFixedLegInterval() {
+    return _swapFixedLegInterval;
+  }
+
+  /**
+   * Sets frequency of payments for fixed leg swap payments.
+   * @param swapFixedLegInterval  the new value of the property, not null
+   */
+  public void setSwapFixedLegInterval(Period swapFixedLegInterval) {
+    JodaBeanUtils.notNull(swapFixedLegInterval, "swapFixedLegInterval");
+    this._swapFixedLegInterval = swapFixedLegInterval;
+  }
+
+  /**
+   * Gets the the {@code swapFixedLegInterval} property.
+   * @return the property, not null
+   */
+  public final Property<Period> swapFixedLegInterval() {
+    return metaBean().swapFixedLegInterval().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -204,6 +339,10 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
           JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
+          JodaBeanUtils.equal(getCurveDayCount(), other.getCurveDayCount()) &&
+          JodaBeanUtils.equal(getCashDayCount(), other.getCashDayCount()) &&
+          JodaBeanUtils.equal(getSwapFixedLegDayCount(), other.getSwapFixedLegDayCount()) &&
+          JodaBeanUtils.equal(getSwapFixedLegInterval(), other.getSwapFixedLegInterval()) &&
           super.equals(obj);
     }
     return false;
@@ -216,12 +355,16 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCashDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapFixedLegDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapFixedLegInterval());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("ISDAYieldCurveConvention{");
     int len = buf.length();
     toString(buf);
@@ -239,6 +382,10 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
     buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
     buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
     buf.append("regionCalendar").append('=').append(JodaBeanUtils.toString(getRegionCalendar())).append(',').append(' ');
+    buf.append("curveDayCount").append('=').append(JodaBeanUtils.toString(getCurveDayCount())).append(',').append(' ');
+    buf.append("cashDayCount").append('=').append(JodaBeanUtils.toString(getCashDayCount())).append(',').append(' ');
+    buf.append("swapFixedLegDayCount").append('=').append(JodaBeanUtils.toString(getSwapFixedLegDayCount())).append(',').append(' ');
+    buf.append("swapFixedLegInterval").append('=').append(JodaBeanUtils.toString(getSwapFixedLegInterval())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -272,6 +419,26 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
     private final MetaProperty<ExternalId> _regionCalendar = DirectMetaProperty.ofReadWrite(
         this, "regionCalendar", ISDAYieldCurveConvention.class, ExternalId.class);
     /**
+     * The meta-property for the {@code curveDayCount} property.
+     */
+    private final MetaProperty<DayCount> _curveDayCount = DirectMetaProperty.ofReadWrite(
+        this, "curveDayCount", ISDAYieldCurveConvention.class, DayCount.class);
+    /**
+     * The meta-property for the {@code cashDayCount} property.
+     */
+    private final MetaProperty<DayCount> _cashDayCount = DirectMetaProperty.ofReadWrite(
+        this, "cashDayCount", ISDAYieldCurveConvention.class, DayCount.class);
+    /**
+     * The meta-property for the {@code swapFixedLegDayCount} property.
+     */
+    private final MetaProperty<DayCount> _swapFixedLegDayCount = DirectMetaProperty.ofReadWrite(
+        this, "swapFixedLegDayCount", ISDAYieldCurveConvention.class, DayCount.class);
+    /**
+     * The meta-property for the {@code swapFixedLegInterval} property.
+     */
+    private final MetaProperty<Period> _swapFixedLegInterval = DirectMetaProperty.ofReadWrite(
+        this, "swapFixedLegInterval", ISDAYieldCurveConvention.class, Period.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -279,7 +446,11 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
         "settlementDays",
         "currency",
         "businessDayConvention",
-        "regionCalendar");
+        "regionCalendar",
+        "curveDayCount",
+        "cashDayCount",
+        "swapFixedLegDayCount",
+        "swapFixedLegInterval");
 
     /**
      * Restricted constructor.
@@ -298,6 +469,14 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
           return _businessDayConvention;
         case 1932874322:  // regionCalendar
           return _regionCalendar;
+        case -1661418270:  // curveDayCount
+          return _curveDayCount;
+        case -762266842:  // cashDayCount
+          return _cashDayCount;
+        case -1556154720:  // swapFixedLegDayCount
+          return _swapFixedLegDayCount;
+        case 1403919506:  // swapFixedLegInterval
+          return _swapFixedLegInterval;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -350,6 +529,38 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
       return _regionCalendar;
     }
 
+    /**
+     * The meta-property for the {@code curveDayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> curveDayCount() {
+      return _curveDayCount;
+    }
+
+    /**
+     * The meta-property for the {@code cashDayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> cashDayCount() {
+      return _cashDayCount;
+    }
+
+    /**
+     * The meta-property for the {@code swapFixedLegDayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> swapFixedLegDayCount() {
+      return _swapFixedLegDayCount;
+    }
+
+    /**
+     * The meta-property for the {@code swapFixedLegInterval} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Period> swapFixedLegInterval() {
+      return _swapFixedLegInterval;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -362,6 +573,14 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
           return ((ISDAYieldCurveConvention) bean).getBusinessDayConvention();
         case 1932874322:  // regionCalendar
           return ((ISDAYieldCurveConvention) bean).getRegionCalendar();
+        case -1661418270:  // curveDayCount
+          return ((ISDAYieldCurveConvention) bean).getCurveDayCount();
+        case -762266842:  // cashDayCount
+          return ((ISDAYieldCurveConvention) bean).getCashDayCount();
+        case -1556154720:  // swapFixedLegDayCount
+          return ((ISDAYieldCurveConvention) bean).getSwapFixedLegDayCount();
+        case 1403919506:  // swapFixedLegInterval
+          return ((ISDAYieldCurveConvention) bean).getSwapFixedLegInterval();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -381,6 +600,18 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
         case 1932874322:  // regionCalendar
           ((ISDAYieldCurveConvention) bean).setRegionCalendar((ExternalId) newValue);
           return;
+        case -1661418270:  // curveDayCount
+          ((ISDAYieldCurveConvention) bean).setCurveDayCount((DayCount) newValue);
+          return;
+        case -762266842:  // cashDayCount
+          ((ISDAYieldCurveConvention) bean).setCashDayCount((DayCount) newValue);
+          return;
+        case -1556154720:  // swapFixedLegDayCount
+          ((ISDAYieldCurveConvention) bean).setSwapFixedLegDayCount((DayCount) newValue);
+          return;
+        case 1403919506:  // swapFixedLegInterval
+          ((ISDAYieldCurveConvention) bean).setSwapFixedLegInterval((Period) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -391,6 +622,10 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
       JodaBeanUtils.notNull(((ISDAYieldCurveConvention) bean)._currency, "currency");
       JodaBeanUtils.notNull(((ISDAYieldCurveConvention) bean)._businessDayConvention, "businessDayConvention");
       JodaBeanUtils.notNull(((ISDAYieldCurveConvention) bean)._regionCalendar, "regionCalendar");
+      JodaBeanUtils.notNull(((ISDAYieldCurveConvention) bean)._curveDayCount, "curveDayCount");
+      JodaBeanUtils.notNull(((ISDAYieldCurveConvention) bean)._cashDayCount, "cashDayCount");
+      JodaBeanUtils.notNull(((ISDAYieldCurveConvention) bean)._swapFixedLegDayCount, "swapFixedLegDayCount");
+      JodaBeanUtils.notNull(((ISDAYieldCurveConvention) bean)._swapFixedLegInterval, "swapFixedLegInterval");
       super.validate(bean);
     }
 

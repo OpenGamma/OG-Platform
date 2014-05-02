@@ -17,8 +17,6 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.ISDACashNode;
-import com.opengamma.financial.analytics.ircurve.strips.ISDASwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
@@ -458,15 +456,5 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
     public CurveNodeVisitor<T> create() {
       return new CurveNodeVisitorDelegate<>(_visitor);
     }
-  }
-
-  @Override
-  public T visitISDACashNode(ISDACashNode node) {
-    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
-  }
-
-  @Override
-  public T visitISDASwapNode(ISDASwapNode node) {
-    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 }
