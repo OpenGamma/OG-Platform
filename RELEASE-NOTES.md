@@ -36,6 +36,26 @@ MANAGER.INCLUDE = classpath:common/common-dbmasters.ini
 
 #============================================================================
 
+* Bug
+    * [PLAT-6420] - CurveNodeConverter: FedFundsFutures use incorrect time series.
+    * [PLAT-6449] - ISDACDXAsSingleNameParallelCS01Function does not create pricingCDS consistently...
+    * [PLAT-6463] - ManageableMarketDataSnapshot.name does not allow nulls
+* Improvement
+    * [PLAT-6287] - CalendarSwapNode: change to use the DateSet config
+    * [PLAT-6431] - Make Bloomberg live market data server work for Bloomberg Bpipe server
+    * [PLAT-6435] - Better website error pages
+    * [PLAT-6443] - Enhance infrastructure component factories
+    * [PLAT-6454] - FixedSwapLegDetailsFormatter and FloatingSwapLegDetailsFormatter should use LocalDate.MIN/MAX instead of null to represent empty LocalDates
+    * [PLAT-6456] - Reduce dependencies of OG-Analytics
+* New Feature
+    * [PLAT-6317] - Bucketed PV01 for bonds
+* Task
+    * [PLAT-6266] - OG-Financial : integration of present value for linked bonds
+    * [PLAT-6436] - Add a failure status PERMISSION_DENIED
+    * [PLAT-6458] - Add an AnalyticsEnvironment to allow customisations
+* Sub-task
+    * [PLAT-6433] - Allow SessionProvider to open multiple service.
+
 
 To 2.2.0-M20
 ------------
