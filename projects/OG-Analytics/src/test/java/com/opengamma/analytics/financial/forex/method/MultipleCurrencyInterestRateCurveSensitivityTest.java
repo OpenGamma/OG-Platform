@@ -15,7 +15,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
@@ -65,7 +65,7 @@ public class MultipleCurrencyInterestRateCurveSensitivityTest {
     assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS, mcIRCS.getSensitivity(USD));
     assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS_EMPTY, mcIRCS.getSensitivity(EUR));
     mcIRCS = mcIRCS.plus(USD, IRCS);
-    AssertSensivityObjects.assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS.multipliedBy(2.0), mcIRCS.getSensitivity(USD).cleaned(), tolerance);
+    AssertSensitivityObjects.assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS.multipliedBy(2.0), mcIRCS.getSensitivity(USD).cleaned(), tolerance);
     assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS_EMPTY, mcIRCS.getSensitivity(EUR));
   }
 

@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.provider.description.forex.BlackForexVa
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -160,7 +160,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       final MultipleCurrencyMulticurveSensitivity pvcsPut = METHOD_VANNA_VOLGA.presentValueCurveSensitivity(put[loopstrike], VANNAVOLGA_MULTICURVES);
       final MultipleCurrencyMulticurveSensitivity pvcsForward = METHOD_DISC.presentValueCurveSensitivity(forexForward, MULTICURVES).converted(USD, FX_MATRIX);
       final MultipleCurrencyMulticurveSensitivity pvcsOpt = pvcsCall.plus(pvcsPut).cleaned();
-      AssertSensivityObjects.assertEquals("Forex vanilla option: vanna-volga curve sensitivity put/call parity", pvcsForward, pvcsOpt, TOLERANCE_PV_DELTA);
+      AssertSensitivityObjects.assertEquals("Forex vanilla option: vanna-volga curve sensitivity put/call parity", pvcsForward, pvcsOpt, TOLERANCE_PV_DELTA);
     }
   }
 
@@ -380,7 +380,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
       pvcsVV[loopstrike] = METHOD_VANNA_VOLGA.presentValueCurveSensitivity(forexOption[loopstrike], VANNAVOLGA_MULTICURVES);
       pvcsInt[loopstrike] = METHOD_BLACK.presentValueCurveSensitivity(forexOption[loopstrike], SMILE_MULTICURVES);
-      AssertSensivityObjects.assertEquals("Forex vanilla option: curve sensitivity vanna-volga vs Black " + loopstrike, pvcsVV[loopstrike], pvcsInt[loopstrike], 3.0E+6);
+      AssertSensitivityObjects.assertEquals("Forex vanilla option: curve sensitivity vanna-volga vs Black " + loopstrike, pvcsVV[loopstrike], pvcsInt[loopstrike], 3.0E+6);
       //      assertEquals("Forex vanilla option: curve sensitivity vanna-volga vs Black " + loopstrike, 1, pvcsVV[loopstrike].getSensitivity(USD).getSensitivities().get(NOT_USED_2[1]).get(0).getSecond()
       //          / pvcsInt[loopstrike].getSensitivity(USD).getSensitivities().get(NOT_USED_2[1]).get(0).getSecond(), 0.15);
     }

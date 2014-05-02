@@ -39,7 +39,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRS
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -136,7 +136,7 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(SWAPTION_P_2Yx7Y, MULTICURVE_SABR, BLOCK).multipliedBy(BP1);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   public void BucketedSABRRisk() {

@@ -34,7 +34,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrcap.ParameterSensitivitySABRCapDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -204,7 +204,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueCurveSensitivityBelowCutOff() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CAP_LONG, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CAP_LONG, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -214,7 +214,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void testPresentValueSensitivityAboveCutOff() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CAP_HIGH_LONG, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CAP_HIGH_LONG, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -224,7 +224,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvsMethod = METHOD_CAP_X.presentValueCurveSensitivity(CAP_HIGH_LONG, SABR_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvsCalculator = CAP_HIGH_LONG.accept(PVCSSCXC, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Cap/floor: SABR with extrapolation pv curve sensitivity - Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Cap/floor: SABR with extrapolation pv curve sensitivity - Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
   }
 
   @Test

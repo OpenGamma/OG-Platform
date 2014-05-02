@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -78,7 +78,7 @@ public class CouponIborDiscountingProviderMethodTest {
   public void presentValueMarketSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_IBOR.accept(PVCSDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
 }

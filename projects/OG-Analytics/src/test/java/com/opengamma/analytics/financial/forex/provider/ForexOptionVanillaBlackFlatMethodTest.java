@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.provider.description.forex.BlackForexSm
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -171,7 +171,7 @@ public class ForexOptionVanillaBlackFlatMethodTest {
     pvcsTS = pvcsTS.cleaned();
     MultipleCurrencyMulticurveSensitivity pvcsSmile = METHOD_SMILE.presentValueCurveSensitivity(CALL_LONG, SMILE_FLAT_MULTICURVES);
     pvcsSmile = pvcsSmile.cleaned();
-    AssertSensivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity vs flat smile", pvcsTS, pvcsSmile, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity vs flat smile", pvcsTS, pvcsSmile, TOLERANCE_PV);
   }
 
   @Test
@@ -181,7 +181,7 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_BLACK_FLAT.presentValueCurveSensitivity(CALL_LONG, BLACK_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CALL_LONG.accept(PVCSFBFC, BLACK_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
   @Test

@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.blackstirfutures.P
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -142,7 +142,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(TRANSACTION_1, BLACK_MULTICURVES, BLACK_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_DSC_FD.calculateSensitivity(TRANSACTION_1, BLACK_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test

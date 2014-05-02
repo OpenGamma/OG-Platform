@@ -67,7 +67,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
@@ -250,7 +250,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_LL_C.calculateSensitivity(SWAPTION_PAYER_LONG, LMM_MULTICURVES, LMM_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_LL_FDC.calculateSensitivity(SWAPTION_PAYER_LONG, LMM_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborLMMDDMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborLMMDDMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test(enabled = false)
@@ -437,7 +437,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     MultipleCurrencyMulticurveSensitivity pvcs = method.presentValueCurveSensitivity(swaptionAmortized, SABR_MULTICURVES);
     pvcs = pvcs.cleaned();
     // Curve sensitivity (all-in-one)
-    AssertSensivityObjects.assertEquals("presentValueCurveSensitivity", pvcs1, pvcs, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("presentValueCurveSensitivity", pvcs1, pvcs, TOLERANCE_PV_DELTA);
     // Curve sensitivity (parallel shift check)
     //    final double shiftCurve = 0.0000001;
     //    final YieldAndDiscountCurve curve5Shift = YieldCurve.from(ConstantDoublesCurve.from(0.05 + shiftCurve));

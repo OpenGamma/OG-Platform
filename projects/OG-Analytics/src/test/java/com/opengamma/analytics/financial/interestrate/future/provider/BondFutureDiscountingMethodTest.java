@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -138,7 +138,7 @@ public class BondFutureDiscountingMethodTest {
     sensiBond = sensiBond.multipliedBy(1.0 / CONVERSION_FACTOR[minIndex]);
     sensiFuture = sensiFuture.cleaned();
     sensiBond = sensiBond.cleaned();
-    AssertSensivityObjects.assertEquals("BondFutureSecurityDiscountingMethod: priceCurveSensitivity", sensiBond, sensiFuture, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("BondFutureSecurityDiscountingMethod: priceCurveSensitivity", sensiBond, sensiFuture, TOLERANCE_PRICE_DELTA);
   }
 
   //    @Test
@@ -274,7 +274,7 @@ public class BondFutureDiscountingMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_FUT_DSC.presentValueCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES).cleaned();
     final MulticurveSensitivity pcs = METHOD_FUT_DSC.priceCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsExpected = MultipleCurrencyMulticurveSensitivity.of(USD, pcs.multipliedBy(NOTIONAL).cleaned());
-    AssertSensivityObjects.assertEquals("Bond future Discounting Method: pv curve sensitivity", pvcsComputed, pvcsExpected, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond future Discounting Method: pv curve sensitivity", pvcsComputed, pvcsExpected, TOLERANCE_PV_DELTA);
   }
 
 }

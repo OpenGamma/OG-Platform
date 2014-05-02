@@ -43,7 +43,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -292,7 +292,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
       pvcsExpected = pvcsExpected.plus(new InterestRateCurveSensitivity(cap.getNthPayment(loopcpn).accept(PVCSC_SABR, SABR_BUNDLE)));
     }
     pvcsExpected = pvcsExpected.cleaned();
-    AssertSensivityObjects.assertEquals("Cap annuity - SABR pv", pvcsExpected, pvcsCalculator, 1.0E-2);
+    AssertSensitivityObjects.assertEquals("Cap annuity - SABR pv", pvcsExpected, pvcsCalculator, 1.0E-2);
   }
 
   @Test

@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -188,21 +188,21 @@ public class ForexForwardPointsMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_FFP_C.calculateSensitivity(FX, MULTICURVES_FWD, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_FFP_FDC.calculateSensitivity(FX, MULTICURVES_FWD);
-    AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod1 = METHOD_FX_PTS.presentValueCurveSensitivity(FX, MULTICURVES, FWD_RATES, PAIR);
     final MultipleCurrencyMulticurveSensitivity pvcsMethod2 = METHOD_FX_PTS.presentValueCurveSensitivity(FX, MULTICURVES_FWD);
-    AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityIndirectOrderMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod1 = METHOD_FX_PTS.presentValueCurveSensitivity(FX_INDIRECT, MULTICURVES, FWD_RATES, PAIR);
     final MultipleCurrencyMulticurveSensitivity pvcsMethod2 = METHOD_FX_PTS.presentValueCurveSensitivity(FX_INDIRECT, MULTICURVES_FWD);
-    AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
   }
 
 }

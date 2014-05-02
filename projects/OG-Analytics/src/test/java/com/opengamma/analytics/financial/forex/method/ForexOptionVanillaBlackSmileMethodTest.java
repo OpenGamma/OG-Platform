@@ -41,7 +41,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -974,7 +974,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     InterestRateCurveSensitivity sensiComp = new InterestRateCurveSensitivity();
     sensiComp = sensiComp.plus(CURVES_NAME[1], sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[1]));
     sensiComp = sensiComp.plus(CURVES_NAME[0], InterestRateCurveSensitivityUtils.multiplySensitivity(sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[0]), SPOT));
-    AssertSensivityObjects.assertEquals("Forex Option: present value curve sensitivity converted", sensiConverted, sensiComp, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("Forex Option: present value curve sensitivity converted", sensiConverted, sensiComp, TOLERANCE_DELTA);
   }
 
   @Test

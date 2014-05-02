@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.issuer.SimpleParam
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -148,14 +148,14 @@ public class BondFuturesSecurityHullWhiteMethodTest {
   public void priceCurveSensitivity() {
     final SimpleParameterSensitivity pcsAD = SPS_HW_C.calculateSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, MULTICURVES_HW_ISSUER.getIssuerProvider().getAllNames());
     final SimpleParameterSensitivity pcsFD = SPS_HW_FDC.calculateSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
-    AssertSensivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcsAD, pcsFD, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcsAD, pcsFD, TOLERANCE_PRICE_DELTA);
   }
 
   @Test
   public void priceCurveSensitivityMethodVsCalculator() {
     final MulticurveSensitivity pcsMethod = METHOD_FUT_SEC_HW.priceCurveSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     final MulticurveSensitivity pcsCalculator = BOND_FUTURE_SEC.accept(MQCSC, MULTICURVES_HW_ISSUER);
-    AssertSensivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcsCalculator, pcsMethod, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcsCalculator, pcsMethod, TOLERANCE_PRICE_DELTA);
   }
 
   @Test
@@ -167,7 +167,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
     final MulticurveSensitivity pcs = METHOD_FUT_SEC_HW.priceCurveSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     final Pair<Double, MulticurveSensitivity> priceAD = METHOD_FUT_SEC_HW.priceAD(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     assertEquals("Bond future security Discounting Method: price from curves", price, priceAD.getFirst(), TOLERANCE_PRICE);
-    AssertSensivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcs, priceAD.getSecond(), TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcs, priceAD.getSecond(), TOLERANCE_PRICE_DELTA);
   }
 
   @Test(enabled = false)

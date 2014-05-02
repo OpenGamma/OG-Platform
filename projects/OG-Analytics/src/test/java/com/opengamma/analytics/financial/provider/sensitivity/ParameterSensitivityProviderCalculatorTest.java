@@ -38,7 +38,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveForwardInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -111,27 +111,27 @@ public class ParameterSensitivityProviderCalculatorTest {
   public void parameterSensitivityBlock() {
     final MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_DSC, MARKET_DSC.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(ANNUITY, MARKET_DSC);
-    AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_DELTA);
 
     final MultipleCurrencyParameterSensitivity pvps2AnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_FWD, MARKET_FWD.getAllNames());
     final MultipleCurrencyParameterSensitivity pvps2AnnuityFD = PSC_FWD_FD.calculateSensitivity(ANNUITY, MARKET_FWD);
-    AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvps2AnnuityExact, pvps2AnnuityFD, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvps2AnnuityExact, pvps2AnnuityFD, TOLERANCE_DELTA);
 
     final MultipleCurrencyParameterSensitivity pvpsSwapExact = PSC.calculateSensitivity(SWAP, MARKET_DSC, MARKET_DSC.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsSwapFD = PSC_DSC_FD.calculateSensitivity(SWAP, MARKET_DSC);
-    AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap ", pvpsSwapExact, pvpsSwapFD, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap ", pvpsSwapExact, pvpsSwapFD, TOLERANCE_DELTA);
 
     final MultipleCurrencyParameterSensitivity pvps2SwapExact = PSC.calculateSensitivity(SWAP, MARKET_FWD, MARKET_FWD.getAllNames());
     final MultipleCurrencyParameterSensitivity pvps2SwapFD = PSC_FWD_FD.calculateSensitivity(SWAP, MARKET_FWD);
-    AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap", pvps2SwapExact, pvps2SwapFD, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap", pvps2SwapExact, pvps2SwapFD, TOLERANCE_DELTA);
 
     final MultipleCurrencyParameterSensitivity pvpsOisExact = PSC.calculateSensitivity(OIS, MARKET_DSC, MARKET_DSC.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsOisFD = PSC_DSC_FD.calculateSensitivity(OIS, MARKET_DSC);
-    AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvpsOisExact, pvpsOisFD, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvpsOisExact, pvpsOisFD, TOLERANCE_DELTA);
 
     final MultipleCurrencyParameterSensitivity pvps2OisExact = PSC.calculateSensitivity(OIS, MARKET_FWD, MARKET_FWD.getAllNames());
     final MultipleCurrencyParameterSensitivity pvps2OisFD = PSC_FWD_FD.calculateSensitivity(OIS, MARKET_FWD);
-    AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvps2OisExact, pvps2OisFD, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvps2OisExact, pvps2OisFD, TOLERANCE_DELTA);
 
     final Set<String> required = new TreeSet<>();
     required.add(DSC_NAME);

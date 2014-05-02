@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -98,14 +98,14 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(SWAP_FUTURES_TRANSACTION, MULTICURVE);
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(SWAP_FUTURES_TRANSACTION, MULTICURVE);
-    AssertSensivityObjects.assertEquals("SwapFuturesPriceDeliverableTransactionDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwapFuturesPriceDeliverableTransactionDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = FTMC.presentValueCurveSensitivity(SWAP_FUTURES_TRANSACTION, MULTICURVE);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = SWAP_FUTURES_TRANSACTION.accept(PVCSDC, MULTICURVE);
-    AssertSensivityObjects.assertEquals("SwapFuturesPriceDeliverableTransactionDiscountingMethod: present value curve sensitivity",
+    AssertSensitivityObjects.assertEquals("SwapFuturesPriceDeliverableTransactionDiscountingMethod: present value curve sensitivity",
         pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

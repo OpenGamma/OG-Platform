@@ -34,7 +34,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
@@ -141,7 +141,7 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
   public void presentValueCurveSensitivityApprox() {
     final MultipleCurrencyParameterSensitivity pvpsApprox = PSC.calculateSensitivity(FEDFUND_CPN_3MFWD, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PSC_DSC_FD.calculateSensitivity(FEDFUND_CPN_3MFWD, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsApprox, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsApprox, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -151,21 +151,21 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
     final MultipleCurrencyParameterSensitivity pvpsSpread = PSC.calculateSensitivity(spreadPayment, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsExpected = pvpsFwd.plus(pvpsSpread);
     final MultipleCurrencyParameterSensitivity pvpsSpreadSimpl = PSC.calculateSensitivity(FEDFUND_CPN_3M_SIMPL, MULTICURVES, MULTICURVES.getAllNames());
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsExpected, pvpsSpreadSimpl, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsExpected, pvpsSpreadSimpl, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityApproxMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcs3MMethod = METHOD_FF_APPRO.presentValueCurveSensitivity(FEDFUND_CPN_3M, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcs3MCalc = FEDFUND_CPN_3M.accept(PVCSDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponArithmeticAverageONDiscountingMethod: present value", pvcs3MMethod, pvcs3MCalc, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CouponArithmeticAverageONDiscountingMethod: present value", pvcs3MMethod, pvcs3MCalc, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityExactVsApprox() {
     final MultipleCurrencyParameterSensitivity pvpsAppro = PSC.calculateSensitivity(FEDFUND_CPN_3MFWD, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsExact = PSC2.calculateSensitivity(FEDFUND_CPN_3MFWD, MULTICURVES, MULTICURVES.getAllNames());
-    AssertSensivityObjects.assertEquals("CouponArithmeticAverageONDiscountingMethod: present value curve sensitivity", pvpsAppro, pvpsExact,
+    AssertSensitivityObjects.assertEquals("CouponArithmeticAverageONDiscountingMethod: present value curve sensitivity", pvpsAppro, pvpsExact,
         TOLERANCE_REL_DELTA * NOTIONAL * FEDFUND_CPN_3MFWD.getFixingPeriodRemainingAccrualFactor());
   }
 

@@ -42,7 +42,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrswaption.ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -150,7 +150,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueCurveSensitivityCap() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CMS_CAP, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CMS_CAP, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -160,7 +160,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueCurveSensitivityFoor() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CMS_FLOOR, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CMS_FLOOR, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -304,7 +304,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
       pvcsExpected = pvcsExpected.plus(PVCSSSC.visit(cap.getNthPayment(loopcpn), SABR_MULTICURVES));
     }
     pvcsExpected = pvcsExpected.cleaned();
-    AssertSensivityObjects.assertEquals("Cap annuity - SABR pv", pvcsExpected, pvcsCalculator, 1.0E-2);
+    AssertSensitivityObjects.assertEquals("Cap annuity - SABR pv", pvcsExpected, pvcsCalculator, 1.0E-2);
   }
 
   //  @Test(enabled = false)

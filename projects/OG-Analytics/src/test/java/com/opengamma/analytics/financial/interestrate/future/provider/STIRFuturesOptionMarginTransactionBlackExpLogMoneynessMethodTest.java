@@ -31,7 +31,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.blackstirfutures.ParameterSensitivityBlackSTIRFuturesExpLogMoneynessDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
@@ -139,7 +139,7 @@ public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsComputed = PSSFC.calculateSensitivity(CALL_ERZ4_099_TRA_1, MULTICURVE_BLACK);
     final MultipleCurrencyParameterSensitivity pvpsFD = PSSFC_FD.calculateSensitivity(CALL_ERZ4_099_TRA_1, MULTICURVE_BLACK);
-    AssertSensivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvpsFD, pvpsComputed, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvpsFD, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   /**

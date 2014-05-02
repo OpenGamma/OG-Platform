@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.blackbondfutures.P
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -107,13 +107,13 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsComputed = PSSFC.calculateSensitivity(CALL_BOBLM4_125_TRA_1, BLACK_BNDFUT_MONEYNESS_FLAT);
     final MultipleCurrencyParameterSensitivity pvpsFD = PSSFC_FD.calculateSensitivity(CALL_BOBLM4_125_TRA_1, BLACK_BNDFUT_MONEYNESS_FLAT);
-    AssertSensivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvpsFD, pvpsComputed, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvpsFD, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_OPT_TRA.presentValueCurveSensitivity(CALL_BOBLM4_125_TRA_1, BLACK_BNDFUT_MONEYNESS);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CALL_BOBLM4_125_TRA_1.accept(PVCSBFC, BLACK_BNDFUT_MONEYNESS);
-    AssertSensivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("BondFuturesOptionMarginTransactionBlackFlatMethod: presentValueCurveSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
   /**

@@ -48,7 +48,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
@@ -332,7 +332,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_HW_FDC.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test(enabled = false)
@@ -387,7 +387,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   public void presentValueCurveSensitivityLongShortParityExplicit() {
     final MultipleCurrencyMulticurveSensitivity pvhwsLong = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvhwsShort = METHOD_HW.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - long/short parity", pvhwsLong, pvhwsShort.multipliedBy(-1.0), TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - long/short parity", pvhwsLong, pvhwsShort.multipliedBy(-1.0), TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -398,7 +398,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvhwsReceiverLong = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_RECEIVER, HW_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvhwsPayerShort = METHOD_HW.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvSwap = SWAP_RECEIVER.accept(PVCSDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - payer/receiver/swap parity", pvSwap.cleaned(TOLERANCE_PV_DELTA),
+    AssertSensitivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - payer/receiver/swap parity", pvSwap.cleaned(TOLERANCE_PV_DELTA),
         pvhwsReceiverLong.plus(pvhwsPayerShort).cleaned(TOLERANCE_PV_DELTA), TOLERANCE_PV_DELTA);
   }
 
@@ -411,7 +411,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
     final HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
     final MultipleCurrencyMulticurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, EUR, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
-    AssertSensivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - payer/receiver/swap parity", pvcsExplicit, pvcsMC, toleranceDelta);
+    AssertSensitivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - payer/receiver/swap parity", pvcsExplicit, pvcsMC, toleranceDelta);
   }
 
   @Test(enabled = false)

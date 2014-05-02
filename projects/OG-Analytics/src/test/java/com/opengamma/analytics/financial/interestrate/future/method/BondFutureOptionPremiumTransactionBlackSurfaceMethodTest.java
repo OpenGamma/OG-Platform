@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeAndForwardBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -144,13 +144,13 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
     final InterestRateCurveSensitivity pcsCall = METHOD_OPTION_SECURITY.priceCurveSensitivity(BOND_FUTURE_OPTION_SEC_CALL, DATA);
     final InterestRateCurveSensitivity pvcsCallPremium = PVCSC.visit(BOND_FUTURE_OPTION_TRA_CALL.getPremium(), DATA);
     final InterestRateCurveSensitivity pvcsCallExpected = pvcsCallPremium.plus(pcsCall.multipliedBy(NOTIONAL * QUANTITY)).cleaned();
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsCallExpected, pvcsCallComputed, TOLERANCE_PV_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsCallExpected, pvcsCallComputed, TOLERANCE_PV_SENSI);
     final InterestRateCurveSensitivity pvcsPutComputed = METHOD_OPTION_TRANSACTION.presentValueCurveSensitivity(BOND_FUTURE_OPTION_TRA_PUT, DATA).cleaned();
     final InterestRateCurveSensitivity pvcsPutPremium = PVCSC.visit(BOND_FUTURE_OPTION_TRA_PUT.getPremium(), DATA);
     final InterestRateCurveSensitivity pvcsFutQu = METHOD_FUTURES.presentValueCurveSensitivity(BOND_FUT, DATA).multipliedBy(QUANTITY).cleaned(0.0, TOLERANCE_PV_SENSI);
     final InterestRateCurveSensitivity pvcsCallPut = pvcsCallComputed.plus(pvcsCallPremium.multipliedBy(-1)).plus(pvcsPutPremium.plus(pvcsPutComputed.multipliedBy(-1)))
         .cleaned(0.0, TOLERANCE_PV_SENSI);
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsFutQu, pvcsCallPut, TOLERANCE_PV_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsFutQu, pvcsCallPut, TOLERANCE_PV_SENSI);
   }
 
   @Test
@@ -159,13 +159,13 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
     final InterestRateCurveSensitivity pcsCall = METHOD_OPTION_SECURITY.priceCurveSensitivity(BOND_FUTURE_OPTION_SEC_CALL, DATA_WITH_FUTURE);
     final InterestRateCurveSensitivity pvcsCallPremium = PVCSC.visit(BOND_FUTURE_OPTION_TRA_CALL.getPremium(), DATA_WITH_FUTURE);
     final InterestRateCurveSensitivity pvcsCallExpected = pvcsCallPremium.plus(pcsCall.multipliedBy(NOTIONAL * QUANTITY)).cleaned();
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsCallExpected, pvcsCallComputed, TOLERANCE_PV_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsCallExpected, pvcsCallComputed, TOLERANCE_PV_SENSI);
     final InterestRateCurveSensitivity pvcsPutComputed = METHOD_OPTION_TRANSACTION.presentValueCurveSensitivity(BOND_FUTURE_OPTION_TRA_PUT, DATA_WITH_FUTURE).cleaned();
     final InterestRateCurveSensitivity pvcsPutPremium = PVCSC.visit(BOND_FUTURE_OPTION_TRA_PUT.getPremium(), DATA_WITH_FUTURE);
     final InterestRateCurveSensitivity pvcsFutQu = METHOD_FUTURES.presentValueCurveSensitivity(BOND_FUT, DATA_WITH_FUTURE).multipliedBy(QUANTITY).cleaned(0.0, TOLERANCE_PV_SENSI);
     final InterestRateCurveSensitivity pvcsCallPut = pvcsCallComputed.plus(pvcsCallPremium.multipliedBy(-1)).plus(pvcsPutPremium.plus(pvcsPutComputed.multipliedBy(-1)))
         .cleaned(0.0, TOLERANCE_PV_SENSI);
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsFutQu, pvcsCallPut, TOLERANCE_PV_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumTransactionBlackSurfaceMethod: present value curve sensitivity", pvcsFutQu, pvcsCallPut, TOLERANCE_PV_SENSI);
   }
 
 }

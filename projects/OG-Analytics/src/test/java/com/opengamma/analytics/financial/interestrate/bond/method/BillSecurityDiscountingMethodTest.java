@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromC
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -221,7 +221,7 @@ public class BillSecurityDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final InterestRateCurveSensitivity pvcsMethod = METHOD_SECURITY.presentValueCurveSensitivity(BILL_IAM_SEC, CURVE_BUNDLE);
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(BILL_IAM_SEC.accept(PVCSC, CURVE_BUNDLE));
-    AssertSensivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
   @Test

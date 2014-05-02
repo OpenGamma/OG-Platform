@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -154,7 +154,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], TOLERANCE_DELTA);
     }
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(TRANSACTION_1.accept(PVCSC_BLACK, BLACK_BUNDLE));
-    AssertSensivityObjects.assertEquals("Future option with Black volatilities: option transaction curve sensi", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("Future option with Black volatilities: option transaction curve sensi", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
   //

@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleP
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -105,7 +105,7 @@ public class DepositIborDiscountingMethodTest {
     final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(deposit, PROVIDER_MULTICURVES, PROVIDER_MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(deposit, PROVIDER_MULTICURVES);
-    AssertSensivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -155,7 +155,7 @@ public class DepositIborDiscountingMethodTest {
     final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final SimpleParameterSensitivity pspsDepositExact = PS_PSMQ_C.calculateSensitivity(deposit, PROVIDER_MULTICURVES, PROVIDER_MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pspsDepositFD = PS_PSMQ_FDC.calculateSensitivity(deposit, PROVIDER_MULTICURVES);
-    AssertSensivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pspsDepositExact, pspsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pspsDepositExact, pspsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -167,7 +167,7 @@ public class DepositIborDiscountingMethodTest {
     final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final MulticurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, PROVIDER_MULTICURVES);
     final MulticurveSensitivity pscsCalculator = deposit.accept(PSMQCSDC, PROVIDER_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: parSpreadCurveSensitivity", pscsMethod, pscsCalculator, TOLERANCE_SPREAD);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: parSpreadCurveSensitivity", pscsMethod, pscsCalculator, TOLERANCE_SPREAD);
   }
 
 }

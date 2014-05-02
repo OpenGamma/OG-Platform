@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Currenc
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -153,7 +153,7 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvcsNDF = METHOD_NDF.presentValueCurveSensitivity(NDF, MULTICURVES).cleaned();
     final MultipleCurrencyMulticurveSensitivity pvcsFX = METHOD_FX.presentValueCurveSensitivity(FOREX, MULTICURVES).cleaned();
     final MultipleCurrencyMulticurveSensitivity pvcsFXConverted = pvcsFX.converted(USD, FX_MATRIX).cleaned();
-    AssertSensivityObjects.assertEquals("ForexNonDeliverableForwardDiscountingMethod: presentValueCurveSensitivity", pvcsFXConverted, pvcsNDF, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("ForexNonDeliverableForwardDiscountingMethod: presentValueCurveSensitivity", pvcsFXConverted, pvcsNDF, TOLERANCE_PV);
   }
 
 }

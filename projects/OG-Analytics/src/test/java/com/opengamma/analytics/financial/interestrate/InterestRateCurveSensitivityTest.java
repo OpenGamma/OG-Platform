@@ -20,7 +20,7 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -338,11 +338,11 @@ public class InterestRateCurveSensitivityTest {
 
   @Test
   public void testCompareDifferentTimes() {
-    AssertSensivityObjects.assertEquals("", new InterestRateCurveSensitivity(), new InterestRateCurveSensitivity(), EPS);
+    AssertSensitivityObjects.assertEquals("", new InterestRateCurveSensitivity(), new InterestRateCurveSensitivity(), EPS);
     final TreeMap<String, List<DoublesPair>> sortedMap = new TreeMap<>(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(sortedMap);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
-    AssertSensivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity2, EPS);
+    AssertSensitivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity2, EPS);
     final Map<String, List<DoublesPair>> map = Maps.newTreeMap();
     final double eps = 1e-4;
     for (final Map.Entry<String, List<DoublesPair>> entry : sortedMap.entrySet()) {
@@ -353,17 +353,17 @@ public class InterestRateCurveSensitivityTest {
       map.put(entry.getKey(), list);
     }
     final InterestRateCurveSensitivity sensitivity3 = new InterestRateCurveSensitivity(map);
-    AssertSensivityObjects.assertEquals("", sensitivity1, sensitivity3, eps);
-    AssertSensivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity3, EPS);
+    AssertSensitivityObjects.assertEquals("", sensitivity1, sensitivity3, eps);
+    AssertSensitivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity3, EPS);
   }
 
   @Test
   public void testCompareDifferentValues() {
-    AssertSensivityObjects.assertEquals("", new InterestRateCurveSensitivity(), new InterestRateCurveSensitivity(), EPS);
+    AssertSensitivityObjects.assertEquals("", new InterestRateCurveSensitivity(), new InterestRateCurveSensitivity(), EPS);
     final TreeMap<String, List<DoublesPair>> sortedMap = new TreeMap<>(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(sortedMap);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
-    AssertSensivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity2, EPS);
+    AssertSensitivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity2, EPS);
     final Map<String, List<DoublesPair>> map = Maps.newTreeMap();
     final double eps = 1e-4;
     for (final Map.Entry<String, List<DoublesPair>> entry : sortedMap.entrySet()) {
@@ -374,8 +374,8 @@ public class InterestRateCurveSensitivityTest {
       map.put(entry.getKey(), list);
     }
     final InterestRateCurveSensitivity sensitivity3 = new InterestRateCurveSensitivity(map);
-    AssertSensivityObjects.assertEquals("", sensitivity1, sensitivity3, eps);
-    AssertSensivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity3, EPS);
+    AssertSensitivityObjects.assertEquals("", sensitivity1, sensitivity3, eps);
+    AssertSensitivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity3, EPS);
   }
 
   private void assertIRCSEquals(final InterestRateCurveSensitivity expected, final InterestRateCurveSensitivity actual) {

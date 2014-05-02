@@ -41,7 +41,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -293,7 +293,7 @@ public class BondTransactionDiscountingMethodTest {
     assertEquals("Fixed bond present value: Method vs Calculator", pvMethod, pvCalculator);
     final MultipleCurrencyMulticurveSensitivity pvsMethod = METHOD_BOND_TR.presentValueCurveSensitivity(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvsCalculator = BOND_TRANSACTION_FIXED_3.accept(PVCSIC, ISSUER_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Fixed bond present value sensitivity: Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Fixed bond present value sensitivity: Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -328,14 +328,14 @@ public class BondTransactionDiscountingMethodTest {
   public void parSpreadYieldCurveSensitivityMethodVsCalculator() {
     final SimpleParameterSensitivity pspsDepositExact = PS_I_AD.calculateSensitivity(BOND_FIXED_STD, ISSUER_MULTICURVES, ISSUER_MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pspsDepositFD = PS_I_FD.calculateSensitivity(BOND_FIXED_STD, ISSUER_MULTICURVES);
-    AssertSensivityObjects.assertEquals("BondTransactionDiscountingMethod: parSpreadYield curve sensitivity", pspsDepositExact, pspsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("BondTransactionDiscountingMethod: parSpreadYield curve sensitivity", pspsDepositExact, pspsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void parSpreadYieldCurveSensitivity() {
     final MulticurveSensitivity pscsyCalculator = BOND_FIXED_STD.accept(PSRCSIDC, ISSUER_MULTICURVES);
     final MulticurveSensitivity psycsMethod = METHOD_BOND_TR.parSpreadYieldCurveSensitivity(BOND_FIXED_STD, ISSUER_MULTICURVES);
-    AssertSensivityObjects.assertEquals("BondTransactionDiscountingMethod: parSpreadYield curve sensitivity", psycsMethod, pscsyCalculator, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("BondTransactionDiscountingMethod: parSpreadYield curve sensitivity", psycsMethod, pscsyCalculator, TOLERANCE_PRICE_DELTA);
   }
 
   @Test(enabled = false)

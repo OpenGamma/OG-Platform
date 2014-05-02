@@ -31,7 +31,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Paramete
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -132,7 +132,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon(), MARKET.getInflationProvider());
     final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon(), MARKET.getInflationProvider(), MARKET.getAllNames());
 
-    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
 
   }
 
@@ -160,7 +160,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
     final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD_BOND_SECURITY.presentValueCurveSensitivity(BOND_TIPS_1_TRANSACTION.getBondTransaction(), MARKET);
 
-    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueCurveSensitivity ", pvcisCalculated, pvcisMethod, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond capital indexed security: presentValueCurveSensitivity ", pvcisCalculated, pvcisMethod, TOLERANCE_PV_DELTA);
 
   }
 }

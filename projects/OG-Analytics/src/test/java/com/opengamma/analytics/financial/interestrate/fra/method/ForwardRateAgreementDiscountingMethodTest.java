@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -325,7 +325,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     CURVES_2.replaceCurve(CURVE_NAME_2[1], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = fra.accept(PSCSC, CURVES_2);
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
-    AssertSensivityObjects.assertEquals("FRA: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
+    AssertSensitivityObjects.assertEquals("FRA: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 
 }
