@@ -46,7 +46,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * 
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
-   * @return the combined set of properties, not null
+   * @return the next configuration file to load, null if not specified
    * @throws ComponentConfigException if the resource cannot be loaded
    */
   public String load(final Resource resource, final int depth) {
@@ -62,7 +62,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * 
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
-   * @return the combined set of properties, not null
+   * @return the next configuration file to load, null if not specified
    * @throws ComponentConfigException if the resource cannot be loaded
    */
   private String doLoad(final Resource resource, final int depth) {
