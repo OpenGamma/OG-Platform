@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
@@ -203,7 +203,7 @@ public class MultipleCurrencyParameterSensitivityTest {
                                                                                        fxMatrix.getFxRate(EUR, USD)));
     sensitivityUSDExpected = sensitivityUSDExpected.plus(NAME_2_USD, (DoubleMatrix1D) MATRIX.scale(SENSITIVITY_2_1, fxMatrix.getFxRate(EUR, USD)));
     assertTrue("Test convert: ",
-               AssertSensivityObjects.assertEquals("ParameterSensitivity: convert",
+               AssertSensitivityObjects.assertEquals("ParameterSensitivity: convert",
                                                    sensitivityUSDExpected,
                                                    sensitivityUSDConverted,
                                                    TOLERANCE));
@@ -217,12 +217,12 @@ public class MultipleCurrencyParameterSensitivityTest {
     MultipleCurrencyParameterSensitivity sensitivity2 = new MultipleCurrencyParameterSensitivity();
     sensitivity2 = sensitivity2.plus(NAME_1_USD, SENSITIVITY_1_1);
     sensitivity2 = sensitivity2.plus(NAME_2_EUR, SENSITIVITY_2_1);
-    AssertSensivityObjects.assertEquals("ParameterSensitivity: compare same data", sensitivity1, sensitivity2, TOLERANCE);
-    AssertSensivityObjects.assertDoesNotEqual("ParameterSensitivity: compare different data outside tolerance", sensitivity1.multipliedBy(2.0), sensitivity2, TOLERANCE);
-    AssertSensivityObjects.assertEquals("ParameterSensitivity: compare different data inside tolerance", sensitivity1.multipliedBy(1 + TOLERANCE / 10), sensitivity2, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivity: compare same data", sensitivity1, sensitivity2, TOLERANCE);
+    AssertSensitivityObjects.assertDoesNotEqual("ParameterSensitivity: compare different data outside tolerance", sensitivity1.multipliedBy(2.0), sensitivity2, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivity: compare different data inside tolerance", sensitivity1.multipliedBy(1 + TOLERANCE / 10), sensitivity2, TOLERANCE);
     MultipleCurrencyParameterSensitivity sensitivity3 = new MultipleCurrencyParameterSensitivity();
     sensitivity3 = sensitivity3.plus(NAME_1_USD, SENSITIVITY_1_1);
-    AssertSensivityObjects.assertDoesNotEqual("ParameterSensitivity: compare data with different name / currency pairs",
+    AssertSensitivityObjects.assertDoesNotEqual("ParameterSensitivity: compare data with different name / currency pairs",
                                               sensitivity1,
                                               sensitivity3,
                                               TOLERANCE);

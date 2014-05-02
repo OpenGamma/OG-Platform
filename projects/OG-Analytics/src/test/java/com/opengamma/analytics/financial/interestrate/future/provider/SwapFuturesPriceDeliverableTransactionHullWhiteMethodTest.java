@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -100,11 +100,11 @@ public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
     final MulticurveSensitivity pricecs = METHOD_SWAP_FUT_SEC_HW.priceCurveSensitivity(SWAP_FUTURES_TRANSACTION.getUnderlyingSecurity(), MULTICURVES_HW);
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_SWAP_FUT_TRA_HW.presentValueCurveSensitivity(SWAP_FUTURES_TRANSACTION, MULTICURVES_HW);
     final MultipleCurrencyMulticurveSensitivity pvcsExpected1 = SWAP_FUTURES_TRANSACTION.accept(PVCSIC, pricecs);
-    AssertSensivityObjects.assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value curve sensitivity",
+    AssertSensitivityObjects.assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value curve sensitivity",
         pvcsExpected1, pvcsComputed, TOLERANCE_PV_DELTA);
     final MultipleCurrencyMulticurveSensitivity pvcsExpected2 =
         MultipleCurrencyMulticurveSensitivity.of(USD, pricecs.multipliedBy(SWAP_FUTURES_SECURITY_DEFINITION.getNotional() * QUANTITY));
-    AssertSensivityObjects.assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value curve sensitivity",
+    AssertSensitivityObjects.assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value curve sensitivity",
         pvcsExpected2, pvcsComputed, TOLERANCE_PV_DELTA);
   }
 
@@ -112,7 +112,7 @@ public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_SWAP_FUT_TRA_HW.presentValueCurveSensitivity(SWAP_FUTURES_TRANSACTION, MULTICURVES_HW);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = SWAP_FUTURES_TRANSACTION.accept(PVCSHWC, MULTICURVES_HW);
-    AssertSensivityObjects.assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value curve sensitivity",
+    AssertSensitivityObjects.assertEquals("DeliverableSwapFuturesTransactionHullWhiteMethod: present value curve sensitivity",
         pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

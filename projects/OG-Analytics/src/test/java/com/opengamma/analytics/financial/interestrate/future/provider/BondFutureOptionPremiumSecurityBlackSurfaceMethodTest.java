@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -294,10 +294,10 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
     final MulticurveSensitivity pcsPutComputed = METHOD_BLACK_SEC.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, BLACK_MULTICURVES);
     final MulticurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, ISSUER_MULTICURVES).cleaned();
     final MulticurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity", pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity", pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI);
     final double delta = METHOD_BLACK_SEC.priceDelta(BOND_FUTURE_OPTION_DERIV_CALL, BLACK_MULTICURVES);
     final MulticurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI);
   }
 
   @Test
@@ -307,14 +307,14 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   public void priceCurveSensitivityFromFuturesPrice() {
     final MulticurveSensitivity pcsCallComputed = METHOD_BLACK_SEC.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, BLACK_PRICE_MULTICURVES).cleaned();
     final MulticurveSensitivity pcsCallNoFut = METHOD_BLACK_SEC.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, BLACK_MULTICURVES).cleaned();
-    AssertSensivityObjects.assertDoesNotEqual("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallComputed, pcsCallNoFut, TOLERANCE_PRICE_SENSI);
+    AssertSensitivityObjects.assertDoesNotEqual("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallComputed, pcsCallNoFut, TOLERANCE_PRICE_SENSI);
     final MulticurveSensitivity pcsPutComputed = METHOD_BLACK_SEC.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, BLACK_PRICE_MULTICURVES);
     final MulticurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, ISSUER_MULTICURVES).cleaned();
     final MulticurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity", pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity", pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI);
     final double delta = METHOD_BLACK_SEC.priceDelta(BOND_FUTURE_OPTION_DERIV_CALL, BLACK_PRICE_MULTICURVES);
     final MulticurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
-    AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI);
+    AssertSensitivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI);
   }
 
   @Test

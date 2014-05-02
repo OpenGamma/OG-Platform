@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -101,7 +101,7 @@ public class SwapFixedCouponMethodTest {
   public void parRateCurveSensitivity() {
     final SimpleParameterSensitivity psComputed = PS_PR_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity psFD = PS_PR_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_RATE_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_RATE_DELTA);
   }
 
   @Test
@@ -119,7 +119,7 @@ public class SwapFixedCouponMethodTest {
   public void presentValueBasisPointCurveSensitivity() {
     final SimpleParameterSensitivity psComputed = PS_PVBP_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity psFD = PS_PVBP_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_PV_DELTA);
   }
 
 }

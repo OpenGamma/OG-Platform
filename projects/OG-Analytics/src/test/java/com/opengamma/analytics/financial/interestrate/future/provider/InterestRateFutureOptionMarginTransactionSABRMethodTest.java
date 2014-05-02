@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrstirfutures.ParameterSensitivitySABRSTIRFuturesDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
@@ -144,7 +144,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSSFC.calculateSensitivity(TRANSACTION, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSSFC_FD.calculateSensitivity(TRANSACTION, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("InterestRateFutureOptionMarginTransactionSABRMethod: presentValueCurveSensitivity", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("InterestRateFutureOptionMarginTransactionSABRMethod: presentValueCurveSensitivity", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -154,7 +154,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_SABR_TRA.presentValueCurveSensitivity(TRANSACTION, SABR_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = TRANSACTION.accept(PVCSSFC, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("InterestRateFutureOptionMarginTransactionSABRMethod: presentValueCurveSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("InterestRateFutureOptionMarginTransactionSABRMethod: presentValueCurveSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
   @Test

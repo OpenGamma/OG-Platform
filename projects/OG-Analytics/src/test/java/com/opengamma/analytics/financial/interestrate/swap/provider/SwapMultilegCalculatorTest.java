@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -109,7 +109,7 @@ public class SwapMultilegCalculatorTest {
     for (int loopleg = 1; loopleg < NB_LEGS; loopleg++) {
       pvcsLegs = pvcsLegs.plus(SWAP_MULTI_LEG.getLegs()[loopleg].accept(PVCSDC, MULTICURVES));
     }
-    AssertSensivityObjects.assertEquals("SwapMultileg: presentValueCurveSensitivityDiscountingCalculator", pvcsLegs, pvcsSwap, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwapMultileg: presentValueCurveSensitivityDiscountingCalculator", pvcsLegs, pvcsSwap, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -128,7 +128,7 @@ public class SwapMultilegCalculatorTest {
     final MulticurveSensitivity pvbpcs = SWAP_MULTI_LEG.getLegs()[0].accept(PVMQSCSC, MULTICURVES);
     final MulticurveSensitivity psmqcsExpected = pvcs.multipliedBy(-1.0d / pvbp).plus(pvbpcs.multipliedBy(pv / (pvbp * pvbp))).cleaned();
     final MulticurveSensitivity psmqcs = SWAP_MULTI_LEG.accept(PSMQCSDC, MULTICURVES).cleaned();
-    AssertSensivityObjects.assertEquals("SwapMultileg: presentValueCurveSensitivityDiscountingCalculator", psmqcs, psmqcsExpected, TOLERANCE_RATE_DELTA);
+    AssertSensitivityObjects.assertEquals("SwapMultileg: presentValueCurveSensitivityDiscountingCalculator", psmqcs, psmqcsExpected, TOLERANCE_RATE_DELTA);
   }
 
 }

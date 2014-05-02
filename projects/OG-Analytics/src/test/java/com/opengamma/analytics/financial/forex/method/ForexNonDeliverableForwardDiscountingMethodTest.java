@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableFor
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -177,7 +177,7 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
 
     final InstrumentDerivative instrument = NDF;
     final MultipleCurrencyInterestRateCurveSensitivity pvcsi = METHOD_NDF.presentValueCurveSensitivity(instrument, CURVESFX);
-    AssertSensivityObjects.assertEquals("ForexNonDeliverableForwardDiscountingMethod: presentValueCurveSensitivity", pvcsNDF, pvcsi, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("ForexNonDeliverableForwardDiscountingMethod: presentValueCurveSensitivity", pvcsNDF, pvcsi, TOLERANCE_PV);
   }
 
 }

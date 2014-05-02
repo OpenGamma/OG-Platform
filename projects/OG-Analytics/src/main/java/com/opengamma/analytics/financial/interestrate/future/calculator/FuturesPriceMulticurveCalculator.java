@@ -77,6 +77,9 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
   /**
    * The price is 1+underlying swap present value. 
    * There is no adjustment for margining and no correction for discounting between futures settlement and valuation date.
+   * @param futures The futures security.
+   * @param multicurve The multi-curve provider.
+   * @return The price.
    */
   @Override
   public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final ParameterProviderInterface multicurve) {

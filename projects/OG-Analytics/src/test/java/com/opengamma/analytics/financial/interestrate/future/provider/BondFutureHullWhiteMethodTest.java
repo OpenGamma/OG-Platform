@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -181,7 +181,7 @@ public class BondFutureHullWhiteMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, HW_ISSUER);
     final MulticurveSensitivity pcsSecurity = METHOD_HW.priceCurveSensitivity(BOND_FUTURE_DERIV, HW_ISSUER);
     final MultipleCurrencyMulticurveSensitivity pvcsExpected = MultipleCurrencyMulticurveSensitivity.of(USD, pcsSecurity.multipliedBy(NOTIONAL));
-    AssertSensivityObjects.assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected.cleaned(), pvcsComputed.cleaned(), TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected.cleaned(), pvcsComputed.cleaned(), TOLERANCE_PV_DELTA);
   }
 
 }

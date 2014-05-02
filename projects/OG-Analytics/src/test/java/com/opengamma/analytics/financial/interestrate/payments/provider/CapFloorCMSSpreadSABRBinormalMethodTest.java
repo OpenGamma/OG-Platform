@@ -51,7 +51,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrswaption.ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
@@ -316,7 +316,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   public void presentValueCurveSensitivityCap() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CapFloorCMSSpreadSABRBinormalMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CapFloorCMSSpreadSABRBinormalMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -326,7 +326,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   public void presentValueCurveSensitivityFloor() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CMS_FLOOR_SPREAD, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CMS_FLOOR_SPREAD, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CapFloorCMSSpreadSABRBinormalMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CapFloorCMSSpreadSABRBinormalMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -336,7 +336,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   public void presentValueCurveSensitivityCapExtrapolation() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SSX_C.calculateSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SSX_FDC.calculateSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CapFloorCMSSpreadSABRBinormalMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CapFloorCMSSpreadSABRBinormalMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -346,11 +346,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CMS_CAP_SPREAD.accept(PVCSSSC, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
     // Extrapolation
     final MultipleCurrencyMulticurveSensitivity pvcsMethodExtra = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculatorExtra = CMS_CAP_SPREAD.accept(PVCSSSXC, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethodExtra, pvcsCalculatorExtra, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethodExtra, pvcsCalculatorExtra, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -365,7 +365,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     MultipleCurrencyMulticurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, SABR_MULTICURVES);
     pvcsShort = pvcsShort.multipliedBy(-1);
     pvcsShort = pvcsShort.cleaned();
-    AssertSensivityObjects.assertEquals("CMS cap spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("CMS cap spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PV);
   }
 
   @Test
@@ -380,7 +380,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     MultipleCurrencyMulticurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, SABR_MULTICURVES);
     pvcsShort = pvcsShort.multipliedBy(-1);
     pvcsShort = pvcsShort.cleaned();
-    AssertSensivityObjects.assertEquals("CMS floor spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("CMS floor spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PV);
   }
 
   @Test
@@ -404,7 +404,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     pvcsParity1 = pvcsParity1.cleaned();
     MultipleCurrencyMulticurveSensitivity pvcsParity2 = pvcsCapLong.plus(pvcsFloorLong.multipliedBy(-1));
     pvcsParity2 = pvcsParity2.cleaned();
-    AssertSensivityObjects.assertEquals("CMS spread: curve sensitivity - Cap/Floor parity", pvcsParity1, pvcsParity2, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("CMS spread: curve sensitivity - Cap/Floor parity", pvcsParity1, pvcsParity2, TOLERANCE_PV);
   }
 
   @Test

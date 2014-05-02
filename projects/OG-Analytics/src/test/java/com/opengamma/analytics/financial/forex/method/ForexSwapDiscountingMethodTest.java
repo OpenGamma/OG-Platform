@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
@@ -262,7 +262,7 @@ public class ForexSwapDiscountingMethodTest {
     CURVES_FX.replaceCurve(CURVES_NAME[1], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = fxSwap.accept(PSCSC, CURVES_FX);
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
-    AssertSensivityObjects.assertEquals("Forex swap: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
+    AssertSensitivityObjects.assertEquals("Forex swap: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 
 }

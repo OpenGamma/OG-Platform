@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -196,7 +196,7 @@ public class ForexDiscountingMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvcs = METHOD_FX.presentValueCurveSensitivity(FX, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvs1 = PAY_1.accept(PVSCDC, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvs2 = PAY_2.accept(PVSCDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("ForexDiscountingMethod: presentValueCurveSensitivity", pvs1.plus(pvs2).cleaned(), pvcs.cleaned(), TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForexDiscountingMethod: presentValueCurveSensitivity", pvs1.plus(pvs2).cleaned(), pvcs.cleaned(), TOLERANCE_PV_DELTA);
   }
 
   /**
@@ -206,7 +206,7 @@ public class ForexDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_FX.presentValueCurveSensitivity(FX, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = FX.accept(PVSCDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
   /**
@@ -216,7 +216,7 @@ public class ForexDiscountingMethodTest {
   public void parSpreadCurveSensitivity() {
     final SimpleParameterSensitivity psComputed = PSPSC.calculateSensitivity(FX, MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity psFD = PSMQCS_FDC.calculateSensitivity(FX, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_RATE_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_RATE_DELTA);
   }
 
   /**

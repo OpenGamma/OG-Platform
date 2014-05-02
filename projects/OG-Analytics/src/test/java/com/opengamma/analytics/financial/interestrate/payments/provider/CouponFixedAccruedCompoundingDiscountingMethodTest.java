@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -113,7 +113,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
     mapDsc.put(MULTICURVES.getName(CPN_PAY.getCurrency()), list);
     MultipleCurrencyMulticurveSensitivity pvpcsExpected = new MultipleCurrencyMulticurveSensitivity();
     pvpcsExpected = pvpcsExpected.plus(CPN_PAY.getCurrency(), MulticurveSensitivity.ofYieldDiscounting(mapDsc));
-    AssertSensivityObjects.assertEquals("CouponFixedAccruedCompounding: Present value parallel curve sensitivity by discounting", pvpcsExpected, pvpcsComputed, 1.0E-2);
+    AssertSensitivityObjects.assertEquals("CouponFixedAccruedCompounding: Present value parallel curve sensitivity by discounting", pvpcsExpected, pvpcsComputed, 1.0E-2);
   }
 
   @Test
@@ -123,7 +123,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
   public void presentValueParallelCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvpcsMethod = METHOD.presentValueCurveSensitivity(CPN_PAY, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvpcsCalculator = CPN_PAY.accept(PVCSDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", pvpcsMethod, pvpcsCalculator, 1.0E-5);
+    AssertSensitivityObjects.assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", pvpcsMethod, pvpcsCalculator, 1.0E-5);
   }
 
   @Test
@@ -133,7 +133,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(CPN_PAY, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(CPN_PAY, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponFixedCompoundingDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CouponFixedCompoundingDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -165,7 +165,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
     mapDsc.put(MULTICURVES.getName(CPN_PAY_WITH_ACCRUAL_DATES.getCurrency()), list);
     MultipleCurrencyMulticurveSensitivity pvpcsExpected = new MultipleCurrencyMulticurveSensitivity();
     pvpcsExpected = pvpcsExpected.plus(CPN_PAY_WITH_ACCRUAL_DATES.getCurrency(), MulticurveSensitivity.ofYieldDiscounting(mapDsc));
-    AssertSensivityObjects.assertEquals("CouponFixedAccruedCompounding: Present value parallel curve sensitivity by discounting", pvpcsExpected, pvpcsComputed, 1.0E-2);
+    AssertSensitivityObjects.assertEquals("CouponFixedAccruedCompounding: Present value parallel curve sensitivity by discounting", pvpcsExpected, pvpcsComputed, 1.0E-2);
   }
 
   @Test
@@ -175,7 +175,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
   public void presentValueParallelCurveSensitivityMethodVsCalculatorWithAccrualDates() {
     final MultipleCurrencyMulticurveSensitivity pvpcsMethod = METHOD.presentValueCurveSensitivity(CPN_PAY_WITH_ACCRUAL_DATES, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvpcsCalculator = CPN_PAY_WITH_ACCRUAL_DATES.accept(PVCSDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", pvpcsMethod, pvpcsCalculator, 1.0E-5);
+    AssertSensitivityObjects.assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", pvpcsMethod, pvpcsCalculator, 1.0E-5);
   }
 
   @Test
@@ -185,7 +185,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
   public void presentValueCurveSensitivityWithAccrualDates() {
     final MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(CPN_PAY_WITH_ACCRUAL_DATES, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(CPN_PAY_WITH_ACCRUAL_DATES, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponFixedCompoundingDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CouponFixedCompoundingDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
   }
 
 }

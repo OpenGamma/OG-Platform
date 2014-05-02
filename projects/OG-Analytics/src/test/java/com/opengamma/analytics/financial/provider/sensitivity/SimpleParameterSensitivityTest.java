@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
@@ -132,7 +132,7 @@ public class SimpleParameterSensitivityTest {
     SimpleParameterSensitivity sensitivity5 = new SimpleParameterSensitivity();
     sensitivity5 = sensitivity5.plus(NAME_1, SENSITIVITY_1_1);
     sensitivity4 = sensitivity4.plus(sensitivity5);
-    AssertSensivityObjects.assertEquals("SimpleParameterSensitivity: plus", sensitivity3, sensitivity4, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("SimpleParameterSensitivity: plus", sensitivity3, sensitivity4, TOLERANCE);
   }
 
   @Test
@@ -158,12 +158,12 @@ public class SimpleParameterSensitivityTest {
     SimpleParameterSensitivity sensitivity2 = new SimpleParameterSensitivity();
     sensitivity2 = sensitivity2.plus(NAME_1, SENSITIVITY_1_1);
     sensitivity2 = sensitivity2.plus(NAME_2, SENSITIVITY_2_1);
-    AssertSensivityObjects.assertEquals("ParameterSensitivity: compare same data", sensitivity1, sensitivity2, TOLERANCE);
-    AssertSensivityObjects.assertDoesNotEqual("ParameterSensitivity: compare different data outside tolerance", sensitivity1.multipliedBy(2.0), sensitivity2, TOLERANCE);
-    AssertSensivityObjects.assertEquals("ParameterSensitivity: compare different data inside tolerance", sensitivity1.multipliedBy(1 + TOLERANCE / 10), sensitivity2, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivity: compare same data", sensitivity1, sensitivity2, TOLERANCE);
+    AssertSensitivityObjects.assertDoesNotEqual("ParameterSensitivity: compare different data outside tolerance", sensitivity1.multipliedBy(2.0), sensitivity2, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("ParameterSensitivity: compare different data inside tolerance", sensitivity1.multipliedBy(1 + TOLERANCE / 10), sensitivity2, TOLERANCE);
     SimpleParameterSensitivity sensitivity3 = new SimpleParameterSensitivity();
     sensitivity3 = sensitivity3.plus(NAME_1, SENSITIVITY_1_1);
-    AssertSensivityObjects.assertDoesNotEqual("ParameterSensitivity: compare data with different name / currency pairs", sensitivity1, sensitivity3, TOLERANCE);
+    AssertSensitivityObjects.assertDoesNotEqual("ParameterSensitivity: compare data with different name / currency pairs", sensitivity1, sensitivity3, TOLERANCE);
   }
 
   @Test

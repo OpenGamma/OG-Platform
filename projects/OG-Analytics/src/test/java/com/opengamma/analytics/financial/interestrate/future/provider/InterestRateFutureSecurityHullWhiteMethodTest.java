@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.SimplePa
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -142,7 +142,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   public void priceCurveSensitivity() {
     final SimpleParameterSensitivity pcsExact = SPSHWC.calculateSensitivity(ERU2, HW_MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pcsFD = SPSHWC_FD.calculateSensitivity(ERU2, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
   }
 
 }

@@ -37,7 +37,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleP
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -244,14 +244,14 @@ public class InterestRateFutureOptionMarginHullWhiteMethodTest {
   public void priceCurveSensitivity() {
     final SimpleParameterSensitivity pcsExact = SPSHWC.calculateSensitivity(OPT_ERM4_MID_CALL_9875, HW_MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pcsFD = SPSHWC_FD.calculateSensitivity(OPT_ERM4_MID_CALL_9875, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
   }
 
   @Test
   public void priceCurveSensitivityMethodVsCalculator() {
     final MulticurveSensitivity pcsMethod = METHOD_OPT_SEC.priceCurveSensitivity(OPT_ERM4_MID_CALL_9875, HW_MULTICURVES);
     final MulticurveSensitivity pcsCalculator = OPT_ERM4_MID_CALL_9875.accept(MQCSHWC, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value - calculator vs method", pcsCalculator, pcsMethod, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value - calculator vs method", pcsCalculator, pcsMethod, TOLERANCE_PRICE_DELTA);
   }
 
   @Test
@@ -323,7 +323,7 @@ public class InterestRateFutureOptionMarginHullWhiteMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pcsExact = PSHWC.calculateSensitivity(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pcsFD = PSHWC_FD.calculateSensitivity(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("InterestRateFutureOptionMarginTransactionHullWhiteMethod: presentValueCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("InterestRateFutureOptionMarginTransactionHullWhiteMethod: presentValueCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PV_DELTA);
   }
 
 }

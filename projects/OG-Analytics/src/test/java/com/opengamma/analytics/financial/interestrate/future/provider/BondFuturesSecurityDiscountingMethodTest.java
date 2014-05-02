@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.provider.description.IssuerProviderDisc
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -133,7 +133,7 @@ public class BondFuturesSecurityDiscountingMethodTest {
     sensiBond = sensiBond.multipliedBy(1.0 / CONVERSION_FACTOR[minIndex]);
     sensiFuture = sensiFuture.cleaned();
     sensiBond = sensiBond.cleaned();
-    AssertSensivityObjects.assertEquals("BondFutureSecurityDiscountingMethod: priceCurveSensitivity", sensiBond, sensiFuture, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("BondFutureSecurityDiscountingMethod: priceCurveSensitivity", sensiBond, sensiFuture, TOLERANCE_PRICE_DELTA);
   }
 
   @Test

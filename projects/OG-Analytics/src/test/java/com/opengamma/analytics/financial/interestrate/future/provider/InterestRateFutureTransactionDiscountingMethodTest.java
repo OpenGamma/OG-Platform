@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleP
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -97,7 +97,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   public void parSpreadMarketQuoteCurveSensitivity() {
     final SimpleParameterSensitivity pcsAD = PSC.calculateSensitivity(ERU2_TRA, MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pcsFD = PSC_DSC_FD.calculateSensitivity(ERU2_TRA, MULTICURVES);
-    AssertSensivityObjects.assertEquals("InterestRateFutureTransactionDiscountingMethod: priceCurveSensitivity ", pcsFD, pcsAD, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("InterestRateFutureTransactionDiscountingMethod: priceCurveSensitivity ", pcsFD, pcsAD, TOLERANCE_PRICE_DELTA);
   }
 
   @Test
@@ -117,7 +117,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   public void parSpreadRateCurveSensitivity() {
     final MulticurveSensitivity pscsAD = ERU2_TRA.accept(PSMQCSDC, MULTICURVES);
     final MulticurveSensitivity pscsFD = ERU2_TRA.accept(PSRCSDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("InterestRateFutureTransactionDiscountingMethod: parSpreadRateCurveSensitivity", pscsFD.multipliedBy(-1).cleaned(),
+    AssertSensitivityObjects.assertEquals("InterestRateFutureTransactionDiscountingMethod: parSpreadRateCurveSensitivity", pscsFD.multipliedBy(-1).cleaned(),
         pscsAD.cleaned(), TOLERANCE_PRICE_DELTA);
   }
 

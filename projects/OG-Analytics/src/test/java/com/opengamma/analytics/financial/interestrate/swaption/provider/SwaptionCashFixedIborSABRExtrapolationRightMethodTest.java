@@ -34,7 +34,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrswaption.ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -158,11 +158,11 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   public void presentValueCurveSensitivityExtra() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_X_C.calculateSensitivity(SWAPTION_LONG_PAYER_HIGH, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_X_FDC.calculateSensitivity(SWAPTION_LONG_PAYER_HIGH, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionCashFixedIborSABRExtrapolationRightMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, 500 * TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionCashFixedIborSABRExtrapolationRightMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, 500 * TOLERANCE_PV_DELTA);
     // TODO review the precision.
     final MultipleCurrencyMulticurveSensitivity pvcsLP = SWAPTION_LONG_PAYER_HIGH.accept(PVCSSSXC, SABR_MULTICURVES).cleaned();
     final MultipleCurrencyMulticurveSensitivity pvcsSP = SWAPTION_SHORT_PAYER_HIGH.accept(PVCSSSXC, SABR_MULTICURVES).multipliedBy(-1).cleaned();
-    AssertSensivityObjects.assertEquals("SwaptionCashFixedIborSABRExtrapolationRightMethod: presentValueCurveSensitivity ", pvcsLP, pvcsSP, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionCashFixedIborSABRExtrapolationRightMethod: presentValueCurveSensitivity ", pvcsLP, pvcsSP, TOLERANCE_PV_DELTA);
   }
 
   @Test

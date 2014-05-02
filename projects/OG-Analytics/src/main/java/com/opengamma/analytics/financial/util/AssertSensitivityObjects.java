@@ -30,7 +30,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class used in test to assert that two sensitivity objects are the same or different.
  */
-public class AssertSensivityObjects {
+public class AssertSensitivityObjects {
 
   /**
    * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.

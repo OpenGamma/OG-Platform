@@ -49,7 +49,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.N
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.NormalImpliedVolatilityFormula;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
@@ -578,7 +578,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
     pvcsShort = pvcsShort.multipliedBy(-1);
     pvcsShort = pvcsShort.cleaned();
-    AssertSensivityObjects.assertEquals("CMS cap spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PRICE);
+    AssertSensitivityObjects.assertEquals("CMS cap spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PRICE);
   }
 
   @Test
@@ -596,7 +596,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
     pvcsShort = pvcsShort.multipliedBy(-1);
     pvcsShort = pvcsShort.cleaned();
-    AssertSensivityObjects.assertEquals("CMS floor spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PRICE);
+    AssertSensitivityObjects.assertEquals("CMS floor spread: Long/Short parity", pvcsLong, pvcsShort, TOLERANCE_PRICE);
   }
 
   @Test
@@ -622,7 +622,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     pvcsParity1 = pvcsParity1.cleaned();
     InterestRateCurveSensitivity pvcsParity2 = pvcsCapLong.plus(pvcsFloorLong.multipliedBy(-1));
     pvcsParity2 = pvcsParity2.cleaned();
-    AssertSensivityObjects.assertEquals("CMS spread: curve sensitivity - Cap/Floor parity", pvcsParity1, pvcsParity2, TOLERANCE_PRICE);
+    AssertSensitivityObjects.assertEquals("CMS spread: curve sensitivity - Cap/Floor parity", pvcsParity1, pvcsParity2, TOLERANCE_PRICE);
   }
 
   @Test

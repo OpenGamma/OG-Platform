@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.provider.description.forex.BlackForexSm
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -481,7 +481,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvcsExpected = pvcsM.plus(pvcsP).multipliedBy(
         1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_DIGITAL_SPREAD.presentValueCurveSensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Forex Digital option: call spread method - present value", pvcsExpected, pvcsComputed, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("Forex Digital option: call spread method - present value", pvcsExpected, pvcsComputed, TOLERANCE_DELTA);
   }
 
   @Test

@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
@@ -99,7 +99,7 @@ public class CouponIborSpreadDiscountingMethodTest {
     final InterestRateCurveSensitivity pvcsIbor = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, CURVES);
     final InterestRateCurveSensitivity pvcsFixed = METHOD_FIXED.presentValueCurveSensitivity(CPN_FIXED, CURVES);
     final InterestRateCurveSensitivity pvcsExpected = pvcsIbor.plus(pvcsFixed).cleaned();
-    AssertSensivityObjects.assertEquals("CouponIborSpreadDiscountingMethod: present value curve sensitivity", pvcsExpected, pvcsComputed, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("CouponIborSpreadDiscountingMethod: present value curve sensitivity", pvcsExpected, pvcsComputed, TOLERANCE_PV);
   }
 
   @Test
@@ -115,6 +115,6 @@ public class CouponIborSpreadDiscountingMethodTest {
     prcsComputed = prcsComputed.cleaned();
     InterestRateCurveSensitivity prcsIbor = METHOD_CPN_IBOR.parRateCurveSensitivity(CPN_IBOR, CURVES);
     prcsIbor = prcsIbor.cleaned();
-    AssertSensivityObjects.assertEquals("CouponIborSpreadDiscountingMethod: present value curve sensitivity", prcsIbor, prcsComputed, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("CouponIborSpreadDiscountingMethod: present value curve sensitivity", prcsIbor, prcsComputed, TOLERANCE_PV);
   }
 }

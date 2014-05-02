@@ -35,7 +35,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -188,7 +188,7 @@ public class DepositZeroDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[loopnode], deltaTolerancePrice);
     }
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PVCSC, CURVES));
-    AssertSensivityObjects.assertEquals("DepositZero: present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_RATE);
+    AssertSensitivityObjects.assertEquals("DepositZero: present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_RATE);
   }
 
   @Test
@@ -216,7 +216,7 @@ public class DepositZeroDiscountingMethodTest {
     AssertJUnit.assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[0], deltaTolerancePrice);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PVCSC, CURVES));
     pvcsCalculator = pvcsCalculator.cleaned(0.0, 1.0E-4);
-    AssertSensivityObjects.assertEquals("DepositZero: present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_RATE);
+    AssertSensitivityObjects.assertEquals("DepositZero: present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_RATE);
   }
 
   @Test
@@ -287,7 +287,7 @@ public class DepositZeroDiscountingMethodTest {
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PRCSC, CURVES));
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
-    AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
+    AssertSensitivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
   }
 
   @Test
@@ -322,7 +322,7 @@ public class DepositZeroDiscountingMethodTest {
     }
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
     final InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PRCSC, CURVES));
-    AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
+    AssertSensitivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
   }
 
   @Test
@@ -375,7 +375,7 @@ public class DepositZeroDiscountingMethodTest {
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = deposit.accept(PSCSC, CURVES);
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
-    AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
+    AssertSensitivityObjects.assertEquals("DepositZero: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 
 }

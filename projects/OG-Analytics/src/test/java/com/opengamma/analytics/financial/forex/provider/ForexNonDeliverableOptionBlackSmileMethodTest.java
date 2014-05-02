@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.provider.description.forex.BlackForexSm
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -155,7 +155,7 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
     final double tolerance = 1.0E-2;
     final MultipleCurrencyMulticurveSensitivity pvcsNDO = METHOD_NDO.presentValueCurveSensitivity(NDO, SMILE_MULTICURVES).cleaned();
     final MultipleCurrencyMulticurveSensitivity pvcsFXO = METHOD_FXO.presentValueCurveSensitivity(FOREX_OPT, SMILE_MULTICURVES).cleaned();
-    AssertSensivityObjects.assertEquals("Forex non-deliverable option: present value curve sensitivity", pvcsFXO, pvcsNDO, tolerance);
+    AssertSensitivityObjects.assertEquals("Forex non-deliverable option: present value curve sensitivity", pvcsFXO, pvcsNDO, tolerance);
   }
 
   @Test

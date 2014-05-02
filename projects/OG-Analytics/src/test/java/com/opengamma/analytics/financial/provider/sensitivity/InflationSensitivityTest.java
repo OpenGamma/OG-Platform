@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -85,13 +85,13 @@ public class InflationSensitivityTest {
     final InflationSensitivity ofDscIn = InflationSensitivity.ofYieldDiscountingAndPriceIndex(mapDsc, mapIn);
     assertEquals("InflationSensitivity: of", mapDsc, ofDscIn.getYieldDiscountingSensitivities());
     assertEquals("InflationSensitivity: of", mapIn, ofDscIn.getPriceCurveSensitivities());
-    AssertSensivityObjects.assertEquals("InflationSensitivity: of", InflationSensitivity.of(mapDsc, new HashMap<String, List<ForwardSensitivity>>(), mapIn), ofDscIn, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("InflationSensitivity: of", InflationSensitivity.of(mapDsc, new HashMap<String, List<ForwardSensitivity>>(), mapIn), ofDscIn, TOLERANCE);
 
     final InflationSensitivity ofFwd = InflationSensitivity.of(new HashMap<String, List<DoublesPair>>(), mapFwd, new HashMap<String, List<DoublesPair>>());
     InflationSensitivity constructor = new InflationSensitivity();
     constructor = constructor.plus(ofDscIn);
     constructor = constructor.plus(ofFwd).cleaned();
-    AssertSensivityObjects.assertEquals("InflationSensitivity: of", constructor, of.cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("InflationSensitivity: of", constructor, of.cleaned(), TOLERANCE);
   }
 
   @Test
@@ -144,7 +144,7 @@ public class InflationSensitivityTest {
     final Map<String, List<DoublesPair>> sensi22 = new HashMap<>();
     sensi22.put(CURVE_NAME_2, SENSI_DATA_2);
     final InflationSensitivity pvSensiDscIn = InflationSensitivity.ofYieldDiscountingAndPriceIndex(sensi11, sensi22);
-    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscIn.plus(pvSensiDscIn).cleaned(), pvSensiDscIn.multipliedBy(2.0).cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscIn.plus(pvSensiDscIn).cleaned(), pvSensiDscIn.multipliedBy(2.0).cleaned(), TOLERANCE);
   }
 
   @Test

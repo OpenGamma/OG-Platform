@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -77,11 +77,11 @@ public class MulticurveSensitivityTest {
 
     final MulticurveSensitivity ofDsc = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
     assertEquals("CurveSensitivityMarket: of", mapDsc, ofDsc.getYieldDiscountingSensitivities());
-    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: of", MulticurveSensitivity.of(mapDsc, new HashMap<String, List<ForwardSensitivity>>()), ofDsc, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("CurveSensitivityMarket: of", MulticurveSensitivity.of(mapDsc, new HashMap<String, List<ForwardSensitivity>>()), ofDsc, TOLERANCE);
 
     final MulticurveSensitivity ofFwd = MulticurveSensitivity.ofForward(mapFwd);
     assertEquals("CurveSensitivityMarket: of", mapFwd, ofFwd.getForwardSensitivities());
-    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: of", MulticurveSensitivity.of(new HashMap<String, List<DoublesPair>>(), mapFwd), ofFwd, TOLERANCE);
+    AssertSensitivityObjects.assertEquals("CurveSensitivityMarket: of", MulticurveSensitivity.of(new HashMap<String, List<DoublesPair>>(), mapFwd), ofFwd, TOLERANCE);
   }
 
   @Test
@@ -134,7 +134,7 @@ public class MulticurveSensitivityTest {
     final Map<String, List<ForwardSensitivity>> sensiFwd11 = new HashMap<>();
     sensiFwd11.put(CURVE_NAME_2, SENSI_FWD_1);
     final MulticurveSensitivity pvSensiDscFwd = MulticurveSensitivity.of(sensi11, sensiFwd11);
-    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscFwd.plus(pvSensiDscFwd).cleaned(), pvSensiDscFwd.multipliedBy(2.0).cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscFwd.plus(pvSensiDscFwd).cleaned(), pvSensiDscFwd.multipliedBy(2.0).cleaned(), TOLERANCE);
 
     final List<ForwardSensitivity> sensiFwd2 = new ArrayList<>();
     sensiFwd2.add(new SimplyCompoundedForwardSensitivity(2.5, 2.75, 0.26, 11));
@@ -148,13 +148,13 @@ public class MulticurveSensitivityTest {
     sensiFwd3.add(new SimplyCompoundedForwardSensitivity(2.5, 2.75, 0.26, 11));
     final Map<String, List<ForwardSensitivity>> sensiFwd23 = new HashMap<>();
     sensiFwd23.put(CURVE_NAME_2, sensiFwd3);
-    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", MulticurveSensitivity.of(InterestRateCurveSensitivityUtils.addSensitivity(sensi11, sensi32), sensiFwd23).cleaned(),
+    AssertSensitivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", MulticurveSensitivity.of(InterestRateCurveSensitivityUtils.addSensitivity(sensi11, sensi32), sensiFwd23).cleaned(),
         pvSensiDscFwd.plus(pvSensiDscFwd2).cleaned(), TOLERANCE);
 
     final Map<String, List<ForwardSensitivity>> sensiFwd32 = new HashMap<>();
     sensiFwd22.put(CURVE_NAME_3, sensiFwd2);
     final MulticurveSensitivity pvSensiDscFwd3 = MulticurveSensitivity.of(sensi32, sensiFwd32);
-    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscFwd3.plus(pvSensiDscFwd2).cleaned(), pvSensiDscFwd2.plus(pvSensiDscFwd3).cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscFwd3.plus(pvSensiDscFwd2).cleaned(), pvSensiDscFwd2.plus(pvSensiDscFwd3).cleaned(), TOLERANCE);
   }
 
   @Test

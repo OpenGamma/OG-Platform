@@ -32,7 +32,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.CurrencyAmount;
@@ -128,7 +128,7 @@ public class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final InterestRateCurveSensitivity pvcsMethod = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(SWAPTION_LONG_REC.accept(PVCSBC, CURVES_BLACK));
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod: presentValueCurveSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod: presentValueCurveSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
   @Test

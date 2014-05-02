@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -125,7 +125,7 @@ public class InterestRateFutureDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final InterestRateCurveSensitivity pvcsMethod = METHOD_FUT_TRA.presentValueCurveSensitivity(ERU2_TRA, CURVES);
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(ERU2_TRA.accept(PVCSC, CURVES));
-    AssertSensivityObjects.assertEquals("InterestRateFutureXXXDiscountingMethod: present value", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("InterestRateFutureXXXDiscountingMethod: present value", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -157,9 +157,9 @@ public class InterestRateFutureDiscountingMethodTest {
   public void parRateCurveSensitivityMethodVsCalculator() {
     final InterestRateCurveSensitivity prSensiMethod = METHOD_FUT_SEC.parRateCurveSensitivity(ERU2_SEC, CURVES);
     final InterestRateCurveSensitivity prSensiCalculator = new InterestRateCurveSensitivity(ERU2_SEC.accept(PRCSC, CURVES));
-    AssertSensivityObjects.assertEquals("", prSensiMethod, prSensiCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("", prSensiMethod, prSensiCalculator, TOLERANCE_PV_DELTA);
     final InterestRateCurveSensitivity prSensiCalculator2 = new InterestRateCurveSensitivity(ERU2_TRA.accept(PRCSC, CURVES));
-    AssertSensivityObjects.assertEquals("", prSensiMethod, prSensiCalculator2, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("", prSensiMethod, prSensiCalculator2, TOLERANCE_PRICE_DELTA);
   }
 
   @Test
