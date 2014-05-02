@@ -52,9 +52,9 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   private UniqueId _uniqueId;
 
   /**
-   * The name of the snapshot intended for display purposes. This field must not be null for the object to be valid.
+   * The name of the snapshot intended for display purposes.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private String _name;
 
   /**
@@ -282,19 +282,18 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the snapshot intended for display purposes. This field must not be null for the object to be valid.
-   * @return the value of the property, not null
+   * Gets the name of the snapshot intended for display purposes.
+   * @return the value of the property
    */
   public String getName() {
     return _name;
   }
 
   /**
-   * Sets the name of the snapshot intended for display purposes. This field must not be null for the object to be valid.
-   * @param name  the new value of the property, not null
+   * Sets the name of the snapshot intended for display purposes.
+   * @param name  the new value of the property
    */
   public void setName(String name) {
-    JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
 
@@ -841,11 +840,6 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
-    }
-
-    @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((ManageableMarketDataSnapshot) bean)._name, "name");
     }
 
   }
