@@ -178,9 +178,15 @@ public class MetricsRepositoryComponentFactory extends AbstractComponentFactory 
     @Override
     public void start() {
       MBeanServer mbeanServer = _repo.findInstance(MBeanServer.class);
-      _summaryReporter = JmxReporter.forRegistry(_summaryRegistry).registerWith(mbeanServer).build();
+      if (mbeanServer != null) {
+        _summaryReporter = JmxReporter.forRegistry(_summaryRegistry).registerWith(mbeanServer).build();
+        _detailedReporter = JmxReporter.forRegistry(_detailedRegistry).registerWith(mbeanServer).build();
+      } else {
+        // fallback to default MBeanServer
+        _summaryReporter = JmxReporter.forRegistry(_summaryRegistry).build();
+        _detailedReporter = JmxReporter.forRegistry(_detailedRegistry).build();
+      }
       _summaryReporter.start();
-      _detailedReporter = JmxReporter.forRegistry(_detailedRegistry).registerWith(mbeanServer).build();
       _detailedReporter.start();
     }
     @Override
