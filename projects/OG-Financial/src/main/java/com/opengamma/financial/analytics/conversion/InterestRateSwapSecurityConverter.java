@@ -20,6 +20,8 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDe
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
+import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -230,7 +232,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       }
     }
 
-    return AnalyticsEnvironment.getInstance().getFloatingAnnuityDefinitionBuilder().
+    return new FloatingAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
         notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
@@ -377,7 +379,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
     CompoundingMethod compoundingMethod = leg.getCompoundingMethod();
     
-    return AnalyticsEnvironment.getInstance().getFixedAnnuityDefinitionBuilder().
+    return new FixedAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
 //        notional((payer ? -1 : 1) * leg.getNotional().getAmount()).
