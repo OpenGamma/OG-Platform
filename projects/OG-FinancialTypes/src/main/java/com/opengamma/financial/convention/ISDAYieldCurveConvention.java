@@ -27,7 +27,13 @@ import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.util.money.Currency;
 
 /**
+ * Specifies conventions relevant for an ISDA yield curve. Contains
+ * curve-level and node-level conventions since all are considered 
+ * to apply globally to the curve. 
  * 
+ * Note that swap conventions apply only to the fixed leg. Equivalent
+ * conventions for the float leg are ignored by the analytics so are
+ * not specified.
  */
 @BeanDefinition
 public class ISDAYieldCurveConvention extends ManageableConvention {
@@ -68,19 +74,19 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
   private DayCount _curveDayCount;
 
   /**
-   * Day count convention for cash.
+   * Day count convention for cash nodes.
    */
   @PropertyDefinition(validate = "notNull")
   private DayCount _cashDayCount;
   
   /**
-   * Day count convention for swap fixed legs.
+   * Day count convention for fixed leg swap nodes.
    */
   @PropertyDefinition(validate = "notNull")
   private DayCount _swapFixedLegDayCount;
 
   /**
-   * Frequency of payments for fixed leg swap payments.
+   * Frequency of payments for fixed leg swap nodes.
    */
   @PropertyDefinition(validate = "notNull")
   private Period _swapFixedLegInterval;
@@ -246,7 +252,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets day count convention for cash.
+   * Gets day count convention for cash nodes.
    * @return the value of the property, not null
    */
   public DayCount getCashDayCount() {
@@ -254,7 +260,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
   }
 
   /**
-   * Sets day count convention for cash.
+   * Sets day count convention for cash nodes.
    * @param cashDayCount  the new value of the property, not null
    */
   public void setCashDayCount(DayCount cashDayCount) {
@@ -272,7 +278,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets day count convention for swap fixed legs.
+   * Gets day count convention for fixed leg swap nodes.
    * @return the value of the property, not null
    */
   public DayCount getSwapFixedLegDayCount() {
@@ -280,7 +286,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
   }
 
   /**
-   * Sets day count convention for swap fixed legs.
+   * Sets day count convention for fixed leg swap nodes.
    * @param swapFixedLegDayCount  the new value of the property, not null
    */
   public void setSwapFixedLegDayCount(DayCount swapFixedLegDayCount) {
@@ -298,7 +304,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets frequency of payments for fixed leg swap payments.
+   * Gets frequency of payments for fixed leg swap nodes.
    * @return the value of the property, not null
    */
   public Period getSwapFixedLegInterval() {
@@ -306,7 +312,7 @@ public class ISDAYieldCurveConvention extends ManageableConvention {
   }
 
   /**
-   * Sets frequency of payments for fixed leg swap payments.
+   * Sets frequency of payments for fixed leg swap nodes.
    * @param swapFixedLegInterval  the new value of the property, not null
    */
   public void setSwapFixedLegInterval(Period swapFixedLegInterval) {

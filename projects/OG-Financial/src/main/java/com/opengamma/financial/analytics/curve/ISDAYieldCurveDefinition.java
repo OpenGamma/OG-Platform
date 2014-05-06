@@ -25,7 +25,10 @@ import com.opengamma.financial.analytics.ircurve.strips.ISDAYieldCurveNode;
 import com.opengamma.financial.convention.ISDAYieldCurveConvention;
 
 /**
- * 
+ * Defines an ISDA yield curve. This adds two extra fields to the
+ * {@link AbstractCurveDefinition} - a set of curve nodes, cash or
+ * swaps, and a single convention to apply across the curve and its
+ * nodes.
  */
 @BeanDefinition
 public class ISDAYieldCurveDefinition extends AbstractCurveDefinition {

@@ -18,23 +18,34 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
+import com.opengamma.financial.analytics.curve.ISDAYieldCurveDefinition;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * The super type for ISDA yield curve nodes, referenced by
+ * {@link ISDAYieldCurveDefinition}.
  */
 @BeanDefinition
 public abstract class ISDAYieldCurveNode extends CurveNode {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The tenor of the node.
+   */
   @PropertyDefinition(validate = "notNull")
   private Tenor _tenor;
   
+  /**
+   * The market data ticker referenced by the node.
+   */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _ticker;
 
+  /**
+   * The dataField, typically "Market_Value".
+   */
   @PropertyDefinition(validate = "notNull")
   private String _dataField;
   
@@ -65,7 +76,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the tenor.
+   * Gets the tenor of the node.
    * @return the value of the property, not null
    */
   public Tenor getTenor() {
@@ -73,7 +84,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
   }
 
   /**
-   * Sets the tenor.
+   * Sets the tenor of the node.
    * @param tenor  the new value of the property, not null
    */
   public void setTenor(Tenor tenor) {
@@ -91,7 +102,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the ticker.
+   * Gets the market data ticker referenced by the node.
    * @return the value of the property, not null
    */
   public ExternalId getTicker() {
@@ -99,7 +110,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
   }
 
   /**
-   * Sets the ticker.
+   * Sets the market data ticker referenced by the node.
    * @param ticker  the new value of the property, not null
    */
   public void setTicker(ExternalId ticker) {
@@ -117,7 +128,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the dataField.
+   * Gets the dataField, typically "Market_Value".
    * @return the value of the property, not null
    */
   public String getDataField() {
@@ -125,7 +136,7 @@ public abstract class ISDAYieldCurveNode extends CurveNode {
   }
 
   /**
-   * Sets the dataField.
+   * Sets the dataField, typically "Market_Value".
    * @param dataField  the new value of the property, not null
    */
   public void setDataField(String dataField) {

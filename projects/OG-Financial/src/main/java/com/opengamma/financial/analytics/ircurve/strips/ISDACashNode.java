@@ -15,9 +15,11 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
+import com.opengamma.financial.analytics.curve.ISDAYieldCurveDefinition;
 
 /**
- * 
+ * Represents a cash node on the curve. Can be referenced by
+ * {@link ISDAYieldCurveDefinition}s.
  */
 @BeanDefinition
 public class ISDACashNode extends ISDAYieldCurveNode {
