@@ -56,6 +56,7 @@ MANAGER.INCLUDE = classpath:common/common-dbmasters.ini
     * [PLAT-6443] - Enhance infrastructure component factories
     * [PLAT-6454] - FixedSwapLegDetailsFormatter and FloatingSwapLegDetailsFormatter should use LocalDate.MIN/MAX instead of null to represent empty LocalDates
     * [PLAT-6456] - Reduce dependencies of OG-Analytics
+    * [PLAT-6398] - Integrate user management with components
 * New Feature
     * [PLAT-6317] - Bucketed PV01 for bonds
 * Task
