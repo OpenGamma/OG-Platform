@@ -22,7 +22,7 @@ public class ComponentConfig {
   /**
    * The config.
    */
-  private final LinkedHashMap<String, LinkedHashMap<String, String>> _config = new LinkedHashMap<String, LinkedHashMap<String, String>>();
+  private final LinkedHashMap<String, ConfigProperties> _config = new LinkedHashMap<>();
 
   /**
    * Creates an instance.
@@ -44,15 +44,15 @@ public class ComponentConfig {
    * Gets a group by name.
    * 
    * @param groupKey  the group key, not null
-   * @return a modifiable copy of the configured group, not null
+   * @return the modifiable configured group, not null
    * @throws ComponentConfigException if the group is not found
    */
-  public LinkedHashMap<String, String> getGroup(String groupKey) {
-    LinkedHashMap<String, String> config = _config.get(groupKey);
+  public ConfigProperties getGroup(String groupKey) {
+    ConfigProperties config = _config.get(groupKey);
     if (config == null) {
       throw new ComponentConfigException("Config group not found: [" + groupKey + "]");
     }
-    return new LinkedHashMap<String, String>(config);
+    return config;
   }
 
   /**
@@ -66,28 +66,7 @@ public class ComponentConfig {
     if (_config.containsKey(groupKey)) {
       throw new ComponentConfigException("Group cannot be added as it already exists: " + groupKey);
     }
-    _config.put(groupKey, new LinkedHashMap<String, String>());
-  }
-
-  /**
-   * Puts a mapping into the config.
-   * <p>
-   * This creates the group if necessary, and replaces any existing key.
-   * 
-   * @param groupKey  the group key, not null
-   * @param innerKey  the inner key, not null
-   * @param value  the value, not null
-   */
-  public void put(String groupKey, String innerKey, String value) {
-    ArgumentChecker.notNull(groupKey, "groupKey");
-    ArgumentChecker.notNull(innerKey, "innerKey");
-    ArgumentChecker.notNull(value, "value");
-    LinkedHashMap<String, String> config = _config.get(groupKey);
-    if (config == null) {
-      config = new LinkedHashMap<String, String>();
-      _config.put(groupKey, config);
-    }
-    config.put(innerKey, value);
+    _config.put(groupKey, new ConfigProperties());
   }
 
   /**
@@ -100,7 +79,7 @@ public class ComponentConfig {
   public boolean contains(String groupKey, String innerKey) {
     ArgumentChecker.notNull(groupKey, "groupKey");
     ArgumentChecker.notNull(innerKey, "innerKey");
-    LinkedHashMap<String, String> config = _config.get(groupKey);
+    ConfigProperties config = _config.get(groupKey);
     return (config != null && config.containsKey(innerKey));
   }
 

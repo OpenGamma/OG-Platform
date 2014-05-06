@@ -28,7 +28,7 @@ public class ComponentManagerTest {
     assertEquals(1, mgr.getConfigIni().getGroup("global").size());
     assertEquals(3, mgr.getConfigIni().getGroup("one").size());
     assertEquals(4, mgr.getConfigIni().getGroup("two").size());
-    assertEquals("one", mgr.getConfigIni().getGroup("one").get("alpha"));
+    assertEquals("one", mgr.getConfigIni().getGroup("one").getValue("alpha"));
   }
 
   @Test
@@ -41,7 +41,7 @@ public class ComponentManagerTest {
     assertEquals(1, mgr.getConfigIni().getGroup("global").size());
     assertEquals(3, mgr.getConfigIni().getGroup("one").size());
     assertEquals(4, mgr.getConfigIni().getGroup("two").size());
-    assertEquals("two", mgr.getConfigIni().getGroup("one").get("alpha"));
+    assertEquals("two", mgr.getConfigIni().getGroup("one").getValue("alpha"));
   }
 
   //-------------------------------------------------------------------------

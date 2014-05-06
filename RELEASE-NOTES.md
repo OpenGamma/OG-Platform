@@ -6,6 +6,15 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M22
+------------
+* PLAT-6473 - Enhancing the security of startup required public and protected methods in og-component to change.
+  This affects code which should not be called by applications, as the application-facing API stays the same.
+
+
+To 2.2.0-M21
+------------
+
 * PLAT-6443 Enhance component-based infrastructure factories
 Renamed factories:
 - com.opengamma.component.factory.master.DataSourceComponentFactory -> com.opengamma.component.factory.infrastructure.DataSourceComponentFactory

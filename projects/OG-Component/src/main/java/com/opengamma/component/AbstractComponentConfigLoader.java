@@ -7,10 +7,8 @@ package com.opengamma.component;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
 /**
@@ -25,7 +23,7 @@ public abstract class AbstractComponentConfigLoader {
   /**
    * The set of properties being built up.
    */
-  private final ConcurrentMap<String, String> _properties;
+  private final ConfigProperties _properties;
 
   /**
    * Creates an instance.
@@ -33,7 +31,7 @@ public abstract class AbstractComponentConfigLoader {
    * @param logger  the logger, not null
    * @param properties  the properties in use, not null
    */
-  public AbstractComponentConfigLoader(ComponentLogger logger, ConcurrentMap<String, String> properties) {
+  public AbstractComponentConfigLoader(ComponentLogger logger, ConfigProperties properties) {
     _logger = logger;
     _properties = properties;
   }
@@ -53,49 +51,11 @@ public abstract class AbstractComponentConfigLoader {
    * 
    * @return the properties, not null
    */
-  public ConcurrentMap<String, String> getProperties() {
+  public ConfigProperties getProperties() {
     return _properties;
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Resolves any ${property} references in the value.
-   * 
-   * @param value  the value to resolve, not null
-   * @param lineNum  the line number, for error messages
-   * @return the resolved value, not null
-   * @throws ComponentConfigException if a variable expansion is not found
-   */
-  protected String resolveProperty(String value, int lineNum) {
-    String variable = findVariable(value);
-    while (variable != null) {
-      if (_properties.containsKey(variable) == false) {
-        throw new ComponentConfigException("Variable expansion not found: ${" + variable + "}, line " + lineNum);
-      }
-      value = StringUtils.replaceOnce(value, "${" + variable + "}", _properties.get(variable));
-      variable = findVariable(value);
-    }
-    return value;
-  }
-
-  /**
-   * Finds a variable to replace.
-   * 
-   * @param value  the value to search, not null
-   * @return the variable, null if not found
-   */
-  private String findVariable(String value) {
-    int start = value.lastIndexOf("${");
-    if (start >= 0) {
-      start += 2;
-      int end = value.indexOf("}", start);
-      if (end >= 0) {
-        return value.substring(start, end);
-      }
-    }
-    return null;
-  }
-
   /**
    * Reads lines from the resource.
    * 

@@ -11,11 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
@@ -85,7 +81,7 @@ public class ComponentManager {
   /**
    * The component properties, updated as properties are discovered.
    */
-  private final ConcurrentMap<String, String> _properties = new ConcurrentHashMap<String, String>();
+  private final ConfigProperties _properties = new ConfigProperties();
   /**
    * The component INI, updated as configuration is discovered.
    */
@@ -140,9 +136,9 @@ public class ComponentManager {
    * This may be populated before calling {@link #start()} if desired.
    * This is an alternative to using a separate properties file.
    * 
-   * @return the map of key-value properties which may be directly edited, not null
+   * @return the key-value properties, which may be directly edited, not null
    */
-  public ConcurrentMap<String, String> getProperties() {
+  public ConfigProperties getProperties() {
     return _properties;
   }
 
@@ -164,7 +160,7 @@ public class ComponentManager {
    * @return the server name, null if name not set
    */
   public String getServerName() {
-    return getProperties().get(OPENGAMMA_SERVER_NAME);
+    return getProperties().getValue(OPENGAMMA_SERVER_NAME);
   }
 
   /**
@@ -280,13 +276,8 @@ public class ComponentManager {
    */
   protected void logProperties() {
     _logger.logDebug("--- Using merged properties ---");
-    Map<String, String> properties = new TreeMap<String, String>(getProperties());
-    for (String key : properties.keySet()) {
-      if (key.contains("password") || key.startsWith("shiro.")) {
-        _logger.logDebug(" " + key + " = *** HIDDEN ***");
-      } else {
-        _logger.logDebug(" " + key + " = " + properties.get(key));
-      }
+    for (String key : getProperties().keySet()) {
+      _logger.logDebug(" " + key + " = " + getProperties().loggableValue(key));
     }
   }
 
@@ -310,9 +301,9 @@ public class ComponentManager {
    */
   protected void initGlobal() {
     if (_configIni.getGroups().contains("global")) {
-      LinkedHashMap<String, String> global = _configIni.getGroup("global");
+      ConfigProperties global = _configIni.getGroup("global");
       PlatformConfigUtils.configureSystemProperties();
-      String zoneId = global.get("time.zone");
+      String zoneId = global.getValue("time.zone");
       if (zoneId != null) {
         OpenGammaClock.setZone(ZoneId.of(zoneId));
       }
@@ -324,7 +315,7 @@ public class ComponentManager {
    */
   protected void initComponents() {
     for (String groupName : _configIni.getGroups()) {
-      LinkedHashMap<String, String> groupData = _configIni.getGroup(groupName);
+      ConfigProperties groupData = _configIni.getGroup(groupName);
       if (groupData.containsKey("factory")) {
         initComponent(groupName, groupData);
       }
@@ -339,14 +330,16 @@ public class ComponentManager {
    * @param groupConfig  the config data, not null
    * @throws ComponentConfigException if the resource cannot be initialized
    */
-  protected void initComponent(String groupName, LinkedHashMap<String, String> groupConfig) {
+  protected void initComponent(String groupName, ConfigProperties groupConfig) {
     _logger.logInfo("--- Initializing " + groupName + " ---");
     long startInstant = System.nanoTime();
     
-    LinkedHashMap<String, String> remainingConfig = new LinkedHashMap<String, String>(groupConfig);
+    LinkedHashMap<String, String> remainingConfig = new LinkedHashMap<String, String>(groupConfig.toMap());
+    LinkedHashMap<String, String> loggableConfig = new LinkedHashMap<String, String>(groupConfig.loggableMap());
     String typeStr = remainingConfig.remove("factory");
+    loggableConfig.remove("factory");
     _logger.logDebug(" Initializing factory '" + typeStr);
-    _logger.logDebug(" Using properties " + remainingConfig);
+    _logger.logDebug(" Using properties " + loggableConfig);
     
     // load factory
     ComponentFactory factory = loadFactory(typeStr);
@@ -463,7 +456,7 @@ public class ComponentManager {
     final String desc = MANAGER_PROPERTIES + " for " + mp;
     final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
     Properties props = new Properties();
-    props.putAll(getProperties());
+    props.putAll(getProperties().toMap());
     props.store(out, desc);
     out.close();
     Resource resource = new AbstractResource() {

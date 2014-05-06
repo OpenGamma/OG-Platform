@@ -5,9 +5,7 @@
  */
 package com.opengamma.component;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +45,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param logger  the logger, not null
    * @param properties  the properties in use, not null
    */
-  public ComponentConfigIniLoader(ComponentLogger logger, ConcurrentMap<String, String> properties) {
+  public ComponentConfigIniLoader(ComponentLogger logger, ConfigProperties properties) {
     super(logger, properties);
   }
 
@@ -117,17 +115,17 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
         }
         
         // resolve ${} references
-        value = resolveProperty(value, lineNum);
+        ConfigProperty resolved = getProperties().resolveProperty(key, value, lineNum);
         
         // handle includes
         if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
-          handleInclude(resource, value, depth, config);
+          handleInclude(resource, resolved.getValue(), depth, config);
         } else {
           // store property
-          config.put(group, key, value);
+          config.getGroup(group).add(resolved);
           // global section treated as setup of properties (which do not override)
-          if (group.equals("global") && getProperties().containsKey(key) == false) {
-            getProperties().put(key, value);
+          if (group.equals("global")) {
+            getProperties().addIfAbsent(resolved);
           }
         }
       }
@@ -175,33 +173,15 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param config  the config to update, not null
    */
   private void overrideProperties(final ComponentConfig config) {
-    List<String[]> iniProperties = extractIniOverrideProperties();
-    for (String[] array : iniProperties) {
-      config.getGroup(array[0]);  // validate group (but returns a copy of the inner map)
-      config.put(array[0], array[1], array[2]);
-      getLogger().logDebug("  Replacing group property: [" + array[0] + "]." + array[1] + "=" + array[2]);
-    }
-  }
-
-  /**
-   * Extracts any properties that match the group name style "[group].key".
-   * <p>
-   * These directly override any INI file settings.
-   * 
-   * @return the extracted set of INI properties, not null
-   */
-  private List<String[]> extractIniOverrideProperties() {
-    List<String[]> extracted = new ArrayList<String[]>();
-    for (String key : getProperties().keySet()) {
-      Matcher matcher = GROUP_OVERRIDE.matcher(key);
+    for (ConfigProperty cp : getProperties().values()) {
+      Matcher matcher = GROUP_OVERRIDE.matcher(cp.getKey());
       if (matcher.matches()) {
         String group = matcher.group(1);
         String propertyKey = matcher.group(2);
-        String[] array = {group, propertyKey, getProperties().get(key)};
-        extracted.add(array);
+        config.getGroup(group).add(cp.withKey(propertyKey));
+        getLogger().logDebug("  Replacing group property: [" + group + "]." + propertyKey + "=" + cp.loggableValue());
       }
     }
-    return extracted;
   }
 
 }
