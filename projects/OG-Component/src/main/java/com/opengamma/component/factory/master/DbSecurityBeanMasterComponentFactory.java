@@ -7,21 +7,30 @@ package com.opengamma.component.factory.master;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.fudgemsg.AnnotationReflector;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.ser.DefaultDeserializer;
+import org.joda.beans.ser.SerDeserializer;
+import org.joda.beans.ser.SerDeserializers;
+import org.reflections.Reflections;
 
 import com.opengamma.component.ComponentRepository;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.DataSecurityMasterResource;
 import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
 import com.opengamma.master.security.impl.PermissionedSecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityMaster;
 import com.opengamma.masterdb.security.DbSecurityBeanMaster;
+import com.opengamma.util.ClassUtils;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -31,6 +40,29 @@ import com.opengamma.util.rest.AbstractDataResource;
 @BeanDefinition
 public class DbSecurityBeanMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<SecurityMaster, DbSecurityBeanMaster> {
 
+  /**
+   * Joda-Bean deserializer to handle renamed property.
+   */
+  private static final SerDeserializer DESERIALIZER = new DefaultDeserializer() {
+    @Override
+    public MetaProperty<?> findMetaProperty(Class<?> beanType, MetaBean metaBean, String propertyName) {
+      if ("permissions".equals(propertyName)) {
+        return metaBean.metaProperty("requiredPermissions");
+      }
+      return super.findMetaProperty(beanType, metaBean, propertyName);
+    }
+  };
+  static {
+    Reflections reflections = AnnotationReflector.getDefaultReflector().getReflector();
+    Set<String> subTypes = reflections.getStore().getSubTypesOf(ManageableSecurity.class.getName());
+    for (final String subType : subTypes) {
+      Class<?> cls = ClassUtils.loadClassRuntime(subType, ManageableSecurity.class);
+      SerDeserializers.INSTANCE.register(cls, DESERIALIZER);
+    }
+    SerDeserializers.INSTANCE.register(ManageableSecurity.class, DESERIALIZER);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    */
