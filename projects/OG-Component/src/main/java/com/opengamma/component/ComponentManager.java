@@ -376,6 +376,8 @@ public class ComponentManager {
     try {
       Class<? extends ComponentFactory> cls = getClass().getClassLoader().loadClass(typeStr).asSubclass(ComponentFactory.class);
       factory = cls.newInstance();
+    } catch (ExceptionInInitializerError ex) {
+      throw new ComponentConfigException("Error starting component factory: " + typeStr, ex);
     } catch (ClassNotFoundException ex) {
       throw new ComponentConfigException("Unknown component factory: " + typeStr, ex);
     } catch (InstantiationException ex) {

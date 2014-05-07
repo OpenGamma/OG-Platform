@@ -240,7 +240,7 @@ public class OpenGammaComponentServer {
       ComponentManager manager = buildManager(configFile, properties);
       manager.load(configFile);
       
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       _logger.logError(ex);
       return false;
     }
@@ -265,7 +265,7 @@ public class OpenGammaComponentServer {
         System.out.println(value);
       }
       
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       _logger.logError(ex);
       return false;
     }
@@ -307,7 +307,7 @@ public class OpenGammaComponentServer {
       repo = manager.start(configFile);
       checkSecurityManager();
       
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       _logger.logError(ex);
       _logger.logError(STARTUP_FAILED_MESSAGE);
       return null;
