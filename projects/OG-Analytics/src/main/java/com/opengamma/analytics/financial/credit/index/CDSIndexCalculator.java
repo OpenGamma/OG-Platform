@@ -370,6 +370,7 @@ public class CDSIndexCalculator {
    */
   public double defaultAdjustedForwardSpread(final CDSAnalytic fwdStartingCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve, final IntrinsicIndexDataBundle intrinsicData) {
     ArgumentChecker.notNull(fwdStartingCDS, "fwdStartingCDS");
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry given as {}", timeToExpiry);
     ArgumentChecker.isTrue(fwdStartingCDS.getEffectiveProtectionStart() >= timeToExpiry, "effective protection start of {} is less than time to expiry of {}. Must provide a forward starting CDS",
         fwdStartingCDS.getEffectiveProtectionStart(), timeToExpiry);
 
@@ -393,6 +394,7 @@ public class CDSIndexCalculator {
    */
   public double defaultAdjustedForwardSpread(final CDSAnalytic fwdStartingCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve indexCurve) {
     ArgumentChecker.notNull(fwdStartingCDS, "fwdCDS");
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry given as {}", timeToExpiry);
     ArgumentChecker.isTrue(fwdStartingCDS.getEffectiveProtectionStart() >= timeToExpiry, "effective protection start of {} is less than time to expiry of {}. Must provide a forward starting CDS",
         fwdStartingCDS.getEffectiveProtectionStart(), timeToExpiry);
     final double defSettle = expectedDefaultSettlementValue(timeToExpiry, indexCurve, fwdStartingCDS.getLGD());
@@ -418,6 +420,7 @@ public class CDSIndexCalculator {
   public double defaultAdjustedForwardSpread(final CDSAnalytic fwdStartingCDS, final double timeToExpiry, final int initialIndexSize, final ISDACompliantYieldCurve yieldCurve,
       final ISDACompliantCreditCurve indexCurve, final double initialDefaultSettlement, final int numDefaults) {
     ArgumentChecker.notNull(fwdStartingCDS, "fwdCDS");
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry given as {}", timeToExpiry);
     ArgumentChecker.isTrue(fwdStartingCDS.getEffectiveProtectionStart() >= timeToExpiry, "effective protection start of {} is less than time to expiry of {}. Must provide a forward starting CDS",
         fwdStartingCDS.getEffectiveProtectionStart(), timeToExpiry);
     final double f = (initialIndexSize - numDefaults) / ((double) initialIndexSize);
