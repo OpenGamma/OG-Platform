@@ -58,13 +58,13 @@ public class BlackIndexOptionPricer {
    * @param intrinsicData credit curves, weights and recovery rates of the intrinsic names. Usually these would have first been adjusted to match index prices (using {@link PortfolioSwapAdjustment#adjustCurves})
    */
   public BlackIndexOptionPricer(final CDSAnalytic fwdCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve, final double indexCoupon, final IntrinsicIndexDataBundle intrinsicData) {
-    this(fwdCDS, timeToExpiry, yieldCurve, indexCoupon, getFwdSpreadAndAnnuity(fwdCDS, timeToExpiry, yieldCurve, indexCoupon, intrinsicData));
+    this(fwdCDS, timeToExpiry, yieldCurve, indexCoupon, getFwdSpreadAndAnnuity(fwdCDS, timeToExpiry, yieldCurve, intrinsicData));
   }
 
   private BlackIndexOptionPricer(final CDSAnalytic fwdCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve, final double indexCoupon, final double[] fwdSpreadAndAnnity) {
     ArgumentChecker.notNull(fwdCDS, "fwdCDS");
     ArgumentChecker.isTrue(timeToExpiry > 0.0, "timeToExpiry must be positive. Value given {}", timeToExpiry);
-    ArgumentChecker.isTrue(fwdCDS.getEffectiveProtectionStart() == 0.0, "fwdCDS should be a Forward CDS - set Java docs");
+    ArgumentChecker.isTrue(fwdCDS.getEffectiveProtectionStart() == 0.0, "fwdCDS should be a Forward CDS");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.isTrue(indexCoupon > 0.0, "indexCoupon must be positive");
     ArgumentChecker.isTrue(fwdSpreadAndAnnity.length == 2, "too many parameters passed in");
@@ -78,7 +78,7 @@ public class BlackIndexOptionPricer {
       LOGGER.warn("defaultAdjustedFwdSpread should be given as a fraction; a value of " + defaultAdjustedFwdSpread + " is " + defaultAdjustedFwdSpread * 1e4 + "basis points.");
     }
     ArgumentChecker.isTrue(pvFwdAnnuity > 0, "pvFwdAnnuity must be positive");
-    ArgumentChecker.isTrue(pvFwdAnnuity < fwdCDS.getProtectionEnd() * 1.1, "Value of annuity of {} is greater than length (in years) of forward CDS. Annuity should be given for unit notional.",
+    ArgumentChecker.isTrue(pvFwdAnnuity < fwdCDS.getProtectionEnd() * 1.1, "Value of annuity of {} is greater than length (in years) of forward CDS. Annuity should be given for unit notional",
         pvFwdAnnuity);
 
     _annuityFunc = new AnnuityForSpreadISDAFunction(fwdCDS, yieldCurve.withOffset(timeToExpiry));
@@ -93,14 +93,14 @@ public class BlackIndexOptionPricer {
     _maxExercisePrice = fwdCDS.getLGD();
   }
 
-  private static double[] getFwdSpreadAndAnnuity(final CDSAnalytic fwdCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve, final double indexCoupon,
+  private static double[] getFwdSpreadAndAnnuity(final CDSAnalytic fwdCDS, final double timeToExpiry, final ISDACompliantYieldCurve yieldCurve,
       final IntrinsicIndexDataBundle intrinsicData) {
     final CDSIndexCalculator indexCal = new CDSIndexCalculator();
     final double[] res = new double[2];
 
     final CDSAnalytic fwdStartCDS = fwdCDS.withOffset(timeToExpiry);
     res[0] = indexCal.defaultAdjustedForwardSpread(fwdStartCDS, timeToExpiry, yieldCurve, intrinsicData);
-    res[1] = indexCal.indexAnnuity(fwdCDS, yieldCurve, intrinsicData, 0.0);
+    res[1] = indexCal.indexAnnuity(fwdStartCDS, yieldCurve, intrinsicData);
     return res;
   }
 
