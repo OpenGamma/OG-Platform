@@ -498,5 +498,4 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     return indexConvention.accept(this);
   }
 
-
 }

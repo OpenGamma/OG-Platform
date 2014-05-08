@@ -585,6 +585,4 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     }
     return null;
   }
-
-
 }

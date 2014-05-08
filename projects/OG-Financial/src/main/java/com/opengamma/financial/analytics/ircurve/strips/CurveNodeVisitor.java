@@ -129,5 +129,4 @@ public interface CurveNodeVisitor<T> {
    * @return The return value
    */
   T visitZeroCouponInflationNode(ZeroCouponInflationNode node);
-  
 }

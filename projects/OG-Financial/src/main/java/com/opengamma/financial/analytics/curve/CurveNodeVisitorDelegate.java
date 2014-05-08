@@ -127,5 +127,4 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
     return _delegate.visitZeroCouponInflationNode(node);
   }
 
-
 }
