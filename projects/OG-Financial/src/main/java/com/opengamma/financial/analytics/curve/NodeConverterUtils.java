@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -24,7 +25,6 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.DateSet;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -50,7 +50,6 @@ import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.CalendarBusinessDateUtils;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
@@ -525,31 +524,39 @@ public class NodeConverterUtils {
       @SuppressWarnings("synthetic-access")
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitOISLegConvention(final OISLegConvention convention) {
-        final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
+        final Security sec = securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Overnight index with id " + convention.getOvernightIndexConvention() + " was null");
+        }
+        final OvernightIndex index = (OvernightIndex) sec;
+        final OvernightIndexConvention indexConvention = conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
+        final IndexON indexON = ConverterUtils.indexON(index.getName(), indexConvention);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
-        final IndexON indexON = ConverterUtils.indexON(indexConvention.getName(), indexConvention);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
         final boolean eomLeg = convention.isIsEOM();
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
         final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
-        final ZonedDateTime effectiveDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateStartOffset).atTime(adjustedStartDate.toLocalTime()).atZone(
-            adjustedStartDate.getZone());
-        //CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate.toLocalDate(), calendarStartEndDate,
-        //    calendarDateStartOffset).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
-        final ZonedDateTime maturityDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateEndOffset).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
-            //CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendarStartEndDate,
-            //calendarDateEndOffset - calendarDateStartOffset).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
+        final LocalDate effectiveDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateStartOffset);
+        if (effectiveDate == null) {
+          throw new OpenGammaRuntimeException("Could not get the date number " + calendarDateStartOffset + " in date set");
+        }
+        final ZonedDateTime effectiveDateTime = effectiveDate.atStartOfDay(ZoneId.of("UTC"));
+        final LocalDate maturityDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateEndOffset);
+        if (maturityDate == null) {
+          throw new OpenGammaRuntimeException("Could not get the date number " + calendarDateEndOffset + " in date set");
+        }
+        final ZonedDateTime maturityDateTime = maturityDate.atStartOfDay(ZoneId.of("UTC"));
         final StubType stub = convention.getStubType();
         if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(effectiveDate, maturityDate, paymentPeriod, 1.0d, spread, indexON, isPayer,
+          return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(effectiveDateTime, maturityDateTime, paymentPeriod, 1.0d, spread, indexON, isPayer,
               businessDayConvention, eomLeg, calendar, stub, paymentLag);
         }
-        return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(effectiveDate, maturityDate, paymentPeriod, 1.0d, 0.0d, indexON, isPayer,
+        return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(effectiveDateTime, maturityDateTime, paymentPeriod, 1.0d, 0.0d, indexON, isPayer,
             businessDayConvention, eomLeg, calendar, stub, paymentLag);
       }
 
@@ -567,15 +574,19 @@ public class NodeConverterUtils {
         final boolean eomLeg = convention.isIsEOM();
         final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
-        //final ZonedDateTime effectiveDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate.toLocalDate(), calendar,
-        //    calendarDateStartOffset).atStartOfDay(ZoneId.of("UTC"));
-        final ZonedDateTime effectiveDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateStartOffset).atStartOfDay(ZoneId.of("UTC"));
-        //final ZonedDateTime maturityDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendar,
-        //    calendarDateEndOffset - calendarDateStartOffset).atStartOfDay(ZoneId.of("UTC"));
-        final ZonedDateTime maturityDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateEndOffset).atStartOfDay(ZoneId.of("UTC"));
+        final LocalDate effectiveDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateStartOffset);
+        if (effectiveDate == null) {
+          throw new OpenGammaRuntimeException("Could not get the date number " + calendarDateStartOffset + " in date set");
+        }
+        final ZonedDateTime effectiveDateTime = effectiveDate.atStartOfDay(ZoneId.of("UTC"));
+        final LocalDate maturityDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateEndOffset);
+        if (maturityDate == null) {
+          throw new OpenGammaRuntimeException("Could not get the date number " + calendarDateEndOffset + " in date set");
+        }
+        final ZonedDateTime maturityDateTime = maturityDate.atStartOfDay(ZoneId.of("UTC"));
         final StubType stub = convention.getStubType();
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
-        return AnnuityDefinitionBuilder.couponFixed(currency, effectiveDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg,
+        return AnnuityDefinitionBuilder.couponFixed(currency, effectiveDateTime, maturityDateTime, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg,
               1.0d, rate, isPayer, stub, paymentLag);
       }
 
