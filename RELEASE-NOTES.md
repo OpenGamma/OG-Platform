@@ -11,6 +11,15 @@ To 2.2.0-M22
 * PLAT-6473 - Enhancing the security of startup required public and protected methods in og-component to change.
   This affects code which should not be called by applications, as the application-facing API stays the same.
 
+* Bug
+    * [PLAT-6473] - Enhanced security in startup logging
+    * [PLAT-6474] - Metrics component factory JMX null check
+    * [PLAT-6475] - Handle property rename from permission to requiredPermission
+* Improvement
+    * [PLAT-6464] - Move @Config annotation from AbstractCurrencyMatrix to CurrencyMatrix
+* New Feature
+    * [PLAT-6297] - OG-Analytics: BondFutureOptionMargin: Black pricing method
+
 
 To 2.2.0-M21
 ------------
