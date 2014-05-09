@@ -5,18 +5,19 @@
  */
 package com.opengamma.util.result;
 
-import org.apache.commons.lang.StringUtils;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.PropertyDefinition;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -43,13 +44,13 @@ public final class Failure implements ImmutableBean {
   private final ThrowableDetails _causeDetails;
 
   @ImmutableConstructor
-  /* package */ Failure(FailureStatus status, String message, ThrowableDetails causeDetails) {
+  Failure(FailureStatus status, String message, ThrowableDetails causeDetails) {
     _status = ArgumentChecker.notNull(status, "status");
     _message = ArgumentChecker.notEmpty(message, "message");
     _causeDetails = causeDetails;
   }
 
-  /* package */ Failure(FailureStatus status, String message, Exception cause) {
+  Failure(FailureStatus status, String message, Exception cause) {
     _status = ArgumentChecker.notNull(status, "status");
     _message = ArgumentChecker.notEmpty(message, "message");
     if (cause != null) {
@@ -59,16 +60,20 @@ public final class Failure implements ImmutableBean {
     }
   }
 
-  /* package */ Failure(FailureStatus failureStatus, String message) {
+  Failure(FailureStatus failureStatus, Exception cause) {
+    this(failureStatus, getMessage(ArgumentChecker.notNull(cause, "cause")), (ThrowableDetails) null);
+  }
+
+  Failure(FailureStatus failureStatus, String message) {
     this(failureStatus, message, (ThrowableDetails) null);
   }
 
-  /* package */ Failure(Exception cause, String message) {
+  Failure(Exception cause, String message) {
     this(FailureStatus.ERROR, message, ArgumentChecker.notNull(cause, "cause"));
   }
 
-  /* package */ Failure(Exception cause) {
-    this(FailureStatus.ERROR, getMessage(ArgumentChecker.notNull(cause, "cause")), cause);
+  Failure(Exception cause) {
+    this(FailureStatus.ERROR, cause);
   }
 
   /**

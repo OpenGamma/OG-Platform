@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.result;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
@@ -62,5 +64,37 @@ public class ResultTest {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
     Result.failure(success1, success2);
+  }
+
+  @Test
+  public void generateFailureFromException() {
+    Exception exception = new Exception("something went wrong");
+    Result<Object> failure = Result.failure(exception);
+    assertThat(failure.getStatus(), is((ResultStatus) FailureStatus.ERROR));
+    assertThat(failure.getFailureMessage(), is("something went wrong"));
+  }
+
+  @Test
+  public void generateFailureFromExceptionWithMessage() {
+    Exception exception = new Exception("something went wrong");
+    Result<Object> failure = Result.failure(exception, "my message");
+    assertThat(failure.getStatus(), is((ResultStatus) FailureStatus.ERROR));
+    assertThat(failure.getFailureMessage(), is("my message"));
+  }
+
+  @Test
+  public void generateFailureFromExceptionWithCustomStatus() {
+    Exception exception = new Exception("something went wrong");
+    Result<Object> failure = Result.failure(FailureStatus.PERMISSION_DENIED, exception);
+    assertThat(failure.getStatus(), is((ResultStatus) FailureStatus.PERMISSION_DENIED));
+    assertThat(failure.getFailureMessage(), is("something went wrong"));
+  }
+
+  @Test
+  public void generateFailureFromExceptionWithCustomStatusAndMessage() {
+    Exception exception = new Exception("something went wrong");
+    Result<Object> failure = Result.failure(FailureStatus.PERMISSION_DENIED, exception, "my message");
+    assertThat(failure.getStatus(), is((ResultStatus) FailureStatus.PERMISSION_DENIED));
+    assertThat(failure.getFailureMessage(), is("my message"));
   }
 }

@@ -188,10 +188,9 @@ public abstract class Result<T> {
    * @param messageArgs arguments for the message
    * @param <U> the expected type of the result
    * @return a failed result
-   * @throws IllegalArgumentException if the status is SUCCESS
    */
   public static <U> Result<U> failure(FailureStatus status, String message, Object... messageArgs) {
-    return FailureResult.of(new Failure(status, MessageFormatter.arrayFormat(message, messageArgs).getMessage()));
+    return FailureResult.of(new Failure(status, formatMessage(message, messageArgs)));
   }
 
   /**
@@ -204,7 +203,7 @@ public abstract class Result<T> {
    * @return a failed result
    */
   public static <U> Result<U> failure(Exception exception, String message, Object... messageArgs) {
-    return FailureResult.of(new Failure(exception, MessageFormatter.arrayFormat(message, messageArgs).getMessage()));
+    return FailureResult.of(new Failure(exception, formatMessage(message, messageArgs)));
   }
 
   /**
@@ -217,6 +216,37 @@ public abstract class Result<T> {
   public static <U> Result<U> failure(Exception exception) {
     return FailureResult.of(new Failure(exception));
   }
+
+  /**
+   * Creates a failed result caused by an exception with a specified status.
+   *
+   * @param status the result status
+   * @param exception the cause of the failure
+   * @param <U> the expected type of the result
+   * @return a failed result
+   */
+  public static <U> Result<U> failure(FailureStatus status, Exception exception) {
+    return FailureResult.of(new Failure(status, exception));
+  }
+
+  /**
+   * Creates a failed result caused by an exception with a specified status and message.
+   *
+   * @param status the result status
+   * @param exception the cause of the failure
+   * @param message a message explaining the failure, uses the SLF4J message format for inserting {@code messageArgs}
+   * @param messageArgs arguments for the message
+   * @param <U> the expected type of the result
+   * @return a failed result
+   */
+  public static <U> Result<U> failure(FailureStatus status, Exception exception, String message, Object... messageArgs) {
+    return FailureResult.of(new Failure(status, formatMessage(message, messageArgs), exception));
+  }
+
+  private static String formatMessage(String message, Object[] messageArgs) {
+    return MessageFormatter.arrayFormat(message, messageArgs).getMessage();
+  }
+
 
   /**
    * Returns a failed result from another failed result.
@@ -275,7 +305,6 @@ public abstract class Result<T> {
       return FailureResult.of(failures);
     }
   }
-
 
   /**
    * Creates a failed result cause by multiple failed results.
