@@ -542,9 +542,9 @@ public class ComponentManager {
       
     } else if (Collection.class.isAssignableFrom(propertyType)) {
       // set property by value type conversion from comma separated String
-      Iterable<String> split = Splitter.on(',').trimResults().split(value);
       Class<?> collType = JodaBeanUtils.collectionType(mp, bean.getClass());
       if (isConvertibleFromString(collType)) {
+        Iterable<String> split = Splitter.on(',').trimResults().split(value);
         Builder<Object> builder = ImmutableList.builder();
         for (String singleValue : split) {
           builder.add(convert(collType, singleValue));

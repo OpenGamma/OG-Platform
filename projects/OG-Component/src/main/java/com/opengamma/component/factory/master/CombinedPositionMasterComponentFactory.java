@@ -8,8 +8,8 @@ package com.opengamma.component.factory.master;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -61,21 +61,16 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
     final String defaultPositionScheme = repo.getInfo(getDefaultPositionMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
     map.put(defaultPositionScheme, getDefaultPositionMaster());
     
-    for (final String key : configuration.keySet()) {
-      if (key.matches("positionMaster[0-9]+")) {
-        final String valueStr = configuration.get(key);
-        if (valueStr.contains("::")) {
-          final String type = StringUtils.substringBefore(valueStr, "::");
-          final String classifier = StringUtils.substringAfter(valueStr, "::");
-          final ComponentInfo info = repo.findInfo(type, classifier);
-          if (info == null) {
-            throw new IllegalArgumentException("Component not found: " + valueStr);
-          }
-          PositionMaster positionMaster = repo.getInstance(PositionMaster.class, classifier);
-          String uniqueIdScheme = repo.getInfo(positionMaster).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
-          map.put(uniqueIdScheme, positionMaster);
-          configuration.remove(key);
-        }
+    // all additional PositionMaster instances
+    Map<String, ComponentInfo> infos = repo.findInfos(configuration);
+    for (Entry<String, ComponentInfo> entry : infos.entrySet()) {
+      String key = entry.getKey();
+      ComponentInfo info = entry.getValue();
+      if (key.matches("positionMaster[0-9]+") && info.getType() == PositionMaster.class) {
+        PositionMaster positionMaster = (PositionMaster) repo.getInstance(info);
+        String uniqueIdScheme = repo.getInfo(positionMaster).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
+        map.put(uniqueIdScheme, positionMaster);
+        configuration.remove(key);
       }
     }
     PositionMaster master = new DelegatingPositionMaster(getDefaultPositionMaster(), map);

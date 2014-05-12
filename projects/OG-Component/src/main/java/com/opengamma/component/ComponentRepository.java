@@ -8,6 +8,7 @@ package com.opengamma.component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +21,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
@@ -290,7 +292,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   //-------------------------------------------------------------------------
   /**
-   * Finds the component information.
+   * Finds component information from type name and classifier.
    * <p>
    * This method is lenient, ignoring case and matching both full and simple type names.
    *
@@ -312,7 +314,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
-   * Finds the component information.
+   * Finds the component information from type and classifier.
    * <p>
    * This method is lenient, ignoring case and matching both full and simple type names.
    *
@@ -331,6 +333,46 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       }
     }
     return null;
+  }
+
+  /**
+   * Finds component information from the combined type name and classifier, such as 'Foo::bar'.
+   * <p>
+   * This method is lenient, ignoring case and matching both full and simple type names.
+   *
+   * @param componentKey  the type name and classifier, such as 'Foo::bar', not null
+   * @return the component information, null if not found
+   */
+  public ComponentInfo findInfo(String componentKey) {
+    ArgumentChecker.notNull(componentKey, "qualifiedClassifier");
+    if (componentKey.contains("::") == false) {
+      return null;
+    }
+    String type = StringUtils.substringBefore(componentKey, "::");
+    String classifier = StringUtils.substringAfter(componentKey, "::");
+    return findInfo(type, classifier);
+  }
+
+  /**
+   * Finds component information from the combined type name and classifier,
+   * such as 'Foo::bar', keyed by an arbitary name.
+   * <p>
+   * The returned map only contains valid components as per {@link #findInfo(String)}.
+   * It is intended to be used in a {@code ComponentFactory} being passed the map of configuration.
+   *
+   * @param namedComponentKeys  the map of name to component key , not null
+   * @return the map of name to component information, not null
+   */
+  public LinkedHashMap<String, ComponentInfo> findInfos(Map<String, String> namedComponentKeys) {
+    ArgumentChecker.notNull(namedComponentKeys, "namedComponentKeys");
+    LinkedHashMap<String, ComponentInfo> infos = new LinkedHashMap<>();
+    for (Entry<String, String> entry : namedComponentKeys.entrySet()) {
+      ComponentInfo info = findInfo(entry.getValue());
+      if (info != null) {
+        infos.put(entry.getKey(), info);
+      }
+    }
+    return infos;
   }
 
   //-------------------------------------------------------------------------

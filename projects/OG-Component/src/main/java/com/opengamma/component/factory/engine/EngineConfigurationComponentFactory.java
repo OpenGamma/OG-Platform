@@ -136,9 +136,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
       String valueStr = configuration.get(key);
       Object targetValue = valueStr;
       if (valueStr.contains("::")) {
-        String type = StringUtils.substringBefore(valueStr, "::");
-        String classifier = StringUtils.substringAfter(valueStr, "::");
-        ComponentInfo info = repo.findInfo(type, classifier);
+        ComponentInfo info = repo.findInfo(valueStr);
         if (info == null) {
           throw new IllegalArgumentException("Component not found: " + valueStr);
         }
