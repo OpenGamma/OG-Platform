@@ -536,7 +536,7 @@ public class ComponentManager {
    */
   protected void setPropertyInferType(Bean bean, MetaProperty<?> mp, String value) {
     Class<?> propertyType = mp.propertyType();
-    if (isConvertible(mp.propertyType())) {
+    if (isConvertibleFromString(mp.propertyType())) {
       // set property by value type conversion from String
       mp.set(bean, convert(propertyType, value));
       
@@ -544,7 +544,7 @@ public class ComponentManager {
       // set property by value type conversion from comma separated String
       Iterable<String> split = Splitter.on(',').trimResults().split(value);
       Class<?> collType = JodaBeanUtils.collectionType(mp, bean.getClass());
-      if (isConvertible(collType)) {
+      if (isConvertibleFromString(collType)) {
         Builder<Object> builder = ImmutableList.builder();
         for (String singleValue : split) {
           builder.add(convert(collType, singleValue));
@@ -560,12 +560,12 @@ public class ComponentManager {
   }
 
   /**
-   * Can the specified type be converted to a string.
+   * Can the specified type be converted from a string.
    * 
    * @param type  the type to convert, not null
    * @return true if it can be converted
    */
-  private static boolean isConvertible(Class<?> type) {
+  private static boolean isConvertibleFromString(Class<?> type) {
     return JodaBeanUtils.stringConverter().isConvertible(type) || type == Resource.class;
   }
 
