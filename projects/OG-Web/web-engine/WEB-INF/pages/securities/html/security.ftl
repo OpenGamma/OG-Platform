@@ -27,19 +27,10 @@
         <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
       <#break>
       <#case "BOND_TOTAL_RETURN_SWAP">
-        <@rowout label="Effective Date">${security.effectiveDate.toLocalDate()}</@rowout>
-        <@rowout label="Maturity">${security.maturityDate.toLocalDate()}</@rowout>
+        <@rowout label="Effective Date">${security.effectiveDate}</@rowout>
+        <@rowout label="Maturity">${security.maturityDate}</@rowout>
         <@rowout label="Notional">${security.notionalCurrency} ${security.notionalAmount}</@rowout>
-        <@rowout label="Asset Id">${security.assetId}}</@rowout>
         <@rowout label="Floating Rate Id">${security.fundingLeg.floatingReferenceRateId}</@rowout>
-        <@rowout label="Spreads"></@rowout>
-          <#list spreads?keys as key>
-            <@rowout label="">${key} - ${spread[key]}</@rowout>
-          </#list>
-        <@rowout label="Payment Date Calendar"></@rowout>
-          <#list paymentDateCalendars?keys as key>
-            <@rowout label="">${key} - ${paymentDateCalendar[key]}</@rowout>
-          </#list>
         <@rowout label="Payment Settlement Days">${security.paymentSettlementDays}</@rowout>
         <@rowout label="Payment Business Day Convention">${security.paymentBusinessDayConvention}</@rowout>
         <@rowout label="Payment Frequency">${security.paymentFrequency}</@rowout>
@@ -50,21 +41,12 @@
         </#if>
       <#break>
       <#case "EQUITY_TOTAL_RETURN_SWAP">
-        <@rowout label="Effective Date">${security.effectiveDate.toLocalDate()}</@rowout>
-        <@rowout label="Maturity">${security.maturityDate.toLocalDate()}</@rowout>
+        <@rowout label="Effective Date">${security.effectiveDate}</@rowout>
+        <@rowout label="Maturity">${security.maturityDate}</@rowout>
         <@rowout label="Notional">${security.notionalCurrency} ${security.notionalAmount}</@rowout>
-        <@rowout label="Asset Id">${security.assetId}}</@rowout>
         <@rowout label="Number of Shares">${security.numberOfShares}</@rowout>
         <@rowout label="Dividend Percentage">${security.dividendPercentage}</@rowout>
         <@rowout label="Floating Rate Id">${security.fundingLeg.floatingReferenceRateId}</@rowout>
-        <@rowout label="Spreads"></@rowout>
-          <#list spreads?keys as key>
-            <@rowout label="">${key} - ${spread[key]}</@rowout>
-          </#list>
-        <@rowout label="Payment Date Calendar"></@rowout>
-          <#list paymentDateCalendars?keys as key>
-            <@rowout label="">${key} - ${paymentDateCalendar[key]}</@rowout>
-          </#list>
         <@rowout label="Payment Settlement Days">${security.paymentSettlementDays}</@rowout>
         <@rowout label="Payment Business Day Convention">${security.paymentBusinessDayConvention}</@rowout>
         <@rowout label="Payment Frequency">${security.paymentFrequency}</@rowout>
