@@ -29,7 +29,7 @@ public class FederalFundsFutureTransactionDefinition extends FuturesTransactionD
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price. The price is in relative number and not in percent. This is the quoted price of the future.
    */
-  public FederalFundsFutureTransactionDefinition(final FederalFundsFutureSecurityDefinition underlyingFuture, final int quantity, final ZonedDateTime tradeDate, final double tradePrice) {
+  public FederalFundsFutureTransactionDefinition(final FederalFundsFutureSecurityDefinition underlyingFuture, final long quantity, final ZonedDateTime tradeDate, final double tradePrice) {
     super(underlyingFuture, quantity, tradeDate, tradePrice);
   }
 

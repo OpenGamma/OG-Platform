@@ -63,6 +63,8 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
@@ -75,8 +77,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -198,23 +200,43 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bond, final DATA_TYPE data) {
-    return _delegate.visitYieldAverageBondFuturesSecurityDefinition(bond, data);
+  public RESULT_TYPE visitBondFuturesYieldAverageSecurityDefinition(final BondFuturesYieldAverageSecurityDefinition bond, final DATA_TYPE data) {
+    return _delegate.visitBondFuturesYieldAverageSecurityDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bond) {
-    return _delegate.visitYieldAverageBondFuturesSecurityDefinition(bond);
+  public RESULT_TYPE visitBondFuturesYieldAverageSecurityDefinition(final BondFuturesYieldAverageSecurityDefinition bond) {
+    return _delegate.visitBondFuturesYieldAverageSecurityDefinition(bond);
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bond, final DATA_TYPE data) {
+  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final BondFuturesYieldAverageTransactionDefinition bond, final DATA_TYPE data) {
     return _delegate.visitYieldAverageBondFuturesTransactionDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bond) {
+  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final BondFuturesYieldAverageTransactionDefinition bond) {
     return _delegate.visitYieldAverageBondFuturesTransactionDefinition(bond);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginSecurityDefinition(final BondFuturesOptionMarginSecurityDefinition bond, final DATA_TYPE data) {
+    return _delegate.visitBondFuturesOptionMarginSecurityDefinition(bond, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginSecurityDefinition(final BondFuturesOptionMarginSecurityDefinition bond) {
+    return _delegate.visitBondFuturesOptionMarginSecurityDefinition(bond);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginTransactionDefinition(final BondFuturesOptionMarginTransactionDefinition bond, final DATA_TYPE data) {
+    return _delegate.visitBondFuturesOptionMarginTransactionDefinition(bond, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFuturesOptionMarginTransactionDefinition(final BondFuturesOptionMarginTransactionDefinition bond) {
+    return _delegate.visitBondFuturesOptionMarginTransactionDefinition(bond);
   }
 
   @Override
@@ -223,8 +245,18 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
+    return _delegate.visitBondFutureOptionPremiumSecurityDefinition(bond);
+  }
+
+  @Override
   public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondFutureOptionPremiumTransactionDefinition(bond, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
+    return _delegate.visitBondFutureOptionPremiumTransactionDefinition(bond);
   }
 
   @Override
@@ -415,16 +447,6 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future) {
     return _delegate.visitInterestRateFutureOptionMarginTransactionDefinition(future);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
-    return _delegate.visitBondFutureOptionPremiumSecurityDefinition(bond);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
-    return _delegate.visitBondFutureOptionPremiumTransactionDefinition(bond);
   }
 
   // -----     Payment and coupon     -----

@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.PRICE_INDEX;
-import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;
+/*import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;*/
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +44,7 @@ import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
 import com.opengamma.analytics.financial.legalentity.Sector;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -52,14 +52,13 @@ import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.legalentity.Rating;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.convention.InflationLegConvention;
-import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -179,9 +178,19 @@ public class BondAndBondFutureTradeWithEntityConverter {
       }
       final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final InflationBondSecurity bondSecurity = (InflationBondSecurity) security;
+      final Calendar calendar;
+      final ExternalId regionId = ExternalSchemes.financialRegionId(bondSecurity.getIssuerDomicile());
+      // If the bond is Supranational, we use the calendar derived from the currency of the bond.
+      // this may need revisiting.
+      if (regionId.getValue().equals("SNAT")) { // Supranational
+        calendar = CalendarUtils.getCalendar(_holidaySource, bondSecurity.getCurrency());
+      } else {
+        calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+      }
+      final ZonedDateTime settlementDateTime = ScheduleCalculator.getAdjustedDate(tradeDateTime, Integer.parseInt(bondSecurity.attributes().get().get("daysToSettle")), calendar);
       final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
       final BondCapitalIndexedSecurityDefinition bondFuture = (BondCapitalIndexedSecurityDefinition) getInflationBond(bondSecurity, legalEntity);
-      return new BondCapitalIndexedTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
+      return new BondCapitalIndexedTransactionDefinition(bondFuture, quantity, settlementDateTime, price);
     }
 
     OffsetTime settleTime = trade.getPremiumTime();
@@ -424,8 +433,15 @@ public class BondAndBondFutureTradeWithEntityConverter {
           throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());
         }
         final Currency currency = bond.getCurrency();
-        final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
-        final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);
+        final ExternalId indexId = ExternalId.parse(bond.attributes().get().get("ReferenceIndexId"));
+
+        final Security sec = _securitySource.getSingle(indexId.toBundle());
+        if (sec == null) {
+          throw new OpenGammaRuntimeException("Ibor index with id " + indexId + " was null");
+        }
+        final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
+
+        final IndexPrice priceIndex = new IndexPrice(indexSecurity.getName(), currency);
         final Calendar calendar;
         // If the bond is Supranational, we use the calendar derived from the currency of the bond.
         // this may need revisiting.
@@ -440,7 +456,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
         final ZoneId zone = bond.getInterestAccrualDate().getZone();
         final ZonedDateTime firstAccrualDate = ZonedDateTime.of(bond.getInterestAccrualDate().toLocalDate().atStartOfDay(), zone);
         final ZonedDateTime maturityDate = ZonedDateTime.of(bond.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
-        final int monthLag = _conventionSource.getSingle(getIds(currency, INFLATION_LEG), InflationLegConvention.class).getMonthLag();
+        final int monthLag = Integer.parseInt(bond.attributes().get().get("InflationLag"));
         final double rate = bond.getCouponRate() / 100;
         final DayCount dayCount = bond.getDayCount();
         final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING; //bond.getBusinessDayConvention();
@@ -452,15 +468,20 @@ public class BondAndBondFutureTradeWithEntityConverter {
         if (bond.getCouponType().equals("NONE") || bond.getCouponType().equals("ZERO COUPON")) { //TODO find where string is
           return new PaymentFixedDefinition(currency, maturityDate, 1);
         }
-        if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
-          throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
-        }
-        final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
+        final int settlementDays = Integer.parseInt(bond.attributes().get().get("daysToSettle"));
         final Period paymentPeriod = getTenor(bond.getCouponFrequency());
         final double baseCPI = Double.parseDouble(bond.attributes().get().get("BaseCPI"));
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
-        return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
-            calendar, dayCount, yieldConvention, isEOM, legalEntity);
+        final String interpolationMethod = bond.attributes().get().get("interpolationMethod");
+        if ("Monthly".equals(interpolationMethod)) {
+          return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
+              calendar, dayCount, yieldConvention, isEOM, legalEntity);
+        } else if ("Daily".equals(interpolationMethod)) {
+          return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
+              calendar, dayCount, yieldConvention, isEOM, legalEntity);
+        } else {
+          throw new OpenGammaRuntimeException("Bond interpolation method is not valid");
+        }
       }
     });
   }

@@ -19,7 +19,7 @@ public class FederalFundsFutureTransaction extends FuturesTransaction<FederalFun
    * @param quantity The quantity of the transaction. Can be positive or negative.
    * @param referencePrice The reference price. It is the transaction price on the transaction date and the last close (margining) price afterward.
    */
-  public FederalFundsFutureTransaction(final FederalFundsFutureSecurity underlyingFuture, final int quantity, final double referencePrice) {
+  public FederalFundsFutureTransaction(final FederalFundsFutureSecurity underlyingFuture, final long quantity, final double referencePrice) {
     super(underlyingFuture, quantity, referencePrice);
   }
 

@@ -30,6 +30,7 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InflationIssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.id.ExternalId;
@@ -43,7 +44,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Builders for curve construction configurations.
  */
-/* package */ final class CurveConfigurationBuilders {
+/* package */final class CurveConfigurationBuilders {
   /** The name field */
   private static final String NAME_FIELD = "name";
   /** The unique id field */
@@ -232,6 +233,35 @@ import com.opengamma.util.time.Tenor;
       final String reference = message.getString(REFERENCE_FIELD);
       final ExternalId priceIndex = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PRICE_INDEX_FIELD));
       final InflationCurveTypeConfiguration configuration = new InflationCurveTypeConfiguration(reference, priceIndex);
+      return configuration;
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link InflationIssuerCurveTypeConfiguration}
+   */
+  @FudgeBuilderFor(InflationIssuerCurveTypeConfiguration.class)
+  public static class InflationIssuerCurveTypeConfigurationBuilder implements FudgeBuilder<InflationIssuerCurveTypeConfiguration> {
+    /** The reference field */
+    private static final String REFERENCE_FIELD = "reference";
+    /** The price index field */
+    private static final String PRICE_INDEX_FIELD = "priceIndex";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InflationIssuerCurveTypeConfiguration object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(REFERENCE_FIELD, object.getReference());
+      serializer.addToMessage(message, PRICE_INDEX_FIELD, null, object.getPriceIndex());
+      return message;
+    }
+
+    @Override
+    public InflationIssuerCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String reference = message.getString(REFERENCE_FIELD);
+      final ExternalId priceIndex = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PRICE_INDEX_FIELD));
+      final InflationIssuerCurveTypeConfiguration configuration = new InflationIssuerCurveTypeConfiguration(reference, priceIndex);
       return configuration;
     }
 

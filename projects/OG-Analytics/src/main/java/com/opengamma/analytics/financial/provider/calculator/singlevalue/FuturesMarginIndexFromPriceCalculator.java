@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
 
 /**
  * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
@@ -53,7 +53,7 @@ public final class FuturesMarginIndexFromPriceCalculator extends InstrumentDeriv
   }
 
   @Override
-  public Double visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity futures, final Double quotedPrice) {
+  public Double visitBondFuturesYieldAverageSecurity(final BondFuturesYieldAverageSecurity futures, final Double quotedPrice) {
     final double yield = 1.0d - quotedPrice;
     final double dirtyPrice = dirtyPriceFromYield(yield, futures.getCouponRate(), futures.getTenor(), futures.getNumberCouponPerYear());
     return dirtyPrice * futures.getNotional();

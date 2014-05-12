@@ -171,6 +171,8 @@ public final class BloombergConstants {
   public static final String FIELD_INDX_SOURCE = "INDX_SOURCE";
   public static final String FIELD_BASE_CPI = "BASE_CPI";
   public static final String FIELD_REFERENCE_INDEX = "REFERENCE_INDEX";
+  public static final String FIELD_INFLATION_LAG = "INFLATION_LAG";
+  public static final String FIELD_INTERPOLATION_FOR_COUPON_CALC = "INTERPOLATION_FOR_COUPON_CALC";
 
   public static final String BLOOMBERG_FIELDS_REQUEST = "fields";
   public static final String BLOOMBERG_SECURITIES_REQUEST = "securities";

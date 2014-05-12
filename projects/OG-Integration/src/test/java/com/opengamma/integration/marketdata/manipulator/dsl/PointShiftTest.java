@@ -7,7 +7,6 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -40,8 +39,8 @@ public class PointShiftTest {
     assertEquals(1, manipulators.size());
     List<YieldCurvePointShift> shifts =
         ImmutableList.of(
-            new YieldCurvePointShift(Period.ofMonths(3), 0.1),
-            new YieldCurvePointShift(Period.ofYears(1), 0.2));
+            new YieldCurvePointShift(2, 0.1),
+            new YieldCurvePointShift(3, 0.2));
     YieldCurvePointShiftManipulator expected = new YieldCurvePointShiftManipulator(ScenarioShiftType.RELATIVE, shifts);
     assertEquals(expected, manipulators.get(0));
   }
@@ -58,10 +57,10 @@ public class PointShiftTest {
     CompositeStructureManipulator manipulator = (CompositeStructureManipulator) value;
     List manipulators = manipulator.getManipulators();
     assertEquals(1, manipulators.size());
-    List<YieldCurvePointShift> shifts =
+    List<YieldCurveDataPointShift> shifts =
         ImmutableList.of(
-            new YieldCurvePointShift(Period.ofMonths(3), 0.1),
-            new YieldCurvePointShift(Period.ofYears(1), 0.2));
+            new YieldCurveDataPointShift(Period.ofMonths(3), 0.1),
+            new YieldCurveDataPointShift(Period.ofYears(1), 0.2));
     YieldCurveDataPointShiftsManipulator expected = new YieldCurveDataPointShiftsManipulator(ScenarioShiftType.RELATIVE, shifts);
     assertEquals(expected, manipulators.get(0));
   }

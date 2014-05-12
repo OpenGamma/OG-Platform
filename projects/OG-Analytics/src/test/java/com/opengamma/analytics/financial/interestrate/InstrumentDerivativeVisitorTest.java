@@ -76,6 +76,8 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
@@ -88,8 +90,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesYieldAverageTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -1500,22 +1502,22 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures, final T data) {
+    public String visitBondFuturesYieldAverageSecurity(final BondFuturesYieldAverageSecurity bondFutures, final T data) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures) {
+    public String visitBondFuturesYieldAverageSecurity(final BondFuturesYieldAverageSecurity bondFutures) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures, final T data) {
+    public String visitYieldAverageBondFuturesTransaction(final BondFuturesYieldAverageTransaction bondFutures, final T data) {
       return null;
     }
 
     @Override
-    public String visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures) {
+    public String visitYieldAverageBondFuturesTransaction(final BondFuturesYieldAverageTransaction bondFutures) {
       return null;
     }
 
@@ -1557,6 +1559,26 @@ public class InstrumentDerivativeVisitorTest {
     @Override
     public String visitEquity(final Equity equity, final T data) {
       return getValue(equity, true);
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option) {
+      return null;
     }
   }
 

@@ -14,8 +14,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePositionWriter;
 import com.opengamma.scripts.Scriptable;
 
 /**
@@ -93,9 +93,9 @@ public class PortfolioTemplateCreationTool {
 
     // Create portfolio writers to write header rows
     for (String securityType : securityTypes) {
-      PortfolioWriter portfolioWriter = new SingleSheetSimplePortfolioWriter(securityType + ".csv",
+      PositionWriter positionWriter = new SingleSheetSimplePositionWriter(securityType + ".csv",
           JodaBeanRowParser.newJodaBeanRowParser(securityType));
-      portfolioWriter.close();
+      positionWriter.close();
     }
   }
 

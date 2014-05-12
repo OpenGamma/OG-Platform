@@ -192,7 +192,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final double factorPeriod = DAY_COUNT_GILT_1.getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0)
         .getAccrualEndDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, COUPON_PER_YEAR_GILT_1);
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
-    final double daysToSpot = (double) spot.minusDays(SETTLEMENT_DAYS_GILT_1).getDayOfYear() - couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear();
+    final double daysToSpot = (double) spot.getDayOfYear() - couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear();
     final double DaysInPeriod = (double) couponDefinition.getNthPayment(0).getAccrualStartDate().getDayOfYear() - couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear();
     final CouponInflationDefinition nominalLast = bondFromDefinition.getNominal().getNthPayment(bondFromDefinition.getNominal().getNumberOfPayments() - 1);
     final double ratioPeriodToNextCoupon = daysToSpot / DaysInPeriod;

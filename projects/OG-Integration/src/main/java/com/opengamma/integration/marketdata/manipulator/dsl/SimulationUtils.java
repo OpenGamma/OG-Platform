@@ -217,8 +217,12 @@ public final class SimulationUtils {
     return new YieldCurveBucketedShift(start, end, shift);
   }
 
-  public static YieldCurvePointShift pointShift(Period tenor, double shift) {
-    return new YieldCurvePointShift(tenor, shift);
+  public static YieldCurveDataPointShift pointShift(Period tenor, double shift) {
+    return new YieldCurveDataPointShift(tenor, shift);
+  }
+
+  public static YieldCurvePointShift pointShift(int pointIndex, double shift) {
+    return new YieldCurvePointShift(pointIndex, shift);
   }
 
   /**

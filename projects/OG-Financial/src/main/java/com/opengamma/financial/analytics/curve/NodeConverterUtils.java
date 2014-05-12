@@ -23,6 +23,8 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.DateSet;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -180,7 +182,7 @@ public class NodeConverterUtils {
    */
   public static SwapDefinition getSwapCalendarDefinition(
       final FinancialConvention payLegConvention, final FinancialConvention receiveLegConvention, final ZonedDateTime unadjustedStartDate,
-      final int startDateNumber, final int endDateNumber, final Calendar calendarStartEndDate,  
+      final int startDateNumber, final int endDateNumber, final DateSet calendarStartEndDate,
       final SecuritySource securitySource, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource, 
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(payLegConvention, "pay leg convention");
@@ -514,7 +516,7 @@ public class NodeConverterUtils {
   }
 
   private static AnnuityDefinition<? extends PaymentDefinition> getCalendarSwapLeg(
-      final FinancialConvention legConvention, final ZonedDateTime unadjustedStartDate, final int calendarDateStartNumber, final int calendarDateEndNumber, final Calendar calendarStartEndDate,
+      final FinancialConvention legConvention, final ZonedDateTime unadjustedStartDate, final int calendarDateStartOffset, final int calendarDateEndOffset, final DateSet offsetDates,
       final SecuritySource securitySource, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource, 
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final boolean isPayer, final boolean isMarketDataSpread) {
 
@@ -531,10 +533,13 @@ public class NodeConverterUtils {
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
         final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
-        final ZonedDateTime effectiveDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate.toLocalDate(), calendarStartEndDate,
-            calendarDateStartNumber).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
-        final ZonedDateTime maturityDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendarStartEndDate,
-            calendarDateEndNumber - calendarDateStartNumber).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
+        final ZonedDateTime effectiveDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateStartOffset).atTime(adjustedStartDate.toLocalTime()).atZone(
+            adjustedStartDate.getZone());
+        //CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate.toLocalDate(), calendarStartEndDate,
+        //    calendarDateStartOffset).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
+        final ZonedDateTime maturityDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateEndOffset).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
+            //CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendarStartEndDate,
+            //calendarDateEndOffset - calendarDateStartOffset).atTime(adjustedStartDate.toLocalTime()).atZone(adjustedStartDate.getZone());
         final StubType stub = convention.getStubType();
         if (isPayer && isMarketDataSpread) { // Implementation note: Market data is used as spread on pay leg
           final Double spread = marketData.getDataPoint(dataId);
@@ -562,10 +567,12 @@ public class NodeConverterUtils {
         final boolean eomLeg = convention.isIsEOM();
         final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
-        final ZonedDateTime effectiveDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate.toLocalDate(), calendarStartEndDate,
-            calendarDateStartNumber).atStartOfDay(ZoneId.of("UTC"));
-        final ZonedDateTime maturityDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendarStartEndDate,
-            calendarDateEndNumber - calendarDateStartNumber).atStartOfDay(ZoneId.of("UTC"));
+        //final ZonedDateTime effectiveDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(adjustedStartDate.toLocalDate(), calendar,
+        //    calendarDateStartOffset).atStartOfDay(ZoneId.of("UTC"));
+        final ZonedDateTime effectiveDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateStartOffset).atStartOfDay(ZoneId.of("UTC"));
+        //final ZonedDateTime maturityDate = CalendarBusinessDateUtils.nthNonGoodBusinessDate(effectiveDate.toLocalDate().plusDays(1), calendar,
+        //    calendarDateEndOffset - calendarDateStartOffset).atStartOfDay(ZoneId.of("UTC"));
+        final ZonedDateTime maturityDate = offsetDates.getNextDate(adjustedStartDate.toLocalDate(), calendarDateEndOffset).atStartOfDay(ZoneId.of("UTC"));
         final StubType stub = convention.getStubType();
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
         return AnnuityDefinitionBuilder.couponFixed(currency, effectiveDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg,

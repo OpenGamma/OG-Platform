@@ -305,8 +305,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final LegalEntity issuer) {
     // Nominal construction
     final CouponInflationZeroCouponMonthlyGearingDefinition nominalPayment = CouponInflationZeroCouponMonthlyGearingDefinition.from(startDate, maturityDate, notional, priceIndex, indexStartValue,
-        monthLag,
-        monthLag, true, 1.0);
+        monthLag, monthLag, true, 1.0);
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
         new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment }, calendar);
     // Coupon construction
@@ -559,7 +558,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
-    final double nbDayToSpot = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - settlementDate.minusDays(getSettlementDays()).getDayOfYear();
+    final double nbDayToSpot = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - settlementDate.getDayOfYear();
     final double nbDaysPeriod = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - couponDefinition.getNthPayment(0).getAccrualStartDate().getDayOfYear();
     final double ratioPeriodToNextCoupon = nbDayToSpot / nbDaysPeriod;
     final CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);

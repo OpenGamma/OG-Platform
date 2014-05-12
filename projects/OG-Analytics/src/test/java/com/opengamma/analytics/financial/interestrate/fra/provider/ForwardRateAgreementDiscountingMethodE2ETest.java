@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsUSD;
+import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
@@ -46,9 +46,9 @@ import com.opengamma.util.tuple.Pairs;
 @Test(groups = TestGroup.UNIT)
 public class ForwardRateAgreementDiscountingMethodE2ETest {
 
-  private static final IborIndex[] INDEX_IBOR_LIST = StandardDataSetsUSD.indexIborArrayUSDOisL3();
+  private static final IborIndex[] INDEX_IBOR_LIST = StandardDataSetsMulticurveUSD.indexIborArrayUSDOisL3();
   private static final IborIndex USDLIBOR3M = INDEX_IBOR_LIST[0];
-  private static final Calendar CALENDAR = StandardDataSetsUSD.calendarArray()[0];
+  private static final Calendar CALENDAR = StandardDataSetsMulticurveUSD.calendarArray()[0];
   private static final Currency CUR = USDLIBOR3M.getCurrency();
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -68,7 +68,7 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
       STD_NOTIONAL, USDLIBOR3M, STD_FRA_RATE, CALENDAR);
   private static final Payment STD_FRA = STD_FRA_STD_DEFINITION.toDerivative(STD_REFERENCE_DATE);
   // Data
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR_STD = StandardDataSetsUSD.getCurvesUSDOisL3();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR_STD = StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final MulticurveProviderDiscount MULTICURVE_STD = MULTICURVE_PAIR_STD.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_STD = MULTICURVE_PAIR_STD.getSecond();
 

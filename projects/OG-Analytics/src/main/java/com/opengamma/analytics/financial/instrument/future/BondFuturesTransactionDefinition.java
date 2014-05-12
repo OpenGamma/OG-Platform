@@ -26,7 +26,7 @@ public class BondFuturesTransactionDefinition extends FuturesTransactionDefiniti
    * @param tradeDate Transaction date.
    * @param tradePrice Transaction price.
    */
-  public BondFuturesTransactionDefinition(final BondFuturesSecurityDefinition underlyingFuture, final int quantity, final ZonedDateTime tradeDate, final double tradePrice) {
+  public BondFuturesTransactionDefinition(final BondFuturesSecurityDefinition underlyingFuture, final long quantity, final ZonedDateTime tradeDate, final double tradePrice) {
     super(underlyingFuture, quantity, tradeDate, tradePrice);
   }
 

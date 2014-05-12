@@ -99,7 +99,7 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           paymentDates[c],
           accrualStartDates[c],
           accrualEndDates[c],
-          getDayCount().getDayCountFraction(accrualStartDates[c], accrualEndDates[c], accrualCalendar),
+          AnnuityDefinitionBuilder.getDayCountFraction(null, accrualCalendar, getDayCount(), null, accrualStartDates[c], accrualEndDates[c], c == accrualEndDates.length - 1),
           (isPayer() ? -1 : 1) * getNotional().getAmount(accrualStartDates[c].toLocalDate()),
           _rate);
     }
@@ -152,7 +152,8 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
       ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(getStartDate(), accrualEndDates);
       double[] paymentYearFractions = new double[accrualEndDates.length];
       for (int i = 0; i < accrualEndDates.length; i++) {
-        paymentYearFractions[i] = getDayCount().getDayCountFraction(accrualStartDates[i], accrualEndDates[i], accrualCalendar);
+        paymentYearFractions[i] = AnnuityDefinitionBuilder.getDayCountFraction(null, accrualCalendar, getDayCount(), null,
+            accrualStartDates[i], accrualEndDates[i], i == accrualEndDates.length - 1);
       }
       
       final ZonedDateTime adjustedEndDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
@@ -164,7 +165,8 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           paymentDate, // pmt
           getStartDate(), // acc start
           adjustedEndDate, // acc end
-          getDayCount().getDayCountFraction(getStartDate(), adjustedEndDate, getPaymentDateAdjustmentParameters().getCalendar()), // pmt yf
+          AnnuityDefinitionBuilder.getDayCountFraction(null, getPaymentDateAdjustmentParameters().getCalendar(), getDayCount(), null,
+              getStartDate(), adjustedEndDate, true), // pmt yf
           (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
           _rate,
           accrualStartDates,

@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMa
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsUSD;
+import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
@@ -46,10 +46,10 @@ import com.opengamma.util.tuple.Pair;
 @Test(groups = TestGroup.UNIT)
 public class SwapCalculatorE2ETest {
 
-  private static final IborIndex[] INDEX_IBOR_LIST = StandardDataSetsUSD.indexIborArrayUSDOisL1L3L6();
+  private static final IborIndex[] INDEX_IBOR_LIST = StandardDataSetsMulticurveUSD.indexIborArrayUSDOisL1L3L6();
   private static final IborIndex USDLIBOR1M = INDEX_IBOR_LIST[0];
   private static final IborIndex USDLIBOR3M = INDEX_IBOR_LIST[1];
-  private static final Calendar CALENDAR = StandardDataSetsUSD.calendarArray()[0];
+  private static final Calendar CALENDAR = StandardDataSetsMulticurveUSD.calendarArray()[0];
   private static final Currency USD = USDLIBOR3M.getCurrency();
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -59,7 +59,7 @@ public class SwapCalculatorE2ETest {
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   // Curve Data
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsUSD.getCurvesUSDOisL1L3L6();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
 

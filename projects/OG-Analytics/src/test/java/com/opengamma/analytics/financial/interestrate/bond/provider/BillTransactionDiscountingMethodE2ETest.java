@@ -16,7 +16,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsUSD;
+import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
@@ -53,10 +53,10 @@ public class BillTransactionDiscountingMethodE2ETest {
 
   // Data
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 1, 22);
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsUSD.getCurvesUSDOisL3();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
-  private static final Calendar NYC = StandardDataSetsUSD.calendarArray()[0];
+  private static final Calendar NYC = StandardDataSetsMulticurveUSD.calendarArray()[0];
   private static final Currency USD = Currency.USD;
 
   // Issuer provider with Issuer "" priced from the OIS curve.

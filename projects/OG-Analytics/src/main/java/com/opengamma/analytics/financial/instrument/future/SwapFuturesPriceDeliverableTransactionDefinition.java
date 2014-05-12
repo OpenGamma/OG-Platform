@@ -28,7 +28,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price (in the convention of the futures).
    */
-  public SwapFuturesPriceDeliverableTransactionDefinition(final SwapFuturesPriceDeliverableSecurityDefinition underlyingFuture, final int quantity,
+  public SwapFuturesPriceDeliverableTransactionDefinition(final SwapFuturesPriceDeliverableSecurityDefinition underlyingFuture, final long quantity,
       final ZonedDateTime tradeDate, final double tradePrice) {
     super(underlyingFuture, quantity, tradeDate, tradePrice);
   }

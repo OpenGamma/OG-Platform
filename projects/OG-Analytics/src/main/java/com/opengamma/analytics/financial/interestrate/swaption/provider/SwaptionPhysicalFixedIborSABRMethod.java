@@ -82,6 +82,25 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
   }
 
   /**
+   * Computes the present value of a physical delivery European swaption in the SABR model.
+   * @param swaption The swaption.
+   * @param sabrData The SABR and multi-curves provider.
+   * @return The implied volatility.
+   */
+  public double impliedVolatility(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabrData) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(sabrData, "SABR swaption provider");
+    final DayCount dayCountModification = sabrData.getSABRGenerator().getFixedLegDayCount();
+    final MulticurveProviderInterface multicurves = sabrData.getMulticurveProvider();
+    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
+    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurves);
+    final double maturity = swaption.getMaturityTime();
+    final double volatility = sabrData.getSABRParameter().getVolatility(swaption.getTimeToExpiry(), maturity, strikeModified, forwardModified);
+    return volatility;
+  }
+
+  /**
    * Computes the present value rate sensitivity to rates of a physical delivery European swaption in the SABR model.
    * @param swaption The swaption.
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.

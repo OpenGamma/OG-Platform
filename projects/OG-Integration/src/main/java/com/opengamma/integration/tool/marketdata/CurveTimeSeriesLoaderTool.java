@@ -28,6 +28,7 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InflationIssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.security.index.IborIndex;
@@ -134,6 +135,10 @@ public final class CurveTimeSeriesLoaderTool extends AbstractTool<IntegrationToo
           } else if (curveTypeConfiguration instanceof InflationCurveTypeConfiguration) {
             InflationCurveTypeConfiguration inflationCurveTypeConfiguration = (InflationCurveTypeConfiguration) curveTypeConfiguration;
             ExternalId priceIndex = inflationCurveTypeConfiguration.getPriceIndex();
+            externalIds.add(priceIndex);
+          } else if (curveTypeConfiguration instanceof InflationIssuerCurveTypeConfiguration) {
+            InflationIssuerCurveTypeConfiguration inflationIssuerCurveTypeConfiguration = (InflationIssuerCurveTypeConfiguration) curveTypeConfiguration;
+            ExternalId priceIndex = inflationIssuerCurveTypeConfiguration.getPriceIndex();
             externalIds.add(priceIndex);
           } else if (curveTypeConfiguration instanceof IssuerCurveTypeConfiguration) {
             @SuppressWarnings("unused")

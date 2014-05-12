@@ -29,7 +29,7 @@ import groovy.lang.Closure;
 
   @SuppressWarnings("unused")
   public void pointShifts(ScenarioShiftType shiftType, Closure<?> body) {
-    PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
+    YieldCurvePointShiftManipulatorBuilder builder = new YieldCurvePointShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
     body.setDelegate(builder);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();

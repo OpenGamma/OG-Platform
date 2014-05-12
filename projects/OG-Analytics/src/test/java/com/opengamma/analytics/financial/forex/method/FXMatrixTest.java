@@ -268,6 +268,20 @@ public class FXMatrixTest {
 
   @Test
   /**
+   * Tests the merge with an empty matrix.
+   */
+  public void merge3() {
+    final FXMatrix fxMatrix1 = new FXMatrix();
+    fxMatrix1.addCurrency(EUR, USD, EUR_USD);
+    fxMatrix1.addCurrency(KRW, USD, 1.0 / USD_KRW);
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrix1, FXMatrixUtils.merge(fxMatrix1, new FXMatrix()), TOLERANCE_RATE));
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrix1, FXMatrixUtils.merge(new FXMatrix(), fxMatrix1), TOLERANCE_RATE));
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(fxMatrix1, FXMatrixUtils.merge(new FXMatrix(USD), fxMatrix1), TOLERANCE_RATE));
+    assertTrue("FXMatrixUtils - merge", FXMatrixUtils.compare(new FXMatrix(), FXMatrixUtils.merge(new FXMatrix(), new FXMatrix()), TOLERANCE_RATE));
+  }
+
+  @Test
+  /**
    * Tests the comparison tool.
    */
   public void compare() {

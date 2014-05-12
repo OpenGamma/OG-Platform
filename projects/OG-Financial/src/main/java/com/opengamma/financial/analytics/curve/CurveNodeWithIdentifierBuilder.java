@@ -94,7 +94,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
   @Override
   public CurveNodeWithIdentifier visitCalendarSwapNode(final CalendarSwapNode node) {
     final Tenor startTenor = node.getStartTenor();
-    final ExternalId identifier = _nodeIdMapper.getCalendarSwapNodeId(_curveDate, startTenor, node.getCalendarDateStartNumber(), node.getCalendarDateEndNumber());
+    final ExternalId identifier = _nodeIdMapper.getCalendarSwapNodeId(_curveDate, startTenor, node.getStartDateNumber(), node.getEndDateNumber());
     final String dataField = _nodeIdMapper.getCalendarSwapNodeDataField(startTenor);
     final DataFieldType fieldType = _nodeIdMapper.getCalendarSwapNodeDataFieldType(startTenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);

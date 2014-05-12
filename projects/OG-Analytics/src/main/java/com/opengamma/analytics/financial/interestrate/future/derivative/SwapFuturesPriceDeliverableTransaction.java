@@ -19,7 +19,7 @@ public class SwapFuturesPriceDeliverableTransaction extends FuturesTransaction<S
    * @param quantity The quantity of future.
    * @param referencePrice The reference price.
    */
-  public SwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableSecurity underlyingFuture, final double referencePrice, final int quantity) {
+  public SwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableSecurity underlyingFuture, final double referencePrice, final long quantity) {
     super(underlyingFuture, quantity, referencePrice);
   }
 

@@ -36,6 +36,7 @@ import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration
 import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InflationIssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
@@ -204,6 +205,9 @@ public class CurveValidator {
     } else if (curveTypeConfig instanceof InflationCurveTypeConfiguration) {
       final InflationCurveTypeConfiguration inflationCurveTypeConfiguration = (InflationCurveTypeConfiguration) curveTypeConfig;
       validateInflationCurveTypeConfiguration(name, inflationCurveTypeConfiguration, curveTypeConfigNode);
+    } else if (curveTypeConfig instanceof InflationIssuerCurveTypeConfiguration) {
+      final InflationIssuerCurveTypeConfiguration inflationIssuerCurveTypeConfiguration = (InflationIssuerCurveTypeConfiguration) curveTypeConfig;
+      validateInflationIssuerCurveTypeConfiguration(name, inflationIssuerCurveTypeConfiguration, curveTypeConfigNode);
     } else if (curveTypeConfig instanceof IssuerCurveTypeConfiguration) {
       final IssuerCurveTypeConfiguration issuerCurveTypeConfiguration = (IssuerCurveTypeConfiguration) curveTypeConfig;
       validateIssuerCurveTypeConfiguration(name, issuerCurveTypeConfiguration, curveTypeConfigNode);
@@ -348,6 +352,51 @@ public class CurveValidator {
     }
   }
 
+  private void validateInflationIssuerCurveTypeConfiguration(final String name, final InflationIssuerCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
+    final boolean regionDryRun = checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
+    final boolean currencyDryRun = checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, true);
+    if (regionDryRun || currencyDryRun) {
+      final ValidationNode validationNode = new ValidationNode();
+      validationNode.setName(curveTypeConfiguration.getReference());
+      if (regionDryRun) {
+        validationNode.setType(Region.class);
+      } else if (currencyDryRun) {
+        validationNode.setType(Currency.class);
+      }
+      // config is good.
+    } else {
+      // record both errors
+      checkRegion(curveTypeConfiguration.getReference(), curveTypeConfigNode, false);
+      checkCurrency(curveTypeConfiguration.getReference(), curveTypeConfigNode, false);
+    }
+    final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
+    if (abstractCurveDefinition instanceof CurveDefinition) {
+      final CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
+      validationNode.setName(name);
+      validationNode.setType(curveDefinition.getClass());
+      validateCurveDefinition(curveDefinition, validationNode);
+      curveTypeConfigNode.getSubNodes().add(validationNode);
+    } else if (abstractCurveDefinition instanceof SpreadCurveDefinition) {
+      final SpreadCurveDefinition curveDefinition = (SpreadCurveDefinition) abstractCurveDefinition;
+      final ValidationNode validationNode = new ValidationNode();
+      validationNode.setName(name);
+      validationNode.setType(curveDefinition.getClass());
+      validateInflationIssuerCurveTypeConfiguration(curveDefinition.getFirstCurve(), curveTypeConfiguration, validationNode);
+      validateInflationIssuerCurveTypeConfiguration(curveDefinition.getSecondCurve(), curveTypeConfiguration, validationNode);
+      curveTypeConfigNode.getSubNodes().add(validationNode);
+    } else if (abstractCurveDefinition instanceof ConstantCurveDefinition) {
+      final ConstantCurveDefinition curveDefinition = (ConstantCurveDefinition) abstractCurveDefinition;
+      // assume this is fine?
+      final ValidationNode validationNode = new ValidationNode();
+      validationNode.setName(name);
+      validationNode.setType(curveDefinition.getClass());
+      validationNode.getErrors().add("Using IborCurveTypeConfiguration with constant curve definition: check this is okay.");
+      validationNode.setError(true);
+      curveTypeConfigNode.getSubNodes().add(validationNode);
+    }
+  }
+  
   private void validateIssuerCurveTypeConfiguration(final String name, final IssuerCurveTypeConfiguration curveTypeConfiguration, final ValidationNode curveTypeConfigNode) {
     // currency a no-op
     final AbstractCurveDefinition abstractCurveDefinition = getCurveDefinitionOrSubclass(name);
@@ -448,7 +497,7 @@ public class CurveValidator {
     if (curveNodeIdMapper == null) {
       createInvalidCurveNodeValidationNode(curveNode.getResolvedMaturity(), curveNode.getClass(), validationNode, "CurveNodeIdMapper " + curveNode.getCurveNodeIdMapperName() + " is missing");
     } else {
-      curveNode.accept(new CurveNodeValidator(_curveDate, _configValidationUtils, _securitySource, validationNode, curveNodeIdMapper));
+      curveNode.accept(new CurveNodeValidator(_curveDate, _configValidationUtils, _securitySource, validationNode, curveNodeIdMapper, _configSource));
     }
   }
 

@@ -7,6 +7,7 @@ package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.BloombergConstants.FIELD_AMT_ISSUED;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ANNOUNCE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_BASE_CPI;
 import static com.opengamma.bbg.BloombergConstants.FIELD_BB_COMPOSITE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_BULLET;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CALC_TYP_DES;
@@ -31,6 +32,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_GROUP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_SECTOR;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LAG;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LINKED_INDICATOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INT_ACC_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUER;
@@ -44,6 +46,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_PIECE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PAR_AMT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_REDEMP_VAL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_REFERENCE_INDEX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_RESET_IDX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_FITCH;
 import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_MOODY;
@@ -53,9 +56,8 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_BASE_CPI;
-import static com.opengamma.bbg.BloombergConstants.FIELD_REFERENCE_INDEX;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INTERPOLATION_FOR_COUPON_CALC;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.HashSet;
@@ -155,7 +157,9 @@ public class BondLoader extends SecurityLoader {
       FIELD_DAYS_TO_SETTLE,
       FIELD_RESET_IDX,
       FIELD_PARSEKYABLE_DES,
-      FIELD_ID_BB_SEC_NUM_DES);
+      FIELD_ID_BB_SEC_NUM_DES,
+      FIELD_INFLATION_LAG, 
+      FIELD_INTERPOLATION_FOR_COUPON_CALC);
 
   /**
    * The valid Bloomberg security types for Bond
@@ -343,6 +347,9 @@ public class BondLoader extends SecurityLoader {
         // six character stub of CUSIP to link to legal entity.
         final String referenceIndexStr = validateAndGetStringField(fieldData, FIELD_REFERENCE_INDEX);
         final String baseCPI = validateAndGetStringField(fieldData, FIELD_BASE_CPI); // keep as string because going into attributes
+        final String inflationLag = validateAndGetStringField(fieldData, FIELD_INFLATION_LAG);
+        final String daysToSettle = validateAndGetStringField(fieldData, FIELD_DAYS_TO_SETTLE);
+        final String interpolationMethod = validateAndGetStringField(fieldData, FIELD_INTERPOLATION_FOR_COUPON_CALC);
         final ExternalId referenceIndex = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, referenceIndexStr);
         bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
@@ -353,6 +360,9 @@ public class BondLoader extends SecurityLoader {
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
         ((BondSecurity) bondSecurity).addAttribute("BaseCPI", baseCPI);
         ((BondSecurity) bondSecurity).addAttribute("ReferenceIndexId", referenceIndex.toString());
+        ((BondSecurity) bondSecurity).addAttribute("InflationLag", inflationLag);
+        ((BondSecurity) bondSecurity).addAttribute("daysToSettle", daysToSettle);
+        ((BondSecurity) bondSecurity).addAttribute("interpolationMethod", interpolationMethod);
       } else if (isFloater) {
         // six character stub of CUSIP to link to legal entity.
         final String benchmarkRateStr = validateAndGetStringField(fieldData, FIELD_RESET_IDX)  + " Index"; //TODO safe to assume the suffix?

@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapita
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
@@ -181,9 +182,13 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
 
-    if (yieldConvention.getName().equals(INDEX_LINKED_FLOAT.getName())) {
-
-      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+    if (yieldConvention.equals(INDEX_LINKED_FLOAT)) {
+      double realRate = 0.0;
+      if (bond.getCoupon().getNthPayment(1) instanceof CouponInflationGearing) {
+        realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      } else if (bond.getCoupon().getNthPayment(1) instanceof CouponFixed) {
+        realRate = ((CouponFixed) bond.getCoupon().getNthPayment(1)).getFixedRate();
+      }
       double firstYearFraction = 0.0;
       double firstCouponEndFixingTime = 0.0;
       if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {
@@ -215,7 +220,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer {
         return pvAtFirstCoupon * Math.pow(u * v, bond.getAccrualFactorToNextCoupon());
       }
     }
-    if (yieldConvention.getName().equals(UK_IL_BOND.getName())) {
+    if (yieldConvention.equals(UK_IL_BOND)) {
       double firstYearFraction = 0.0;
       final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
       if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationGearing) {

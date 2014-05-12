@@ -7,8 +7,8 @@ scenario 'point shift test', {
   curve {
     apply {
       pointShifts Relative, {
-        shift 3.m, 10.pc
-        shift 1.y, 20.pc
+        shift 2, 10.pc
+        shift 3, 20.pc
       }
     }
   }

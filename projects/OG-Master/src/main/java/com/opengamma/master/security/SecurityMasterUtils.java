@@ -81,7 +81,7 @@ public class SecurityMasterUtils {
             security.setUniqueId(newId);
             return security;
           } catch (Throwable t) {
-            s_logger.error("Unable to update security " + security.getUniqueId() + ": " + t.getMessage());
+            s_logger.error("Unable to update security " + security.getUniqueId() + ": " + t.getMessage(), t);
             return null;
           }
         }
@@ -94,7 +94,7 @@ public class SecurityMasterUtils {
       SecurityDocument result = securityMaster.add(addDoc);
       return result.getSecurity();
     } catch (Exception e) {
-      s_logger.error("Failed to write security " + security + " to the security master");
+      s_logger.error("Failed to write security " + security + " to the security master", e);
       return null;
     }
   }

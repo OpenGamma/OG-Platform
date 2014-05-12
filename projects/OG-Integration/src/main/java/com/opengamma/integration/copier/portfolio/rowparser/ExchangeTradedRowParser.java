@@ -26,7 +26,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.integration.copier.portfolio.writer.SingleSheetPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetPositionWriter;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -203,7 +203,7 @@ public class ExchangeTradedRowParser extends RowParser {
     }
     String ticker = securities[0].getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
     if (ticker != null) {
-      String attributes = SingleSheetPortfolioWriter.attributesToString(securities[0].getAttributes());
+      String attributes = SingleSheetPositionWriter.attributesToString(securities[0].getAttributes());
       return ImmutableMap.of(
           TICKER, ticker,
           ATTRIBUTES, attributes

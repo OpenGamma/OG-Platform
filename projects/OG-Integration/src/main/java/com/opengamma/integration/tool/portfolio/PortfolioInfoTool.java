@@ -9,8 +9,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.MasterPositionReader;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.scripts.Scriptable;
 
@@ -35,13 +35,13 @@ public class PortfolioInfoTool extends AbstractTool<IntegrationToolContext> {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    PortfolioReader portfolioReader = new MasterPortfolioReader(getCommandLine().getOptionValue(PORTFOLIO_NAME),
+    PositionReader positionReader = new MasterPositionReader(getCommandLine().getOptionValue(PORTFOLIO_NAME),
                                                                 getToolContext().getPortfolioMaster(),
                                                                 getToolContext().getPositionMaster(),
                                                                 getToolContext().getSecuritySource());
 
     int positionCount = 0;
-    while (portfolioReader.readNext() != null) {
+    while (positionReader.readNext() != null) {
       positionCount++;
     }
     System.out.println("Number of positions in " + getCommandLine().getOptionValue(PORTFOLIO_NAME) + ": " + positionCount);

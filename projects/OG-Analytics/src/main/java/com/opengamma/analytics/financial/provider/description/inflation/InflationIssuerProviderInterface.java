@@ -95,7 +95,7 @@ public interface InflationIssuerProviderInterface extends ParameterIssuerProvide
    * Returns the InflationProvider from which the InflationIssuerProvider is composed.
    * @return The inflation provider.
    */
-  InflationProviderDiscount getInflationProvider();
+  InflationProviderInterface getInflationProvider();
 
   //     =====     Methods related to MulticurveProvider     =====
 

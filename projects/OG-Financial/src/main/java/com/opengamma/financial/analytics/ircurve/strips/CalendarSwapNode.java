@@ -24,6 +24,8 @@ import com.opengamma.util.time.Tenor;
 
 /**
  * A swap curve node that uses calendar dates to set the start and maturity dates.
+ * By calendar we mean a list of dates, e.g. ECB dates stored in a {@see com.opengamma.core.DateSet}
+ * configuration object this is unrelated to the holiday calendar implementation.
  */
 @BeanDefinition
 public class CalendarSwapNode extends CurveNode {
@@ -32,10 +34,11 @@ public class CalendarSwapNode extends CurveNode {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The calendar external id.
+   * The set of dates (i.e. calendar) name, not null. Used to determine swap start and end dates using the offsets below.
+   * Refers to the name of the {@see com.opengamma.core.DateSet} configuration object holding the dates.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _calendarId;
+  private String _dateSetName;
   
   /**
    * The start tenor.
@@ -47,13 +50,13 @@ public class CalendarSwapNode extends CurveNode {
    * The calendar date number for the swap start (effective) date.
    */
   @PropertyDefinition
-  private int _calendarDateStartNumber;
+  private int _startDateNumber;
 
   /**
    * The calendar date number for the swap end (maturity) date.
    */
   @PropertyDefinition
-  private int _calendarDateEndNumber;
+  private int _endDateNumber;
 
   /**
    * The swap convention.
@@ -76,97 +79,106 @@ public class CalendarSwapNode extends CurveNode {
 
   /**
    * Sets the useFixings parameter to true.
-   * @param calendarId The calendar id, not null
+   * @param dateSetName The calendar name, not null
    * @param startTenor The start tenor, not null
-   * @param calendarDateStartNumber The start date number, greater than zero
-   * @param calendarDateEndNumber The maturity date number, greater than the start date number
+   * @param startDateNumber The start date number, greater than zero
+   * @param endDateNumber The maturity date number, greater than the start date number
    * @param swapConvention The swap convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public CalendarSwapNode(final ExternalId calendarId, final Tenor startTenor, final int calendarDateStartNumber, final int calendarDateEndNumber, final ExternalId swapConvention,
+  public CalendarSwapNode(final String dateSetName, final Tenor startTenor, final int startDateNumber, final int endDateNumber, final ExternalId swapConvention,
       final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
-    ArgumentChecker.notNegativeOrZero(calendarDateStartNumber, "start date number");
-    ArgumentChecker.isTrue(calendarDateEndNumber > calendarDateStartNumber, "Maturity date number {} must be greater than the start date number {}", calendarDateEndNumber, calendarDateStartNumber);
-    setCalendarId(calendarId);
+    ArgumentChecker.notNegativeOrZero(startDateNumber, "start date number");
+    ArgumentChecker.isTrue(endDateNumber > startDateNumber, "Maturity date number {} must be greater than the start date number {}",
+                           endDateNumber,
+                           startDateNumber);
+    setDateSetName(dateSetName);
     setStartTenor(startTenor);
-    setCalendarDateStartNumber(calendarDateStartNumber);
-    setCalendarDateEndNumber(calendarDateEndNumber);
+    setStartDateNumber(startDateNumber);
+    setEndDateNumber(endDateNumber);
     setSwapConvention(swapConvention);
     setUseFixings(true);
   }
 
   /**
-   * @param calendarId The calendar id, not null
+   * @param dateSetName The calendar id, not null
    * @param startTenor The start tenor, not null
-   * @param calendarDateStartNumber The start date number, greater than zero
-   * @param calendarDateEndNumber The end date number, greater than the start date number
+   * @param startDateNumber The start date number, greater than zero
+   * @param endDateNumber The end date number, greater than the start date number
    * @param swapConvention The swap convention, not null
    * @param useFixings The use fixings parameter
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public CalendarSwapNode(final ExternalId calendarId, final Tenor startTenor, final int calendarDateStartNumber, final int calendarDateEndNumber, final ExternalId swapConvention,
+  public CalendarSwapNode(final String dateSetName, final Tenor startTenor, final int startDateNumber, final int endDateNumber, final ExternalId swapConvention,
       final boolean useFixings, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
-    ArgumentChecker.notNegativeOrZero(calendarDateStartNumber, "start date number");
-    ArgumentChecker.isTrue(calendarDateEndNumber > calendarDateStartNumber, "Maturity date number {} must be greater than the start date number {}", calendarDateEndNumber, calendarDateStartNumber);
-    setCalendarId(calendarId);
+    ArgumentChecker.notNegativeOrZero(startDateNumber, "start date number");
+    ArgumentChecker.isTrue(endDateNumber > startDateNumber, "Maturity date number {} must be greater than the start date number {}",
+                           endDateNumber,
+                           startDateNumber);
+    setDateSetName(dateSetName);
     setStartTenor(startTenor);
-    setCalendarDateStartNumber(calendarDateStartNumber);
-    setCalendarDateEndNumber(calendarDateEndNumber);
+    setStartDateNumber(startDateNumber);
+    setEndDateNumber(endDateNumber);
     setSwapConvention(swapConvention);
     setUseFixings(useFixings);
   }
 
   /**
    * Sets the useFixings parameter to true.
-   * @param calendarId The calendar id, not null
+   * @param dateSetName The calendar id, not null
    * @param startTenor The start tenor, not null
-   * @param calendarDateStartNumber The start date number, greater than zero
-   * @param calendarDateEndNumber The end date number, greater than the start date number
+   * @param startDateNumber The start date number, greater than zero
+   * @param endDateNumber The end date number, greater than the start date number
    * @param swapConvention The swap convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The curve node name
    */
-  public CalendarSwapNode(final ExternalId calendarId, final Tenor startTenor, final int calendarDateStartNumber, final int calendarDateEndNumber, final ExternalId swapConvention,
+  public CalendarSwapNode(final String dateSetName, final Tenor startTenor, final int startDateNumber, final int endDateNumber, final ExternalId swapConvention,
       final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
-    ArgumentChecker.notNegativeOrZero(calendarDateStartNumber, "start date number");
-    ArgumentChecker.isTrue(calendarDateEndNumber > calendarDateStartNumber, "Maturity date number {} must be greater than the start date number {}", calendarDateEndNumber, calendarDateStartNumber);
-    setCalendarId(calendarId);
+    ArgumentChecker.notNegativeOrZero(startDateNumber, "start date number");
+    ArgumentChecker.isTrue(endDateNumber > startDateNumber, "Maturity date number {} must be greater than the start date number {}",
+                           endDateNumber,
+                           startDateNumber);
+    setDateSetName(dateSetName);
     setStartTenor(startTenor);
-    setCalendarDateStartNumber(calendarDateStartNumber);
-    setCalendarDateEndNumber(calendarDateEndNumber);
+    setStartDateNumber(startDateNumber);
+    setEndDateNumber(endDateNumber);
     setSwapConvention(swapConvention);
     setUseFixings(true);
   }
 
   /**
-   * @param calendarId The calendar id, not null
+   * @param dateSetName The calendar id, not null
    * @param startTenor The start tenor, not null
-   * @param calendarDateStartNumber The start date number, greater than zero
-   * @param calendarDateEndNumber The end date number, greater than the start date number
+   * @param startDateNumber The start date number, greater than zero
+   * @param endDateNumber The end date number, greater than the start date number
    * @param swapConvention The swap convention, not null
    * @param useFixings The use fixings parameter
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The curve node name
    */
-  public CalendarSwapNode(final ExternalId calendarId, final Tenor startTenor, final int calendarDateStartNumber, final int calendarDateEndNumber, final ExternalId swapConvention,
+  public CalendarSwapNode(final String dateSetName, final Tenor startTenor, final int startDateNumber, final int endDateNumber, final ExternalId swapConvention,
       final boolean useFixings, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
-    ArgumentChecker.notNegativeOrZero(calendarDateStartNumber, "start date number");
-    ArgumentChecker.isTrue(calendarDateEndNumber > calendarDateStartNumber, "Maturity date number {} must be greater than the start date number {}", calendarDateEndNumber, calendarDateStartNumber);
-    setCalendarId(calendarId);
+    ArgumentChecker.notNegativeOrZero(startDateNumber, "start date number");
+    ArgumentChecker.isTrue(endDateNumber > startDateNumber, "Maturity date number {} must be greater than the start date number {}",
+                           endDateNumber,
+                           startDateNumber);
+    setDateSetName(dateSetName);
     setStartTenor(startTenor);
-    setCalendarDateStartNumber(calendarDateStartNumber);
-    setCalendarDateEndNumber(calendarDateEndNumber);
+    setStartDateNumber(startDateNumber);
+    setEndDateNumber(endDateNumber);
     setSwapConvention(swapConvention);
     setUseFixings(useFixings);
   }
 
   @Override
   public Tenor getResolvedMaturity() {
-    return null;
+    final int m = 1; // TODO [PLAT-6313]: Review: How to get the Roll date adjuster period?
+    return Tenor.of(getStartTenor().getPeriod().plusMonths(m * getEndDateNumber()));
   }
 
   @Override
@@ -196,28 +208,31 @@ public class CalendarSwapNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calendar external id.
+   * Gets the set of dates (i.e. calendar) name, not null. Used to determine swap start and end dates using the offsets below.
+   * Refers to the name of the {@see com.opengamma.core.DateSet} configuration object holding the dates.
    * @return the value of the property, not null
    */
-  public ExternalId getCalendarId() {
-    return _calendarId;
+  public String getDateSetName() {
+    return _dateSetName;
   }
 
   /**
-   * Sets the calendar external id.
-   * @param calendarId  the new value of the property, not null
+   * Sets the set of dates (i.e. calendar) name, not null. Used to determine swap start and end dates using the offsets below.
+   * Refers to the name of the {@see com.opengamma.core.DateSet} configuration object holding the dates.
+   * @param dateSetName  the new value of the property, not null
    */
-  public void setCalendarId(ExternalId calendarId) {
-    JodaBeanUtils.notNull(calendarId, "calendarId");
-    this._calendarId = calendarId;
+  public void setDateSetName(String dateSetName) {
+    JodaBeanUtils.notNull(dateSetName, "dateSetName");
+    this._dateSetName = dateSetName;
   }
 
   /**
-   * Gets the the {@code calendarId} property.
+   * Gets the the {@code dateSetName} property.
+   * Refers to the name of the {@see com.opengamma.core.DateSet} configuration object holding the dates.
    * @return the property, not null
    */
-  public final Property<ExternalId> calendarId() {
-    return metaBean().calendarId().createProperty(this);
+  public final Property<String> dateSetName() {
+    return metaBean().dateSetName().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -251,24 +266,24 @@ public class CalendarSwapNode extends CurveNode {
    * Gets the calendar date number for the swap start (effective) date.
    * @return the value of the property
    */
-  public int getCalendarDateStartNumber() {
-    return _calendarDateStartNumber;
+  public int getStartDateNumber() {
+    return _startDateNumber;
   }
 
   /**
    * Sets the calendar date number for the swap start (effective) date.
-   * @param calendarDateStartNumber  the new value of the property
+   * @param startDateNumber  the new value of the property
    */
-  public void setCalendarDateStartNumber(int calendarDateStartNumber) {
-    this._calendarDateStartNumber = calendarDateStartNumber;
+  public void setStartDateNumber(int startDateNumber) {
+    this._startDateNumber = startDateNumber;
   }
 
   /**
-   * Gets the the {@code calendarDateStartNumber} property.
+   * Gets the the {@code startDateNumber} property.
    * @return the property, not null
    */
-  public final Property<Integer> calendarDateStartNumber() {
-    return metaBean().calendarDateStartNumber().createProperty(this);
+  public final Property<Integer> startDateNumber() {
+    return metaBean().startDateNumber().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -276,24 +291,24 @@ public class CalendarSwapNode extends CurveNode {
    * Gets the calendar date number for the swap end (maturity) date.
    * @return the value of the property
    */
-  public int getCalendarDateEndNumber() {
-    return _calendarDateEndNumber;
+  public int getEndDateNumber() {
+    return _endDateNumber;
   }
 
   /**
    * Sets the calendar date number for the swap end (maturity) date.
-   * @param calendarDateEndNumber  the new value of the property
+   * @param endDateNumber  the new value of the property
    */
-  public void setCalendarDateEndNumber(int calendarDateEndNumber) {
-    this._calendarDateEndNumber = calendarDateEndNumber;
+  public void setEndDateNumber(int endDateNumber) {
+    this._endDateNumber = endDateNumber;
   }
 
   /**
-   * Gets the the {@code calendarDateEndNumber} property.
+   * Gets the the {@code endDateNumber} property.
    * @return the property, not null
    */
-  public final Property<Integer> calendarDateEndNumber() {
-    return metaBean().calendarDateEndNumber().createProperty(this);
+  public final Property<Integer> endDateNumber() {
+    return metaBean().endDateNumber().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -360,10 +375,10 @@ public class CalendarSwapNode extends CurveNode {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalendarSwapNode other = (CalendarSwapNode) obj;
-      return JodaBeanUtils.equal(getCalendarId(), other.getCalendarId()) &&
+      return JodaBeanUtils.equal(getDateSetName(), other.getDateSetName()) &&
           JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
-          (getCalendarDateStartNumber() == other.getCalendarDateStartNumber()) &&
-          (getCalendarDateEndNumber() == other.getCalendarDateEndNumber()) &&
+          (getStartDateNumber() == other.getStartDateNumber()) &&
+          (getEndDateNumber() == other.getEndDateNumber()) &&
           JodaBeanUtils.equal(getSwapConvention(), other.getSwapConvention()) &&
           (isUseFixings() == other.isUseFixings()) &&
           super.equals(obj);
@@ -374,10 +389,10 @@ public class CalendarSwapNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDateSetName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarDateStartNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarDateEndNumber());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDateNumber());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDateNumber());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
     return hash ^ super.hashCode();
@@ -399,10 +414,10 @@ public class CalendarSwapNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("calendarId").append('=').append(JodaBeanUtils.toString(getCalendarId())).append(',').append(' ');
+    buf.append("dateSetName").append('=').append(JodaBeanUtils.toString(getDateSetName())).append(',').append(' ');
     buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
-    buf.append("calendarDateStartNumber").append('=').append(JodaBeanUtils.toString(getCalendarDateStartNumber())).append(',').append(' ');
-    buf.append("calendarDateEndNumber").append('=').append(JodaBeanUtils.toString(getCalendarDateEndNumber())).append(',').append(' ');
+    buf.append("startDateNumber").append('=').append(JodaBeanUtils.toString(getStartDateNumber())).append(',').append(' ');
+    buf.append("endDateNumber").append('=').append(JodaBeanUtils.toString(getEndDateNumber())).append(',').append(' ');
     buf.append("swapConvention").append('=').append(JodaBeanUtils.toString(getSwapConvention())).append(',').append(' ');
     buf.append("useFixings").append('=').append(JodaBeanUtils.toString(isUseFixings())).append(',').append(' ');
   }
@@ -418,25 +433,25 @@ public class CalendarSwapNode extends CurveNode {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code calendarId} property.
+     * The meta-property for the {@code dateSetName} property.
      */
-    private final MetaProperty<ExternalId> _calendarId = DirectMetaProperty.ofReadWrite(
-        this, "calendarId", CalendarSwapNode.class, ExternalId.class);
+    private final MetaProperty<String> _dateSetName = DirectMetaProperty.ofReadWrite(
+        this, "dateSetName", CalendarSwapNode.class, String.class);
     /**
      * The meta-property for the {@code startTenor} property.
      */
     private final MetaProperty<Tenor> _startTenor = DirectMetaProperty.ofReadWrite(
         this, "startTenor", CalendarSwapNode.class, Tenor.class);
     /**
-     * The meta-property for the {@code calendarDateStartNumber} property.
+     * The meta-property for the {@code startDateNumber} property.
      */
-    private final MetaProperty<Integer> _calendarDateStartNumber = DirectMetaProperty.ofReadWrite(
-        this, "calendarDateStartNumber", CalendarSwapNode.class, Integer.TYPE);
+    private final MetaProperty<Integer> _startDateNumber = DirectMetaProperty.ofReadWrite(
+        this, "startDateNumber", CalendarSwapNode.class, Integer.TYPE);
     /**
-     * The meta-property for the {@code calendarDateEndNumber} property.
+     * The meta-property for the {@code endDateNumber} property.
      */
-    private final MetaProperty<Integer> _calendarDateEndNumber = DirectMetaProperty.ofReadWrite(
-        this, "calendarDateEndNumber", CalendarSwapNode.class, Integer.TYPE);
+    private final MetaProperty<Integer> _endDateNumber = DirectMetaProperty.ofReadWrite(
+        this, "endDateNumber", CalendarSwapNode.class, Integer.TYPE);
     /**
      * The meta-property for the {@code swapConvention} property.
      */
@@ -452,10 +467,10 @@ public class CalendarSwapNode extends CurveNode {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "calendarId",
+        "dateSetName",
         "startTenor",
-        "calendarDateStartNumber",
-        "calendarDateEndNumber",
+        "startDateNumber",
+        "endDateNumber",
         "swapConvention",
         "useFixings");
 
@@ -468,14 +483,14 @@ public class CalendarSwapNode extends CurveNode {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 428682489:  // calendarId
-          return _calendarId;
+        case -1115098497:  // dateSetName
+          return _dateSetName;
         case -1583746178:  // startTenor
           return _startTenor;
-        case 70783647:  // calendarDateStartNumber
-          return _calendarDateStartNumber;
-        case 1214242136:  // calendarDateEndNumber
-          return _calendarDateEndNumber;
+        case -2005022055:  // startDateNumber
+          return _startDateNumber;
+        case 526912466:  // endDateNumber
+          return _endDateNumber;
         case 1414180196:  // swapConvention
           return _swapConvention;
         case 1829944031:  // useFixings
@@ -501,11 +516,11 @@ public class CalendarSwapNode extends CurveNode {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code calendarId} property.
+     * The meta-property for the {@code dateSetName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> calendarId() {
-      return _calendarId;
+    public final MetaProperty<String> dateSetName() {
+      return _dateSetName;
     }
 
     /**
@@ -517,19 +532,19 @@ public class CalendarSwapNode extends CurveNode {
     }
 
     /**
-     * The meta-property for the {@code calendarDateStartNumber} property.
+     * The meta-property for the {@code startDateNumber} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> calendarDateStartNumber() {
-      return _calendarDateStartNumber;
+    public final MetaProperty<Integer> startDateNumber() {
+      return _startDateNumber;
     }
 
     /**
-     * The meta-property for the {@code calendarDateEndNumber} property.
+     * The meta-property for the {@code endDateNumber} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> calendarDateEndNumber() {
-      return _calendarDateEndNumber;
+    public final MetaProperty<Integer> endDateNumber() {
+      return _endDateNumber;
     }
 
     /**
@@ -552,14 +567,14 @@ public class CalendarSwapNode extends CurveNode {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 428682489:  // calendarId
-          return ((CalendarSwapNode) bean).getCalendarId();
+        case -1115098497:  // dateSetName
+          return ((CalendarSwapNode) bean).getDateSetName();
         case -1583746178:  // startTenor
           return ((CalendarSwapNode) bean).getStartTenor();
-        case 70783647:  // calendarDateStartNumber
-          return ((CalendarSwapNode) bean).getCalendarDateStartNumber();
-        case 1214242136:  // calendarDateEndNumber
-          return ((CalendarSwapNode) bean).getCalendarDateEndNumber();
+        case -2005022055:  // startDateNumber
+          return ((CalendarSwapNode) bean).getStartDateNumber();
+        case 526912466:  // endDateNumber
+          return ((CalendarSwapNode) bean).getEndDateNumber();
         case 1414180196:  // swapConvention
           return ((CalendarSwapNode) bean).getSwapConvention();
         case 1829944031:  // useFixings
@@ -571,17 +586,17 @@ public class CalendarSwapNode extends CurveNode {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 428682489:  // calendarId
-          ((CalendarSwapNode) bean).setCalendarId((ExternalId) newValue);
+        case -1115098497:  // dateSetName
+          ((CalendarSwapNode) bean).setDateSetName((String) newValue);
           return;
         case -1583746178:  // startTenor
           ((CalendarSwapNode) bean).setStartTenor((Tenor) newValue);
           return;
-        case 70783647:  // calendarDateStartNumber
-          ((CalendarSwapNode) bean).setCalendarDateStartNumber((Integer) newValue);
+        case -2005022055:  // startDateNumber
+          ((CalendarSwapNode) bean).setStartDateNumber((Integer) newValue);
           return;
-        case 1214242136:  // calendarDateEndNumber
-          ((CalendarSwapNode) bean).setCalendarDateEndNumber((Integer) newValue);
+        case 526912466:  // endDateNumber
+          ((CalendarSwapNode) bean).setEndDateNumber((Integer) newValue);
           return;
         case 1414180196:  // swapConvention
           ((CalendarSwapNode) bean).setSwapConvention((ExternalId) newValue);
@@ -595,7 +610,7 @@ public class CalendarSwapNode extends CurveNode {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((CalendarSwapNode) bean)._calendarId, "calendarId");
+      JodaBeanUtils.notNull(((CalendarSwapNode) bean)._dateSetName, "dateSetName");
       JodaBeanUtils.notNull(((CalendarSwapNode) bean)._startTenor, "startTenor");
       JodaBeanUtils.notNull(((CalendarSwapNode) bean)._swapConvention, "swapConvention");
       super.validate(bean);

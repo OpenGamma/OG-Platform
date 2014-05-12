@@ -18,7 +18,7 @@ public class BondFuturesTransaction extends FuturesTransaction<BondFuturesSecuri
    * @param quantity The quantity of future.
    * @param referencePrice The reference price.
    */
-  public BondFuturesTransaction(final BondFuturesSecurity underlyingFuture, final int quantity, final double referencePrice) {
+  public BondFuturesTransaction(final BondFuturesSecurity underlyingFuture, final long quantity, final double referencePrice) {
     super(underlyingFuture, quantity, referencePrice);
   }
 

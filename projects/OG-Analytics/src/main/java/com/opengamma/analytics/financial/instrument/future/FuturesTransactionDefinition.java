@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesS
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Abstract class for transactions on generic futures.
+ * Abstract class for transactions on generic futures-like products =, i.e. financial instruments with daily marniging.
  * @param <FS> The futures type of the underlying security.
  */
 public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDefinition<? extends FuturesSecurity>> {
@@ -21,14 +21,10 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
    * Underlying future security. Not null;
    */
   private final FS _underlyingFuture;
-
-  //FIXME - BondFuturesTransactionDefinition shouldn't take quantity as an int. This could overflow.
-  //should be a double, big decimal or long.
   /**
    * Quantity of future. Can be positive or negative.
-   * 
    */
-  private final int _quantity;
+  private final long _quantity;
   /**
    * Transaction date. Not null.
    */
@@ -45,7 +41,7 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price (in the convention of the futures).
    */
-  public FuturesTransactionDefinition(final FS underlyingFuture, int quantity, ZonedDateTime tradeDate, double tradePrice) {
+  public FuturesTransactionDefinition(final FS underlyingFuture, long quantity, ZonedDateTime tradeDate, double tradePrice) {
     super();
     ArgumentChecker.notNull(underlyingFuture, "Underlying futures");
     ArgumentChecker.notNull(tradeDate, "Trade date");
@@ -67,7 +63,7 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
    * Returns the transaction quantity.
    * @return The quantity.
    */
-  public int getQuantity() {
+  public long getQuantity() {
     return _quantity;
   }
 
@@ -93,16 +89,11 @@ public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDef
     return result;
   }
 
-  //  @Override
-  //  public FuturesTransaction<?> toDerivative(final ZonedDateTime date) {
-  //    throw new UnsupportedOperationException("The method toDerivative of FutureTransactionDefinition does not support the one argument method (without margin price data).");
-  //  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _quantity;
+    result = prime * result + (int) (_quantity ^ (_quantity >>> 32));
     result = prime * result + _tradeDate.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_tradePrice);
