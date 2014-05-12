@@ -23,6 +23,7 @@ import org.threeten.bp.ZoneId;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PlatformConfigUtils;
@@ -535,21 +536,56 @@ public class ComponentManager {
    */
   protected void setPropertyInferType(Bean bean, MetaProperty<?> mp, String value) {
     Class<?> propertyType = mp.propertyType();
-    if (propertyType == Resource.class) {
-      mp.set(bean, ResourceUtils.createResource(value));
+    if (isConvertibleFromString(mp.propertyType())) {
+      // set property by value type conversion from String
+      mp.set(bean, convert(propertyType, value));
       
-    } else if (Collection.class.isAssignableFrom(mp.propertyType()) && JodaBeanUtils.collectionType(mp, bean.getClass()) == String.class) {
+    } else if (Collection.class.isAssignableFrom(propertyType)) {
+      // set property by value type conversion from comma separated String
       Iterable<String> split = Splitter.on(',').trimResults().split(value);
-      mp.set(bean, ImmutableList.copyOf(split));
+      Class<?> collType = JodaBeanUtils.collectionType(mp, bean.getClass());
+      if (isConvertibleFromString(collType)) {
+        Builder<Object> builder = ImmutableList.builder();
+        for (String singleValue : split) {
+          builder.add(convert(collType, singleValue));
+        }
+        mp.set(bean, builder.build());
+      } else {
+        throw new ComponentConfigException(String.format("No mechanism found to set collection property %s from value: %s", mp, value));
+      }
       
     } else {
-      // set property by value type conversion from String
-      try {
-        mp.setString(bean, value);
-        
-      } catch (RuntimeException ex) {
-        throw new ComponentConfigException("Unable to set property " + mp, ex);
+      throw new ComponentConfigException(String.format("No mechanism found to set property %s from value: %s", mp, value));
+    }
+  }
+
+  /**
+   * Can the specified type be converted from a string.
+   * 
+   * @param type  the type to convert, not null
+   * @return true if it can be converted
+   */
+  private static boolean isConvertibleFromString(Class<?> type) {
+    return JodaBeanUtils.stringConverter().isConvertible(type) || type == Resource.class;
+  }
+
+  /**
+   * Converts a string to an object.
+   * 
+   * @param type  the type to convert to, not null
+   * @param value  the value to convert, not null
+   * @return the converted object
+   * @throws ComponentConfigException if conversion fails
+   */
+  private static Object convert(Class<?> type, String value) {
+    try {
+      if (type == Resource.class) {
+        return ResourceUtils.createResource(value);
+      } else {
+        return JodaBeanUtils.stringConverter().convertFromString(type, value);
       }
+    } catch (RuntimeException ex) {
+      throw new ComponentConfigException(String.format("Unable to convert String to %s from value: %s", type.getSimpleName(), value), ex);
     }
   }
 

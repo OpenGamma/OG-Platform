@@ -5,9 +5,10 @@
  */
 package com.opengamma.component.factory;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.MBeanServer;
@@ -18,6 +19,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -83,6 +85,11 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private Resource _resourceBase;
+  /**
+   * The location for alternate resources.
+   */
+  @PropertyDefinition
+  private final List<Resource> _secondaryResourceBases = new ArrayList<>();
 
   //-------------------------------------------------------------------------
   @Override
@@ -130,23 +137,69 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     return jettyServer;
   }
 
+  /**
+   * Adds handlers to the set of Jetty handlers.
+   * <p>
+   * This adds the webapp context using {@link #createWebAppContext}.
+   * 
+   * @param repo  the component repository, not null
+   * @param jettyServer  the Jetty server instance, not null
+   * @param handlers  the set of handlers to add to, not null
+   */
   protected void addHandlers(ComponentRepository repo, Server jettyServer, ContextHandlerCollection handlers) {
-    WebAppContext ogWebAppContext = createWebAppContext(repo, getResourceBase(), "OpenGamma", "/");
-    handlers.addHandler(ogWebAppContext);
+    handlers.addHandler(createWebAppContext(repo, "OpenGamma", "/"));
   }
 
-  protected WebAppContext createWebAppContext(ComponentRepository repo, Resource resourceBase, String name, String contextPath) {
+  /**
+   * Creates the webapp context, merging base resources if defined.
+   * 
+   * @param repo  the component repository, not null
+   * @param name  the webapp name, not null
+   * @param contextPath  the context path to use as the base, not null
+   * @return the webapp context, not null
+   */
+  protected WebAppContext createWebAppContext(ComponentRepository repo, String name, String contextPath) {
     WebAppContext ogWebAppContext = new WebAppContext(name, contextPath);
     ogWebAppContext.setParentLoaderPriority(true);
-    try {
-      ogWebAppContext.setResourceBase(resourceBase.getFile().getAbsolutePath());
-      ogWebAppContext.setDisplayName(resourceBase.getFile().getName());
-    } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Unable to find resource base " + getResourceBase(), e);
-    }
+    ogWebAppContext.setBaseResource(createJettyResource());
+    ogWebAppContext.setDisplayName(getResourceBase().getDescription());
     ogWebAppContext.setErrorHandler(new PlainTextErrorHandler());
     ogWebAppContext.setEventListeners(new EventListener[] {new ComponentRepositoryServletContextListener(repo)});
     return ogWebAppContext;
+  }
+
+  /**
+   * Converts the configured Spring resources to a combined Jetty resource, handling exceptions.
+   * <p>
+   * The result combines the base and any secondary resources.
+   * 
+   * @return the Jetty resource base, not null
+   */
+  protected org.eclipse.jetty.util.resource.Resource createJettyResource() {
+    org.eclipse.jetty.util.resource.Resource baseResource = createJettyResource(getResourceBase());
+    if (getSecondaryResourceBases().size() > 0) {
+      List<org.eclipse.jetty.util.resource.Resource> resources = new ArrayList<>();
+      resources.add(baseResource);
+      for (Resource resource : getSecondaryResourceBases()) {
+        resources.add(createJettyResource(resource));
+      }
+      baseResource = new ResourceCollection((org.eclipse.jetty.util.resource.Resource[]) resources.toArray(new org.eclipse.jetty.util.resource.Resource[resources.size()]));
+    }
+    return baseResource;
+  }
+
+  /**
+   * Converts a Spring resource to a Jetty resource, handling exceptions.
+   * 
+   * @param resource  the resource to convert, not null
+   * @return the Jetty resource, not null
+   */
+  protected org.eclipse.jetty.util.resource.Resource createJettyResource(Resource resource) {
+    try {
+      return org.eclipse.jetty.util.resource.Resource.newResource(resource.getFile());
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Unable to find resource for Jetty: " + resource, ex);
+    }
   }
 
   /**
@@ -336,6 +389,33 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the location for alternate resources.
+   * @return the value of the property, not null
+   */
+  public List<Resource> getSecondaryResourceBases() {
+    return _secondaryResourceBases;
+  }
+
+  /**
+   * Sets the location for alternate resources.
+   * @param secondaryResourceBases  the new value of the property, not null
+   */
+  public void setSecondaryResourceBases(List<Resource> secondaryResourceBases) {
+    JodaBeanUtils.notNull(secondaryResourceBases, "secondaryResourceBases");
+    this._secondaryResourceBases.clear();
+    this._secondaryResourceBases.addAll(secondaryResourceBases);
+  }
+
+  /**
+   * Gets the the {@code secondaryResourceBases} property.
+   * @return the property, not null
+   */
+  public final Property<List<Resource>> secondaryResourceBases() {
+    return metaBean().secondaryResourceBases().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public EmbeddedJettyComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -352,6 +432,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
           (getPort() == other.getPort()) &&
           (getSecurePort() == other.getSecurePort()) &&
           JodaBeanUtils.equal(getResourceBase(), other.getResourceBase()) &&
+          JodaBeanUtils.equal(getSecondaryResourceBases(), other.getSecondaryResourceBases()) &&
           super.equals(obj);
     }
     return false;
@@ -364,12 +445,13 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurePort());
     hash += hash * 31 + JodaBeanUtils.hashCode(getResourceBase());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondaryResourceBases());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("EmbeddedJettyComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -387,6 +469,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     buf.append("port").append('=').append(JodaBeanUtils.toString(getPort())).append(',').append(' ');
     buf.append("securePort").append('=').append(JodaBeanUtils.toString(getSecurePort())).append(',').append(' ');
     buf.append("resourceBase").append('=').append(JodaBeanUtils.toString(getResourceBase())).append(',').append(' ');
+    buf.append("secondaryResourceBases").append('=').append(JodaBeanUtils.toString(getSecondaryResourceBases())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -420,6 +503,12 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<Resource> _resourceBase = DirectMetaProperty.ofReadWrite(
         this, "resourceBase", EmbeddedJettyComponentFactory.class, Resource.class);
     /**
+     * The meta-property for the {@code secondaryResourceBases} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Resource>> _secondaryResourceBases = DirectMetaProperty.ofReadWrite(
+        this, "secondaryResourceBases", EmbeddedJettyComponentFactory.class, (Class) List.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -427,7 +516,8 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
         "active",
         "port",
         "securePort",
-        "resourceBase");
+        "resourceBase",
+        "secondaryResourceBases");
 
     /**
      * Restricted constructor.
@@ -446,6 +536,8 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
           return _securePort;
         case -384923649:  // resourceBase
           return _resourceBase;
+        case -971230400:  // secondaryResourceBases
+          return _secondaryResourceBases;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -498,6 +590,14 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
       return _resourceBase;
     }
 
+    /**
+     * The meta-property for the {@code secondaryResourceBases} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<Resource>> secondaryResourceBases() {
+      return _secondaryResourceBases;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -510,10 +610,13 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
           return ((EmbeddedJettyComponentFactory) bean).getSecurePort();
         case -384923649:  // resourceBase
           return ((EmbeddedJettyComponentFactory) bean).getResourceBase();
+        case -971230400:  // secondaryResourceBases
+          return ((EmbeddedJettyComponentFactory) bean).getSecondaryResourceBases();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -529,6 +632,9 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
         case -384923649:  // resourceBase
           ((EmbeddedJettyComponentFactory) bean).setResourceBase((Resource) newValue);
           return;
+        case -971230400:  // secondaryResourceBases
+          ((EmbeddedJettyComponentFactory) bean).setSecondaryResourceBases((List<Resource>) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -536,6 +642,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((EmbeddedJettyComponentFactory) bean)._resourceBase, "resourceBase");
+      JodaBeanUtils.notNull(((EmbeddedJettyComponentFactory) bean)._secondaryResourceBases, "secondaryResourceBases");
       super.validate(bean);
     }
 
