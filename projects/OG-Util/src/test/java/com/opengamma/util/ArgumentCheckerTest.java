@@ -35,7 +35,7 @@ public class ArgumentCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_isTrue_ok() {
-    assertEquals(true, ArgumentChecker.isTrue(true, "Message"));
+     ArgumentChecker.isTrue(true, "Message");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -49,7 +49,7 @@ public class ArgumentCheckerTest {
   }
 
   public void test_isTrue_ok_args() {
-    assertEquals(true, ArgumentChecker.isTrue(true, "Message {} {} {}", "A", 2, 3.));
+    ArgumentChecker.isTrue(true, "Message {} {} {}", "A", 2, 3.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -63,7 +63,7 @@ public class ArgumentCheckerTest {
   }
   
   public void test_isFalse_ok() {
-    assertEquals(false, ArgumentChecker.isFalse(false, "Message"));
+    ArgumentChecker.isFalse(false, "Message");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -77,7 +77,7 @@ public class ArgumentCheckerTest {
   }
 
   public void test_isFalse_ok_args() {
-    assertEquals(false, ArgumentChecker.isFalse(false, "Message {} {} {}", "A", 2., 3, true));
+    ArgumentChecker.isFalse(false, "Message {} {} {}", "A", 2., 3, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
