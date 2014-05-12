@@ -37,97 +37,102 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified boolean is true.
    * <p>
-   * Given the input parameter, this returns only if it is true.
-   * This will normally be the result of a caller-specific check.
+   * Given the input parameter, this returns normally only if it is true.
+   * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
    *  ArgumentChecker.isTrue(collection.contains("value"), "Collection must contain 'value'");
    * </pre>
    * 
-   * @param trueIfValid  a boolean resulting from testing an argument, may be null
+   * @param validIfTrue  a boolean resulting from testing an argument, may be null
    * @param message  the error message, not null
-   * @return true always
    * @throws IllegalArgumentException if the test value is false
    */
-  public static boolean isTrue(boolean trueIfValid, String message) {
-    if (!trueIfValid) {
+  public static void isTrue(boolean validIfTrue, String message) {
+    // return void, not the parameter, as no need to check a boolean method parameter
+    if (!validIfTrue) {
       throw new IllegalArgumentException(message);
     }
-    return true;
   }
   
   /**
    * Checks that the specified boolean is true.
    * <p>
-   * Given the input parameter, this returns only if it is true.
-   * This will normally be the result of a caller-specific check.
+   * Given the input parameter, this returns normally only if it is true.
+   * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
    *  ArgumentChecker.isTrue(collection.contains("value"), "Collection must contain 'value': {}", collection);
    * </pre>
    * <p>
+   * This returns {@code void}, and not the value being checked, as there is
+   * never a good reason to validate a boolean parameter value.
+   * <p>
    * Formatting of the error message uses placeholders as per SLF4J.
    * Each {} in the message is replaced by the next message argument.
    * 
-   * @param trueIfValid  a boolean resulting from testing an argument, may be null
+   * @param validIfTrue  a boolean resulting from testing an argument, may be null
    * @param message  the error message with {} placeholders, not null
    * @param arg  the message arguments
-   * @return true always
    * @throws IllegalArgumentException if the test value is false
    */
-  public static boolean isTrue(boolean trueIfValid, String message, Object... arg) {
-    if (!trueIfValid) {
+  public static void isTrue(boolean validIfTrue, String message, Object... arg) {
+    // return void, not the parameter, as no need to check a boolean method parameter
+    if (!validIfTrue) {
       throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg).getMessage());
     }
-    return true;
   }  
 
   /**
    * Checks that the specified boolean is false.
    * <p>
-   * Given the input parameter, this returns only if it is false.
-   * This will normally be the result of a caller-specific check.
+   * Given the input parameter, this returns normally only if it is false.
+   * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
    *  ArgumentChecker.isFalse(collection.contains("value"), "Collection must not contain 'value'");
    * </pre>
+   * <p>
+   * This returns {@code void}, and not the value being checked, as there is
+   * never a good reason to validate a boolean parameter value.
    * 
-   * @param falseIfValid  a boolean resulting from testing an argument, may be null
+   * @param validIfFalse  a boolean resulting from testing an argument, may be null
    * @param message  the error message, not null
-   * @return false always
    * @throws IllegalArgumentException if the test value is true
    */
-  public static boolean isFalse(boolean falseIfValid, String message) {
-    if (falseIfValid) {
+  public static void isFalse(boolean validIfFalse, String message) {
+    // return void, not the parameter, as no need to check a boolean method parameter
+    if (validIfFalse) {
       throw new IllegalArgumentException(message);
     }
-    return false;
   }
 
   /**
    * Checks that the specified boolean is false.
    * <p>
-   * Given the input parameter, this returns only if it is false.
-   * This will normally be the result of a caller-specific check.
+   * Given the input parameter, this returns normally only if it is false.
+   * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
    *  ArgumentChecker.isFalse(collection.contains("value"), "Collection must not contain 'value': {}", collection);
    * </pre>
    * <p>
+   * This returns {@code void}, and not the value being checked, as there is
+   * never a good reason to validate a boolean parameter value.
+   * <p>
    * Formatting of the error message uses placeholders as per SLF4J.
    * Each {} in the message is replaced by the next message argument.
    * 
-   * @param falseIfValid  a boolean resulting from testing an argument, may be null
+   * @param validIfFalse  a boolean resulting from testing an argument, may be null
    * @param message  the error message with {} placeholders, not null
    * @param arg  the message arguments
-   * @return false always
    * @throws IllegalArgumentException if the test value is true
    */
-  public static boolean isFalse(boolean falseIfValid, String message, Object... arg) {
-    if (falseIfValid) {
+  public static void isFalse(boolean validIfFalse, String message, Object... arg) {
+    // return void, not the parameter, as no need to check a boolean method parameter
+    if (validIfFalse) {
       throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg).getMessage());
     }
-    return false;
   }
   
   //-------------------------------------------------------------------------
