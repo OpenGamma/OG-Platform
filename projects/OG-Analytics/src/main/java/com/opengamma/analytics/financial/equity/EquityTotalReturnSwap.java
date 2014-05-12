@@ -28,15 +28,18 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
   private final double _dividendPercentage;
 
   /**
+   * @param effectiveTime The time to the effective date.
+   * @param terminatioTime The time to the termination date.
    * @param fundingLeg The funding leg, not null
    * @param equity The equity, not null
    * @param notionalAmount The notional amount
    * @param notionalCurrency The notional currency, not null
    * @param dividendPercentage The dividend percentage received, >= 0 and <= 1
    */
-  public EquityTotalReturnSwap(final Annuity<? extends Payment> fundingLeg, final Equity equity,
+  public EquityTotalReturnSwap(final double effectiveTime, final double terminatioTime,
+      final Annuity<? extends Payment> fundingLeg, final Equity equity,
       final double notionalAmount, final Currency notionalCurrency, final double dividendPercentage) {
-    super(fundingLeg);
+    super(effectiveTime, terminatioTime, fundingLeg);
     ArgumentChecker.notNull(equity, "equity");
     ArgumentChecker.notNull(notionalCurrency, "notionalCurrency");
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, dividendPercentage), "Dividend percentage must be >= 0 and <= 1 "
@@ -55,6 +58,7 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
   public Equity getEquity() {
     return _equity;
   }
+
   /**
    * Gets the dividend percentage.
    * @return The dividend percentage
