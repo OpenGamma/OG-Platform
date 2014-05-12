@@ -21,6 +21,9 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Examples of bond futures to be used in tests.
+ */
 public class BondFuturesDataSets {
 
   // Bond futures: Bobl June 14

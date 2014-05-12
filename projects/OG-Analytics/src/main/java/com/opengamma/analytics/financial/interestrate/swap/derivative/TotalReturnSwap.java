@@ -13,18 +13,28 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Description of a total return swap: funding leg. The asset is described in the child classes.
  */
 public abstract class TotalReturnSwap implements InstrumentDerivative {
+
   /** The funding leg */
   private final Annuity<? extends Payment> _fundingLeg;
+  /** The time to effective date */
+  private final double _effectiveTime;
+  /** The time to termination date */
+  private final double _terminationTime;
 
   /**
+   * Constructor of the TRS.
+   * @param effectiveTime The time to the effective date.
+   * @param terminatioTime The time to the termination date.
    * @param fundingLeg The funding leg, not null
    */
-  public TotalReturnSwap(final Annuity<? extends Payment> fundingLeg) {
+  public TotalReturnSwap(final double effectiveTime, final double terminatioTime, final Annuity<? extends Payment> fundingLeg) {
     ArgumentChecker.notNull(fundingLeg, "fundingLeg");
     _fundingLeg = fundingLeg;
+    _effectiveTime = effectiveTime;
+    _terminationTime = terminatioTime;
   }
 
   /**
@@ -33,6 +43,22 @@ public abstract class TotalReturnSwap implements InstrumentDerivative {
    */
   public Annuity<? extends Payment> getFundingLeg() {
     return _fundingLeg;
+  }
+
+  /**
+   * Returns the time to the effective date.
+   * @return The time.
+   */
+  public double getEffectiveTime() {
+    return _effectiveTime;
+  }
+
+  /**
+   * Returns the time to the termination date.
+   * @return The time.
+   */
+  public double getTerminationTime() {
+    return _terminationTime;
   }
 
   @Override

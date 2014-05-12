@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.TotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -22,6 +23,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
+
   /** The notional amount */
   private final double _notionalAmount;
   /** The notional currency */
@@ -30,15 +32,18 @@ public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
   private final double _dividendPercentage;
 
   /**
+   * @param effectiveDate The effective date.
+   * @param terminationDate The termination date.
    * @param fundingLeg The funding leg, not null
    * @param equity The equity, not null
    * @param notionalAmount The notional amount
    * @param notionalCurrency The notional currency, not null
    * @param dividendPercentage The dividend percentage received, >= 0 and <= 1
    */
-  public EquityTotalReturnSwapDefinition(final AnnuityDefinition<? extends PaymentDefinition> fundingLeg, final EquityDefinition equity,
+  public EquityTotalReturnSwapDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime terminationDate,
+      final AnnuityDefinition<? extends PaymentDefinition> fundingLeg, final EquityDefinition equity,
       final double notionalAmount, final Currency notionalCurrency, final double dividendPercentage) {
-    super(fundingLeg, equity);
+    super(effectiveDate, terminationDate, fundingLeg, equity);
     ArgumentChecker.notNull(notionalCurrency, "notionalCurrency");
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, dividendPercentage), "Dividend percentage must be >= 0 and <= 1 "
         + "have {}", dividendPercentage);
@@ -90,9 +95,11 @@ public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
 
   @Override
   public EquityTotalReturnSwap toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries data) {
+    final double effectiveTime = TimeCalculator.getTimeBetween(date, getEffectiveDate());
+    final double terminationTime = TimeCalculator.getTimeBetween(date, getTerminationDate());
     final Annuity<? extends Payment> fundingLeg = getFundingLeg().toDerivative(date, data);
     final Equity equity = (Equity) getAsset().toDerivative(date);
-    return new EquityTotalReturnSwap(fundingLeg, equity, _notionalAmount, _notionalCurrency, _dividendPercentage);
+    return new EquityTotalReturnSwap(effectiveTime, terminationTime, fundingLeg, equity, _notionalAmount, _notionalCurrency, _dividendPercentage);
   }
 
   @Override
@@ -102,9 +109,11 @@ public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
 
   @Override
   public EquityTotalReturnSwap toDerivative(final ZonedDateTime date) {
+    final double effectiveTime = TimeCalculator.getTimeBetween(date, getEffectiveDate());
+    final double terminationTime = TimeCalculator.getTimeBetween(date, getTerminationDate());
     final Annuity<? extends Payment> fundingLeg = getFundingLeg().toDerivative(date);
     final Equity equity = (Equity) getAsset().toDerivative(date);
-    return new EquityTotalReturnSwap(fundingLeg, equity, _notionalAmount, _notionalCurrency, _dividendPercentage);
+    return new EquityTotalReturnSwap(effectiveTime, terminationTime, fundingLeg, equity, _notionalAmount, _notionalCurrency, _dividendPercentage);
   }
 
   @Override

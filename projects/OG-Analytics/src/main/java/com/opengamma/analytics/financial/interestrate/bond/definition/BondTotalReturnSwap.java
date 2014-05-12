@@ -15,18 +15,22 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TotalRetur
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Description of a bond total return swap.
  */
 public class BondTotalReturnSwap extends TotalReturnSwap {
+
   /** The bond */
   private final BondSecurity<? extends Payment, ? extends Coupon> _bond;
 
   /**
+   * @param effectiveTime The time to the effective date.
+   * @param terminatioTime The time to the termination date.
    * @param fundingLeg The funding leg, not null
    * @param bond The bond, not null
    */
-  public BondTotalReturnSwap(final Annuity<? extends Payment> fundingLeg, final BondSecurity<? extends Payment, ? extends Coupon> bond) {
-    super(fundingLeg);
+  public BondTotalReturnSwap(final double effectiveTime, final double terminatioTime,
+      final Annuity<? extends Payment> fundingLeg, final BondSecurity<? extends Payment, ? extends Coupon> bond) {
+    super(effectiveTime, terminatioTime, fundingLeg);
     ArgumentChecker.notNull(bond, "bond");
     _bond = bond;
   }
@@ -74,6 +78,5 @@ public class BondTotalReturnSwap extends TotalReturnSwap {
     }
     return true;
   }
-
 
 }
