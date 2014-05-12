@@ -131,10 +131,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param type  the type to get, not null
    * @return the modifiable instances, not null
    */
-  public <T> Collection<T> getInstances(final Class<T> type) {
+  public <T> Collection<T> getInstances(Class<T> type) {
     ArgumentChecker.notNull(type, "type");
-    final List<T> result = new ArrayList<T>();
-    for (final ComponentInfo info : getInfos(type)) {
+    List<T> result = new ArrayList<T>();
+    for (ComponentInfo info : getInfos(type)) {
       result.add(type.cast(getInstance(info)));
     }
     return result;
@@ -148,10 +148,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param type  the type to get, not null
    * @return the component informations, not null
    */
-  public Collection<ComponentInfo> getInfos(final Class<?> type) {
+  public Collection<ComponentInfo> getInfos(Class<?> type) {
     ArgumentChecker.notNull(type, "type");
-    final ComponentTypeInfo info = findTypeInfo(type);
-    final ArrayList<ComponentInfo> result = new ArrayList<ComponentInfo>();
+    ComponentTypeInfo info = findTypeInfo(type);
+    ArrayList<ComponentInfo> result = new ArrayList<ComponentInfo>();
     if (info != null) {
       result.addAll(info.getInfoMap().values());
     }
@@ -170,10 +170,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @return the component instance, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public <T> T getInstance(final Class<T> type, final String classifier) {
+  public <T> T getInstance(Class<T> type, String classifier) {
     ArgumentChecker.notNull(type, "type");
-    final ComponentKey key = ComponentKey.of(type, classifier);
-    final Object result = _instanceMap.get(key);
+    ComponentKey key = ComponentKey.of(type, classifier);
+    Object result = _instanceMap.get(key);
     if (result == null) {
       throw new IllegalArgumentException("No component available: " + key);
     }
@@ -189,10 +189,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @return the component instance, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public Object getInstance(final ComponentInfo info) {
+  public Object getInstance(ComponentInfo info) {
     ArgumentChecker.notNull(info, "info");
-    final ComponentKey key = info.toComponentKey();
-    final Object result = _instanceMap.get(key);
+    ComponentKey key = info.toComponentKey();
+    Object result = _instanceMap.get(key);
     if (result == null) {
       throw new IllegalArgumentException("No component available: " + key);
     }
@@ -217,8 +217,8 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @return the component type information, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public ComponentTypeInfo getTypeInfo(final Class<?> type) {
-    final ComponentTypeInfo typeInfo = _infoMap.get(type);
+  public ComponentTypeInfo getTypeInfo(Class<?> type) {
+    ComponentTypeInfo typeInfo = _infoMap.get(type);
     if (typeInfo == null) {
       throw new IllegalArgumentException("Unknown component: " + type);
     }
@@ -234,9 +234,9 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @return the component information, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public ComponentInfo getInfo(final Class<?> type, final String classifier) {
+  public ComponentInfo getInfo(Class<?> type, String classifier) {
     ArgumentChecker.notNull(type, "type");
-    final ComponentTypeInfo typeInfo = getTypeInfo(type);
+    ComponentTypeInfo typeInfo = getTypeInfo(type);
     return typeInfo.getInfo(classifier);
   }
 
@@ -247,8 +247,8 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @return the component information, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public ComponentInfo getInfo(final Object instance) {
-    for (final Entry<ComponentKey, Object> entry : _instanceMap.entrySet()) {
+  public ComponentInfo getInfo(Object instance) {
+    for (Entry<ComponentKey, Object> entry : _instanceMap.entrySet()) {
       if (entry.getValue() == instance) {
         return getInfo(entry.getKey().getType(), entry.getKey().getClassifier());
       }
@@ -265,9 +265,9 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param typeName  the name of the type to get, case insensitive, not null
    * @return the component type information, null if not found
    */
-  public ComponentTypeInfo findTypeInfo(final String typeName) {
+  public ComponentTypeInfo findTypeInfo(String typeName) {
     ArgumentChecker.notNull(typeName, "type");
-    for (final Class<?> realType : _infoMap.keySet()) {
+    for (Class<?> realType : _infoMap.keySet()) {
       if (realType.getName().equalsIgnoreCase(typeName) || realType.getSimpleName().equalsIgnoreCase(typeName)) {
         return getTypeInfo(realType);
       }
@@ -283,7 +283,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param type  the type to get, not null
    * @return the component information, null if not found
    */
-  public ComponentTypeInfo findTypeInfo(final Class<?> type) {
+  public ComponentTypeInfo findTypeInfo(Class<?> type) {
     ArgumentChecker.notNull(type, "type");
     return _infoMap.get(type);
   }
@@ -298,11 +298,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param classifier  the classifier that distinguishes the component, case insensitive, not null
    * @return the component information, null if not found
    */
-  public ComponentInfo findInfo(final String typeName, final String classifier) {
+  public ComponentInfo findInfo(String typeName, String classifier) {
     ArgumentChecker.notNull(typeName, "type");
-    final ComponentTypeInfo typeInfo = findTypeInfo(typeName);
+    ComponentTypeInfo typeInfo = findTypeInfo(typeName);
     if (typeInfo != null) {
-      for (final String realClassifier : typeInfo.getInfoMap().keySet()) {
+      for (String realClassifier : typeInfo.getInfoMap().keySet()) {
         if (realClassifier.equalsIgnoreCase(classifier)) {
           return typeInfo.getInfo(realClassifier);
         }
@@ -320,11 +320,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param classifier  the classifier that distinguishes the component, case insensitive, not null
    * @return the component information, null if not found
    */
-  public ComponentInfo findInfo(final Class<?> type, final String classifier) {
+  public ComponentInfo findInfo(Class<?> type,  String classifier) {
     ArgumentChecker.notNull(type, "type");
-    final ComponentTypeInfo typeInfo = findTypeInfo(type);
+    ComponentTypeInfo typeInfo = findTypeInfo(type);
     if (typeInfo != null) {
-      for (final String realClassifier : typeInfo.getInfoMap().keySet()) {
+      for (String realClassifier : typeInfo.getInfoMap().keySet()) {
         if (realClassifier.equalsIgnoreCase(classifier)) {
           return typeInfo.getInfo(realClassifier);
         }
@@ -344,16 +344,16 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param type  the type to get, not null
    * @return the component information, null if not found
    */
-  public <T> T findInstance(final Class<T> type) {
+  public <T> T findInstance(Class<T> type) {
     ArgumentChecker.notNull(type, "type");
-    final ComponentTypeInfo typeInfo = findTypeInfo(type);
+    ComponentTypeInfo typeInfo = findTypeInfo(type);
     if (typeInfo == null) {
       return null;
     }
     if (typeInfo.getInfoMap().size() != 1) {
       return null;
     }
-    final Object result = getInstance(typeInfo.getInfoMap().values().iterator().next());
+    Object result = getInstance(typeInfo.getInfoMap().values().iterator().next());
     return type.cast(result);
   }
 
@@ -367,7 +367,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param classifier the classifier that distinguishes the component, not null
    * @return the component instance, null if not found
    */
-  public <T> T findInstance(final Class<T> type, final String classifier) {
+  public <T> T findInstance(Class<T> type, String classifier) {
     return type.cast(_instanceMap.get(ComponentKey.of(type, classifier)));
   }
 
@@ -396,11 +396,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param object  the object to initialize, not null
    * @throws OpenGammaRuntimeException if the object cannot be initialized
    */
-  public void initialize(final InitializingBean object) {
+  public void initialize(InitializingBean object) {
     if (isInitialized(object) == false) {
       try {
         object.afterPropertiesSet();
-      } catch (final Exception ex) {
+      } catch (Exception ex) {
         throw new OpenGammaRuntimeException(ex.getMessage(), ex);
       }
       _initialized.add(object);
@@ -412,8 +412,8 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @return true if initialized
    */
-  private boolean isInitialized(final InitializingBean object) {
-    for (final InitializingBean initialized : _initialized) {
+  private boolean isInitialized(InitializingBean object) {
+    for (InitializingBean initialized : _initialized) {
       if (initialized == object) {
         return true;
       }
@@ -426,7 +426,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param object  the object to check, not null
    */
-  private void initialize0(final Object object) {
+  private void initialize0(Object object) {
     if (object instanceof InitializingBean) {
       initialize((InitializingBean) object);
     }
@@ -453,12 +453,12 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param instance  the component instance to register, not null
    * @throws OpenGammaRuntimeException if an error occurs
    */
-  public void registerComponent(final ComponentInfo info, Object instance) {
+  public void registerComponent(ComponentInfo info, Object instance) {
     ArgumentChecker.notNull(info, "info");
     ArgumentChecker.notNull(instance, "instance");
     checkStatus(Status.CREATING);
 
-    final ComponentKey key = info.toComponentKey();
+    ComponentKey key = info.toComponentKey();
     try {
       // initialize
       initialize0(instance);
@@ -468,7 +468,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       if (instance instanceof FactoryBean<?>) {
         try {
           instance = ((FactoryBean<?>) instance).getObject();
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
           throw new OpenGammaRuntimeException("FactoryBean threw exception", ex);
         }
         initialize0(instance);
@@ -476,12 +476,12 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       }
 
       // register into data structures
-      final Object current = _instanceMap.putIfAbsent(key, instance);
+      Object current = _instanceMap.putIfAbsent(key, instance);
       if (current != null) {
         throw new ComponentConfigException("Component already registered for specified information: " + key);
       }
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
-      final ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
+      ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
       typeInfo.getInfoMap().put(info.getClassifier(), info);
       registeredComponent(info, instance);
 
@@ -489,7 +489,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       if (JmxUtils.isMBean(instance.getClass())) {
         registerMBean(instance);
       }
-    } catch (final RuntimeException ex) {
+    } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new OpenGammaRuntimeException("Failed during registration: " + key, ex);
     }
@@ -512,11 +512,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param instance  the component instance to register, not null
    * @throws OpenGammaRuntimeException if an error occurs
    */
-  public <T> void registerComponent(final Class<T> type, final String classifier, final T instance) {
+  public <T> void registerComponent(Class<T> type, String classifier, T instance) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(classifier, "classifier");
     ArgumentChecker.notNull(instance, "instance");
-    final ComponentInfo info = new ComponentInfo(type, classifier);
+    ComponentInfo info = new ComponentInfo(type, classifier);
     registerComponent(info, instance);
   }
 
@@ -526,7 +526,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param info  the key or info of the instance that was registered, null if not a component
    * @param registeredObject  the instance that was registered, may be null
    */
-  protected void registeredComponent(final ComponentInfo info, final Object registeredObject) {
+  protected void registeredComponent(ComponentInfo info, Object registeredObject) {
     if (info.getAttributes().isEmpty()) {
       _logger.logDebug(" Registered component: " + info.toComponentKey());
     } else {
@@ -540,7 +540,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param instance  the object to examine, not null
    */
-  private void registerInstanceInterfaces0(final Object instance) {
+  private void registerInstanceInterfaces0(Object instance) {
     if (instance instanceof Lifecycle) {
       registerLifecycle0((Lifecycle) instance);
     } else {
@@ -643,7 +643,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param lifecycleObject  the object that has a lifecycle, not null
    * @throws OpenGammaRuntimeException if an error occurs
    */
-  public void registerLifecycle(final Lifecycle lifecycleObject) {
+  public void registerLifecycle(Lifecycle lifecycleObject) {
     ArgumentChecker.notNull(lifecycleObject, "lifecycleObject");
     checkStatus(Status.CREATING);
 
@@ -652,7 +652,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       registerLifecycle0(lifecycleObject);
       _logger.logDebug(" Registered lifecycle: " + lifecycleObject);
 
-    } catch (final RuntimeException ex) {
+    } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new OpenGammaRuntimeException("Failed during registering Lifecycle: " + lifecycleObject, ex);
     }
@@ -663,7 +663,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param lifecycleObject  the object that has a lifecycle, not null
    */
-  private void registerLifecycle0(final Lifecycle lifecycleObject) {
+  private void registerLifecycle0(Lifecycle lifecycleObject) {
     Integer phase = 0;
     if (lifecycleObject instanceof Phased) {
       phase = ((Phased) lifecycleObject).getPhase();
@@ -687,7 +687,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param servletContextAware  the object that requires a servlet context, not null
    * @throws OpenGammaRuntimeException if an error occurs
    */
-  public void registerServletContextAware(final ServletContextAware servletContextAware) {
+  public void registerServletContextAware(ServletContextAware servletContextAware) {
     ArgumentChecker.notNull(servletContextAware, "servletContextAware");
     checkStatus(Status.CREATING);
 
@@ -696,7 +696,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       registerServletContextAware0(servletContextAware);
       _logger.logDebug(" Registered lifecycle-stop: " + servletContextAware);
 
-    } catch (final RuntimeException ex) {
+    } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new OpenGammaRuntimeException("Failed during registering ServletContextAware: " + servletContextAware, ex);
     }
@@ -707,7 +707,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param servletContextAware  the object that requires a servlet context, not null
    */
-  private void registerServletContextAware0(final ServletContextAware servletContextAware) {
+  private void registerServletContextAware0(ServletContextAware servletContextAware) {
     _servletContextAware.add(servletContextAware);
   }
 
@@ -717,7 +717,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param managedResource  the object that should be treated as an MBean, not null
    */
-  public void registerMBean(final Object managedResource) {
+  public void registerMBean(Object managedResource) {
     ArgumentChecker.notNull(managedResource, "managedResource");
     checkStatus(Status.CREATING);
     registerMBean(managedResource, generateObjectName(managedResource));
@@ -730,7 +730,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param name The fully qualified JMX ObjectName
    * @throws OpenGammaRuntimeException if an error occurs
    */
-  public void registerMBean(final Object managedResource, final ObjectName name) {
+  public void registerMBean(Object managedResource, ObjectName name) {
     ArgumentChecker.notNull(managedResource, "managedResource");
     ArgumentChecker.notNull(name, "name");
     checkStatus(Status.CREATING);
@@ -740,7 +740,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       registerMBean0(managedResource, name);
       _logger.logDebug(" Registered mbean: " + managedResource);
 
-    } catch (final RuntimeException ex) {
+    } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new OpenGammaRuntimeException("Failed during registering ManagedResource: " + managedResource, ex);
     }
@@ -751,7 +751,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    *
    * @param managedResource  the object that should be treated as an MBean, not null
    */
-  private void registerMBean0(final Object managedResource, final ObjectName name) {
+  private void registerMBean0(Object managedResource, ObjectName name) {
     _managedResources.put(name, managedResource);
   }
 
@@ -762,11 +762,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @return the object name, not null
    * @throws OpenGammaRuntimeException if an error occurs
    */
-  private ObjectName generateObjectName(final Object managedResource) {
+  private ObjectName generateObjectName(Object managedResource) {
     ObjectName objectName;
     try {
       objectName = new ObjectName("com.opengamma:name=" + managedResource.getClass().getSimpleName());
-    } catch (final Exception ex) {
+    } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Could not generate object name for " + managedResource, ex);
     }
     return objectName;
@@ -784,7 +784,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public void start() {
-    final Status status = _status.get();
+    Status status = _status.get();
     if (status == Status.STARTING) {
       return;  // already starting
     }
@@ -794,25 +794,25 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     }
     try {
       // Spring interfaces
-      for (final List<Lifecycle> list : _lifecycles.values()) {
-        for (final Lifecycle obj : list) {
+      for (List<Lifecycle> list : _lifecycles.values()) {
+        for (Lifecycle obj : list) {
           obj.start();
         }
       }
 
       // JMX managed resources
-      final MBeanServer jmxServer = findInstance(MBeanServer.class);
+      MBeanServer jmxServer = findInstance(MBeanServer.class);
       if (jmxServer != null) {
-        final MBeanExporter exporter = new MBeanExporter();
+        MBeanExporter exporter = new MBeanExporter();
         exporter.setServer(jmxServer);
-        for (final Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
+        for (Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
           exporter.registerManagedResource(resourceEntry.getValue(), resourceEntry.getKey());
         }
       }
 
       _status.set(Status.RUNNING);
 
-    } catch (final RuntimeException ex) {
+    } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw ex;
     } finally {
@@ -827,18 +827,18 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public void stop() {
-    final Status status = _status.get();
+    Status status = _status.get();
     if (status == Status.STOPPING || status == Status.STOPPED) {
       return;  // nothing to stop in this thread
     }
     if (_status.compareAndSet(status, Status.STOPPING) == false) {
       return;  // another thread just beat this one
     }
-    for (final List<Lifecycle> list : Lists.reverse(ImmutableList.copyOf(_lifecycles.values()))) {
-      for (final Lifecycle obj : Lists.reverse(list)) {
+    for (List<Lifecycle> list : Lists.reverse(ImmutableList.copyOf(_lifecycles.values()))) {
+      for (Lifecycle obj : Lists.reverse(list)) {
         try {
           obj.stop();
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
           // ignore
         }
       }
@@ -863,9 +863,9 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param servletContext  the servlet context, not null
    */
   @Override
-  public void setServletContext(final ServletContext servletContext) {
+  public void setServletContext(ServletContext servletContext) {
     servletContext.setAttribute(SERVLET_CONTEXT_KEY, this);
-    for (final ServletContextAware obj : _servletContextAware) {
+    for (ServletContextAware obj : _servletContextAware) {
       obj.setServletContext(servletContext);
     }
   }
@@ -884,7 +884,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @return the thread-local instance, not null
    */
   public static ComponentRepository getThreadLocal() {
-    final ComponentRepository repo = s_threadRepo.get();
+    ComponentRepository repo = s_threadRepo.get();
     if (repo == null) {
       throw new IllegalStateException("ComponentRepository thread-local not set");
     }
@@ -899,19 +899,19 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param servletContext  the servlet context, not null
    * @return the instance stored in the servlet context, not null
    */
-  public static ComponentRepository getFromServletContext(final ServletContext servletContext) {
+  public static ComponentRepository getFromServletContext(ServletContext servletContext) {
     ArgumentChecker.notNull(servletContext, "servletContext");
-    final ComponentRepository repo = (ComponentRepository) servletContext.getAttribute(SERVLET_CONTEXT_KEY);
+    ComponentRepository repo = (ComponentRepository) servletContext.getAttribute(SERVLET_CONTEXT_KEY);
     ArgumentChecker.notNull(repo, "ComponentRepository");
     return repo;
   }
 
   //-------------------------------------------------------------------------
-  private void checkStatus(final Status required) {
+  private void checkStatus(Status required) {
     checkStatus(_status.get(), required);
   }
 
-  private void checkStatus(final Status current, final Status required) {
+  private void checkStatus(Status current, Status required) {
     if (current != required) {
       throw new IllegalStateException("Invalid repository status, expected " + required + " but was " + current);
     }
@@ -924,7 +924,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(1024);
+    StringBuilder buf = new StringBuilder(1024);
     buf.append(getClass().getSimpleName()).append(_instanceMap.keySet());
     return buf.toString();
   }
