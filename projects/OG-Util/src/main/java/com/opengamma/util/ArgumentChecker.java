@@ -354,8 +354,8 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter collection is non-null and not empty.
    * <p>
-   * Given the input parameter, this returns only if it is non-null and contains
-   * at least one element. The element is not validated and may be null.
+   * Given the input parameter, this returns only if it is non-null and contains at least one element.
+   * The element is not validated and may contain nulls if the collection allows nulls.
    * For example, in a constructor:
    * <pre>
    *  _values = ArgumentChecker.notEmpty(values, "values");
@@ -379,8 +379,8 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter map is non-null and not empty.
    * <p>
-   * Given the input parameter, this returns only if it is non-null and contains
-   * at least one mapping. The element is not validated and may contain nulls.
+   * Given the input parameter, this returns only if it is non-null and contains at least one mapping.
+   * The element is not validated and may contain nulls if the collection allows nulls.
    * For example, in a constructor:
    * <pre>
    *  _keyValues = ArgumentChecker.notEmpty(keyValues, "keyValues");
