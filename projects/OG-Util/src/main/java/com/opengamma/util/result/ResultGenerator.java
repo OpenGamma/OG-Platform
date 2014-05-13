@@ -11,8 +11,7 @@ import com.google.common.base.Function;
 
 /**
  * Factory class for {@link Result} objects.
- *
- * <p/>
+ * <p>
  * <h3>Typical usage pattern:</h3>
  * <pre>
  *
@@ -120,7 +119,7 @@ public class ResultGenerator {
   @Deprecated
   @SuppressWarnings("unchecked")
   public static <T> Result<T> propagateFailure(Result<?> result) {
-    return Result.failure(result);
+    return (Result<T>) Result.failure(result);
   }
 
   /**
@@ -175,10 +174,16 @@ public class ResultGenerator {
   }
 
   /**
+   * Propagates failures.
+   * 
+   * @param <T>  the result type
+   * @param results  the set of results
+   * @return the result
    * @deprecated use {@link Result#failure(Iterable)}
    */
   @Deprecated
   public static <T> Result<T> propagateFailures(Collection<Result<?>> results) {
     return Result.failure(results);
   }
+
 }

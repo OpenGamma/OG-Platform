@@ -5,8 +5,6 @@
  */
 package com.opengamma.util.result;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +12,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.lang.text.StrBuilder;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -38,50 +37,67 @@ import com.opengamma.util.ArgumentChecker;
  * for allowing method signatures to match
  */
 @BeanDefinition
-public final class FailureResult<T> extends Result<T> implements ImmutableBean {
+public final class FailureResult<T>
+    extends Result<T>
+    implements ImmutableBean {
 
-  @PropertyDefinition(validate = "notNull", get = "manual")
-  private final Set<Failure> _failures;
-
-  @PropertyDefinition(validate = "notNull", get = "manual")
+  /**
+   * The set of failure instances.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableSet<Failure> _failures;
+  /**
+   * The failure status.
+   */
+  @PropertyDefinition(validate = "notNull")
   private final FailureStatus _status;
-
+  /**
+   * The failure message.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final String _message;
 
-  @ImmutableConstructor
-  private FailureResult(Collection<Failure> failures, FailureStatus status, String message) {
-    _failures = ImmutableSet.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
-    _status = ArgumentChecker.notNull(status, "status");
-    _message = ArgumentChecker.notEmpty(message, "message");
-  }
-
-  /* package */ static <U> Result<U> of(Failure failure) {
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a failure result for a single failure instance.
+   * 
+   * @param failure  the failure instance, not null
+   * @return the failure result, not null
+   */
+  static <U> Result<U> of(Failure failure) {
     ArgumentChecker.notNull(failure, "failure");
-    return new FailureResult<>(Collections.singletonList(failure), failure.getStatus(), failure.getMessage());
+    return new FailureResult<>(ImmutableSet.of(failure), failure.getStatus(), failure.getMessage());
   }
 
   /**
-   * @param failures the failures, not empty
+   * Obtains a failure result for a non-empty list of failures.
+   * 
+   * @param failures  the failures, not empty, not null
+   * @return the failure result, not null
    */
-  /* package */ static <U> Result<U> of(List<Failure> failures) {
+  static <U> Result<U> of(List<Failure> failures) {
     ArgumentChecker.notEmpty(failures, "failures");
-    ResultStatus status = failures.get(0).getStatus();
-    StringBuilder builder = new StringBuilder();
-
-    for (Iterator<Failure> itr = failures.iterator(); itr.hasNext(); ) {
+    ImmutableSet<Failure> fails = ImmutableSet.copyOf(failures);
+    FailureStatus status = fails.iterator().next().getStatus();
+    StrBuilder buf = new StrBuilder();
+    for (Iterator<Failure> itr = fails.iterator(); itr.hasNext(); ) {
       Failure failure = itr.next();
-      builder.append(failure.getMessage());
-
-      if (itr.hasNext()) {
-        builder.append("\n");
-      }
+      buf.appendSeparator(", ");
+      buf.append(failure.getMessage());
       if (!status.equals(failure.getStatus())) {
         status = FailureStatus.MULTIPLE;
       }
     }
-    Result<?> result = new FailureResult<>(failures, (FailureStatus) status, builder.toString());
+    Result<?> result = new FailureResult<>(fails, status, buf.toString());
     return Result.failure(result);
+  }
+
+  //-------------------------------------------------------------------------
+  @ImmutableConstructor
+  private FailureResult(Set<Failure> failures, FailureStatus status, String message) {
+    _failures = ImmutableSet.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
+    _status = ArgumentChecker.notNull(status, "status");
+    _message = ArgumentChecker.notEmpty(message, "message");
   }
 
   //-------------------------------------------------------------------------
@@ -106,17 +122,8 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
   }
 
   @Override
-  public Set<Failure> getFailures() {
-    return _failures;
-  }
-
-  @Override
   public boolean isSuccess() {
     return false;
-  }
-
-  public FailureStatus getStatus() {
-    return _status;
   }
 
   // deprecated methods --------------------------------------------------------------------
@@ -204,7 +211,25 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the message.
+   * Gets the set of failure instances.
+   * @return the value of the property, not null
+   */
+  public ImmutableSet<Failure> getFailures() {
+    return _failures;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the failure status.
+   * @return the value of the property, not null
+   */
+  public FailureStatus getStatus() {
+    return _status;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the failure message.
    * @return the value of the property, not null
    */
   private String getMessage() {
@@ -274,8 +299,8 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
      * The meta-property for the {@code failures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<Failure>> _failures = DirectMetaProperty.ofImmutable(
-        this, "failures", FailureResult.class, (Class) Set.class);
+    private final MetaProperty<ImmutableSet<Failure>> _failures = DirectMetaProperty.ofImmutable(
+        this, "failures", FailureResult.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code status} property.
      */
@@ -335,7 +360,7 @@ public final class FailureResult<T> extends Result<T> implements ImmutableBean {
      * The meta-property for the {@code failures} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Set<Failure>> failures() {
+    public MetaProperty<ImmutableSet<Failure>> failures() {
       return _failures;
     }
 

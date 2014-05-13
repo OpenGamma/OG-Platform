@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -43,10 +43,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 @Deprecated
 @BeanDefinition
-public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean {
+public final class MultipleFailureResult<T> extends Result<T> implements ImmutableBean {
 
   @PropertyDefinition(validate = "notNull", get = "manual")
-  private final Collection<Failure> _failures;
+  private final ImmutableSet<Failure> _failures;
 
   @PropertyDefinition(validate = "notNull", get = "manual")
   private final FailureStatus _status;
@@ -57,7 +57,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
   /**
    * @param failures the failures, must contain at least two elements
    */
-  /* package */ static <U> Result<U> of(List<Failure> failures) {
+  static <U> Result<U> of(List<Failure> failures) {
     ArgumentChecker.notNull(failures, "failures");
     
     if (failures.size() < 2) {
@@ -82,7 +82,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
 
   @ImmutableConstructor
   private MultipleFailureResult(Collection<Failure> failures, FailureStatus status, String message) {
-    _failures = ImmutableList.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
+    _failures = ImmutableSet.copyOf(ArgumentChecker.notEmpty(failures, "failures"));
     _status = ArgumentChecker.notNull(status, "status");
     _message = ArgumentChecker.notEmpty(message, "message");
   }
@@ -131,7 +131,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
     return _message;
   }
 
-  public Collection<Failure> getFailures() {
+  public ImmutableSet<Failure> getFailures() {
     return _failures;
   }
 
@@ -236,26 +236,18 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MultipleFailureResult{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("failures").append('=').append(getFailures()).append(',').append(' ');
+    buf.append("status").append('=').append(getStatus()).append(',').append(' ');
+    buf.append("message").append('=').append(JodaBeanUtils.toString(getMessage()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("failures").append('=').append(JodaBeanUtils.toString(getFailures())).append(',').append(' ');
-    buf.append("status").append('=').append(JodaBeanUtils.toString(getStatus())).append(',').append(' ');
-    buf.append("message").append('=').append(JodaBeanUtils.toString(getMessage())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MultipleFailureResult}.
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -290,7 +282,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -327,7 +319,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
      * The meta-property for the {@code failures} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<Failure>> failures() {
+    public MetaProperty<Collection<Failure>> failures() {
       return _failures;
     }
 
@@ -335,7 +327,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
      * The meta-property for the {@code status} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<FailureStatus> status() {
+    public MetaProperty<FailureStatus> status() {
       return _status;
     }
 
@@ -343,7 +335,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
      * The meta-property for the {@code message} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> message() {
+    public MetaProperty<String> message() {
       return _message;
     }
 
@@ -376,7 +368,7 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
   /**
    * The bean-builder for {@code MultipleFailureResult}.
    */
-  public static class Builder<T> extends DirectFieldsBeanBuilder<MultipleFailureResult<T>> {
+  public static final class Builder<T> extends DirectFieldsBeanBuilder<MultipleFailureResult<T>> {
 
     private Collection<Failure> _failures = new ArrayList<Failure>();
     private FailureStatus _status;
@@ -385,14 +377,14 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(MultipleFailureResult<T> beanToCopy) {
+    private Builder(MultipleFailureResult<T> beanToCopy) {
       this._failures = new ArrayList<Failure>(beanToCopy.getFailures());
       this._status = beanToCopy.getStatus();
       this._message = beanToCopy.getMessage();
@@ -503,19 +495,11 @@ public class MultipleFailureResult<T> extends Result<T> implements ImmutableBean
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("MultipleFailureResult.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("failures").append('=').append(JodaBeanUtils.toString(_failures)).append(',').append(' ');
       buf.append("status").append('=').append(JodaBeanUtils.toString(_status)).append(',').append(' ');
-      buf.append("message").append('=').append(JodaBeanUtils.toString(_message)).append(',').append(' ');
+      buf.append("message").append('=').append(JodaBeanUtils.toString(_message));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

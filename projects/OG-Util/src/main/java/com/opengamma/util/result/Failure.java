@@ -31,15 +31,19 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class Failure implements ImmutableBean {
 
-  /** The status associated with the failure. */
+  /**
+   * The status associated with the failure.
+   */
   @PropertyDefinition(validate = "notNull")
   private final FailureStatus _status;
-
-  /** The error message associated with the failure. */
+  /**
+   * The error message associated with the failure.
+   */
   @PropertyDefinition(validate = "notNull")
   private final String _message;
-
-  /** Details of the cause of the failure, possibly null */
+  /**
+   * Details of the cause of the failure, possibly null.
+   */
   @PropertyDefinition
   private final ThrowableDetails _causeDetails;
 
@@ -77,7 +81,9 @@ public final class Failure implements ImmutableBean {
   }
 
   /**
-   * @param cause an exception that caused a failure, not null
+   * Extracts the mesage from an exception.
+   * 
+   * @param cause  an exception that caused a failure, not null
    * @return the exception's message or it's simple class name if it doesn't have one
    */
   private static String getMessage(Exception cause) {
@@ -142,7 +148,7 @@ public final class Failure implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets details of the cause of the failure, possibly null
+   * Gets details of the cause of the failure, possibly null.
    * @return the value of the property
    */
   public ThrowableDetails getCauseDetails() {
