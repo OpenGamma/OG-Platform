@@ -8,6 +8,7 @@ package com.opengamma.component;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.management.AttributeNotFoundException;
@@ -53,6 +54,18 @@ public class ComponentRepositoryTest {
     assertEquals(MockSimple.class, repo.getTypeInfo().iterator().next().getType());
     assertEquals(MockSimple.class, repo.getTypeInfo(MockSimple.class).getType());
     assertEquals(info, repo.getTypeInfo(MockSimple.class).getInfo("test"));
+    assertEquals(info, repo.findInfo(MockSimple.class, "test"));
+    assertEquals(info, repo.findInfo("MockSimple", "test"));
+    assertEquals(info, repo.findInfo("MockSimple::test"));
+    LinkedHashMap<String, String> input = new LinkedHashMap<>();
+    input.put("a", "MockSimple::test");
+    input.put("b", "Rubbish::test");
+    input.put("c", "MockSimple::test");
+    LinkedHashMap<String, ComponentInfo> found = repo.findInfos(input);
+    assertEquals(2, found.size());
+    assertEquals(info, found.get("a"));
+    assertEquals(info, found.get("c"));
+    assertEquals(false, found.containsKey("b"));
     repo.start();
     repo.stop();
   }

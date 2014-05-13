@@ -130,19 +130,17 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
     }
   }
 
-  protected void buildConfiguration(final ComponentRepository repo, final Map<String, String> configuration, final Map<String, Object> map) {
+  protected void buildConfiguration(ComponentRepository repo, Map<String, String> configuration, Map<String, Object> map) {
     map.put(LOGICAL_SERVER_UNIQUE_IDENTIFIER, getLogicalServerId());
-    for (final String key : configuration.keySet()) {
-      final String valueStr = configuration.get(key);
+    for (String key : configuration.keySet()) {
+      String valueStr = configuration.get(key);
       Object targetValue = valueStr;
       if (valueStr.contains("::")) {
-        final String type = StringUtils.substringBefore(valueStr, "::");
-        final String classifier = StringUtils.substringAfter(valueStr, "::");
-        final ComponentInfo info = repo.findInfo(type, classifier);
+        ComponentInfo info = repo.findInfo(valueStr);
         if (info == null) {
           throw new IllegalArgumentException("Component not found: " + valueStr);
         }
-        final Object instance = repo.getInstance(info);
+        Object instance = repo.getInstance(info);
         if ((instance instanceof CalcNodeSocketConfiguration) || (instance instanceof Supplier)) {
           targetValue = instance;
         } else {
@@ -157,13 +155,13 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     afterPropertiesSet();
-    final Map<String, Object> map = new LinkedHashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
     buildConfiguration(repo, configuration, map);
-    final Map<String, Object> outer = new LinkedHashMap<String, Object>();
+    Map<String, Object> outer = new LinkedHashMap<String, Object>();
     outer.put(DEFAULT_CONFIGURATION_DOCUMENT_ID, map);
-    final DataConfigurationResource resource = new DataConfigurationResource(getFudgeContext(), outer);
+    DataConfigurationResource resource = new DataConfigurationResource(getFudgeContext(), outer);
     repo.getRestComponents().publishResource(resource);
     // indicate that all component configuration was used
     configuration.clear();
@@ -176,10 +174,10 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
    * @param key the key, not null
    * @param targetValue the target value,not null
    */
-  protected void buildMap(final Map<String, Object> map, final String key, final Object targetValue) {
+  protected void buildMap(Map<String, Object> map, String key, Object targetValue) {
     if (key.contains(".")) {
-      final String key1 = StringUtils.substringBefore(key, ".");
-      final String key2 = StringUtils.substringAfter(key, ".");
+      String key1 = StringUtils.substringBefore(key, ".");
+      String key2 = StringUtils.substringAfter(key, ".");
       @SuppressWarnings("unchecked")
       Map<String, Object> subMap = (Map<String, Object>) map.get(key1);
       if (subMap == null) {

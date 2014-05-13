@@ -8,8 +8,8 @@ package com.opengamma.component.factory.master;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -61,21 +61,16 @@ public class CombinedSecurityMasterComponentFactory extends AbstractComponentFac
     final String defaultSecurityScheme = repo.getInfo(getDefaultSecurityMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
     map.put(defaultSecurityScheme, getDefaultSecurityMaster());
     
-    for (final String key : configuration.keySet()) {
-      if (key.matches("securityMaster[0-9]+")) {
-        final String valueStr = configuration.get(key);
-        if (valueStr.contains("::")) {
-          final String type = StringUtils.substringBefore(valueStr, "::");
-          final String classifier = StringUtils.substringAfter(valueStr, "::");
-          final ComponentInfo info = repo.findInfo(type, classifier);
-          if (info == null) {
-            throw new IllegalArgumentException("Component not found: " + valueStr);
-          }
-          SecurityMaster securityMaster = repo.getInstance(SecurityMaster.class, classifier);
-          String uniqueIdScheme = repo.getInfo(securityMaster).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
-          map.put(uniqueIdScheme, securityMaster);
-          configuration.remove(key);
-        }
+    // all additional PositionMaster instances
+    Map<String, ComponentInfo> infos = repo.findInfos(configuration);
+    for (Entry<String, ComponentInfo> entry : infos.entrySet()) {
+      String key = entry.getKey();
+      ComponentInfo info = entry.getValue();
+      if (key.matches("securityMaster[0-9]+") && info.getType() == SecurityMaster.class) {
+        SecurityMaster securityMaster = (SecurityMaster) repo.getInstance(info);
+        String uniqueIdScheme = repo.getInfo(securityMaster).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
+        map.put(uniqueIdScheme, securityMaster);
+        configuration.remove(key);
       }
     }
     SecurityMaster master = new DelegatingSecurityMaster(getDefaultSecurityMaster(), map);
