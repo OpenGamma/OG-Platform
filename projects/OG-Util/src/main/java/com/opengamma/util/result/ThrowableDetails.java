@@ -39,7 +39,7 @@ public final class ThrowableDetails implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Class<? extends Throwable> _type;
   /**
-   * The message of the throwable message or the class name if there is no message.
+   * The message of the throwable or the class name if there is no message.
    */
   @PropertyDefinition(validate = "notNull")
   private final String _message;
@@ -128,7 +128,7 @@ public final class ThrowableDetails implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the message of the throwable message or the class name if there is no message.
+   * Gets the message of the throwable or the class name if there is no message.
    * @return the value of the property, not null
    */
   public String getMessage() {

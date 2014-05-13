@@ -49,13 +49,18 @@ public class ResultTest {
     assertEquals(true, test.isSuccess());
     assertEquals(SuccessStatus.SUCCESS, test.getStatus());
     assertEquals("success", test.getValue());
-    assertEquals(0, test.getFailures().size());
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
   public void success_getFailureMessage() {
     Result<String> test = Result.success("success");
     test.getFailureMessage();
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void success_getFailures() {
+    Result<String> test = Result.success("success");
+    test.getFailures();
   }
 
   @Test
@@ -65,7 +70,6 @@ public class ResultTest {
     assertEquals(true, test.isSuccess());
     assertEquals(SuccessStatus.SUCCESS, test.getStatus());
     assertEquals(Integer.valueOf(7), test.getValue());
-    assertEquals(0, test.getFailures().size());
   }
 
   @Test
@@ -75,7 +79,6 @@ public class ResultTest {
     assertEquals(true, test.isSuccess());
     assertEquals(SuccessStatus.SUCCESS, test.getStatus());
     assertEquals(Integer.valueOf(7), test.getValue());
-    assertEquals(0, test.getFailures().size());
   }
 
   @Test
@@ -86,7 +89,6 @@ public class ResultTest {
     assertEquals(true, test.isSuccess());
     assertEquals(SuccessStatus.SUCCESS, test.getStatus());
     assertEquals("Hello World", test.getValue());
-    assertEquals(0, test.getFailures().size());
   }
 
   @Test

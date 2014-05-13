@@ -78,7 +78,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
 
   @Override
   public ImmutableSet<Failure> getFailures() {
-    return ImmutableSet.of();
+    throw new IllegalStateException("Unable to get failures from a success result");
   }
 
   @Override

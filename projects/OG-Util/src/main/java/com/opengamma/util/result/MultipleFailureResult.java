@@ -258,8 +258,8 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
      * The meta-property for the {@code failures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Failure>> _failures = DirectMetaProperty.ofImmutable(
-        this, "failures", MultipleFailureResult.class, (Class) Collection.class);
+    private final MetaProperty<ImmutableSet<Failure>> _failures = DirectMetaProperty.ofImmutable(
+        this, "failures", MultipleFailureResult.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code status} property.
      */
@@ -319,7 +319,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
      * The meta-property for the {@code failures} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Collection<Failure>> failures() {
+    public MetaProperty<ImmutableSet<Failure>> failures() {
       return _failures;
     }
 
@@ -370,7 +370,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
    */
   public static final class Builder<T> extends DirectFieldsBeanBuilder<MultipleFailureResult<T>> {
 
-    private Collection<Failure> _failures = new ArrayList<Failure>();
+    private Set<Failure> _failures = new HashSet<Failure>();
     private FailureStatus _status;
     private String _message;
 
@@ -385,7 +385,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(MultipleFailureResult<T> beanToCopy) {
-      this._failures = new ArrayList<Failure>(beanToCopy.getFailures());
+      this._failures = new HashSet<Failure>(beanToCopy.getFailures());
       this._status = beanToCopy.getStatus();
       this._message = beanToCopy.getMessage();
     }
@@ -410,7 +410,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 675938345:  // failures
-          this._failures = (Collection<Failure>) newValue;
+          this._failures = (Set<Failure>) newValue;
           break;
         case -892481550:  // status
           this._status = (FailureStatus) newValue;
@@ -462,7 +462,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
      * @param failures  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> failures(Collection<Failure> failures) {
+    public Builder<T> failures(Set<Failure> failures) {
       JodaBeanUtils.notNull(failures, "failures");
       this._failures = failures;
       return this;

@@ -65,7 +65,7 @@ public abstract class Result<T> {
   public abstract String getFailureMessage();
 
   /**
-   * Gets the collection of failure instances that are associated wit this result.
+   * Gets the collection of failure instances that are associated with this result.
    * <p>
    * If the calculation was actually successful then an an IllegalStateException will be thrown.
    * To avoid this, check the result status using {@link #isSuccess()}
@@ -163,16 +163,16 @@ public abstract class Result<T> {
    * If the result is a failure then a failure is returned without applying the function.
    *
    * @param <U>  the required type of the new result object
-   * @param mapper  the mapper object to transform the value with, not null
+   * @param function  the mapper object to transform the value with, not null
    * @return the new result, not null
    * @deprecated use {@link #ifSuccess(Function)} or {@link #flatMap(Function)}
    */
   @Deprecated
-  public <U> Result<U> map(final ResultMapper<T, U> mapper) {
+  public <U> Result<U> map(final ResultMapper<T, U> function) {
     return flatMap(new Function<T, Result<U>>() {
       @Override
       public Result<U> apply(T input) {
-        return mapper.map(getValue());
+        return function.map(getValue());
       }
     });
   }

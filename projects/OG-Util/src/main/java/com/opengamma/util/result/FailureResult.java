@@ -6,7 +6,6 @@
 package com.opengamma.util.result;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -80,8 +79,7 @@ public final class FailureResult<T>
     ImmutableSet<Failure> fails = ImmutableSet.copyOf(failures);
     FailureStatus status = fails.iterator().next().getStatus();
     StrBuilder buf = new StrBuilder();
-    for (Iterator<Failure> itr = fails.iterator(); itr.hasNext(); ) {
-      Failure failure = itr.next();
+    for (Failure failure : fails) {
       buf.appendSeparator(", ");
       buf.append(failure.getMessage());
       if (!status.equals(failure.getStatus())) {

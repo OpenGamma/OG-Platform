@@ -117,9 +117,8 @@ public class ResultGenerator {
    * @deprecated use {@link Result#failure(Result)}
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
   public static <T> Result<T> propagateFailure(Result<?> result) {
-    return (Result<T>) Result.failure(result);
+    return Result.failure(result);
   }
 
   /**
