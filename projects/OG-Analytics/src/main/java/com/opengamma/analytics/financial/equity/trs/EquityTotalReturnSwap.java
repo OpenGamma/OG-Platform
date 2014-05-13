@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity;
+package com.opengamma.analytics.financial.equity.trs;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.equity.Equity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -15,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Description of an equity total return swap.
  */
 public class EquityTotalReturnSwap extends TotalReturnSwap {
   /** The asset */

@@ -9,7 +9,6 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TotalReturnSwap;
 import com.opengamma.util.ArgumentChecker;
@@ -19,28 +18,41 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BondTotalReturnSwap extends TotalReturnSwap {
 
-  /** The bond */
-  private final BondSecurity<? extends Payment, ? extends Coupon> _bond;
+  /** The underlying bond */
+  private final BondFixedSecurity _bond;
+  /** The quantity of the bond reference in the TRS. Can be negative or positive. */
+  private final double _quantity;
 
   /**
+   * Constructor of the total return swap.
    * @param effectiveTime The time to the effective date.
    * @param terminatioTime The time to the termination date.
    * @param fundingLeg The funding leg, not null
-   * @param bond The bond, not null
+   * @param bond The fixed coupon bond. Not null.
+   * @param bondQuantity The quantity of the bond reference in the TRS. Can be negative or positive.
    */
   public BondTotalReturnSwap(final double effectiveTime, final double terminatioTime,
-      final Annuity<? extends Payment> fundingLeg, final BondSecurity<? extends Payment, ? extends Coupon> bond) {
+      final Annuity<? extends Payment> fundingLeg, final BondFixedSecurity bond, final double bondQuantity) {
     super(effectiveTime, terminatioTime, fundingLeg);
     ArgumentChecker.notNull(bond, "bond");
     _bond = bond;
+    _quantity = bondQuantity;
   }
 
   /**
    * Gets the bond bond.
    * @return The bond
    */
-  public BondSecurity<? extends Payment, ? extends Coupon> getAsset() {
+  public BondFixedSecurity getAsset() {
     return _bond;
+  }
+
+  /**
+   * Returns the bond quantity.
+   * @return The quantity.
+   */
+  public double getQuantity() {
+    return _quantity;
   }
 
   @Override
@@ -58,22 +70,28 @@ public class BondTotalReturnSwap extends TotalReturnSwap {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _bond.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_quantity);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
     if (!super.equals(obj)) {
       return false;
     }
-    if (!(obj instanceof BondTotalReturnSwap)) {
+    if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondTotalReturnSwap other = (BondTotalReturnSwap) obj;
+    BondTotalReturnSwap other = (BondTotalReturnSwap) obj;
     if (!ObjectUtils.equals(_bond, other._bond)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_quantity) != Double.doubleToLongBits(other._quantity)) {
       return false;
     }
     return true;

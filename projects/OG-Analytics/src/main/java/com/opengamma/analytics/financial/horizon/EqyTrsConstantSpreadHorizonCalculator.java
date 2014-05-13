@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.horizon;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.equity.EquityTotalReturnSwap;
-import com.opengamma.analytics.financial.equity.EquityTotalReturnSwapDefinition;
+import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwap;
+import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
