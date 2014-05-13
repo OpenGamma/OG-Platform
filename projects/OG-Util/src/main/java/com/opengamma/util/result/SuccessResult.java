@@ -37,7 +37,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   /**
    * The result of the calculation.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final T _value;
 
   /**
@@ -142,6 +142,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
    * Gets the result of the calculation.
    * @return the value of the property, not null
    */
+  @Override
   public T getValue() {
     return _value;
   }

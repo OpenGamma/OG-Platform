@@ -43,12 +43,12 @@ public final class FailureResult<T>
   /**
    * The set of failure instances.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ImmutableSet<Failure> _failures;
   /**
    * The failure status.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FailureStatus _status;
   /**
    * The failure message.
@@ -212,6 +212,7 @@ public final class FailureResult<T>
    * Gets the set of failure instances.
    * @return the value of the property, not null
    */
+  @Override
   public ImmutableSet<Failure> getFailures() {
     return _failures;
   }
@@ -221,6 +222,7 @@ public final class FailureResult<T>
    * Gets the failure status.
    * @return the value of the property, not null
    */
+  @Override
   public FailureStatus getStatus() {
     return _status;
   }

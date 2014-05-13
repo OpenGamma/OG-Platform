@@ -97,7 +97,8 @@ public final class LinkIdentifier<I, T> implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   * @param <I, T>  the type
+   * @param <I>  the type
+   * @param <T>  the type
    * @return the builder, not null
    */
   public static <I, T> LinkIdentifier.Builder<I, T> builder() {
