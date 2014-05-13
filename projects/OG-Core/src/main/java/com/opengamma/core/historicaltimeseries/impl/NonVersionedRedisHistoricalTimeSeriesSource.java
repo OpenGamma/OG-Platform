@@ -435,6 +435,9 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     UniqueId uniqueId = toUniqueId(identifierBundle);
     
     LocalDateDoubleTimeSeries ts = getLocalDateDoubleTimeSeries(identifierBundle);
+    if (ts == null) {
+      return null;
+    }
     HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(uniqueId, ts);
     return hts;
   }
