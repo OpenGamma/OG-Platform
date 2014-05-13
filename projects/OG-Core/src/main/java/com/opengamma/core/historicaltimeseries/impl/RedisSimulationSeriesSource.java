@@ -58,13 +58,19 @@ import com.opengamma.util.ArgumentChecker;
 public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTimeSeriesSource {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSource.class);
   private LocalDate _currentSimulationExecutionDate = LocalDate.now();
-  
+
   public RedisSimulationSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
   }
   
   public RedisSimulationSeriesSource(JedisPool jedisPool, String redisPrefix) {
     super(jedisPool, redisPrefix, "RedisSimulationSeriesSource");
+  }
+
+  public RedisSimulationSeriesSource withSimulationDate(LocalDate date) {
+    RedisSimulationSeriesSource redisSimulationSeriesSource = new RedisSimulationSeriesSource(getJedisPool(), getRedisPrefix());
+    redisSimulationSeriesSource.setCurrentSimulationExecutionDate(date);
+    return redisSimulationSeriesSource;
   }
 
   /**
