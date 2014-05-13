@@ -16,8 +16,8 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.equity.EquityTotalReturnSwap;
-import com.opengamma.analytics.financial.equity.EquityTotalReturnSwapDefinition;
+import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwap;
+import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;

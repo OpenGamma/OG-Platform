@@ -83,11 +83,16 @@ public class IssuerProviderDiscountDataSets {
 
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
   private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
+  private static final IborIndex USDLIBOR1M = MASTER_IBOR_INDEX.getIndex("USDLIBOR1M");
 
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] USD_DSC_RATE = new double[] {0.0120, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
   private static final String USD_DSC_NAME = "USD Dsc";
   private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
+  private static final double[] USD_FWD1_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0 };
+  private static final double[] USD_FWD1_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0175, 0.0190, 0.0200, 0.0210 };
+  private static final String USD_FWD1_NAME = "USD LIBOR 3M";
+  private static final YieldAndDiscountCurve USD_FWD1 = new YieldCurve(USD_FWD1_NAME, new InterpolatedDoublesCurve(USD_FWD1_TIME, USD_FWD1_RATE, LINEAR_FLAT, true, USD_FWD1_NAME));
 
   private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
@@ -128,13 +133,14 @@ public class IssuerProviderDiscountDataSets {
   private static final YieldAndDiscountCurve AUD_DSC = new YieldCurve(AUD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, AUD_DSC_NAME));
   private static final String AUS_AUD_CURVE_NAME = "EUR " + AUS_NAME;
   private static final YieldAndDiscountCurve AUS_AUD_CURVE = new YieldCurve(AUS_AUD_CURVE_NAME, new InterpolatedDoublesCurve(EUR_GER_TIME, EUR_GER_RATE, LINEAR_FLAT, true, AUS_AUD_CURVE_NAME));
-  
+
   /** Extracts the short name (i.e. issuer name) from a legal entity */
   private static final LegalEntityFilter<LegalEntity> SHORT_NAME_FILTER = new LegalEntityShortName();
   /** A set of discounting curves for EUR, USD and GBP */
   private static final MulticurveProviderDiscount DISCOUNTING_CURVES = new MulticurveProviderDiscount();
   static {
     DISCOUNTING_CURVES.setCurve(USD, USD_DSC);
+    DISCOUNTING_CURVES.setCurve(USDLIBOR1M, USD_FWD1);
     DISCOUNTING_CURVES.setCurve(EUR, EUR_DSC);
     DISCOUNTING_CURVES.setCurve(EURIBOR3M, EUR_FWD3);
     DISCOUNTING_CURVES.setCurve(GBP, GBP_DSC);
@@ -239,6 +245,7 @@ public class IssuerProviderDiscountDataSets {
   public static IssuerProviderDiscount getIssuerSpecificProvider() {
     return ISSUER_SPECIFIC_MULTICURVE;
   }
+
   /**
    * Returns a multi-curves provider with a discounting currency (AUD) and an issuers (AUS Govt).
    * @return The provider.

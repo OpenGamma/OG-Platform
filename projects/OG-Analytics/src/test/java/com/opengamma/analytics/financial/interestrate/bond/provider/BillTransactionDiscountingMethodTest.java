@@ -77,7 +77,7 @@ public class BillTransactionDiscountingMethodTest {
 
   private final static PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
   private final static PresentValueCurveSensitivityIssuerCalculator PVCSIC = PresentValueCurveSensitivityIssuerCalculator.getInstance();
-  private static final ParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface> PS_PVI_C = new ParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface>(PVCSIC);
+  private static final ParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface> PS_PVI_C = new ParameterSensitivityIssuerCalculator<>(PVCSIC);
   private static final ParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_PVI_FDC = new ParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
   private final static ParSpreadMarketQuoteIssuerDiscountingCalculator PSMQIDC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();

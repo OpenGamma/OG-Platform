@@ -169,7 +169,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final double SHIFT_FD = 1.0E-6;
 
   private static final SimpleParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface> PS_I_AD =
-      new SimpleParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface>(PSRCSIDC);
+      new SimpleParameterSensitivityIssuerCalculator<>(PSRCSIDC);
   private static final SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_I_FD = new SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PSRIDC, SHIFT_FD);
 
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();

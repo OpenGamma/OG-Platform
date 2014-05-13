@@ -22,7 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityTotalReturnSwapDefinition;
+import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.horizon.EqyTrsConstantSpreadHorizonCalculator;
 import com.opengamma.analytics.financial.horizon.HorizonCalculator;

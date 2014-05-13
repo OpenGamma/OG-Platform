@@ -35,8 +35,11 @@ public final class BondTRSDiscountingMethod {
   private BondTRSDiscountingMethod() {
   }
 
+  /** The present value calculator used for bonds calculation */
+  private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
+
   /**
-   * Computes the present value of a bond security (without settlement amount payment).
+   * Computes the present value of a bond TRS.
    * @param trs The bond total return swap.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The present value.
@@ -45,8 +48,34 @@ public final class BondTRSDiscountingMethod {
     ArgumentChecker.notNull(trs, "bond TRS");
     ArgumentChecker.notNull(issuerMulticurves, "issuer and multi-curve provider");
     final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().accept(PresentValueIssuerCalculator.getInstance(), issuerMulticurves);
-    final MultipleCurrencyAmount bondPV = trs.getAsset().accept(PresentValueIssuerCalculator.getInstance(), issuerMulticurves);
+    final MultipleCurrencyAmount bondPV = trs.getAsset().accept(PVIC, issuerMulticurves).multipliedBy(trs.getQuantity());
     return bondPV.plus(fundingLegPV);
+  }
+
+  /**
+   * Computes the present value of the asset leg of a bond TRS. The present value is equal to the bond present value.
+   * @param trs The bond total return swap.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueAssetLeg(final BondTotalReturnSwap trs, final IssuerProviderInterface issuerMulticurves) {
+    ArgumentChecker.notNull(trs, "bond TRS");
+    ArgumentChecker.notNull(issuerMulticurves, "issuer and multi-curve provider");
+    final MultipleCurrencyAmount bondPV = trs.getAsset().accept(PVIC, issuerMulticurves).multipliedBy(trs.getQuantity());
+    return bondPV;
+  }
+
+  /**
+   * Computes the present value of the asset leg of a bond TRS. The present value is equal to the bond present value.
+   * @param trs The bond total return swap.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueFundingLeg(final BondTotalReturnSwap trs, final IssuerProviderInterface issuerMulticurves) {
+    ArgumentChecker.notNull(trs, "bond TRS");
+    ArgumentChecker.notNull(issuerMulticurves, "issuer and multi-curve provider");
+    final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().accept(PresentValueIssuerCalculator.getInstance(), issuerMulticurves);
+    return fundingLegPV;
   }
 
   // TODO: presentValueCurveSensitivity

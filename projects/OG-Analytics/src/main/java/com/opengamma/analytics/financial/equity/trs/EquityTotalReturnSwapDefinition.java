@@ -3,11 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity;
+package com.opengamma.analytics.financial.equity.trs;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.equity.Equity;
+import com.opengamma.analytics.financial.equity.EquityDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
@@ -20,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Description of an equity total return swap.
  */
 public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
 

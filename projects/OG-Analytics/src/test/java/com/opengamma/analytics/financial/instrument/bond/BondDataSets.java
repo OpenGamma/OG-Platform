@@ -9,6 +9,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.datasets.CalendarGBP;
+import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -25,7 +26,7 @@ import com.opengamma.util.time.DateUtils;
 public class BondDataSets {
 
   //UKT 5 09/07/14 - ISIN-GB0031829509
-  private static final String UK_GOVT_NAME = "UK Govt";
+  private static final String UK_GOVT_NAME = IssuerProviderDiscountDataSets.getIssuerNames()[3];
   private static final String REPO_TYPE = "General collateral";
   private static final Currency GBP = Currency.GBP;
   private static final Period PAYMENT_TENOR_GILT = Period.ofMonths(6);
@@ -40,7 +41,7 @@ public class BondDataSets {
   private static final ZonedDateTime START_ACCRUAL_DATE_UK14 = DateUtils.getUTCDate(2002, 9, 7);
   private static final ZonedDateTime MATURITY_DATE_UK14 = START_ACCRUAL_DATE_UK14.plus(BOND_TENOR_UK14);
   private static final double RATE_UK14 = 0.0500;
-  private static final double DEFAULT_NOTIONAL_UK14 = 100;
+  private static final double DEFAULT_NOTIONAL_UK14 = 1.0d;
   private static final BondFixedSecurityDefinition BOND_SECURITY_DEFINITION_UK14 = BondFixedSecurityDefinition.from(GBP, MATURITY_DATE_UK14, START_ACCRUAL_DATE_UK14,
       PAYMENT_TENOR_GILT, RATE_UK14, SETTLEMENT_DAYS_GILT, DEFAULT_NOTIONAL_UK14, EX_DIVIDEND_DAYS_GILT, CALENDAR_GILT, DAY_COUNT_GILT, BUSINESS_DAY_GILT, YIELD_CONVENTION_GILT, IS_EOM_GILT,
       UK_GOVT_NAME, REPO_TYPE);

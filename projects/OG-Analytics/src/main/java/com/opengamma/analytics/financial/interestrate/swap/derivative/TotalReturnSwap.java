@@ -25,7 +25,7 @@ public abstract class TotalReturnSwap implements InstrumentDerivative {
   private final double _terminationTime;
 
   /**
-   * Constructor of the TRS.
+   * Constructor of the bond TRS.
    * @param effectiveTime The time to the effective date.
    * @param terminatioTime The time to the termination date.
    * @param fundingLeg The funding leg, not null

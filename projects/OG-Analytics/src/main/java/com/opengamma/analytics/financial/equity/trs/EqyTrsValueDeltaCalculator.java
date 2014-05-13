@@ -3,8 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity;
+package com.opengamma.analytics.financial.equity.trs;
 
+import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
