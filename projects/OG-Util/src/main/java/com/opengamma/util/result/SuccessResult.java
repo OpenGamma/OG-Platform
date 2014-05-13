@@ -5,7 +5,6 @@
  */
 package com.opengamma.util.result;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -37,8 +37,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   /**
    * The result of the calculation.
    */
-  // Manual getter as the getValue method is defined on the Result interface - see PLAT-5458
-  @PropertyDefinition(validate = "notNull", get = "manual")
+  @PropertyDefinition(validate = "notNull")
   private final T _value;
 
   /**
@@ -47,21 +46,14 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
    * @param value  the value
    */
   @ImmutableConstructor
-  /* package */ SuccessResult(T value) {
+  SuccessResult(T value) {
     _value = ArgumentChecker.notNull(value, "value");
   }
 
-  /**
-   * @return true
-   */
+  //-------------------------------------------------------------------------
   @Override
   public boolean isSuccess() {
     return true;
-  }
-
-  @Override
-  public T getValue() {
-    return _value;
   }
 
   @Override
@@ -85,7 +77,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   }
 
   @Override
-  public Collection<Failure> getFailures() {
+  public ImmutableSet<Failure> getFailures() {
     throw new IllegalStateException("Unable to get failures from a success result");
   }
 
@@ -143,6 +135,15 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the result of the calculation.
+   * @return the value of the property, not null
+   */
+  public T getValue() {
+    return _value;
   }
 
   //-----------------------------------------------------------------------

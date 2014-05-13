@@ -7,15 +7,20 @@ package com.opengamma.util.result;
 
 /**
  * A function taking two arguments.
+ * 
+ * @param <T>  the type of the first argument
+ * @param <U>  the type of the second argument
+ * @param <R>  the return type
  */
 public interface Function2<T, U, R> {
 
   /**
    * Applies the function to the arguments
    *
-   * @param t an argument
-   * @param u an argument
-   * @return the function's return value
+   * @param t  the first argument
+   * @param u  the second argument
+   * @return the value calculated by the function
    */
   R apply(T t, U u);
+
 }

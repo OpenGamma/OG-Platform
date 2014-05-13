@@ -6,18 +6,18 @@
 package com.opengamma.util.result;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.helpers.MessageFormatter;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * The immutable result from a calculation containing an indication
- * of whether a value has been calculated. Results can be
- * generated using the factory methods on this class.
+ * of whether a value has been calculated.
+ * Results can be generated using the factory methods on this class.
  *
  * @param <T> the type of the underlying result for a successful invocation
  */
@@ -65,10 +65,15 @@ public abstract class Result<T> {
   public abstract String getFailureMessage();
 
   /**
-   * @return the failures assocaited with a failure result
-   * @throws IllegalStateException if called on a success result
+   * Gets the collection of failure instances that are associated with this result.
+   * <p>
+   * If the calculation was actually successful then an an IllegalStateException will be thrown.
+   * To avoid this, check the result status using {@link #isSuccess()}
+   * or {@link #getStatus()} first.
+   * 
+   * @return the failures associated with a failure result, empty if successful
    */
-  public abstract Collection<Failure> getFailures();
+  public abstract ImmutableSet<Failure> getFailures();
 
   /**
    * Applies a function to a result's value if the result is a success.
@@ -81,7 +86,7 @@ public abstract class Result<T> {
    * Identical to {@link #flatMap}
    *
    * @param <U>  the required type of the new result object
-   * @param function  the mapper object to transform the value with, not null
+   * @param function  the function to transform the value with, not null
    * @return the new result, not null
    */
   public abstract <U> Result<U> ifSuccess(Function<T, Result<U>> function);
@@ -97,7 +102,7 @@ public abstract class Result<T> {
    * Identical to {@link #ifSuccess}
    *
    * @param <U>  the required type of the new result object
-   * @param function  the mapper object to transform the value with, not null
+   * @param function  the function to transform the value with, not null
    * @return the new result, not null
    */
   public <U> Result<U> flatMap(Function<T, Result<U>> function) {
@@ -114,16 +119,15 @@ public abstract class Result<T> {
    *   return result1.combineWith(result2, (value1, value2) -> doSomething(value1, value2);
    * </pre>
    *
-   * @param other another result
-   * @param function a function for combining values from two results
+   * @param other  another result
+   * @param function  a function for combining values from two results
    * @param <U> the type of the other result's value
    * @param <V> the type of the value in the returned result
    * @return a the result of combining the result values or a failure if either result is a failure
    */
   public abstract <U, V> Result<V> combineWith(Result<U> other, Function2<T, U, Result<V>> function);
 
-  //--------------------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Indicates if there is a result value available from this instance.
    * <p>
@@ -155,24 +159,29 @@ public abstract class Result<T> {
   }
 
   /**
+   * Applies a function to a result's value if the result is a success.
+   * If the result is a failure then a failure is returned without applying the function.
+   *
+   * @param <U>  the required type of the new result object
+   * @param function  the mapper object to transform the value with, not null
+   * @return the new result, not null
    * @deprecated use {@link #ifSuccess(Function)} or {@link #flatMap(Function)}
    */
   @Deprecated
-  public <U> Result<U> map(final ResultMapper<T, U> mapper) {
+  public <U> Result<U> map(final ResultMapper<T, U> function) {
     return flatMap(new Function<T, Result<U>>() {
       @Override
       public Result<U> apply(T input) {
-        return mapper.map(getValue());
+        return function.map(getValue());
       }
     });
   }
 
-  //--------------------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Creates a successful result wrapping a value
    *
-   * @param value the result value
+   * @param value  the result value
    * @param <U> the type of the value
    * @return a successful result wrapping the value
    */
@@ -182,12 +191,15 @@ public abstract class Result<T> {
 
   /**
    * Creates a failed result.
+   * <p>
+   * Formatting of the error message uses placeholders as per SLF4J.
+   * Each {} in the message is replaced by the next message argument.
    *
-   * @param status the result status
-   * @param message a message explaining the failure, uses the SLF4J message format for inserting {@code messageArgs}
-   * @param messageArgs arguments for the message
+   * @param status  the result status
+   * @param message  a message explaining the failure, uses the SLF4J message format for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
    * @param <U> the expected type of the result
-   * @return a failed result
+   * @return a failure result
    */
   public static <U> Result<U> failure(FailureStatus status, String message, Object... messageArgs) {
     return FailureResult.of(new Failure(status, formatMessage(message, messageArgs)));
@@ -195,12 +207,15 @@ public abstract class Result<T> {
 
   /**
    * Creates a failed result caused by an exception.
+   * <p>
+   * Formatting of the error message uses placeholders as per SLF4J.
+   * Each {} in the message is replaced by the next message argument.
    *
-   * @param exception the cause of the failure
-   * @param message a message explaining the failure, uses the SLF4J message format for inserting {@code messageArgs}
-   * @param messageArgs arguments for the message
+   * @param exception  the cause of the failure
+   * @param message  a message explaining the failure, uses the SLF4J message format for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
    * @param <U> the expected type of the result
-   * @return a failed result
+   * @return a failure result
    */
   public static <U> Result<U> failure(Exception exception, String message, Object... messageArgs) {
     return FailureResult.of(new Failure(exception, formatMessage(message, messageArgs)));
@@ -209,9 +224,9 @@ public abstract class Result<T> {
   /**
    * Creates a failed result caused by an exception.
    *
-   * @param exception the cause of the failure
+   * @param exception  the cause of the failure
    * @param <U> the expected type of the result
-   * @return a failed result
+   * @return a failure result
    */
   public static <U> Result<U> failure(Exception exception) {
     return FailureResult.of(new Failure(exception));
@@ -220,10 +235,10 @@ public abstract class Result<T> {
   /**
    * Creates a failed result caused by an exception with a specified status.
    *
-   * @param status the result status
-   * @param exception the cause of the failure
+   * @param status  the result status
+   * @param exception  the cause of the failure
    * @param <U> the expected type of the result
-   * @return a failed result
+   * @return a failure result
    */
   public static <U> Result<U> failure(FailureStatus status, Exception exception) {
     return FailureResult.of(new Failure(status, exception));
@@ -231,28 +246,37 @@ public abstract class Result<T> {
 
   /**
    * Creates a failed result caused by an exception with a specified status and message.
+   * <p>
+   * Formatting of the error message uses placeholders as per SLF4J.
+   * Each {} in the message is replaced by the next message argument.
    *
-   * @param status the result status
-   * @param exception the cause of the failure
-   * @param message a message explaining the failure, uses the SLF4J message format for inserting {@code messageArgs}
-   * @param messageArgs arguments for the message
+   * @param status  the result status
+   * @param exception  the cause of the failure
+   * @param message  a message explaining the failure, uses the SLF4J message format for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
    * @param <U> the expected type of the result
-   * @return a failed result
+   * @return a failure result
    */
   public static <U> Result<U> failure(FailureStatus status, Exception exception, String message, Object... messageArgs) {
     return FailureResult.of(new Failure(status, formatMessage(message, messageArgs), exception));
   }
 
+  /**
+   * Formats the message using SLF4J.
+   * 
+   * @param message  the message
+   * @param messageArgs  the arguments for the message
+   * @return the formatted message
+   */
   private static String formatMessage(String message, Object[] messageArgs) {
     return MessageFormatter.arrayFormat(message, messageArgs).getMessage();
   }
-
 
   /**
    * Returns a failed result from another failed result.
    * This method ensures the result type matches the expected type.
    *
-   * @param result a failure result
+   * @param result  a failure result
    * @param <U> the expected result type
    * @return a failure result of the expected type
    * @throws IllegalArgumentException if the result is a success
@@ -275,9 +299,9 @@ public abstract class Result<T> {
    *   }
    * </code>
    *
-   * @param result1 the first result
-   * @param result2 the second result
-   * @param results the rest of the results
+   * @param result1  the first result
+   * @param result2  the second result
+   * @param results  the rest of the results
    * @param <U> the expected type of the result
    * @return a failed result wrapping multiple other failed results
    * @throws IllegalArgumentException if all of the results are successes
@@ -287,7 +311,6 @@ public abstract class Result<T> {
     ArgumentChecker.notNull(result2, "result2");
 
     List<Failure> failures = new ArrayList<>();
-
     if (!result1.isSuccess()) {
       failures.addAll(result1.getFailures());
     }
@@ -316,7 +339,7 @@ public abstract class Result<T> {
    *   }
    * </code>
    *
-   * @param results multiple results, of which at least one must be a failure, not empty
+   * @param results  multiple results, of which at least one must be a failure, not empty
    * @param <U> the expected type of the result
    * @return a failed result wrapping multiple other failed results
    * @throws IllegalArgumentException if results is empty or contains nothing but successes
@@ -325,7 +348,6 @@ public abstract class Result<T> {
     ArgumentChecker.notEmpty(results, "results");
 
     List<Failure> failures = new ArrayList<>();
-
     for (Result<?> result : results) {
       if (!result.isSuccess()) {
         failures.addAll(result.getFailures());
@@ -336,11 +358,13 @@ public abstract class Result<T> {
     } else {
       return FailureResult.of(failures);
     }
-
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @param results some results
+   * Checks if all the results are successful.
+   * 
+   * @param results  the results to check
    * @return true if all of the results are successes
    */
   public static boolean allSuccessful(Result<?>... results) {
@@ -353,10 +377,12 @@ public abstract class Result<T> {
   }
 
   /**
-   * @param results some results
+   * Checks if all the results are successful.
+   * 
+   * @param results  the results to check
    * @return true if all of the results are successes
    */
-  public static boolean allSuccessful(Iterable<Result<?>> results) {
+  public static boolean allSuccessful(Iterable<? extends Result<?>> results) {
     for (Result<?> result : results) {
       if (!result.isSuccess()) {
         return false;
@@ -366,7 +392,9 @@ public abstract class Result<T> {
   }
 
   /**
-   * @param results some results
+   * Checks if any of the results are failures.
+   * 
+   * @param results  the results to check
    * @return true if any of the results are failures
    */
   public static boolean anyFailures(Result<?>... results) {
@@ -374,10 +402,13 @@ public abstract class Result<T> {
   }
 
   /**
-   * @param results some results
+   * Checks if any of the results are failures.
+   * 
+   * @param results  the results to check
    * @return true if any of the results are failures
    */
-  public static boolean anyFailures(Iterable<Result<?>> results) {
+  public static boolean anyFailures(Iterable<? extends Result<?>> results) {
     return !allSuccessful(results);
   }
+
 }
