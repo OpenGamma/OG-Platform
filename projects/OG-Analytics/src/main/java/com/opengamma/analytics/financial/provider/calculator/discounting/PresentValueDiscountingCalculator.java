@@ -32,6 +32,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
@@ -51,6 +52,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFi
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingFlatSpreadDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingSimpleSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborGearingDiscountingMethod;
@@ -108,6 +110,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final CouponIborCompoundingDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundingDiscountingMethod.getInstance();
   private static final CouponIborCompoundingSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_SPREAD = CouponIborCompoundingSpreadDiscountingMethod.getInstance();
   private static final CouponIborCompoundingFlatSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_FLAT_SPREAD = CouponIborCompoundingFlatSpreadDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingSimpleSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_SIMPLE_SPREAD = CouponIborCompoundingSimpleSpreadDiscountingMethod.getInstance();
   private static final CouponONDiscountingMethod METHOD_CPN_ON = CouponONDiscountingMethod.getInstance();
   private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON_SPREAD = CouponONSpreadDiscountingMethod.getInstance();
   private static final CouponONArithmeticAverageDiscountingApproxMethod METHOD_CPN_AAON_APPROX = CouponONArithmeticAverageDiscountingApproxMethod.getInstance();
@@ -192,6 +195,11 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   @Override
   public MultipleCurrencyAmount visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR_COMP_FLAT_SPREAD.presentValue(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponIborCompoundingSimpleSpread(final CouponIborCompoundingSimpleSpread coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP_SIMPLE_SPREAD.presentValue(coupon, multicurve);
   }
 
   @Override
