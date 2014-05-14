@@ -5,10 +5,12 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceConstantMultiplicativeShift;
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceIndexShifts;
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceMultipleAdditiveShifts;
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceMultipleMultiplicativeShifts;
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceParallelShift;
@@ -45,6 +47,22 @@ public class VolatilitySurfaceManipulatorBuilder {
     } else {
       _scenario.add(_selector, new VolatilitySurfaceConstantMultiplicativeShift(shift.doubleValue() + 1));
     }
+    return this;
+  }
+
+  /**
+   * Creates {@link VolatilitySurfaceIndexShifts} which specifies surface shifts by expiry index.
+   *
+   * @param shiftType absolute or relative
+   * @param shifts the shift amounts to apply at each point on the surface
+   * @return this builder
+   */
+  public VolatilitySurfaceManipulatorBuilder indexShifts(ScenarioShiftType shiftType, Number... shifts) {
+    List<Double> shiftList = new ArrayList<>(shifts.length);
+    for (Number shift : shifts) {
+      shiftList.add(shift.doubleValue());
+    }
+    _scenario.add(_selector, new VolatilitySurfaceIndexShifts(shiftType, shiftList));
     return this;
   }
 
