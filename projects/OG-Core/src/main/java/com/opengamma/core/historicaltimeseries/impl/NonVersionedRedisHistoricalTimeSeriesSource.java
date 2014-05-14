@@ -563,4 +563,21 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     throw new UnsupportedOperationException("Unsupported operation.");
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    NonVersionedRedisHistoricalTimeSeriesSource that = (NonVersionedRedisHistoricalTimeSeriesSource) o;
+    return _jedisPool.equals(that._jedisPool) && _redisPrefix.equals(that._redisPrefix);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = _jedisPool.hashCode();
+    return 31 * result + _redisPrefix.hashCode();
+  }
 }

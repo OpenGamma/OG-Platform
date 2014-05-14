@@ -140,5 +140,25 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
   protected String toRedisKey(UniqueId uniqueId) {
     return toRedisKey(uniqueId, getCurrentSimulationExecutionDate());
   }
-  
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    RedisSimulationSeriesSource that = (RedisSimulationSeriesSource) o;
+    return _currentSimulationExecutionDate.equals(that._currentSimulationExecutionDate);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    return 31 * result + _currentSimulationExecutionDate.hashCode();
+  }
 }
