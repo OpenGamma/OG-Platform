@@ -210,6 +210,9 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       case STRAIGHT:
         compoundingMethod = com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod.STRAIGHT;
         break;
+      case SPREAD_EXCLUSIVE:
+        compoundingMethod = com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod.SPREAD_EXCLUSIVE;
+        break;
       case NONE:
         compoundingMethod = null;
         break;
