@@ -144,7 +144,7 @@ CREATE INDEX ix_hts_doc2idkey_idkey ON hts_doc2idkey(idkey_id, valid_from, valid
 -- hts_doc2idkey is fully dependent of hts_document
 
 CREATE TABLE hts_permission (
-    id bigint NOT NULL,
+    id bigint IDENTITY(1,1) NOT NULL,
     doc_id bigint NOT NULL,
     permission varchar(255) NOT NULL,
     PRIMARY KEY (id),

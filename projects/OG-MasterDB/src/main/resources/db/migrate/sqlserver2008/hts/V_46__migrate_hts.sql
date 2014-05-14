@@ -3,7 +3,7 @@ BEGIN TRAN;
     UPDATE hts_schema_version SET version_value='46' WHERE version_key='schema_patch';
   
     CREATE TABLE hts_permission (
-      id bigint NOT NULL,
+      id bigint IDENTITY(1,1) NOT NULL,
       doc_id bigint NOT NULL,
       permission varchar(255) NOT NULL,
       PRIMARY KEY (id),
