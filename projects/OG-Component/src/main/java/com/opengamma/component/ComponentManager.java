@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -277,8 +278,8 @@ public class ComponentManager {
    */
   protected void logProperties() {
     _logger.logDebug("--- Using merged properties ---");
-    for (String key : getProperties().keySet()) {
-      _logger.logDebug(" " + key + " = " + getProperties().loggableValue(key));
+    for (Entry<String, String> entry : getProperties().loggableMap().entrySet()) {
+      _logger.logDebug(" " + entry.getKey() + " = " + entry.getValue());
     }
   }
 
