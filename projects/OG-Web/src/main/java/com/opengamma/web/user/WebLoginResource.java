@@ -5,7 +5,11 @@
  */
 package com.opengamma.web.user;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +32,8 @@ import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.AbstractSingletonWebResource;
@@ -39,6 +45,18 @@ import com.opengamma.web.WebHomeResource;
 @Path("/login")
 public class WebLoginResource extends AbstractSingletonWebResource {
   // take control of logout from Shiro to enable ftl files
+
+  /**
+   * OpenGamma specific header for client IP address.
+   */
+  private static final String HEADER_X_OPENGAMMA_CLIENT_IP = "X-OPENGAMMA-CLIENT-IP";
+  /**
+   * General forwarded header for finding IP address.
+   */
+  private static final String HEADER_X_FORWARDED_FOR = "X-FORWARDED-FOR";
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(WebLoginResource.class);
 
   // one resource class handles two ftl files
   private static final String LOGIN_GREEN = "users/html/login.ftl";
@@ -129,8 +147,8 @@ public class WebLoginResource extends AbstractSingletonWebResource {
     if (password == null) {
       return displayError(servletContext, uriInfo, username, ftlFile, "PasswordMissing");
     }
-    
-    UsernamePasswordToken token = new UsernamePasswordToken(username, password, false, request.getRemoteHost());
+    String ipAddress = findIpAddress(request);
+    UsernamePasswordToken token = new UsernamePasswordToken(username, password, false, ipAddress);
     try {
       Subject subject = AuthUtils.getSubject();
       subject.login(token);
@@ -152,6 +170,75 @@ public class WebLoginResource extends AbstractSingletonWebResource {
     } catch (AuthenticationException ex) {
       String errorCode = StringUtils.substringBeforeLast(ex.getClass().getSimpleName(), "Exception");
       return displayError(servletContext, uriInfo, username, ftlFile, errorCode);
+    }
+  }
+
+  /**
+   * Finds the IP address of the user.
+   * <p>
+   * This is a generally impossible task.
+   * We prefer a specific 'X_OPENGAMMA_CLIENT_IP' header containing a single IP address.
+   * If not found, we rely on the generic 'X-FORWARDED-FOR' header.
+   * If not found, we rely on the remote host of the servlet request.
+   * 
+   * @param request  the servlet request, not null
+   * @return the IP address, not null
+   */
+  private static String findIpAddress(HttpServletRequest request) {
+    String remoteIp = StringUtils.stripToNull(request.getHeader(HEADER_X_OPENGAMMA_CLIENT_IP));
+    if (remoteIp == null) {
+      remoteIp = StringUtils.stripToNull(request.getHeader(HEADER_X_FORWARDED_FOR));
+      if (remoteIp != null) {
+        remoteIp = StringUtils.stripToNull(StringUtils.split(remoteIp, ',')[0]);
+        if ("unknown".equalsIgnoreCase(remoteIp)) {
+          remoteIp = null;
+        }
+      }
+    }
+    if (remoteIp == null) {
+      remoteIp = request.getRemoteHost();
+    }
+    return ensureIpAddressNonLoopback(remoteIp);
+  }
+
+  /**
+   * Ensures that the IP address is non-local.
+   * 
+   * @param remoteIp  the remote IP address, may be null
+   * @return the non-local IP address, not null
+   */
+  private static String ensureIpAddressNonLoopback(String remoteIp) {
+    try {
+      InetAddress ia = (remoteIp != null ? InetAddress.getByName(remoteIp) : null);
+      if (ia != null && ia.isLoopbackAddress() == false) {
+        return remoteIp;
+      }
+      // search through network interfaces to find reasonable non-loopback IP address
+      InetAddress possible = null;
+      for (Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
+        NetworkInterface iface = ifaces.nextElement();
+        for (Enumeration<InetAddress> inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements();) {
+          InetAddress inetAddr = inetAddrs.nextElement();
+          if (inetAddr.isLoopbackAddress() == false) {
+            if (inetAddr.isSiteLocalAddress()) {
+              return inetAddr.getHostAddress();
+            } else if (possible == null) {
+              possible = inetAddr;
+            }
+          }
+        }
+      }
+      if (possible != null) {
+        return possible.getHostAddress();
+      }
+      InetAddress localHost = InetAddress.getLocalHost();
+      if (localHost == null) {
+        throw new UnknownHostException("Unknown local host");
+      }
+      return localHost.getHostAddress();
+    } catch (Exception ex) {
+      s_logger.warn("Unable to obtain suitable local host address", ex);
+      return (remoteIp != null ? remoteIp : "0:0:0:0:0:0:0:1");
     }
   }
 
