@@ -33,6 +33,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   /**
    * The curve node id mapper name, can be null.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
    */
   @PropertyDefinition
   private String _curveNodeIdMapperName;
