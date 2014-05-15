@@ -112,6 +112,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   //-----------------------------------------------------------------------
   /**
    * Gets the curve node id mapper name, can be null.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
    * @return the value of the property
    */
   public String getCurveNodeIdMapperName() {
@@ -120,6 +121,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   /**
    * Sets the curve node id mapper name, can be null.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
    * @param curveNodeIdMapperName  the new value of the property
    */
   public void setCurveNodeIdMapperName(String curveNodeIdMapperName) {
@@ -128,6 +130,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   /**
    * Gets the the {@code curveNodeIdMapperName} property.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
    * @return the property, not null
    */
   public final Property<String> curveNodeIdMapperName() {
