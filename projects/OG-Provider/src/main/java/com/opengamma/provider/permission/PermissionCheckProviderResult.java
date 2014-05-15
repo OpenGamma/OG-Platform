@@ -7,50 +7,141 @@ package com.opengamma.provider.permission;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.PublicSPI;
 
 /**
  * Result of permission checks for a set of permissions for a user.
  * <p>
- * This class is mutable and not thread-safe.
+ * The result contains a map of the permissions that were checked and the true-false result.
+ * It also contains error fields that provide more detail.
+ * The map of checked permissions will contain no true values if there are errors
+ * and will typically be empty.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicSPI
-@BeanDefinition
-public class PermissionCheckProviderResult implements Bean {
+@BeanDefinition(builderScope = "private")
+public final class PermissionCheckProviderResult implements ImmutableBean {
 
   /**
    * The permission check result.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Map<String, Boolean> _checkedPermissions = new HashMap<>();
-
+  private final ImmutableMap<String, Boolean> _checkedPermissions;
   /**
-   * Creates an instance.
+   * The authentication error, null if no error in authentication.
+   * The map of checked permissions contains no true values.
    */
-  public PermissionCheckProviderResult() {
+  @PropertyDefinition
+  private final String _authenticationError;
+  /**
+   * The authorization error, null if no error in authorization.
+   * The map of checked permissions contains no true values.
+   */
+  @PropertyDefinition
+  private final String _authorizationError;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a result containing authorization information.
+   * 
+   * @param checkedPermissions  the map of checked permissions, not null
+   * @return the result, not null
+   */
+  public static PermissionCheckProviderResult of(Map<String, Boolean> checkedPermissions) {
+    return new PermissionCheckProviderResult(checkedPermissions, null, null);
   }
 
   /**
-   * Creates an instance.
+   * Creates an authentication error result.
    * 
-   * @param checkedPermissions  the map of checked permissions, not null
+   * @param errorMessage  the message, not null
+   * @return the result, not null
    */
-  public PermissionCheckProviderResult(Map<String, Boolean> checkedPermissions) {
-    setCheckedPermissions(checkedPermissions);
+  public static PermissionCheckProviderResult ofAuthenticationError(String errorMessage) {
+    return new PermissionCheckProviderResult(ImmutableMap.<String, Boolean>of(), errorMessage, null);
+  }
+
+  /**
+   * Creates an authorization error result.
+   * 
+   * @param errorMessage  the message, not null
+   * @return the result, not null
+   */
+  public static PermissionCheckProviderResult ofAuthorizationError(String errorMessage) {
+    return new PermissionCheckProviderResult(ImmutableMap.<String, Boolean>of(), null, errorMessage);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the specified permission is true or false.
+   * <p>
+   * This method returns false rather than throwing an exception.
+   * 
+   * @param requestedPermission  the requested permission, not null
+   * @return true if permitted, false if not
+   */
+  public boolean isPermitted(String requestedPermission) {
+    return BooleanUtils.isTrue(getCheckedPermissions().get(requestedPermission));
+  }
+
+  /**
+   * Checks the specified permission, throwing an exception if the user does not
+   * have the permission.
+   * <p>
+   * This method throws an exception unless the user has the specified permission.
+   * Information stored about different kinds of error is used to refine the exception thrown.
+   * 
+   * @param requestedPermission  the requested permission, not null
+   * @throws UnauthenticatedException if permission was denied due to invalid user authentication
+   * @throws AuthorizationException if permission was denied due to issues checking authorization
+   * @throws UnauthorizedException if the user does not have the requested permission
+   */
+  public void checkPermitted(String requestedPermission) {
+    checkErrors();
+    Boolean permitted = getCheckedPermissions().get(requestedPermission);
+    if (permitted == null) {
+      throw new AuthorizationException("Permission denied: Specified permission was not checked: " + requestedPermission);
+    } else if (permitted.booleanValue() == false) {
+      throw new UnauthorizedException("Permission denied: " + requestedPermission);
+    }
+  }
+
+  /**
+   * Checks if any errors occurred, throwing an exception if there were errors.
+   * <p>
+   * Information stored about different kinds of error is used to refine the exception thrown.
+   * 
+   * @throws UnauthenticatedException if permission was denied due to invalid user authentication
+   * @throws AuthorizationException if permission was denied due to issues checking authorization
+   */
+  public void checkErrors() {
+    if (getAuthenticationError() != null) {
+      throw new UnauthenticatedException("Permission denied: " + getAuthenticationError());
+    }
+    if (getAuthorizationError() != null) {
+      throw new AuthorizationException("Permission denied: " + getAuthorizationError());
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -65,6 +156,16 @@ public class PermissionCheckProviderResult implements Bean {
 
   static {
     JodaBeanUtils.registerMetaBean(PermissionCheckProviderResult.Meta.INSTANCE);
+  }
+
+  private PermissionCheckProviderResult(
+      Map<String, Boolean> checkedPermissions,
+      String authenticationError,
+      String authorizationError) {
+    JodaBeanUtils.notNull(checkedPermissions, "checkedPermissions");
+    this._checkedPermissions = ImmutableMap.copyOf(checkedPermissions);
+    this._authenticationError = authenticationError;
+    this._authorizationError = authorizationError;
   }
 
   @Override
@@ -87,32 +188,34 @@ public class PermissionCheckProviderResult implements Bean {
    * Gets the permission check result.
    * @return the value of the property, not null
    */
-  public Map<String, Boolean> getCheckedPermissions() {
+  public ImmutableMap<String, Boolean> getCheckedPermissions() {
     return _checkedPermissions;
   }
 
+  //-----------------------------------------------------------------------
   /**
-   * Sets the permission check result.
-   * @param checkedPermissions  the new value of the property, not null
+   * Gets the authentication error, null if no error in authentication.
+   * The map of checked permissions contains no true values.
+   * @return the value of the property
    */
-  public void setCheckedPermissions(Map<String, Boolean> checkedPermissions) {
-    JodaBeanUtils.notNull(checkedPermissions, "checkedPermissions");
-    this._checkedPermissions.clear();
-    this._checkedPermissions.putAll(checkedPermissions);
+  public String getAuthenticationError() {
+    return _authenticationError;
   }
 
+  //-----------------------------------------------------------------------
   /**
-   * Gets the the {@code checkedPermissions} property.
-   * @return the property, not null
+   * Gets the authorization error, null if no error in authorization.
+   * The map of checked permissions contains no true values.
+   * @return the value of the property
    */
-  public final Property<Map<String, Boolean>> checkedPermissions() {
-    return metaBean().checkedPermissions().createProperty(this);
+  public String getAuthorizationError() {
+    return _authorizationError;
   }
 
   //-----------------------------------------------------------------------
   @Override
   public PermissionCheckProviderResult clone() {
-    return JodaBeanUtils.cloneAlways(this);
+    return this;
   }
 
   @Override
@@ -122,7 +225,9 @@ public class PermissionCheckProviderResult implements Bean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PermissionCheckProviderResult other = (PermissionCheckProviderResult) obj;
-      return JodaBeanUtils.equal(getCheckedPermissions(), other.getCheckedPermissions());
+      return JodaBeanUtils.equal(getCheckedPermissions(), other.getCheckedPermissions()) &&
+          JodaBeanUtils.equal(getAuthenticationError(), other.getAuthenticationError()) &&
+          JodaBeanUtils.equal(getAuthorizationError(), other.getAuthorizationError());
     }
     return false;
   }
@@ -131,31 +236,27 @@ public class PermissionCheckProviderResult implements Bean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getCheckedPermissions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAuthenticationError());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAuthorizationError());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("PermissionCheckProviderResult{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("checkedPermissions").append('=').append(getCheckedPermissions()).append(',').append(' ');
+    buf.append("authenticationError").append('=').append(getAuthenticationError()).append(',').append(' ');
+    buf.append("authorizationError").append('=').append(JodaBeanUtils.toString(getAuthorizationError()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("checkedPermissions").append('=').append(JodaBeanUtils.toString(getCheckedPermissions())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code PermissionCheckProviderResult}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -165,19 +266,31 @@ public class PermissionCheckProviderResult implements Bean {
      * The meta-property for the {@code checkedPermissions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<String, Boolean>> _checkedPermissions = DirectMetaProperty.ofReadWrite(
-        this, "checkedPermissions", PermissionCheckProviderResult.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<String, Boolean>> _checkedPermissions = DirectMetaProperty.ofImmutable(
+        this, "checkedPermissions", PermissionCheckProviderResult.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code authenticationError} property.
+     */
+    private final MetaProperty<String> _authenticationError = DirectMetaProperty.ofImmutable(
+        this, "authenticationError", PermissionCheckProviderResult.class, String.class);
+    /**
+     * The meta-property for the {@code authorizationError} property.
+     */
+    private final MetaProperty<String> _authorizationError = DirectMetaProperty.ofImmutable(
+        this, "authorizationError", PermissionCheckProviderResult.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "checkedPermissions");
+        "checkedPermissions",
+        "authenticationError",
+        "authorizationError");
 
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -185,13 +298,17 @@ public class PermissionCheckProviderResult implements Bean {
       switch (propertyName.hashCode()) {
         case -1315352995:  // checkedPermissions
           return _checkedPermissions;
+        case 1320995440:  // authenticationError
+          return _authenticationError;
+        case 1547592975:  // authorizationError
+          return _authorizationError;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends PermissionCheckProviderResult> builder() {
-      return new DirectBeanBuilder<PermissionCheckProviderResult>(new PermissionCheckProviderResult());
+    public PermissionCheckProviderResult.Builder builder() {
+      return new PermissionCheckProviderResult.Builder();
     }
 
     @Override
@@ -209,8 +326,24 @@ public class PermissionCheckProviderResult implements Bean {
      * The meta-property for the {@code checkedPermissions} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<String, Boolean>> checkedPermissions() {
+    public MetaProperty<ImmutableMap<String, Boolean>> checkedPermissions() {
       return _checkedPermissions;
+    }
+
+    /**
+     * The meta-property for the {@code authenticationError} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> authenticationError() {
+      return _authenticationError;
+    }
+
+    /**
+     * The meta-property for the {@code authorizationError} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> authorizationError() {
+      return _authorizationError;
     }
 
     //-----------------------------------------------------------------------
@@ -219,24 +352,117 @@ public class PermissionCheckProviderResult implements Bean {
       switch (propertyName.hashCode()) {
         case -1315352995:  // checkedPermissions
           return ((PermissionCheckProviderResult) bean).getCheckedPermissions();
+        case 1320995440:  // authenticationError
+          return ((PermissionCheckProviderResult) bean).getAuthenticationError();
+        case 1547592975:  // authorizationError
+          return ((PermissionCheckProviderResult) bean).getAuthorizationError();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code PermissionCheckProviderResult}.
+   */
+  private static final class Builder extends DirectFieldsBeanBuilder<PermissionCheckProviderResult> {
+
+    private Map<String, Boolean> _checkedPermissions = new HashMap<String, Boolean>();
+    private String _authenticationError;
+    private String _authorizationError;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1315352995:  // checkedPermissions
-          ((PermissionCheckProviderResult) bean).setCheckedPermissions((Map<String, Boolean>) newValue);
-          return;
+          return _checkedPermissions;
+        case 1320995440:  // authenticationError
+          return _authenticationError;
+        case 1547592975:  // authorizationError
+          return _authorizationError;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case -1315352995:  // checkedPermissions
+          this._checkedPermissions = (Map<String, Boolean>) newValue;
+          break;
+        case 1320995440:  // authenticationError
+          this._authenticationError = (String) newValue;
+          break;
+        case 1547592975:  // authorizationError
+          this._authorizationError = (String) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
     }
 
     @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((PermissionCheckProviderResult) bean)._checkedPermissions, "checkedPermissions");
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public PermissionCheckProviderResult build() {
+      return new PermissionCheckProviderResult(
+          _checkedPermissions,
+          _authenticationError,
+          _authorizationError);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("PermissionCheckProviderResult.Builder{");
+      buf.append("checkedPermissions").append('=').append(JodaBeanUtils.toString(_checkedPermissions)).append(',').append(' ');
+      buf.append("authenticationError").append('=').append(JodaBeanUtils.toString(_authenticationError)).append(',').append(' ');
+      buf.append("authorizationError").append('=').append(JodaBeanUtils.toString(_authorizationError));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

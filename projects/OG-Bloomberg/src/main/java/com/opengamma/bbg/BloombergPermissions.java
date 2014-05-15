@@ -26,14 +26,10 @@ public final class BloombergPermissions {
    */
   public static final String EID_PREFIX = BLOOMBERG_PREFIX + "EID:";
   /**
-   * The live data permission string prefix.
-   * The suffix is a Bloomberg identifier, such as a ticker.
-   */
-  public static final String LIVE_PREFIX = BLOOMBERG_PREFIX + "Live:";
-  /**
    * Permission granted to users that allows checking against Bloomberg.
    */
-  public static final Permission PERMISSION_BLOOMBERG = AuthUtils.getPermissionResolver().resolvePermission(BLOOMBERG_PREFIX + "view");
+  public static final Permission PERMISSION_BLOOMBERG =
+      AuthUtils.getPermissionResolver().resolvePermission(BLOOMBERG_PREFIX + "view");
 
   /**
    * Restricted constructor.
@@ -92,59 +88,6 @@ public final class BloombergPermissions {
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Permission string does not represent a valid EID: " + permissionString);
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a permission for a live data identifier.
-   * 
-   * @param bloombergIdentifier  the Bloomberg identifier, such as a ticker, not null
-   * @return the permission, not null
-   */
-  public static Permission createLiveDataIdPermission(String bloombergIdentifier) {
-    String perm = createLiveDataIdPermissionString(bloombergIdentifier);
-    return AuthUtils.getPermissionResolver().resolvePermission(perm);
-  }
-
-  /**
-   * Creates a permission string for a live data identifier.
-   * 
-   * @param bloombergIdentifier  the Bloomberg identifier, such as a ticker, not null
-   * @return the permission string, not null
-   */
-  public static String createLiveDataIdPermissionString(String bloombergIdentifier) {
-    ArgumentChecker.notNull(bloombergIdentifier, "bloombergIdentifier");
-    return LIVE_PREFIX + bloombergIdentifier;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Checks if a permission string represents live data.
-   * 
-   * @param permissionString  the permission string, null returns false
-   * @return true if the permission string is a Bloomberg live data permission
-   */
-  public static boolean isLiveDataId(String permissionString) {
-    return permissionString != null && permissionString.startsWith(LIVE_PREFIX);
-  }
-
-  /**
-   * Extracts the live data identifier from the permission string.
-   * 
-   * @param permissionString  the permission string, not null
-   * @return the Bloomberg live data identifier, not null
-   * @throws IllegalArgumentException if the permission string is not a live data permission
-   */
-  public static String extractLiveDataId(String permissionString) {
-    ArgumentChecker.notNull(permissionString, "permissionString");
-    if (isLiveDataId(permissionString) == false) {
-      throw new IllegalArgumentException("Permission string does not represent an EID: " + permissionString);
-    }
-    String id = permissionString.substring(LIVE_PREFIX.length());
-    if (id.isEmpty()) {
-      throw new IllegalArgumentException("Permission string does not represent a valid EID: " + permissionString);
-    }
-    return id;
   }
 
 }

@@ -56,37 +56,4 @@ public class BloombergPermissionsTest {
     BloombergPermissions.extractEid(BloombergPermissions.EID_PREFIX + "abcd");
   }
 
-  //-------------------------------------------------------------------------
-  public void testCreateLiveDataIdPermission() {
-    Permission expected = AuthUtils.getPermissionResolver().resolvePermission(BloombergPermissions.LIVE_PREFIX + "OPENGAMMA");
-    assertEquals(expected, BloombergPermissions.createLiveDataIdPermission("OPENGAMMA"));
-  }
-
-  public void testCreateLiveDataIdPermissionString() {
-    String expected = BloombergPermissions.LIVE_PREFIX + "OPENGAMMA";
-    assertEquals(expected, BloombergPermissions.createLiveDataIdPermissionString("OPENGAMMA"));
-  }
-
-  public void testIsLiveDataId() {
-    assertEquals(false, BloombergPermissions.isLiveDataId(null));
-    assertEquals(false, BloombergPermissions.isLiveDataId(""));
-    assertEquals(false, BloombergPermissions.isLiveDataId("1234"));
-    assertEquals(false, BloombergPermissions.isLiveDataId("Data:1234"));
-    assertEquals(true, BloombergPermissions.isLiveDataId(BloombergPermissions.LIVE_PREFIX + "OPENGAMMA"));
-  }
-
-  public void testExtractLiveDataId() {
-    assertEquals("OPENGAMMA", BloombergPermissions.extractLiveDataId(BloombergPermissions.LIVE_PREFIX + "OPENGAMMA"));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testExtractLiveDataId_null() {
-    BloombergPermissions.extractLiveDataId(null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testExtractLiveDataId_empty() {
-    BloombergPermissions.extractLiveDataId("");
-  }
-
 }

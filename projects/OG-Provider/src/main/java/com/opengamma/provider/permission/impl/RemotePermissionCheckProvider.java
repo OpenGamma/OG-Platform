@@ -9,8 +9,6 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.permission.PermissionCheckProvider;
 import com.opengamma.provider.permission.PermissionCheckProviderRequest;
@@ -39,7 +37,7 @@ public class RemotePermissionCheckProvider extends AbstractRemoteClient implemen
   public boolean isPermitted(ExternalIdBundle userIdBundle, String ipAddress, String requestedPermission) {
     PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(userIdBundle, ipAddress, requestedPermission);
     PermissionCheckProviderResult holderResult = isPermitted(request);
-    return BooleanUtils.isTrue(holderResult.getCheckedPermissions().get(requestedPermission));
+    return holderResult.isPermitted(requestedPermission);
   }
 
   @Override

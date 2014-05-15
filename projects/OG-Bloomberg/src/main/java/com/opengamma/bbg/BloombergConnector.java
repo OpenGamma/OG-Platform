@@ -25,12 +25,15 @@ import com.opengamma.util.Connector;
 /**
  * Connector used to access Bloomberg.
  * <p>
- * This class performs only minimal session connections; the caller must configure them and attach them to Bloomberg services. This is mainly a data holder for connectivity.
+ * This class performs only minimal session connections; the caller must
+ * configure them and attach them to Bloomberg services.
+ * This is mainly a data holder for connectivity.
  * <p>
  * This class is usually configured using the associated factory bean.
  */
 public class BloombergConnector implements Connector {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergConnector.class);
 
   /**
@@ -261,11 +264,11 @@ public class BloombergConnector implements Connector {
   }
 
   /**
-   * Checks if the bloomberg session needs authorization
+   * Checks if the session needs authentication
    * 
    * @return true if authentication options is set, otherwise false
    */
-  public boolean requiresAuthorization() {
+  public boolean requiresAuthentication() {
     if (getSessionOptions() != null) {
       String authenticationOptions = StringUtils.trimToNull(getSessionOptions().authenticationOptions());
       return authenticationOptions != null;

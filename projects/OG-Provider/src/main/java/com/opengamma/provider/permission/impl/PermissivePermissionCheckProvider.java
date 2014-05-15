@@ -16,16 +16,18 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Permission checker provider that returns true for all requests.
  */
-public class PermissivePermissionCheckProvider extends AbstractPermissionCheckProvider implements PermissionCheckProvider {
+public final class PermissivePermissionCheckProvider
+    extends AbstractPermissionCheckProvider
+    implements PermissionCheckProvider {
 
   @Override
   public PermissionCheckProviderResult isPermitted(PermissionCheckProviderRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final Map<String, Boolean> result = new HashMap<>(request.getRequestedPermissions().size());
+    Map<String, Boolean> result = new HashMap<>(request.getRequestedPermissions().size());
     for (String permission : request.getRequestedPermissions()) {
       result.put(permission, true);
     }
-    return new PermissionCheckProviderResult(result);
+    return PermissionCheckProviderResult.of(result);
   }
 
 }
