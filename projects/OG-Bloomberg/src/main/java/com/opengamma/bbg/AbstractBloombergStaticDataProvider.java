@@ -43,12 +43,10 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * The Bloomberg session options.
    */
   private final BloombergConnector _bloombergConnector;
-
   /**
    * The provider of correlation identifiers.
    */
   private final AtomicLong _nextCorrelationId = new AtomicLong(1L);
-
   /**
    * Result futures
    */
@@ -65,18 +63,18 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * The thread hosting the event processor.
    */
   private Thread _thread;
-
   /**
    * Manages the Bloomberg session and service.
    */
   private final SessionProvider _sessionProvider;
-
   /**
    * The service name
    */
   private final String _serviceName;
-  private final boolean _requiresAuthorization;
-
+  /**
+   * Whether authentication is needed.
+   */
+  private final boolean _requiresAuthentication;
   /**
    * The bpipe applicatiion user identity.
    */
@@ -85,24 +83,23 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   /**
    * Creates an instance.
    * 
-   * @param bloombergConnector the Bloomberg connector, not null
-   * @param serviceName The Bloomberg service to start
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param serviceName  the Bloomberg service to start, not null
    */
   public AbstractBloombergStaticDataProvider(BloombergConnector bloombergConnector, String serviceName) {
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notNull(bloombergConnector.getSessionOptions(), "bloombergConnector.sessionOptions");
     ArgumentChecker.notEmpty(serviceName, "serviceName");
 
-    _requiresAuthorization = bloombergConnector.requiresAuthentication();
+    _requiresAuthentication = bloombergConnector.requiresAuthentication();
     _serviceName = serviceName;
     _bloombergConnector = bloombergConnector;
     _sessionProvider = new SessionProvider(_bloombergConnector, getServiceNames());
-
   }
 
   private List<String> getServiceNames() {
     List<String> serviceNames = Lists.newArrayList(_serviceName);
-    if (_requiresAuthorization) {
+    if (_requiresAuthentication) {
       serviceNames.add(BloombergConstants.AUTH_SVC_NAME);
     }
     return serviceNames;
@@ -178,7 +175,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     SettableFuture<List<Element>> resultFuture = SettableFuture.<List<Element>>create();
     ArrayList<Element> result = new ArrayList<>();
     try {
-      if (_requiresAuthorization) {
+      if (_requiresAuthentication) {
         getLogger().debug("submitting authorized request {} with cid {}", request, cid);
         session.sendRequest(request, _applicationIdentity, cid);
       } else {
@@ -248,7 +245,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     getLogger().info("Bloomberg started");
 
 
-    if (_requiresAuthorization) {
+    if (_requiresAuthentication) {
       // we need authorization done
       BloombergBpipeApplicationUserIdentityProvider identityProvider = new BloombergBpipeApplicationUserIdentityProvider(_sessionProvider);
       _applicationIdentity = identityProvider.getIdentity();

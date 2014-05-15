@@ -28,7 +28,8 @@ public final class BloombergPermissions {
   /**
    * Permission granted to users that allows checking against Bloomberg.
    */
-  public static final Permission PERMISSION_BLOOMBERG = AuthUtils.getPermissionResolver().resolvePermission(BLOOMBERG_PREFIX + "view");
+  public static final Permission PERMISSION_BLOOMBERG =
+      AuthUtils.getPermissionResolver().resolvePermission(BLOOMBERG_PREFIX + "view");
 
   /**
    * Restricted constructor.

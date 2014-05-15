@@ -53,6 +53,17 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This provider provides the service of checking whether a user has permission
  * to access a piece of Bloomberg reference data.
+ * <p>
+ * In order to check permissions, Bloomberg requires an {@code Identity} object.
+ * The {@code Identity} is directly connected to Bloomberg and is updated as entitlements change.
+ * The provider request must contain the EMRS user id and IP address of a logged on BPS terminal.
+ * These are checked by Bloomberg when creating an {@code Identity}.
+ * Failure at this stage returns a result with an authentication error.
+ * <p>
+ * Once an {@code Identity} is obtained, the requested permissions are checked against it.
+ * Only EID permissions in the request are checked, other permissions are returned as denied.
+ * The EID is created and extracted using {@link BloombergPermissions}.
+ * Failure at this stage returns a result with an authorization error.
  */
 public final class BloombergBpipePermissionCheckProvider
     extends AbstractPermissionCheckProvider
@@ -101,7 +112,8 @@ public final class BloombergBpipePermissionCheckProvider
     _userIdentityCache = createUserIdentityCache(identityExpiry);
     _bloombergConnector = bloombergConnector;
 
-    List<String> serviceNames = Lists.newArrayList(BloombergConstants.AUTH_SVC_NAME, BloombergConstants.REF_DATA_SVC_NAME);
+    List<String> serviceNames = Lists.newArrayList(
+        BloombergConstants.AUTH_SVC_NAME, BloombergConstants.REF_DATA_SVC_NAME);
     SessionEventHandler eventHandler = new SessionEventHandler();
     _sessionProvider = new SessionProvider(_bloombergConnector, serviceNames, eventHandler);
   }
@@ -111,12 +123,18 @@ public final class BloombergBpipePermissionCheckProvider
   public PermissionCheckProviderResult isPermitted(PermissionCheckProviderRequest request) {
     ArgumentChecker.notNull(request, "request");
     // validate
-    final String emrsId = StringUtils.trimToNull(request.getUserIdBundle().getValue(ExternalSchemes.BLOOMBERG_EMRSID));
+    if (isRunning() == false) {
+      return PermissionCheckProviderResult.ofAuthenticationError(
+          "Bloomberg permission check found connection not running");
+    }
+    String emrsId = StringUtils.trimToNull(request.getUserIdBundle().getValue(ExternalSchemes.BLOOMBERG_EMRSID));
     if (emrsId == null) {
-      return PermissionCheckProviderResult.ofAuthenticationError("Bloomberg permission check request did not contain an EMRS user ID");
+      return PermissionCheckProviderResult.ofAuthenticationError(
+          "Bloomberg permission check request did not contain an EMRS user ID");
     }
     if (request.getNetworkAddress() == null) {
-      return PermissionCheckProviderResult.ofAuthenticationError("Bloomberg permission check request did not contain a network address");
+      return PermissionCheckProviderResult.ofAuthenticationError(
+          "Bloomberg permission check request did not contain a network address");
     }
     // obtain user identity
     Identity userIdentity;
@@ -130,43 +148,49 @@ public final class BloombergBpipePermissionCheckProvider
   }
 
   // checks the requested permissions against the identity object
-  private PermissionCheckProviderResult checkPermissions(PermissionCheckProviderRequest request, Identity userIdentity) {
+  private PermissionCheckProviderResult checkPermissions(
+      PermissionCheckProviderRequest request, Identity userIdentity) {
+    
     try {
       // evaluate permissions one by one to meet our API
-      final Map<String, Boolean> result = new HashMap<>();
+      Map<String, Boolean> result = new HashMap<>();
       for (String permission : request.getRequestedPermissions()) {
         if (BloombergPermissions.isEid(permission)) {
           int eid = BloombergPermissions.extractEid(permission);
-          boolean permitted = userIdentity.hasEntitlements(new int[] {eid }, _apiRefDataSvc);
+          boolean permitted = userIdentity.hasEntitlements(new int[] {eid}, _apiRefDataSvc);
           result.put(permission, permitted);
         } else {
           // permissions other than EID permissions are returned as false without error
           result.put(permission, false);
         }
       }
-      return new PermissionCheckProviderResult(result);
+      return PermissionCheckProviderResult.of(result);
       
     } catch (RuntimeException ex) {
-      String msg = String.format("Bloomberg authorization failure for user: %s IpAddress: %s", request.getUserIdBundle(), request.getNetworkAddress());
-      s_logger.warn(msg, ex.getCause(), ex);
+      String msg = String.format("Bloomberg authorization failure for user: %s IpAddress: %s",
+          request.getUserIdBundle(), request.getNetworkAddress());
+      s_logger.warn(msg, ex);
       return PermissionCheckProviderResult.ofAuthorizationError(
           "Bloomberg authorization error: " + ex.getCause().getClass().getName() + ": " + ex.getMessage());
     }
   }
 
   // handles any errors during authentiction
-  private PermissionCheckProviderResult processAuthenticationError(PermissionCheckProviderRequest request, Exception ex) {
-    String msg = String.format("Bloomberg authentication failure for user: %s IpAddress: %s", request.getUserIdBundle(), request.getNetworkAddress());
+  private PermissionCheckProviderResult processAuthenticationError(
+      PermissionCheckProviderRequest request, Exception ex) {
+    
+    String msg = String.format("Bloomberg authentication failure for user: %s IpAddress: %s",
+        request.getUserIdBundle(), request.getNetworkAddress());
     if (ex.getCause() == null) {
-      s_logger.warn(msg, ex.getCause(), ex);
+      s_logger.warn(msg, ex);
       return PermissionCheckProviderResult.ofAuthenticationError(
           "Bloomberg authentication error: Unknown cause: " + ex.getMessage());
     } else if (ex.getCause() instanceof UnauthenticatedException) {
-      s_logger.debug(msg, ex.getCause());
+      s_logger.debug(msg);
       return PermissionCheckProviderResult.ofAuthenticationError(
           "Bloomberg authentication failed: " + ex.getCause().getMessage());
     } else {
-      s_logger.warn(msg, ex.getCause(), ex);
+      s_logger.warn(msg, ex.getCause());
       return PermissionCheckProviderResult.ofAuthenticationError(
           "Bloomberg authentication error: " + ex.getCause().getClass().getName() + ": " + ex.getMessage());
     }
@@ -184,15 +208,14 @@ public final class BloombergBpipePermissionCheckProvider
    */
   private LoadingCache<IdentityCacheKey, Identity> createUserIdentityCache(Duration identityExpiry) {
     // called from constructor - must not use instance variables in this method
-    LoadingCache<IdentityCacheKey, Identity> identityCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(identityExpiry.getSeconds(), TimeUnit.SECONDS)
-        .build(new CacheLoader<IdentityCacheKey, Identity>() {
-          @Override
-          public Identity load(IdentityCacheKey userCredential) throws Exception {
-            return loadUserIdentity(userCredential);
-          }
-        });
-    return identityCache;
+    return CacheBuilder.newBuilder()
+      .expireAfterWrite(identityExpiry.getSeconds(), TimeUnit.SECONDS)
+      .build(new CacheLoader<IdentityCacheKey, Identity>() {
+        @Override
+        public Identity load(IdentityCacheKey userCredential) throws Exception {
+          return loadUserIdentity(userCredential);
+        }
+      });
   }
 
   // called from the cache to load user identities
@@ -206,24 +229,28 @@ public final class BloombergBpipePermissionCheckProvider
     EventQueue eventQueue = new EventQueue();
     _session.sendAuthorizationRequest(authRequest, userIdentity, eventQueue, new CorrelationID(userInfo));
     Event event = eventQueue.nextEvent(WAIT_TIME_MS);
-    if (Event.EventType.RESPONSE.equals(event.eventType()) || Event.EventType.REQUEST_STATUS.equals(event.eventType())) {
-      for (Message message : event) {
-        if (AUTHORIZATION_SUCCESS.equals(message.messageType())) {
-          return userIdentity;
-        } 
-        if (AUTHORIZATION_FAILURE.equals(message.messageType())) {
-          String failureMsg = "Unknown";
-          Element reasonElem = message.getElement("reason");
-          if (reasonElem != null) {
-            failureMsg = reasonElem.getElementAsString("message");
-            String failureCode = StringUtils.stripToNull(reasonElem.getElementAsString("code"));
-            if (failureCode != null) {
-              failureMsg = failureMsg + " (code " + failureCode + ")";
+    // handle known responses to loading an identity ignoring other events
+    switch (event.eventType().intValue()) {
+      case EventType.Constants.RESPONSE:
+      case EventType.Constants.REQUEST_STATUS: {
+        for (Message message : event) {
+          if (AUTHORIZATION_SUCCESS.equals(message.messageType())) {
+            return userIdentity;
+          } 
+          if (AUTHORIZATION_FAILURE.equals(message.messageType())) {
+            String failureMsg = "Unknown";
+            Element reasonElem = message.getElement("reason");
+            if (reasonElem != null) {
+              failureMsg = reasonElem.getElementAsString("message");
+              String failureCode = StringUtils.stripToNull(reasonElem.getElementAsString("code"));
+              if (failureCode != null) {
+                failureMsg = failureMsg + " (code " + failureCode + ")";
+              }
             }
+            throw new UnauthenticatedException(
+                String.format("User: %s IpAddress: %s Reason: %s",
+                    userInfo.getUserId(), userInfo.getIpAddress(), failureMsg));
           }
-          throw new UnauthenticatedException(
-              String.format("User: %s IpAddress: %s Reason: %s",
-                  userInfo.getUserId(), userInfo.getIpAddress(), failureMsg));
         }
       }
     }
@@ -261,7 +288,8 @@ public final class BloombergBpipePermissionCheckProvider
         Element errorinfo = msg.getElement("reason");
         int code = errorinfo.getElementAsInt32("code");
         String reason = errorinfo.getElementAsString("message");
-        s_logger.debug("Authorization revoked for emrsid: {} with code: {} and reason {}", userCredential.getUserId(), code, reason);
+        s_logger.debug("Authorization revoked for emrsid: {} with code: {} and reason {}",
+            userCredential.getUserId(), code, reason);
         _userIdentityCache.invalidate(userCredential);
         
       } else if (ENTITITLEMENT_CHANGED.equals(msg.messageType())) {

@@ -76,7 +76,10 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   /** For sending a notification message that Bloomberg data is available. */
   private final FudgeMessageSender _availabilityNotificationSender;
   private volatile Identity _applicationUserIdentity;
-  private final boolean _requiresAuthorization;
+  /**
+   * Whether authentication is needed.
+   */
+  private final boolean _requiresAuthentication;
 
   /**
    * Creates an instance.
@@ -94,17 +97,16 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(availabilityNotificationSender, "availabilityNotificationSender");
 
-    _requiresAuthorization = bloombergConnector.requiresAuthentication();
     _availabilityNotificationSender = availabilityNotificationSender;
-
     _bloombergConnector = bloombergConnector;
+    _requiresAuthentication = bloombergConnector.requiresAuthentication();
     _referenceDataProvider = referenceDataProvider;
     _sessionProvider = new SessionProvider(_bloombergConnector, getServiceNames());
   }
 
   private List<String> getServiceNames() {
     List<String> serviceNames = Lists.newArrayList(BloombergConstants.MKT_DATA_SVC_NAME);
-    if (_requiresAuthorization) {
+    if (_requiresAuthentication) {
       serviceNames.add(BloombergConstants.AUTH_SVC_NAME);
     }
     return serviceNames;
@@ -141,7 +143,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     // getting the session throws an exception if BBG isn't available which is the behaviour we want
     _sessionProvider.getSession();
 
-    if (_requiresAuthorization) {
+    if (_requiresAuthentication) {
       // we need authorization done
       BloombergBpipeApplicationUserIdentityProvider identityProvider = new BloombergBpipeApplicationUserIdentityProvider(_sessionProvider);
       _applicationUserIdentity = identityProvider.getIdentity();
@@ -188,7 +190,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     }
 
     try {
-      if (_requiresAuthorization) {
+      if (_requiresAuthentication) {
         _sessionProvider.getSession().subscribe(sl, _applicationUserIdentity);
       } else {
         _sessionProvider.getSession().subscribe(sl);
@@ -201,7 +203,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   }
 
   private List<String> getLiveDataFields() {
-    if (!_requiresAuthorization) {
+    if (!_requiresAuthentication) {
       return BloombergDataUtils.STANDARD_FIELDS_LIST;
     }
     final List<String> result = Lists.newArrayList(BloombergDataUtils.STANDARD_FIELDS_LIST);
@@ -288,6 +290,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
    */
   private class ConnectTask extends TimerTask {
 
+    @SuppressWarnings("deprecation")
     @Override
     public void run() {
       synchronized (BloombergLiveDataServer.this) {
@@ -316,8 +319,10 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
    * @param args Not needed
    */
   public static void main(String[] args) { // CSIGNORE
-    ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/livedata/bbg-livedata-context.xml");
-    context.start();
+    String file = "/com/opengamma/bbg/livedata/bbg-livedata-context.xml";
+    try (ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(file)) {
+      context.start();
+    }
   }
 
   /**

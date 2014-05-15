@@ -12,6 +12,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -47,11 +49,13 @@ public class DataPermissionCheckProviderResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testGet() {
-    final PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalIdBundle.of("A", "B"), "127.0.0.1", "A", "B", "C");
-    final PermissionCheckProviderResult result = new PermissionCheckProviderResult();
-    result.getCheckedPermissions().put("A", true);
-    result.getCheckedPermissions().put("B", true);
-    result.getCheckedPermissions().put("C", true);
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(
+        ExternalIdBundle.of("A", "B"), "127.0.0.1", "A", "B", "C");
+    Map<String, Boolean> map = new HashMap<>();
+    map.put("A", true);
+    map.put("B", true);
+    map.put("C", true);
+    PermissionCheckProviderResult result = PermissionCheckProviderResult.of(map);
     
     when(_underlying.isPermitted(same(request))).thenReturn(result);
     
