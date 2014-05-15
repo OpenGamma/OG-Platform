@@ -175,7 +175,7 @@ public final class BloombergBpipePermissionCheckProvider
     }
   }
 
-  // handles any errors during authentiction
+  // handles any errors during authentication
   private PermissionCheckProviderResult processAuthenticationError(
       PermissionCheckProviderRequest request, Exception ex) {
     
@@ -253,6 +253,8 @@ public final class BloombergBpipePermissionCheckProvider
           }
         }
       }
+      default:
+        // no action on other event types
     }
     throw new UnauthenticatedException(
         String.format("User: %s IpAddress: %s Reason: Unexpected response to authorization request",
@@ -269,6 +271,8 @@ public final class BloombergBpipePermissionCheckProvider
         case EventType.Constants.AUTHORIZATION_STATUS:
           processAuthorizationEvent(event);
           break;
+        default:
+          // no action on other event types
       }
     }
   }

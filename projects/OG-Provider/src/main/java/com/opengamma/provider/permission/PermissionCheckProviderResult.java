@@ -37,7 +37,7 @@ import com.opengamma.util.PublicSPI;
  * The map of checked permissions will contain no true values if there are errors
  * and will typically be empty.
  * <p>
- * This class is mutable and not thread-safe.
+ * This class is immutable and thread-safe.
  */
 @PublicSPI
 @BeanDefinition(builderScope = "private")
