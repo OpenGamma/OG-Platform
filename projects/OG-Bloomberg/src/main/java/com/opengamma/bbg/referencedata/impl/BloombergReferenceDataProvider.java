@@ -279,8 +279,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
           ReferenceData refData = new ReferenceData(securityKey);
           if (securityElem.hasElement(SECURITY_ERROR)) {
             Element securityError = securityElem.getElement(SECURITY_ERROR);
-            getLogger().warn("Bloomberg referenceData security error: {} {}", securityKey, securityError);
-            parseIdentifierError(refData, securityError);
+            parseIdentifierError(refData, securityKey, securityError);
           }
           if (securityElem.hasElement(FIELD_DATA)) {
             parseFieldData(refData, securityElem.getElement(FIELD_DATA));
@@ -301,11 +300,17 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes an error affecting the whole identifier.
      * 
-     * @param refData the per identifier reference data result, not null
+     * @param refData  the per identifier reference data result, not null
+     * @param securityKey  the security identifier, not null
      * @param element the bloomberg element, not null
      */
-    protected void parseIdentifierError(ReferenceData refData, Element element) {
+    protected void parseIdentifierError(ReferenceData refData, String securityKey, Element element) {
       ReferenceDataError error = buildError(null, element);
+      if (error.isEntitlementError()) {
+        getLogger().warn("Bloomberg referenceData security error: {} {}", securityKey, error.getMessage());
+      } else {
+        getLogger().warn("Bloomberg referenceData security error: {} {}", securityKey, element);
+      }
       refData.addError(error);
     }
 
