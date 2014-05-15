@@ -213,6 +213,15 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_EUR_USD.setCurve(EURIBOR6M, EUR_FWD6);
   }
 
+  private static final MulticurveProviderDiscount MULTICURVES_GBP_USD = new MulticurveProviderDiscount();
+  static {
+    MULTICURVES_GBP_USD.setCurve(Currency.USD, USD_DSC);
+    MULTICURVES_GBP_USD.setCurve(FEDFUND, USD_DSC);
+    MULTICURVES_GBP_USD.setCurve(USDLIBOR3M, USD_FWD3);
+    MULTICURVES_GBP_USD.setCurve(USDLIBOR6M, USD_FWD6);
+    MULTICURVES_GBP_USD.setCurve(Currency.GBP, CURVE_GBP_30);
+  }
+
   private static final MulticurveProviderDiscount MULTICURVES_USD_WITHOUT_DISCOUNT = new MulticurveProviderDiscount();
 
   private static final MulticurveProviderDiscount MULTICURVES_CAD = new MulticurveProviderDiscount();
@@ -432,6 +441,14 @@ public class MulticurveProviderDiscountDataSets {
    */
   public static MulticurveProviderDiscount createMulticurveEurUsd() {
     return MULTICURVES_EUR_USD;
+  }
+
+  /**
+   * Returns a multi-curves provider with two currencies (GBP, USD), four Ibor indexes (UsdLibor3M, UsdLibor6M).
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createMulticurveGbpUsd() {
+    return MULTICURVES_GBP_USD;
   }
 
   /**

@@ -92,7 +92,7 @@ public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
     final boolean isPayer = fundingLeg.getPayReceiveType() == PayReceiveType.PAY ? true : false;
     final LocalDate startDate = security.getEffectiveDate();
     final LocalDate endDate = security.getMaturityDate();
-    final NotionalExchange notionalExchange = NotionalExchange.NO_EXCHANGE;
+    final NotionalExchange notionalExchange = NotionalExchange.builder().exchangeFinalNotional(true).build(); //NotionalExchange.NO_EXCHANGE;
     final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
         startDate, endDate, notionalExchange, fundingLeg);
     final BondSecurity bond = (BondSecurity) underlying;

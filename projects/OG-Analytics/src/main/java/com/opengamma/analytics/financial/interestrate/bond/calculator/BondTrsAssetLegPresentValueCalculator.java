@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
-import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondTotalReturnSwapDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -37,6 +37,7 @@ public final class BondTrsAssetLegPresentValueCalculator extends InstrumentDeriv
   public MultipleCurrencyAmount visitBondTotalReturnSwap(final BondTotalReturnSwap bondTrs, final IssuerProviderInterface data) {
     ArgumentChecker.notNull(bondTrs, "bondTrs");
     ArgumentChecker.notNull(data, "data");
-    return bondTrs.getAsset().accept(PresentValueIssuerCalculator.getInstance(), data);
+    return BondTotalReturnSwapDiscountingMethod.getInstance().presentValueAssetLeg(bondTrs, data);
   }
+
 }

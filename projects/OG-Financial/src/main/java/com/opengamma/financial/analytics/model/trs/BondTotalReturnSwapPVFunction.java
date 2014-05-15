@@ -14,12 +14,12 @@ import java.util.Set;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.BondTrsPresentValueCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -31,6 +31,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -38,8 +40,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class BondTotalReturnSwapPVFunction extends BondTotalReturnSwapFunction {
   /** The calculator */
-  private static final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> CALCULATOR =
-      BondTrsPresentValueCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+      PresentValueIssuerCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#PRESENT_VALUE}.
@@ -61,10 +63,8 @@ public class BondTotalReturnSwapPVFunction extends BondTotalReturnSwapFunction {
         final IssuerProviderInterface issuerCurves = getMergedWithIssuerProviders(inputs, fxMatrix);
         final MultipleCurrencyAmount pv = derivative.accept(CALCULATOR, issuerCurves);
         final String expectedCurrency = spec.getProperty(CURRENCY);
-        if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
-          throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);
-        }
-        return Collections.singleton(new ComputedValue(spec, pv.getCurrencyAmounts()[0].getAmount()));
+        final CurrencyAmount pvConverted = fxMatrix.convert(pv, Currency.of(expectedCurrency)); // Convert the MultipleCurrencyAmount in the expected currency.
+        return Collections.singleton(new ComputedValue(spec, pvConverted.getAmount()));
       }
 
       @Override

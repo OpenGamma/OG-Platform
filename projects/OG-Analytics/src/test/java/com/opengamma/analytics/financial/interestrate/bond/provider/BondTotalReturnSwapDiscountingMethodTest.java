@@ -24,14 +24,21 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -40,11 +47,12 @@ import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * Test related to the description of a bond total return swap pricing methodology by discounting of the cash-flows.
+ * Test related to the bond total return swap pricing methodology by discounting of the cash-flows.
  */
-public class BondTRSDiscountingMethodTest {
+public class BondTotalReturnSwapDiscountingMethodTest {
 
   private static final ZonedDateTime EFFECTIVE_DATE_1 = DateUtils.getUTCDate(2012, 2, 9);
   private static final ZonedDateTime EFFECTIVE_DATE_2 = DateUtils.getUTCDate(2012, 3, 9);
@@ -107,13 +115,17 @@ public class BondTRSDiscountingMethodTest {
   private static final BondTotalReturnSwap TRS_REC_IBOR_PAY_1_STD = new BondTotalReturnSwap(EFFECTIVE_TIME_1_2, TERMINATION_TIME_1_2, FUNDING_LEG_IBOR_PAY_1, UKT14_1_1, NOTIONAL_BND);
   private static final BondTotalReturnSwap TRS_REC_IBOR_PAY_1_EFF = TRS_REC_IBOR_PAY_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS);
 
-  private static final BondTRSDiscountingMethod METHOD_TRS_BND = BondTRSDiscountingMethod.getInstance();
+  private static final BondTotalReturnSwapDiscountingMethod METHOD_TRS_BND = BondTotalReturnSwapDiscountingMethod.getInstance();
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
+  private static final PresentValueCurveSensitivityIssuerCalculator PVCSIC = PresentValueCurveSensitivityIssuerCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> PV01C =
+      new PV01CurveParametersCalculator<>(PVCSIC);
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
 
   private static final IssuerProviderDiscount ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
 
   private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
   @Test
   public void presentValueFixedSameCurrencyBeforeEffective() {
@@ -156,13 +168,41 @@ public class BondTRSDiscountingMethodTest {
   }
 
   @Test
-  public void presentValueIborDiffLeg() {
+  public void presentValueLegs() {
     MultipleCurrencyAmount pvBondLegExpected = TRS_REC_IBOR_PAY_1_EFF.getAsset().accept(PVIC, ISSUER_MULTICURVE).multipliedBy(NOTIONAL_BND);
     MultipleCurrencyAmount pvBondLegComputed = METHOD_TRS_BND.presentValueAssetLeg(TRS_REC_IBOR_PAY_1_EFF, ISSUER_MULTICURVE);
     assertEquals("BondTRSDiscountingMethod: present value", pvBondLegExpected.getAmount(GBP), pvBondLegComputed.getAmount(GBP), TOLERANCE_PV);
     MultipleCurrencyAmount pvFundingLegExpected = TRS_REC_IBOR_PAY_1_EFF.getFundingLeg().accept(PVDC, ISSUER_MULTICURVE.getMulticurveProvider());
     MultipleCurrencyAmount pvFundingLegComputed = METHOD_TRS_BND.presentValueFundingLeg(TRS_REC_IBOR_PAY_1_EFF, ISSUER_MULTICURVE);
     assertEquals("BondTRSDiscountingMethod: present value", pvFundingLegExpected.getAmount(USD), pvFundingLegComputed.getAmount(USD), TOLERANCE_PV);
+  }
+
+  @Test
+  public void presentValueMethodVsCalculator() {
+    MultipleCurrencyAmount pvMethod = METHOD_TRS_BND.presentValue(TRS_REC_IBOR_PAY_1_EFF, ISSUER_MULTICURVE);
+    MultipleCurrencyAmount pvCalculator = TRS_REC_IBOR_PAY_1_EFF.accept(PVIC, ISSUER_MULTICURVE);
+    assertEquals("BondTRSDiscountingMethod: present value", pvMethod.getAmount(GBP), pvCalculator.getAmount(GBP), TOLERANCE_PV);
+    assertEquals("BondTRSDiscountingMethod: present value", pvMethod.getAmount(USD), pvCalculator.getAmount(USD), TOLERANCE_PV);
+  }
+
+  @Test
+  public void presentValueCurveSensitivty() {
+    MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_TRS_BND.presentValueCurveSensitivity(TRS_REC_IBOR_PAY_1_EFF, ISSUER_MULTICURVE).cleaned();
+    MultipleCurrencyMulticurveSensitivity pvcsFundingLeg = TRS_REC_IBOR_PAY_1_EFF.getFundingLeg().accept(PVCSIC, ISSUER_MULTICURVE).cleaned();
+    AssertSensitivityObjects.assertEquals("BondTRSDiscountingMethod: present value curve senstivity",
+        pvcsFundingLeg.getSensitivity(USD), pvcsComputed.getSensitivity(USD), TOLERANCE_PV_DELTA);
+    MultipleCurrencyMulticurveSensitivity pvcsBondLeg = TRS_REC_IBOR_PAY_1_EFF.getAsset().accept(PVCSIC, ISSUER_MULTICURVE).multipliedBy(NOTIONAL_BND).cleaned();
+    AssertSensitivityObjects.assertEquals("BondTRSDiscountingMethod: present value curve senstivity",
+        pvcsBondLeg.getSensitivity(GBP), pvcsComputed.getSensitivity(GBP), TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  public void pv01() {
+    ReferenceAmount<Pair<String, Currency>> pv01Computed = TRS_REC_IBOR_PAY_1_EFF.accept(PV01C, ISSUER_MULTICURVE);
+    ReferenceAmount<Pair<String, Currency>> pv01Funding = TRS_REC_IBOR_PAY_1_EFF.getFundingLeg().accept(PV01C, ISSUER_MULTICURVE);
+    ReferenceAmount<Pair<String, Currency>> pv01Bond = TRS_REC_IBOR_PAY_1_EFF.getAsset().accept(PV01C, ISSUER_MULTICURVE);
+    @SuppressWarnings("unused")
+    int t = 0;
   }
 
 }

@@ -28,7 +28,8 @@ import org.threeten.bp.Instant;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.BondTrsPV01Calculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
@@ -54,7 +55,7 @@ public class BondTotalReturnSwapPV01Function extends BondTotalReturnSwapFunction
   private static final Logger s_logger = LoggerFactory.getLogger(BondTotalReturnSwapPV01Function.class);
   /** The calculator */
   private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
-      BondTrsPV01Calculator.getInstance();
+      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#PV01}.
