@@ -32,9 +32,10 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   private static final long serialVersionUID = 1L;
 
   /**
-   * The curve node id mapper name.
+   * The curve node id mapper name, can be null.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private String _curveNodeIdMapperName;
 
   /**
@@ -110,24 +111,26 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve node id mapper name.
-   * @return the value of the property, not null
+   * Gets the curve node id mapper name, can be null.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
+   * @return the value of the property
    */
   public String getCurveNodeIdMapperName() {
     return _curveNodeIdMapperName;
   }
 
   /**
-   * Sets the curve node id mapper name.
-   * @param curveNodeIdMapperName  the new value of the property, not null
+   * Sets the curve node id mapper name, can be null.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
+   * @param curveNodeIdMapperName  the new value of the property
    */
   public void setCurveNodeIdMapperName(String curveNodeIdMapperName) {
-    JodaBeanUtils.notNull(curveNodeIdMapperName, "curveNodeIdMapperName");
     this._curveNodeIdMapperName = curveNodeIdMapperName;
   }
 
   /**
    * Gets the the {@code curveNodeIdMapperName} property.
+   * TODO move onto its own abstract subclass, e.g. CurveNodeWithIdMapper: PLAT-6504
    * @return the property, not null
    */
   public final Property<String> curveNodeIdMapperName() {
@@ -304,11 +307,6 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
-    }
-
-    @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((CurveNode) bean)._curveNodeIdMapperName, "curveNodeIdMapperName");
     }
 
   }
