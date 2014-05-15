@@ -24,10 +24,10 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
-import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
@@ -42,7 +42,6 @@ import com.opengamma.util.time.Tenor;
 public class CurveNodeWithIdentifierBuilderTest {
   private static final CurveNodeIdMapper MAPPER;
   private static final CurveNodeWithIdentifierBuilder BUILDER;
-  private static final CurveNodeWithIdentifierBuilder BUILDER_NO_MAPPER;
 
   static {
     final Map<Tenor, CurveInstrumentProvider> cashNodeIds = new HashMap<>();
@@ -80,7 +79,6 @@ public class CurveNodeWithIdentifierBuilderTest {
         .swapNodeIds(swapNodeIds)
         .zeroCouponInflationNodeIds(zeroCouponInflationNodeIds).build();
     BUILDER = new CurveNodeWithIdentifierBuilder(LocalDate.of(2013, 1, 1), MAPPER);
-    BUILDER_NO_MAPPER = new CurveNodeWithIdentifierBuilder(LocalDate.of(2013, 1, 1), null);
   }
 
   @Test
@@ -148,73 +146,6 @@ public class CurveNodeWithIdentifierBuilderTest {
   public void testZeroCouponInflation() {
     final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), InflationNodeType.MONTHLY, "Test");
     assertEquals(new CurveNodeWithIdentifier(node, ExternalId.of("Test", "ZCI"), "ZC Data", DataFieldType.OUTRIGHT), node.accept(BUILDER));
-  }
-  
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testCashNoIdMapper() {
-    final CashNode cash = new CashNode(Tenor.ONE_DAY, Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), null);
-    cash.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testRateNoIdMapper() {
-    final ContinuouslyCompoundedRateNode rate = new ContinuouslyCompoundedRateNode(null, Tenor.TWO_MONTHS);
-    rate.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testCreditSpreadNoIdMapper() {
-    final CreditSpreadNode creditSpread = new CreditSpreadNode(null, Tenor.TWO_MONTHS);
-    creditSpread.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testDiscountFactorNoIdMapper() {
-    final DiscountFactorNode df = new DiscountFactorNode(null, Tenor.TWO_MONTHS);
-    df.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testFRANoIdMapper() {
-    final FRANode fra = new FRANode(Tenor.ONE_DAY, Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), null);
-    fra.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testFXForwardNoIdMapper() {
-    final FXForwardNode fxForward = new FXForwardNode(Tenor.ONE_DAY, Tenor.TWO_MONTHS, ExternalId.of("Test1", "Test1"), Currency.USD, Currency.JPY, null);
-    fxForward.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testIMMFRANoIdMapper() {
-    final RollDateFRANode immFRA = new RollDateFRANode(Tenor.ONE_YEAR, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("Test1", "Test1"), null);
-    immFRA.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testIMMSwapNoIdMapper() {
-    final RollDateSwapNode immSwap = new RollDateSwapNode(Tenor.ONE_YEAR, 4, 40, ExternalId.of("Test1", "Test1"), null);
-    immSwap.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testRateFutureNoIdMapper() {
-    final RateFutureNode future = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.ONE_MONTH, Tenor.ONE_MONTH, ExternalId.of("Test", "Test"),
-        null);
-    future.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testSwapNoIdMapper() {
-    final SwapNode swap = new SwapNode(Tenor.ONE_DAY, Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), null);
-    swap.accept(BUILDER_NO_MAPPER);
-  }
-
-  @Test(expectedExceptions= {IllegalStateException.class})
-  public void testZeroCouponInflationNoIdMapper() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.TWO_MONTHS, ExternalId.of("Test", "Test"), ExternalId.of("Test", "Test"), InflationNodeType.MONTHLY, null);
-    node.accept(BUILDER_NO_MAPPER);
   }
 
   private static class TestCurveInstrumentProvider implements CurveInstrumentProvider {
