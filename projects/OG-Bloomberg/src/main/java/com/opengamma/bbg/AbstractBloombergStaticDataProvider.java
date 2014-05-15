@@ -93,7 +93,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     ArgumentChecker.notNull(bloombergConnector.getSessionOptions(), "bloombergConnector.sessionOptions");
     ArgumentChecker.notEmpty(serviceName, "serviceName");
 
-    _requiresAuthorization = bloombergConnector.requiresAuthorization();
+    _requiresAuthorization = bloombergConnector.requiresAuthentication();
     _serviceName = serviceName;
     _bloombergConnector = bloombergConnector;
     _sessionProvider = new SessionProvider(_bloombergConnector, getServiceNames());

@@ -16,7 +16,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Permission checker provider that returns true for all requests.
  */
-public class PermissivePermissionCheckProvider extends AbstractPermissionCheckProvider implements PermissionCheckProvider {
+public final class PermissivePermissionCheckProvider
+    extends AbstractPermissionCheckProvider
+    implements PermissionCheckProvider {
 
   @Override
   public PermissionCheckProviderResult isPermitted(PermissionCheckProviderRequest request) {

@@ -94,7 +94,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(availabilityNotificationSender, "availabilityNotificationSender");
 
-    _requiresAuthorization = bloombergConnector.requiresAuthorization();
+    _requiresAuthorization = bloombergConnector.requiresAuthentication();
     _availabilityNotificationSender = availabilityNotificationSender;
 
     _bloombergConnector = bloombergConnector;

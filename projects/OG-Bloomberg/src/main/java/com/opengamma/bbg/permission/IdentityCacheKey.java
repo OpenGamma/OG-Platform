@@ -22,17 +22,29 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * Identity cache key
+ * A cache key used to hold the user ID and IP address for Bloomberg authentication.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class IdentityCacheKey implements ImmutableBean {
 
+  /**
+   * The IP address.
+   */
   @PropertyDefinition(validate = "notNull")
   private final String _ipAddress;
-
+  /**
+   * The user identifier.
+   */
   @PropertyDefinition(validate = "notNull")
   private final String _userId;
 
+  /**
+   * Obtains an instance.
+   * 
+   * @param ipAddress  the IP address, not null
+   * @param userId  the user identifier, not null
+   * @return the cache key, not null
+   */
   public static IdentityCacheKey of(String ipAddress, String userId) {
     return new IdentityCacheKey(ipAddress, userId);
   }
@@ -49,14 +61,6 @@ public final class IdentityCacheKey implements ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(IdentityCacheKey.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static IdentityCacheKey.Builder builder() {
-    return new IdentityCacheKey.Builder();
   }
 
   private IdentityCacheKey(
@@ -85,7 +89,7 @@ public final class IdentityCacheKey implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the ipAddress.
+   * Gets the IP address.
    * @return the value of the property, not null
    */
   public String getIpAddress() {
@@ -94,7 +98,7 @@ public final class IdentityCacheKey implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the userId.
+   * Gets the user identifier.
    * @return the value of the property, not null
    */
   public String getUserId() {
@@ -102,14 +106,6 @@ public final class IdentityCacheKey implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public IdentityCacheKey clone() {
     return this;
@@ -250,7 +246,7 @@ public final class IdentityCacheKey implements ImmutableBean {
   /**
    * The bean-builder for {@code IdentityCacheKey}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IdentityCacheKey> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IdentityCacheKey> {
 
     private String _ipAddress;
     private String _userId;
@@ -259,15 +255,6 @@ public final class IdentityCacheKey implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(IdentityCacheKey beanToCopy) {
-      this._ipAddress = beanToCopy.getIpAddress();
-      this._userId = beanToCopy.getUserId();
     }
 
     //-----------------------------------------------------------------------
@@ -327,29 +314,6 @@ public final class IdentityCacheKey implements ImmutableBean {
       return new IdentityCacheKey(
           _ipAddress,
           _userId);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code ipAddress} property in the builder.
-     * @param ipAddress  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder ipAddress(String ipAddress) {
-      JodaBeanUtils.notNull(ipAddress, "ipAddress");
-      this._ipAddress = ipAddress;
-      return this;
-    }
-
-    /**
-     * Sets the {@code userId} property in the builder.
-     * @param userId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder userId(String userId) {
-      JodaBeanUtils.notNull(userId, "userId");
-      this._userId = userId;
-      return this;
     }
 
     //-----------------------------------------------------------------------

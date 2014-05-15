@@ -30,6 +30,10 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class BloombergBpipePermissionCheckProviderTest {
 
+  // fill these in to perform a manual test
+  private static final String EMRS_USER_ID = "";
+  private static final String IP_ADDRESS = "";
+
   private static final String EID_27749 = BloombergPermissions.createEidPermissionString(27749);
   private static final String EID_35009 = BloombergPermissions.createEidPermissionString(35009);
   private static final String EID_39491 = BloombergPermissions.createEidPermissionString(39491);
@@ -60,11 +64,12 @@ public class BloombergBpipePermissionCheckProviderTest {
   //-------------------------------------------------------------------------
   @Test
   public void isPermittedEidCheck() {
-    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEmrsUserId("og:yomi"), "10.0.2.110",
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEmrsUserId(EMRS_USER_ID), IP_ADDRESS,
         EID_27749, EID_35009, EID_39491, EID_40066, EID_41095, EID_46707, EID_1234);
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
+    resultHolder.checkErrors();
     assertNotNull(resultHolder.getCheckedPermissions());
     Map<String, Boolean> checkPermissionResult = resultHolder.getCheckedPermissions();
     assertEquals(7, checkPermissionResult.size());
@@ -79,11 +84,12 @@ public class BloombergBpipePermissionCheckProviderTest {
 
   @Test
   public void notPermittedEidCheckAfterEntitlementRevoked() {
-    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEmrsUserId("og:yomi"), "10.0.2.110",
+    PermissionCheckProviderRequest request = PermissionCheckProviderRequest.createGet(ExternalSchemes.bloombergEmrsUserId(EMRS_USER_ID), IP_ADDRESS,
         EID_27749, EID_35009, EID_39491, EID_40066, EID_41095, EID_46707, EID_1234);
 
     PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
+    resultHolder.checkErrors();
     assertNotNull(resultHolder.getCheckedPermissions());
     Map<String, Boolean> checkPermissionResult = resultHolder.getCheckedPermissions();
     assertEquals(7, checkPermissionResult.size());
@@ -95,7 +101,7 @@ public class BloombergBpipePermissionCheckProviderTest {
     assertTrue(checkPermissionResult.get(EID_46707));
     assertFalse(checkPermissionResult.get(EID_1234));
 
-    //sleep for a bit to allow bloomberg logon on another PC
+    // sleep for a bit to allow bloomberg logon on another PC
     try {
       Thread.sleep(120000);
     } catch (InterruptedException ex) {
@@ -104,6 +110,7 @@ public class BloombergBpipePermissionCheckProviderTest {
 
     resultHolder = _provider.isPermitted(request);
     assertNotNull(resultHolder);
+    resultHolder.checkErrors();
     assertNotNull(resultHolder.getCheckedPermissions());
     checkPermissionResult = resultHolder.getCheckedPermissions();
     assertEquals(7, checkPermissionResult.size());
@@ -114,20 +121,6 @@ public class BloombergBpipePermissionCheckProviderTest {
     assertFalse(checkPermissionResult.get(EID_41095));
     assertFalse(checkPermissionResult.get(EID_46707));
     assertFalse(checkPermissionResult.get(EID_1234));
-  }
-  
-  @Test
-  public void isPermittedLiveDataCheck() {
-    PermissionCheckProviderRequest request = PermissionCheckProviderRequest
-        .createGet(ExternalSchemes.bloombergEmrsUserId("og:yomi"), "10.0.2.110", "LIVEDATA:IBM US Equity", "LIVEDATA:AAPL US Equity");
-
-    PermissionCheckProviderResult resultHolder = _provider.isPermitted(request);
-    assertNotNull(resultHolder);
-    assertNotNull(resultHolder.getCheckedPermissions());
-    Map<String, Boolean> checkPermissionResult = resultHolder.getCheckedPermissions();
-    assertEquals(2, checkPermissionResult.size());
-    assertTrue(checkPermissionResult.get("LIVEDATA:IBM US Equity"));
-    assertFalse(checkPermissionResult.get("LIVEDATA:AAPL US Equity"));
   }
 
 }
