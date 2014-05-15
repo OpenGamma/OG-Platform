@@ -6,6 +6,12 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M23
+------------
+
+* New Feature
+    * [PLAT-6491] - Specify volatility surface shocks using the index of the expiry - class VolatilitySurfaceIndexShifts
+
 To 2.2.0-M22
 ------------
 * PLAT-6473 - Enhancing the security of startup required public and protected methods in og-component to change.
