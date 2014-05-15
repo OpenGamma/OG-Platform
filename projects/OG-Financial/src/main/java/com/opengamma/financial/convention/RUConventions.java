@@ -99,6 +99,10 @@ public class RUConventions {
       final ExternalId simple = simpleNameSecurityId(name);
       utils.addConventionBundle(ExternalIdBundle.of(tullett, simple), name, act360, following, Period.ofYears(i), 2, false, ru);
     }
+    
+    final String ruTreasuryName = "RU_TREASURY_BOND_CONVENTION";
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(ruTreasuryName)), ruTreasuryName, true, true, 0, 1, true);
+    
   }
 
 }

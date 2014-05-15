@@ -16,7 +16,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.CurrencyExposureDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -41,7 +41,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class DiscountingCurrencyExposureFunction extends DiscountingFunction {
   /** The FX currency exposure calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR = PresentValueDiscountingCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR = 
+      CurrencyExposureDiscountingCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#FX_CURRENCY_EXPOSURE}

@@ -10,9 +10,11 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecuri
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondTotalReturnSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
@@ -60,6 +62,8 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
   /** Method for bond future transactions */
   private static final BondFuturesTransactionDiscountingMethod METHOD_BNDFUT_TRA = BondFuturesTransactionDiscountingMethod.getInstance();
+  /** Method for bond Total Return Swap */
+  private static final BondTotalReturnSwapDiscountingMethod METHOD_TRS = BondTotalReturnSwapDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -95,6 +99,13 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
   @Override
   public MultipleCurrencyMulticurveSensitivity visitBondFuturesTransaction(final BondFuturesTransaction futures, final ParameterIssuerProviderInterface issuercurves) {
     return METHOD_BNDFUT_TRA.presentValueCurveSensitivity(futures, issuercurves.getIssuerProvider());
+  }
+
+  //     -----     Other     -----
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitBondTotalReturnSwap(final BondTotalReturnSwap trs, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_TRS.presentValueCurveSensitivity(trs, issuercurves.getIssuerProvider());
   }
 
 }

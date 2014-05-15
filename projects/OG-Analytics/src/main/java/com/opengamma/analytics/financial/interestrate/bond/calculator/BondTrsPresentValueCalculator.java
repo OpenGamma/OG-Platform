@@ -17,7 +17,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of a bond total return swap. The value is returned in the currency 
  * of the asset.
+ * @deprecated Use the standard issuer calculator {@link PresentValueIssuerCalculator}.
  */
+@Deprecated
 public final class BondTrsPresentValueCalculator extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, MultipleCurrencyAmount> {
   /** A singleton instance */
   private static final BondTrsPresentValueCalculator INSTANCE = new BondTrsPresentValueCalculator();

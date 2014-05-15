@@ -25,8 +25,8 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
   private final double _notionalAmount;
   /** The notional currency */
   private final Currency _notionalCurrency;
-  /** The dividend percentage */
-  private final double _dividendPercentage;
+  /** The dividend paid by the asset leg payer as a ratio of the original dividend. ratio >= 0 and <= 1. */
+  private final double _dividendRatio;
 
   /**
    * @param effectiveTime The time to the effective date.
@@ -35,18 +35,18 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
    * @param equity The equity, not null
    * @param notionalAmount The notional amount
    * @param notionalCurrency The notional currency, not null
-   * @param dividendPercentage The dividend percentage received, >= 0 and <= 1
+   * @param dividendRatio The dividend paid by the asset leg payer as a ratio of the original dividend. ratio >= 0 and <= 1.
    */
   public EquityTotalReturnSwap(final double effectiveTime, final double terminatioTime,
       final Annuity<? extends Payment> fundingLeg, final Equity equity,
-      final double notionalAmount, final Currency notionalCurrency, final double dividendPercentage) {
+      final double notionalAmount, final Currency notionalCurrency, final double dividendRatio) {
     super(effectiveTime, terminatioTime, fundingLeg);
     ArgumentChecker.notNull(equity, "equity");
     ArgumentChecker.notNull(notionalCurrency, "notionalCurrency");
-    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, dividendPercentage), "Dividend percentage must be >= 0 and <= 1 "
-        + "have {}", dividendPercentage);
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, dividendRatio), "Dividend ratio must be >= 0 and <= 1 "
+        + "have {}", dividendRatio);
     _equity = equity;
-    _dividendPercentage = dividendPercentage;
+    _dividendRatio = dividendRatio;
     _notionalAmount = notionalAmount;
     _notionalCurrency = notionalCurrency;
   }
@@ -65,7 +65,7 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
    * @return The dividend percentage
    */
   public double getDividendPercentage() {
-    return _dividendPercentage;
+    return _dividendRatio;
   }
 
   /**
@@ -101,7 +101,7 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
     final int prime = 31;
     int result = super.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_dividendPercentage);
+    temp = Double.doubleToLongBits(_dividendRatio);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_notionalAmount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -131,7 +131,7 @@ public class EquityTotalReturnSwap extends TotalReturnSwap {
     if (!ObjectUtils.equals(_notionalCurrency, other._notionalCurrency)) {
       return false;
     }
-    if (Double.compare(_dividendPercentage, other._dividendPercentage) != 0) {
+    if (Double.compare(_dividendRatio, other._dividendRatio) != 0) {
       return false;
     }
     return true;

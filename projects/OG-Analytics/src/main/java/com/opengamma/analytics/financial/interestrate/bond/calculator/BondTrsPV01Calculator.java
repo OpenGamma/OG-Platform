@@ -18,7 +18,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Calculates the PV01s for a bond total return swap. 
+ * @deprecated Use the standard PV01CurveParametersCalculator.
  */
+@Deprecated
 public final class BondTrsPV01Calculator extends InstrumentDerivativeVisitorAdapter<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> {
   /** A singleton instance */
   private static final BondTrsPV01Calculator INSTANCE = new BondTrsPV01Calculator();
@@ -44,8 +46,10 @@ public final class BondTrsPV01Calculator extends InstrumentDerivativeVisitorAdap
   public ReferenceAmount<Pair<String, Currency>> visitBondTotalReturnSwap(final BondTotalReturnSwap bondTrs, final ParameterIssuerProviderInterface data) {
     ArgumentChecker.notNull(bondTrs, "bondTrs");
     ArgumentChecker.notNull(data, "data");
-    final ReferenceAmount<Pair<String, Currency>> fundingLegPV01 = bondTrs.getFundingLeg().accept(CALCULATOR, data);
-    final ReferenceAmount<Pair<String, Currency>> bondPV01 = bondTrs.getAsset().accept(CALCULATOR, data);
-    return fundingLegPV01.plus(bondPV01);
+    //    final ReferenceAmount<Pair<String, Currency>> fundingLegPV01 = bondTrs.getFundingLeg().accept(CALCULATOR, data);
+    //    final ReferenceAmount<Pair<String, Currency>> bondPV01 = bondTrs.getAsset().accept(CALCULATOR, data);
+    //    return fundingLegPV01.plus(bondPV01);
+    return bondTrs.accept(CALCULATOR, data);
   }
+
 }
