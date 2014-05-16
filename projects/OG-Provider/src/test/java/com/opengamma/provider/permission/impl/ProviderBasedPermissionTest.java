@@ -29,7 +29,7 @@ import com.opengamma.util.test.TestUtils;
 @Test(groups = TestGroup.UNIT)
 public class ProviderBasedPermissionTest {
 
-  private static final Permission SHIRO_PERM = new ShiroPermissionResolver().resolvePermission("Data:12345");
+  private static final Permission WILDCARD_PERM = new ShiroPermissionResolver().resolvePermission("Data:12345");
   private static final ExternalIdBundle USER_BUNDLE = ExternalIdBundle.of("DATAUSER", "TEST");
   private static final UserPrincipals PRINCIPALS;
   static {
@@ -67,11 +67,11 @@ public class ProviderBasedPermissionTest {
   }
 
   @Test
-  public void impliesFalseAgainstShiroPermission() {
+  public void impliesFalseAgainstWildcardPermission() {
     PermissionCheckProvider provider = mock(PermissionCheckProvider.class);
     ProviderBasedPermission test = new ProviderBasedPermission(provider, "Data:12345");
-    assertFalse(test.implies(SHIRO_PERM));
-    assertFalse(SHIRO_PERM.implies(test));
+    assertFalse(test.implies(WILDCARD_PERM));
+    assertFalse(WILDCARD_PERM.implies(test));
   }
 
 }

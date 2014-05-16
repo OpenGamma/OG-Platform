@@ -15,42 +15,42 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
-public class ShiroPermissionTest {
+public class ShiroWildcardPermissionTest {
 
   @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_null() {
-    ShiroPermission.of(null);
+    ShiroWildcardPermission.of(null);
   }
 
   @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_empty() {
-    ShiroPermission.of("");
+    ShiroWildcardPermission.of("");
   }
 
   @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_blank() {
-    ShiroPermission.of("   ");
+    ShiroWildcardPermission.of("   ");
   }
 
   @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_onlyColons() {
-    ShiroPermission.of("::");
+    ShiroWildcardPermission.of("::");
   }
 
   @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_onlyCommas() {
-    ShiroPermission.of("a:,:b");
+    ShiroWildcardPermission.of("a:,:b");
   }
 
   @Test(expectedExceptions = InvalidPermissionStringException.class)
   public void test_of_invalidWildcard() {
-    ShiroPermission.of("a:beta*");
+    ShiroWildcardPermission.of("a:beta*");
   }
 
   @Test
   public void test_of_caseInsensitive() {
-    Permission p1 = ShiroPermission.of("something");
-    Permission p2 = ShiroPermission.of("SOMETHING");
+    Permission p1 = ShiroWildcardPermission.of("something");
+    Permission p2 = ShiroWildcardPermission.of("SOMETHING");
     assertEquals(p1, p2);
   }
 
@@ -87,7 +87,7 @@ public class ShiroPermissionTest {
 
   @Test(dataProvider = "simplifications")
   public void test_simplifications(String perm, String simplification) {
-    Permission sp = ShiroPermission.of(perm);
+    Permission sp = ShiroWildcardPermission.of(perm);
     assertEquals(simplification, sp.toString());
   }
 
@@ -165,8 +165,8 @@ public class ShiroPermissionTest {
 
   @Test(dataProvider = "permissions")
   public void test_permissions(String perm1, String perm2, boolean impliesForward, boolean impliesBackward) {
-    Permission sp1 = ShiroPermission.of(perm1);
-    Permission sp2 = ShiroPermission.of(perm2);
+    Permission sp1 = ShiroWildcardPermission.of(perm1);
+    Permission sp2 = ShiroWildcardPermission.of(perm2);
     assertEquals("Foward", impliesForward, sp1.implies(sp2));
     assertEquals("Backward", impliesBackward, sp2.implies(sp1));
   }

@@ -141,7 +141,7 @@ public final class ShiroPermissionResolver implements PermissionResolver {
         return entry.getValue().resolvePermission(permissionStr);
       }
     }
-    return ShiroPermission.of(permissionStr);
+    return ShiroWildcardPermission.of(permissionStr);
   }
 
 }
