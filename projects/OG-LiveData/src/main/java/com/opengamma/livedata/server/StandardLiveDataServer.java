@@ -31,6 +31,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
@@ -42,6 +43,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.livedata.permission.PermissionUtils;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;
 import com.opengamma.livedata.server.distribution.EmptyMarketDataSenderFactory;
@@ -524,7 +526,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
 
     verifyConnectionOk();
 
-    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<>();
+    Map<ExternalIdBundle, LiveDataSubscriptionResponse> responses = new HashMap<>();
     Map<String, Subscription> securityUniqueId2NewSubscription = new HashMap<>();
     Map<String, LiveDataSpecification> securityUniqueId2SpecFromClient = new HashMap<>();
 
@@ -537,7 +539,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         final DistributionSpecification distributionSpec = distrSpecs.get(specFromClient);
         if (distributionSpec == null) {
           s_logger.info("Unable to work out distribution spec for specification " + specFromClient);
-          responses.add(buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.NOT_PRESENT, "Unable to work out distribution spec"));
+          responses.put(specFromClient.getIdentifiers(), buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.NOT_PRESENT, "Unable to work out distribution spec"));
           continue;
         }
         final LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
@@ -549,7 +551,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
           String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
           if (securityUniqueId == null) {
             String errorMsg = "Qualified spec " + fullyQualifiedSpec + " does not contain ID of domain " + getUniqueIdDomain();
-            responses.add(buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
+            responses.put(specFromClient.getIdentifiers(), buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
             continue;
           }
           subscription = new Subscription(securityUniqueId, getMarketDataSenderFactory(), getLkvStoreProvider());
@@ -564,7 +566,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
           
           s_logger.info("Created subscription for {}: {}", fullyQualifiedSpec, subscription);
         }
-        responses.add(buildSubscriptionResponse(specFromClient, distributionSpec));
+        responses.put(specFromClient.getIdentifiers(), buildSubscriptionResponse(specFromClient, distributionSpec));
       }
 
       //Allow checks here, before we do the snapshot or the subscribe
@@ -584,7 +586,15 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
       for (Map.Entry<String, FudgeMsg> snapshot : snapshots.entrySet()) {
         Subscription subscription = securityUniqueId2NewSubscription.get(snapshot.getKey());
         if (snapshot.getValue() != null) {
-          subscription.initialSnapshotReceived(snapshot.getValue());
+          if (snapshot.getValue().hasField(PermissionUtils.LIVE_DATA_PERMISSION_DENIED_FIELD)) {
+            LiveDataSpecification originalSpec = securityUniqueId2SpecFromClient.get(snapshot.getKey());
+            LiveDataSubscriptionResponse errorRsp = buildErrorMessageResponse(
+              originalSpec, LiveDataSubscriptionResult.NOT_AUTHORIZED,
+              snapshot.getValue().getString(PermissionUtils.LIVE_DATA_PERMISSION_DENIED_FIELD));
+            responses.put(originalSpec.getIdentifiers(), errorRsp);
+          } else {
+            subscription.initialSnapshotReceived(snapshot.getValue());
+          }
         }
       }
 
@@ -632,7 +642,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     //notify that subscription data structure is completely built
     subscriptionDone(securityUniqueId2NewSubscription.keySet());
 
-    return responses;
+    return responses.values();
   }
 
   private void notifySubscriptionListeners(Subscription subscription) {
