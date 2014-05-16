@@ -9,8 +9,28 @@ Upgrading from 2.1.0
 To 2.2.0-M23
 ------------
 
+* Bug
+    * [PLAT-6484] - Green screens for TRS fail due to bad field lookups
+    * [PLAT-6489] - NonVersionedRedisHistoricalTimeSeriesSource null pointer error
+    * [PLAT-6498] - Fix SQL server HTS database
 * New Feature
-    * [PLAT-6491] - Specify volatility surface shocks using the index of the expiry - class VolatilitySurfaceIndexShifts
+    * [PLAT-6491] - Specify volatility surface shocks using the index of the expiry
+* Improvement
+    * [PLAT-6462] - Allow multiple war file locations to be merged dynamically
+    * [PLAT-6477] - ComponentRepository lookup for Foo:bar keys
+    * [PLAT-6480] - Result object should be able to be constructed with an Exception and a specific status
+    * [PLAT-6483] - Extend generics in ArgumentChecker
+    * [PLAT-6485] - Enhance Result model
+    * [PLAT-6487] - Remove line breaks and duplicates from FailureResult's message
+    * [PLAT-6495] - Better identification of web client IP address
+    * [PLAT-6499] - Enhance return of failures from PermissionCheckProvider
+    * [PLAT-6505] - Return permission denied for Bloomberg subscriptions
+    * [PLAT-6506] - Add additional result statuses
+    * [PLAT-6508] - Allow home page links to be dynamically extended
+* Task
+    * [PLAT-6490] - Add method to clone redis simulation source & change date
+    * [PLAT-6494] - Add equals and hashCode for Redis timeseries and simulation source
+
 
 To 2.2.0-M22
 ------------
