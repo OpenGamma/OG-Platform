@@ -7,11 +7,14 @@ package com.opengamma.util.result;
 
 /**
  * Represents the status of a function call which has completed successfully.
+ * <p>
+ * A successful result always contains a non-null value.
  */
 public enum SuccessStatus implements ResultStatus {
+  // there will probably never be a need to add another status type
 
   /**
-   * The function call completed successfully.
+   * The result contains a successfully calculated value.
    */
   SUCCESS;
 
